@@ -1,0 +1,142 @@
+{
+  "generatedAt": "2026-07-14T20:32:15.804Z",
+  "target": {
+    "name": "HelpTip",
+    "props": [
+      "label",
+      "children"
+    ]
+  },
+  "mode": "name+props",
+  "weights": {
+    "name": 0.4,
+    "props": 0.6
+  },
+  "thresholds": {
+    "createBlocked": 0.85,
+    "extendRecommended": 0.6
+  },
+  "contractsCompared": 15,
+  "bestMatch": {
+    "name": "Checkbox",
+    "version": "1.0.0",
+    "level": "atom",
+    "status": "beta",
+    "contractPath": "contracts/Checkbox.contract.json",
+    "nameSimilarity": 0.25,
+    "propsJaccard": 0.2,
+    "score": 0.22,
+    "sharedProps": [
+      "label"
+    ],
+    "candidateProps": [
+      "id",
+      "label",
+      "checked",
+      "disabled"
+    ]
+  },
+  "verdict": "CREATE_OK",
+  "candidates": [
+    {
+      "name": "Checkbox",
+      "version": "1.0.0",
+      "level": "atom",
+      "status": "beta",
+      "contractPath": "contracts/Checkbox.contract.json",
+      "nameSimilarity": 0.25,
+      "propsJaccard": 0.2,
+      "score": 0.22,
+      "sharedProps": [
+        "label"
+      ],
+      "candidateProps": [
+        "id",
+        "label",
+        "checked",
+        "disabled"
+      ]
+    },
+    {
+      "name": "Alert",
+      "version": "1.0.0",
+      "level": "atom",
+      "status": "beta",
+      "contractPath": "contracts/Alert.contract.json",
+      "nameSimilarity": 0.1428571428571429,
+      "propsJaccard": 0.25,
+      "score": 0.20714285714285716,
+      "sharedProps": [
+        "children"
+      ],
+      "candidateProps": [
+        "tone",
+        "children",
+        "id"
+      ]
+    },
+    {
+      "name": "Card",
+      "version": "1.0.0",
+      "level": "atom",
+      "status": "beta",
+      "contractPath": "contracts/Card.contract.json",
+      "nameSimilarity": 0,
+      "propsJaccard": 0.25,
+      "score": 0.15,
+      "sharedProps": [
+        "children"
+      ],
+      "candidateProps": [
+        "children",
+        "padding",
+        "busy"
+      ]
+    },
+    {
+      "name": "TextField",
+      "version": "1.0.0",
+      "level": "atom",
+      "status": "beta",
+      "contractPath": "contracts/TextField.contract.json",
+      "nameSimilarity": 0.2222222222222222,
+      "propsJaccard": 0.1,
+      "score": 0.1488888888888889,
+      "sharedProps": [
+        "label"
+      ],
+      "candidateProps": [
+        "id",
+        "label",
+        "value",
+        "type",
+        "error",
+        "disabled",
+        "required",
+        "placeholder",
+        "trailing"
+      ]
+    },
+    {
+      "name": "Button",
+      "version": "1.0.0",
+      "level": "atom",
+      "status": "beta",
+      "contractPath": "contracts/Button.contract.json",
+      "nameSimilarity": 0.1428571428571429,
+      "propsJaccard": 0.14285714285714285,
+      "score": 0.14285714285714285,
+      "sharedProps": [
+        "children"
+      ],
+      "candidateProps": [
+        "variant",
+        "size",
+        "loading",
+        "disabled",
+        "iconLeft",
+        "children"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "generatedAt": "2026-07-14T20:32:13.079Z",
+  "target": {
+    "name": "Modal",
+    "props": [
+      "open",
+      "title",
+      "onClose",
+      "children",
+      "labelledBy"
+    ]
+  },
+  "mode": "name+props",
+  "weights": {
+    "name": 0.4,
+    "props": 0.6
+  },
+  "thresholds": {
+    "createBlocked": 0.85,
+    "extendRecommended": 0.6
+  },
+  "contractsCompared": 15,
+  "bestMatch": {
+    "name": "TodoCard",
+    "version": "1.0.0",
+    "level": "organism",
+    "status": "beta",
+    "contractPath": "contracts/TodoCard.contract.json",
+    "nameSimilarity": 0.375,
+    "propsJaccard": 0.125,
+    "score": 0.22500000000000003,
+    "sharedProps": [
+      "title"
+    ],
+    "candidateProps": [
+      "title",
+      "items",
+      "loading",
+      "showTotal"
+    ]
+  },
+  "verdict": "CREATE_OK",
+  "candidates": [
+    {
+      "name": "TodoCard",
+      "version": "1.0.0",
+      "level": "organism",
+      "status": "beta",
+      "contractPath": "contracts/TodoCard.contract.json",
+      "nameSimilarity": 0.375,
+      "propsJaccard": 0.125,
+      "score": 0.22500000000000003,
+      "sharedProps": [
+        "title"
+      ],
+      "candidateProps": [
+        "title",
+        "items",
+        "loading",
+        "showTotal"
+      ]
+    },
+    {
+      "name": "StatsCard",
+      "version": "1.0.0",
+      "level": "organism",
+      "status": "beta",
+      "contractPath": "contracts/StatsCard.contract.json",
+      "nameSimilarity": 0.11111111111111116,
+      "propsJaccard": 0.25,
+      "score": 0.19444444444444448,
+      "sharedProps": [
+        "title",
+        "children"
+      ],
+      "candidateProps": [
+        "title",
+        "action",
+        "children",
+        "loading",
+        "error"
+      ]
+    },
+    {
+      "name": "ListCard",
+      "version": "1.0.0",
+      "level": "organism",
+      "status": "beta",
+      "contractPath": "contracts/ListCard.contract.json",
+      "nameSimilarity": 0.125,
+      "propsJaccard": 0.1,
+      "score": 0.11,
+      "sharedProps": [
+        "title"
+      ],
+      "candidateProps": [
+        "title",
+        "count",
+        "rows",
+        "loading",
+        "empty",
+        "icon"
+      ]
+    },
+    {
+      "name": "PasswordField",
+      "version": "1.0.0",
+      "level": "molecule",
+      "status": "beta",
+      "contractPath": "contracts/PasswordField.contract.json",
+      "nameSimilarity": 0.23076923076923073,
+      "propsJaccard": 0,
+      "score": 0.0923076923076923,
+      "sharedProps": [],
+      "candidateProps": [
+        "id",
+        "label",
+        "value",
+        "error",
+        "disabled",
+        "required",
+        "revealed"
+      ]
+    },
+    {
+      "name": "DataTable",
+      "version": "1.0.1",
+      "level": "molecule",
+      "status": "beta",
+      "contractPath": "contracts/DataTable.contract.json",
+      "nameSimilarity": 0.2222222222222222,
+      "propsJaccard": 0,
+      "score": 0.08888888888888889,
+      "sharedProps": [],
+      "candidateProps": [
+        "columns",
+        "rows",
+        "rowKey",
+        "summaryRows",
+        "caption",
+        "dimZero",
+        "empty"
+      ]
+    }
+  ]
+}

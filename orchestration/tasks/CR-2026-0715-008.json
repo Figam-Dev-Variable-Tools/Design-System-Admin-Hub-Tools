@@ -1,0 +1,17 @@
+{
+  "id": "CR-2026-0715-008",
+  "type": "change_request",
+  "from": "A41",
+  "to": "A81",
+  "target": "apps/admin/eslint.config.js — jsx-a11y/no-noninteractive-element-interactions",
+  "reason": "CR-2026-0715-006(페이지 사본 18개 → @tds/ui 교체) 를 마치며 남은 lint 경고 2건을 재판단한 결과다. A80 이 앞서 '규칙이 틀렸다' 고 판단했고, A41 이 독립적으로 재현·검증해 **같은 결론**에 도달했다.\n\n[경고 위치 — 둘 다 정당한 WAI-ARIA 패턴이다]\n  1. apps/admin/src/shared/ui/Modal.tsx:189 — <div role=\"dialog\" aria-modal=\"true\" tabIndex={-1} onKeyDown={onKeyDown}>. onKeyDown 은 **포커스 트랩(Tab)과 Escape 닫기**를 담당한다 — WAI-ARIA APG 모달 다이얼로그 패턴의 핵심이다. 다이얼로그 컨테이너가 키보드를 처리하지 않으면 포커스가 모달 밖으로 새고 Esc 로 닫을 수 없다.\n  2. apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx:669 — <form onKeyDown={handleFormKeyDown}>. 폼은 스스로 포커스를 받지 않지만, **자식 입력에서 버블링된 Enter 키다운을 잡아** 단일행 입력의 암묵적 제출을 억제한다(textarea 줄바꿈·버튼 활성화는 통과시킨다). 이벤트 위임 패턴이라 키보드로 도달 가능하다.\n\n[규칙이 왜 틀렸나 — 실측으로 확인함] jsx-a11y/no-noninteractive-element-interactions 의 recommended 설정은 다이얼로그에 대해 키다운을 **명시적으로 허용**한다: `dialog: ['onKeyUp','onKeyDown','onKeyPress']`. 즉 플러그인 저자도 '다이얼로그의 키다운은 정당하다' 고 인정한다. 그런데 그 예외가 **role 이 아니라 element 이름**('dialog')으로 키잉돼 있어, 네이티브 <dialog> 요소만 통과하고 <div role=\"dialog\"> 는 걸린다.\n\n  [3-요소 프로브로 실측 (임시 파일, 삭제함)]\n    <div role=\"dialog\" onKeyDown> → 경고 발생   (앱의 실제 패턴)\n    <dialog onKeyDown>            → 경고 없음   (예외가 element 이름 'dialog' 로 키잉됨을 증명)\n    <form onKeyDown>             → 경고 발생   (위임 패턴을 모델링하지 못함)\n\n  이 앱은 네이티브 <dialog>+showModal() 을 의도적으로 쓰지 않는다(::backdrop·top-layer·구형 지원 이슈). div+role 이 정당한 대안인데, 규칙의 예외가 role 을 해소하지 않아 **거짓 양성**이 된다. 폼도 같은 종류의 사각지대다 — 규칙은 '비대화형 요소는 포커스를 못 받아 핸들러가 도달 불가' 를 전제하지만, 폼의 키다운은 포커스 가능한 자식에서 **버블링**돼 도달한다.\n\n[A41 이 왜 코드로 안 풀었나 — 세 경로가 다 막혔다]\n  · eslint-disable 금지 (오너 지시 · CR-006 하지마라 항목).\n  · 코드 수정은 **오너가 확정한 동작을 바꾼다**: Modal 을 네이티브 <dialog> 로 바꾸면 모달 시맨틱(top-layer·::backdrop·기본 Esc)이 달라지고, 폼의 onKeyDown 을 제거하면 Enter 처리 동작이 바뀐다. CR-006 은 리팩터지 재설계가 아니다 — 보이는 동작 보존이 절대 조건이고 e2e 63/63 이 그 증명이다.\n  · 진짜 수정 지점인 eslint.config.* 는 **A81 소유**다 (orchestration/registry/agents.json). boundary:check --agent A41 이 차단한다.\n\n[정직성] 이 두 경고는 CR-006 이 만든 것이 아니라 **그 전부터 있던 것**이다 (MP-001 §8 기준선). CR-006 은 이 둘을 늘리지도 줄이지도 않았다(교체 전후 2건 → 2건). 이 CR 은 '내가 못 고치니 남에게 넘긴다' 가 아니라, **소유권 경계상 A81 만 고칠 수 있고 그것이 올바른 수정 지점**이라는 판정이다.",
+  "proposed": {
+    "apps/admin/eslint.config.js": "jsx-a11y/no-noninteractive-element-interactions 를 role 인식하도록 설정한다. 두 가지 방향 중 A81 판단:\n  (a) 예외 맵에 role 기반 허용을 추가한다 — dialog 예외가 role=\"dialog\" 도 커버하도록. jsx-a11y 는 element→role 매핑을 위해 `polymorphicPropName`/컴포넌트 매핑 옵션을 제공하지만, 이 규칙의 per-element 허용은 role 을 해소하지 않는다. 규칙 옵션으로 풀리지 않으면 (b).\n  (b) 이 규칙에 한해 두 정당한 패턴(role=\"dialog\" 포커스트랩 · form 위임 keydown)을 위한 파일/셀렉터 오버라이드를 둔다. 단, 전역 완화가 아니라 **role=\"dialog\" 와 <form> 의 keydown/keyup 에 한정**해야 한다 — 진짜 위반(장식용 div 에 onClick 등)은 계속 잡혀야 한다.",
+    "_note_do_not": "규칙을 통째로 'off' 로 내리지 말 것. 이 규칙은 장식 요소에 붙은 상호작용 핸들러라는 진짜 접근성 결함을 잡는다. 완화 범위는 role=\"dialog\"/form 의 키보드 핸들러로 한정한다.",
+    "_verification": "고친 뒤: pnpm --filter @tds/admin run lint 가 이 2건에 대해 0 경고. 그리고 아무 role 없는 <div onClick> 프로브를 넣으면 여전히 잡히는지 확인(과잉 완화 방지)."
+  },
+  "impact": "PATCH",
+  "blocking": false,
+  "sla_hours": 4,
+  "status": "OPEN"
+}

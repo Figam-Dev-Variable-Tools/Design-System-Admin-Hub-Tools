@@ -1,0 +1,13 @@
+{
+  "generatedAt": "2026-07-14T23:03:00.373Z",
+  "mode": "full",
+  "stats": {
+    "mode": "full",
+    "uiFiles": 89,
+    "contractFiles": 15,
+    "iconFiles": 0,
+    "tokensScanned": true
+  },
+  "violationCount": 0,
+  "violations": []
+}

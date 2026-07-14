@@ -1,0 +1,195 @@
+{
+  "component": "Alert",
+  "contractPath": "contracts/Alert.contract.json",
+  "contractVersion": "1.1.0",
+  "generatedAt": "2026-07-14T23:02:55.814Z",
+  "status": "PASS",
+  "mismatchCount": 0,
+  "axes": [
+    {
+      "axis": "react",
+      "title": "Contract ↔ React",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "react.types-exist",
+          "title": "generated 타입 파일 존재",
+          "status": "PASS",
+          "detail": "packages/ui/generated/types/Alert.types.ts"
+        },
+        {
+          "id": "react.types-generation",
+          "title": "생성 타입 세대(계약 버전) 일치",
+          "status": "PASS",
+          "detail": "계약/생성물 모두 1.1.0"
+        },
+        {
+          "id": "react.impl-imports-generated",
+          "title": "구현이 generated 타입을 import",
+          "status": "PASS",
+          "detail": "packages/ui/src/atoms/Alert/Alert.tsx"
+        }
+      ]
+    },
+    {
+      "axis": "storybook",
+      "title": "Contract ↔ Storybook",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "storybook.argtypes-exist",
+          "title": "generated argTypes 존재",
+          "status": "PASS",
+          "detail": "packages/ui/generated/argtypes/Alert.argtypes.ts"
+        },
+        {
+          "id": "storybook.stories-import-argtypes",
+          "title": "Story 파일이 generated argTypes 를 import",
+          "status": "PASS",
+          "detail": "packages/ui/src/atoms/Alert/Alert.stories.tsx"
+        },
+        {
+          "id": "storybook.coverage",
+          "title": "Story 조합 커버리지 (combinationMatrix 휴리스틱)",
+          "status": "PASS",
+          "detail": "필요 조합 4건 (enum 값 곱 × boolean×2) vs export Story 12건"
+        }
+      ]
+    },
+    {
+      "axis": "figma",
+      "title": "Contract ↔ Figma",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "figma.prop.tone",
+          "title": "props.tone ↔ Figma \"Tone\"",
+          "status": "PASS"
+        },
+        {
+          "id": "figma.prop.children",
+          "title": "props.children ↔ Figma \"Children\"",
+          "status": "PASS"
+        },
+        {
+          "id": "figma.prop.id",
+          "title": "props.id ↔ Figma \"Id\"",
+          "status": "PASS"
+        },
+        {
+          "id": "figma.extra-properties",
+          "title": "계약 밖 Figma property 없음",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "axis": "token",
+      "title": "Contract ↔ Token",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "token.path.surfaceDanger",
+          "title": "tokens.surfaceDanger → \"color.feedback.danger.surface\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.borderDanger",
+          "title": "tokens.borderDanger → \"color.feedback.danger.border\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.textDanger",
+          "title": "tokens.textDanger → \"color.feedback.danger.text\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.surfaceInfo",
+          "title": "tokens.surfaceInfo → \"color.feedback.info.surface\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.borderInfo",
+          "title": "tokens.borderInfo → \"color.feedback.info.border\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.textInfo",
+          "title": "tokens.textInfo → \"color.feedback.info.text\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.surfaceSuccess",
+          "title": "tokens.surfaceSuccess → \"color.feedback.success.surface\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.borderSuccess",
+          "title": "tokens.borderSuccess → \"color.feedback.success.border\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.textSuccess",
+          "title": "tokens.textSuccess → \"color.feedback.success.text\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.surfaceWarning",
+          "title": "tokens.surfaceWarning → \"color.feedback.warning.surface\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.borderWarning",
+          "title": "tokens.borderWarning → \"color.feedback.warning.border\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.textWarning",
+          "title": "tokens.textWarning → \"color.feedback.warning.text\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.radius",
+          "title": "tokens.radius → \"radius.md\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.paddingX",
+          "title": "tokens.paddingX → \"space.3\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.paddingY",
+          "title": "tokens.paddingY → \"space.3\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.gap",
+          "title": "tokens.gap → \"space.2\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.focusRing",
+          "title": "tokens.focusRing → \"color.border.focus\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.focusRingOffset",
+          "title": "tokens.focusRingOffset → \"space.1\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.typography",
+          "title": "tokens.typography → \"typography.label.md\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.hardcoded",
+          "title": "하드코딩 hex/px 0건",
+          "status": "PASS",
+          "detail": "4개 파일 스캔 — 위반 없음"
+        }
+      ]
+    }
+  ]
+}

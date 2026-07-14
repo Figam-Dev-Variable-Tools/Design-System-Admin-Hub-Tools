@@ -1,0 +1,15 @@
+{
+  "tool": "@tds/a11y",
+  "agent": "A72",
+  "date": "2026-07-14",
+  "generatedAt": "2026-07-14T19:02:03.962Z",
+  "status": "skipped",
+  "reason": "test-storybook 실행 환경이 구성되지 않았습니다 (의존성 미설치 또는 test-runner 미연결)",
+  "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0
+  },
+  "stories": []
+}

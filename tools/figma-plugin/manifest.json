@@ -1,0 +1,13 @@
+{
+  "name": "TDS Sync",
+  "id": "tds-sync.local.dev",
+  "api": "1.0.0",
+  "main": "dist/main.js",
+  "ui": "dist/ui.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["none"],
+    "reasoning": "모든 데이터는 UI의 파일 업로드/붙여넣기로만 유입 — 네트워크 접근 불필요"
+  }
+}

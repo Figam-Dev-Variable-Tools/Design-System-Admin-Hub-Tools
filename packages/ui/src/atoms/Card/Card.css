@@ -1,0 +1,22 @@
+/* Card (atom) — surface/border/radius + padding(md=space.5 · lg=space.6). 하드코딩 hex/px 0건. */
+
+.tds-card {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  background: var(--tds-color-surface-default);
+  border-style: solid;
+  border-width: var(--tds-border-width-thin);
+  border-color: var(--tds-color-border-default);
+  border-radius: var(--tds-radius-md);
+}
+
+.tds-card--md {
+  padding-block: var(--tds-space-5);
+  padding-inline: var(--tds-space-5);
+}
+
+.tds-card--lg {
+  padding-block: var(--tds-space-6);
+  padding-inline: var(--tds-space-6);
+}

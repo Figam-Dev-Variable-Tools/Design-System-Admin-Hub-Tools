@@ -1,0 +1,94 @@
+{
+  "$schema": "https://tds.internal/schemas/component.v1.json",
+  "name": "SegmentedControl",
+  "version": "1.0.0",
+  "level": "molecule",
+  "status": "beta",
+  "description": "세그먼티드 컨트롤 — 트랙(회색 배경) 위에 선택된 세그먼트만 알약으로 떠 있는 단일 선택 컨트롤. 라디오 그룹 시맨틱을 소유한다. 도메인 중립: 옵션은 options prop 으로 주입하며 '일/주/월' 같은 도메인 의미는 조립하는 organism/page 가 정한다 (ADR-0003). 출처 구현: apps/admin/src/pages/dashboard/components/RangeToggle.tsx",
+  "owner": { "code": "A30", "design": "A14", "figma": "A51" },
+
+  "props": {
+    "value": {
+      "type": "string",
+      "required": true,
+      "description": "선택된 세그먼트의 id. options[].id 중 하나여야 한다"
+    },
+    "options": {
+      "type": "array",
+      "itemShape": "{ id: string; label: string }",
+      "required": true,
+      "description": "세그먼트 목록. 데이터 prop — Figma Component Property 대응 없음 (ADR-0003)"
+    },
+    "size": {
+      "type": "enum",
+      "values": ["sm", "md"],
+      "default": "md",
+      "figmaProperty": "Size",
+      "description": "세그먼트 높이·좌우 패딩 스케일"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": false,
+      "figmaProperty": "Disabled",
+      "description": "그룹 전체 비활성. onChange 차단 + aria-disabled"
+    },
+    "ariaLabel": {
+      "type": "string",
+      "required": true,
+      "description": "radiogroup 의 접근 가능한 이름 (예: '조회 기간'). 시각 레이블이 없으므로 필수"
+    }
+  },
+
+  "events": {
+    "onChange": {
+      "payload": "string",
+      "blockedWhen": ["disabled"],
+      "description": "선택된 세그먼트의 id 를 전달. disabled 에서는 발화 금지 — Storybook Play Function이 전수 검증"
+    }
+  },
+
+  "states": ["default", "hover", "focus-visible", "disabled", "selected"],
+
+  "tokens": {
+    "trackBackground": "color.surface.raised",
+    "trackRadius": "radius.full",
+    "trackPadding": "space.1",
+    "trackGap": "space.1",
+    "segmentBackgroundSelected": "color.surface.default",
+    "segmentBorderSelected": "color.border.default",
+    "segmentRadius": "radius.full",
+    "segmentPaddingX": "space.3",
+    "segmentPaddingY": "space.1",
+    "segmentText": "color.text.muted",
+    "segmentTextSelected": "color.text.default",
+    "segmentTextDisabled": "color.text.disabled",
+    "typography": "typography.label.md",
+    "focusRing": "color.border.focus",
+    "transitionDuration": "motion.duration.fast",
+    "transitionEasing": "motion.easing.standard"
+  },
+
+  "a11y": {
+    "role": "radiogroup",
+    "keyboard": ["Tab", "ArrowLeft", "ArrowRight", "Space", "Enter"],
+    "focusVisible": true,
+    "ariaDisabled": "when disabled",
+    "aria": {
+      "aria-label": "ariaLabel prop — radiogroup 의 이름",
+      "aria-checked": "각 세그먼트(role=radio) — value 와 일치하면 true"
+    },
+    "contrastMin": 4.5
+  },
+
+  "responsive": {
+    "breakpoints": ["sm", "md", "lg"],
+    "behavior": "size-fixed"
+  },
+
+  "compat": {
+    "breakingSince": null,
+    "deprecatedProps": []
+  },
+
+  "dependencies": []
+}

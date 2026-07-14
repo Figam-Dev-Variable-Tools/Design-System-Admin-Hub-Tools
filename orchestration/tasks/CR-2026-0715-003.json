@@ -1,0 +1,17 @@
+{
+  "id": "CR-2026-0715-003",
+  "type": "change_request",
+  "from": "A18",
+  "to": "A30",
+  "target": "packages/ui/src/molecules/PasswordField/PasswordField.test.tsx (+ .stories.tsx)",
+  "reason": "A30 이 보고한 'PasswordField.onBlur 는 계약에 blockedWhen 이 없는데 구현은 차단한다' 건의 후속이다. 실측 확인: PasswordField.handleBlur 자체에는 가드가 없지만(PasswordField.tsx:88-90) 자식 TextField 에 disabled 를 그대로 내려보내고(:114) TextField.handleBlur 가 `if (disabled) return` 으로 차단한다(TextField.tsx:37-41). 즉 disabled 에서 onBlur 는 실제로 발화하지 않는다 — A30 의 관찰이 정확하다. blockedWhen 은 하한이라 계약 위반은 아니지만 **계약이 현실보다 약하고, 그 동작이 아무 테스트로도 고정돼 있지 않다**. 지금은 누가 TextField 의 가드를 지우거나 PasswordField 가 disabled 전달을 멈춰도 아무도 모른다 (TextField 자신의 blockedWhen 테스트는 통과하므로 그것도 못 잡는다).\n\n[왜 A18 이 계약만 먼저 바꾸지 않았는가 — 실측] contracts/PasswordField.contract.json 의 events.onBlur 에 `blockedWhen: [\"disabled\"]` 를 넣고 커버리지를 돌려 보았다:\n  축 3 contract-blocked-when  9/10 커버 · 미커버 1건 — BLOCKER\n  BLOCKER 축3 PasswordField · `onBlur` blockedWhen `disabled` → 기대: \"PasswordField: onBlur — disabled 상태에서 발화하지 않는다\"\n  FAIL — blocker 1건 → G5 · G6 BLOCKED (exit 1)\n계약에 blockedWhen 을 추가하면 축3 의 검증 칸이 1칸 늘어나는데(9→10), 그 칸을 덮을 테스트가 packages/ui 에 없다. 축3 은 severity=blocker 다. 즉 **계약만 먼저 넣으면 방금 해제한 축2 blocker 를 축3 blocker 로 갈아끼우는 것**에 불과하다. 그래서 A18 은 계약을 되돌려 놓았고(현재 PasswordField.contract.json 은 무변경), 이 CR 로 **테스트와 계약을 한 번에** 넣기를 요청한다. 참고: 축3 의 스코프는 컴포넌트별이라 기존 TextField 의 onBlur/disabled 테스트는 PasswordField 칸을 덮지 못한다.\n\n[기대 결과] A30 이 아래 테스트를 넣으면 A18 이 즉시 계약에 blockedWhen 을 추가하고(PasswordField 1.0.0 → 1.1.0, MINOR) codegen 을 재생성한다. 그 시점에 축3 은 10/10 PASS 가 된다. 순서를 뒤집으면 게이트가 빨간불이 되므로, A30 의 테스트가 선행이거나 최소한 동시 머지여야 한다.",
+  "proposed": {
+    "packages/ui/src/molecules/PasswordField/PasswordField.test.tsx": "테스트 1건 추가 — 이름은 축3 매칭 규칙상 이벤트 토큰(onBlur|blur)과 차단조건(disabled)을 이름에 함께 담아야 한다. 예: 'PasswordField: disabled 상태에서 onBlur 가 발화하지 않는다'. **비발생 단언 필수** — 스파이 vi.fn() 을 onBlur 에 주입하고, disabled 입력에 focus 후 blur/focusout 을 직접 디스패치한 뒤 expect(onBlur).not.toHaveBeenCalled() 로 단언한다. 렌더 단언(toBeDisabled 등)은 콜백 비발생을 증명하지 못하므로 축3 이 커버로 세지 않는다. 기존 TextField.test.tsx:77 의 동형 테스트를 그대로 따르면 된다. 공허하지 않음을 보이는 짝 테스트('활성 상태에서는 onBlur 가 발화한다')도 TextField 선례대로 함께 넣기를 권한다.",
+    "packages/ui/src/molecules/PasswordField/PasswordField.stories.tsx": "선택 — 기존 BlockedWhenDisabledOnChange / BlockedWhenDisabledOnToggleReveal 선례를 따라 play function 판본도 추가하면 Storybook 쪽 전수 검증과 일관된다.",
+    "contracts/PasswordField.contract.json": "A18 이 처리한다 — events.onBlur.blockedWhen = [\"disabled\"] 추가 + version 1.0.0 → 1.1.0 (MINOR: 계약이 기술하는 보장이 늘어나되 props/시그니처는 불변)."
+  },
+  "impact": "MINOR",
+  "blocking": false,
+  "sla_hours": 2,
+  "status": "OPEN"
+}

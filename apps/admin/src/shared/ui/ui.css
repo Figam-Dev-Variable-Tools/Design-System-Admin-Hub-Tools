@@ -1,0 +1,134 @@
+/* 공통 UI 클래스 (A40 소유 — apps/admin/src/shared/ui/**)
+ *
+ * 인라인 style 로 표현 불가한 상태(:hover, :focus-visible, ::placeholder, @keyframes)만 여기에 둔다.
+ * shared/ui/index.ts 가 이 파일을 import 하므로, 배럴을 쓰는 페이지는 자동으로 함께 로드된다.
+ *
+ * [클래스 이름 규칙] 공통 클래스는 전부 `tds-ui-*` 다.
+ *   페이지 전용 상태(members 의 ⋯ 메뉴·동의 체크박스 등)는 그 페이지의 CSS 가 `tds-mem-*` 로 갖는다.
+ *
+ * [G6] 모든 값은 토큰 CSS 변수(var(--tds-*))만 — 하드코딩 색상 hex / px 리터럴 0건.
+ */
+
+/* ── 포커스 링 ───────────────────────────────────────────────────────────── */
+
+.tds-ui-focusable:focus-visible {
+  outline: var(--tds-border-width-medium) solid var(--tds-color-border-focus);
+  outline-offset: var(--tds-space-1);
+}
+
+/* ── ghost 버튼 hover ─────────────────────────────────────────────────────
+ *
+ * primary/secondary/danger 버튼은 @tds/ui Button 이 소유한다 (그 hover 는 .tds-button--* 가 준다).
+ * shared/ui/Button 사본이 사라지면서 그 세 variant 의 hover 규칙(.tds-ui-btn-primary/secondary/danger)은
+ * 죽었다 — 지웠다. 남은 것은 아이콘 전용 ghost 버튼뿐이다: 표의 메모 연필·⋯ 액션·모달 닫기·토스트 닫기가
+ * `buttonStyle('ghost')` + 이 클래스를 쓴다 (DS Button 이 아니라 인라인 스타일 + <a>/<button>).
+ */
+.tds-ui-btn-ghost:hover:not(:disabled) {
+  background: var(--tds-color-surface-raised);
+  color: var(--tds-color-text-default);
+}
+
+/* ── 좌측 패널의 선택 목록 항목 (등급 필터·그룹 필터·역할 목록) ─────────── */
+
+/* 선택되지 않은 항목만 hover 반응 — 선택된 항목은 이미 강조되어 있다 */
+.tds-ui-listitem[aria-pressed='false']:hover {
+  background: var(--tds-color-surface-raised);
+}
+
+/* ── 표 ──────────────────────────────────────────────────────────────────── */
+
+.tds-ui-row:hover {
+  background: var(--tds-color-surface-raised);
+}
+
+/* 표 안의 이름 링크 */
+.tds-ui-link {
+  color: var(--tds-color-text-default);
+  text-decoration: none;
+}
+
+.tds-ui-link:hover {
+  color: var(--tds-color-action-primary-default);
+  text-decoration: underline;
+}
+
+/* ── 폼 컨트롤 ───────────────────────────────────────────────────────────── */
+
+.tds-ui-input::placeholder {
+  color: var(--tds-color-text-muted);
+}
+
+/* 체크박스 — 3상태(TriStateCheckbox)와 단일 체크박스가 함께 쓴다 */
+.tds-ui-check {
+  flex-shrink: 0;
+  accent-color: var(--tds-color-action-primary-default);
+  cursor: pointer;
+}
+
+/* 잠긴 체크박스(시스템 역할 등) — '꺼짐'처럼 보이지 않게 흐리기만 한다 */
+.tds-ui-check:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ── 페이지네이션 ────────────────────────────────────────────────────────── */
+
+/* 현재 페이지는 이미 파란 배경이라 hover 반응에서 제외한다 */
+.tds-ui-page:hover:not(:disabled):not([aria-current='page']) {
+  background: var(--tds-color-surface-raised);
+}
+
+/* ── 로딩 스켈레톤 ───────────────────────────────────────────────────────── */
+
+.tds-ui-skeleton {
+  display: block;
+  width: 100%;
+  height: var(--tds-space-4);
+  border-radius: var(--tds-radius-sm);
+  background: var(--tds-color-surface-skeleton);
+  animation-name: tds-ui-pulse;
+  animation-duration: calc(var(--tds-motion-duration-slow) * 3);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes tds-ui-pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ── 토스트 ──────────────────────────────────────────────────────────────── */
+
+/* 하단 중앙에서 위로 떠오른다. 모션은 장식이므로 reduced-motion 에서는 끈다. */
+.tds-ui-toast {
+  animation-name: tds-ui-toast-in;
+  animation-duration: var(--tds-motion-duration-normal);
+  animation-timing-function: var(--tds-motion-easing-decelerate);
+}
+
+@keyframes tds-ui-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--tds-space-3));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tds-ui-skeleton {
+    animation-name: none;
+  }
+  .tds-ui-toast {
+    animation-name: none;
+  }
+}

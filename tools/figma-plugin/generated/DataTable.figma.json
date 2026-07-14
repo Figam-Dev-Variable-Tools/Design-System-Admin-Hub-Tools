@@ -1,0 +1,54 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/DataTable.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "DataTable",
+  "component": "DataTable",
+  "version": "1.1.0",
+  "variantProperties": {
+    "DimZero": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "true"
+    }
+  },
+  "properties": [
+    {
+      "name": "RowKey",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Caption",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "DimZero",
+      "type": "BOOLEAN",
+      "default": true
+    },
+    {
+      "name": "Empty",
+      "type": "TEXT",
+      "default": "표시할 항목이 없습니다."
+    }
+  ],
+  "tokens": {
+    "headText": "color.text.muted",
+    "headBorder": "color.border.default",
+    "headPaddingTop": "space.2",
+    "headPaddingBottom": "space.3",
+    "cellText": "color.text.default",
+    "cellTextDimmed": "color.text.disabled",
+    "cellBorder": "color.border.default",
+    "cellPaddingX": "space.2",
+    "cellPaddingY": "space.3",
+    "summaryBackground": "color.surface.raised",
+    "summaryText": "color.text.default",
+    "emptyText": "color.text.muted",
+    "emptyMarginTop": "space.5",
+    "typography": "typography.label.md",
+    "focusRing": "color.border.focus"
+  }
+}

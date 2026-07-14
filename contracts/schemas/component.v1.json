@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tds.internal/schemas/component.v1.json",
+  "title": "TDS Component Contract v1",
+  "description": "컴포넌트 4자 계약(Contract ↔ React ↔ Storybook ↔ Figma)의 단일 원천. 이 파일에서 React 타입, Storybook argTypes, Figma Properties, Docs가 자동 생성된다 (tools/codegen). G3 승인 시 Frozen.",
+  "type": "object",
+  "required": ["name", "version", "level", "status", "owner", "props", "states", "tokens", "a11y"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Za-z0-9]*$",
+      "description": "PascalCase 컴포넌트명"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(-[0-9A-Za-z.-]+)?$",
+      "description": "SemVer. prop 제거/타입 변경/default 변경 → MAJOR, prop 추가 → MINOR"
+    },
+    "level": { "enum": ["atom", "molecule", "organism", "template", "page"] },
+    "status": { "enum": ["draft", "beta", "stable", "deprecated"] },
+    "description": { "type": "string" },
+    "owner": {
+      "type": "object",
+      "required": ["code", "design", "figma"],
+      "additionalProperties": false,
+      "properties": {
+        "code": { "$ref": "#/$defs/agentId" },
+        "design": { "$ref": "#/$defs/agentId" },
+        "figma": { "$ref": "#/$defs/agentId" }
+      }
+    },
+    "props": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z][A-Za-z0-9]*$" },
+      "additionalProperties": { "$ref": "#/$defs/prop" }
+    },
+    "events": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^on[A-Z][A-Za-z0-9]*$",
+        "description": "이벤트는 on* 네이밍 강제 (G3 체크리스트)"
+      },
+      "additionalProperties": { "$ref": "#/$defs/event" }
+    },
+    "states": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "default",
+          "hover",
+          "active",
+          "focus-visible",
+          "disabled",
+          "loading",
+          "error",
+          "readonly",
+          "selected",
+          "checked",
+          "indeterminate",
+          "open",
+          "closed"
+        ]
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "시각 속성 → 토큰 참조 매핑. 하드코딩 값 금지 — 값은 반드시 tokens.json 내 존재하는 경로",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*(\\.[a-z0-9-]+)+$"
+      }
+    },
+    "a11y": {
+      "type": "object",
+      "required": ["role", "keyboard", "focusVisible"],
+      "properties": {
+        "role": { "type": "string" },
+        "keyboard": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "focusVisible": { "type": "boolean" },
+        "ariaDisabled": { "type": "string" },
+        "ariaBusy": { "type": "string" },
+        "aria": { "type": "object", "additionalProperties": { "type": "string" } },
+        "contrastMin": { "type": "number", "minimum": 3 }
+      },
+      "additionalProperties": false
+    },
+    "responsive": {
+      "type": "object",
+      "required": ["breakpoints", "behavior"],
+      "additionalProperties": false,
+      "properties": {
+        "breakpoints": {
+          "type": "array",
+          "items": { "enum": ["sm", "md", "lg", "xl"] },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "behavior": { "enum": ["size-fixed", "fluid", "stack", "hide", "collapse"] }
+      }
+    },
+    "compat": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "breakingSince": { "type": ["string", "null"] },
+        "deprecatedProps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "replacedBy", "removeIn"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string" },
+              "replacedBy": { "type": "string" },
+              "removeIn": {
+                "type": "string",
+                "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "이 컴포넌트가 조립에 사용하는 하위 컴포넌트명 목록. atom은 빈 배열이어야 함 (레이어 역방향 의존 검출용)",
+      "items": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$" },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "agentId": { "type": "string", "pattern": "^A\\d{2}$" },
+    "prop": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "enum",
+            "boolean",
+            "string",
+            "number",
+            "slot",
+            "node",
+            "function",
+            "array",
+            "object"
+          ],
+          "description": "array/object 는 데이터 기반 컴포넌트(테이블 rows, 차트 points 등)의 데이터 prop 이다. Figma Component Property 대응이 없으므로 figmaProperty 를 요구하지 않으며, itemShape 로 TS 타입을 기술한다 (ADR-0003)."
+        },
+        "values": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+          "minItems": 2,
+          "uniqueItems": true
+        },
+        "default": {},
+        "required": { "type": "boolean", "default": false },
+        "figmaProperty": {
+          "type": "string",
+          "description": "Figma Component Property 매핑명. enum/boolean prop은 필수 (G3 체크리스트)"
+        },
+        "accepts": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "itemShape": {
+          "type": "string",
+          "description": "array/object prop 의 TS 타입 표현 (예: \"{ id: string; label: string }\"). codegen 이 생성 타입에 그대로 박는다."
+        },
+        "hiddenWhen": { "type": "array", "items": { "type": "string" } },
+        "description": { "type": "string" },
+        "deprecated": { "type": "boolean" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "enum" } }, "required": ["type"] },
+          "then": { "required": ["values", "figmaProperty"] }
+        },
+        {
+          "if": { "properties": { "type": { "const": "boolean" } }, "required": ["type"] },
+          "then": { "required": ["figmaProperty"] }
+        },
+        {
+          "if": { "properties": { "type": { "const": "slot" } }, "required": ["type"] },
+          "then": { "required": ["accepts"] }
+        },
+        {
+          "if": { "properties": { "type": { "enum": ["array", "object"] } }, "required": ["type"] },
+          "then": { "required": ["itemShape"] }
+        },
+        {
+          "anyOf": [
+            { "required": ["default"] },
+            { "properties": { "required": { "const": true } }, "required": ["required"] }
+          ],
+          "$comment": "G3 규칙: 모든 prop은 default가 있거나 required:true여야 한다"
+        }
+      ]
+    },
+    "event": {
+      "type": "object",
+      "required": ["payload"],
+      "additionalProperties": false,
+      "properties": {
+        "payload": {
+          "type": "string",
+          "description": "TS 타입명 (예: MouseEvent, ChangeEvent<HTMLInputElement>)"
+        },
+        "blockedWhen": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "이벤트 발화가 차단되는 상태 목록. Storybook Play Function이 전수 검증"
+        },
+        "description": { "type": "string" }
+      }
+    }
+  }
+}

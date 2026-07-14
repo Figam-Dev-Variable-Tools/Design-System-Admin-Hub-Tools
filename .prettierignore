@@ -1,0 +1,60 @@
+# Prettier ignore — 소유: A81 (Lint & Format Engineer)
+# 원칙: **사람이 손으로 쓰지 않는 파일**과 **포맷이 곧 계약인 파일**은 포매터가 건드리지 않는다.
+
+# ── 생성물 (codegen·빌드 산출물) — 원천은 contracts/*.json · tokens/tokens.json 이다
+generated/**
+**/generated/**
+dist/**
+**/dist/**
+storybook-static/**
+**/storybook-static/**
+coverage/**
+**/coverage/**
+node_modules/**
+**/node_modules/**
+
+# ── 검증 도구의 리포트 — 기계 생성 전용, 수기 편집 금지 (각 reports/*/README·헤더에 명시)
+# 위 원칙("사람이 손으로 쓰지 않는 파일은 포매터가 건드리지 않는다")에 정확히 해당한다.
+# 근거: 도구는 `JSON.stringify(report, null, 2)` 로 쓰는데 Prettier 는 짧은 배열을 한 줄로 접는다
+#   (["G5","G6"] vs 3줄). 그래서 `pnpm format:check` 가 **도구가 방금 쓴 리포트를 반려**한다 —
+#   이미 reports/code-quality/2026-07-14.json(A83)이 그 상태였다. 포매터를 통과시키려고
+#   도구의 출력 포맷을 Prettier 에 맞추는 것은 꼬리가 개를 흔드는 일이다.
+# 추가: A77 (Test Coverage Guard). A81 부재 중 A00/A01 판정 4로 대리 반영 — A81 복귀 시 추인 요망.
+reports/**
+
+# ── 검증 도구의 골든 픽스처 — **파서의 입력 텍스트**이지 컴파일 대상이 아니다
+# 포매터가 픽스처를 재서식하면 그 도구가 무엇을 파싱하는지에 대한 테스트가 조용히 바뀐다.
+# (예: tools/test-coverage 의 픽스처는 일부러 존재하지 않는 모듈을 import 한다 — 가상 리포다.)
+**/__fixtures__/**
+
+# openapi-typescript 생성물 (pnpm openapi:types) — 손으로 고치지 않는다
+apps/admin/src/shared/api/schema.d.ts
+
+# ── lockfile — 유일한 쓰기 경로는 `pnpm install` 이다 (A80)
+pnpm-lock.yaml
+
+# ── CI 워크플로 — A82(CI/CD Engineer) 소유다. A81 은 남의 소유 경로를 포맷하지 않는다.
+# A82 가 워크플로에 포매터를 물릴 준비가 되면 이 두 줄을 지우고 opt-in 한다 (handoff 발행됨).
+.github/**
+
+# ── Markdown 은 포매터 대상에서 제외한다
+# 근거: 이 리포의 .md 는 '코드에 붙은 주석'이 아니라 **산출물 그 자체**다
+#   (specs/FS·BE 명세, docs/adr, contracts 문서, CHANGELOG — 소유자는 A01/A62/A63 등).
+#   Prettier 의 표 재정렬·줄바꿈 규칙이 명세의 표를 통째로 다시 쓰면
+#   ① 소유자가 아닌 A81 이 남의 산출물을 바꾸게 되고
+#   ② 게이트 리뷰가 봐야 할 diff 가 서식 노이즈에 묻힌다.
+# 필요해지면 소유자 합의 후 별도 ADR 로 도입한다.
+*.md
+*.mdx
+
+# ── Playwright 실행 산출물 — 러너가 쓰는 압축 JSON(.last-run.json)이 format:check 를 반려시킨다
+e2e/test-results/**
+e2e/playwright-report/**
+
+# ── 바이너리·에셋
+assets/**
+*.svg
+*.png
+*.jpg
+*.woff
+*.woff2

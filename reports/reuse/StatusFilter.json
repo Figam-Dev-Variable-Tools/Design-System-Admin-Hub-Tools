@@ -1,0 +1,44 @@
+{
+  "generatedAt": "2026-07-14T10:49:30.934Z",
+  "target": {
+    "name": "StatusFilter",
+    "props": ["options", "value", "multiple", "onChange"]
+  },
+  "mode": "name+props",
+  "weights": {
+    "name": 0.4,
+    "props": 0.6
+  },
+  "thresholds": {
+    "createBlocked": 0.85,
+    "extendRecommended": 0.6
+  },
+  "contractsCompared": 1,
+  "bestMatch": {
+    "name": "Button",
+    "version": "1.0.0",
+    "level": "atom",
+    "status": "beta",
+    "contractPath": "contracts/Button.contract.json",
+    "nameSimilarity": 0.16666666666666663,
+    "propsJaccard": 0,
+    "score": 0.06666666666666665,
+    "sharedProps": [],
+    "candidateProps": ["variant", "size", "loading", "disabled", "iconLeft", "children"]
+  },
+  "verdict": "CREATE_OK",
+  "candidates": [
+    {
+      "name": "Button",
+      "version": "1.0.0",
+      "level": "atom",
+      "status": "beta",
+      "contractPath": "contracts/Button.contract.json",
+      "nameSimilarity": 0.16666666666666663,
+      "propsJaccard": 0,
+      "score": 0.06666666666666665,
+      "sharedProps": [],
+      "candidateProps": ["variant", "size", "loading", "disabled", "iconLeft", "children"]
+    }
+  ]
+}

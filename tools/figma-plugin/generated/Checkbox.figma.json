@@ -1,0 +1,60 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/Checkbox.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "Checkbox",
+  "component": "Checkbox",
+  "version": "1.1.0",
+  "variantProperties": {
+    "Checked": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    },
+    "Disabled": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  },
+  "properties": [
+    {
+      "name": "Id",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Label",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Name",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Checked",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Disabled",
+      "type": "BOOLEAN",
+      "default": false
+    }
+  ],
+  "tokens": {
+    "labelText": "color.text.default",
+    "labelTextDisabled": "color.text.disabled",
+    "labelTypography": "typography.label.md",
+    "control": "color.action.primary.default",
+    "border": "color.border.default",
+    "focusRing": "color.border.focus",
+    "focusRingOffset": "space.1",
+    "radius": "radius.sm",
+    "gap": "space.2"
+  }
+}

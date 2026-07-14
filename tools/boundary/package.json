@@ -1,0 +1,21 @@
+{
+  "name": "@tds/boundary",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A02 Boundary Enforcer AI — 소유권 강제 도구 (CODEOWNERS 생성 · 경계 검사 · 레지스트리 검증)",
+  "scripts": {
+    "codeowners": "tsx src/generate-codeowners.ts",
+    "check": "tsx src/check-boundary.ts",
+    "validate-registry": "tsx src/validate-registry.ts"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

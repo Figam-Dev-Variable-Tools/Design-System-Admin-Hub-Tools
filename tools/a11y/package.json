@@ -1,0 +1,21 @@
+{
+  "name": "@tds/a11y",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "접근성 감사 (A72) — Storybook test-runner + axe-playwright로 critical/serious 위반을 수집하고, 1건 이상이면 G5/G6 차단 입력(exit 1)을 생성한다",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "audit": "tsx src/index.ts"
+  },
+  "devDependencies": {
+    "@storybook/test-runner": "^0.19.1",
+    "@types/node": "^20.17.0",
+    "axe-playwright": "^2.0.3",
+    "playwright": "^1.48.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

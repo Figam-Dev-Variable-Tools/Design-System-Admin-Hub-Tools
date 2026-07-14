@@ -1,0 +1,1640 @@
+{
+  "generatedAt": "2026-07-14T14:02:47.814Z",
+  "scanDate": "2026-07-14",
+  "scanRoots": ["apps/admin/src"],
+  "scannedFiles": 30,
+  "elementsSeen": 364,
+  "minOccurrences": 2,
+  "similarStructureThreshold": 0.6,
+  "thresholds": {
+    "reuse": 0.85,
+    "extend": 0.6
+  },
+  "contractsCompared": 1,
+  "candidates": [
+    {
+      "name": "PathItem",
+      "signature": "path[d]",
+      "rootTag": "path",
+      "rootAttrs": ["d"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 57,
+      "fileCount": 2,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/login/icons.tsx",
+          "line": 29
+        },
+        {
+          "file": "apps/admin/src/pages/login/icons.tsx",
+          "line": 39
+        },
+        {
+          "file": "apps/admin/src/pages/login/icons.tsx",
+          "line": 40
+        },
+        {
+          "file": "apps/admin/src/pages/login/icons.tsx",
+          "line": 41
+        },
+        {
+          "file": "apps/admin/src/pages/login/icons.tsx",
+          "line": 50
+        },
+        {
+          "file": "apps/admin/src/pages/login/icons.tsx",
+          "line": 51
+        },
+        {
+          "file": "apps/admin/src/pages/login/icons.tsx",
+          "line": 52
+        },
+        {
+          "file": "apps/admin/src/pages/login/icons.tsx",
+          "line": 62
+        },
+        {
+          "file": "apps/admin/src/pages/login/icons.tsx",
+          "line": 63
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 41
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 42
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 43
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 52
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 54
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 55
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 64
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 73
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 74
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 75
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 84
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 85
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 86
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 87
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 88
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 98
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 107
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 108
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 109
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 110
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 119
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 120
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 121
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 122
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 123
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 124
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 135
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 144
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 145
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 146
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 156
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 157
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 166
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 167
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 168
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 169
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 179
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 180
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 181
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 190
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 191
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 192
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 193
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 194
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 203
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 204
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 213
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 222
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.25,
+        "propsJaccard": 0,
+        "score": 0.25
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "PItem",
+      "signature": "p[style]",
+      "rootTag": "p",
+      "rootAttrs": ["style"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 17,
+      "fileCount": 9,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/ListCard.tsx",
+          "line": 94
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/DashboardPage.tsx",
+          "line": 94
+        },
+        {
+          "file": "apps/admin/src/pages/login/LoginPage.tsx",
+          "line": 315
+        },
+        {
+          "file": "apps/admin/src/pages/login/LoginPage.tsx",
+          "line": 317
+        },
+        {
+          "file": "apps/admin/src/pages/login/LoginPage.tsx",
+          "line": 318
+        },
+        {
+          "file": "apps/admin/src/pages/login/LoginPage.tsx",
+          "line": 331
+        },
+        {
+          "file": "apps/admin/src/pages/login/LoginPage.tsx",
+          "line": 353
+        },
+        {
+          "file": "apps/admin/src/pages/permissions/PermissionsPage.tsx",
+          "line": 89
+        },
+        {
+          "file": "apps/admin/src/pages/placeholder/PlaceholderPage.tsx",
+          "line": 38
+        },
+        {
+          "file": "apps/admin/src/pages/placeholder/PlaceholderPage.tsx",
+          "line": 39
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 348
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 636
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 131
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 235
+        },
+        {
+          "file": "apps/admin/src/shared/layout/AppHeader.tsx",
+          "line": 93
+        },
+        {
+          "file": "apps/admin/src/shared/layout/AppHeader.tsx",
+          "line": 103
+        },
+        {
+          "file": "apps/admin/src/shared/layout/LogoPlaceholder.tsx",
+          "line": 61
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.16666666666666663,
+        "propsJaccard": 0,
+        "score": 0.16666666666666663
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "TdsDashSkeleton",
+      "signature": "span[aria-hidden,style]",
+      "rootTag": "span",
+      "rootAttrs": ["aria-hidden", "style"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 11,
+      "fileCount": 6,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/ListCard.tsx",
+          "line": 90
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/ListCard.tsx",
+          "line": 91
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/StatsSection.tsx",
+          "line": 106
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/StatsSection.tsx",
+          "line": 124
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/TodoCard.tsx",
+          "line": 64
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/VisitorChart.tsx",
+          "line": 147
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/VisitorChart.tsx",
+          "line": 151
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ImageUploadField.tsx",
+          "line": 47
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 171
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 181
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 189
+        }
+      ],
+      "mergedSignatures": ["span[aria-hidden,className,style]"],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.19999999999999996,
+        "propsJaccard": 0,
+        "score": 0.19999999999999996
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "RectItem",
+      "signature": "rect[height,rx,width,x,y]",
+      "rootTag": "rect",
+      "rootAttrs": ["height", "rx", "width", "x", "y"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 8,
+      "fileCount": 2,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 29
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 30
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 31
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 32
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 133
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 155
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 178
+        },
+        {
+          "file": "apps/admin/src/shared/layout/LogoPlaceholder.tsx",
+          "line": 42
+        }
+      ],
+      "mergedSignatures": ["rect[fill,height,rx,stroke,strokeWidth,width,x,y]"],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.25,
+        "propsJaccard": 0,
+        "score": 0.25
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "SpanItem",
+      "signature": "span[style]",
+      "rootTag": "span",
+      "rootAttrs": ["style"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 8,
+      "fileCount": 4,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/Card.tsx",
+          "line": 62
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/ListCard.tsx",
+          "line": 106
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/ListCard.tsx",
+          "line": 107
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/TodoCard.tsx",
+          "line": 71
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 108
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 175
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 185
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 222
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.125,
+        "propsJaccard": 0,
+        "score": 0.125
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "CircleItem",
+      "signature": "circle[cx,cy,r]",
+      "rootTag": "circle",
+      "rootAttrs": ["cx", "cy", "r"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 7,
+      "fileCount": 4,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/VisitorChart.tsx",
+          "line": 200
+        },
+        {
+          "file": "apps/admin/src/pages/login/icons.tsx",
+          "line": 30
+        },
+        {
+          "file": "apps/admin/src/pages/login/icons.tsx",
+          "line": 61
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 53
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 97
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 134
+        },
+        {
+          "file": "apps/admin/src/shared/layout/LogoPlaceholder.tsx",
+          "line": 59
+        }
+      ],
+      "mergedSignatures": ["circle[cx,cy,fill,r]"],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.09999999999999998,
+        "propsJaccard": 0,
+        "score": 0.09999999999999998
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "DivItem",
+      "signature": "div[style]",
+      "rootTag": "div",
+      "rootAttrs": ["style"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 7,
+      "fileCount": 5,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/StatsSection.tsx",
+          "line": 88
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/DashboardPage.tsx",
+          "line": 117
+        },
+        {
+          "file": "apps/admin/src/pages/login/components/TextField.tsx",
+          "line": 147
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ImageUploadField.tsx",
+          "line": 184
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ImageUploadField.tsx",
+          "line": 197
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 111
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 166
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.1428571428571429,
+        "propsJaccard": 0,
+        "score": 0.1428571428571429
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "Button",
+      "signature": "Button[ariaLabel,disabled,onClick,variant]",
+      "rootTag": "Button",
+      "rootAttrs": ["ariaLabel", "disabled", "onClick", "variant"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 6,
+      "fileCount": 2,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/product-registration/ImageUploadField.tsx",
+          "line": 199
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ImageUploadField.tsx",
+          "line": 210
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ImageUploadField.tsx",
+          "line": 222
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 580
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 618
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 626
+        }
+      ],
+      "mergedSignatures": [
+        "Button[disabled,loading,onClick,variant]",
+        "Button[ariaLabel,onClick,variant]",
+        "Button[disabled,onClick,variant]"
+      ],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 1,
+        "propsJaccard": 0.25,
+        "score": 1
+      },
+      "recommendation": "REUSE"
+    },
+    {
+      "name": "SvgPathGroup",
+      "signature": "svg[](path[d]+path[d]+path[d])",
+      "rootTag": "svg",
+      "rootAttrs": [],
+      "suggestedLevel": "molecule",
+      "nodeCount": 4,
+      "depth": 2,
+      "occurrenceCount": 5,
+      "fileCount": 2,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/login/icons.tsx",
+          "line": 38
+        },
+        {
+          "file": "apps/admin/src/pages/login/icons.tsx",
+          "line": 49
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 40
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 72
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 143
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.16666666666666663,
+        "propsJaccard": null,
+        "score": 0.16666666666666663
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "PItem2",
+      "signature": "p[role,style]",
+      "rootTag": "p",
+      "rootAttrs": ["role", "style"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 5,
+      "fileCount": 4,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/StatsSection.tsx",
+          "line": 102
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/StatsSection.tsx",
+          "line": 120
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/DashboardPage.tsx",
+          "line": 102
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ImageUploadField.tsx",
+          "line": 157
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 201
+        }
+      ],
+      "mergedSignatures": ["p[id,role,style]"],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.16666666666666663,
+        "propsJaccard": 0,
+        "score": 0.16666666666666663
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "TdsDashFocusable",
+      "signature": "button[aria-busy,className,disabled,onClick,style,type]",
+      "rootTag": "button",
+      "rootAttrs": ["aria-busy", "className", "disabled", "onClick", "style", "type"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 4,
+      "fileCount": 4,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/RangeToggle.tsx",
+          "line": 57
+        },
+        {
+          "file": "apps/admin/src/pages/login/components/Button.tsx",
+          "line": 58
+        },
+        {
+          "file": "apps/admin/src/pages/permissions/PermissionsPage.tsx",
+          "line": 121
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 65
+        }
+      ],
+      "mergedSignatures": [
+        "button[aria-busy,className,disabled,style,type]",
+        "button[aria-checked,className,disabled,onClick,role,style,type]",
+        "button[className,onClick,style,type]"
+      ],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.0625,
+        "propsJaccard": 0.09090909090909091,
+        "score": 0.07954545454545454
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "TdsPrFocusable",
+      "signature": "input[aria-describedby,aria-invalid,aria-required,autoComplete,className,disabled,id,inputMode,onBlur,onChange,onFocus,style,type,value]",
+      "rootTag": "input",
+      "rootAttrs": [
+        "aria-describedby",
+        "aria-invalid",
+        "aria-required",
+        "autoComplete",
+        "className",
+        "disabled",
+        "id",
+        "inputMode",
+        "onBlur",
+        "onChange",
+        "onFocus",
+        "style",
+        "type",
+        "value"
+      ],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 4,
+      "fileCount": 2,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/login/components/TextField.tsx",
+          "line": 121
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 384
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 451
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 492
+        }
+      ],
+      "mergedSignatures": [
+        "input[aria-describedby,aria-invalid,aria-required,className,disabled,id,maxLength,onBlur,onChange,placeholder,style,type,value]",
+        "input[aria-describedby,aria-invalid,autoComplete,className,disabled,id,inputMode,name,onBlur,onChange,placeholder,required,style,type,value]"
+      ],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.0714285714285714,
+        "propsJaccard": 0.05263157894736842,
+        "score": 0.0714285714285714
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "FieldGroup",
+      "signature": "Field[error,hint,id,label,required](input[aria-describedby,aria-invalid,aria-required,autoComplete,className,disabled,id,inputMode,onBlur,onChange,onFocus,style,type,value])",
+      "rootTag": "Field",
+      "rootAttrs": ["error", "hint", "id", "label", "required"],
+      "suggestedLevel": "molecule",
+      "nodeCount": 2,
+      "depth": 2,
+      "occurrenceCount": 3,
+      "fileCount": 1,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 377
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 444
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 485
+        }
+      ],
+      "mergedSignatures": [
+        "Field[counter,error,id,label,required](input[aria-describedby,aria-invalid,aria-required,className,disabled,id,maxLength,onBlur,onChange,placeholder,style,type,value])"
+      ],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.09999999999999998,
+        "propsJaccard": 0,
+        "score": 0.09999999999999998
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "SvgPathGroup2",
+      "signature": "svg[](path[d])",
+      "rootTag": "svg",
+      "rootAttrs": [],
+      "suggestedLevel": "molecule",
+      "nodeCount": 2,
+      "depth": 2,
+      "occurrenceCount": 3,
+      "fileCount": 1,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 63
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 212
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 221
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.15384615384615385,
+        "propsJaccard": null,
+        "score": 0.15384615384615385
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "TrThGroup",
+      "signature": "tr[](th[scope,style])",
+      "rootTag": "tr",
+      "rootAttrs": [],
+      "suggestedLevel": "molecule",
+      "nodeCount": 2,
+      "depth": 2,
+      "occurrenceCount": 3,
+      "fileCount": 1,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/PeriodTable.tsx",
+          "line": 92
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/PeriodTable.tsx",
+          "line": 106
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/PeriodTable.tsx",
+          "line": 124
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.2222222222222222,
+        "propsJaccard": null,
+        "score": 0.2222222222222222
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "H1Item",
+      "signature": "h1[id,style]",
+      "rootTag": "h1",
+      "rootAttrs": ["id", "style"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 3,
+      "fileCount": 2,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/login/LoginPage.tsx",
+          "line": 328
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 102
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 345
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.16666666666666663,
+        "propsJaccard": 0,
+        "score": 0.16666666666666663
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "LabelItem",
+      "signature": "label[htmlFor,style]",
+      "rootTag": "label",
+      "rootAttrs": ["htmlFor", "style"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 3,
+      "fileCount": 3,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/login/components/Checkbox.tsx",
+          "line": 43
+        },
+        {
+          "file": "apps/admin/src/pages/login/components/TextField.tsx",
+          "line": 143
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 178
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.2222222222222222,
+        "propsJaccard": 0,
+        "score": 0.2222222222222222
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "PathItem2",
+      "signature": "path[d,fill,stroke,strokeWidth]",
+      "rootTag": "path",
+      "rootAttrs": ["d", "fill", "stroke", "strokeWidth"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 3,
+      "fileCount": 2,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/VisitorChart.tsx",
+          "line": 190
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/VisitorChart.tsx",
+          "line": 198
+        },
+        {
+          "file": "apps/admin/src/shared/layout/LogoPlaceholder.tsx",
+          "line": 53
+        }
+      ],
+      "mergedSignatures": ["path[d,stroke,strokeLinecap,strokeWidth]"],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.2222222222222222,
+        "propsJaccard": 0,
+        "score": 0.2222222222222222
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "SpanItem2",
+      "signature": "span[id,style]",
+      "rootTag": "span",
+      "rootAttrs": ["id", "style"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 3,
+      "fileCount": 3,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/product-registration/ImageUploadField.tsx",
+          "line": 134
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 577
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 168
+        }
+      ],
+      "mergedSignatures": ["span[id,role,style]"],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.11111111111111116,
+        "propsJaccard": 0,
+        "score": 0.11111111111111116
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "UlItem",
+      "signature": "ul[style]",
+      "rootTag": "ul",
+      "rootAttrs": ["style"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 3,
+      "fileCount": 3,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/ListCard.tsx",
+          "line": 96
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/TodoCard.tsx",
+          "line": 66
+        },
+        {
+          "file": "apps/admin/src/pages/permissions/PermissionsPage.tsx",
+          "line": 100
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.16666666666666663,
+        "propsJaccard": 0,
+        "score": 0.16666666666666663
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "SvgPathGroup3",
+      "signature": "svg[](path[d]+path[d]+path[d]+path[d]+path[d])",
+      "rootTag": "svg",
+      "rootAttrs": [],
+      "suggestedLevel": "molecule",
+      "nodeCount": 6,
+      "depth": 2,
+      "occurrenceCount": 2,
+      "fileCount": 1,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 83
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 189
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.15384615384615385,
+        "propsJaccard": null,
+        "score": 0.15384615384615385
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "SvgPathGroup4",
+      "signature": "svg[](path[d]+path[d]+path[d]+path[d])",
+      "rootTag": "svg",
+      "rootAttrs": [],
+      "suggestedLevel": "molecule",
+      "nodeCount": 5,
+      "depth": 2,
+      "occurrenceCount": 2,
+      "fileCount": 1,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 106
+        },
+        {
+          "file": "apps/admin/src/shared/icons.tsx",
+          "line": 165
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.15384615384615385,
+        "propsJaccard": null,
+        "score": 0.15384615384615385
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "FormSectionGroup",
+      "signature": "FormSection[title,titleId](Field[error,hint,id,label,required](input[aria-describedby,aria-invalid,aria-required,autoComplete,className,disabled,id,inputMode,onBlur,onChange,onFocus,style,type,value]))",
+      "rootTag": "FormSection",
+      "rootAttrs": ["title", "titleId"],
+      "suggestedLevel": "organism",
+      "nodeCount": 3,
+      "depth": 3,
+      "occurrenceCount": 2,
+      "fileCount": 1,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 443
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 484
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.1875,
+        "propsJaccard": 0,
+        "score": 0.1875
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "CardTitleGroup",
+      "signature": "CardTitle[](CountBadge[count])",
+      "rootTag": "CardTitle",
+      "rootAttrs": [],
+      "suggestedLevel": "molecule",
+      "nodeCount": 2,
+      "depth": 2,
+      "occurrenceCount": 2,
+      "fileCount": 2,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/ListCard.tsx",
+          "line": 82
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/TodoCard.tsx",
+          "line": 58
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.2142857142857143,
+        "propsJaccard": null,
+        "score": 0.2142857142857143
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "LiSpanGroup",
+      "signature": "li[style](span[aria-hidden,style])",
+      "rootTag": "li",
+      "rootAttrs": ["style"],
+      "suggestedLevel": "molecule",
+      "nodeCount": 2,
+      "depth": 2,
+      "occurrenceCount": 2,
+      "fileCount": 1,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/VisitorChart.tsx",
+          "line": 146
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/VisitorChart.tsx",
+          "line": 150
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.09090909090909094,
+        "propsJaccard": 0,
+        "score": 0.09090909090909094
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "Alert",
+      "signature": "Alert[actions,message,tone]",
+      "rootTag": "Alert",
+      "rootAttrs": ["actions", "message", "tone"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 2,
+      "fileCount": 1,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 355
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 372
+        }
+      ],
+      "mergedSignatures": ["Alert[message,tone]"],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0,
+        "propsJaccard": 0,
+        "score": 0
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "BarChartIcon",
+      "signature": "BarChartIcon[]",
+      "rootTag": "BarChartIcon",
+      "rootAttrs": [],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 2,
+      "fileCount": 2,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/StatsSection.tsx",
+          "line": 84
+        },
+        {
+          "file": "apps/admin/src/shared/layout/AppShell.tsx",
+          "line": 64
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.33333333333333337,
+        "propsJaccard": null,
+        "score": 0.33333333333333337
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "H1Item2",
+      "signature": "h1[style]",
+      "rootTag": "h1",
+      "rootAttrs": ["style"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 2,
+      "fileCount": 2,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/placeholder/PlaceholderPage.tsx",
+          "line": 37
+        },
+        {
+          "file": "apps/admin/src/shared/layout/AppHeader.tsx",
+          "line": 96
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.1428571428571429,
+        "propsJaccard": 0,
+        "score": 0.1428571428571429
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "OptionItem",
+      "signature": "option[value]",
+      "rootTag": "option",
+      "rootAttrs": ["value"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 2,
+      "fileCount": 1,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 562
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx",
+          "line": 566
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.30000000000000004,
+        "propsJaccard": 0,
+        "score": 0.30000000000000004
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "PItem3",
+      "signature": "p[id,style]",
+      "rootTag": "p",
+      "rootAttrs": ["id", "style"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 2,
+      "fileCount": 2,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/login/components/TextField.tsx",
+          "line": 155
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 196
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.16666666666666663,
+        "propsJaccard": 0,
+        "score": 0.16666666666666663
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "TdsLoginSpinner",
+      "signature": "span[aria-hidden,className]",
+      "rootTag": "span",
+      "rootAttrs": ["aria-hidden", "className"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 2,
+      "fileCount": 2,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/login/components/Button.tsx",
+          "line": 65
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ui.tsx",
+          "line": 35
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.1333333333333333,
+        "propsJaccard": 0,
+        "score": 0.1333333333333333
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "TextItem",
+      "signature": "text[fill,fontSize,textAnchor,x,y]",
+      "rootTag": "text",
+      "rootAttrs": ["fill", "fontSize", "textAnchor", "x", "y"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 2,
+      "fileCount": 1,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/VisitorChart.tsx",
+          "line": 175
+        },
+        {
+          "file": "apps/admin/src/pages/dashboard/components/VisitorChart.tsx",
+          "line": 214
+        }
+      ],
+      "mergedSignatures": [],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.25,
+        "propsJaccard": 0,
+        "score": 0.25
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "TextField",
+      "signature": "TextField[autoComplete,disabled,error,id,inputMode,inputRef,label,name,onBlur,onChange,required,type,value]",
+      "rootTag": "TextField",
+      "rootAttrs": [
+        "autoComplete",
+        "disabled",
+        "error",
+        "id",
+        "inputMode",
+        "inputRef",
+        "label",
+        "name",
+        "onBlur",
+        "onChange",
+        "required",
+        "type",
+        "value"
+      ],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 2,
+      "fileCount": 2,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/login/components/LoginForm.tsx",
+          "line": 81
+        },
+        {
+          "file": "apps/admin/src/pages/login/components/PasswordField.tsx",
+          "line": 103
+        }
+      ],
+      "mergedSignatures": [
+        "TextField[autoComplete,disabled,error,id,inputRef,label,name,onBlur,onChange,placeholder,required,trailing,type,value]"
+      ],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.11111111111111116,
+        "propsJaccard": 0.05555555555555555,
+        "score": 0.11111111111111116
+      },
+      "recommendation": "CREATE"
+    },
+    {
+      "name": "UlItem2",
+      "signature": "ul[aria-label,role,style]",
+      "rootTag": "ul",
+      "rootAttrs": ["aria-label", "role", "style"],
+      "suggestedLevel": "atom",
+      "nodeCount": 1,
+      "depth": 1,
+      "occurrenceCount": 2,
+      "fileCount": 2,
+      "occurrences": [
+        {
+          "file": "apps/admin/src/pages/dashboard/components/TabBar.tsx",
+          "line": 49
+        },
+        {
+          "file": "apps/admin/src/pages/product-registration/ImageUploadField.tsx",
+          "line": 163
+        }
+      ],
+      "mergedSignatures": ["ul[aria-label,style]"],
+      "bestContract": {
+        "name": "Button",
+        "version": "1.0.0",
+        "level": "atom",
+        "contractPath": "contracts/Button.contract.json",
+        "nameSimilarity": 0.1428571428571429,
+        "propsJaccard": 0,
+        "score": 0.1428571428571429
+      },
+      "recommendation": "CREATE"
+    }
+  ]
+}

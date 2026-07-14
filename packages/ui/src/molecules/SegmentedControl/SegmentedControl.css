@@ -1,0 +1,72 @@
+/* SegmentedControl (molecule) — 회색 트랙 위에 선택된 세그먼트만 알약으로 떠 있다. hex/px 0건. */
+
+.tds-segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tds-space-1);
+  padding-block: var(--tds-space-1);
+  padding-inline: var(--tds-space-1);
+  border-radius: var(--tds-radius-full);
+  background: var(--tds-color-surface-raised);
+}
+
+.tds-segmented__segment {
+  min-inline-size: calc(var(--tds-space-6) * 1.5);
+  border-style: solid;
+  border-width: var(--tds-border-width-thin);
+  border-color: transparent;
+  border-radius: var(--tds-radius-full);
+  background: transparent;
+  color: var(--tds-color-text-muted);
+  font-family: var(--tds-typography-label-md-font-family);
+  font-size: var(--tds-typography-label-md-font-size);
+  font-weight: var(--tds-typography-label-md-font-weight);
+  line-height: var(--tds-typography-label-md-line-height);
+  cursor: pointer;
+  transition:
+    background-color var(--tds-motion-duration-fast) cubic-bezier(var(--tds-motion-easing-standard)),
+    color var(--tds-motion-duration-fast) cubic-bezier(var(--tds-motion-easing-standard));
+}
+
+/* --- size (계약 enum: sm | md) --- */
+.tds-segmented--sm .tds-segmented__segment {
+  padding-block: var(--tds-space-1);
+  padding-inline: var(--tds-space-2);
+}
+
+.tds-segmented--md .tds-segmented__segment {
+  padding-block: var(--tds-space-1);
+  padding-inline: var(--tds-space-3);
+}
+
+.tds-segmented__segment:hover:not(:disabled) {
+  color: var(--tds-color-text-default);
+}
+
+.tds-segmented__segment:focus-visible {
+  outline: var(--tds-border-width-medium) solid var(--tds-color-border-focus);
+  outline-offset: var(--tds-space-1);
+}
+
+/* selected — 서피스 알약 + 진한 텍스트 */
+.tds-segmented__segment[aria-checked='true'] {
+  background: var(--tds-color-surface-default);
+  border-color: var(--tds-color-border-default);
+  color: var(--tds-color-text-default);
+}
+
+.tds-segmented__segment:disabled {
+  color: var(--tds-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.tds-segmented__segment[aria-checked='true']:disabled {
+  background: var(--tds-color-surface-disabled);
+  color: var(--tds-color-text-disabled);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tds-segmented__segment {
+    transition: none;
+  }
+}

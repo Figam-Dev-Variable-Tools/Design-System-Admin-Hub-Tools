@@ -1,0 +1,66 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/SegmentedControl.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "SegmentedControl",
+  "component": "SegmentedControl",
+  "version": "1.0.0",
+  "variantProperties": {
+    "Size": {
+      "values": [
+        "sm",
+        "md"
+      ],
+      "default": "md"
+    },
+    "Disabled": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  },
+  "properties": [
+    {
+      "name": "Value",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Size",
+      "type": "VARIANT",
+      "values": [
+        "sm",
+        "md"
+      ],
+      "default": "md"
+    },
+    {
+      "name": "Disabled",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "AriaLabel",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "trackBackground": "color.surface.raised",
+    "trackRadius": "radius.full",
+    "trackPadding": "space.1",
+    "trackGap": "space.1",
+    "segmentBackgroundSelected": "color.surface.default",
+    "segmentBorderSelected": "color.border.default",
+    "segmentRadius": "radius.full",
+    "segmentPaddingX": "space.3",
+    "segmentPaddingY": "space.1",
+    "segmentText": "color.text.muted",
+    "segmentTextSelected": "color.text.default",
+    "segmentTextDisabled": "color.text.disabled",
+    "typography": "typography.label.md",
+    "focusRing": "color.border.focus",
+    "transitionDuration": "motion.duration.fast",
+    "transitionEasing": "motion.easing.standard"
+  }
+}

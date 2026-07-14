@@ -1,0 +1,18 @@
+{
+  "name": "@tds/contract-test",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A74 Contract Test AI — Contract ↔ React ↔ Storybook ↔ Figma ↔ Token 4자 일치 검증 도구 (불일치 1건 → G5/G6/G7 동시 차단)",
+  "scripts": {
+    "test": "tsx src/index.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

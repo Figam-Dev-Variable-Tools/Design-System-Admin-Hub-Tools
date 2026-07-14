@@ -1,0 +1,58 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/StatsCard.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "StatsCard",
+  "component": "StatsCard",
+  "version": "1.0.1",
+  "variantProperties": {
+    "Loading": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  },
+  "properties": [
+    {
+      "name": "Title",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Action",
+      "type": "INSTANCE_SWAP",
+      "accepts": [
+        "SegmentedControl",
+        "Button"
+      ]
+    },
+    {
+      "name": "Children",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Loading",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Error",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "surface": "color.surface.default",
+    "border": "color.border.default",
+    "radius": "radius.md",
+    "padding": "space.5",
+    "headerGap": "space.3",
+    "bodyGap": "space.4",
+    "title": "color.text.default",
+    "titleTypography": "typography.label.md",
+    "typography": "typography.body.md",
+    "errorText": "color.feedback.danger.text",
+    "focusRing": "color.border.focus"
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "generatedAt": "2026-07-14T20:32:14.010Z",
+  "target": {
+    "name": "ConfirmDialog",
+    "props": [
+      "open",
+      "intent",
+      "title",
+      "message",
+      "confirmLabel",
+      "busy",
+      "error",
+      "onConfirm",
+      "onCancel"
+    ]
+  },
+  "mode": "name+props",
+  "weights": {
+    "name": 0.4,
+    "props": 0.6
+  },
+  "thresholds": {
+    "createBlocked": 0.85,
+    "extendRecommended": 0.6
+  },
+  "contractsCompared": 15,
+  "bestMatch": {
+    "name": "Card",
+    "version": "1.0.0",
+    "level": "atom",
+    "status": "beta",
+    "contractPath": "contracts/Card.contract.json",
+    "nameSimilarity": 0.23076923076923073,
+    "propsJaccard": 0.09090909090909091,
+    "score": 0.14685314685314685,
+    "sharedProps": [
+      "busy"
+    ],
+    "candidateProps": [
+      "children",
+      "padding",
+      "busy"
+    ]
+  },
+  "verdict": "CREATE_OK",
+  "candidates": [
+    {
+      "name": "Card",
+      "version": "1.0.0",
+      "level": "atom",
+      "status": "beta",
+      "contractPath": "contracts/Card.contract.json",
+      "nameSimilarity": 0.23076923076923073,
+      "propsJaccard": 0.09090909090909091,
+      "score": 0.14685314685314685,
+      "sharedProps": [
+        "busy"
+      ],
+      "candidateProps": [
+        "children",
+        "padding",
+        "busy"
+      ]
+    },
+    {
+      "name": "StatsCard",
+      "version": "1.0.0",
+      "level": "organism",
+      "status": "beta",
+      "contractPath": "contracts/StatsCard.contract.json",
+      "nameSimilarity": 0.07692307692307687,
+      "propsJaccard": 0.16666666666666666,
+      "score": 0.13076923076923075,
+      "sharedProps": [
+        "title",
+        "error"
+      ],
+      "candidateProps": [
+        "title",
+        "action",
+        "children",
+        "loading",
+        "error"
+      ]
+    },
+    {
+      "name": "ListRow",
+      "version": "1.0.0",
+      "level": "molecule",
+      "status": "beta",
+      "contractPath": "contracts/ListRow.contract.json",
+      "nameSimilarity": 0.15384615384615385,
+      "propsJaccard": 0.08333333333333333,
+      "score": 0.11153846153846153,
+      "sharedProps": [
+        "title"
+      ],
+      "candidateProps": [
+        "title",
+        "meta",
+        "icon",
+        "href"
+      ]
+    },
+    {
+      "name": "TodoCard",
+      "version": "1.0.0",
+      "level": "organism",
+      "status": "beta",
+      "contractPath": "contracts/TodoCard.contract.json",
+      "nameSimilarity": 0.15384615384615385,
+      "propsJaccard": 0.08333333333333333,
+      "score": 0.11153846153846153,
+      "sharedProps": [
+        "title"
+      ],
+      "candidateProps": [
+        "title",
+        "items",
+        "loading",
+        "showTotal"
+      ]
+    },
+    {
+      "name": "ListCard",
+      "version": "1.0.0",
+      "level": "organism",
+      "status": "beta",
+      "contractPath": "contracts/ListCard.contract.json",
+      "nameSimilarity": 0.15384615384615385,
+      "propsJaccard": 0.07142857142857142,
+      "score": 0.10439560439560439,
+      "sharedProps": [
+        "title"
+      ],
+      "candidateProps": [
+        "title",
+        "count",
+        "rows",
+        "loading",
+        "empty",
+        "icon"
+      ]
+    }
+  ]
+}

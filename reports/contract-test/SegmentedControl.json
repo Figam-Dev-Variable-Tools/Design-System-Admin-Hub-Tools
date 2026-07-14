@@ -1,0 +1,185 @@
+{
+  "component": "SegmentedControl",
+  "contractPath": "contracts/SegmentedControl.contract.json",
+  "contractVersion": "1.0.0",
+  "generatedAt": "2026-07-14T23:02:55.814Z",
+  "status": "PASS",
+  "mismatchCount": 0,
+  "axes": [
+    {
+      "axis": "react",
+      "title": "Contract ↔ React",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "react.types-exist",
+          "title": "generated 타입 파일 존재",
+          "status": "PASS",
+          "detail": "packages/ui/generated/types/SegmentedControl.types.ts"
+        },
+        {
+          "id": "react.types-generation",
+          "title": "생성 타입 세대(계약 버전) 일치",
+          "status": "PASS",
+          "detail": "계약/생성물 모두 1.0.0"
+        },
+        {
+          "id": "react.impl-imports-generated",
+          "title": "구현이 generated 타입을 import",
+          "status": "PASS",
+          "detail": "packages/ui/src/molecules/SegmentedControl/SegmentedControl.tsx"
+        }
+      ]
+    },
+    {
+      "axis": "storybook",
+      "title": "Contract ↔ Storybook",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "storybook.argtypes-exist",
+          "title": "generated argTypes 존재",
+          "status": "PASS",
+          "detail": "packages/ui/generated/argtypes/SegmentedControl.argtypes.ts"
+        },
+        {
+          "id": "storybook.stories-import-argtypes",
+          "title": "Story 파일이 generated argTypes 를 import",
+          "status": "PASS",
+          "detail": "packages/ui/src/molecules/SegmentedControl/SegmentedControl.stories.tsx"
+        },
+        {
+          "id": "storybook.coverage",
+          "title": "Story 조합 커버리지 (combinationMatrix 휴리스틱)",
+          "status": "PASS",
+          "detail": "필요 조합 4건 (enum 값 곱 × boolean×2) vs export Story 17건"
+        }
+      ]
+    },
+    {
+      "axis": "figma",
+      "title": "Contract ↔ Figma",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "figma.prop.value",
+          "title": "props.value ↔ Figma \"Value\"",
+          "status": "PASS"
+        },
+        {
+          "id": "figma.prop.size",
+          "title": "props.size ↔ Figma \"Size\"",
+          "status": "PASS"
+        },
+        {
+          "id": "figma.prop.disabled",
+          "title": "props.disabled ↔ Figma \"Disabled\"",
+          "status": "PASS"
+        },
+        {
+          "id": "figma.prop.ariaLabel",
+          "title": "props.ariaLabel ↔ Figma \"AriaLabel\"",
+          "status": "PASS"
+        },
+        {
+          "id": "figma.extra-properties",
+          "title": "계약 밖 Figma property 없음",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "axis": "token",
+      "title": "Contract ↔ Token",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "token.path.trackBackground",
+          "title": "tokens.trackBackground → \"color.surface.raised\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.trackRadius",
+          "title": "tokens.trackRadius → \"radius.full\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.trackPadding",
+          "title": "tokens.trackPadding → \"space.1\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.trackGap",
+          "title": "tokens.trackGap → \"space.1\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.segmentBackgroundSelected",
+          "title": "tokens.segmentBackgroundSelected → \"color.surface.default\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.segmentBorderSelected",
+          "title": "tokens.segmentBorderSelected → \"color.border.default\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.segmentRadius",
+          "title": "tokens.segmentRadius → \"radius.full\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.segmentPaddingX",
+          "title": "tokens.segmentPaddingX → \"space.3\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.segmentPaddingY",
+          "title": "tokens.segmentPaddingY → \"space.1\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.segmentText",
+          "title": "tokens.segmentText → \"color.text.muted\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.segmentTextSelected",
+          "title": "tokens.segmentTextSelected → \"color.text.default\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.segmentTextDisabled",
+          "title": "tokens.segmentTextDisabled → \"color.text.disabled\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.typography",
+          "title": "tokens.typography → \"typography.label.md\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.focusRing",
+          "title": "tokens.focusRing → \"color.border.focus\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.transitionDuration",
+          "title": "tokens.transitionDuration → \"motion.duration.fast\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.transitionEasing",
+          "title": "tokens.transitionEasing → \"motion.easing.standard\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.hardcoded",
+          "title": "하드코딩 hex/px 0건",
+          "status": "PASS",
+          "detail": "4개 파일 스캔 — 위반 없음"
+        }
+      ]
+    }
+  ]
+}

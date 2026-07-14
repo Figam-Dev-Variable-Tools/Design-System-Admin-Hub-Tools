@@ -1,0 +1,50 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/Card.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "Card",
+  "component": "Card",
+  "version": "1.0.0",
+  "variantProperties": {
+    "Padding": {
+      "values": [
+        "md",
+        "lg"
+      ],
+      "default": "md"
+    },
+    "Busy": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  },
+  "properties": [
+    {
+      "name": "Children",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Padding",
+      "type": "VARIANT",
+      "values": [
+        "md",
+        "lg"
+      ],
+      "default": "md"
+    },
+    {
+      "name": "Busy",
+      "type": "BOOLEAN",
+      "default": false
+    }
+  ],
+  "tokens": {
+    "background": "color.surface.default",
+    "border": "color.border.default",
+    "radius": "radius.md",
+    "paddingMd": "space.5",
+    "paddingLg": "space.6"
+  }
+}

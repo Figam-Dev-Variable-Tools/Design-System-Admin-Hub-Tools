@@ -1,0 +1,2 @@
+// generated — 기대 출력 (골든)
+export type WidgetState = 'default';

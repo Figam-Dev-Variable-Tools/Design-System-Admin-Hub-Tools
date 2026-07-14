@@ -1,0 +1,44 @@
+{
+  "generatedAt": "2026-07-14T10:53:12.062Z",
+  "target": {
+    "name": "Buttom",
+    "props": ["variant", "size", "loading", "disabled", "iconLeft", "children"]
+  },
+  "mode": "name+props",
+  "weights": {
+    "name": 0.4,
+    "props": 0.6
+  },
+  "thresholds": {
+    "createBlocked": 0.85,
+    "extendRecommended": 0.6
+  },
+  "contractsCompared": 1,
+  "bestMatch": {
+    "name": "Button",
+    "version": "1.0.0",
+    "level": "atom",
+    "status": "beta",
+    "contractPath": "contracts/Button.contract.json",
+    "nameSimilarity": 0.8333333333333334,
+    "propsJaccard": 1,
+    "score": 0.9333333333333333,
+    "sharedProps": ["variant", "size", "loading", "disabled", "iconLeft", "children"],
+    "candidateProps": ["variant", "size", "loading", "disabled", "iconLeft", "children"]
+  },
+  "verdict": "CREATE_BLOCKED",
+  "candidates": [
+    {
+      "name": "Button",
+      "version": "1.0.0",
+      "level": "atom",
+      "status": "beta",
+      "contractPath": "contracts/Button.contract.json",
+      "nameSimilarity": 0.8333333333333334,
+      "propsJaccard": 1,
+      "score": 0.9333333333333333,
+      "sharedProps": ["variant", "size", "loading", "disabled", "iconLeft", "children"],
+      "candidateProps": ["variant", "size", "loading", "disabled", "iconLeft", "children"]
+    }
+  ]
+}

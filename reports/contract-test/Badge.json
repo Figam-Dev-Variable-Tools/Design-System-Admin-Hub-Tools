@@ -1,0 +1,140 @@
+{
+  "component": "Badge",
+  "contractPath": "contracts/Badge.contract.json",
+  "contractVersion": "1.0.0",
+  "generatedAt": "2026-07-14T23:02:55.814Z",
+  "status": "PASS",
+  "mismatchCount": 0,
+  "axes": [
+    {
+      "axis": "react",
+      "title": "Contract ↔ React",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "react.types-exist",
+          "title": "generated 타입 파일 존재",
+          "status": "PASS",
+          "detail": "packages/ui/generated/types/Badge.types.ts"
+        },
+        {
+          "id": "react.types-generation",
+          "title": "생성 타입 세대(계약 버전) 일치",
+          "status": "PASS",
+          "detail": "계약/생성물 모두 1.0.0"
+        },
+        {
+          "id": "react.impl-imports-generated",
+          "title": "구현이 generated 타입을 import",
+          "status": "PASS",
+          "detail": "packages/ui/src/atoms/Badge/Badge.tsx"
+        }
+      ]
+    },
+    {
+      "axis": "storybook",
+      "title": "Contract ↔ Storybook",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "storybook.argtypes-exist",
+          "title": "generated argTypes 존재",
+          "status": "PASS",
+          "detail": "packages/ui/generated/argtypes/Badge.argtypes.ts"
+        },
+        {
+          "id": "storybook.stories-import-argtypes",
+          "title": "Story 파일이 generated argTypes 를 import",
+          "status": "PASS",
+          "detail": "packages/ui/src/atoms/Badge/Badge.stories.tsx"
+        },
+        {
+          "id": "storybook.coverage",
+          "title": "Story 조합 커버리지 (combinationMatrix 휴리스틱)",
+          "status": "PASS",
+          "detail": "필요 조합 6건 (enum 값 곱 × boolean×2) vs export Story 10건"
+        }
+      ]
+    },
+    {
+      "axis": "figma",
+      "title": "Contract ↔ Figma",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "figma.prop.tone",
+          "title": "props.tone ↔ Figma \"Tone\"",
+          "status": "PASS"
+        },
+        {
+          "id": "figma.prop.hideWhenZero",
+          "title": "props.hideWhenZero ↔ Figma \"HideWhenZero\"",
+          "status": "PASS"
+        },
+        {
+          "id": "figma.extra-properties",
+          "title": "계약 밖 Figma property 없음",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "axis": "token",
+      "title": "Contract ↔ Token",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "token.path.background",
+          "title": "tokens.background → \"color.text.default\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.text",
+          "title": "tokens.text → \"color.surface.default\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.backgroundDanger",
+          "title": "tokens.backgroundDanger → \"color.feedback.danger.surface\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.textDanger",
+          "title": "tokens.textDanger → \"color.feedback.danger.text\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.backgroundSuccess",
+          "title": "tokens.backgroundSuccess → \"color.feedback.success.surface\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.textSuccess",
+          "title": "tokens.textSuccess → \"color.feedback.success.text\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.radius",
+          "title": "tokens.radius → \"radius.full\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.size",
+          "title": "tokens.size → \"space.5\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.paddingX",
+          "title": "tokens.paddingX → \"space.1\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.hardcoded",
+          "title": "하드코딩 hex/px 0건",
+          "status": "PASS",
+          "detail": "4개 파일 스캔 — 위반 없음"
+        }
+      ]
+    }
+  ]
+}

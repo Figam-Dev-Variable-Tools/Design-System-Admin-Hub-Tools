@@ -1,0 +1,14 @@
+/* AppShell 전용 스타일 (A40 소유 — apps/admin/src/**)
+ *
+ * 인라인 style로 표현할 수 없는 상태(:hover, :focus-visible)만 여기에 둔다.
+ * [G6] 모든 값은 토큰 CSS 변수(var(--tds-*))만 사용 — 하드코딩 색상 hex / px 리터럴 0건.
+ */
+
+.tds-nav-row:hover {
+  background: var(--tds-color-surface-raised);
+}
+
+.tds-nav-row:focus-visible {
+  outline: medium solid var(--tds-color-border-focus);
+  outline-offset: calc(var(--tds-space-1) * -1);
+}

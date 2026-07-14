@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>TDS Sync</title>
+    <style>
+      /* 플러그인 UI 전용 최소 스타일 — 디자인 시스템 런타임이 아니므로 토큰 규칙 비대상 */
+      body {
+        margin: 0;
+        padding: 12px;
+        font-family: Inter, system-ui, sans-serif;
+        font-size: 12px;
+        color: var(--figma-color-text, #333333);
+        background: var(--figma-color-bg, #ffffff);
+      }
+      h1 {
+        font-size: 14px;
+        margin: 0 0 4px;
+      }
+      .hint {
+        margin: 0 0 12px;
+        color: var(--figma-color-text-secondary, #666666);
+      }
+      .field {
+        display: block;
+        margin-bottom: 10px;
+      }
+      .field span {
+        display: block;
+        margin-bottom: 4px;
+        font-weight: 600;
+      }
+      textarea,
+      input[type='file'] {
+        width: 100%;
+        box-sizing: border-box;
+        font: inherit;
+      }
+      textarea {
+        resize: vertical;
+      }
+      .actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+      button {
+        font: inherit;
+        padding: 6px 10px;
+        border: 1px solid var(--figma-color-border, #cccccc);
+        border-radius: 4px;
+        background: var(--figma-color-bg-secondary, #f5f5f5);
+        cursor: pointer;
+      }
+      button:hover {
+        background: var(--figma-color-bg-hover, #ececec);
+      }
+      #log {
+        margin: 0;
+        padding: 8px;
+        height: 220px;
+        overflow: auto;
+        white-space: pre-wrap;
+        border: 1px solid var(--figma-color-border, #cccccc);
+        border-radius: 4px;
+        background: var(--figma-color-bg-secondary, #fafafa);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>TDS Sync</h1>
+    <p class="hint">
+      tools/figma-plugin/generated/ 의 codegen 산출물(JSON)을 업로드하거나 붙여넣은 뒤
+      실행하세요.<br />
+      토큰: generated/tokens/figma-variables.json · 컴포넌트: generated/&lt;Name&gt;.figma.json<br />
+      실행 순서: pnpm codegen → 토큰 → Variables 동기화 → TDS 문서 생성 (규격:
+      docs/figma/specs/tds-doc-style.md)
+    </p>
+
+    <label class="field">
+      <span>파일 업로드</span>
+      <input id="file" type="file" accept=".json,application/json" />
+    </label>
+
+    <label class="field">
+      <span>또는 JSON 붙여넣기 (붙여넣기가 있으면 파일보다 우선)</span>
+      <textarea
+        id="paste"
+        rows="6"
+        placeholder='{"collection":"TDS Tokens","modes":["light","dark"],"variables":[...]}'
+      ></textarea>
+    </label>
+
+    <div class="actions">
+      <button id="btn-tokens" type="button">토큰 → Variables 동기화</button>
+      <button id="btn-component" type="button">계약 → Variant Property 동기화</button>
+      <button id="btn-scan" type="button">Detached 스타일 스캔</button>
+    </div>
+
+    <label class="field">
+      <span
+        >TDS 문서 생성 — 다중 파일 선택 (figma-variables.json + &lt;Name&gt;.figma.json + pages
+        메타)</span
+      >
+      <input id="doc-files" type="file" accept=".json,application/json" multiple />
+    </label>
+
+    <div class="actions">
+      <button id="btn-doc" type="button">TDS 문서 생성</button>
+    </div>
+
+    <pre id="log">대기 중…</pre>
+
+    <script>
+      // UI 스레드 — 파일/붙여넣기로 페이로드를 만들고 main 스레드에 postMessage로 전달한다.
+      var fileInput = document.getElementById('file');
+      var pasteArea = document.getElementById('paste');
+      var logEl = document.getElementById('log');
+      var uploaded = null;
+      var uploadedName = '';
+
+      function log(line) {
+        logEl.textContent += '\n' + line;
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function send(message) {
+        parent.postMessage({ pluginMessage: message }, '*');
+      }
+
+      fileInput.addEventListener('change', function () {
+        var file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+          try {
+            uploaded = JSON.parse(String(reader.result));
+            uploadedName = file.name;
+            log('파일 로드: ' + file.name);
+          } catch (e) {
+            uploaded = null;
+            log('[오류] JSON 파싱 실패 (' + file.name + '): ' + e.message);
+          }
+        };
+        reader.readAsText(file);
+      });
+
+      function currentPayload() {
+        var text = pasteArea.value.trim();
+        if (text) {
+          try {
+            return JSON.parse(text);
+          } catch (e) {
+            log('[오류] 붙여넣기 JSON 파싱 실패: ' + e.message);
+            return null;
+          }
+        }
+        if (uploaded) {
+          log('업로드 파일 사용: ' + uploadedName);
+          return uploaded;
+        }
+        log('[오류] 페이로드 없음 — 파일을 업로드하거나 JSON을 붙여넣으세요.');
+        return null;
+      }
+
+      document.getElementById('btn-tokens').addEventListener('click', function () {
+        var payload = currentPayload();
+        if (!payload) return;
+        if (!payload.collection || !Array.isArray(payload.variables)) {
+          log(
+            '[오류] 토큰 페이로드 아님 — {collection, modes, variables[]} 형식 필요 (generated/tokens/figma-variables.json)',
+          );
+          return;
+        }
+        log('Variables 동기화 요청…');
+        send({ type: 'sync-tokens', payload: payload });
+      });
+
+      document.getElementById('btn-component').addEventListener('click', function () {
+        var payload = currentPayload();
+        if (!payload) return;
+        if (!payload.name || !payload.variantProperties) {
+          log(
+            '[오류] 컴포넌트 페이로드 아님 — {name, variantProperties} 형식 필요 (generated/<Name>.figma.json)',
+          );
+          return;
+        }
+        log('Component Set 동기화 요청: ' + payload.name);
+        send({ type: 'sync-component', payload: payload });
+      });
+
+      document.getElementById('btn-scan').addEventListener('click', function () {
+        log('Detached 스타일 스캔 요청…');
+        send({ type: 'scan-detached' });
+      });
+
+      // --- TDS 문서 생성 — 다중 파일을 분류해 combined 페이로드 조립 ---------------
+      // 페이로드 규격/분류 규칙: docs/figma/specs/tds-doc-style.md §11
+      var docFilesInput = document.getElementById('doc-files');
+      var docFiles = []; // { name, json }
+
+      docFilesInput.addEventListener('change', function () {
+        docFiles = [];
+        var files = docFilesInput.files ? Array.prototype.slice.call(docFilesInput.files) : [];
+        files.forEach(function (file) {
+          var reader = new FileReader();
+          reader.onload = function () {
+            try {
+              docFiles.push({ name: file.name, json: JSON.parse(String(reader.result)) });
+              log('문서 입력 로드: ' + file.name);
+            } catch (e) {
+              log('[오류] JSON 파싱 실패 (' + file.name + '): ' + e.message);
+            }
+          };
+          reader.readAsText(file);
+        });
+      });
+
+      function classifyDocJson(json) {
+        if (!json) return null;
+        if (json.tokens && json.tokens.variables) return 'combined';
+        if (json.collection && Array.isArray(json.variables)) return 'tokens';
+        if (Array.isArray(json.properties) && (json.component || json.name)) return 'component';
+        if (json.name && json.variantProperties) return 'component';
+        if (Array.isArray(json.pages)) return 'pages';
+        if (
+          Array.isArray(json) &&
+          json.length > 0 &&
+          json.every(function (p) {
+            return p && p.id;
+          })
+        )
+          return 'pages';
+        return null;
+      }
+
+      document.getElementById('btn-doc').addEventListener('click', function () {
+        // 1) 붙여넣기 combined 페이로드({tokens, components?, pages?, meta?})가 있으면 그대로 전송
+        var text = pasteArea.value.trim();
+        var pasted = null;
+        if (text) {
+          try {
+            pasted = JSON.parse(text);
+          } catch (e) {
+            log('[오류] 붙여넣기 JSON 파싱 실패: ' + e.message);
+            return;
+          }
+        }
+        if (pasted && classifyDocJson(pasted) === 'combined') {
+          log('TDS 문서 생성 요청 (붙여넣기 combined 페이로드)…');
+          send({ type: 'generate-tds-doc', payload: pasted });
+          return;
+        }
+
+        // 2) 다중 파일(+붙여넣기/단일 업로드 보조)을 분류해 조립
+        var candidates = docFiles.slice();
+        if (pasted) candidates.push({ name: '(붙여넣기)', json: pasted });
+        if (uploaded) candidates.push({ name: uploadedName, json: uploaded });
+
+        var tokens = null;
+        var components = [];
+        var pages = null;
+        candidates.forEach(function (entry) {
+          var kind = classifyDocJson(entry.json);
+          if (kind === 'tokens') {
+            if (tokens) log('[경고] tokens 페이로드 중복 — 무시: ' + entry.name);
+            else tokens = entry.json;
+          } else if (kind === 'component') {
+            components.push(entry.json);
+          } else if (kind === 'pages') {
+            if (pages) log('[경고] pages 메타 중복 — 무시: ' + entry.name);
+            else pages = Array.isArray(entry.json) ? entry.json : entry.json.pages;
+          } else if (kind === 'combined') {
+            log('[경고] combined 페이로드는 붙여넣기로만 사용 — 무시: ' + entry.name);
+          } else {
+            log('[경고] 분류 불가 JSON 무시: ' + entry.name);
+          }
+        });
+
+        if (!tokens) {
+          log(
+            '[오류] tokens 페이로드 없음 — generated/tokens/figma-variables.json을 포함해 선택하세요.',
+          );
+          return;
+        }
+        var payload = {
+          tokens: tokens,
+          components: components,
+          meta: { generatedAt: new Date().toISOString().slice(0, 10) },
+        };
+        if (pages) payload.pages = pages;
+        log(
+          'TDS 문서 생성 요청 — tokens 1 · components ' +
+            components.length +
+            (pages ? ' · pages ' + pages.length : '') +
+            '…',
+        );
+        send({ type: 'generate-tds-doc', payload: payload });
+      });
+
+      window.onmessage = function (event) {
+        var msg = event.data && event.data.pluginMessage;
+        if (!msg) return;
+        if (msg.type === 'error') {
+          log('[오류] ' + msg.message);
+          return;
+        }
+        if (Array.isArray(msg.log)) {
+          msg.log.forEach(function (line) {
+            log(line);
+          });
+        }
+        if (msg.type === 'scan-result' && Array.isArray(msg.report)) {
+          msg.report.slice(0, 100).forEach(function (r) {
+            log(' - [' + r.page + '] ' + r.node + ' (' + r.nodeType + '): ' + r.issue);
+          });
+          if (msg.report.length > 100) {
+            log(
+              ' … 이하 ' +
+                (msg.report.length - 100) +
+                '건 생략 — 전체는 G7 리포트 파이프라인(reports/)에서 처리',
+            );
+          }
+        }
+      };
+    </script>
+  </body>
+</html>

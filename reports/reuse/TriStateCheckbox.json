@@ -1,0 +1,149 @@
+{
+  "generatedAt": "2026-07-14T20:32:16.666Z",
+  "target": {
+    "name": "TriStateCheckbox",
+    "props": [
+      "checked",
+      "indeterminate",
+      "label",
+      "onChange"
+    ]
+  },
+  "mode": "name+props",
+  "weights": {
+    "name": 0.4,
+    "props": 0.6
+  },
+  "thresholds": {
+    "createBlocked": 0.85,
+    "extendRecommended": 0.6
+  },
+  "contractsCompared": 15,
+  "bestMatch": {
+    "name": "Checkbox",
+    "version": "1.0.0",
+    "level": "atom",
+    "status": "beta",
+    "contractPath": "contracts/Checkbox.contract.json",
+    "nameSimilarity": 0.5,
+    "propsJaccard": 0.3333333333333333,
+    "score": 0.4,
+    "sharedProps": [
+      "label",
+      "checked"
+    ],
+    "candidateProps": [
+      "id",
+      "label",
+      "checked",
+      "disabled"
+    ]
+  },
+  "verdict": "CREATE_OK",
+  "candidates": [
+    {
+      "name": "Checkbox",
+      "version": "1.0.0",
+      "level": "atom",
+      "status": "beta",
+      "contractPath": "contracts/Checkbox.contract.json",
+      "nameSimilarity": 0.5,
+      "propsJaccard": 0.3333333333333333,
+      "score": 0.4,
+      "sharedProps": [
+        "label",
+        "checked"
+      ],
+      "candidateProps": [
+        "id",
+        "label",
+        "checked",
+        "disabled"
+      ]
+    },
+    {
+      "name": "StatsCard",
+      "version": "1.0.0",
+      "level": "organism",
+      "status": "beta",
+      "contractPath": "contracts/StatsCard.contract.json",
+      "nameSimilarity": 0.3125,
+      "propsJaccard": 0,
+      "score": 0.125,
+      "sharedProps": [],
+      "candidateProps": [
+        "title",
+        "action",
+        "children",
+        "loading",
+        "error"
+      ]
+    },
+    {
+      "name": "TextField",
+      "version": "1.0.0",
+      "level": "atom",
+      "status": "beta",
+      "contractPath": "contracts/TextField.contract.json",
+      "nameSimilarity": 0.1875,
+      "propsJaccard": 0.08333333333333333,
+      "score": 0.125,
+      "sharedProps": [
+        "label"
+      ],
+      "candidateProps": [
+        "id",
+        "label",
+        "value",
+        "type",
+        "error",
+        "disabled",
+        "required",
+        "placeholder",
+        "trailing"
+      ]
+    },
+    {
+      "name": "PasswordField",
+      "version": "1.0.0",
+      "level": "molecule",
+      "status": "beta",
+      "contractPath": "contracts/PasswordField.contract.json",
+      "nameSimilarity": 0.125,
+      "propsJaccard": 0.1,
+      "score": 0.11,
+      "sharedProps": [
+        "label"
+      ],
+      "candidateProps": [
+        "id",
+        "label",
+        "value",
+        "error",
+        "disabled",
+        "required",
+        "revealed"
+      ]
+    },
+    {
+      "name": "DataTable",
+      "version": "1.0.1",
+      "level": "molecule",
+      "status": "beta",
+      "contractPath": "contracts/DataTable.contract.json",
+      "nameSimilarity": 0.25,
+      "propsJaccard": 0,
+      "score": 0.1,
+      "sharedProps": [],
+      "candidateProps": [
+        "columns",
+        "rows",
+        "rowKey",
+        "summaryRows",
+        "caption",
+        "dimZero",
+        "empty"
+      ]
+    }
+  ]
+}

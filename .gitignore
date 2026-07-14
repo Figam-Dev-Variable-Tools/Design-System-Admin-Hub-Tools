@@ -1,0 +1,39 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build outputs
+dist/
+build/
+storybook-static/
+*.tsbuildinfo
+
+# test / coverage
+coverage/
+.nyc_output/
+
+# temp & logs
+*.log
+.tmp/
+tmp/
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# VRT working files (baseline/diff 이미지는 커밋, 실행 중간물은 제외)
+reports/**/tmp/
+tools/vrt/.cache/
+
+# Playwright 실행 산출물 (리포트/트레이스는 실패 진단용 — 커밋 대상 아님)
+e2e/test-results/
+e2e/playwright-report/
+e2e/.last-run.json

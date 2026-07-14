@@ -1,0 +1,116 @@
+# ==============================================================================
+# AUTO-GENERATED — pnpm boundary:codeowners
+# 이 파일은 손으로 편집하지 않는다. 원천(SSOT): orchestration/registry/agents.json
+# 생성기: tools/boundary/src/generate-codeowners.ts · 소유자: A02 (Boundary Enforcer AI)
+#
+# 배치 규칙: GitHub CODEOWNERS는 last-match-wins이므로 layer 오름차순 →
+# 경로 깊이(특이도) 오름차순으로 정렬한다. review/** 등 더 깊고 특이한
+# 경로가 뒤에 배치되어 상위의 넓은 소유를 덮는다.
+#
+# 아래 소유 경로는 CODEOWNERS로 표현할 수 없어 제외한다
+# (tools/boundary/src/check-boundary.ts가 별도로 강제):
+#   - A03 @tds-agents/release-manager: package.json#version (파일 내부 필드 특수 표기)
+#   - A51 @tds-agents/figma-component-engineer: figma://file/components (Figma 가상 경로)
+#   - A52 @tds-agents/figma-variable-engineer: figma://file/variables (Figma 가상 경로)
+#   - A53 @tds-agents/figma-ui-designer: figma://file/layout (Figma 가상 경로)
+#   - A54 @tds-agents/figma-ux-designer: figma://file/prototype (Figma 가상 경로)
+#   - A55 @tds-agents/figma-icon-designer: figma://file/icons (Figma 가상 경로)
+# ==============================================================================
+
+# ── Layer 0 · GOVERNANCE ──
+README.md @tds-agents/architecture
+tsconfig*.json @tds-agents/architecture
+*.config.* @tds-agents/architecture
+CHANGELOG.md @tds-agents/release-manager
+package.json @tds-agents/dependency-manager
+pnpm-workspace.yaml @tds-agents/dependency-manager
+pnpm-lock.yaml @tds-agents/dependency-manager
+eslint.config.* @tds-agents/lint-format-engineer
+.prettierrc* @tds-agents/lint-format-engineer
+prettier.config.* @tds-agents/lint-format-engineer
+.editorconfig @tds-agents/lint-format-engineer
+.prettierignore @tds-agents/lint-format-engineer
+.eslintignore @tds-agents/lint-format-engineer
+/.github/CODEOWNERS @tds-agents/boundary-enforcer
+/*/package.json @tds-agents/dependency-manager
+/**/package.json @tds-agents/dependency-manager
+/**/eslint.config.* @tds-agents/lint-format-engineer
+/.husky/** @tds-agents/cicd-engineer
+/orchestration/tasks/** @tds-agents/ceo-orchestrator
+/orchestration/state/** @tds-agents/ceo-orchestrator
+/docs/adr/** @tds-agents/architecture
+/docs/architecture/** @tds-agents/architecture
+/orchestration/registry/** @tds-agents/architecture
+/orchestration/schemas/** @tds-agents/architecture
+/tools/boundary/** @tds-agents/boundary-enforcer
+/reports/boundary/** @tds-agents/boundary-enforcer
+/docs/migration/** @tds-agents/release-manager
+/docs/security/** @tds-agents/security-reviewer
+/reports/security/** @tds-agents/security-reviewer
+/.github/workflows/** @tds-agents/cicd-engineer
+
+# ── Layer 1 · DEFINITION ──
+/contracts/*.contract.json @tds-agents/contract-engineer
+/assets/icons/** @tds-agents/icon-designer
+/assets/illustrations/** @tds-agents/illustration-designer
+/contracts/schemas/** @tds-agents/contract-engineer
+/contracts/review/** @tds-agents/contract-reviewer
+/docs/plan/ux/** @tds-agents/ux-planner
+/docs/plan/ui/** @tds-agents/ui-planner
+/docs/plan/review/** @tds-agents/planning-reviewer
+/docs/design/ux/** @tds-agents/ux-designer
+/docs/design/ui/** @tds-agents/ui-designer
+/docs/design/review/** @tds-agents/design-reviewer
+
+# ── Layer 2 · PRODUCTION ──
+/tokens/tokens.json @tds-agents/token-engineer
+/e2e/** @tds-agents/e2e-test-engineer
+/specs/README.md @tds-agents/functional-spec-writer
+/tokens/themes/** @tds-agents/token-engineer
+/tokens/review/** @tds-agents/token-reviewer
+/tools/figma-plugin/** @tds-agents/figma-plugin-engineer
+/specs/**/FS-*.md @tds-agents/functional-spec-writer
+/specs/**/BE-*.md @tds-agents/backend-spec-writer
+/specs/_review/** @tds-agents/spec-reviewer
+/reports/modularization/** @tds-agents/module-extraction-architect
+/packages/ui/src/** @tds-agents/storybook-component-engineer
+/packages/ui/pages/** @tds-agents/storybook-pages-engineer
+/packages/ui/review/** @tds-agents/storybook-reviewer
+/apps/*/src/** @tds-agents/react-engineer @tds-agents/react-refactorer
+/docs/review/code/** @tds-agents/code-reviewer
+/apps/*/e2e/** @tds-agents/e2e-test-engineer
+/docs/figma/review/** @tds-agents/figma-reviewer
+/docs/tds/components/** @tds-agents/tds-doc-writer
+/docs/tds/patterns/** @tds-agents/tds-doc-writer
+/docs/tds/guidelines/** @tds-agents/tds-doc-writer
+/docs/tds/review/** @tds-agents/docs-reviewer
+/docs/tds/modularization/** @tds-agents/module-extraction-architect
+/packages/ui/src/**/*.test.* @tds-agents/storybook-component-engineer
+/packages/ui/src/**/*.mdx @tds-agents/storybook-doc-engineer
+/apps/*/src/**/*.test.* @tds-agents/react-engineer @tds-agents/react-refactorer
+/apps/*/src/**/*.spec.* @tds-agents/react-engineer @tds-agents/react-refactorer
+/docs/figma/specs/components/** @tds-agents/figma-component-engineer
+/docs/figma/specs/variables/** @tds-agents/figma-variable-engineer
+/docs/figma/specs/layout/** @tds-agents/figma-ui-designer
+/docs/figma/specs/prototype/** @tds-agents/figma-ux-designer
+/docs/figma/specs/icons/** @tds-agents/figma-icon-designer
+
+# ── Layer 3 · VERIFICATION ──
+/tools/vrt/** @tds-agents/visual-regression
+/reports/vrt/** @tds-agents/visual-regression
+/tools/drift/** @tds-agents/design-drift
+/reports/drift/** @tds-agents/design-drift
+/tools/a11y/** @tds-agents/a11y-audit
+/reports/a11y/** @tds-agents/a11y-audit
+/tools/perf/** @tds-agents/performance-audit
+/reports/perf/** @tds-agents/performance-audit
+/tools/contract-test/** @tds-agents/contract-test
+/reports/contract-test/** @tds-agents/contract-test
+/tools/reuse-guard/** @tds-agents/reuse-guard
+/reports/reuse/** @tds-agents/reuse-guard
+/tools/naming-guard/** @tds-agents/naming-guard
+/reports/naming/** @tds-agents/naming-guard
+/tools/code-quality/** @tds-agents/clean-code-inspector
+/reports/code-quality/** @tds-agents/clean-code-inspector
+/tools/test-coverage/** @tds-agents/test-coverage-guard
+/reports/test-coverage/** @tds-agents/test-coverage-guard

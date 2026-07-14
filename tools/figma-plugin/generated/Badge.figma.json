@@ -1,0 +1,51 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/Badge.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "Badge",
+  "component": "Badge",
+  "version": "1.0.0",
+  "variantProperties": {
+    "Tone": {
+      "values": [
+        "neutral",
+        "danger",
+        "success"
+      ],
+      "default": "neutral"
+    },
+    "HideWhenZero": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "true"
+    }
+  },
+  "properties": [
+    {
+      "name": "Tone",
+      "type": "VARIANT",
+      "values": [
+        "neutral",
+        "danger",
+        "success"
+      ],
+      "default": "neutral"
+    },
+    {
+      "name": "HideWhenZero",
+      "type": "BOOLEAN",
+      "default": true
+    }
+  ],
+  "tokens": {
+    "background": "color.text.default",
+    "text": "color.surface.default",
+    "backgroundDanger": "color.feedback.danger.surface",
+    "textDanger": "color.feedback.danger.text",
+    "backgroundSuccess": "color.feedback.success.surface",
+    "textSuccess": "color.feedback.success.text",
+    "radius": "radius.full",
+    "size": "space.5",
+    "paddingX": "space.1"
+  }
+}

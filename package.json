@@ -1,0 +1,47 @@
+{
+  "name": "design-system-admin-hub-tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "React + Design System + Storybook + Figma 100% 동기화 플랫폼 — Enterprise Front-End AI Organization v2",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "codegen": "pnpm --filter @tds/codegen run generate",
+    "codegen:check": "pnpm --filter @tds/codegen run check",
+    "validate:contracts": "pnpm --filter @tds/codegen run validate",
+    "validate:registry": "pnpm --filter @tds/boundary run validate-registry",
+    "boundary:check": "pnpm --filter @tds/boundary run check",
+    "boundary:codeowners": "pnpm --filter @tds/boundary run codeowners",
+    "contract-test": "pnpm --filter @tds/contract-test run test",
+    "coverage:check": "pnpm --filter @tds/test-coverage run check",
+    "e2e": "pnpm --filter @tds/e2e run test",
+    "naming:check": "pnpm --filter @tds/naming-guard run check",
+    "quality:check": "pnpm --filter @tds/code-quality run check",
+    "reuse:check": "pnpm --filter @tds/reuse-guard run check",
+    "reuse:scan": "pnpm --filter @tds/reuse-guard run scan",
+    "drift:check": "pnpm --filter @tds/drift run check",
+    "vrt": "pnpm --filter @tds/vrt run test",
+    "a11y": "pnpm --filter @tds/a11y run audit",
+    "perf": "pnpm --filter @tds/perf run audit",
+    "gate:precheck": "pnpm validate:contracts && pnpm boundary:check && pnpm naming:check && pnpm contract-test && pnpm coverage:check && pnpm quality:check",
+    "verify:all": "pnpm codegen:check && pnpm validate:registry && pnpm validate:contracts && pnpm boundary:check && pnpm contract-test && pnpm coverage:check && pnpm quality:check && pnpm naming:check && pnpm -r exec tsc --noEmit && pnpm lint && pnpm format:check && pnpm test",
+    "verify:full": "pnpm verify:all && pnpm e2e",
+    "sb": "pnpm --filter @tds/ui run storybook",
+    "sb:build": "pnpm --filter @tds/ui run build-storybook",
+    "dev:admin": "pnpm --filter @tds/admin run dev",
+    "build": "pnpm -r run build",
+    "test": "pnpm --filter \"./apps/*\" --filter \"./packages/*\" run test",
+    "lint": "pnpm -r run lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "openapi:types": "openapi-typescript openapi/openapi.yaml -o apps/admin/src/shared/api/schema.d.ts",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "openapi-typescript": "^7.13.0",
+    "prettier": "^3.9.5"
+  }
+}

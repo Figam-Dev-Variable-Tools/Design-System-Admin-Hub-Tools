@@ -1,0 +1,53 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/TodoCard.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "TodoCard",
+  "component": "TodoCard",
+  "version": "2.0.0",
+  "variantProperties": {
+    "Loading": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    },
+    "ShowTotal": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "true"
+    }
+  },
+  "properties": [
+    {
+      "name": "Title",
+      "type": "TEXT",
+      "default": "오늘의 할일"
+    },
+    {
+      "name": "Loading",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "ShowTotal",
+      "type": "BOOLEAN",
+      "default": true
+    }
+  ],
+  "tokens": {
+    "surface": "color.surface.default",
+    "border": "color.border.default",
+    "radius": "radius.md",
+    "padding": "space.5",
+    "gap": "space.4",
+    "itemGap": "space.2",
+    "title": "color.text.default",
+    "titleTypography": "typography.label.md",
+    "typography": "typography.body.md",
+    "countPending": "color.feedback.danger.text",
+    "countEmpty": "color.text.disabled",
+    "focusRing": "color.border.focus"
+  }
+}

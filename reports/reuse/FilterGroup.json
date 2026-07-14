@@ -1,0 +1,141 @@
+{
+  "generatedAt": "2026-07-14T20:32:12.205Z",
+  "target": {
+    "name": "FilterGroup",
+    "props": [
+      "heading",
+      "items",
+      "value",
+      "onChange",
+      "active",
+      "count"
+    ]
+  },
+  "mode": "name+props",
+  "weights": {
+    "name": 0.4,
+    "props": 0.6
+  },
+  "thresholds": {
+    "createBlocked": 0.85,
+    "extendRecommended": 0.6
+  },
+  "contractsCompared": 15,
+  "bestMatch": {
+    "name": "Tabs",
+    "version": "1.0.0",
+    "level": "molecule",
+    "status": "beta",
+    "contractPath": "contracts/Tabs.contract.json",
+    "nameSimilarity": 0.09090909090909094,
+    "propsJaccard": 0.2857142857142857,
+    "score": 0.20779220779220778,
+    "sharedProps": [
+      "value",
+      "items"
+    ],
+    "candidateProps": [
+      "value",
+      "items",
+      "ariaLabel"
+    ]
+  },
+  "verdict": "CREATE_OK",
+  "candidates": [
+    {
+      "name": "Tabs",
+      "version": "1.0.0",
+      "level": "molecule",
+      "status": "beta",
+      "contractPath": "contracts/Tabs.contract.json",
+      "nameSimilarity": 0.09090909090909094,
+      "propsJaccard": 0.2857142857142857,
+      "score": 0.20779220779220778,
+      "sharedProps": [
+        "value",
+        "items"
+      ],
+      "candidateProps": [
+        "value",
+        "items",
+        "ariaLabel"
+      ]
+    },
+    {
+      "name": "ListCard",
+      "version": "1.0.0",
+      "level": "organism",
+      "status": "beta",
+      "contractPath": "contracts/ListCard.contract.json",
+      "nameSimilarity": 0.2727272727272727,
+      "propsJaccard": 0.09090909090909091,
+      "score": 0.16363636363636364,
+      "sharedProps": [
+        "count"
+      ],
+      "candidateProps": [
+        "title",
+        "count",
+        "rows",
+        "loading",
+        "empty",
+        "icon"
+      ]
+    },
+    {
+      "name": "ListRow",
+      "version": "1.0.0",
+      "level": "molecule",
+      "status": "beta",
+      "contractPath": "contracts/ListRow.contract.json",
+      "nameSimilarity": 0.36363636363636365,
+      "propsJaccard": 0,
+      "score": 0.14545454545454548,
+      "sharedProps": [],
+      "candidateProps": [
+        "title",
+        "meta",
+        "icon",
+        "href"
+      ]
+    },
+    {
+      "name": "SegmentedControl",
+      "version": "1.0.0",
+      "level": "molecule",
+      "status": "beta",
+      "contractPath": "contracts/SegmentedControl.contract.json",
+      "nameSimilarity": 0.1875,
+      "propsJaccard": 0.1,
+      "score": 0.135,
+      "sharedProps": [
+        "value"
+      ],
+      "candidateProps": [
+        "value",
+        "options",
+        "size",
+        "disabled",
+        "ariaLabel"
+      ]
+    },
+    {
+      "name": "Badge",
+      "version": "1.0.0",
+      "level": "atom",
+      "status": "beta",
+      "contractPath": "contracts/Badge.contract.json",
+      "nameSimilarity": 0.09090909090909094,
+      "propsJaccard": 0.125,
+      "score": 0.11136363636363637,
+      "sharedProps": [
+        "count"
+      ],
+      "candidateProps": [
+        "count",
+        "tone",
+        "hideWhenZero"
+      ]
+    }
+  ]
+}

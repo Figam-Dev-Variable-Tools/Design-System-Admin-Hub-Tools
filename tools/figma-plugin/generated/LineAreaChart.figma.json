@@ -1,0 +1,41 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/LineAreaChart.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "LineAreaChart",
+  "component": "LineAreaChart",
+  "version": "1.0.1",
+  "variantProperties": {
+    "ShowLegend": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "true"
+    }
+  },
+  "properties": [
+    {
+      "name": "ShowLegend",
+      "type": "BOOLEAN",
+      "default": true
+    },
+    {
+      "name": "AriaLabel",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "gridLine": "color.chart.axis",
+    "axisLabel": "color.chart.label",
+    "legendText": "color.chart.label",
+    "legendDotRadius": "radius.full",
+    "legendGap": "space.4",
+    "legendItemGap": "space.1",
+    "lineColor": "color.chart.series-1",
+    "pointColor": "color.chart.series-1",
+    "areaColor": "color.chart.series-1-fill",
+    "surface": "color.surface.default",
+    "typography": "typography.label.md",
+    "focusRing": "color.border.focus"
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "component": "DataTable",
+  "contractPath": "contracts/DataTable.contract.json",
+  "contractVersion": "1.1.0",
+  "generatedAt": "2026-07-14T23:02:55.814Z",
+  "status": "PASS",
+  "mismatchCount": 0,
+  "axes": [
+    {
+      "axis": "react",
+      "title": "Contract ↔ React",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "react.types-exist",
+          "title": "generated 타입 파일 존재",
+          "status": "PASS",
+          "detail": "packages/ui/generated/types/DataTable.types.ts"
+        },
+        {
+          "id": "react.types-generation",
+          "title": "생성 타입 세대(계약 버전) 일치",
+          "status": "PASS",
+          "detail": "계약/생성물 모두 1.1.0"
+        },
+        {
+          "id": "react.impl-imports-generated",
+          "title": "구현이 generated 타입을 import",
+          "status": "PASS",
+          "detail": "packages/ui/src/molecules/DataTable/DataTable.tsx"
+        }
+      ]
+    },
+    {
+      "axis": "storybook",
+      "title": "Contract ↔ Storybook",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "storybook.argtypes-exist",
+          "title": "generated argTypes 존재",
+          "status": "PASS",
+          "detail": "packages/ui/generated/argtypes/DataTable.argtypes.ts"
+        },
+        {
+          "id": "storybook.stories-import-argtypes",
+          "title": "Story 파일이 generated argTypes 를 import",
+          "status": "PASS",
+          "detail": "packages/ui/src/molecules/DataTable/DataTable.stories.tsx"
+        },
+        {
+          "id": "storybook.coverage",
+          "title": "Story 조합 커버리지 (combinationMatrix 휴리스틱)",
+          "status": "PASS",
+          "detail": "필요 조합 2건 (enum 값 곱 × boolean×2) vs export Story 11건"
+        }
+      ]
+    },
+    {
+      "axis": "figma",
+      "title": "Contract ↔ Figma",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "figma.prop.rowKey",
+          "title": "props.rowKey ↔ Figma \"RowKey\"",
+          "status": "PASS"
+        },
+        {
+          "id": "figma.prop.caption",
+          "title": "props.caption ↔ Figma \"Caption\"",
+          "status": "PASS"
+        },
+        {
+          "id": "figma.prop.dimZero",
+          "title": "props.dimZero ↔ Figma \"DimZero\"",
+          "status": "PASS"
+        },
+        {
+          "id": "figma.prop.empty",
+          "title": "props.empty ↔ Figma \"Empty\"",
+          "status": "PASS"
+        },
+        {
+          "id": "figma.extra-properties",
+          "title": "계약 밖 Figma property 없음",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "axis": "token",
+      "title": "Contract ↔ Token",
+      "status": "PASS",
+      "checks": [
+        {
+          "id": "token.path.headText",
+          "title": "tokens.headText → \"color.text.muted\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.headBorder",
+          "title": "tokens.headBorder → \"color.border.default\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.headPaddingTop",
+          "title": "tokens.headPaddingTop → \"space.2\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.headPaddingBottom",
+          "title": "tokens.headPaddingBottom → \"space.3\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.cellText",
+          "title": "tokens.cellText → \"color.text.default\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.cellTextDimmed",
+          "title": "tokens.cellTextDimmed → \"color.text.disabled\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.cellBorder",
+          "title": "tokens.cellBorder → \"color.border.default\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.cellPaddingX",
+          "title": "tokens.cellPaddingX → \"space.2\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.cellPaddingY",
+          "title": "tokens.cellPaddingY → \"space.3\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.summaryBackground",
+          "title": "tokens.summaryBackground → \"color.surface.raised\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.summaryText",
+          "title": "tokens.summaryText → \"color.text.default\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.emptyText",
+          "title": "tokens.emptyText → \"color.text.muted\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.emptyMarginTop",
+          "title": "tokens.emptyMarginTop → \"space.5\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.typography",
+          "title": "tokens.typography → \"typography.label.md\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.path.focusRing",
+          "title": "tokens.focusRing → \"color.border.focus\" 실존",
+          "status": "PASS"
+        },
+        {
+          "id": "token.hardcoded",
+          "title": "하드코딩 hex/px 0건",
+          "status": "PASS",
+          "detail": "4개 파일 스캔 — 위반 없음"
+        }
+      ]
+    }
+  ]
+}

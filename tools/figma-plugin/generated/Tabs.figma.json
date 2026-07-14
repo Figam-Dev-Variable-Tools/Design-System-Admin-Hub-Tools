@@ -1,0 +1,32 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/Tabs.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "Tabs",
+  "component": "Tabs",
+  "version": "1.0.0",
+  "variantProperties": {},
+  "properties": [
+    {
+      "name": "Value",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "AriaLabel",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "listBorder": "color.border.default",
+    "indicatorSelected": "color.action.primary.default",
+    "text": "color.text.muted",
+    "textSelected": "color.text.default",
+    "typography": "typography.label.md",
+    "paddingTop": "space.2",
+    "paddingBottom": "space.3",
+    "gap": "space.5",
+    "focusRing": "color.border.focus",
+    "transitionDuration": "motion.duration.fast",
+    "transitionEasing": "motion.easing.standard"
+  }
+}

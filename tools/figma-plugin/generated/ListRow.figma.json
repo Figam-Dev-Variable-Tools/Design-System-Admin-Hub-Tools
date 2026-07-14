@@ -1,0 +1,46 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/ListRow.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "ListRow",
+  "component": "ListRow",
+  "version": "1.0.0",
+  "variantProperties": {},
+  "properties": [
+    {
+      "name": "Title",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Meta",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Icon",
+      "type": "INSTANCE_SWAP",
+      "accepts": [
+        "Icon"
+      ]
+    },
+    {
+      "name": "Href",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "title": "color.text.default",
+    "meta": "color.text.muted",
+    "icon": "color.text.muted",
+    "borderBottom": "color.border.default",
+    "backgroundHover": "color.surface.raised",
+    "radius": "radius.sm",
+    "paddingX": "space.2",
+    "paddingY": "space.3",
+    "gap": "space.2",
+    "titleTypography": "typography.label.md",
+    "focusRing": "color.border.focus",
+    "transitionDuration": "motion.duration.fast",
+    "transitionEasing": "motion.easing.standard"
+  }
+}

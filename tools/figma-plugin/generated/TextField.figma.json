@@ -1,0 +1,119 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/TextField.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "TextField",
+  "component": "TextField",
+  "version": "1.1.0",
+  "variantProperties": {
+    "Type": {
+      "values": [
+        "text",
+        "email",
+        "password",
+        "number"
+      ],
+      "default": "text"
+    },
+    "Disabled": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    },
+    "Required": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  },
+  "properties": [
+    {
+      "name": "Id",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Label",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Value",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Type",
+      "type": "VARIANT",
+      "values": [
+        "text",
+        "email",
+        "password",
+        "number"
+      ],
+      "default": "text"
+    },
+    {
+      "name": "Error",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Disabled",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Required",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Placeholder",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Name",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "AutoComplete",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "InputMode",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Trailing",
+      "type": "INSTANCE_SWAP",
+      "accepts": [
+        "Button",
+        "Icon"
+      ]
+    }
+  ],
+  "tokens": {
+    "background": "color.surface.default",
+    "text": "color.text.default",
+    "textDisabled": "color.text.disabled",
+    "border": "color.border.default",
+    "borderError": "color.feedback.danger.border",
+    "errorText": "color.feedback.danger.text",
+    "focusRing": "color.border.focus",
+    "focusRingOffset": "space.1",
+    "radius": "radius.md",
+    "paddingX": "space.3",
+    "paddingY": "space.3",
+    "gap": "space.1",
+    "labelTypography": "typography.label.md",
+    "inputTypography": "typography.body.md",
+    "errorTypography": "typography.label.md"
+  }
+}

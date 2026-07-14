@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tds.internal/schemas/agent-registry.v1.json",
+  "title": "TDS Agent Registry v1",
+  "description": "orchestration/registry/agents.json의 스키마. 레지스트리는 CODEOWNERS·skills·오케스트레이션의 SSOT.",
+  "type": "object",
+  "required": ["version", "agents"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "description": { "type": "string" },
+    "note": { "type": "string" },
+    "agents": {
+      "type": "array",
+      "minItems": 50,
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "title",
+          "layer",
+          "division",
+          "type",
+          "owns",
+          "reads",
+          "gate",
+          "approves",
+          "reviewer",
+          "blocks",
+          "outputs",
+          "escalatesTo"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^A\\d{2}$" },
+          "slug": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
+          "title": { "type": "string" },
+          "layer": { "enum": [0, 1, 2, 3] },
+          "division": {
+            "enum": [
+              "governance",
+              "planning",
+              "design",
+              "contract",
+              "token",
+              "storybook",
+              "react",
+              "figma",
+              "docs",
+              "verification"
+            ]
+          },
+          "type": { "enum": ["orchestrator", "governor", "producer", "reviewer", "verifier"] },
+          "owns": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "reads": { "type": "array", "items": { "type": "string" } },
+          "gate": { "enum": ["G0", "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", null] },
+          "approves": { "type": "array", "items": { "type": "string" } },
+          "reviewer": { "type": ["string", "null"], "pattern": "^A\\d{2}$" },
+          "blocks": { "type": "array", "items": { "type": "string" } },
+          "blockCondition": { "type": "string" },
+          "outputs": { "type": "array", "items": { "type": "string" } },
+          "escalatesTo": { "type": "string" },
+          "notes": { "type": ["string", "null"] },
+          "sequentialExclusiveWith": { "type": "string", "pattern": "^A\\d{2}$" }
+        }
+      }
+    }
+  }
+}

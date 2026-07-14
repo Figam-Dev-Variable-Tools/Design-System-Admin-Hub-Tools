@@ -1,0 +1,104 @@
+{
+  "tool": "@tds/code-quality",
+  "agent": "A83",
+  "date": "2026-07-14",
+  "generatedAt": "2026-07-14T23:02:59.277Z",
+  "status": "warn",
+  "exitCode": 0,
+  "scope": {
+    "roots": [
+      "apps/admin/src",
+      "packages/ui/src"
+    ],
+    "files": 188,
+    "lines": 27086
+  },
+  "summary": [
+    {
+      "axis": 1,
+      "id": "page-coupling",
+      "title": "페이지 간 결합 (pages/A → pages/B)",
+      "severity": "blocker",
+      "threshold": "0건",
+      "measured": 0,
+      "scanned": "pages 파일 84건",
+      "status": "pass"
+    },
+    {
+      "axis": 2,
+      "id": "domain-leak",
+      "title": "도메인 누수 (공통 모듈 → 도메인 타입/상수)",
+      "severity": "blocker",
+      "threshold": "0건",
+      "measured": 0,
+      "scanned": "공통 모듈 파일 82건 (apps/admin/src/shared/ui/, packages/ui/src/)",
+      "status": "pass"
+    },
+    {
+      "axis": 3,
+      "id": "duplication",
+      "title": "중복 코드 (정규화 블록 해시)",
+      "severity": "major",
+      "threshold": "30줄 이상 블록이 2회 이상 반복 = 0건",
+      "measured": 1,
+      "scanned": "소스 188건 · 정규화 16460줄 (윈도 30줄)",
+      "status": "violated"
+    },
+    {
+      "axis": 4,
+      "id": "complexity",
+      "title": "순환 복잡도 (함수 단위 cyclomatic complexity)",
+      "severity": "major",
+      "threshold": "함수당 <= 15",
+      "measured": 0,
+      "scanned": "함수 1572개 (최대 복잡도 15)",
+      "status": "pass"
+    },
+    {
+      "axis": 5,
+      "id": "dead-code",
+      "title": "죽은 코드 (미사용 export)",
+      "severity": "major",
+      "threshold": "0건",
+      "measured": 0,
+      "scanned": "정의부 export 497개",
+      "status": "pass"
+    },
+    {
+      "axis": 6,
+      "id": "layer-direction",
+      "title": "레이어 역방향 의존 (atoms → molecules/organisms/…)",
+      "severity": "blocker",
+      "threshold": "0건",
+      "measured": 0,
+      "scanned": "packages/ui 레이어 파일 60건",
+      "status": "pass"
+    }
+  ],
+  "counts": {
+    "blocker": 0,
+    "major": 1,
+    "total": 1
+  },
+  "violations": [
+    {
+      "axis": 3,
+      "id": "duplication",
+      "severity": "major",
+      "file": "apps/admin/src/pages/product-registration/styles.ts",
+      "line": 329,
+      "symbol": "clone:7e74814c5e72b014",
+      "measured": "정규화 30줄 블록이 2곳에서 반복 (임계 30줄 · 2회)",
+      "threshold": "30줄 이상 블록이 2회 이상 반복 = 0건",
+      "message": "동일 구조 블록(apps/admin/src/pages/product-registration/styles.ts:329-366)이 2곳에 있다.",
+      "suggestion": "공통 부분을 함수/컴포넌트로 추출한다. 두 곳 이상이 쓰면 공통 모듈(shared/ui · packages/ui)로 올린다.",
+      "related": [
+        {
+          "file": "apps/admin/src/shared/ui/styles.ts",
+          "line": 178
+        }
+      ]
+    }
+  ],
+  "undefined": []
+}

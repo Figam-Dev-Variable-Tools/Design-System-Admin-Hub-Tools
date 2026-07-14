@@ -1,0 +1,8 @@
+[
+  {
+    "name": "@tds/ui public entry (gzip)",
+    "path": "../../packages/ui/dist/index.js",
+    "limit": "128 KB",
+    "gzip": true
+  }
+]

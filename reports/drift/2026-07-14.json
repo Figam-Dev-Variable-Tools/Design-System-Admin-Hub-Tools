@@ -1,0 +1,142 @@
+{
+  "tool": "@tds/drift",
+  "agent": "A71",
+  "date": "2026-07-14",
+  "generatedAt": "2026-07-14T12:44:57.104Z",
+  "status": "drift",
+  "exitCode": 2,
+  "thresholds": {
+    "unusedTokenRatio": 0.05
+  },
+  "slo": {
+    "hardcodedValues": "0건",
+    "driftFixLeadTime": "<= 24h"
+  },
+  "checks": [
+    {
+      "id": "stale-codegen",
+      "title": "codegen --check 재실행 (stale 생성물 검출)",
+      "status": "clean",
+      "severity": null,
+      "summary": "생성물이 계약과 일치",
+      "findings": []
+    },
+    {
+      "id": "hardcoded-values",
+      "title": "packages/ui/src 하드코딩 스캔 (severity: warning)",
+      "status": "clean",
+      "severity": null,
+      "summary": "하드코딩 값 0건 (SLO 충족)",
+      "findings": []
+    },
+    {
+      "id": "unused-tokens",
+      "title": "미사용 토큰 비율 (5% 초과 시 정리 요구)",
+      "status": "drift",
+      "severity": "warning",
+      "summary": "미사용 토큰 23/85건 (27.1%) — 5% 초과, A20(Token Engineer)에 정리 요구",
+      "findings": [
+        {
+          "detail": "primitive.color.blue.500"
+        },
+        {
+          "detail": "primitive.color.gray.200"
+        },
+        {
+          "detail": "primitive.typography.font-size.12"
+        },
+        {
+          "detail": "primitive.typography.font-size.18"
+        },
+        {
+          "detail": "primitive.typography.font-weight.bold"
+        },
+        {
+          "detail": "primitive.motion.easing.accelerate"
+        },
+        {
+          "detail": "color.text.default"
+        },
+        {
+          "detail": "color.text.muted"
+        },
+        {
+          "detail": "color.text.disabled"
+        },
+        {
+          "detail": "color.surface.default"
+        },
+        {
+          "detail": "color.surface.raised"
+        },
+        {
+          "detail": "color.border.default"
+        },
+        {
+          "detail": "space.1"
+        },
+        {
+          "detail": "space.3"
+        },
+        {
+          "detail": "space.5"
+        },
+        {
+          "detail": "space.6"
+        },
+        {
+          "detail": "radius.sm"
+        },
+        {
+          "detail": "radius.lg"
+        },
+        {
+          "detail": "radius.full"
+        },
+        {
+          "detail": "typography.body.md"
+        },
+        {
+          "detail": "motion.duration.normal"
+        },
+        {
+          "detail": "motion.duration.slow"
+        },
+        {
+          "detail": "motion.easing.decelerate"
+        }
+      ],
+      "analysis": {
+        "totalTokens": 85,
+        "usedCount": 62,
+        "unusedCount": 23,
+        "unusedRatio": 0.27058823529411763,
+        "unused": [
+          "primitive.color.blue.500",
+          "primitive.color.gray.200",
+          "primitive.typography.font-size.12",
+          "primitive.typography.font-size.18",
+          "primitive.typography.font-weight.bold",
+          "primitive.motion.easing.accelerate",
+          "color.text.default",
+          "color.text.muted",
+          "color.text.disabled",
+          "color.surface.default",
+          "color.surface.raised",
+          "color.border.default",
+          "space.1",
+          "space.3",
+          "space.5",
+          "space.6",
+          "radius.sm",
+          "radius.lg",
+          "radius.full",
+          "typography.body.md",
+          "motion.duration.normal",
+          "motion.duration.slow",
+          "motion.easing.decelerate"
+        ]
+      }
+    }
+  ]
+}

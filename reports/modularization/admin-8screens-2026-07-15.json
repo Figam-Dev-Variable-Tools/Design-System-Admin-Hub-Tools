@@ -1,0 +1,155 @@
+{
+  "tool": "@tds/module-extraction",
+  "agent": "A84",
+  "plan": "MP-001-admin-8screens",
+  "date": "2026-07-15",
+  "generatedAt": "2026-07-15T00:00:00.000Z",
+  "scope": {
+    "screens": [
+      "login",
+      "dashboard",
+      "members",
+      "member-detail",
+      "admins",
+      "permissions",
+      "customer-settings",
+      "login-history"
+    ],
+    "inputs": [
+      "reports/reuse/module-candidates-2026-07-15.json",
+      "contracts/*.contract.json (15)",
+      "packages/ui/src/**",
+      "reports/code-quality/2026-07-14.json"
+    ]
+  },
+  "headline": {
+    "shippedModules": 15,
+    "componentImportsFromTdsUi": 0,
+    "note": "apps/admin imports zero components from @tds/ui; only the tokens.css subpath. All 15 shipped modules were re-implemented locally.",
+    "localDuplicatesOfShippedModules": 18,
+    "duplicateSourceFiles": 18
+  },
+  "verdicts": {
+    "reuse": {
+      "count": 18,
+      "immediatelyReplaceable": 7,
+      "blockedOnContractExtend": 11,
+      "items": [
+        { "local": "apps/admin/src/shared/ui/Card.tsx#Card", "shipped": "packages/ui/src/atoms/Card", "ready": true, "gap": [] },
+        { "local": "apps/admin/src/pages/dashboard/components/Card.tsx#Card", "shipped": "packages/ui/src/atoms/Card", "ready": true, "gap": [] },
+        { "local": "apps/admin/src/pages/dashboard/components/Card.tsx#CountBadge", "shipped": "packages/ui/src/atoms/Badge", "ready": true, "gap": [] },
+        { "local": "apps/admin/src/pages/dashboard/components/TabBar.tsx", "shipped": "packages/ui/src/molecules/Tabs", "ready": true, "gap": [] },
+        { "local": "apps/admin/src/pages/admins/components/AdminTabs.tsx", "shipped": "packages/ui/src/molecules/Tabs", "ready": true, "gap": [] },
+        { "local": "apps/admin/src/pages/dashboard/components/RangeToggle.tsx", "shipped": "packages/ui/src/molecules/SegmentedControl", "ready": true, "gap": [] },
+        { "local": "apps/admin/src/pages/dashboard/components/VisitorChart.tsx", "shipped": "packages/ui/src/molecules/LineAreaChart", "ready": true, "gap": [] },
+        { "local": "apps/admin/src/pages/login/components/Checkbox.tsx", "shipped": "packages/ui/src/atoms/Checkbox", "ready": false, "gap": ["name"] },
+        { "local": "apps/admin/src/pages/login/components/TextField.tsx", "shipped": "packages/ui/src/atoms/TextField", "ready": false, "gap": ["name", "autoComplete", "inputMode", "inputRef"] },
+        { "local": "apps/admin/src/pages/login/components/PasswordField.tsx", "shipped": "packages/ui/src/molecules/PasswordField", "ready": false, "gap": ["name", "autoComplete", "placeholder", "inputRef"] },
+        { "local": "apps/admin/src/pages/login/components/Button.tsx", "shipped": "packages/ui/src/atoms/Button", "ready": false, "gap": ["type", "fullWidth"], "severity": "critical" },
+        { "local": "apps/admin/src/shared/ui/Button.tsx", "shipped": "packages/ui/src/atoms/Button", "ready": false, "gap": ["type", "nativeButtonAttributes"], "severity": "critical" },
+        { "local": "apps/admin/src/pages/login/components/Alert.tsx", "shipped": "packages/ui/src/atoms/Alert", "ready": false, "gap": ["alertRef"] },
+        { "local": "apps/admin/src/shared/ui/Alert.tsx", "shipped": "packages/ui/src/atoms/Alert", "ready": false, "gap": ["onClose", "live", "align"] },
+        { "local": "apps/admin/src/pages/dashboard/components/PeriodTable.tsx", "shipped": "packages/ui/src/molecules/DataTable", "ready": false, "gap": ["columns[].unitInBody", "summaryRowKey"] },
+        { "local": "apps/admin/src/pages/dashboard/components/ListCard.tsx", "shipped": "packages/ui/src/organisms/ListCard", "ready": false, "gap": ["spaLinkEscapeHatch"], "severity": "critical" },
+        { "local": "apps/admin/src/pages/dashboard/components/TodoCard.tsx", "shipped": "packages/ui/src/organisms/TodoCard", "ready": false, "gap": ["spaLinkEscapeHatch"], "severity": "critical" },
+        { "local": "apps/admin/src/pages/dashboard/components/StatsSection.tsx", "shipped": "packages/ui/src/organisms/StatsCard", "ready": false, "gap": ["action.hiddenWhen->disabledWhen"], "severity": "critical" }
+      ]
+    },
+    "promote": {
+      "count": 9,
+      "items": [
+        { "name": "useToast+Toast+ToastProvider", "consumerPages": 6, "level": "organism", "reuseCheck": null },
+        { "name": "ConfirmDialog", "consumerPages": 4, "level": "organism", "reuseCheck": { "top": "Card", "similarity": 14.7, "verdict": "CREATE_OK" } },
+        { "name": "Pagination", "consumerPages": 3, "level": "molecule", "reuseCheck": { "top": "Button", "similarity": 12.0, "verdict": "CREATE_OK" } },
+        { "name": "SearchField", "consumerPages": 3, "level": "molecule", "reuseCheck": { "top": "TextField", "similarity": 38.2, "verdict": "CREATE_OK" }, "note": "3 hand-rolled copies in Members/LoginHistory/Admins toolbars" },
+        { "name": "FilterGroup", "consumerPages": 4, "level": "molecule", "reuseCheck": { "top": "Tabs", "similarity": 20.8, "verdict": "CREATE_OK" }, "note": "generalized version already exists at LoginHistoryFilters.tsx:74-122 — promote it, do not redesign" },
+        { "name": "Modal", "consumerPages": 2, "level": "organism", "reuseCheck": { "top": "TodoCard", "similarity": 22.5, "verdict": "CREATE_OK" } },
+        { "name": "HelpTip", "consumerPages": 2, "level": "atom", "reuseCheck": { "top": "Checkbox", "similarity": 22.0, "verdict": "CREATE_OK" } },
+        { "name": "useUnsavedChangesDialog", "consumerPages": 2, "level": "hook", "blockedBy": "cyclomatic complexity 16 must be fixed first" },
+        { "name": "TriStateCheckbox", "consumerPages": 1, "projectedConsumerPages": 3, "level": "atom", "reuseCheck": { "top": "Checkbox", "similarity": 40.0, "verdict": "CREATE_OK" }, "conditional": "promote only after MembersTable/AdminsTable reuse the existing shared/ui copy" }
+      ]
+    },
+    "keep": {
+      "count": 10,
+      "items": [
+        { "name": "MembersTable", "reason": "row selection + tri-state header + ReactNode cells + action menu + row nav — not expressible by data-only DataTable; 1 consumer" },
+        { "name": "AdminsTable", "reason": "same as MembersTable minus action menu; 1 consumer" },
+        { "name": "PermissionMatrixTable", "reason": "editable matrix (every cell is a TriStateCheckbox), sticky column, collapsible hierarchy — different category entirely" },
+        { "name": "LoginHistoryTable", "reason": "would require a breaking DataTable v2 (cell renderers + row tone + row nav) for 1 consumer — over-abstraction" },
+        { "name": "RowIcon", "reason": "domain enum -> icon map; ADR-0003 forbids domain in packages/ui; icon is already a ReactNode slot" },
+        { "name": "StatsSection (wrapper)", "reason": "permission gating + query + grid = page composition" },
+        { "name": "ActionMenu", "reason": "1 consumer (members)" },
+        { "name": "TierFilter/GroupFilter/AdminGroupPanel/RolePanel", "reason": "domain filters; the only shared part is FilterGroup markup, promoted separately" },
+        { "name": "MoreHorizontalIcon/ArrowLeftIcon, activeBadgeStyle, streakBadgeStyle", "reason": "1 consumer each" },
+        { "name": "Export button", "reason": "2 consumers but it is Button + already-promoted DownloadIcon + a label ternary — 3 lines, not a module" }
+      ]
+    }
+  },
+  "migrationBlockers": [
+    { "id": "MB-1", "module": "Button", "issue": "type prop absent; shipped hardcodes type=\"button\" (Button.tsx:45)", "impact": "5 forms stop submitting (LoginForm, RoleFormModal, CreateGroupModal, PasswordChangeModal, PointsCard)", "severity": "critical" },
+    { "id": "MB-2", "module": "Button", "issue": "default variant flips secondary -> primary", "impact": "app-wide silent visual regression on every unqualified <Button>", "severity": "critical" },
+    { "id": "MB-3", "module": "Button", "issue": "no native ButtonHTMLAttributes passthrough", "impact": "aria-describedby / title / aria-label / aria-busy call sites become TS errors", "severity": "high" },
+    { "id": "MB-4", "module": "ListCard, TodoCard", "issue": "click callback never receives MouseEvent (ListCard.tsx:48-51, TodoCard.tsx:23-30)", "impact": "preventDefault impossible -> href causes full page reload; no prop combination yields SPA navigation", "severity": "critical" },
+    { "id": "MB-5", "module": "DataTable", "issue": "body cells hardcode withUnit=false (DataTable.tsx:83)", "impact": "dashboard revenue rows lose the 원 suffix", "severity": "high" },
+    { "id": "MB-6", "module": "StatsCard", "issue": "contract action.hiddenWhen:[loading] unmounts the action slot while loading", "impact": "range toggle disappears on every one of its own clicks (loading === isFetching)", "severity": "critical" },
+    { "id": "MB-7", "module": "TextField", "issue": "injects a '*' required marker into the label", "impact": "getByLabelText exact-match E2E selectors break", "severity": "high" },
+    { "id": "MB-8", "module": "TextField", "issue": "error sentinel inverted ('' means valid in shipped, invalid in local); local type is string|null", "impact": "every call site needs error={x ?? ''}; silent meaning flip", "severity": "high" },
+    { "id": "MB-9", "module": "Alert", "issue": "shipped root is <p>, local is <div>", "impact": "block children -> <div> inside <p> -> browser auto-close -> layout collapse", "severity": "high" },
+    { "id": "MB-10", "module": "Alert", "issue": "tone=danger hard-coupled to role=alert aria-live=assertive with no opt-out", "impact": "previously polite banners hijack the screen reader", "severity": "medium" },
+    { "id": "MB-11", "module": "TextField, Button", "issue": "aria-invalid / aria-busy omitted when false (local always renders them)", "impact": "[aria-invalid=\"false\"] selectors break", "severity": "medium" }
+  ],
+  "technicalDebt": {
+    "remeasuredAt": "2026-07-15",
+    "duplication": {
+      "before": 7,
+      "threshold": "0 (30-line block repeated 2+ times)",
+      "projectedAfterA41": 2,
+      "note": "filterHeadingStyle 4-copy promotion by A40 confirmed complete — zero local copies remain",
+      "items": [
+        { "clone": "AdminsTable.tsx:39 <-> MembersTable.tsx:56", "identity": "SelectAllCheckbox + cell styles, identical but for 2 string literals", "fix": "reuse existing shared/ui/TriStateCheckbox — also restores missing aria-checked=mixed", "owner": "A40/A41", "needsContract": false },
+        { "clone": "AdminGroupPanel.tsx:12 <-> RolePanel.tsx:15", "identity": "wrapperStyle+navStyle+noticeStyle, identical", "fix": "promote 3 panel-shell styles to shared/ui/styles.ts (filterHeadingStyle precedent)", "owner": "A40/A41", "needsContract": false },
+        { "clone": "admins/fixtures.ts:25,37,49", "identity": "fixture triplication", "fix": "factory function", "owner": "A40/A41", "needsContract": false },
+        { "clone": "ProductRegistrationPage.tsx:471 <-> 512", "identity": "form section", "fix": "in-page extraction (1 consumer — do not promote)", "owner": "A40/A41", "needsContract": false },
+        { "clone": "nav-config.ts:72<->192", "identity": "nav tree definition", "fix": "data-table-ize", "owner": "A40/A41", "needsContract": false },
+        { "clone": "nav-config.ts:79<->162", "identity": "nav tree definition", "fix": "data-table-ize", "owner": "A40/A41", "needsContract": false },
+        { "clone": "Button.stories.tsx:119 (x11)", "identity": "story boilerplate repeated 11 times", "fix": "extract play helper", "owner": "A30", "needsContract": false }
+      ]
+    },
+    "complexity": {
+      "before": 3,
+      "max": 24,
+      "threshold": 15,
+      "projectedAfterA41": 0,
+      "items": [
+        { "fn": "ProductRegistrationForm", "file": "apps/admin/src/pages/product-registration/ProductRegistrationPage.tsx:117", "value": 24, "fix": "per-section subcomponents + validation lookup table", "owner": "A40/A41" },
+        { "fn": "DashboardPage", "file": "apps/admin/src/pages/dashboard/DashboardPage.tsx:65", "value": 18, "fix": "useDashboardTabs() hook -> 12; + <DashboardTabPanel> -> 6", "owner": "A40/A41" },
+        { "fn": "handleClick", "file": "apps/admin/src/shared/ui/useUnsavedChangesDialog.tsx:83", "value": 16, "fix": "3 pure helpers: isPlainLeftClick / routableAnchorFrom / internalDestination -> 5", "owner": "A40/A41" }
+      ]
+    },
+    "deadCode": { "before": 0, "note": "A41/A30 drove this to 0 — must not regress. Promotion is not done until the local copy is deleted." },
+    "a84OwnedViolations": 0
+  },
+  "threeWayCrossCheck": {
+    "pageToPage": { "crossPageImports": 0, "duplicatedMarkupKinds": 9 },
+    "pageToStorybook": { "duplicates": 18 },
+    "storybookToFigma": { "contractTest": "15/15 PASS", "drift": 0 }
+  },
+  "baseline": {
+    "note": "A84 changed zero source lines. This is the pre-execution baseline.",
+    "e2e": "63/63 PASS",
+    "unitTests": "162 PASS (packages/ui 83 + admin 79)",
+    "contractTest": "15/15 PASS",
+    "coverageCheck": { "blocker": 0, "axis4Ratchet": 137 },
+    "qualityCheck": { "blocker": 0, "major": 10 },
+    "namingCheck": 0,
+    "boundaryCheck": "PASS",
+    "codegen": "new 0 / updated 0 / identical 63 (idempotent)",
+    "bundle": { "js": "482.03 kB", "jsGzip": "146.51 kB", "css": "17.30 kB" }
+  },
+  "changeRequests": [
+    { "id": "CR-2026-0715-004", "to": "A18", "subject": "contract EXTEND x7 — the precondition for all 18 reuse migrations" },
+    { "id": "CR-2026-0715-005", "to": "A30", "subject": "packages/ui implementation + stories + asserting tests; Button.stories duplication" },
+    { "id": "CR-2026-0715-006", "to": "A41", "subject": "page refactor: delete 18 local copies + repay 10 quality violations" },
+    { "id": "CR-2026-0715-007", "to": "A60", "subject": "adopt the reuse-decision guide into docs/tds/guidelines/" }
+  ]
+}

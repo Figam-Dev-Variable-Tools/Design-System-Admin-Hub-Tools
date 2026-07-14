@@ -1,0 +1,119 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/Button.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "Button",
+  "component": "Button",
+  "version": "1.1.0",
+  "variantProperties": {
+    "Variant": {
+      "values": [
+        "primary",
+        "secondary",
+        "ghost",
+        "danger"
+      ],
+      "default": "primary"
+    },
+    "Size": {
+      "values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "default": "md"
+    },
+    "Loading": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    },
+    "Disabled": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    },
+    "FullWidth": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  },
+  "properties": [
+    {
+      "name": "Variant",
+      "type": "VARIANT",
+      "values": [
+        "primary",
+        "secondary",
+        "ghost",
+        "danger"
+      ],
+      "default": "primary"
+    },
+    {
+      "name": "Type",
+      "type": "TEXT",
+      "default": "button"
+    },
+    {
+      "name": "Size",
+      "type": "VARIANT",
+      "values": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "default": "md"
+    },
+    {
+      "name": "Loading",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Disabled",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "FullWidth",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "IconLeft",
+      "type": "INSTANCE_SWAP",
+      "accepts": [
+        "Icon"
+      ],
+      "hiddenWhen": [
+        "loading"
+      ]
+    },
+    {
+      "name": "Children",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "background": "component.button.background",
+    "backgroundHover": "component.button.background-hover",
+    "backgroundActive": "component.button.background-active",
+    "backgroundDisabled": "component.button.background-disabled",
+    "text": "component.button.text",
+    "focusRing": "component.button.focus-ring",
+    "radius": "component.button.radius",
+    "paddingX": "component.button.padding-x",
+    "paddingY": "component.button.padding-y",
+    "gap": "component.button.gap",
+    "typography": "component.button.typography",
+    "transitionDuration": "component.button.transition-duration",
+    "transitionEasing": "component.button.transition-easing"
+  }
+}

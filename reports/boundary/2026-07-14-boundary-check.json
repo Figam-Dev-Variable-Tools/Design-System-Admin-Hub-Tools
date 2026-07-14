@@ -1,0 +1,27 @@
+{
+  "tool": "@tds/boundary check-boundary",
+  "generatedAt": "2026-07-14T23:02:54.813Z",
+  "agent": null,
+  "base": null,
+  "fileCount": 1,
+  "result": "PASS",
+  "files": [
+    {
+      "path": "README.md",
+      "owners": [
+        {
+          "id": "A01",
+          "slug": "architecture"
+        }
+      ],
+      "pattern": "README.md",
+      "partial": false,
+      "allPatterns": [
+        "README.md"
+      ]
+    }
+  ],
+  "unowned": [],
+  "violations": [],
+  "exempted": []
+}

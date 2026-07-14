@@ -1,0 +1,54 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/ListCard.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "ListCard",
+  "component": "ListCard",
+  "version": "2.0.0",
+  "variantProperties": {
+    "Loading": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  },
+  "properties": [
+    {
+      "name": "Title",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Loading",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Empty",
+      "type": "TEXT",
+      "default": "표시할 항목이 없습니다."
+    },
+    {
+      "name": "Icon",
+      "type": "INSTANCE_SWAP",
+      "accepts": [
+        "Icon"
+      ]
+    }
+  ],
+  "tokens": {
+    "surface": "color.surface.default",
+    "border": "color.border.default",
+    "radius": "radius.md",
+    "padding": "space.5",
+    "gap": "space.3",
+    "rowGap": "space.2",
+    "rowBorder": "color.border.default",
+    "title": "color.text.default",
+    "titleTypography": "typography.label.md",
+    "typography": "typography.body.md",
+    "rowMeta": "color.text.muted",
+    "empty": "color.text.muted",
+    "focusRing": "color.border.focus"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tds.internal/schemas/handoff.v1.json",
+  "title": "TDS Agent Handoff Envelope v1",
+  "description": "에이전트 간 모든 통신 규격. 산문 전달 금지 (P2 계약 우선). orchestration/tasks/에 파일로 기록된다.",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "from",
+    "to",
+    "gate",
+    "subject",
+    "artifacts",
+    "preconditions_met",
+    "automated_checks",
+    "sla_hours",
+    "escalation_count"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^TASK-\\d{4}-\\d{4}-\\d{3}$",
+      "description": "TASK-YYYY-MMDD-NNN"
+    },
+    "type": {
+      "enum": ["handoff", "review_request", "review_result", "escalation", "change_request"]
+    },
+    "from": { "$ref": "#/$defs/agentId" },
+    "to": { "$ref": "#/$defs/agentId" },
+    "gate": { "enum": ["G0", "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9"] },
+    "subject": { "type": "string", "minLength": 1 },
+    "target": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Za-z0-9]*@(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
+      "description": "대상 컴포넌트 Name@version (예: Select@2.3.0)"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "산출물 리포 상대 경로 목록"
+    },
+    "preconditions_met": {
+      "type": "object",
+      "required": ["contract_approved", "contract_version", "tokens_available"],
+      "properties": {
+        "contract_approved": { "type": "boolean" },
+        "contract_version": { "type": ["string", "null"] },
+        "tokens_available": { "type": "boolean" }
+      },
+      "additionalProperties": { "type": ["boolean", "string", "null"] }
+    },
+    "automated_checks": {
+      "type": "object",
+      "description": "자동 검증 결과 스냅샷 (예: contract_test: pass, axe: 0 violations, coverage: 100%)",
+      "additionalProperties": { "type": "string" }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["reason", "owner"],
+        "properties": {
+          "reason": { "type": "string" },
+          "owner": { "$ref": "#/$defs/agentId" },
+          "since": { "type": "string" }
+        }
+      }
+    },
+    "sla_hours": { "type": "number", "exclusiveMinimum": 0 },
+    "escalation_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3,
+      "description": "3 도달 시 자동 에스컬레이션 (gates.json stateMachine 참조)"
+    }
+  },
+  "$defs": {
+    "agentId": { "type": "string", "pattern": "^A\\d{2}$" }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tds.internal/schemas/change-request.v1.json",
+  "title": "TDS Change Request v1",
+  "description": "하드 바운더리를 지키면서 남의 소유 경로 변경을 얻는 유일한 경로. 예: Storybook Engineer가 계약 변경 필요 시 Contract Engineer에게 발행.",
+  "type": "object",
+  "required": ["id", "type", "from", "to", "reason", "proposed", "impact", "blocking"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^CR-\\d{4}-\\d{4}-\\d{3}$",
+      "description": "CR-YYYY-MMDD-NNN"
+    },
+    "type": { "const": "change_request" },
+    "from": { "$ref": "#/$defs/agentId" },
+    "to": { "$ref": "#/$defs/agentId" },
+    "target": {
+      "type": "string",
+      "description": "변경 대상 파일 또는 컴포넌트 (예: contracts/Select.contract.json)"
+    },
+    "reason": { "type": "string", "minLength": 10, "description": "재현 방법 + 기대 결과 포함" },
+    "proposed": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "제안 변경 내용 — JSON Pointer 스타일 키 → 값 (예: props.iconLeft.hiddenWhen: [loading])"
+    },
+    "impact": { "enum": ["MAJOR", "MINOR", "PATCH"] },
+    "blocking": {
+      "type": "boolean",
+      "description": "true면 발행자의 생산 작업 중단. 수신자 SLA 2h"
+    },
+    "sla_hours": { "type": "number", "default": 2 },
+    "status": { "enum": ["OPEN", "ACCEPTED", "REJECTED", "SUPERSEDED"], "default": "OPEN" },
+    "resolution": { "type": "string" }
+  },
+  "$defs": {
+    "agentId": { "type": "string", "pattern": "^A\\d{2}$" }
+  }
+}

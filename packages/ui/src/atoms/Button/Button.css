@@ -1,0 +1,157 @@
+/* Button (atom) — 값은 전부 토큰 CSS 변수. 하드코딩 hex/px 0건 (G5/G6).
+   치수는 space/border-width 토큰 또는 1em(글자 크기 상대) 만 사용한다. */
+
+.tds-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tds-component-button-gap);
+  border-style: solid;
+  border-width: var(--tds-border-width-thin);
+  border-color: transparent;
+  border-radius: var(--tds-component-button-radius);
+  font-family: var(--tds-typography-label-md-font-family);
+  font-weight: var(--tds-typography-label-md-font-weight);
+  line-height: var(--tds-typography-label-md-line-height);
+  cursor: pointer;
+  transition:
+    background-color var(--tds-component-button-transition-duration)
+      cubic-bezier(var(--tds-component-button-transition-easing)),
+    color var(--tds-component-button-transition-duration)
+      cubic-bezier(var(--tds-component-button-transition-easing));
+}
+
+/* focus-visible — 키보드 포커스에만 링을 노출한다 (계약 a11y.focusVisible) */
+.tds-button:focus-visible {
+  outline: var(--tds-border-width-medium) solid var(--tds-component-button-focus-ring);
+  outline-offset: var(--tds-space-1);
+}
+
+/* --- isFullWidth (계약 boolean) — 컨테이너 100% 폭. 기본은 내용 폭(inline-flex) ---
+   실사용: 로그인 제출 CTA (LoginForm). display 를 flex 로 바꿔야 inline-flex 의 내용 폭 수축이 풀린다. */
+.tds-button--full-width {
+  display: flex;
+  inline-size: 100%;
+}
+
+/* --- size (계약 enum: sm | md | lg) — 논리 속성이라 RTL 에서도 동일하게 동작한다 --- */
+.tds-button--sm {
+  padding-block: var(--tds-space-1);
+  padding-inline: var(--tds-space-3);
+  font-size: var(--tds-typography-label-md-font-size);
+}
+
+.tds-button--md {
+  padding-block: var(--tds-component-button-padding-y);
+  padding-inline: var(--tds-component-button-padding-x);
+  font-size: var(--tds-typography-label-md-font-size);
+}
+
+.tds-button--lg {
+  padding-block: var(--tds-space-3);
+  padding-inline: var(--tds-space-5);
+  font-size: var(--tds-typography-body-md-font-size);
+}
+
+/* --- variant (계약 enum: primary | secondary | ghost | danger) --- */
+.tds-button--primary {
+  background: var(--tds-component-button-background);
+  color: var(--tds-component-button-text);
+}
+
+.tds-button--primary:hover:not(:disabled) {
+  background: var(--tds-component-button-background-hover);
+}
+
+.tds-button--primary:active:not(:disabled) {
+  background: var(--tds-component-button-background-active);
+}
+
+.tds-button--secondary {
+  background: var(--tds-color-surface-default);
+  border-color: var(--tds-color-border-default);
+  color: var(--tds-color-text-default);
+}
+
+.tds-button--secondary:hover:not(:disabled) {
+  background: var(--tds-color-surface-raised);
+}
+
+.tds-button--secondary:active:not(:disabled) {
+  background: var(--tds-color-surface-raised);
+  border-color: var(--tds-color-border-focus);
+}
+
+.tds-button--ghost {
+  background: transparent;
+  color: var(--tds-color-action-primary-default);
+}
+
+.tds-button--ghost:hover:not(:disabled) {
+  background: var(--tds-color-surface-raised);
+}
+
+.tds-button--ghost:active:not(:disabled) {
+  background: var(--tds-color-surface-raised);
+  color: var(--tds-color-action-primary-active);
+}
+
+.tds-button--danger {
+  background: var(--tds-color-feedback-danger-border);
+  color: var(--tds-color-text-on-primary);
+}
+
+.tds-button--danger:hover:not(:disabled) {
+  background: var(--tds-color-feedback-danger-text);
+}
+
+.tds-button--danger:active:not(:disabled) {
+  background: var(--tds-color-feedback-danger-text);
+}
+
+/* --- disabled (계약 state) — 모든 variant 공통 --- */
+.tds-button:disabled {
+  background: var(--tds-component-button-background-disabled);
+  border-color: transparent;
+  color: var(--tds-color-text-disabled);
+  cursor: not-allowed;
+}
+
+/* --- 슬롯 / 로딩 --- */
+.tds-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tds-button__label {
+  display: inline-block;
+}
+
+.tds-button__spinner {
+  display: inline-block;
+  inline-size: 1em;
+  block-size: 1em;
+  border-style: solid;
+  border-width: var(--tds-border-width-medium);
+  border-color: currentColor;
+  border-block-start-color: transparent;
+  border-radius: var(--tds-radius-full);
+  animation: tds-button-spin var(--tds-motion-duration-slow) linear infinite;
+}
+
+@keyframes tds-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tds-button {
+    transition: none;
+  }
+
+  .tds-button__spinner {
+    animation: none;
+  }
+}
