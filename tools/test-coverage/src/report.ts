@@ -1,6 +1,17 @@
 /**
- * 리포트 — reports/test-coverage/<date>-<scope>.json + .md
- * (reports/README.md 규격: 날짜 접두 `YYYY-MM-DD`. 기계 생성 전용, 수기 편집 금지)
+ * 리포트 — reports/test-coverage/<scope>.json + .md  (**안정 파일명 · 날짜 없음**)
+ *
+ * **이 파일은 커밋된다** (축 4 래칫의 기준선 — CI 캐시가 초기화돼도 후퇴를 감지하려면
+ * 저장소에 영속돼야 한다. ADR-0010 결정 2). 커밋되는 아티팩트이므로 **결정론적이어야 한다** —
+ * **커버리지가 실제로 바뀔 때만 바뀐다.**
+ *
+ * 그래서 벽시계 값(`generatedAt`)도, 날짜(`date`)도 이 파일에 넣지 않는다:
+ *   - `generatedAt` 벽시계 → 실행마다 한 줄이 바뀌어 pre-commit `verify:all` 이 돌 때마다
+ *     트리가 더러워진다. 내용 변화가 아니라 소음이다.
+ *   - **파일명의 날짜 접두(`YYYY-MM-DD-`)도 결함이었다** — 자정을 넘기면 새 파일이 생겨
+ *     옛 기준선이 고아가 되고, 같은 날 두 번 실행해도 "직전 리포트 = 자기 자신"이 되어
+ *     `ratchet.source` 가 실행 간에 달라진다. 그래서 **스코프당 파일 하나**(`<scope>.json`)로
+ *     제자리 덮어쓴다. 실행 시각은 콘솔과 gitignore 되는 `reports/test-coverage/tmp/` 에만 남긴다.
  *
  * **`NOT_VERIFIED` 와 `PASS` 를 구분해 표기한다.** 이 둘을 같은 초록불로 적는 순간 리포트는 거짓말이 된다.
  * 위반 0건이어도 pass 리포트를 남긴다 (A33/A42가 G5·G6 evidence 로 인용한다).
@@ -57,9 +68,9 @@ export interface ScopeRow {
 export interface Report {
   tool: '@tds/test-coverage';
   agent: 'A77';
-  date: string;
   scope: string;
-  generatedAt: string;
+  // 주의: `date` · `generatedAt` 등 벽시계 필드는 **의도적으로 없다** (파일 상단 주석 참조).
+  //       실행 시각이 필요하면 콘솔 또는 gitignore 되는 tmp/ 런로그를 본다.
   /** PASS | NOT_VERIFIED | FAIL — NOT_VERIFIED 는 통과가 아니다 */
   status: 'PASS' | 'WARN' | 'NOT_VERIFIED' | 'FAIL';
   exitCode: 0 | 1 | 2;
@@ -101,7 +112,6 @@ export interface Report {
 }
 
 export function buildReport(args: {
-  date: string;
   scope: string;
   inputs: Report['inputs'];
   results: AxisResult[];
@@ -134,9 +144,7 @@ export function buildReport(args: {
   return {
     tool: '@tds/test-coverage',
     agent: 'A77',
-    date: args.date,
     scope: args.scope,
-    generatedAt: new Date().toISOString(),
     status,
     exitCode,
     blockedGates,
@@ -176,9 +184,12 @@ export function renderMarkdown(report: Report): string {
   const L: string[] = [];
   const r = report;
 
-  L.push(`# Test Coverage 리포트 — ${r.date} (${r.scope})`);
+  L.push(`# Test Coverage 리포트 — ${r.scope}`);
   L.push('');
   L.push('> 생성: `@tds/test-coverage` (A77 Test Coverage Guard) — 기계 생성 전용, 수기 편집 금지');
+  L.push(
+    '> 커밋되는 기준선이다 — **커버리지가 실제로 바뀔 때만 바뀐다.** 실행 시각은 여기 없다(콘솔/tmp 참조).',
+  );
   L.push('> **커버리지는 라인 %가 아니다.** 계약이 정의한 상태 전부 + FS가 정의한 예외 축 전부다.');
   L.push('');
   L.push(
@@ -317,10 +328,14 @@ function esc(s: string): string {
   return s.replace(/\|/g, '\\|').replace(/\n/g, ' ');
 }
 
+/**
+ * 커밋되는 기준선을 **안정 파일명**으로 제자리 덮어쓴다: `reports/test-coverage/<scope>.json` + `.md`.
+ * 날짜 접두가 없으므로 자정을 넘겨도 새 파일이 생기지 않고, 같은 입력이면 바이트가 동일하다.
+ */
 export function writeReport(root: string, report: Report): { json: string; md: string } {
   const dir = path.join(root, 'reports', 'test-coverage');
   ensureDir(dir);
-  const stem = `${report.date}-${report.scope}`;
+  const stem = report.scope;
   fs.writeFileSync(path.join(dir, `${stem}.json`), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
   fs.writeFileSync(path.join(dir, `${stem}.md`), renderMarkdown(report), 'utf8');
   return {

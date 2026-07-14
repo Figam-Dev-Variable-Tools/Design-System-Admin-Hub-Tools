@@ -57,25 +57,46 @@ const EMPTY = (source: string): Baseline => ({
 });
 
 /**
- * `reports/test-coverage/` 에서 같은 scope 의 가장 최근 리포트를 찾아 축 4 커버 칸 수를 읽는다.
- * 파일명 규약: `YYYY-MM-DD-<scope>.json` (escalations 는 제외).
+ * 축 4 래칫의 기준선을 읽는다 — **안정 파일명** `reports/test-coverage/<scope>.json`.
+ *
+ * `source` 는 상수(`reports/test-coverage/<scope>.json`)다. 이것이 결정론의 열쇠다:
+ * 구 버전은 날짜 접두 파일 중 "가장 최근"을 골라서, 같은 날 두 번째 실행이 **자기 자신**을
+ * 기준선으로 삼아 `source` 문자열이 실행 간에 달라졌다(= churn). 이제 항상 같은 파일을 읽는다.
+ *
+ * **마이그레이션**: 안정 파일이 아직 없으면(이 개편 이전의 리포만 있으면) 레거시
+ * `YYYY-MM-DD-<scope>.json` 중 최신을 폴백으로 읽어 기준선 연속성을 지킨다. 폴백은 읽기 전용 —
+ * 다음 실행이 `<scope>.json` 을 쓰면 레거시 파일은 고아가 되며, 도구는 그 목록을 콘솔에 알려
+ * 사람이 지우게 한다(A77이 자기 소유 경로에서 정리).
  */
 export function readBaseline(root: string, scope: string): Baseline {
   const dir = path.join(root, 'reports', 'test-coverage');
   if (!fs.existsSync(dir)) return EMPTY('(직전 리포트 없음 — 최초 실행. 기준선 0)');
 
-  const suffix = `-${scope}.json`;
-  const candidates = fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith(suffix) && !f.includes('-escalations'))
-    .sort(); // 날짜 접두이므로 사전순 = 시간순
+  const stable = `${scope}.json`;
+  let chosen: string | undefined;
+  if (fs.existsSync(path.join(dir, stable))) {
+    chosen = stable;
+  } else {
+    // 레거시 폴백 — 날짜 접두 파일 중 최신 (사전순 = 시간순)
+    const legacy = fs
+      .readdirSync(dir)
+      .filter(
+        (f) =>
+          /^\d{4}-\d{2}-\d{2}-/.test(f) &&
+          f.endsWith(`-${scope}.json`) &&
+          !f.includes('-escalations'),
+      )
+      .sort();
+    chosen = legacy[legacy.length - 1];
+  }
+  if (chosen === undefined) return EMPTY('(직전 리포트 없음 — 최초 실행. 기준선 0)');
 
-  const latest = candidates[candidates.length - 1];
-  if (latest === undefined) return EMPTY('(직전 리포트 없음 — 최초 실행. 기준선 0)');
-
-  const source = `reports/test-coverage/${latest}`;
+  // source 는 **항상 안정 파일명**이다. 레거시에서 승계했더라도 그 값은 이제 <scope>.json 에
+  // 살게 되므로, 마이그레이션 실행과 이후 실행이 같은 source 문자열을 갖는다(결정론 보존).
+  // "레거시에서 승계했다"는 사실은 콘솔에만 알린다(index.ts) — 커밋 파일에는 넣지 않는다.
+  const source = `reports/test-coverage/${stable}`;
   try {
-    const prev = JSON.parse(fs.readFileSync(path.join(dir, latest), 'utf8')) as {
+    const prev = JSON.parse(fs.readFileSync(path.join(dir, chosen), 'utf8')) as {
       summary?: { id: string; covered: number; total: number }[];
     };
     const find = (id: string) => prev.summary?.find((s) => s.id === id);
@@ -88,8 +109,25 @@ export function readBaseline(root: string, scope: string): Baseline {
   } catch {
     // 리포트가 깨졌으면 기준선을 0으로 낮추지 않는다 — 그러면 후퇴가 은폐된다.
     // 읽을 수 없다는 사실 자체를 드러내고 0으로 두되, source 에 사유를 남긴다.
-    return EMPTY(`${source} (파싱 실패 — 기준선 0. 리포트 손상 여부를 확인하라)`);
+    return EMPTY(
+      `reports/test-coverage/${chosen} (파싱 실패 — 기준선 0. 리포트 손상 여부를 확인하라)`,
+    );
   }
+}
+
+/**
+ * 정리 대상 — 레거시 **날짜 접두** 파일들 (안정 파일명 도입 후 전부 고아가 된다).
+ * scope 제약을 두지 않는다: `YYYY-MM-DD-` 로 시작하는 파일은 리포트든 에스컬레이션이든
+ * 모두 구 명명 규칙의 잔재이므로 함께 정리한다.
+ */
+export function legacyReportFiles(root: string): string[] {
+  const dir = path.join(root, 'reports', 'test-coverage');
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir)
+    .filter((f) => /^\d{4}-\d{2}-\d{2}-/.test(f))
+    .map((f) => `reports/test-coverage/${f}`)
+    .sort();
 }
 
 /** 축 2·3 공통 — 분모(계약 표면)가 줄었으면 major 로 신고한다. 차단하지는 않는다. */

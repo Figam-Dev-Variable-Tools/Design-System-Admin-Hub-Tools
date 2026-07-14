@@ -5,7 +5,8 @@
  *   pnpm coverage:check                            # PR 게이트 (A80이 루트 스크립트 등록)
  *   pnpm --filter @tds/test-coverage run check
  *
- * 산출물: reports/test-coverage/<date>-<scope>.json + .md
+ * 산출물: reports/test-coverage/<scope>.json + .md  (커밋 · 안정 파일명 · 결정론 — 벽시계 없음)
+ *         reports/test-coverage/tmp/<scope>-escalations.json  (gitignore · failure-only)
  * 종료 코드:
  *   0 — blocker 0건 (major 는 경고로 남고 통과)
  *   1 — blocker >= 1건 → **G5 · G6 BLOCKED**
@@ -22,7 +23,7 @@ import { checkContractStates } from './axes/contract-states.ts';
 import { checkExistence } from './axes/existence.ts';
 import { checkFsExceptions } from './axes/fs-exceptions.ts';
 import { checkToolFixtures } from './axes/tool-fixtures.ts';
-import { readBaseline } from './lib/baseline.ts';
+import { legacyReportFiles, readBaseline } from './lib/baseline.ts';
 import { loadContracts } from './lib/contracts.ts';
 import { exists, findRepoRoot } from './lib/fsutil.ts';
 import { loadSpecs } from './lib/specs.ts';
@@ -99,9 +100,10 @@ function main(): void {
   }
 
   const unmeasurable = false; // 여기까지 왔으면 원천은 있다. 개별 원천의 대조 불가는 blocker gap 으로 처리된다.
-  const date = new Date().toISOString().slice(0, 10);
+  // 벽시계 값은 **커밋되는 리포트에 넣지 않는다** — 콘솔과 gitignore 되는 에스컬레이션에만 쓴다.
+  const runAt = new Date().toISOString();
+  const runDate = runAt.slice(0, 10);
   const report = buildReport({
-    date,
     scope,
     inputs: {
       contracts: contracts.length,
@@ -131,11 +133,15 @@ function main(): void {
   });
 
   const paths = writeReport(root, report);
-  // 차단 시 에스컬레이션 봉투를 **파일로** 남긴다 (P2: 산문 전달 금지).
+  // 차단 시 에스컬레이션 봉투를 **파일로** 남긴다 (P2: 산문 전달 금지) — gitignore 되는 tmp/ 에.
   // 감사 발견 9: change_request 29건이 문서 안의 표로만 존재해 아무도 읽지 않았다.
-  const envelopePath = report.counts.blocker > 0 ? writeEnvelopes(root, report) : null;
+  const envelopePath = report.counts.blocker > 0 ? writeEnvelopes(root, report, runDate) : null;
+
+  // 안정 파일명 도입으로 고아가 된 레거시 날짜 접두 리포트를 알린다 (A77이 정리 — 자기 소유 경로).
+  const legacy = legacyReportFiles(root);
 
   /* ── 콘솔 ─────────────────────────────────────────────────────────────── */
+  console.log(`[test-coverage] 실행 시각: ${runAt} (커밋되는 리포트에는 기록하지 않는다 — 결정론)`);
   console.log(
     `[test-coverage] 입력: 계약 ${report.inputs.contracts}종 · FS ${report.inputs.specs}건 · 테스트 파일 ${report.inputs.testFiles}개 · 스토리 파일 ${report.inputs.storyFiles}개`,
   );
@@ -183,11 +189,17 @@ function main(): void {
     console.error(`[test-coverage] BLOCKER … 외 ${restBlockers}건 (리포트 참조)`);
 
   console.log('');
-  console.log(`[test-coverage] 리포트: ${paths.json}, ${paths.md}`);
+  console.log(`[test-coverage] 리포트(커밋 · 안정 파일명): ${paths.json}, ${paths.md}`);
   if (envelopePath !== null) {
     console.log(
-      `[test-coverage] 에스컬레이션 봉투: ${envelopePath} (→ A30 · A33 · A40 · A85 · A42 · A00)`,
+      `[test-coverage] 에스컬레이션 봉투(gitignore tmp/): ${envelopePath} (→ A30 · A33 · A40 · A85 · A42 · A00)`,
     );
+  }
+  if (legacy.length > 0) {
+    console.warn(
+      `[test-coverage] 정리 대상 — 레거시 날짜 접두 리포트 ${legacy.length}건 (안정 파일명 도입으로 고아):`,
+    );
+    for (const f of legacy) console.warn(`[test-coverage]   git rm ${f}`);
   }
 
   if (report.counts.blocker > 0) {

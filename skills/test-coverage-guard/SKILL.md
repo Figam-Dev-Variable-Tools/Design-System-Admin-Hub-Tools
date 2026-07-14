@@ -98,18 +98,19 @@ Button.contract.json  states: [default, hover, active, disabled, loading]
    - **"동작이 정의된 칸"만 대조 격자에 넣는다.** 정적 표시 요소(라벨·아이콘)를 테스트하라고 요구하지 않되, **무엇이 라벨인지 도구가 추측하지 않는다.** FS §4 는 7축을 빈칸 없이 채우도록 강제되고(G9 자기점검), 축이 성립하지 않는 요소는 A62가 이미 `N/A — 고정 문구다` 로 **사유와 함께 선언해 두었다.** 그러므로 **동작 칸 = `N/A` 도, 빈칸도, 공통 규칙으로의 순수 위임(`§4.1 공통 규칙 적용`)도 아닌 칸**이며, **테스트 대상 요소 = 그런 칸을 1개 이상 가진 요소**다. 판단하지 않고 **센다** — 판단은 이미 A62가 §4에 했다.
    - **래칫**: 커버 칸 수가 직전 리포트보다 **줄면 blocker**. 기준선 파일이 없으면(최초 실행) 기준선 0 — 과거가 없으면 후퇴도 없으므로 `exit 2` 사유가 아니다.
 4. **골든 픽스처 확인 (축 5)** — `tools/codegen`·`tools/contract-test` 에 골든 픽스처 테스트가 존재하는가.
-5. **리포트 기록** — `reports/test-coverage/YYYY-MM-DD-<scope>.json` + `.md`
+5. **리포트 기록** — `reports/test-coverage/<scope>.json` + `.md` (**안정 파일명 · 커밋됨 · 결정론**)
    - JSON: `{ axis, source, item, covered, testName|null, gate }`
    - MD: 축별 요약 표 + **덮이지 않은 항목 전수 목록**. **위반 0건이어도 pass 리포트를 남긴다** (A33/A42가 evidence로 인용).
    - 리포트는 **150행 이내** (ADR-0010 T4). 덮이지 않은 항목이 150행을 넘으면 그것은 리포트 문제가 아니라 **조직 문제**이며, 요약 + 경로만 남기고 A00에 에스컬레이션한다.
+   - **이 파일은 커밋된다**(축 4 래칫의 기준선 — ADR-0010 결정 2). 따라서 **벽시계 값을 넣지 않는다** — `generatedAt`·`date` 없음, 날짜 접두 파일명 없음. **커버리지가 실제로 바뀔 때만 바뀐다**(같은 입력 두 번 → 바이트 동일). 실행 시각은 콘솔과 gitignore 되는 `reports/test-coverage/tmp/` 에만 남긴다. (날짜 접두 파일명은 자정을 넘기면 기준선을 고아로 만들고 `ratchet.source` 를 churn 시켜 폐기했다.)
 6. **blockCondition 판정**
-   - **충족** → G5·G6를 BLOCKED로 표시(CI fail) + escalation envelope(`orchestration/schemas/handoff.v1.json`)를 작성해 소유자(A40/A30/A85) · approver(A33/A42) · A00에 전달.
+   - **충족** → G5·G6를 BLOCKED로 표시(CI fail) + escalation envelope(`orchestration/schemas/handoff.v1.json`)를 **gitignore 되는** `reports/test-coverage/tmp/<scope>-escalations.json` 에 작성해 소유자(A40/A30/A85) · approver(A33/A42) · A00에 전달. (에스컬레이션은 failure-only 이벤트이고 매 실행 재현 가능하므로 커밋 기준선이 아니다.)
    - **미충족** → pass 리포트 기록.
 7. **공허 통과 감시** — 다른 검증기의 리포트에 `"status": "skipped"` 가 있으면 **그것도 미검증이다.** A73의 SKILL은 *"측정 불능 = 통과 아님"*을 명령하는데 도구는 `skipped` 를 반환한다. 발견 시 리포트에 기록하고 해당 소유자(A70/A72/A73)와 A82에 통보한다 — **차단은 하지 않는다**(그들의 게이트다). 네가 차단하는 것은 테스트 커버리지뿐이다.
 
 ## 출력 (Definition of Done)
 
-- `reports/test-coverage/YYYY-MM-DD-<scope>.json` + `.md` — 5축 대조 결과, 덮이지 않은 항목별 (원천 경로 · 항목 · 기대 테스트 이름)
+- `reports/test-coverage/<scope>.json` + `.md` — 5축 대조 결과, 덮이지 않은 항목별 (원천 경로 · 항목 · 기대 테스트 이름). 안정 파일명 · 커밋됨 · 결정론(벽시계 없음)
 - **`NOT_VERIFIED` 와 `PASS` 를 구분해 표기** — 이 둘을 같은 초록불로 표기하는 순간 리포트는 거짓말이 된다
 - 차단 시: exit 1 + escalation envelope 내용 전달 (소유자 · approver · A00)
 

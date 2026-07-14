@@ -86,12 +86,14 @@ const RECIPIENTS: Recipient[] = [
   },
 ];
 
-export function buildEnvelopes(report: Report, seq: number): Envelope[] {
-  const date = report.date;
-  const taskDate = `${date.slice(0, 4)}-${date.slice(5, 7)}${date.slice(8, 10)}`;
+export function buildEnvelopes(report: Report, runDate: string, seq: number): Envelope[] {
+  // runDate 는 **호출부에서 명시적으로 주입**한다 (report 에는 이제 날짜가 없다 — 결정론).
+  // 에스컬레이션은 failure-only 이벤트 기록이고 gitignore 되는 tmp/ 에만 쓰이므로,
+  // TASK id 에 실제 발생일이 들어가도 커밋 트리를 더럽히지 않는다.
+  const taskDate = `${runDate.slice(0, 4)}-${runDate.slice(5, 7)}${runDate.slice(8, 10)}`;
   const artifacts = [
-    `reports/test-coverage/${date}-${report.scope}.json`,
-    `reports/test-coverage/${date}-${report.scope}.md`,
+    `reports/test-coverage/${report.scope}.json`,
+    `reports/test-coverage/${report.scope}.md`,
   ];
 
   const checks: Record<string, string> = {
@@ -141,14 +143,14 @@ export function buildEnvelopes(report: Report, seq: number): Envelope[] {
         ...mine.slice(0, 20).map((g) => ({
           reason: `${g.item} — 기대 테스트: "${g.expectedTest}" (원천: ${g.source})`,
           owner: r.to,
-          since: date,
+          since: runDate,
         })),
         ...(mine.length > 20
           ? [
               {
                 reason: `… 외 ${mine.length - 20}건 — 전수 목록은 ${artifacts[0]} 의 gaps[] 참조`,
                 owner: r.to,
-                since: date,
+                since: runDate,
               },
             ]
           : []),
@@ -159,17 +161,28 @@ export function buildEnvelopes(report: Report, seq: number): Envelope[] {
   });
 }
 
-export function writeEnvelopes(root: string, report: Report): string {
-  const dir = path.join(root, 'reports', 'test-coverage');
+/**
+ * 에스컬레이션 봉투를 **gitignore 되는** `reports/test-coverage/tmp/` 에 쓴다.
+ *
+ * 왜 커밋 트리가 아닌가: 에스컬레이션은 (1) **failure-only** 이벤트이고, (2) TASK id·`since` 에
+ * 발생일(벽시계)을 담으며, (3) 커밋된 기준선 + 계약/명세로부터 **매 실행 재현 가능**하다.
+ * 즉 래칫 기준선처럼 영속될 이유가 없다 — 커밋하면 실패가 지속되는 동안 날짜만 churn 한다.
+ * tmp/ 는 `.gitignore` 의 "reports 하위 tmp 디렉터리" 규칙으로 무시되므로 커밋 트리를 더럽히지 않는다.
+ * A00 은 이 파일을 **그 실행에서** 읽어 Task Graph 로 흡수한다(감사 발견 9의 교훈 유지 —
+ * 산문이 아니라 파일이다. 다만 영속이 아니라 실행 산출물이다).
+ */
+export function writeEnvelopes(root: string, report: Report, runDate: string): string {
+  const dir = path.join(root, 'reports', 'test-coverage', 'tmp');
   ensureDir(dir);
-  const rel = `reports/test-coverage/${report.date}-escalations.json`;
-  const envelopes = buildEnvelopes(report, 0);
+  const rel = `reports/test-coverage/tmp/${report.scope}-escalations.json`;
+  const envelopes = buildEnvelopes(report, runDate, 0);
   fs.writeFileSync(
-    path.join(dir, `${report.date}-escalations.json`),
+    path.join(dir, `${report.scope}-escalations.json`),
     `${JSON.stringify(
       {
-        $schema: '../../orchestration/schemas/handoff.v1.json',
-        note: 'handoff.v1 봉투 배열. 각 원소가 스키마를 개별 만족한다. orchestration/tasks/ 는 A00 소유이므로 A77은 여기에 쓰고 A00이 흡수한다.',
+        $schema: '../../../orchestration/schemas/handoff.v1.json',
+        note: 'handoff.v1 봉투 배열. gitignore 되는 실행 산출물이다(커밋되지 않는다). orchestration/tasks/ 는 A00 소유이므로 A77은 여기에 쓰고 A00이 그 실행에서 흡수한다.',
+        generatedAt: new Date().toISOString(),
         envelopes,
       },
       null,

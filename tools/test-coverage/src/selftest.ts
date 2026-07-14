@@ -30,7 +30,7 @@ import { loadContracts } from './lib/contracts.ts';
 import { loadSpecs } from './lib/specs.ts';
 import { scanTests } from './lib/tests.ts';
 import { productScopes } from './lib/workspace.ts';
-import type { Gap, ScopeRow } from './report.ts';
+import { buildReport, writeReport, type Gap, type Report, type ScopeRow } from './report.ts';
 
 const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const FIXTURE = path.join(HERE, '__fixtures__', 'covered');
@@ -93,6 +93,50 @@ function mutate(name: string, fn: (root: string) => void, baseline?: Baseline): 
   const m = measure(tmp, baseline);
   fsm.rmSync(tmp, { recursive: true, force: true });
   return m;
+}
+
+/** 픽스처를 실제 Report 로 만든다 (index.ts main() 과 같은 buildReport 경로) — 결정론 검증용 */
+function buildFixtureReport(root: string, baseline: Baseline): Report {
+  const contracts = loadContracts(root);
+  const specs = loadSpecs(root);
+  const scan = scanTests(root);
+  const scopes = productScopes(root);
+  const fs4 = checkFsExceptions(specs, scan.units, baseline);
+  const existence = checkExistence(scan, scopes);
+  return buildReport({
+    scope: 'selftest',
+    inputs: {
+      contracts: contracts.length,
+      specs: specs.length,
+      testFiles: scan.files.tests.length,
+      storyFiles: scan.files.stories.length,
+      testUnits: scan.units.length,
+      assertionFreeUnits: scan.assertionFree.length,
+    },
+    results: [
+      existence.result,
+      checkContractStates(contracts, scan.units, baseline),
+      checkBlockedWhen(contracts, scan.units, baseline),
+      fs4.result,
+      checkToolFixtures(root, scan.units),
+    ],
+    scopes: existence.rows,
+    ratchet: {
+      baseline: baseline.covered,
+      current: fs4.result.covered,
+      source: baseline.source,
+      regressed: fs4.result.covered < baseline.covered,
+    },
+    assertionFree: scan.assertionFree.map((u) => ({
+      file: u.file,
+      line: u.line,
+      name: u.name,
+      kind: u.kind,
+    })),
+    selfAudit: ['(selftest)'],
+    discrepancies: ['(selftest)'],
+    unmeasurable: false,
+  });
 }
 
 const WIDGET_TEST = 'packages/ui/src/atoms/Widget/Widget.test.tsx';
@@ -527,6 +571,62 @@ check(
   '정상 귀속은 유지된다 (Widget 자기 테스트는 Widget 을 덮는다)',
   base.blockers.length === 0,
   '기준선에서 Widget 테스트 7건이 Widget 계약을 정상 커버 — 경계 강화가 참 양성을 죽이지 않았다',
+);
+
+/* ── 3f. 결정론 — 같은 입력 두 번 → 커밋 파일 바이트 동일 (A00 판정: churn 금지) ── */
+
+console.log('\n[selftest] 3f. 결정론 — 커밋되는 기준선은 벽시계 churn 이 없어야 한다');
+
+const B0: Baseline = {
+  covered: 0,
+  contractStatesTotal: 46,
+  contractBlockedTotal: 9,
+  source: 'reports/test-coverage/selftest.json',
+};
+
+// (1) buildReport 는 벽시계를 넣지 않는다 — 두 번 빌드해 JSON 이 바이트 동일해야 한다.
+const j1 = JSON.stringify(buildFixtureReport(FIXTURE, B0));
+const j2 = JSON.stringify(buildFixtureReport(FIXTURE, B0));
+check(
+  '(1) 같은 입력 → buildReport 결과 JSON 바이트 동일 (generatedAt/date 없음)',
+  j1 === j2,
+  j1 === j2 ? '두 번 빌드가 동일 — 비결정적 필드 없음' : '두 빌드가 다르다 — 벽시계가 샜다',
+);
+
+// (2) 리포트 객체에 벽시계 필드/값이 실제로 없는지 — 정규식으로 직접 확인한다.
+const hasWallClock =
+  /"generatedAt"/.test(j1) || /"date"\s*:/.test(j1) || /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(j1); // ISO 타임스탬프 패턴
+check(
+  '(2) 커밋 리포트에 generatedAt · date · ISO 타임스탬프가 없다',
+  !hasWallClock,
+  hasWallClock ? '벽시계 흔적 발견 — 커밋 파일이 churn 한다' : '벽시계 필드/값 0건',
+);
+
+// (3) writeReport 를 임시 루트에 **두 번** 써서 파일 바이트가 동일한지 — A00 이 명시한 불변식.
+const detRoot = fsm.mkdtempSync(path.join(os.tmpdir(), 'a77-determinism-'));
+fsm.writeFileSync(path.join(detRoot, 'pnpm-workspace.yaml'), 'packages:\n  - packages/*\n');
+const w1 = writeReport(detRoot, buildFixtureReport(FIXTURE, B0));
+const jsonPath = path.join(detRoot, ...w1.json.split('/'));
+const mdPath = path.join(detRoot, ...w1.md.split('/'));
+const bytes1 = fsm.readFileSync(jsonPath);
+const md1 = fsm.readFileSync(mdPath);
+writeReport(detRoot, buildFixtureReport(FIXTURE, B0)); // 두 번째 쓰기 (제자리 덮어쓰기)
+const bytes2 = fsm.readFileSync(jsonPath);
+const md2 = fsm.readFileSync(mdPath);
+fsm.rmSync(detRoot, { recursive: true, force: true });
+check(
+  '(3) writeReport 2회 → JSON · MD 파일 바이트 동일 (git diff 0)',
+  bytes1.equals(bytes2) && md1.equals(md2),
+  bytes1.equals(bytes2) && md1.equals(md2)
+    ? '연속 실행이 커밋 파일을 바꾸지 않는다 — pre-commit churn 없음'
+    : 'JSON 또는 MD 가 실행마다 바뀐다 — churn 이 남아 있다',
+);
+
+// (4) 파일명이 안정적이어야 한다 — 날짜 접두 없이 <scope>.json (자정 rollover 고아 방지).
+check(
+  '(4) 리포트 파일명이 안정적이다 (<scope>.json — 날짜 접두 없음)',
+  w1.json === 'reports/test-coverage/selftest.json',
+  `파일명: ${w1.json} — 자정을 넘겨도 새 파일이 생기지 않는다`,
 );
 
 /* ── 4. 복귀 — 위반을 지우면 기준선으로 돌아온다 ──────────────────────────── */

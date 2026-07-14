@@ -1,6 +1,7 @@
-# Test Coverage 리포트 — 2026-07-14 (all)
+# Test Coverage 리포트 — all
 
 > 생성: `@tds/test-coverage` (A77 Test Coverage Guard) — 기계 생성 전용, 수기 편집 금지
+> 커밋되는 기준선이다 — **커버리지가 실제로 바뀔 때만 바뀐다.** 실행 시각은 여기 없다(콘솔/tmp 참조).
 > **커버리지는 라인 %가 아니다.** 계약이 정의한 상태 전부 + FS가 정의한 예외 축 전부다.
 
 - 판정: **WARN** (exit 0) — blocker 0건 · major 624건
@@ -29,7 +30,7 @@
 ### 축 4 — 래칫 (후퇴 금지)
 
 - 기준선 **137칸** · 현재 **137칸** → 후퇴 없음
-- 기준선 출처: `reports/test-coverage/2026-07-14-all.json`
+- 기준선 출처: `reports/test-coverage/all.json`
 - 축 4는 major 다 — **새 테스트를 요구하지 않는다.** 그러나 **있던 커버리지를 잃으면 blocker** 다. 커버 칸 수는 단조 증가만 한다.
 
 ## 축 4 — FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) (622건, major)

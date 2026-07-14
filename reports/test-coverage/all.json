@@ -1,9 +1,7 @@
 {
   "tool": "@tds/test-coverage",
   "agent": "A77",
-  "date": "2026-07-14",
   "scope": "all",
-  "generatedAt": "2026-07-14T23:02:57.087Z",
   "status": "WARN",
   "exitCode": 0,
   "blockedGates": [],
@@ -115,7 +113,7 @@
   "ratchet": {
     "baseline": 137,
     "current": 137,
-    "source": "reports/test-coverage/2026-07-14-all.json",
+    "source": "reports/test-coverage/all.json",
     "regressed": false
   },
   "counts": {
