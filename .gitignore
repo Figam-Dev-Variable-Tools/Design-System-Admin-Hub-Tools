@@ -29,7 +29,22 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 
-# VRT working files (baseline/diff 이미지는 커밋, 실행 중간물은 제외)
+# 검증 도구 리포트 — 매 실행마다 재생성된다. 커밋하면 verify:all 이 돌 때마다
+# 트리가 더러워져 끝없는 churn 이 생긴다. 그래서 재생성물은 추적하지 않는다.
+#
+# 예외 (커밋한다): reports/test-coverage/**
+#   A77 축4 래칫의 기준선이다. CI 캐시가 초기화돼도 후퇴를 감지하려면 이 파일이
+#   저장소에 영속돼야 한다 (ADR-0010 결정 2 · A77 인계). 기준선 없는 래칫은 반쪽이다.
+reports/a11y/
+reports/boundary/
+reports/code-quality/
+reports/contract-test/
+reports/drift/
+reports/modularization/
+reports/naming/
+reports/perf/
+reports/reuse/
+reports/vrt/
 reports/**/tmp/
 tools/vrt/.cache/
 
