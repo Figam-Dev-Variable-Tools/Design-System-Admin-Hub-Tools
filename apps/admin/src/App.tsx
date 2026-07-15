@@ -83,6 +83,14 @@ import ProjectListPage from './pages/sales/projects/ProjectListPage';
 import ProjectFormPage from './pages/sales/projects/ProjectFormPage';
 import ConsultationListPage from './pages/sales/consultations/ConsultationListPage';
 import ConsultationDetailPage from './pages/sales/consultations/ConsultationDetailPage';
+import TicketListPage from './pages/support/tickets/TicketListPage';
+import TicketDetailPage from './pages/support/tickets/TicketDetailPage';
+import CategoriesPage from './pages/support/categories/CategoriesPage';
+import RepliesPage from './pages/support/replies/RepliesPage';
+import ReplyFormPage from './pages/support/replies/ReplyFormPage';
+import CustomerFaqPage from './pages/support/faq/CustomerFaqPage';
+import DownloadListPage from './pages/support/downloads/DownloadListPage';
+import DownloadFormPage from './pages/support/downloads/DownloadFormPage';
 
 /**
  * 실제 화면이 있는 경로 — 나머지 사이드바 항목(nav-config.ts)은 준비 중 화면으로 간다.
@@ -125,6 +133,11 @@ const IMPLEMENTED = new Set([
   '/sales/inquiries',
   '/sales/projects',
   '/sales/consultations',
+  '/support/tickets',
+  '/support/categories',
+  '/support/replies',
+  '/support/faq',
+  '/support/downloads',
 ]);
 
 export default function App() {
@@ -305,6 +318,31 @@ export default function App() {
               유형·후속조치 대기 필터 + 검색, 상세는 상담 내용·후속조치를 읽기 전용으로 보여준다. */}
             <Route path="/sales/consultations" element={<ConsultationListPage />} />
             <Route path="/sales/consultations/:id" element={<ConsultationDetailPage />} />
+
+            {/* 고객센터 — 1:1 문의 (읽기 전용 목록 · 상세 처리). 문의는 고객 채널이 만들고 관리자는
+              타임라인·답변·상태·담당만 처리한다(SLA 임박/초과 배지·상태 전이 차단·답변 템플릿 삽입).
+              상세 라우트만 두고 등록/삭제는 없다. */}
+            <Route path="/support/tickets" element={<TicketListPage />} />
+            <Route path="/support/tickets/:id" element={<TicketDetailPage />} />
+
+            {/* 고객센터 — 문의 유형 (목록 · 추가/수정 모달 · 삭제팝업, 사용 중 차단 · 사용여부 소프트 비활성). */}
+            <Route path="/support/categories" element={<CategoriesPage />} />
+
+            {/* 고객센터 — 문의 답변(템플릿) (목록 · 등록 · 수정). 자주 쓰는 답변을 티켓 답변에 삽입한다.
+              '/new' 는 '/:id/edit' 보다 먼저 온다(정적 경로 우선). */}
+            <Route path="/support/replies" element={<RepliesPage />} />
+            <Route path="/support/replies/new" element={<ReplyFormPage />} />
+            <Route path="/support/replies/:id/edit" element={<ReplyFormPage />} />
+
+            {/* 고객센터 — 자주 묻는 질문 (고객노출 FAQ 큐레이션: 표시 순서 DnD·노출·BEST 고정).
+              작성/수정/삭제·카테고리는 콘텐츠 관리 FAQ 소관이라 여기엔 폼이 없다(역할 차별화). */}
+            <Route path="/support/faq" element={<CustomerFaqPage />} />
+
+            {/* 고객센터 — 자료실 (목록 · 등록 · 수정). 카테고리·버전·다운로드수·노출 + 파일 업로드.
+              목록엔 이미지 열을 넣지 않는다. '/new' 는 '/:id/edit' 보다 먼저 온다(정적 경로 우선). */}
+            <Route path="/support/downloads" element={<DownloadListPage />} />
+            <Route path="/support/downloads/new" element={<DownloadFormPage />} />
+            <Route path="/support/downloads/:id/edit" element={<DownloadFormPage />} />
 
             {/* 사이드바 정의는 있으나 미구현 — 화면을 만들 때마다 위로 옮긴다 */}
             {pendingRoutes.map((leaf) => (

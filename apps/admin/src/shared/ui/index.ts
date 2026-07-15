@@ -40,6 +40,12 @@ export { Pagination } from './Pagination';
 export { StatusBadge } from './StatusBadge';
 export type { StatusTone } from './StatusBadge';
 
+/* ── 이벤트 타임라인 (영업 문의·고객센터 티켓 상세가 공유) ─────────────────────
+ *
+ * 도메인을 모르는 프리미티브 — 각 페이지가 자기 이벤트를 TimelineEvent 로 매핑해 넘긴다. */
+export { Timeline } from './Timeline';
+export type { TimelineEvent } from './Timeline';
+
 export { errorIdOf, FormField, hintIdOf } from './FormField';
 
 export { TextareaField } from './TextareaField';
