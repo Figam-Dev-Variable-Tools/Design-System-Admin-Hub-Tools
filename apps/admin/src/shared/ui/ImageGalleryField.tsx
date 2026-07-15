@@ -11,7 +11,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { ChangeEvent, CSSProperties, DragEvent } from 'react';
 
-import { CloseIcon, ImageIcon, UploadIcon } from './icons';
+import { CheckCircleIcon, CloseIcon, ImageIcon, UploadIcon } from './icons';
 import { imageFileError } from './imageFile';
 import { errorIdOf, hintIdOf } from './FormField';
 import {
@@ -44,8 +44,17 @@ const labelStyle: CSSProperties = {
 const requiredMarkStyle: CSSProperties = { color: 'var(--tds-color-feedback-danger-text)' };
 
 const counterStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 'var(--tds-space-1)',
   ...hintStyle,
   fontVariantNumeric: 'tabular-nums',
+};
+
+// 완료 피드백 — 한 장이라도 담기면 카운터 앞에 성공 색 체크를 붙인다
+const counterDoneStyle: CSSProperties = {
+  display: 'inline-flex',
+  color: 'var(--tds-color-feedback-success-text)',
 };
 
 const gridStyle: CSSProperties = {
@@ -101,8 +110,11 @@ const removeButtonStyle: CSSProperties = {
   cursor: 'pointer',
 };
 
+// 드롭존 카드 — 기본/hover/드래그오버/오류 4상태. tile=true 는 그리드 안의 작은 '추가' 칸.
+// (인라인 스타일이 CSS :hover 를 이기므로 hover 는 상태값으로 계산한다.)
 function zoneStyle(
   active: boolean,
+  hovered: boolean,
   invalid: boolean,
   disabled: boolean,
   tile: boolean,
@@ -111,41 +123,61 @@ function zoneStyle(
     ? 'var(--tds-color-border-focus)'
     : invalid
       ? 'var(--tds-color-feedback-danger-border)'
-      : 'var(--tds-color-border-default)';
+      : hovered && !disabled
+        ? 'var(--tds-color-action-primary-hover)'
+        : 'var(--tds-color-border-default)';
   return {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 'var(--tds-space-1)',
+    gap: tile ? 'var(--tds-space-1)' : 'var(--tds-space-2)',
     boxSizing: 'border-box',
     width: '100%',
-    minHeight: tile ? TILE_HEIGHT : 'calc(var(--tds-space-6) * 4)',
+    minHeight: tile ? TILE_HEIGHT : 'calc(var(--tds-space-6) * 5)',
     height: tile ? TILE_HEIGHT : undefined,
     paddingTop: 'var(--tds-space-3)',
     paddingBottom: 'var(--tds-space-3)',
     paddingLeft: 'var(--tds-space-3)',
     paddingRight: 'var(--tds-space-3)',
     borderStyle: 'dashed',
-    borderWidth: invalid ? 'var(--tds-border-width-medium)' : 'var(--tds-border-width-thin)',
+    borderWidth:
+      invalid || active ? 'var(--tds-border-width-medium)' : 'var(--tds-border-width-thin)',
     borderColor,
     borderRadius: 'var(--tds-radius-md)',
-    background: 'var(--tds-color-surface-raised)',
+    background: active ? 'var(--tds-color-surface-default)' : 'var(--tds-color-surface-raised)',
     color: 'var(--tds-color-text-muted)',
     cursor: disabled ? 'not-allowed' : 'pointer',
     textAlign: 'center',
+    transition:
+      'border-color var(--tds-motion-duration-fast), background-color var(--tds-motion-duration-fast)',
   };
 }
 
+// 아이콘을 담는 둥근 배지 — 빈 드롭존에 초점을 준다(장식, aria-hidden)
+const iconBadgeStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: 'calc(var(--tds-space-6) * 1.75)',
+  height: 'calc(var(--tds-space-6) * 1.75)',
+  borderRadius: 'var(--tds-radius-full)',
+  background: 'var(--tds-color-surface-default)',
+  color: 'var(--tds-color-action-primary-default)',
+  fontSize: 'var(--tds-typography-title-md-font-size)',
+};
+
+// '추가' 칸의 작은 아이콘(배지 없이 인라인)
 const iconWrapStyle: CSSProperties = {
   display: 'inline-flex',
   fontSize: 'var(--tds-typography-title-lg-font-size)',
   color: 'var(--tds-color-text-muted)',
 };
 
-const zoneTextStyle: CSSProperties = {
+const zoneTitleStyle: CSSProperties = {
   color: 'var(--tds-color-text-default)',
   fontSize: 'var(--tds-typography-label-md-font-size)',
+  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
 
@@ -197,6 +229,7 @@ export function ImageGalleryField({
   // 우리가 만든 object URL 만 추적 — 제거/언마운트 시 이것만 revoke 한다
   const createdRef = useRef<Set<string>>(new Set());
   const [dragActive, setDragActive] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
   const shownError = error ?? localError ?? undefined;
@@ -266,6 +299,8 @@ export function ImageGalleryField({
 
   const describedBy = invalid ? errorIdOf(id) : hint !== undefined ? hintIdOf(id) : undefined;
   const dragHandlers = {
+    onMouseEnter: () => setHovered(true),
+    onMouseLeave: () => setHovered(false),
     onDragOver: (event: DragEvent<HTMLButtonElement>) => {
       event.preventDefault();
       if (!disabled) setDragActive(true);
@@ -285,24 +320,34 @@ export function ImageGalleryField({
             </span>
           )}
         </span>
-        <span style={counterStyle}>{`${String(values.length)}/${String(maxFiles)}`}</span>
+        <span style={counterStyle}>
+          {values.length > 0 && (
+            <span style={counterDoneStyle} aria-hidden="true">
+              <CheckCircleIcon />
+            </span>
+          )}
+          {`${String(values.length)}/${String(maxFiles)}`}
+        </span>
       </div>
 
       {values.length === 0 ? (
         <button
           type="button"
           className="tds-ui-focusable"
-          style={zoneStyle(dragActive, invalid, disabled, false)}
+          style={zoneStyle(dragActive, hovered, invalid, disabled, false)}
           disabled={disabled}
           aria-label={`${label} — 클릭하거나 이미지를 끌어다 놓으세요`}
           aria-describedby={describedBy}
           onClick={openPicker}
           {...dragHandlers}
         >
-          <span style={iconWrapStyle} aria-hidden="true">
+          <span style={iconBadgeStyle} aria-hidden="true">
             <UploadIcon />
           </span>
-          <span style={zoneTextStyle}>클릭하거나 이미지를 이 영역에 끌어다 놓으세요</span>
+          <span style={zoneTitleStyle}>
+            {dragActive ? '여기에 놓으면 업로드됩니다' : '파일을 올리세요 또는 드래그하여 업로드'}
+          </span>
+          <span style={zoneHintStyle}>클릭하거나 이미지를 이 영역에 끌어다 놓으세요</span>
           <span
             style={zoneHintStyle}
           >{`PNG · JPG · GIF · 최대 ${String(maxFiles)}장 · 장당 ${String(maxSizeMB)}MB`}</span>
@@ -329,7 +374,7 @@ export function ImageGalleryField({
             <button
               type="button"
               className="tds-ui-focusable"
-              style={zoneStyle(dragActive, invalid, disabled, true)}
+              style={zoneStyle(dragActive, hovered, invalid, disabled, true)}
               disabled={disabled}
               aria-label={`${label} 이미지 추가`}
               aria-describedby={describedBy}
