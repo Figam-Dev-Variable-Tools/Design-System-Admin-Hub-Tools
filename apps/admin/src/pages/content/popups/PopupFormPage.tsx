@@ -136,6 +136,7 @@ export default function PopupFormPage() {
 
   const detailQuery = usePopupQuery(id ?? '');
   const loadingDetail = isEdit && detailQuery.isFetching && detailQuery.data === undefined;
+  const disabled = saving || loadingDetail;
   const [serverError, setServerError] = useState<string | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
   useEffect(() => () => controllerRef.current?.abort(), []);
@@ -261,7 +262,7 @@ export default function PopupFormPage() {
                   style={controlStyle(errors.title !== undefined)}
                   maxLength={TITLE_MAX_LENGTH}
                   placeholder="예: 신규 가입 혜택"
-                  disabled={saving || loadingDetail}
+                  disabled={disabled}
                   aria-invalid={errors.title !== undefined}
                   aria-describedby={
                     errors.title !== undefined ? errorIdOf('popup-title') : undefined
@@ -277,7 +278,7 @@ export default function PopupFormPage() {
                 onChange={(value) =>
                   setValue('imageUrl', value, { shouldValidate: false, shouldDirty: true })
                 }
-                disabled={saving || loadingDetail}
+                disabled={disabled}
                 error={errors.imageUrl?.message}
                 hint="이미지를 끌어다 놓거나 클릭해 업로드합니다."
               />
@@ -294,7 +295,7 @@ export default function PopupFormPage() {
                   className="tds-ui-input tds-ui-focusable"
                   style={controlStyle(errors.linkUrl !== undefined)}
                   placeholder="https://example.com/event"
-                  disabled={saving || loadingDetail}
+                  disabled={disabled}
                   aria-invalid={errors.linkUrl !== undefined}
                   {...register('linkUrl')}
                 />
@@ -302,11 +303,7 @@ export default function PopupFormPage() {
 
               <div style={rowStyle}>
                 <FormField htmlFor="popup-position" label="노출 위치" required>
-                  <SelectField
-                    id="popup-position"
-                    disabled={saving || loadingDetail}
-                    {...register('position')}
-                  >
+                  <SelectField id="popup-position" disabled={disabled} {...register('position')}>
                     {POSITION_OPTIONS.map((option) => (
                       <option key={option.id} value={option.id}>
                         {option.label}
@@ -328,7 +325,7 @@ export default function PopupFormPage() {
                     min={0}
                     className="tds-ui-input tds-ui-focusable"
                     style={controlStyle(errors.priority !== undefined)}
-                    disabled={saving || loadingDetail}
+                    disabled={disabled}
                     aria-invalid={errors.priority !== undefined}
                     {...register('priority')}
                   />
@@ -342,7 +339,7 @@ export default function PopupFormPage() {
                 endValue={endAt}
                 onStartChange={(value) => setValue('startAt', value, { shouldDirty: true })}
                 onEndChange={(value) => setValue('endAt', value, { shouldDirty: true })}
-                disabled={saving || loadingDetail}
+                disabled={disabled}
                 error={periodError}
               />
 
@@ -353,7 +350,7 @@ export default function PopupFormPage() {
                   className="tds-ui-focusable"
                   style={checkStyle}
                   checked={enabled}
-                  disabled={saving || loadingDetail}
+                  disabled={disabled}
                   onChange={(event) =>
                     setValue('enabled', event.target.checked, { shouldDirty: true })
                   }
@@ -387,7 +384,7 @@ export default function PopupFormPage() {
           >
             취소
           </Button>
-          <Button type="submit" variant="primary" size="md" disabled={saving || loadingDetail}>
+          <Button type="submit" variant="primary" size="md" disabled={disabled}>
             {saving ? '저장 중…' : isEdit ? '저장' : '등록'}
           </Button>
         </div>

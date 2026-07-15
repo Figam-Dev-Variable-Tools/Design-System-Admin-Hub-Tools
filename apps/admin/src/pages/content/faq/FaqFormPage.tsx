@@ -128,6 +128,7 @@ export default function FaqFormPage() {
 
   const detailQuery = useFaqQuery(id ?? '');
   const loadingDetail = isEdit && detailQuery.isFetching && detailQuery.data === undefined;
+  const disabled = saving || loadingDetail;
   const [serverError, setServerError] = useState<string | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
 
@@ -245,7 +246,7 @@ export default function FaqFormPage() {
                 style={controlStyle(errors.question !== undefined)}
                 maxLength={QUESTION_MAX_LENGTH}
                 placeholder="예: 비밀번호를 잊어버렸어요"
-                disabled={saving || loadingDetail}
+                disabled={disabled}
                 aria-invalid={errors.question !== undefined}
                 aria-describedby={
                   errors.question !== undefined ? errorIdOf('faq-question') : undefined
@@ -264,7 +265,7 @@ export default function FaqFormPage() {
                 <SelectField
                   id="faq-category"
                   invalid={errors.categoryId !== undefined}
-                  disabled={saving || loadingDetail}
+                  disabled={disabled}
                   aria-invalid={errors.categoryId !== undefined}
                   {...register('categoryId')}
                 >
@@ -290,7 +291,7 @@ export default function FaqFormPage() {
                   min={0}
                   className="tds-ui-input tds-ui-focusable"
                   style={controlStyle(errors.order !== undefined)}
-                  disabled={saving || loadingDetail}
+                  disabled={disabled}
                   aria-invalid={errors.order !== undefined}
                   {...register('order')}
                 />
@@ -304,7 +305,7 @@ export default function FaqFormPage() {
                 className="tds-ui-focusable"
                 style={checkStyle}
                 checked={visible}
-                disabled={saving || loadingDetail}
+                disabled={disabled}
                 onChange={(event) =>
                   setValue('visible', event.target.checked, { shouldDirty: true })
                 }
@@ -322,7 +323,7 @@ export default function FaqFormPage() {
                 setValue('answer', value, { shouldValidate: false, shouldDirty: true })
               }
               maxLength={ANSWER_MAX_LENGTH}
-              disabled={saving || loadingDetail}
+              disabled={disabled}
               error={errors.answer?.message}
               placeholder="답변 내용을 입력하세요."
             />
@@ -337,7 +338,7 @@ export default function FaqFormPage() {
             >
               취소
             </Button>
-            <Button type="submit" variant="primary" size="md" disabled={saving || loadingDetail}>
+            <Button type="submit" variant="primary" size="md" disabled={disabled}>
               {saving ? '저장 중…' : isEdit ? '저장' : '등록'}
             </Button>
           </div>

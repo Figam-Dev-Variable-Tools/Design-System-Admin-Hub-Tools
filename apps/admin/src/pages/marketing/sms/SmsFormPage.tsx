@@ -20,7 +20,6 @@ import {
   FormField,
   hintStyle,
   SelectField,
-  TextareaField,
   ToggleSwitch,
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
@@ -30,20 +29,16 @@ import { smsAdapter } from './data-source';
 import { smsSchema } from './validation';
 import type { SmsFormValues } from './validation';
 import { PhoneMessagePreview } from './components/PhoneMessagePreview';
-import { campaignKind, SMS_BODY_MAX, SMS_NAME_MAX } from './types';
+import { SmsMessageCard } from './components/SmsMessageCard';
+import { campaignKind, SMS_NAME_MAX } from './types';
 import type { SmsCampaign, SmsCampaignInput } from './types';
 import { SegmentPicker } from '../_shared/SegmentPicker';
-import { VariableInsertBar } from '../_shared/VariableInsertBar';
 import { listSegments, listSenderNumbers, listSendableTemplates } from '../_shared/store';
 import {
   byteLengthOf,
   formatPhone,
-  hasAdPrefix,
-  hasOptOut,
   isNightAt,
-  meetsAdRequirements,
-  smsByteLimit,
-  smsKindLabel,
+  sendSubmitLabel,
   totalRecipients,
 } from '../_shared/messaging';
 
@@ -121,8 +116,6 @@ const actionsStyle: CSSProperties = {
   justifyContent: 'flex-end',
   gap: 'var(--tds-space-2)',
 };
-
-const byteHintStyle: CSSProperties = { ...hintStyle };
 
 const previewNoteStyle: CSSProperties = {
   ...hintStyle,
@@ -211,12 +204,8 @@ export default function SmsFormPage() {
   const senderNumber = senders.find((sender) => sender.id === senderId)?.number ?? '';
   const recipients = totalRecipients(segments, [...segmentIds]);
 
-  const adWarning = isAd && body.trim() !== '' && !meetsAdRequirements(body);
   const nightWarning =
     isAd && status === 'scheduled' && scheduledAt !== '' && isNightAt(scheduledAt);
-
-  const insertVariable = (token: string) =>
-    setValue('body', `${body}${token}`, { shouldDirty: true, shouldValidate: true });
 
   const applyTemplate = (id: string) => {
     setTemplatePick(id);
@@ -336,68 +325,19 @@ export default function SmsFormPage() {
               </div>
             </Card>
 
-            <Card>
-              <CardTitle>메시지</CardTitle>
-              {templates.length > 0 && (
-                <FormField
-                  htmlFor="sms-template"
-                  label="템플릿 불러오기"
-                  hint="승인된 SMS 템플릿을 본문에 채웁니다."
-                >
-                  <SelectField
-                    id="sms-template"
-                    disabled={disabled}
-                    value={templatePick}
-                    onChange={(event) => applyTemplate(event.target.value)}
-                  >
-                    <option value={NO_TEMPLATE}>템플릿 선택 안 함</option>
-                    {templates.map((template) => (
-                      <option key={template.id} value={template.id}>
-                        {template.name}
-                      </option>
-                    ))}
-                  </SelectField>
-                </FormField>
-              )}
-              <TextareaField
-                label="본문"
-                required
-                value={body}
-                onChange={(value) =>
-                  setValue('body', value, { shouldDirty: true, shouldValidate: true })
-                }
-                maxLength={SMS_BODY_MAX}
-                disabled={disabled}
-                error={errors.body?.message}
-                placeholder="발송할 문구를 입력하세요. #{이름} 등 치환변수를 넣을 수 있습니다."
-                rows={5}
-              />
-              <p style={byteHintStyle}>
-                {`${String(bytes)} byte · ${smsKindLabel(kind)} (한도 ${String(smsByteLimit(kind))} byte)`}
-                {kind === 'lms' && ' — 90 byte 초과로 LMS 로 발송됩니다.'}
-              </p>
-              <VariableInsertBar onInsert={insertVariable} disabled={disabled} />
-              <div style={fieldStyle}>
-                <span style={fieldLabelStyle}>이미지 첨부(MMS)</span>
-                <ToggleSwitch
-                  checked={hasImage}
-                  onChange={(next) =>
-                    setValue('hasImage', next, { shouldDirty: true, shouldValidate: true })
-                  }
-                  disabled={disabled}
-                  label="이미지 첨부 여부"
-                  onLabel="첨부"
-                  offLabel="없음"
-                />
-              </div>
-              {adWarning && (
-                <Alert tone="warning">
-                  광고성 메시지입니다. 본문에 &quot;(광고)&quot; 표기와 무료수신거부(예: 080) 안내를
-                  포함하세요{hasAdPrefix(body) ? '' : ' — (광고) 표기 누락'}
-                  {hasOptOut(body) ? '' : ' — 수신거부 문구 누락'}.
-                </Alert>
-              )}
-            </Card>
+            <SmsMessageCard
+              disabled={disabled}
+              templates={templates}
+              templatePick={templatePick}
+              onApplyTemplate={applyTemplate}
+              body={body}
+              isAd={isAd}
+              hasImage={hasImage}
+              kind={kind}
+              bytes={bytes}
+              errors={errors}
+              setValue={setValue}
+            />
 
             <Card>
               <CardTitle>발송 예약</CardTitle>
@@ -461,8 +401,8 @@ export default function SmsFormPage() {
           >
             취소
           </Button>
-          <Button type="submit" variant="primary" size="md" disabled={saving || loadingDetail}>
-            {saving ? '저장 중…' : status === 'scheduled' ? '예약 저장' : '초안 저장'}
+          <Button type="submit" variant="primary" size="md" disabled={disabled}>
+            {sendSubmitLabel(saving, status)}
           </Button>
         </div>
       </form>

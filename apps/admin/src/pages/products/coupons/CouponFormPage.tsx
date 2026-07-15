@@ -419,7 +419,7 @@ export default function CouponFormPage() {
           >
             취소
           </Button>
-          <Button type="submit" variant="primary" size="md" disabled={saving || loadingDetail}>
+          <Button type="submit" variant="primary" size="md" disabled={disabled}>
             {saving ? '저장 중…' : isEdit ? '저장' : '등록'}
           </Button>
         </div>

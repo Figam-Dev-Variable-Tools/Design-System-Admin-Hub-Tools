@@ -133,6 +133,7 @@ export default function BannerFormPage() {
 
   const detailQuery = useBannerQuery(id ?? '');
   const loadingDetail = isEdit && detailQuery.isFetching && detailQuery.data === undefined;
+  const disabled = saving || loadingDetail;
   const [serverError, setServerError] = useState<string | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
   useEffect(() => () => controllerRef.current?.abort(), []);
@@ -258,7 +259,7 @@ export default function BannerFormPage() {
                   style={controlStyle(errors.title !== undefined)}
                   maxLength={TITLE_MAX_LENGTH}
                   placeholder="예: 봄 시즌 기획전"
-                  disabled={saving || loadingDetail}
+                  disabled={disabled}
                   aria-invalid={errors.title !== undefined}
                   aria-describedby={
                     errors.title !== undefined ? errorIdOf('banner-title') : undefined
@@ -274,7 +275,7 @@ export default function BannerFormPage() {
                 onChange={(value) =>
                   setValue('imageUrl', value, { shouldValidate: false, shouldDirty: true })
                 }
-                disabled={saving || loadingDetail}
+                disabled={disabled}
                 error={errors.imageUrl?.message}
                 hint="이미지를 끌어다 놓거나 클릭해 업로드합니다."
               />
@@ -291,7 +292,7 @@ export default function BannerFormPage() {
                   className="tds-ui-input tds-ui-focusable"
                   style={controlStyle(errors.linkUrl !== undefined)}
                   placeholder="https://example.com/promo"
-                  disabled={saving || loadingDetail}
+                  disabled={disabled}
                   aria-invalid={errors.linkUrl !== undefined}
                   {...register('linkUrl')}
                 />
@@ -299,11 +300,7 @@ export default function BannerFormPage() {
 
               <div style={rowStyle}>
                 <FormField htmlFor="banner-placement" label="노출 위치" required>
-                  <SelectField
-                    id="banner-placement"
-                    disabled={saving || loadingDetail}
-                    {...register('placement')}
-                  >
+                  <SelectField id="banner-placement" disabled={disabled} {...register('placement')}>
                     {PLACEMENT_OPTIONS.map((option) => (
                       <option key={option.id} value={option.id}>
                         {option.label}
@@ -325,7 +322,7 @@ export default function BannerFormPage() {
                     min={0}
                     className="tds-ui-input tds-ui-focusable"
                     style={controlStyle(errors.order !== undefined)}
-                    disabled={saving || loadingDetail}
+                    disabled={disabled}
                     aria-invalid={errors.order !== undefined}
                     {...register('order')}
                   />
@@ -339,7 +336,7 @@ export default function BannerFormPage() {
                 endValue={endAt}
                 onStartChange={(value) => setValue('startAt', value, { shouldDirty: true })}
                 onEndChange={(value) => setValue('endAt', value, { shouldDirty: true })}
-                disabled={saving || loadingDetail}
+                disabled={disabled}
                 error={periodError}
               />
 
@@ -350,7 +347,7 @@ export default function BannerFormPage() {
                   className="tds-ui-focusable"
                   style={checkStyle}
                   checked={enabled}
-                  disabled={saving || loadingDetail}
+                  disabled={disabled}
                   onChange={(event) =>
                     setValue('enabled', event.target.checked, { shouldDirty: true })
                   }
@@ -384,7 +381,7 @@ export default function BannerFormPage() {
           >
             취소
           </Button>
-          <Button type="submit" variant="primary" size="md" disabled={saving || loadingDetail}>
+          <Button type="submit" variant="primary" size="md" disabled={disabled}>
             {saving ? '저장 중…' : isEdit ? '저장' : '등록'}
           </Button>
         </div>

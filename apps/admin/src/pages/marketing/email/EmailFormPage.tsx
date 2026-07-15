@@ -15,13 +15,11 @@ import {
   ChevronLeftIcon,
   controlStyle,
   errorIdOf,
-  errorTextStyle,
   fieldLabelStyle,
   fieldStyle,
   FormField,
   hintStyle,
   SelectField,
-  TextareaField,
   ToggleSwitch,
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
@@ -31,12 +29,12 @@ import { emailAdapter } from './data-source';
 import { emailSchema } from './validation';
 import type { EmailFormValues } from './validation';
 import { EmailPreview } from '../_shared/EmailPreview';
-import { EMAIL_BODY_MAX, EMAIL_NAME_MAX, EMAIL_SUBJECT_MAX } from './types';
+import { EmailBodyCard } from './components/EmailBodyCard';
+import { EMAIL_NAME_MAX, EMAIL_SUBJECT_MAX } from './types';
 import type { EmailCampaign, EmailCampaignInput } from './types';
 import { SegmentPicker } from '../_shared/SegmentPicker';
-import { VariableInsertBar } from '../_shared/VariableInsertBar';
 import { listSegments, listSenderEmails, listSendableTemplates } from '../_shared/store';
-import { hasAdPrefix, totalRecipients } from '../_shared/messaging';
+import { sendSubmitLabel, totalRecipients } from '../_shared/messaging';
 
 const RESOURCE = 'marketing-email';
 const ENTITY_LABEL = '이메일 발송';
@@ -196,10 +194,6 @@ export default function EmailFormPage() {
 
   const sender = senders.find((item) => item.id === senderId);
   const recipients = totalRecipients(segments, [...segmentIds]);
-  const adSubjectWarning = isAd && subject.trim() !== '' && !hasAdPrefix(subject);
-
-  const insertVariable = (token: string) =>
-    setValue('body', `${body}${token}`, { shouldDirty: true, shouldValidate: true });
 
   const applyTemplate = (id: string) => {
     setTemplatePick(id);
@@ -336,74 +330,18 @@ export default function EmailFormPage() {
               </div>
             </Card>
 
-            <Card>
-              <CardTitle>본문</CardTitle>
-              {templates.length > 0 && (
-                <FormField
-                  htmlFor="email-template"
-                  label="템플릿 불러오기"
-                  hint="이메일 템플릿의 제목·본문을 채웁니다."
-                >
-                  <SelectField
-                    id="email-template"
-                    disabled={disabled}
-                    value={templatePick}
-                    onChange={(event) => applyTemplate(event.target.value)}
-                  >
-                    <option value={NO_TEMPLATE}>템플릿 선택 안 함</option>
-                    {templates.map((template) => (
-                      <option key={template.id} value={template.id}>
-                        {template.name}
-                      </option>
-                    ))}
-                  </SelectField>
-                </FormField>
-              )}
-              <TextareaField
-                label="본문"
-                required
-                value={body}
-                onChange={(value) =>
-                  setValue('body', value, { shouldDirty: true, shouldValidate: true })
-                }
-                maxLength={EMAIL_BODY_MAX}
-                disabled={disabled}
-                error={errors.body?.message}
-                placeholder="메일 본문을 입력하세요. #{이름} 등 치환변수를 넣을 수 있습니다."
-                rows={6}
-              />
-              <VariableInsertBar onInsert={insertVariable} disabled={disabled} />
-              {adSubjectWarning && (
-                <Alert tone="warning">
-                  광고성 메일입니다. 제목을 &quot;(광고)&quot;로 시작하도록 수정하세요.
-                </Alert>
-              )}
-              <div style={fieldStyle}>
-                <span style={fieldLabelStyle}>수신거부 링크</span>
-                <ToggleSwitch
-                  checked={includeUnsubscribe}
-                  onChange={(next) =>
-                    setValue('includeUnsubscribe', next, {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    })
-                  }
-                  disabled={disabled}
-                  label="수신거부 링크 포함 여부"
-                  onLabel="포함"
-                  offLabel="미포함"
-                />
-                {errors.includeUnsubscribe !== undefined ? (
-                  <p role="alert" style={errorTextStyle}>
-                    {errors.includeUnsubscribe.message}
-                  </p>
-                ) : (
-                  <p style={hintStyle}>
-                    마케팅 이메일에는 수신거부 링크가 반드시 포함되어야 합니다.
-                  </p>
-                )}
-              </div>
-            </Card>
+            <EmailBodyCard
+              disabled={disabled}
+              templates={templates}
+              templatePick={templatePick}
+              onApplyTemplate={applyTemplate}
+              body={body}
+              subject={subject}
+              isAd={isAd}
+              includeUnsubscribe={includeUnsubscribe}
+              errors={errors}
+              setValue={setValue}
+            />
 
             <Card>
               <CardTitle>발송 예약</CardTitle>
@@ -462,8 +400,8 @@ export default function EmailFormPage() {
           >
             취소
           </Button>
-          <Button type="submit" variant="primary" size="md" disabled={saving || loadingDetail}>
-            {saving ? '저장 중…' : status === 'scheduled' ? '예약 저장' : '초안 저장'}
+          <Button type="submit" variant="primary" size="md" disabled={disabled}>
+            {sendSubmitLabel(saving, status)}
           </Button>
         </div>
       </form>

@@ -26,12 +26,13 @@ import {
   ToggleSwitch,
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
-import { useCrudForm } from '../../../shared/crud';
+import { submitButtonLabel, useCrudForm } from '../../../shared/crud';
 import { fetchProductCategoryOptions, productAdapter } from './data-source';
 import { productSchema } from './validation';
 import type { ProductFormValues } from './validation';
 import { ProductCardPreview } from './components/ProductCardPreview';
 import { ProductOptionMatrix } from './components/ProductOptionMatrix';
+import { ProductPriceDiscountCard, ProductShippingCard } from './components/ProductPricingCards';
 import { SALE_STATUS_OPTIONS } from './types';
 import {
   DEFAULT_SHIPPING,
@@ -48,24 +49,6 @@ const ENTITY_LABEL = '상품';
 const LIST_PATH = '/products';
 const UNSAVED_MESSAGE =
   '상품에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
-
-const DISCOUNT_TYPE_OPTIONS = [
-  { id: 'none', label: '할인 없음' },
-  { id: 'amount', label: '정액 할인(원)' },
-  { id: 'percent', label: '정률 할인(%)' },
-] as const;
-
-const SHIPPING_METHOD_OPTIONS = [
-  { id: 'courier', label: '택배' },
-  { id: 'direct', label: '직접배송' },
-  { id: 'pickup', label: '방문수령' },
-] as const;
-
-const SHIPPING_FEE_OPTIONS = [
-  { id: 'free', label: '무료배송' },
-  { id: 'paid', label: '유료배송' },
-  { id: 'conditional', label: '조건부 무료' },
-] as const;
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -434,74 +417,14 @@ export default function ProductFormPage() {
             </Card>
 
             {/* ── 가격 · 할인 ── */}
-            <Card>
-              <CardTitle>가격 · 할인</CardTitle>
-
-              <div style={rowStyle}>
-                <FormField
-                  htmlFor="product-price"
-                  label="판매가 (원)"
-                  required
-                  error={errors.price?.message}
-                >
-                  <input
-                    id="product-price"
-                    type="text"
-                    inputMode="numeric"
-                    className="tds-ui-input tds-ui-focusable"
-                    style={controlStyle(errors.price !== undefined)}
-                    placeholder="예: 129000"
-                    disabled={disabled}
-                    aria-invalid={errors.price !== undefined}
-                    {...register('price')}
-                  />
-                </FormField>
-
-                <FormField htmlFor="product-discount-type" label="할인 방식">
-                  <SelectField
-                    id="product-discount-type"
-                    disabled={disabled}
-                    {...register('discountType')}
-                  >
-                    {DISCOUNT_TYPE_OPTIONS.map((option) => (
-                      <option key={option.id} value={option.id}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </SelectField>
-                </FormField>
-
-                <FormField
-                  htmlFor="product-discount-value"
-                  label={discountType === 'percent' ? '할인율 (%)' : '할인 금액 (원)'}
-                  error={errors.discountValue?.message}
-                >
-                  <input
-                    id="product-discount-value"
-                    type="text"
-                    inputMode="numeric"
-                    className="tds-ui-input tds-ui-focusable"
-                    style={controlStyle(errors.discountValue !== undefined)}
-                    placeholder={discountType === 'percent' ? '예: 20' : '예: 10000'}
-                    disabled={disabled || discountType === 'none'}
-                    aria-invalid={errors.discountValue !== undefined}
-                    {...register('discountValue')}
-                  />
-                </FormField>
-              </div>
-
-              <div style={toggleFieldStyle}>
-                <span style={fieldLabelStyle}>과세 여부</span>
-                <ToggleSwitch
-                  checked={taxable}
-                  onChange={(next) => setValue('taxable', next, { shouldDirty: true })}
-                  disabled={disabled}
-                  label="과세 상품 여부"
-                  onLabel="과세"
-                  offLabel="면세"
-                />
-              </div>
-            </Card>
+            <ProductPriceDiscountCard
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              disabled={disabled}
+              discountType={discountType}
+              taxable={taxable}
+            />
 
             {/* ── 옵션 · 재고(SKU) ── */}
             <Card>
@@ -531,83 +454,12 @@ export default function ProductFormPage() {
             </Card>
 
             {/* ── 배송 ── */}
-            <Card>
-              <CardTitle>배송</CardTitle>
-              <div style={rowStyle}>
-                <FormField htmlFor="product-ship-method" label="배송 방식">
-                  <SelectField
-                    id="product-ship-method"
-                    disabled={disabled}
-                    {...register('shipping.method')}
-                  >
-                    {SHIPPING_METHOD_OPTIONS.map((option) => (
-                      <option key={option.id} value={option.id}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </SelectField>
-                </FormField>
-
-                <FormField htmlFor="product-ship-fee-type" label="배송비 정책">
-                  <SelectField
-                    id="product-ship-fee-type"
-                    disabled={disabled}
-                    {...register('shipping.feeType')}
-                  >
-                    {SHIPPING_FEE_OPTIONS.map((option) => (
-                      <option key={option.id} value={option.id}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </SelectField>
-                </FormField>
-              </div>
-
-              {feeType !== 'free' && (
-                <div style={rowStyle}>
-                  <FormField
-                    htmlFor="product-ship-fee"
-                    label="기본 배송비 (원)"
-                    required
-                    error={errors.shipping?.fee?.message}
-                  >
-                    <input
-                      id="product-ship-fee"
-                      type="text"
-                      inputMode="numeric"
-                      className="tds-ui-input tds-ui-focusable"
-                      style={controlStyle(errors.shipping?.fee !== undefined)}
-                      placeholder="예: 3000"
-                      disabled={disabled}
-                      aria-invalid={errors.shipping?.fee !== undefined}
-                      {...register('shipping.fee')}
-                    />
-                  </FormField>
-
-                  {feeType === 'conditional' && (
-                    <FormField
-                      htmlFor="product-ship-threshold"
-                      label="무료배송 기준 (원)"
-                      required
-                      error={errors.shipping?.freeThreshold?.message}
-                      hint="이 금액 이상 주문 시 무료배송"
-                    >
-                      <input
-                        id="product-ship-threshold"
-                        type="text"
-                        inputMode="numeric"
-                        className="tds-ui-input tds-ui-focusable"
-                        style={controlStyle(errors.shipping?.freeThreshold !== undefined)}
-                        placeholder="예: 50000"
-                        disabled={disabled}
-                        aria-invalid={errors.shipping?.freeThreshold !== undefined}
-                        {...register('shipping.freeThreshold')}
-                      />
-                    </FormField>
-                  )}
-                </div>
-              )}
-            </Card>
+            <ProductShippingCard
+              register={register}
+              errors={errors}
+              disabled={disabled}
+              feeType={feeType}
+            />
 
             {/* ── 이미지 ── */}
             <Card>
@@ -699,8 +551,8 @@ export default function ProductFormPage() {
           >
             취소
           </Button>
-          <Button type="submit" variant="primary" size="md" disabled={saving || loadingDetail}>
-            {saving ? '저장 중…' : isEdit ? '저장' : '등록'}
+          <Button type="submit" variant="primary" size="md" disabled={disabled}>
+            {submitButtonLabel(saving, isEdit)}
           </Button>
         </div>
       </form>

@@ -54,4 +54,5 @@ export { FormPageShell } from './FormPageShell';
 // ── 공용 조각 (검증 · 필터 좁히기 · 개발용 실패/지연 재현) ──────────────────
 export { optionalHttpUrl, requiredImage, requiredText } from './validation';
 export { parseFilter } from './parseFilter';
+export { submitButtonLabel } from './submitButtonLabel';
 export { failIfRequested, LATENCY_MS } from './dev';

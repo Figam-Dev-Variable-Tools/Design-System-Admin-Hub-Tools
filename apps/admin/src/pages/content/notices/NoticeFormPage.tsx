@@ -28,6 +28,7 @@ import {
   useToast,
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
+import { submitButtonLabel } from '../../../shared/crud';
 import { useCreateNotice, useNoticeQuery, useUpdateNotice } from './queries';
 import { BODY_MAX_LENGTH, CATEGORY_OPTIONS, STATUS_OPTIONS, TITLE_MAX_LENGTH } from './types';
 import { noticeSchema } from './validation';
@@ -128,6 +129,7 @@ export default function NoticeFormPage() {
   // 수정 모드 — 기존 공지를 불러와 폼을 채운다
   const detailQuery = useNoticeQuery(id ?? '');
   const loadingDetail = isEdit && detailQuery.isFetching && detailQuery.data === undefined;
+  const disabled = saving || loadingDetail;
   const [serverError, setServerError] = useState<string | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
 
@@ -228,7 +230,7 @@ export default function NoticeFormPage() {
                 style={controlStyle(errors.title !== undefined)}
                 maxLength={TITLE_MAX_LENGTH}
                 placeholder="예: 서비스 이용 안내"
-                disabled={saving || loadingDetail}
+                disabled={disabled}
                 aria-invalid={errors.title !== undefined}
                 aria-describedby={
                   errors.title !== undefined ? errorIdOf('notice-title') : undefined
@@ -239,11 +241,7 @@ export default function NoticeFormPage() {
 
             <div style={rowStyle}>
               <FormField htmlFor="notice-category" label="분류" required>
-                <SelectField
-                  id="notice-category"
-                  disabled={saving || loadingDetail}
-                  {...register('category')}
-                >
+                <SelectField id="notice-category" disabled={disabled} {...register('category')}>
                   {CATEGORY_OPTIONS.map((option) => (
                     <option key={option.id} value={option.id}>
                       {option.label}
@@ -253,11 +251,7 @@ export default function NoticeFormPage() {
               </FormField>
 
               <FormField htmlFor="notice-status" label="상태" required>
-                <SelectField
-                  id="notice-status"
-                  disabled={saving || loadingDetail}
-                  {...register('status')}
-                >
+                <SelectField id="notice-status" disabled={disabled} {...register('status')}>
                   {STATUS_OPTIONS.map((option) => (
                     <option key={option.id} value={option.id}>
                       {option.label}
@@ -278,7 +272,7 @@ export default function NoticeFormPage() {
                   type="date"
                   className="tds-ui-input tds-ui-focusable"
                   style={controlStyle(errors.publishedAt !== undefined)}
-                  disabled={saving || loadingDetail || !scheduled}
+                  disabled={disabled || !scheduled}
                   aria-invalid={errors.publishedAt !== undefined}
                   {...publishedAtField}
                 />
@@ -292,7 +286,7 @@ export default function NoticeFormPage() {
                 className="tds-ui-focusable"
                 style={checkStyle}
                 checked={pinned}
-                disabled={saving || loadingDetail}
+                disabled={disabled}
                 onChange={(event) =>
                   setValue('pinned', event.target.checked, { shouldDirty: true })
                 }
@@ -310,7 +304,7 @@ export default function NoticeFormPage() {
                 setValue('body', value, { shouldValidate: false, shouldDirty: true })
               }
               maxLength={BODY_MAX_LENGTH}
-              disabled={saving || loadingDetail}
+              disabled={disabled}
               error={errors.body?.message}
               placeholder="공지 본문을 입력하세요."
             />
@@ -325,8 +319,8 @@ export default function NoticeFormPage() {
             >
               취소
             </Button>
-            <Button type="submit" variant="primary" size="md" disabled={saving || loadingDetail}>
-              {saving ? '저장 중…' : isEdit ? '저장' : '등록'}
+            <Button type="submit" variant="primary" size="md" disabled={disabled}>
+              {submitButtonLabel(saving, isEdit)}
             </Button>
           </div>
         </Card>

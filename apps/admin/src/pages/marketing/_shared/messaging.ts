@@ -363,6 +363,15 @@ export function isEditableSend(status: SendStatus): boolean {
   return status === 'draft' || status === 'scheduled';
 }
 
+/**
+ * 발송 폼(SMS·이메일) 저장 버튼 라벨 — 저장은 실제 전송이 아니다.
+ * 예약이면 '예약 저장', 아니면 '초안 저장'. 두 폼이 같은 3분기를 반복해 한 벌로 모은다.
+ */
+export function sendSubmitLabel(saving: boolean, status: 'draft' | 'scheduled'): string {
+  if (saving) return '저장 중…';
+  return status === 'scheduled' ? '예약 저장' : '초안 저장';
+}
+
 /* ── 발송 결과 통계 ─────────────────────────────────────────────────────────────
  *
  * 성공/실패/수신거부(반송) — 발송완료 캠페인의 결과. 성공률은 성공÷전체(0 나눗셈 방어). */
