@@ -52,6 +52,9 @@ export { DateRangeField } from './DateRangeField';
 
 export { RowActions } from './RowActions';
 
+export { VersionHistoryTable } from './VersionHistoryTable';
+export type { VersionRow } from './VersionHistoryTable';
+
 export { SelectAllHeaderCell, tableSelectionState } from './TableSelection';
 
 export { Toast } from './Toast';

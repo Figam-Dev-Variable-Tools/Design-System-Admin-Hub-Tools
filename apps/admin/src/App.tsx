@@ -37,6 +37,8 @@ import FaqDetailPage from './pages/content/faq/FaqDetailPage';
 import FaqFormPage from './pages/content/faq/FaqFormPage';
 import PopupsPage from './pages/content/popups/PopupsPage';
 import BannersPage from './pages/content/banners/BannersPage';
+import TermsPage from './pages/content/terms/TermsPage';
+import PrivacyPage from './pages/content/privacy/PrivacyPage';
 
 /**
  * 실제 화면이 있는 경로 — 나머지 사이드바 항목(nav-config.ts)은 준비 중 화면으로 간다.
@@ -54,6 +56,8 @@ const IMPLEMENTED = new Set([
   '/content/faq',
   '/content/popups',
   '/content/banners',
+  '/content/terms',
+  '/content/privacy',
 ]);
 
 export default function App() {
@@ -113,6 +117,10 @@ export default function App() {
               행이 곧 요약이라 펼쳐 볼 것이 없고, 수정은 목록 안 폼으로 연다. */}
             <Route path="/content/popups" element={<PopupsPage />} />
             <Route path="/content/banners" element={<BannersPage />} />
+
+            {/* 콘텐츠 관리 — 약관/개인정보 처리방침 (버전 문서 쌍 · 버전 이력 표 공유) */}
+            <Route path="/content/terms" element={<TermsPage />} />
+            <Route path="/content/privacy" element={<PrivacyPage />} />
 
             {/* 사이드바 정의는 있으나 미구현 — 화면을 만들 때마다 위로 옮긴다 */}
             {pendingRoutes.map((leaf) => (
