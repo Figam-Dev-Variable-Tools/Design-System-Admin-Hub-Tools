@@ -24,7 +24,13 @@ import {
   useToast,
 } from '../../../shared/ui';
 import { PopupsTable } from './components/PopupsTable';
-import { useBulkDeletePopups, useDeletePopup, usePopupsQuery } from './queries';
+import {
+  useBulkDeletePopups,
+  useBulkSetPopupEnabled,
+  useDeletePopup,
+  usePopupsQuery,
+  useSetPopupEnabled,
+} from './queries';
 import { ENABLED_FILTERS, PAGE_SIZE } from './types';
 import type { EnabledFilter, Popup } from './types';
 
@@ -88,6 +94,11 @@ export default function PopupsPage() {
   const bulkControllerRef = useRef<AbortController | null>(null);
   const bulkDelete = useBulkDeletePopups();
   const bulkDeleting = bulkDelete.isPending;
+
+  const [togglingIds, setTogglingIds] = useState<ReadonlySet<string>>(new Set());
+  const enabledMutation = useSetPopupEnabled();
+  const bulkEnabled = useBulkSetPopupEnabled();
+  const bulkTogglingEnabled = bulkEnabled.isPending;
 
   useEffect(() => {
     const timer = setTimeout(() => setKeyword(keywordInput), SEARCH_DEBOUNCE_MS);
@@ -153,6 +164,57 @@ export default function PopupsPage() {
 
   const selectedCount = selectedIds.size;
 
+  const markToggling = (id: string, busy: boolean) => {
+    setTogglingIds((prev) => {
+      const next = new Set(prev);
+      if (busy) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
+
+  const onToggleEnabled = (popup: Popup, next: boolean) => {
+    if (togglingIds.has(popup.id)) return;
+    markToggling(popup.id, true);
+    enabledMutation.mutate(
+      { id: popup.id, enabled: next },
+      {
+        onSuccess: () => {
+          toast.success(next ? `'${popup.title}' 을 켰습니다.` : `'${popup.title}' 을 껐습니다.`);
+        },
+        onError: (cause: unknown) => {
+          if (isAbort(cause)) return;
+          toast.error('상태를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.', {
+            retry: () => onToggleEnabled(popup, next),
+          });
+        },
+        onSettled: () => markToggling(popup.id, false),
+      },
+    );
+  };
+
+  const onBulkEnabled = (enabled: boolean) => {
+    const ids = [...selectedIds];
+    if (ids.length === 0 || bulkTogglingEnabled) return;
+    bulkEnabled.mutate(
+      { ids, enabled },
+      {
+        onSuccess: (failed) => {
+          const label = enabled ? 'ON' : 'OFF';
+          if (failed > 0) {
+            toast.error(
+              `팝업 ${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 ${label} 처리하지 못했습니다.`,
+              { retry: () => onBulkEnabled(enabled) },
+            );
+            return;
+          }
+          clear();
+          toast.success(`팝업 ${formatNumber(ids.length)}건을 ${label} 처리했습니다.`);
+        },
+      },
+    );
+  };
+
   const closeBulk = () => {
     bulkControllerRef.current?.abort();
     bulkControllerRef.current = null;
@@ -215,6 +277,20 @@ export default function PopupsPage() {
           </div>
 
           <SelectionBar count={selectedCount} onClear={clear}>
+            <Button
+              variant="secondary"
+              disabled={bulkTogglingEnabled}
+              onClick={() => onBulkEnabled(true)}
+            >
+              일괄 ON
+            </Button>
+            <Button
+              variant="secondary"
+              disabled={bulkTogglingEnabled}
+              onClick={() => onBulkEnabled(false)}
+            >
+              일괄 OFF
+            </Button>
             <Button variant="danger" disabled={bulkDeleting} onClick={() => setBulkOpen(true)}>
               {`선택 ${formatNumber(selectedCount)}건 삭제`}
             </Button>
@@ -235,6 +311,8 @@ export default function PopupsPage() {
               )
             }
             startIndex={(page - 1) * PAGE_SIZE}
+            onToggleEnabled={onToggleEnabled}
+            togglingIds={togglingIds}
           />
 
           <Pagination page={page} totalPages={totalPages} onChange={setPage} label="팝업 페이지" />

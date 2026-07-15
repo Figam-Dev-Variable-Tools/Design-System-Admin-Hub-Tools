@@ -28,10 +28,12 @@ import { FaqTable } from './components/FaqTable';
 import { ManageFaqCategoriesModal } from './components/ManageFaqCategoriesModal';
 import {
   useBulkDeleteFaqs,
+  useBulkSetFaqVisibility,
   useDeleteFaq,
   useFaqCategoriesQuery,
   useFaqsQuery,
   useReorderFaqs,
+  useSetFaqVisibility,
 } from './queries';
 import { CATEGORY_ALL, PAGE_SIZE } from './types';
 import type { FaqSummary, VisibilityFilter } from './types';
@@ -117,6 +119,12 @@ export default function FaqPage() {
   const bulkControllerRef = useRef<AbortController | null>(null);
   const bulkDelete = useBulkDeleteFaqs();
   const bulkDeleting = bulkDelete.isPending;
+
+  // 노출 여부 토글 (목록에서 바로) + 일괄 노출/숨김
+  const [togglingIds, setTogglingIds] = useState<ReadonlySet<string>>(new Set());
+  const visibilityMutation = useSetFaqVisibility();
+  const bulkVisibility = useBulkSetFaqVisibility();
+  const bulkTogglingVisibility = bulkVisibility.isPending;
 
   // 정렬 재정렬은 필터/검색이 없는 자연 순서 화면에서만 켠다 — 필터된 부분집합을 재정렬하면 의미가 흐려진다
   const reorderable = categoryId === CATEGORY_ALL && visibility === 'all' && keyword === '';
@@ -212,6 +220,59 @@ export default function FaqPage() {
 
   const selectedCount = selectedIds.size;
 
+  const markToggling = (id: string, busy: boolean) => {
+    setTogglingIds((prev) => {
+      const next = new Set(prev);
+      if (busy) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
+
+  const onToggleVisible = (faq: FaqSummary, next: boolean) => {
+    if (togglingIds.has(faq.id)) return;
+    markToggling(faq.id, true);
+    visibilityMutation.mutate(
+      { id: faq.id, visible: next },
+      {
+        onSuccess: () => {
+          toast.success(
+            next ? `'${faq.question}' 를 노출합니다.` : `'${faq.question}' 를 숨겼습니다.`,
+          );
+        },
+        onError: (cause: unknown) => {
+          if (isAbort(cause)) return;
+          toast.error('노출 상태를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.', {
+            retry: () => onToggleVisible(faq, next),
+          });
+        },
+        onSettled: () => markToggling(faq.id, false),
+      },
+    );
+  };
+
+  const onBulkVisibility = (visible: boolean) => {
+    const ids = [...selectedIds];
+    if (ids.length === 0 || bulkTogglingVisibility) return;
+    bulkVisibility.mutate(
+      { ids, visible },
+      {
+        onSuccess: (failed) => {
+          const label = visible ? '노출' : '숨김';
+          if (failed > 0) {
+            toast.error(
+              `FAQ ${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 ${label} 처리하지 못했습니다.`,
+              { retry: () => onBulkVisibility(visible) },
+            );
+            return;
+          }
+          clear();
+          toast.success(`FAQ ${formatNumber(ids.length)}건을 ${label} 처리했습니다.`);
+        },
+      },
+    );
+  };
+
   const closeBulk = () => {
     bulkControllerRef.current?.abort();
     bulkControllerRef.current = null;
@@ -283,6 +344,20 @@ export default function FaqPage() {
               </div>
 
               <SelectionBar count={selectedCount} onClear={clear}>
+                <Button
+                  variant="secondary"
+                  disabled={bulkTogglingVisibility}
+                  onClick={() => onBulkVisibility(true)}
+                >
+                  일괄 노출
+                </Button>
+                <Button
+                  variant="secondary"
+                  disabled={bulkTogglingVisibility}
+                  onClick={() => onBulkVisibility(false)}
+                >
+                  일괄 숨김
+                </Button>
                 <Button variant="danger" disabled={bulkDeleting} onClick={() => setBulkOpen(true)}>
                   {`선택 ${formatNumber(selectedCount)}건 삭제`}
                 </Button>
@@ -305,6 +380,8 @@ export default function FaqPage() {
                   )
                 }
                 startIndex={(page - 1) * PAGE_SIZE}
+                onToggleVisible={onToggleVisible}
+                togglingIds={togglingIds}
               />
 
               <Pagination

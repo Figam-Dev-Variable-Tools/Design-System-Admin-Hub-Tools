@@ -241,6 +241,38 @@ export async function reorderFaqs(
   FAQS = reorderByIds(FAQS, orderedIds);
 }
 
+/* ── 노출 여부 토글 (목록에서 바로 — 낙관적 업데이트) ────────────────────────── */
+
+/** id 의 노출 여부만 바꾼 새 목록. **테스트가 이 순수 함수를 직접 부른다.** */
+export function setVisibilityById(list: readonly Faq[], id: string, visible: boolean): Faq[] {
+  return list.map((faq) => (faq.id === id ? { ...faq, visible } : faq));
+}
+
+// TODO(backend): PATCH /api/faqs/:id/visibility
+export async function setFaqVisibility(
+  id: string,
+  visible: boolean,
+  signal?: AbortSignal,
+): Promise<void> {
+  await wait(LATENCY_MS, signal);
+  failIfRequested('save');
+  FAQS = setVisibilityById(FAQS, id, visible);
+}
+
+/* ── 정렬 순서 자동 증분 (새 항목 = 현재 최대 + 1) ─────────────────────────── */
+
+/** 현재 최대 order + 1 (비면 1). **테스트가 이 순수 함수를 직접 부른다.** */
+export function nextOrder(list: readonly Faq[]): number {
+  return list.reduce((max, faq) => Math.max(max, faq.order), 0) + 1;
+}
+
+// TODO(backend): GET /api/faqs/next-order  (또는 목록 응답에 최대 order 포함)
+export async function fetchNextFaqOrder(signal?: AbortSignal): Promise<number> {
+  await wait(LATENCY_MS, signal);
+  failIfRequested('list');
+  return nextOrder(FAQS);
+}
+
 // TODO(backend): POST /api/faqs
 export async function createFaq(input: FaqInput, signal?: AbortSignal): Promise<void> {
   void input;

@@ -1,7 +1,7 @@
 // 배너 관리 화면의 동작 회귀 테스트 (A41)
 import { describe, expect, it } from 'vitest';
 
-import { applyQuery, BANNERS } from './data-source';
+import { applyQuery, BANNERS, nextOrder, reorderByIds, setEnabledById } from './data-source';
 import type { BannerQuery } from './data-source';
 import { bannerSchema } from './validation';
 import type { BannerFormValues } from './validation';
@@ -55,6 +55,49 @@ describe('BANNERS 픽스처', () => {
   it('정렬 순서 오름차순으로 온다', () => {
     const orders = BANNERS.map((banner) => banner.order);
     expect([...orders].sort((a, b) => a - b)).toEqual(orders);
+  });
+});
+
+describe('setEnabledById — ON/OFF 토글(순수)', () => {
+  it('해당 id 의 enabled 만 바꾸고 나머지는 그대로 둔다', () => {
+    const next = setEnabledById(SAMPLE, '2', false);
+    expect(next.find((b) => b.id === '2')?.enabled).toBe(false);
+    expect(next.find((b) => b.id === '1')?.enabled).toBe(SAMPLE[0]?.enabled);
+  });
+
+  it('없는 id 면 원본과 같은 값', () => {
+    const next = setEnabledById(SAMPLE, '없음', false);
+    expect(next.map((b) => b.enabled)).toEqual(SAMPLE.map((b) => b.enabled));
+  });
+});
+
+describe('nextOrder — 정렬 순서 자동 증분(순수)', () => {
+  it('현재 최대 + 1', () => {
+    expect(nextOrder([bannerOf({ id: '1', order: 3 }), bannerOf({ id: '2', order: 7 })])).toBe(8);
+  });
+
+  it('비면 1', () => {
+    expect(nextOrder([])).toBe(1);
+  });
+});
+
+describe('reorderByIds — 재정렬 지속(순수, FAQ 와 동일 규칙)', () => {
+  const list = [
+    bannerOf({ id: 'a', order: 1 }),
+    bannerOf({ id: 'b', order: 2 }),
+    bannerOf({ id: 'c', order: 3 }),
+    bannerOf({ id: 'd', order: 4 }),
+  ];
+
+  it('옮긴 항목들을 슬롯 안에서 새 순서로 재배치하고 order 를 1..n 으로 다시 매긴다', () => {
+    const next = reorderByIds(list, ['b', 'a']);
+    expect(next.map((b) => b.id)).toEqual(['b', 'a', 'c', 'd']);
+    expect(next.map((b) => b.order)).toEqual([1, 2, 3, 4]);
+  });
+
+  it('옮기지 않은 항목의 상대 순서를 보존한다', () => {
+    const next = reorderByIds(list, ['d', 'c']);
+    expect(next.map((b) => b.id)).toEqual(['a', 'b', 'd', 'c']);
   });
 });
 

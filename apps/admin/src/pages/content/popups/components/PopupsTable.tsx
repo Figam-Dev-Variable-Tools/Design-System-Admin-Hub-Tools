@@ -9,14 +9,14 @@ import {
   RowActions,
   RowSelectCell,
   SelectAllHeaderCell,
-  StatusBadge,
   tableSelectionState,
   tableStyle,
   tdStyle,
   thStyle,
+  ToggleSwitch,
   visuallyHiddenStyle,
 } from '../../../../shared/ui';
-import { enabledLabel, enabledTone, PAGE_SIZE, POSITION_LABEL } from '../types';
+import { PAGE_SIZE, POSITION_LABEL } from '../types';
 import type { Popup } from '../types';
 
 const COLUMNS = ['제목', '위치', '노출 기간', '상태', '우선순위'] as const;
@@ -76,6 +76,10 @@ interface PopupsTableProps {
   readonly onToggleOne: (id: string, checked: boolean) => void;
   readonly onToggleAll: (checked: boolean) => void;
   readonly startIndex: number;
+  /** 목록에서 바로 ON/OFF 토글 */
+  readonly onToggleEnabled: (popup: Popup, next: boolean) => void;
+  /** ON/OFF 요청 중인 팝업 — 스위치를 잠근다 */
+  readonly togglingIds: ReadonlySet<string>;
 }
 
 export function PopupsTable({
@@ -88,6 +92,8 @@ export function PopupsTable({
   onToggleOne,
   onToggleAll,
   startIndex,
+  onToggleEnabled,
+  togglingIds,
 }: PopupsTableProps) {
   const selection = tableSelectionState(popups, selectedIds);
 
@@ -142,9 +148,11 @@ export function PopupsTable({
               <td style={nowrapCellStyle}>{POSITION_LABEL[popup.position]}</td>
               <td style={nowrapCellStyle}>{`${popup.startAt} ~ ${popup.endAt}`}</td>
               <td style={nowrapCellStyle}>
-                <StatusBadge
-                  tone={enabledTone(popup.enabled)}
-                  label={enabledLabel(popup.enabled)}
+                <ToggleSwitch
+                  checked={popup.enabled}
+                  label={`${popup.title} 노출 여부`}
+                  busy={togglingIds.has(popup.id)}
+                  onChange={(next) => onToggleEnabled(popup, next)}
                 />
               </td>
               <td style={numericCellStyle}>{formatNumber(popup.priority)}</td>

@@ -27,7 +27,7 @@ import {
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
 import { PopupPreview } from './components/PopupPreview';
-import { useCreatePopup, usePopupQuery, useUpdatePopup } from './queries';
+import { useCreatePopup, useNextPopupPriority, usePopupQuery, useUpdatePopup } from './queries';
 import { POSITION_LABEL, POSITION_OPTIONS, TITLE_MAX_LENGTH } from './types';
 import { popupSchema } from './validation';
 import type { PopupFormValues } from './validation';
@@ -154,6 +154,15 @@ export default function PopupFormPage() {
       priority: String(loaded.priority),
     });
   }, [loaded, reset]);
+
+  // 우선순위 자동 채움 — 새 등록이면 현재 최대 + 1 을 기본값으로(사용자는 수정 가능).
+  const nextPriorityQuery = useNextPopupPriority(!isEdit);
+  const priorityPrefilledRef = useRef(false);
+  useEffect(() => {
+    if (isEdit || priorityPrefilledRef.current || nextPriorityQuery.data === undefined) return;
+    priorityPrefilledRef.current = true;
+    setValue('priority', String(nextPriorityQuery.data));
+  }, [isEdit, nextPriorityQuery.data, setValue]);
 
   const unsavedDialog = useUnsavedChangesDialog(isDirty && !saving, { message: UNSAVED_MESSAGE });
 

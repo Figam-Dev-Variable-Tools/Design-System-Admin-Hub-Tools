@@ -23,7 +23,13 @@ import {
   useToast,
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
-import { useCreateFaq, useFaqCategoriesQuery, useFaqQuery, useUpdateFaq } from './queries';
+import {
+  useCreateFaq,
+  useFaqCategoriesQuery,
+  useFaqQuery,
+  useNextFaqOrder,
+  useUpdateFaq,
+} from './queries';
 import { ANSWER_MAX_LENGTH, QUESTION_MAX_LENGTH } from './types';
 import { faqSchema } from './validation';
 import type { FaqFormValues } from './validation';
@@ -138,6 +144,15 @@ export default function FaqFormPage() {
       order: String(loaded.order),
     });
   }, [loaded, reset]);
+
+  // 정렬 순서 자동 채움 — 새 등록이면 현재 최대 + 1 을 기본값으로(사용자는 수정 가능).
+  const nextOrderQuery = useNextFaqOrder(!isEdit);
+  const orderPrefilledRef = useRef(false);
+  useEffect(() => {
+    if (isEdit || orderPrefilledRef.current || nextOrderQuery.data === undefined) return;
+    orderPrefilledRef.current = true;
+    setValue('order', String(nextOrderQuery.data));
+  }, [isEdit, nextOrderQuery.data, setValue]);
 
   const unsavedDialog = useUnsavedChangesDialog(isDirty && !saving, { message: UNSAVED_MESSAGE });
 

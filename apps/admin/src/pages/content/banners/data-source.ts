@@ -8,7 +8,7 @@ import type { Banner, BannerListResult, BannerPlacement } from './types';
 
 const LATENCY_MS = 400;
 
-type FailureOp = 'all' | 'list' | 'detail' | 'save' | 'delete';
+type FailureOp = 'all' | 'list' | 'detail' | 'save' | 'delete' | 'reorder';
 
 function failIfRequested(op: FailureOp): void {
   const flags = new URLSearchParams(window.location.search).get('fail');
@@ -42,10 +42,11 @@ function makeBanner(index: number): Banner {
   };
 }
 
-/** 정렬 순서 오름차순 — 서버가 order 기준으로 내려주는 것을 흉내 낸다 */
-export const BANNERS: readonly Banner[] = Array.from({ length: 12 }, (_, index) =>
-  makeBanner(index),
-).sort((a, b) => a.order - b.order);
+/** 정렬 순서 오름차순 — 서버가 order 기준으로 내려주는 것을 흉내 낸다.
+ *  mutable — ON/OFF 토글(setBannerEnabled)·드래그 재정렬(reorderBanners)이 이 상태를 갱신한다. */
+export let BANNERS: Banner[] = Array.from({ length: 12 }, (_, index) => makeBanner(index)).sort(
+  (a, b) => a.order - b.order,
+);
 
 /* ── 조회 ────────────────────────────────────────────────────────────────── */
 
@@ -104,6 +105,66 @@ export interface BannerInput {
   readonly endAt: string;
   readonly enabled: boolean;
   readonly order: number;
+}
+
+/* ── ON/OFF 토글 (목록에서 바로 — 낙관적 업데이트) ──────────────────────────── */
+
+/** id 의 ON/OFF 만 바꾼 새 목록. **테스트가 이 순수 함수를 직접 부른다.** */
+export function setEnabledById(list: readonly Banner[], id: string, enabled: boolean): Banner[] {
+  return list.map((banner) => (banner.id === id ? { ...banner, enabled } : banner));
+}
+
+// TODO(backend): PATCH /api/banners/:id/enabled
+export async function setBannerEnabled(
+  id: string,
+  enabled: boolean,
+  signal?: AbortSignal,
+): Promise<void> {
+  await wait(LATENCY_MS, signal);
+  failIfRequested('save');
+  BANNERS = setEnabledById(BANNERS, id, enabled);
+}
+
+/* ── 정렬 순서 자동 증분 (새 항목 = 현재 최대 + 1) ─────────────────────────── */
+
+/** 현재 최대 order + 1 (비면 1). **테스트가 이 순수 함수를 직접 부른다.** */
+export function nextOrder(list: readonly Banner[]): number {
+  return list.reduce((max, banner) => Math.max(max, banner.order), 0) + 1;
+}
+
+// TODO(backend): GET /api/banners/next-order
+export async function fetchNextBannerOrder(signal?: AbortSignal): Promise<number> {
+  await wait(LATENCY_MS, signal);
+  failIfRequested('list');
+  return nextOrder(BANNERS);
+}
+
+/* ── 정렬 순서 재정렬 (FAQ 와 동일 규칙 — 드래그/키보드) ───────────────────── */
+
+/**
+ * orderedIds 의 항목들을 그들이 차지하던 슬롯 안에서 새 순서로 재배치하고 전체 order 를 1..n 으로
+ * 다시 매긴다. 화면에 보이지 않는(다른 페이지) 항목의 상대 순서는 보존된다.
+ * **테스트가 이 순수 함수를 직접 부른다.**
+ */
+export function reorderByIds(list: readonly Banner[], orderedIds: readonly string[]): Banner[] {
+  const idSet = new Set(orderedIds);
+  const byId = new Map(list.map((banner) => [banner.id, banner]));
+  const moved = orderedIds
+    .map((id) => byId.get(id))
+    .filter((banner): banner is Banner => banner !== undefined);
+  let cursor = 0;
+  const next = list.map((banner) => (idSet.has(banner.id) ? (moved[cursor++] ?? banner) : banner));
+  return next.map((banner, index) => ({ ...banner, order: index + 1 }));
+}
+
+// TODO(backend): PUT /api/banners/reorder  { orderedIds }
+export async function reorderBanners(
+  orderedIds: readonly string[],
+  signal?: AbortSignal,
+): Promise<void> {
+  await wait(LATENCY_MS, signal);
+  failIfRequested('reorder');
+  BANNERS = reorderByIds(BANNERS, orderedIds);
 }
 
 // TODO(backend): POST /api/banners

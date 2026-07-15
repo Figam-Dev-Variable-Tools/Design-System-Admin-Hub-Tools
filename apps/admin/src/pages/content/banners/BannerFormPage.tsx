@@ -25,7 +25,7 @@ import {
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
 import { BannerPreview } from './components/BannerPreview';
-import { useBannerQuery, useCreateBanner, useUpdateBanner } from './queries';
+import { useBannerQuery, useCreateBanner, useNextBannerOrder, useUpdateBanner } from './queries';
 import { PLACEMENT_LABEL, PLACEMENT_OPTIONS, TITLE_MAX_LENGTH } from './types';
 import { bannerSchema } from './validation';
 import type { BannerFormValues } from './validation';
@@ -151,6 +151,15 @@ export default function BannerFormPage() {
       order: String(loaded.order),
     });
   }, [loaded, reset]);
+
+  // 정렬 순서 자동 채움 — 새 등록이면 현재 최대 + 1 을 기본값으로(사용자는 수정 가능).
+  const nextOrderQuery = useNextBannerOrder(!isEdit);
+  const orderPrefilledRef = useRef(false);
+  useEffect(() => {
+    if (isEdit || orderPrefilledRef.current || nextOrderQuery.data === undefined) return;
+    orderPrefilledRef.current = true;
+    setValue('order', String(nextOrderQuery.data));
+  }, [isEdit, nextOrderQuery.data, setValue]);
 
   const unsavedDialog = useUnsavedChangesDialog(isDirty && !saving, { message: UNSAVED_MESSAGE });
 

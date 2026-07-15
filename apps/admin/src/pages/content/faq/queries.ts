@@ -15,7 +15,9 @@ import {
   fetchFaqCategories,
   fetchFaqCategoryUsage,
   fetchFaqs,
+  fetchNextFaqOrder,
   reorderFaqs,
+  setFaqVisibility,
   updateFaq,
 } from './data-source';
 import type { FaqCategoryInput, FaqInput, FaqQuery } from './data-source';
@@ -159,6 +161,64 @@ export function useBulkDeleteFaqs() {
     onSuccess: (failed, { signal }) => {
       if (signal.aborted) return;
       if (failed === 0) void client.invalidateQueries({ queryKey: faqKeys.lists() });
+    },
+  });
+}
+
+/** 새 FAQ 등록 폼의 정렬 순서 기본값 — 현재 최대 + 1 (자동 채움, 편집 가능) */
+export function useNextFaqOrder(enabled: boolean): UseQueryResult<number, Error> {
+  return useQuery({
+    queryKey: [...faqKeys.all, 'next-order'],
+    queryFn: ({ signal }) => fetchNextFaqOrder(signal),
+    enabled,
+  });
+}
+
+interface SetVisibilityVars {
+  readonly id: string;
+  readonly visible: boolean;
+}
+
+/**
+ * 목록에서 바로 노출 여부를 토글 — 낙관적 업데이트 후 실패 시 롤백(쓰기 액션 규칙).
+ * 성공/실패 토스트는 호출부(FaqPage)가 띄운다.
+ */
+export function useSetFaqVisibility() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, visible }: SetVisibilityVars) => setFaqVisibility(id, visible),
+    onMutate: async ({ id, visible }) => {
+      await client.cancelQueries({ queryKey: faqKeys.lists() });
+      const snapshot = client.getQueriesData<FaqListResult>({ queryKey: faqKeys.lists() });
+      client.setQueriesData<FaqListResult>({ queryKey: faqKeys.lists() }, (old) =>
+        old === undefined
+          ? old
+          : { ...old, faqs: old.faqs.map((faq) => (faq.id === id ? { ...faq, visible } : faq)) },
+      );
+      return { snapshot };
+    },
+    onError: (_error, _vars, context) => {
+      context?.snapshot.forEach(([key, data]) => client.setQueryData(key, data));
+    },
+    onSettled: () => {
+      void client.invalidateQueries({ queryKey: faqKeys.lists() });
+    },
+  });
+}
+
+interface BulkSetVisibilityVars {
+  readonly ids: readonly string[];
+  readonly visible: boolean;
+}
+
+/** 일괄 노출/숨김 — 선택된 FAQ 전원. 부분 실패도 건수(반환값)로 알린다 */
+export function useBulkSetFaqVisibility() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ ids, visible }: BulkSetVisibilityVars) =>
+      settleAll(ids, (id) => setFaqVisibility(id, visible)),
+    onSettled: () => {
+      void client.invalidateQueries({ queryKey: faqKeys.lists() });
     },
   });
 }

@@ -6,7 +6,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 
 import { settleAll } from '../../../shared/bulk';
-import { createBanner, deleteBanner, fetchBanner, fetchBanners, updateBanner } from './data-source';
+import {
+  createBanner,
+  deleteBanner,
+  fetchBanner,
+  fetchBanners,
+  fetchNextBannerOrder,
+  reorderBanners,
+  setBannerEnabled,
+  updateBanner,
+} from './data-source';
 import type { BannerInput, BannerQuery } from './data-source';
 import type { Banner, BannerListResult } from './types';
 
@@ -94,6 +103,109 @@ export function useBulkDeleteBanners() {
     onSuccess: (failed, { signal }) => {
       if (signal.aborted) return;
       if (failed === 0) void client.invalidateQueries({ queryKey: bannerKeys.lists() });
+    },
+  });
+}
+
+/** 새 배너 등록 폼의 정렬 순서 기본값 — 현재 최대 + 1 (자동 채움, 편집 가능) */
+export function useNextBannerOrder(enabled: boolean): UseQueryResult<number, Error> {
+  return useQuery({
+    queryKey: [...bannerKeys.all, 'next-order'],
+    queryFn: ({ signal }) => fetchNextBannerOrder(signal),
+    enabled,
+  });
+}
+
+interface SetEnabledVars {
+  readonly id: string;
+  readonly enabled: boolean;
+}
+
+/** 목록에서 바로 ON/OFF 토글 — 낙관적 업데이트 후 실패 시 롤백. 토스트는 호출부가 띄운다 */
+export function useSetBannerEnabled() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, enabled }: SetEnabledVars) => setBannerEnabled(id, enabled),
+    onMutate: async ({ id, enabled }) => {
+      await client.cancelQueries({ queryKey: bannerKeys.lists() });
+      const snapshot = client.getQueriesData<BannerListResult>({ queryKey: bannerKeys.lists() });
+      client.setQueriesData<BannerListResult>({ queryKey: bannerKeys.lists() }, (old) =>
+        old === undefined
+          ? old
+          : {
+              ...old,
+              banners: old.banners.map((banner) =>
+                banner.id === id ? { ...banner, enabled } : banner,
+              ),
+            },
+      );
+      return { snapshot };
+    },
+    onError: (_error, _vars, context) => {
+      context?.snapshot.forEach(([key, data]) => client.setQueryData(key, data));
+    },
+    onSettled: () => {
+      void client.invalidateQueries({ queryKey: bannerKeys.lists() });
+    },
+  });
+}
+
+interface BulkSetEnabledVars {
+  readonly ids: readonly string[];
+  readonly enabled: boolean;
+}
+
+/** 일괄 ON/OFF — 선택된 배너 전원. 부분 실패도 건수(반환값)로 알린다 */
+export function useBulkSetBannerEnabled() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ ids, enabled }: BulkSetEnabledVars) =>
+      settleAll(ids, (id) => setBannerEnabled(id, enabled)),
+    onSettled: () => {
+      void client.invalidateQueries({ queryKey: bannerKeys.lists() });
+    },
+  });
+}
+
+interface ReorderVars {
+  readonly orderedIds: readonly string[];
+  readonly signal: AbortSignal;
+}
+
+/**
+ * 드래그/키보드 재정렬 — FAQ 와 동일: 낙관적 업데이트 후 실패 시 롤백.
+ * 성공/실패 토스트는 호출부(BannersPage)가 띄운다.
+ */
+export function useReorderBanners() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ orderedIds, signal }: ReorderVars) => reorderBanners(orderedIds, signal),
+    onMutate: async ({ orderedIds }) => {
+      await client.cancelQueries({ queryKey: bannerKeys.lists() });
+      const snapshot = client.getQueriesData<BannerListResult>({ queryKey: bannerKeys.lists() });
+      client.setQueriesData<BannerListResult>({ queryKey: bannerKeys.lists() }, (old) => {
+        if (old === undefined) return old;
+        const byId = new Map(old.banners.map((banner) => [banner.id, banner]));
+        const reordered = orderedIds
+          .map((id) => byId.get(id))
+          .filter((banner): banner is Banner => banner !== undefined);
+        if (reordered.length !== old.banners.length) return old;
+        const orders = old.banners.map((banner) => banner.order).sort((a, b) => a - b);
+        return {
+          ...old,
+          banners: reordered.map((banner, index) => ({
+            ...banner,
+            order: orders[index] ?? banner.order,
+          })),
+        };
+      });
+      return { snapshot };
+    },
+    onError: (_error, _vars, context) => {
+      context?.snapshot.forEach(([key, data]) => client.setQueryData(key, data));
+    },
+    onSettled: () => {
+      void client.invalidateQueries({ queryKey: bannerKeys.lists() });
     },
   });
 }

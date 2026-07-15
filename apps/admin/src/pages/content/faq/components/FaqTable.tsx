@@ -18,16 +18,16 @@ import {
   RowActions,
   RowSelectCell,
   SelectAllHeaderCell,
-  StatusBadge,
   tableSelectionState,
   tableStyle,
   tdStyle,
   thStyle,
+  ToggleSwitch,
   useReorderableRows,
   visuallyHiddenStyle,
 } from '../../../../shared/ui';
 import { useRowNavigation } from '../../../../shared/useRowNavigation';
-import { PAGE_SIZE, visibilityLabel, visibilityTone } from '../types';
+import { PAGE_SIZE } from '../types';
 import type { FaqSummary } from '../types';
 
 const COLUMNS = ['질문', '카테고리', '노출', '정렬 순서'] as const;
@@ -96,6 +96,10 @@ interface FaqTableProps {
   readonly onToggleOne: (id: string, checked: boolean) => void;
   readonly onToggleAll: (checked: boolean) => void;
   readonly startIndex: number;
+  /** 목록에서 바로 노출 여부 토글 */
+  readonly onToggleVisible: (faq: FaqSummary, next: boolean) => void;
+  /** 노출 토글 요청 중인 FAQ — 스위치를 잠근다 */
+  readonly togglingIds: ReadonlySet<string>;
 }
 
 export function FaqTable({
@@ -110,6 +114,8 @@ export function FaqTable({
   onToggleOne,
   onToggleAll,
   startIndex,
+  onToggleVisible,
+  togglingIds,
 }: FaqTableProps) {
   const { rowNavProps } = useRowNavigation();
   const ids = faqs.map((faq) => faq.id);
@@ -187,9 +193,13 @@ export function FaqTable({
                 </td>
                 <td style={nowrapCellStyle}>{faq.categoryLabel}</td>
                 <td style={nowrapCellStyle}>
-                  <StatusBadge
-                    tone={visibilityTone(faq.visible)}
-                    label={visibilityLabel(faq.visible)}
+                  <ToggleSwitch
+                    checked={faq.visible}
+                    label={`${faq.question} 노출 여부`}
+                    busy={togglingIds.has(faq.id)}
+                    onLabel="노출"
+                    offLabel="숨김"
+                    onChange={(next) => onToggleVisible(faq, next)}
                   />
                 </td>
                 <td style={numericCellStyle}>{formatNumber(faq.order)}</td>

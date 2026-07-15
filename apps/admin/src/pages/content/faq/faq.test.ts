@@ -10,7 +10,9 @@ import {
   deleteFaqCategory,
   FAQ_CATEGORIES,
   FAQS,
+  nextOrder,
   reorderByIds,
+  setVisibilityById,
 } from './data-source';
 import type { FaqQuery } from './data-source';
 import { faqCategorySchema, faqSchema } from './validation';
@@ -206,6 +208,29 @@ describe('reorderByIds — 재정렬 지속(순수)', () => {
 });
 
 /* ── 카테고리 사용량 · 삭제 (오너 피드백 ④) ───────────────────────────────── */
+
+describe('setVisibilityById — 노출 토글(순수)', () => {
+  const list: readonly Faq[] = [
+    faqOf({ id: 'a', visible: true }),
+    faqOf({ id: 'b', visible: true }),
+  ];
+
+  it('해당 id 의 visible 만 바꾼다', () => {
+    const next = setVisibilityById(list, 'a', false);
+    expect(next.find((f) => f.id === 'a')?.visible).toBe(false);
+    expect(next.find((f) => f.id === 'b')?.visible).toBe(true);
+  });
+});
+
+describe('nextOrder — 정렬 순서 자동 증분(순수)', () => {
+  it('현재 최대 + 1', () => {
+    expect(nextOrder([faqOf({ id: 'a', order: 4 }), faqOf({ id: 'b', order: 9 })])).toBe(10);
+  });
+
+  it('비면 1', () => {
+    expect(nextOrder([])).toBe(1);
+  });
+});
 
 describe('countFaqsByCategory — 카테고리별 사용 수', () => {
   it('카테고리별로 FAQ 수를 센다', () => {

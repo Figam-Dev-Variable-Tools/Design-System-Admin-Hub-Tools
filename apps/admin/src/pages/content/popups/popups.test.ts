@@ -1,7 +1,7 @@
 // 팝업 관리 화면의 동작 회귀 테스트 (A41)
 import { describe, expect, it } from 'vitest';
 
-import { applyQuery, POPUPS } from './data-source';
+import { applyQuery, nextPriority, POPUPS, setEnabledById } from './data-source';
 import type { PopupQuery } from './data-source';
 import { popupSchema } from './validation';
 import type { PopupFormValues } from './validation';
@@ -55,6 +55,26 @@ describe('POPUPS 픽스처', () => {
   it('우선순위 오름차순으로 온다', () => {
     const priorities = POPUPS.map((popup) => popup.priority);
     expect([...priorities].sort((a, b) => a - b)).toEqual(priorities);
+  });
+});
+
+describe('setEnabledById — ON/OFF 토글(순수)', () => {
+  it('해당 id 의 enabled 만 바꾼다', () => {
+    const next = setEnabledById(SAMPLE, '1', false);
+    expect(next.find((p) => p.id === '1')?.enabled).toBe(false);
+    expect(next.find((p) => p.id === '3')?.enabled).toBe(true);
+  });
+});
+
+describe('nextPriority — 우선순위 자동 증분(순수)', () => {
+  it('현재 최대 + 1', () => {
+    expect(
+      nextPriority([popupOf({ id: '1', priority: 2 }), popupOf({ id: '2', priority: 5 })]),
+    ).toBe(6);
+  });
+
+  it('비면 1', () => {
+    expect(nextPriority([])).toBe(1);
   });
 });
 

@@ -54,6 +54,8 @@ function renderTable(overrides: Partial<Parameters<typeof FaqTable>[0]> = {}) {
         onToggleOne={vi.fn()}
         onToggleAll={vi.fn()}
         startIndex={0}
+        onToggleVisible={vi.fn()}
+        togglingIds={new Set()}
         {...overrides}
       />
     </MemoryRouter>,

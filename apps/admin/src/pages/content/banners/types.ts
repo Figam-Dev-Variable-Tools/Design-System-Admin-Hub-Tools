@@ -1,7 +1,6 @@
 // 배너 관리 화면 **전용** 타입 (A41 소유 — apps/admin/src/pages/content/banners/**)
 //
 // 팝업과 닮은 쌍이지만 서로 import 하지 않는다 — 공유는 도메인을 모르는 공통 모듈로만 한다.
-import type { StatusTone } from '../../../shared/ui';
 
 /** 노출 위치 — 메인/서브 */
 export type BannerPlacement = 'main' | 'sub';
@@ -33,14 +32,8 @@ export interface Banner {
   readonly order: number;
 }
 
-/** ON/OFF 의 색 의도 — ON=성공, OFF=중립 */
-export function enabledTone(enabled: boolean): StatusTone {
-  return enabled ? 'success' : 'neutral';
-}
-
-export function enabledLabel(enabled: boolean): string {
-  return enabled ? 'ON' : 'OFF';
-}
+// [상태 표시는 토글로 이동] 목록의 ON/OFF 는 배지 대신 ToggleSwitch 로 바로 켜고 끈다.
+// 배지용이던 enabledTone/enabledLabel 은 소비자가 사라져 삭제했다(A83 축5 죽은 코드 0 유지).
 
 /* ── 필터 ────────────────────────────────────────────────────────────────── */
 

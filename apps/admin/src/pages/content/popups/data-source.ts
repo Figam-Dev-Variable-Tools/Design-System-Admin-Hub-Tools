@@ -44,10 +44,11 @@ function makePopup(index: number): Popup {
   };
 }
 
-/** 우선순위 오름차순 — 서버가 priority 기준으로 내려주는 것을 흉내 낸다 */
-export const POPUPS: readonly Popup[] = Array.from({ length: 12 }, (_, index) =>
-  makePopup(index),
-).sort((a, b) => a.priority - b.priority);
+/** 우선순위 오름차순 — 서버가 priority 기준으로 내려주는 것을 흉내 낸다.
+ *  mutable — 목록에서 바로 ON/OFF 토글(setPopupEnabled)이 이 상태를 갱신한다(백엔드가 정본). */
+export let POPUPS: Popup[] = Array.from({ length: 12 }, (_, index) => makePopup(index)).sort(
+  (a, b) => a.priority - b.priority,
+);
 
 /* ── 조회 ────────────────────────────────────────────────────────────────── */
 
@@ -104,6 +105,38 @@ export interface PopupInput {
   readonly endAt: string;
   readonly enabled: boolean;
   readonly priority: number;
+}
+
+/* ── ON/OFF 토글 (목록에서 바로 — 낙관적 업데이트) ──────────────────────────── */
+
+/** id 의 ON/OFF 만 바꾼 새 목록. **테스트가 이 순수 함수를 직접 부른다.** */
+export function setEnabledById(list: readonly Popup[], id: string, enabled: boolean): Popup[] {
+  return list.map((popup) => (popup.id === id ? { ...popup, enabled } : popup));
+}
+
+// TODO(backend): PATCH /api/popups/:id/enabled
+export async function setPopupEnabled(
+  id: string,
+  enabled: boolean,
+  signal?: AbortSignal,
+): Promise<void> {
+  await wait(LATENCY_MS, signal);
+  failIfRequested('save');
+  POPUPS = setEnabledById(POPUPS, id, enabled);
+}
+
+/* ── 우선순위 자동 증분 (새 항목 = 현재 최대 + 1) ─────────────────────────── */
+
+/** 현재 최대 priority + 1 (비면 1). **테스트가 이 순수 함수를 직접 부른다.** */
+export function nextPriority(list: readonly Popup[]): number {
+  return list.reduce((max, popup) => Math.max(max, popup.priority), 0) + 1;
+}
+
+// TODO(backend): GET /api/popups/next-priority
+export async function fetchNextPopupPriority(signal?: AbortSignal): Promise<number> {
+  await wait(LATENCY_MS, signal);
+  failIfRequested('list');
+  return nextPriority(POPUPS);
 }
 
 // TODO(backend): POST /api/popups
