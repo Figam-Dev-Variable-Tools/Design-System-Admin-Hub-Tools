@@ -71,6 +71,18 @@ import ReturnsListPage from './pages/products/returns/ReturnsListPage';
 import ReturnDetailPage from './pages/products/returns/ReturnDetailPage';
 import ShippingPolicyPage from './pages/products/shipping/ShippingPolicyPage';
 import PointsPolicyPage from './pages/products/points/PointsPolicyPage';
+import AccountListPage from './pages/sales/accounts/AccountListPage';
+import AccountFormPage from './pages/sales/accounts/AccountFormPage';
+import ContractListPage from './pages/sales/contracts/ContractListPage';
+import ContractFormPage from './pages/sales/contracts/ContractFormPage';
+import QuoteListPage from './pages/sales/quotes/QuoteListPage';
+import QuoteFormPage from './pages/sales/quotes/QuoteFormPage';
+import InquiryListPage from './pages/sales/inquiries/InquiryListPage';
+import InquiryDetailPage from './pages/sales/inquiries/InquiryDetailPage';
+import ProjectListPage from './pages/sales/projects/ProjectListPage';
+import ProjectFormPage from './pages/sales/projects/ProjectFormPage';
+import ConsultationListPage from './pages/sales/consultations/ConsultationListPage';
+import ConsultationDetailPage from './pages/sales/consultations/ConsultationDetailPage';
 
 /**
  * 실제 화면이 있는 경로 — 나머지 사이드바 항목(nav-config.ts)은 준비 중 화면으로 간다.
@@ -107,6 +119,12 @@ const IMPLEMENTED = new Set([
   '/portfolio/items',
   '/portfolio/categories',
   '/portfolio/case-studies',
+  '/sales/accounts',
+  '/sales/contracts',
+  '/sales/quotes',
+  '/sales/inquiries',
+  '/sales/projects',
+  '/sales/consultations',
 ]);
 
 export default function App() {
@@ -252,6 +270,41 @@ export default function App() {
             {/* 상품 관리 — 배송·적립금 (정책 설정형 — 단일 문서 편집). 목록이 아니라 정책 1건을 고친다. */}
             <Route path="/products/shipping" element={<ShippingPolicyPage />} />
             <Route path="/products/points" element={<PointsPolicyPage />} />
+
+            {/* 영업 관리 — 거래처 (목록 · 등록 · 수정). 등록/수정은 하나의 폼(:id 유무로 갈린다).
+              사업자정보·거래조건·담당자 복수 + 우측 사업자 정보 미리보기. 목록엔 이미지 열이 없다.
+              '/new' 는 '/:id/edit' 보다 먼저 온다(정적 경로 우선). */}
+            <Route path="/sales/accounts" element={<AccountListPage />} />
+            <Route path="/sales/accounts/new" element={<AccountFormPage />} />
+            <Route path="/sales/accounts/:id/edit" element={<AccountFormPage />} />
+
+            {/* 영업 관리 — 계약 (목록 · 등록 · 수정). 금액·기간·자동갱신·전자서명 상태 + 첨부 업로드
+              + 우측 계약서 요약 미리보기. '/new' 는 '/:id/edit' 보다 먼저 온다. */}
+            <Route path="/sales/contracts" element={<ContractListPage />} />
+            <Route path="/sales/contracts/new" element={<ContractFormPage />} />
+            <Route path="/sales/contracts/:id/edit" element={<ContractFormPage />} />
+
+            {/* 영업 관리 — 견적 (목록 · 등록 · 수정). 라인아이템 편집표(공급가액·부가세·합계 자동계산)
+              + 우측 견적서 문서 미리보기 + 승인 견적 인라인 수주 전환. '/new' 는 '/:id/edit' 보다 먼저. */}
+            <Route path="/sales/quotes" element={<QuoteListPage />} />
+            <Route path="/sales/quotes/new" element={<QuoteFormPage />} />
+            <Route path="/sales/quotes/:id/edit" element={<QuoteFormPage />} />
+
+            {/* 영업 관리 — 문의 (읽기 전용 목록 · 상세 처리). 문의는 고객 채널이 만들고 관리자는
+              타임라인·답변·상태·담당만 처리한다. 상세 라우트만 두고 등록/삭제는 없다. */}
+            <Route path="/sales/inquiries" element={<InquiryListPage />} />
+            <Route path="/sales/inquiries/:id" element={<InquiryDetailPage />} />
+
+            {/* 영업 관리 — 프로젝트(영업 기회) (목록 · 등록 · 수정). 파이프라인 단계·확률·예상매출·
+              마일스톤·산출물 + 우측 파이프라인 스텝퍼/가중예상매출. '/new' 는 '/:id/edit' 보다 먼저. */}
+            <Route path="/sales/projects" element={<ProjectListPage />} />
+            <Route path="/sales/projects/new" element={<ProjectFormPage />} />
+            <Route path="/sales/projects/:id/edit" element={<ProjectFormPage />} />
+
+            {/* 영업 관리 — 상담 이력 (읽기 전용 목록 · 상세). 감사 성격이라 조회만 한다.
+              유형·후속조치 대기 필터 + 검색, 상세는 상담 내용·후속조치를 읽기 전용으로 보여준다. */}
+            <Route path="/sales/consultations" element={<ConsultationListPage />} />
+            <Route path="/sales/consultations/:id" element={<ConsultationDetailPage />} />
 
             {/* 사이드바 정의는 있으나 미구현 — 화면을 만들 때마다 위로 옮긴다 */}
             {pendingRoutes.map((leaf) => (
