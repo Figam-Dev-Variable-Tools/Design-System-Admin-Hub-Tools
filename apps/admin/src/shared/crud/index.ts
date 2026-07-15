@@ -43,6 +43,8 @@ export { DocumentFormShell } from './DocumentFormShell';
 export { useCrudList } from './useCrudList';
 export { CrudListShell } from './CrudListShell';
 export type { CrudColumn } from './CrudTable';
+// 목록에서 바로 한 행을 갱신(노출 토글 등)
+export { useCrudRowUpdate } from './useCrudRowUpdate';
 
 // ── 폼 계층 ──────────────────────────────────────────────────────────────────
 export { useCrudForm } from './useCrudForm';

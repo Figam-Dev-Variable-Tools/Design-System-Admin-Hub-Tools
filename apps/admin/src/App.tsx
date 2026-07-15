@@ -56,6 +56,11 @@ import CertificatesListPage from './pages/company/certificates/CertificatesListP
 import CertificatesFormPage from './pages/company/certificates/CertificatesFormPage';
 import EsgListPage from './pages/company/esg/EsgListPage';
 import EsgFormPage from './pages/company/esg/EsgFormPage';
+import PortfolioListPage from './pages/portfolio/items/PortfolioListPage';
+import PortfolioFormPage from './pages/portfolio/items/PortfolioFormPage';
+import PortfolioCategoriesPage from './pages/portfolio/categories/PortfolioCategoriesPage';
+import CaseStudyListPage from './pages/portfolio/case-studies/CaseStudyListPage';
+import CaseStudyFormPage from './pages/portfolio/case-studies/CaseStudyFormPage';
 
 /**
  * 실제 화면이 있는 경로 — 나머지 사이드바 항목(nav-config.ts)은 준비 중 화면으로 간다.
@@ -83,6 +88,9 @@ const IMPLEMENTED = new Set([
   '/company/history',
   '/company/certificates',
   '/company/esg',
+  '/portfolio/items',
+  '/portfolio/categories',
+  '/portfolio/case-studies',
 ]);
 
 export default function App() {
@@ -187,6 +195,20 @@ export default function App() {
             <Route path="/company/esg" element={<EsgListPage />} />
             <Route path="/company/esg/new" element={<EsgFormPage />} />
             <Route path="/company/esg/:id/edit" element={<EsgFormPage />} />
+
+            {/* 포트폴리오 관리 — 포트폴리오 (목록 · 등록 · 수정). 등록/수정은 하나의 폼(:id 유무로 갈린다).
+              '/new' 는 '/:id/edit' 보다 먼저 온다(정적 경로 우선). 목록엔 이미지 열을 넣지 않는다. */}
+            <Route path="/portfolio/items" element={<PortfolioListPage />} />
+            <Route path="/portfolio/items/new" element={<PortfolioFormPage />} />
+            <Route path="/portfolio/items/:id/edit" element={<PortfolioFormPage />} />
+
+            {/* 포트폴리오 관리 — 카테고리 (목록 · 추가/수정 모달 · 삭제팝업, 사용 중 차단). */}
+            <Route path="/portfolio/categories" element={<PortfolioCategoriesPage />} />
+
+            {/* 포트폴리오 관리 — 성공 사례 (목록 · 등록 · 수정). 업종 필터 + 노출 토글. */}
+            <Route path="/portfolio/case-studies" element={<CaseStudyListPage />} />
+            <Route path="/portfolio/case-studies/new" element={<CaseStudyFormPage />} />
+            <Route path="/portfolio/case-studies/:id/edit" element={<CaseStudyFormPage />} />
 
             {/* 사이드바 정의는 있으나 미구현 — 화면을 만들 때마다 위로 옮긴다 */}
             {pendingRoutes.map((leaf) => (
