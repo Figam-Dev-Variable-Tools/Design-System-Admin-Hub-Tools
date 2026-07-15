@@ -7,7 +7,7 @@ import type { TermsStatus, TermsType, TermsVersion } from './types';
 
 const LATENCY_MS = 400;
 
-type FailureOp = 'all' | 'list' | 'save' | 'delete';
+type FailureOp = 'all' | 'list' | 'detail' | 'save' | 'delete';
 
 function failIfRequested(op: FailureOp): void {
   const flags = new URLSearchParams(window.location.search).get('fail');
@@ -72,6 +72,15 @@ export async function fetchTermsVersions(
   await wait(LATENCY_MS, signal);
   failIfRequested('list');
   return sortVersions(ALL_VERSIONS.filter((version) => version.typeId === typeId));
+}
+
+// TODO(backend): GET /api/terms/:id
+export async function fetchTermsVersion(id: string, signal: AbortSignal): Promise<TermsVersion> {
+  await wait(LATENCY_MS, signal);
+  failIfRequested('detail');
+  const version = ALL_VERSIONS.find((item) => item.id === id);
+  if (version === undefined) throw new Error('약관 버전을 찾을 수 없습니다');
+  return version;
 }
 
 /* ── 쓰기 계열 ───────────────────────────────────────────────────────────── */

@@ -1,7 +1,7 @@
 // 약관 관리 화면의 동작 회귀 테스트 (A41)
 import { describe, expect, it } from 'vitest';
 
-import { sortVersions, TERMS_TYPES } from './data-source';
+import { fetchTermsVersion, sortVersions, TERMS_TYPES } from './data-source';
 import { termsVersionSchema } from './validation';
 import type { TermsVersionFormValues } from './validation';
 import { isCurrent } from './types';
@@ -43,6 +43,20 @@ describe('isCurrent — 현재 시행본', () => {
 describe('TERMS_TYPES 픽스처', () => {
   it('약관 종류가 여러 개 있다', () => {
     expect(TERMS_TYPES.length).toBeGreaterThan(1);
+  });
+});
+
+describe('fetchTermsVersion — 단건 조회(상세 페이지용)', () => {
+  it('존재하는 id 는 그 버전을 돌려준다', async () => {
+    const version = await fetchTermsVersion('service-v1.0', new AbortController().signal);
+    expect(version.id).toBe('service-v1.0');
+    expect(version.typeId).toBe('service');
+  });
+
+  it('없는 id 는 찾을 수 없다고 던진다', async () => {
+    await expect(fetchTermsVersion('nope', new AbortController().signal)).rejects.toThrow(
+      '찾을 수 없',
+    );
   });
 });
 

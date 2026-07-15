@@ -9,6 +9,7 @@ import {
   createTermsVersion,
   deleteTermsVersion,
   fetchTermsTypes,
+  fetchTermsVersion,
   fetchTermsVersions,
   updateTermsVersion,
 } from './data-source';
@@ -19,7 +20,16 @@ const termsKeys = {
   all: ['terms'] as const,
   types: () => [...termsKeys.all, 'types'] as const,
   versions: (typeId: string) => [...termsKeys.all, 'versions', typeId] as const,
+  version: (id: string) => [...termsKeys.all, 'version', id] as const,
 } as const;
+
+export function useTermsVersionQuery(id: string): UseQueryResult<TermsVersion, Error> {
+  return useQuery({
+    queryKey: termsKeys.version(id),
+    queryFn: ({ signal }) => fetchTermsVersion(id, signal),
+    enabled: id !== '',
+  });
+}
 
 export function useTermsTypesQuery(): UseQueryResult<readonly TermsType[], Error> {
   return useQuery({
@@ -64,8 +74,9 @@ export function useUpdateTermsVersion() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: ({ id, input, signal }: UpdateVars) => updateTermsVersion(id, input, signal),
-    onSuccess: (_result, { input }) => {
+    onSuccess: (_result, { id, input }) => {
       void client.invalidateQueries({ queryKey: termsKeys.versions(input.typeId) });
+      void client.invalidateQueries({ queryKey: termsKeys.version(id) });
     },
   });
 }

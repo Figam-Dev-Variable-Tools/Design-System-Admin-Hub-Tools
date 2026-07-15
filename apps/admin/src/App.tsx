@@ -40,7 +40,11 @@ import PopupFormPage from './pages/content/popups/PopupFormPage';
 import BannersPage from './pages/content/banners/BannersPage';
 import BannerFormPage from './pages/content/banners/BannerFormPage';
 import TermsPage from './pages/content/terms/TermsPage';
+import TermsDetailPage from './pages/content/terms/TermsDetailPage';
+import TermsFormPage from './pages/content/terms/TermsFormPage';
 import PrivacyPage from './pages/content/privacy/PrivacyPage';
+import PrivacyDetailPage from './pages/content/privacy/PrivacyDetailPage';
+import PrivacyFormPage from './pages/content/privacy/PrivacyFormPage';
 
 /**
  * 실제 화면이 있는 경로 — 나머지 사이드바 항목(nav-config.ts)은 준비 중 화면으로 간다.
@@ -125,9 +129,18 @@ export default function App() {
             <Route path="/content/banners/new" element={<BannerFormPage />} />
             <Route path="/content/banners/:id/edit" element={<BannerFormPage />} />
 
-            {/* 콘텐츠 관리 — 약관/개인정보 처리방침 (버전 문서 쌍 · 버전 이력 표 공유) */}
+            {/* 콘텐츠 관리 — 약관/개인정보 처리방침 (목록 · 등록 · 상세 · 수정 · 버전 이력 표 공유).
+              목록은 툴바+버전 이력, 행 클릭 → 상세(전문), 등록/수정은 별도 폼 페이지.
+              상세/폼 라우트는 사이드바(nav-config)에 없어 IMPLEMENTED 와 무관하게 라우트만 둔다.
+              '/new' 는 '/:id' 보다 먼저 와야 한다(정적 경로 우선). */}
             <Route path="/content/terms" element={<TermsPage />} />
+            <Route path="/content/terms/new" element={<TermsFormPage />} />
+            <Route path="/content/terms/:id" element={<TermsDetailPage />} />
+            <Route path="/content/terms/:id/edit" element={<TermsFormPage />} />
             <Route path="/content/privacy" element={<PrivacyPage />} />
+            <Route path="/content/privacy/new" element={<PrivacyFormPage />} />
+            <Route path="/content/privacy/:id" element={<PrivacyDetailPage />} />
+            <Route path="/content/privacy/:id/edit" element={<PrivacyFormPage />} />
 
             {/* 사이드바 정의는 있으나 미구현 — 화면을 만들 때마다 위로 옮긴다 */}
             {pendingRoutes.map((leaf) => (

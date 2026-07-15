@@ -1,7 +1,7 @@
 // 개인정보 처리방침 화면의 동작 회귀 테스트 (A41)
 import { describe, expect, it } from 'vitest';
 
-import { sortVersions } from './data-source';
+import { fetchPrivacyVersion, sortVersions } from './data-source';
 import { privacyVersionSchema } from './validation';
 import type { PrivacyVersionFormValues } from './validation';
 import { isCurrent } from './types';
@@ -32,6 +32,19 @@ describe('isCurrent — 현재 시행본', () => {
   it("상태가 '시행중'이면 현재 시행본이다", () => {
     expect(isCurrent(versionOf({ id: 'a', status: 'active' }))).toBe(true);
     expect(isCurrent(versionOf({ id: 'b', status: 'archived' }))).toBe(false);
+  });
+});
+
+describe('fetchPrivacyVersion — 단건 조회(상세 페이지용)', () => {
+  it('존재하는 id 는 그 버전을 돌려준다', async () => {
+    const version = await fetchPrivacyVersion('privacy-v2.0', new AbortController().signal);
+    expect(version.id).toBe('privacy-v2.0');
+  });
+
+  it('없는 id 는 찾을 수 없다고 던진다', async () => {
+    await expect(fetchPrivacyVersion('nope', new AbortController().signal)).rejects.toThrow(
+      '찾을 수 없',
+    );
   });
 });
 

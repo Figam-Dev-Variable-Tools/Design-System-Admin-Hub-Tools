@@ -8,6 +8,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import {
   createPrivacyVersion,
   deletePrivacyVersion,
+  fetchPrivacyVersion,
   fetchPrivacyVersions,
   updatePrivacyVersion,
 } from './data-source';
@@ -17,6 +18,7 @@ import type { PrivacyVersion } from './types';
 const privacyKeys = {
   all: ['privacy'] as const,
   versions: () => [...privacyKeys.all, 'versions'] as const,
+  version: (id: string) => [...privacyKeys.all, 'version', id] as const,
 } as const;
 
 export function usePrivacyVersionsQuery(): UseQueryResult<readonly PrivacyVersion[], Error> {
@@ -24,6 +26,14 @@ export function usePrivacyVersionsQuery(): UseQueryResult<readonly PrivacyVersio
     queryKey: privacyKeys.versions(),
     queryFn: ({ signal }) => fetchPrivacyVersions(signal),
     placeholderData: (previous) => previous,
+  });
+}
+
+export function usePrivacyVersionQuery(id: string): UseQueryResult<PrivacyVersion, Error> {
+  return useQuery({
+    queryKey: privacyKeys.version(id),
+    queryFn: ({ signal }) => fetchPrivacyVersion(id, signal),
+    enabled: id !== '',
   });
 }
 
@@ -52,8 +62,9 @@ export function useUpdatePrivacyVersion() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: ({ id, input, signal }: UpdateVars) => updatePrivacyVersion(id, input, signal),
-    onSuccess: () => {
+    onSuccess: (_result, { id }) => {
       void client.invalidateQueries({ queryKey: privacyKeys.versions() });
+      void client.invalidateQueries({ queryKey: privacyKeys.version(id) });
     },
   });
 }

@@ -7,7 +7,7 @@ import type { PrivacyStatus, PrivacyVersion } from './types';
 
 const LATENCY_MS = 400;
 
-type FailureOp = 'all' | 'list' | 'save' | 'delete';
+type FailureOp = 'all' | 'list' | 'detail' | 'save' | 'delete';
 
 function failIfRequested(op: FailureOp): void {
   const flags = new URLSearchParams(window.location.search).get('fail');
@@ -52,6 +52,18 @@ export async function fetchPrivacyVersions(
   await wait(LATENCY_MS, signal);
   failIfRequested('list');
   return sortVersions(ALL_VERSIONS);
+}
+
+// TODO(backend): GET /api/privacy-policy/:id
+export async function fetchPrivacyVersion(
+  id: string,
+  signal: AbortSignal,
+): Promise<PrivacyVersion> {
+  await wait(LATENCY_MS, signal);
+  failIfRequested('detail');
+  const version = ALL_VERSIONS.find((item) => item.id === id);
+  if (version === undefined) throw new Error('처리방침 버전을 찾을 수 없습니다');
+  return version;
 }
 
 /* ── 쓰기 계열 ───────────────────────────────────────────────────────────── */
