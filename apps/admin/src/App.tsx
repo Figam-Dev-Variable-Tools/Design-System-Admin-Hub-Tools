@@ -91,6 +91,18 @@ import ReplyFormPage from './pages/support/replies/ReplyFormPage';
 import CustomerFaqPage from './pages/support/faq/CustomerFaqPage';
 import DownloadListPage from './pages/support/downloads/DownloadListPage';
 import DownloadFormPage from './pages/support/downloads/DownloadFormPage';
+import EventListPage from './pages/marketing/events/EventListPage';
+import EventFormPage from './pages/marketing/events/EventFormPage';
+import PromotionListPage from './pages/marketing/promotions/PromotionListPage';
+import PromotionFormPage from './pages/marketing/promotions/PromotionFormPage';
+import NewsletterListPage from './pages/marketing/newsletters/NewsletterListPage';
+import NewsletterFormPage from './pages/marketing/newsletters/NewsletterFormPage';
+import SmsListPage from './pages/marketing/sms/SmsListPage';
+import SmsFormPage from './pages/marketing/sms/SmsFormPage';
+import EmailListPage from './pages/marketing/email/EmailListPage';
+import EmailFormPage from './pages/marketing/email/EmailFormPage';
+import TemplateListPage from './pages/marketing/templates/TemplateListPage';
+import TemplateFormPage from './pages/marketing/templates/TemplateFormPage';
 
 /**
  * 실제 화면이 있는 경로 — 나머지 사이드바 항목(nav-config.ts)은 준비 중 화면으로 간다.
@@ -138,6 +150,12 @@ const IMPLEMENTED = new Set([
   '/support/replies',
   '/support/faq',
   '/support/downloads',
+  '/marketing/events',
+  '/marketing/promotions',
+  '/marketing/newsletters',
+  '/marketing/sms',
+  '/marketing/email',
+  '/marketing/templates',
 ]);
 
 export default function App() {
@@ -343,6 +361,37 @@ export default function App() {
             <Route path="/support/downloads" element={<DownloadListPage />} />
             <Route path="/support/downloads/new" element={<DownloadFormPage />} />
             <Route path="/support/downloads/:id/edit" element={<DownloadFormPage />} />
+
+            {/* 마케팅 관리 — 이벤트·프로모션 (목록 · 등록 · 수정 · 삭제팝업). 기간·대상·혜택·상태(예정/
+              진행/종료). 등록/수정은 하나의 폼(:id 유무로 갈린다). '/new' 는 '/:id/edit' 보다 먼저 온다. */}
+            <Route path="/marketing/events" element={<EventListPage />} />
+            <Route path="/marketing/events/new" element={<EventFormPage />} />
+            <Route path="/marketing/events/:id/edit" element={<EventFormPage />} />
+            <Route path="/marketing/promotions" element={<PromotionListPage />} />
+            <Route path="/marketing/promotions/new" element={<PromotionFormPage />} />
+            <Route path="/marketing/promotions/:id/edit" element={<PromotionFormPage />} />
+
+            {/* 마케팅 관리 — 뉴스레터 (발송회차 목록 오픈율/클릭율 · 등록 · 수정). 회차번호 자동 채번,
+              구독자 세그먼트·예약·이메일 미리보기. 저장은 발송이 아니다(// TODO(backend) 발송 트리거). */}
+            <Route path="/marketing/newsletters" element={<NewsletterListPage />} />
+            <Route path="/marketing/newsletters/new" element={<NewsletterFormPage />} />
+            <Route path="/marketing/newsletters/:id/edit" element={<NewsletterFormPage />} />
+
+            {/* 마케팅 관리 — SMS/이메일 발송 (목록 · 등록 · 수정). 수신자 세그먼트·발신번호/발신자·바이트
+              카운터(SMS/LMS/MMS)·야간발송 차단·수신거부·예약 + 미리보기(휴대폰 말풍선/이메일).
+              발송은 실제 전송이 아니다 — 캠페인(초안/예약)만 저장한다(// TODO(backend) 발송 트리거). */}
+            <Route path="/marketing/sms" element={<SmsListPage />} />
+            <Route path="/marketing/sms/new" element={<SmsFormPage />} />
+            <Route path="/marketing/sms/:id/edit" element={<SmsFormPage />} />
+            <Route path="/marketing/email" element={<EmailListPage />} />
+            <Route path="/marketing/email/new" element={<EmailFormPage />} />
+            <Route path="/marketing/email/:id/edit" element={<EmailFormPage />} />
+
+            {/* 마케팅 관리 — 발송 템플릿 (목록 · 등록 · 수정). SMS/이메일/알림톡 채널별 문구, 치환변수,
+              알림톡 승인상태(검수중/승인/반려). 발송 화면이 승인된 템플릿을 삽입한다. */}
+            <Route path="/marketing/templates" element={<TemplateListPage />} />
+            <Route path="/marketing/templates/new" element={<TemplateFormPage />} />
+            <Route path="/marketing/templates/:id/edit" element={<TemplateFormPage />} />
 
             {/* 사이드바 정의는 있으나 미구현 — 화면을 만들 때마다 위로 옮긴다 */}
             {pendingRoutes.map((leaf) => (
