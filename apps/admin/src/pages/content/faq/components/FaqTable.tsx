@@ -18,6 +18,8 @@ import {
   RowActions,
   RowSelectCell,
   SelectAllHeaderCell,
+  SeqCell,
+  SeqHeaderCell,
   tableSelectionState,
   tableStyle,
   tdStyle,
@@ -143,9 +145,7 @@ export function FaqTable({
             onToggleAll={onToggleAll}
           />
           {reorderable && <ReorderGripHeaderCell />}
-          <th scope="col" style={thStyle}>
-            순번
-          </th>
+          <SeqHeaderCell />
           {COLUMNS.map((column) => (
             <th key={column} scope="col" style={thStyle}>
               {column}
@@ -185,7 +185,7 @@ export function FaqTable({
                   onToggle={(checked) => onToggleOne(faq.id, checked)}
                 />
                 {reorderable && <ReorderGripCell />}
-                <td style={numericCellStyle}>{formatNumber(startIndex + index + 1)}</td>
+                <SeqCell seq={startIndex + index + 1} />
                 <td style={questionCellStyle}>
                   <Link to={detailPath} className="tds-ui-link tds-ui-focusable">
                     {faq.question}

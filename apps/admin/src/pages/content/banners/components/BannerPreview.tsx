@@ -5,6 +5,8 @@
 import { useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
 
+import { ImageIcon } from '../../../../shared/ui';
+
 const stageStyle: CSSProperties = {
   boxSizing: 'border-box',
   width: '100%',
@@ -48,8 +50,10 @@ const imageStyle: CSSProperties = {
 
 const imagePlaceholderStyle: CSSProperties = {
   display: 'flex',
+  flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
+  gap: 'var(--tds-space-1)',
   boxSizing: 'border-box',
   width: '100%',
   height: 'calc(var(--tds-space-6) * 4)',
@@ -60,6 +64,11 @@ const imagePlaceholderStyle: CSSProperties = {
   color: 'var(--tds-color-text-muted)',
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
+};
+
+const placeholderIconStyle: CSSProperties = {
+  display: 'inline-flex',
+  fontSize: 'var(--tds-typography-title-lg-font-size)',
 };
 
 const rowStyle: CSSProperties = {
@@ -144,7 +153,10 @@ export function BannerPreview({
             <img src={trimmedImage} alt="" style={imageStyle} onError={() => setLoadFailed(true)} />
           ) : (
             <div style={imagePlaceholderStyle}>
-              {loadFailed ? '이미지를 불러오지 못했습니다' : '이미지 미리보기'}
+              <span style={placeholderIconStyle} aria-hidden="true">
+                <ImageIcon />
+              </span>
+              <span>{loadFailed ? '이미지를 불러오지 못했습니다' : '이미지 미리보기'}</span>
             </div>
           )}
 

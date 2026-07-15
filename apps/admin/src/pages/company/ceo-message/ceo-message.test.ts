@@ -39,9 +39,9 @@ describe('ceoMessageSchema — CEO 인사말 폼 검증', () => {
     expect(ceoMessageSchema.safeParse(valuesOf({ photoUrl: '' })).success).toBe(true);
   });
 
-  it('사진 URL 이 http(s) 가 아니면 막는다', () => {
-    expect(messageFor(valuesOf({ photoUrl: 'data:image/png;base64,xx' }), 'photoUrl')).toContain(
-      'http',
-    );
+  it('사진 형식은 강제하지 않는다 — 업로드된 값(blob/data URL)을 허용한다', () => {
+    expect(
+      ceoMessageSchema.safeParse(valuesOf({ photoUrl: 'data:image/png;base64,xx' })).success,
+    ).toBe(true);
   });
 });

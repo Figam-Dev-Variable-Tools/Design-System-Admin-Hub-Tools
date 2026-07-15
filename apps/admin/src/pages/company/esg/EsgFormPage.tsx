@@ -1,11 +1,23 @@
 // EsgFormPage — ESG 활동 등록/수정 (라우트: /company/esg/new · /company/esg/:id/edit) · A41 소유
 import type { CSSProperties } from 'react';
 
-import { controlStyle, errorIdOf, FormField, SelectField, TextareaField } from '../../../shared/ui';
+import {
+  controlStyle,
+  errorIdOf,
+  FormField,
+  ImageGalleryField,
+  SelectField,
+  TextareaField,
+} from '../../../shared/ui';
 import { FormPageShell } from '../_shared/FormPageShell';
 import { useCrudForm } from '../_shared/useCrudForm';
 import { esgAdapter } from './data-source';
-import { ESG_CATEGORY_OPTIONS, SUMMARY_MAX_LENGTH, TITLE_MAX_LENGTH } from './types';
+import {
+  ESG_CATEGORY_OPTIONS,
+  MAX_ESG_IMAGES,
+  SUMMARY_MAX_LENGTH,
+  TITLE_MAX_LENGTH,
+} from './types';
 import type { EsgCategory, EsgInput, EsgItem } from './types';
 import { esgSchema } from './validation';
 import type { EsgFormValues } from './validation';
@@ -29,18 +41,20 @@ export default function EsgFormPage() {
       entityLabel: ENTITY_LABEL,
       listPath: LIST_PATH,
       schema: esgSchema,
-      empty: { category: 'environment', title: '', summary: '', date: '' },
+      empty: { category: 'environment', title: '', summary: '', date: '', imageUrls: [] },
       toInput: (values) => ({
         category: values.category as EsgCategory,
         title: values.title.trim(),
         summary: values.summary.trim(),
         date: values.date.trim(),
+        imageUrls: values.imageUrls,
       }),
       toValues: (item) => ({
         category: item.category,
         title: item.title,
         summary: item.summary,
         date: item.date,
+        imageUrls: [...item.imageUrls],
       }),
     });
 
@@ -52,6 +66,8 @@ export default function EsgFormPage() {
   } = form;
   const disabled = saving || loadingDetail;
   const summary = watch('summary');
+  const imageUrls = watch('imageUrls');
+  const imagesError = (errors.imageUrls as { message?: string } | undefined)?.message;
 
   return (
     <FormPageShell
@@ -125,6 +141,16 @@ export default function EsgFormPage() {
         error={errors.summary?.message}
         placeholder="활동 내용을 입력하세요."
         rows={6}
+      />
+
+      <ImageGalleryField
+        label="본문 이미지"
+        values={imageUrls}
+        onChange={(next) => setValue('imageUrls', [...next], { shouldDirty: true })}
+        disabled={disabled}
+        error={imagesError}
+        hint={`활동을 보여줄 이미지를 여러 장 올릴 수 있습니다. 최대 ${String(MAX_ESG_IMAGES)}장.`}
+        maxFiles={MAX_ESG_IMAGES}
       />
     </FormPageShell>
   );

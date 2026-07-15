@@ -11,6 +11,8 @@ import {
   RowActions,
   RowSelectCell,
   SelectAllHeaderCell,
+  SeqCell,
+  SeqHeaderCell,
   StatusBadge,
   tableSelectionState,
   tableStyle,
@@ -117,9 +119,7 @@ export function NoticesTable({
             selection={selection}
             onToggleAll={onToggleAll}
           />
-          <th scope="col" style={thStyle}>
-            순번
-          </th>
+          <SeqHeaderCell />
           {COLUMNS.map((column) => (
             <th key={column} scope="col" style={thStyle}>
               {column}
@@ -151,7 +151,7 @@ export function NoticesTable({
                   checked={selectedIds.has(notice.id)}
                   onToggle={(checked) => onToggleOne(notice.id, checked)}
                 />
-                <td style={numericCellStyle}>{formatNumber(startIndex + index + 1)}</td>
+                <SeqCell seq={startIndex + index + 1} />
                 <td style={titleCellStyle}>
                   <span style={titleGroupStyle}>
                     {notice.pinned && <StatusBadge tone="warning" label="고정" />}

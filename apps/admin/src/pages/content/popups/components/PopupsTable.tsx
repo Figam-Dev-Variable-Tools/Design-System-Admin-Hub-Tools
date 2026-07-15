@@ -9,6 +9,8 @@ import {
   RowActions,
   RowSelectCell,
   SelectAllHeaderCell,
+  SeqCell,
+  SeqHeaderCell,
   tableSelectionState,
   tableStyle,
   tdStyle,
@@ -111,9 +113,7 @@ export function PopupsTable({
             selection={selection}
             onToggleAll={onToggleAll}
           />
-          <th scope="col" style={thStyle}>
-            순번
-          </th>
+          <SeqHeaderCell />
           {COLUMNS.map((column) => (
             <th key={column} scope="col" style={thStyle}>
               {column}
@@ -143,7 +143,7 @@ export function PopupsTable({
                 checked={selectedIds.has(popup.id)}
                 onToggle={(checked) => onToggleOne(popup.id, checked)}
               />
-              <td style={numericCellStyle}>{formatNumber(startIndex + index + 1)}</td>
+              <SeqCell seq={startIndex + index + 1} />
               <td style={titleCellStyle}>{popup.title}</td>
               <td style={nowrapCellStyle}>{POSITION_LABEL[popup.position]}</td>
               <td style={nowrapCellStyle}>{`${popup.startAt} ~ ${popup.endAt}`}</td>

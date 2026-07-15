@@ -14,9 +14,14 @@ import { Link } from 'react-router-dom';
 import { RowActions } from './RowActions';
 import { StatusBadge } from './StatusBadge';
 import type { StatusTone } from './StatusBadge';
-import { RowSelectCell, SelectAllHeaderCell, tableSelectionState } from './TableSelection';
+import {
+  RowSelectCell,
+  SelectAllHeaderCell,
+  SeqCell,
+  SeqHeaderCell,
+  tableSelectionState,
+} from './TableSelection';
 import { numericCellStyle, tableStyle, tdStyle, thStyle, visuallyHiddenStyle } from './styles';
-import { formatNumber } from '../format';
 import { useRowNavigation } from '../useRowNavigation';
 
 const SELECT_ALL_LABEL_ID = 'version-history-select-all-label';
@@ -115,9 +120,7 @@ export function VersionHistoryTable({
               onToggleAll={onToggleAll}
             />
           )}
-          <th scope="col" style={thStyle}>
-            순번
-          </th>
+          <SeqHeaderCell />
           {COLUMNS.map((column) => (
             <th key={column} scope="col" style={thStyle}>
               {column}
@@ -154,7 +157,7 @@ export function VersionHistoryTable({
                     onToggle={(checked) => onToggleOne(row.id, checked)}
                   />
                 )}
-                <td style={numericCellStyle}>{formatNumber(index + 1)}</td>
+                <SeqCell seq={index + 1} />
                 <td style={versionCellStyle}>
                   <span style={badgeGroupStyle}>
                     {path !== undefined ? (

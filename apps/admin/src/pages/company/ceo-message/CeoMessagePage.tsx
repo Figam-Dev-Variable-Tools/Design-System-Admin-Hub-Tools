@@ -11,7 +11,7 @@ import {
   controlStyle,
   errorIdOf,
   FormField,
-  ImageUrlField,
+  ImageUploadField,
   TextareaField,
   useToast,
 } from '../../../shared/ui';
@@ -124,15 +124,15 @@ export default function CeoMessagePage() {
       />
 
       <div style={photoWrapStyle}>
-        <ImageUrlField
-          label="사진 URL"
+        <ImageUploadField
+          label="사진"
           value={photoUrl}
           onChange={(value) =>
             setValue('photoUrl', value, { shouldValidate: false, shouldDirty: true })
           }
           disabled={disabled}
           error={errors.photoUrl?.message}
-          hint="대표/CEO 사진 URL (선택). 업로드 대신 호스팅된 이미지 URL 을 입력합니다."
+          hint="대표/CEO 사진 URL (선택). 이미지를 끌어다 놓거나 클릭해 업로드합니다."
         />
       </div>
     </DocumentFormShell>

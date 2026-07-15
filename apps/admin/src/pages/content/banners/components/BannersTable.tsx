@@ -16,6 +16,8 @@ import {
   RowActions,
   RowSelectCell,
   SelectAllHeaderCell,
+  SeqCell,
+  SeqHeaderCell,
   tableSelectionState,
   tableStyle,
   tdStyle,
@@ -137,9 +139,7 @@ export function BannersTable({
             onToggleAll={onToggleAll}
           />
           {reorderable && <ReorderGripHeaderCell />}
-          <th scope="col" style={thStyle}>
-            순번
-          </th>
+          <SeqHeaderCell />
           {COLUMNS.map((column) => (
             <th key={column} scope="col" style={thStyle}>
               {column}
@@ -174,7 +174,7 @@ export function BannersTable({
                 onToggle={(checked) => onToggleOne(banner.id, checked)}
               />
               {reorderable && <ReorderGripCell />}
-              <td style={numericCellStyle}>{formatNumber(startIndex + index + 1)}</td>
+              <SeqCell seq={startIndex + index + 1} />
               <td style={titleCellStyle}>{banner.title}</td>
               <td style={nowrapCellStyle}>{PLACEMENT_LABEL[banner.placement]}</td>
               <td style={nowrapCellStyle}>{`${banner.startAt} ~ ${banner.endAt}`}</td>

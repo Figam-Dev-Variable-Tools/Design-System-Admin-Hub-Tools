@@ -5,12 +5,13 @@
 // SelectAllHeaderCell·RowActions·tableSelectionState·tableStyle)를 그대로 재사용한다.
 import type { CSSProperties, ReactNode } from 'react';
 
-import { formatNumber } from '../../../shared/format';
 import {
   numericCellStyle,
   RowActions,
   RowSelectCell,
   SelectAllHeaderCell,
+  SeqCell,
+  SeqHeaderCell,
   tableSelectionState,
   tableStyle,
   tdStyle,
@@ -100,9 +101,7 @@ export function CrudTable<T extends { id: string }>({
             selection={selection}
             onToggleAll={onToggleAll}
           />
-          <th scope="col" style={thStyle}>
-            순번
-          </th>
+          <SeqHeaderCell />
           {columns.map((column) => (
             <th key={column.header} scope="col" style={thStyle}>
               {column.header}
@@ -140,7 +139,7 @@ export function CrudTable<T extends { id: string }>({
                 checked={selectedIds.has(item.id)}
                 onToggle={(checked) => onToggleOne(item.id, checked)}
               />
-              <td style={numericCellStyle}>{formatNumber(index + 1)}</td>
+              <SeqCell seq={index + 1} />
               {columns.map((column) => (
                 <td
                   key={column.header}

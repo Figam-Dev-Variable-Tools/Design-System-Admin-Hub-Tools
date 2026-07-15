@@ -21,7 +21,7 @@ import {
   errorIdOf,
   fieldLabelStyle,
   FormField,
-  ImageUrlField,
+  ImageUploadField,
   SelectField,
   useToast,
   useUnsavedChangesDialog,
@@ -270,8 +270,8 @@ export default function PopupFormPage() {
                 />
               </FormField>
 
-              <ImageUrlField
-                label="이미지 URL"
+              <ImageUploadField
+                label="이미지"
                 required
                 value={imageUrl}
                 onChange={(value) =>
@@ -279,7 +279,7 @@ export default function PopupFormPage() {
                 }
                 disabled={saving || loadingDetail}
                 error={errors.imageUrl?.message}
-                hint="업로드 대신 호스팅된 이미지 URL 을 입력합니다."
+                hint="이미지를 끌어다 놓거나 클릭해 업로드합니다."
               />
 
               <FormField

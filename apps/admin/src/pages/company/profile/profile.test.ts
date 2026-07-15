@@ -61,7 +61,9 @@ describe('companyProfileSchema — 회사 정보 폼 검증', () => {
     expect(companyProfileSchema.safeParse(valuesOf({ logoUrl: '' })).success).toBe(true);
   });
 
-  it('로고 URL 이 http(s) 가 아니면 막는다', () => {
-    expect(messageFor(valuesOf({ logoUrl: 'ftp://x/y.png' }), 'logoUrl')).toContain('http');
+  it('로고 형식은 강제하지 않는다 — 업로드된 값(blob/data URL)을 허용한다', () => {
+    expect(companyProfileSchema.safeParse(valuesOf({ logoUrl: 'blob:abc-123' })).success).toBe(
+      true,
+    );
   });
 });

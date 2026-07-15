@@ -8,6 +8,7 @@
 // [도메인을 모른다] 회원인지 운영자인지 알지 못한다 — id 를 가진 행 목록과 라벨 문구만 받는다.
 import type { CSSProperties } from 'react';
 
+import { formatNumber } from '../format';
 import { TriStateCheckbox } from './TriStateCheckbox';
 import { checkboxStyle, tdStyle, thStyle, visuallyHiddenStyle } from './styles';
 
@@ -89,6 +90,34 @@ interface RowSelectCellProps {
  * MembersTable 이 손으로 그리던 마크업을 콘텐츠 목록(공지·FAQ·팝업·배너·버전 이력)이 다섯 번째
  * 소비자가 되며 올렸다. 도메인을 모른다 — id·라벨 문구·checked·콜백만 받는다.
  */
+/* ── 순번 열 (여러 목록 공유 — 가운데 정렬) ───────────────────────────────────
+ *
+ * 목록 표 대부분이 '순번' 열을 갖는다(체크박스 다음, 1-based). 헤더/셀을 각 표가 손으로 그리면
+ * 정렬(가운데)·숫자 표기(tabular-nums)가 표마다 어긋난다. RowSelectCell 과 같은 결로 여기 한 벌만 둔다.
+ * 도메인을 모른다 — 순번 숫자만 받는다. */
+
+const seqHeadStyle: CSSProperties = { ...thStyle, textAlign: 'center' };
+
+const seqCellStyle: CSSProperties = {
+  ...tdStyle,
+  textAlign: 'center',
+  fontVariantNumeric: 'tabular-nums',
+};
+
+/** 표 헤더의 순번 열 — 가운데 정렬 */
+export function SeqHeaderCell() {
+  return (
+    <th scope="col" style={seqHeadStyle}>
+      순번
+    </th>
+  );
+}
+
+/** 표 행의 순번 셀 — 가운데 정렬, 1-based 숫자 표기 */
+export function SeqCell({ seq }: { readonly seq: number }) {
+  return <td style={seqCellStyle}>{formatNumber(seq)}</td>;
+}
+
 export function RowSelectCell({ id, label, checked, onToggle }: RowSelectCellProps) {
   const labelId = `select-${id}`;
   return (

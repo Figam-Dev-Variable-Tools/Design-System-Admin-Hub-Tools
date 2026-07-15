@@ -1,12 +1,12 @@
 // 팝업 실시간 미리보기 (A41 소유, 오너 피드백 ⑤)
 //
 // 왼쪽 입력이 바뀌면 오른쪽에서 실제 팝업처럼 즉시 반영한다 — 이미지·제목·링크·노출 위치·ON/OFF.
-// 이미지 URL 이 이미지를 가리키지 않으면 자리표시로 대체한다(ImageUrlField 와 같은 결).
+// 이미지 URL 이 이미지를 가리키지 않으면 자리표시로 대체한다(ImageUploadField 와 같은 결).
 // 팝업 화면 1곳만 쓰므로 페이지 전용으로 둔다(README 규칙 1 — 소비자 1개).
 import { useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
 
-import { CloseIcon } from '../../../../shared/ui';
+import { CloseIcon, ImageIcon } from '../../../../shared/ui';
 
 const stageStyle: CSSProperties = {
   display: 'flex',
@@ -64,8 +64,10 @@ const imageStyle: CSSProperties = {
 
 const imagePlaceholderStyle: CSSProperties = {
   display: 'flex',
+  flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
+  gap: 'var(--tds-space-1)',
   boxSizing: 'border-box',
   width: '100%',
   minHeight: 'calc(var(--tds-space-6) * 5)',
@@ -77,6 +79,11 @@ const imagePlaceholderStyle: CSSProperties = {
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   textAlign: 'center',
+};
+
+const placeholderIconStyle: CSSProperties = {
+  display: 'inline-flex',
+  fontSize: 'var(--tds-typography-title-lg-font-size)',
 };
 
 const titleStyle: CSSProperties = {
@@ -160,7 +167,10 @@ export function PopupPreview({
             <img src={trimmedImage} alt="" style={imageStyle} onError={() => setLoadFailed(true)} />
           ) : (
             <div style={imagePlaceholderStyle}>
-              {loadFailed ? '이미지를 불러오지 못했습니다' : '이미지 미리보기'}
+              <span style={placeholderIconStyle} aria-hidden="true">
+                <ImageIcon />
+              </span>
+              <span>{loadFailed ? '이미지를 불러오지 못했습니다' : '이미지 미리보기'}</span>
             </div>
           )}
 

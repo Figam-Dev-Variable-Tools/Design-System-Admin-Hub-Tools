@@ -1,7 +1,13 @@
 // CertificatesFormPage — 인증서/특허 등록/수정 (라우트: /company/certificates/new · /:id/edit) · A41 소유
 import type { CSSProperties } from 'react';
 
-import { controlStyle, errorIdOf, FormField, ImageUrlField, SelectField } from '../../../shared/ui';
+import {
+  controlStyle,
+  errorIdOf,
+  FormField,
+  ImageUploadField,
+  SelectField,
+} from '../../../shared/ui';
 import { FormPageShell } from '../_shared/FormPageShell';
 import { useCrudForm } from '../_shared/useCrudForm';
 import { certificatesAdapter } from './data-source';
@@ -129,8 +135,8 @@ export default function CertificatesFormPage() {
         </FormField>
       </div>
 
-      <ImageUrlField
-        label="이미지 URL"
+      <ImageUploadField
+        label="이미지"
         required
         value={imageUrl}
         onChange={(value) =>
@@ -138,7 +144,7 @@ export default function CertificatesFormPage() {
         }
         disabled={disabled}
         error={errors.imageUrl?.message}
-        hint="업로드 대신 호스팅된 이미지 URL 을 입력합니다."
+        hint="이미지를 끌어다 놓거나 클릭해 업로드합니다."
       />
     </FormPageShell>
   );

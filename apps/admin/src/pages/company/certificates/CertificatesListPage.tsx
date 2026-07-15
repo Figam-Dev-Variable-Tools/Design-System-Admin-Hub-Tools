@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Button, PlusCircleIcon, SelectField, StatusBadge } from '../../../shared/ui';
+import { Button, ImageThumb, PlusCircleIcon, SelectField, StatusBadge } from '../../../shared/ui';
 import { CrudListShell } from '../_shared/CrudListShell';
 import type { CrudColumn } from '../_shared/CrudTable';
 import { useCrudList } from '../_shared/useCrudList';
@@ -42,13 +42,6 @@ const filterSelectStyle: CSSProperties = {
   width: 'calc(var(--tds-space-6) * 6)',
 };
 
-const thumbStyle: CSSProperties = {
-  display: 'block',
-  maxWidth: 'calc(var(--tds-space-6) * 2.5)',
-  maxHeight: 'var(--tds-space-6)',
-  objectFit: 'contain',
-};
-
 const nameOf = (item: CertItem) => item.name;
 
 export default function CertificatesListPage() {
@@ -76,12 +69,7 @@ export default function CertificatesListPage() {
   const columns: readonly CrudColumn<CertItem>[] = [
     {
       header: '이미지',
-      render: (item) =>
-        item.imageUrl.trim() !== '' ? (
-          <img src={item.imageUrl} alt={`${item.name} 이미지`} style={thumbStyle} />
-        ) : (
-          '—'
-        ),
+      render: (item) => <ImageThumb src={item.imageUrl} alt={`${item.name} 이미지`} />,
     },
     { header: '명칭', render: (item) => item.name },
     { header: '발급기관', nowrap: true, render: (item) => item.issuer },

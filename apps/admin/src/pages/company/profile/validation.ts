@@ -1,7 +1,7 @@
 // 회사 정보 폼 검증 규칙 (A41 — 검증의 정본은 이 zod 스키마다. 진입점은 zod/mini)
 import * as z from 'zod/mini';
 
-import { optionalHttpUrl, requiredText } from '../_shared/validation';
+import { requiredText } from '../_shared/validation';
 import {
   ADDRESS_MAX_LENGTH,
   COMPANY_NAME_MAX_LENGTH,
@@ -23,8 +23,8 @@ export const companyProfileSchema = z.object({
   address: requiredText('주소', ADDRESS_MAX_LENGTH),
   ceoName: requiredText('대표자명', NAME_MAX_LENGTH),
   contact: requiredText('연락처', CONTACT_MAX_LENGTH),
-  // 로고는 선택 — 비우면 통과하고, 채우면 http(s) URL 이어야 한다.
-  logoUrl: optionalHttpUrl('로고 이미지 URL'),
+  // 로고는 선택 — 업로드 결과(object/data URL)라 형식은 강제하지 않는다. 비우면 로고 없음.
+  logoUrl: z.string(),
 });
 
 export type CompanyProfileFormValues = z.infer<typeof companyProfileSchema>;

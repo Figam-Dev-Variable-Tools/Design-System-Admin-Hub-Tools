@@ -2,18 +2,18 @@
 //
 // 체크박스 + 순번 + 로고 썸네일 + 이름 + 링크 + 행 액션(수정 모달/삭제 확인). 정렬 순서가 의미 있어
 // 드래그 재정렬을 켠다(검색어가 없을 때만 — 필터된 부분집합 재정렬은 의미가 흐려진다).
-import { useState } from 'react';
 import type { CSSProperties } from 'react';
 
-import { formatNumber } from '../../../shared/format';
 import {
-  numericCellStyle,
+  ImageThumb,
   ReorderGripCell,
   ReorderGripHeaderCell,
   ReorderMoveButtons,
   RowActions,
   RowSelectCell,
   SelectAllHeaderCell,
+  SeqCell,
+  SeqHeaderCell,
   tableSelectionState,
   tableStyle,
   tdStyle,
@@ -33,13 +33,6 @@ const nameCellStyle: CSSProperties = {
 const thumbCellStyle: CSSProperties = {
   ...tdStyle,
   width: 'calc(var(--tds-space-6) * 3)',
-};
-
-const thumbStyle: CSSProperties = {
-  display: 'block',
-  maxWidth: 'calc(var(--tds-space-6) * 2.5)',
-  maxHeight: 'var(--tds-space-6)',
-  objectFit: 'contain',
 };
 
 const thumbEmptyStyle: CSSProperties = {
@@ -77,25 +70,6 @@ const emptyCellStyle: CSSProperties = {
 };
 
 const COLUMNS = ['로고', '이름', '링크'] as const;
-
-function ThumbCell({ item }: { readonly item: LogoItem }) {
-  const [failed, setFailed] = useState(false);
-  const src = item.logoUrl.trim();
-  return (
-    <td style={thumbCellStyle}>
-      {src !== '' && !failed ? (
-        <img
-          src={src}
-          alt={`${item.name} 로고`}
-          style={thumbStyle}
-          onError={() => setFailed(true)}
-        />
-      ) : (
-        <span style={thumbEmptyStyle}>이미지 없음</span>
-      )}
-    </td>
-  );
-}
 
 interface LogoListTableProps {
   readonly items: readonly LogoItem[];
@@ -165,9 +139,7 @@ export function LogoListTable({
             onToggleAll={onToggleAll}
           />
           {reorderable && <ReorderGripHeaderCell />}
-          <th scope="col" style={thStyle}>
-            순번
-          </th>
+          <SeqHeaderCell />
           {COLUMNS.map((column) => (
             <th key={column} scope="col" style={thStyle}>
               {column}
@@ -202,8 +174,10 @@ export function LogoListTable({
                 onToggle={(checked) => onToggleOne(item.id, checked)}
               />
               {reorderable && <ReorderGripCell />}
-              <td style={numericCellStyle}>{formatNumber(index + 1)}</td>
-              <ThumbCell item={item} />
+              <SeqCell seq={index + 1} />
+              <td style={thumbCellStyle}>
+                <ImageThumb src={item.logoUrl} alt={`${item.name} 로고`} />
+              </td>
               <td style={nameCellStyle}>{item.name}</td>
               <td style={linkCellStyle}>
                 {item.linkUrl.trim() !== '' ? (

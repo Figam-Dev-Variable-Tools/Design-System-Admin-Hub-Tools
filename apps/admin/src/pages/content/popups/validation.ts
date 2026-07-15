@@ -26,10 +26,10 @@ export const popupSchema = z
         error: `제목은 ${String(TITLE_MAX_LENGTH)}자를 넘을 수 없습니다.`,
       }),
     ),
-    imageUrl: z.string().check(
-      z.refine((value) => value.trim() !== '', { error: '이미지 URL 을 입력하세요.' }),
-      z.refine((value) => isHttpUrl(value), { error: 'http(s):// 로 시작하는 URL 을 입력하세요.' }),
-    ),
+    // 업로드된 이미지 값(object/data URL 또는 업로드 응답 URL) — 형식은 강제하지 않고 등록 여부만 본다
+    imageUrl: z
+      .string()
+      .check(z.refine((value) => value.trim() !== '', { error: '이미지를 등록하세요.' })),
     // 링크는 선택 — 입력했다면 형식은 맞아야 한다
     linkUrl: z.string().check(
       z.refine((value) => value.trim() === '' || isHttpUrl(value), {

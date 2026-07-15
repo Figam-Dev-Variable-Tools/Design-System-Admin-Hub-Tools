@@ -14,7 +14,7 @@ import {
   controlStyle,
   errorIdOf,
   FormField,
-  ImageUrlField,
+  ImageUploadField,
   Modal,
 } from '../../../shared/ui';
 import type { LogoAdapter } from './adapter';
@@ -157,8 +157,8 @@ export function LogoFormModal({
           />
         </FormField>
 
-        <ImageUrlField
-          label="로고 이미지 URL"
+        <ImageUploadField
+          label="로고 이미지"
           required
           value={logoUrl}
           onChange={(value) =>
@@ -166,7 +166,7 @@ export function LogoFormModal({
           }
           disabled={saving}
           error={errors.logoUrl?.message}
-          hint="업로드 대신 호스팅된 이미지 URL 을 입력합니다."
+          hint="이미지를 끌어다 놓거나 클릭해 업로드합니다."
         />
 
         <FormField

@@ -81,12 +81,9 @@ describe('logoSchema — 폼 검증', () => {
     expect(messageFor(valuesOf({ name: '  ' }), 'name')).toContain('입력');
   });
 
-  it('로고 URL 이 비면 막는다', () => {
-    expect(messageFor(valuesOf({ logoUrl: '' }), 'logoUrl')).toContain('입력');
-  });
-
-  it('로고 URL 이 http(s) 가 아니면 막는다', () => {
-    expect(messageFor(valuesOf({ logoUrl: 'cdn.example.com/a.png' }), 'logoUrl')).toContain('http');
+  it('로고가 비면 막는다 (형식은 강제하지 않는다 — 업로드된 값 허용)', () => {
+    expect(messageFor(valuesOf({ logoUrl: '' }), 'logoUrl')).toContain('로고');
+    expect(logoSchema.safeParse(valuesOf({ logoUrl: 'blob:abc-123' })).success).toBe(true);
   });
 
   it('링크는 선택 — 비어 있어도 통과한다', () => {

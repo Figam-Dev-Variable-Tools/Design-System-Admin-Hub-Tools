@@ -48,7 +48,13 @@ export { SearchField } from './SearchField';
 
 export { SelectField } from './SelectField';
 
-export { ImageUrlField } from './ImageUrlField';
+export { ImageUploadField } from './ImageUploadField';
+
+export { ImageGalleryField } from './ImageGalleryField';
+
+export { ImageThumb } from './ImageThumb';
+
+export { imageFileError } from './imageFile';
 
 export { DateRangeField } from './DateRangeField';
 
@@ -57,7 +63,13 @@ export { RowActions } from './RowActions';
 export { VersionHistoryTable } from './VersionHistoryTable';
 export type { VersionRow } from './VersionHistoryTable';
 
-export { RowSelectCell, SelectAllHeaderCell, tableSelectionState } from './TableSelection';
+export {
+  RowSelectCell,
+  SelectAllHeaderCell,
+  SeqCell,
+  SeqHeaderCell,
+  tableSelectionState,
+} from './TableSelection';
 
 export { SelectionBar } from './SelectionBar';
 
@@ -92,11 +104,13 @@ export {
   ChevronRightIcon,
   CloseIcon,
   DownloadIcon,
+  ImageIcon,
   InfoCircleIcon,
   PencilIcon,
   PlusCircleIcon,
   SearchIcon,
   TrashIcon,
+  UploadIcon,
   XCircleIcon,
 } from './icons';
 export type { IconProps } from './icons';

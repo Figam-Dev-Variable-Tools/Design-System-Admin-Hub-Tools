@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 
 import { isAbort } from '../../../shared/async';
 import { zodResolver } from '../../../shared/form/zodResolver';
-import { controlStyle, errorIdOf, FormField, ImageUrlField, useToast } from '../../../shared/ui';
+import { controlStyle, errorIdOf, FormField, ImageUploadField, useToast } from '../../../shared/ui';
 import { DocumentFormShell } from '../_shared/DocumentFormShell';
 import { companyProfileKey, companyProfileStore } from './data-source';
 import { useDocumentQuery, useSaveDocument } from '../_shared/document';
@@ -187,15 +187,15 @@ export default function CompanyProfilePage() {
         />
       </FormField>
 
-      <ImageUrlField
-        label="로고 이미지 URL"
+      <ImageUploadField
+        label="로고 이미지"
         value={logoUrl}
         onChange={(value) =>
           setValue('logoUrl', value, { shouldValidate: false, shouldDirty: true })
         }
         disabled={disabled}
         error={errors.logoUrl?.message}
-        hint="업로드 대신 호스팅된 이미지 URL 을 입력합니다. 비워 두면 로고가 표시되지 않습니다."
+        hint="이미지를 끌어다 놓거나 클릭해 업로드합니다. 비워 두면 로고가 표시되지 않습니다."
       />
     </DocumentFormShell>
   );

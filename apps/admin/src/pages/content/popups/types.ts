@@ -1,7 +1,7 @@
 // 팝업 관리 화면 **전용** 타입 (A41 소유 — apps/admin/src/pages/content/popups/**)
 //
 // 팝업과 배너는 '닮은 쌍'이지만 서로를 import 하지 않는다(페이지 결합 금지). 공유는 도메인을
-// 모르는 공통 모듈(ImageUrlField·DateRangeField·StatusBadge·RowActions)로만 한다.
+// 모르는 공통 모듈(ImageUploadField·DateRangeField·StatusBadge·RowActions)로만 한다.
 
 /** 노출 위치 — 팝업이 뜨는 페이지 */
 export type PopupPosition = 'home' | 'event' | 'all';

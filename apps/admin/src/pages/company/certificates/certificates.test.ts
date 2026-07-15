@@ -90,7 +90,8 @@ describe('certSchema — 폼 검증', () => {
     expect(messageFor(valuesOf({ kind: 'award' }), 'kind')).toContain('선택');
   });
 
-  it('이미지 URL 이 http(s) 가 아니면 막는다', () => {
-    expect(messageFor(valuesOf({ imageUrl: '' }), 'imageUrl')).toContain('입력');
+  it('이미지가 비면 막는다 (형식은 강제하지 않는다 — 업로드된 값 허용)', () => {
+    expect(messageFor(valuesOf({ imageUrl: '' }), 'imageUrl')).toContain('이미지');
+    expect(certSchema.safeParse(valuesOf({ imageUrl: 'blob:abc-123' })).success).toBe(true);
   });
 });

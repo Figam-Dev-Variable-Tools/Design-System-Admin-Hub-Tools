@@ -107,12 +107,12 @@ describe('popupSchema — 폼 검증', () => {
     expect(messageFor(valuesOf({ title: '' }), 'title')).toBe('제목을 입력하세요.');
   });
 
-  it('이미지 URL 이 비면 막는다', () => {
-    expect(messageFor(valuesOf({ imageUrl: '' }), 'imageUrl')).toBe('이미지 URL 을 입력하세요.');
+  it('이미지가 비면 막는다', () => {
+    expect(messageFor(valuesOf({ imageUrl: '' }), 'imageUrl')).toBe('이미지를 등록하세요.');
   });
 
-  it('이미지 URL 형식이 아니면 막는다', () => {
-    expect(messageFor(valuesOf({ imageUrl: 'not-a-url' }), 'imageUrl')).toContain('http');
+  it('이미지 형식은 강제하지 않는다 — 업로드된 값(blob/data URL)을 허용한다', () => {
+    expect(popupSchema.safeParse(valuesOf({ imageUrl: 'blob:abc-123' })).success).toBe(true);
   });
 
   it('링크는 선택 — 비어 있어도 통과한다', () => {

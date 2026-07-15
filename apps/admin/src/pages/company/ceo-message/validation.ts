@@ -1,7 +1,7 @@
 // CEO 인사말 폼 검증 규칙 (A41 — 검증의 정본은 이 zod 스키마다)
 import * as z from 'zod/mini';
 
-import { optionalHttpUrl, requiredText } from '../_shared/validation';
+import { requiredText } from '../_shared/validation';
 import { BODY_MAX_LENGTH, TITLE_MAX_LENGTH } from './types';
 
 export const ceoMessageSchema = z.object({
@@ -12,7 +12,8 @@ export const ceoMessageSchema = z.object({
       error: `본문은 ${String(BODY_MAX_LENGTH)}자를 넘을 수 없습니다.`,
     }),
   ),
-  photoUrl: optionalHttpUrl('사진 URL'),
+  // 사진은 선택 — 업로드 결과(object/data URL)라 형식은 강제하지 않는다.
+  photoUrl: z.string(),
 });
 
 export type CeoMessageFormValues = z.infer<typeof ceoMessageSchema>;

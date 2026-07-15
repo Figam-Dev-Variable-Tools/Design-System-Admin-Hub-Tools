@@ -1,7 +1,7 @@
 // ESG 화면의 동작 회귀 테스트 (A41) — 정렬·필터·건수(순수) + 폼 검증
 import { describe, expect, it } from 'vitest';
 
-import { countEsgByCategory, esgCategoryLabel, filterEsg, sortEsg } from './types';
+import { countEsgByCategory, esgCategoryLabel, filterEsg, MAX_ESG_IMAGES, sortEsg } from './types';
 import type { EsgItem } from './types';
 import { esgSchema } from './validation';
 import type { EsgFormValues } from './validation';
@@ -12,6 +12,7 @@ function itemOf(overrides: Partial<EsgItem> & { id: string }): EsgItem {
     title: '제목',
     summary: '내용',
     date: '2023-01-01',
+    imageUrls: [],
     ...overrides,
   };
 }
@@ -67,6 +68,7 @@ function valuesOf(overrides: Partial<EsgFormValues> = {}): EsgFormValues {
     title: '전력 전환',
     summary: '재생에너지 전환',
     date: '2024-03-05',
+    imageUrls: [],
     ...overrides,
   };
 }
@@ -95,5 +97,16 @@ describe('esgSchema — 폼 검증', () => {
 
   it('일자 형식이 틀리면 막는다', () => {
     expect(messageFor(valuesOf({ date: '2024.03.05' }), 'date')).toContain('형식');
+  });
+
+  it('본문 이미지는 여러 장을 허용한다(선택)', () => {
+    expect(
+      esgSchema.safeParse(valuesOf({ imageUrls: ['blob:a', 'blob:b', 'blob:c'] })).success,
+    ).toBe(true);
+  });
+
+  it('본문 이미지가 최대 장수를 넘으면 막는다', () => {
+    const many = Array.from({ length: MAX_ESG_IMAGES + 1 }, (_, i) => `blob:${String(i)}`);
+    expect(messageFor(valuesOf({ imageUrls: many }), 'imageUrls')).toContain('최대');
   });
 });

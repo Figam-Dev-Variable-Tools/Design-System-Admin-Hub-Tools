@@ -10,6 +10,8 @@ export interface EsgItem {
   readonly summary: string;
   /** 활동 일자 'YYYY-MM-DD' */
   readonly date: string;
+  /** 본문 이미지들 — 업로드 결과 URL 배열(mock 은 object/data URL) */
+  readonly imageUrls: readonly string[];
 }
 
 export interface EsgInput {
@@ -17,7 +19,11 @@ export interface EsgInput {
   readonly title: string;
   readonly summary: string;
   readonly date: string;
+  readonly imageUrls: readonly string[];
 }
+
+/** 본문 이미지는 이 장수를 넘겨 등록하지 않는다 */
+export const MAX_ESG_IMAGES = 10;
 
 interface CategoryOption {
   readonly id: EsgCategory;

@@ -126,6 +126,28 @@ export function DownloadIcon(props: IconProps) {
   );
 }
 
+/** 이미지 — 액자 안 사진 (업로드 필드·목록 썸네일의 미등록/로드실패 placeholder) */
+export function ImageIcon(props: IconProps) {
+  return (
+    <svg {...BASE} {...props}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="8.5" cy="9.5" r="1.5" />
+      <path d="m4 18 5-5 4 4 3-3 4 4" />
+    </svg>
+  );
+}
+
+/** 업로드 — 위로 향하는 화살표 + 받침 (업로드 드롭존) */
+export function UploadIcon(props: IconProps) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M12 15V3" />
+      <path d="m7 8 5-5 5 5" />
+      <path d="M4 20h16" />
+    </svg>
+  );
+}
+
 /** 검색 — 돋보기 (회원/운영자 검색) */
 export function SearchIcon(props: IconProps) {
   return (

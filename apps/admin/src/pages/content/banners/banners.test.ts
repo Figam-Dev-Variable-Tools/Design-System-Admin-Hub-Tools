@@ -126,8 +126,10 @@ describe('bannerSchema — 폼 검증', () => {
     expect(bannerSchema.safeParse(valuesOf()).success).toBe(true);
   });
 
-  it('이미지 URL 형식이 아니면 막는다', () => {
-    expect(messageFor(valuesOf({ imageUrl: 'nope' }), 'imageUrl')).toContain('http');
+  it('이미지가 비면 막는다 (형식은 강제하지 않는다 — 업로드된 값 허용)', () => {
+    expect(messageFor(valuesOf({ imageUrl: '' }), 'imageUrl')).toContain('이미지');
+    // 업로드 결과는 object/data URL 이라 http 형식이 아니어도 통과해야 한다
+    expect(bannerSchema.safeParse(valuesOf({ imageUrl: 'blob:abc-123' })).success).toBe(true);
   });
 
   it('종료일이 시작일보다 빠르면 막는다', () => {

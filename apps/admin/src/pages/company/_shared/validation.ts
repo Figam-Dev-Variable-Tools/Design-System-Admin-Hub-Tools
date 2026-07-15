@@ -27,12 +27,12 @@ export function optionalHttpUrl(label = '이미지 URL') {
   );
 }
 
-/** 필수 URL — 비면 막고, http(s) 가 아니면 막는다 */
-export function requiredHttpUrl(label = '이미지 URL') {
-  return z.string().check(
-    z.refine((value) => value.trim() !== '', { error: `${label}을(를) 입력하세요.` }),
-    z.refine((value) => HTTP_URL_RE.test(value.trim()), {
-      error: `${label} 은 http:// 또는 https:// 로 시작해야 합니다.`,
-    }),
-  );
+/**
+ * 필수 이미지 값 — 업로드 결과(object/data URL 또는 업로드 응답 URL)라 형식은 강제하지 않고
+ * 등록 여부만 본다. (ImageUploadField 가 타입·용량을 클라이언트에서 이미 막는다.)
+ */
+export function requiredImage(label = '이미지') {
+  return z
+    .string()
+    .check(z.refine((value) => value.trim() !== '', { error: `${label}을(를) 등록하세요.` }));
 }
