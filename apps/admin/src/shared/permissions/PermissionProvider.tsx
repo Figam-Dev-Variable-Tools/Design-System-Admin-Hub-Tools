@@ -1,122 +1,47 @@
-// 권한 상태 전역 공급자 (A40 소유 — apps/admin/src/**)
+// 권한 상태 소비 계약 (A41 소유 — apps/admin/src/**)
 //
 // [모델] 권한의 단위는 **역할(Role)** 이다. 역할 = 리소스×액션 매트릭스 + 대시보드 위젯 + scope.
 // 그중 하나(activeRoleId)가 '현재 적용 중'이고, 그 역할이 앱의 유효 권한을 결정한다.
+//
+// [상태의 소유자 — 재설계 후]
+//   전역 클라이언트 상태(roles/activeRole/selectedRole + 15개 액션)는 이제 **Zustand 스토어**가
+//   소유한다 (./permission-store.ts). 이 파일은 두 가지만 책임진다:
+//     1) usePermissions() — 스토어를 조각 단위로 구독해 **기존 PermissionContextValue 계약을 그대로**
+//        재구성한다. 소비자(AppShell·DashboardPage·StatsSection·PermissionsPage·nav)는 무수정이다.
+//     2) PermissionProvider — 크로스탭 storage 동기화의 mount/unmount 지점.
+//        (더는 Context 를 들지 않는다 — 스토어가 전역이라 Provider 없이도 상태에 닿는다.
+//         다만 main.tsx 를 건드리지 않고 리스너 수명주기를 컴포넌트에 묶어 두기 위해 유지한다.)
 //
 // [기존 소비처 호환 — 중요]
 //   isEnabled(key: FeatureKey) 의 **시그니처와 의미가 그대로다**.
 //     - 'dashboard.*' → 활성 역할의 위젯 토글          (DashboardPage / StatsSection 무수정)
 //     - 'menu.*'      → 그 메뉴 리소스의 read          (레거시 키 호환)
-//   그래서 권한을 끄면 메뉴/위젯이 리로드 없이 즉시 사라지는 동작이 유지된다.
-//
 //   AppShell 은 여기에 더해 can(resourceId, action) 으로 **그룹과 잎을 각각** 거른다.
 //
-// [편집] set* 함수는 **선택 중인 역할**(selectedRoleId)을 바꾼다. 선택 = 활성 역할이면
-//   화면이 그 자리에서 따라 바뀐다. 모든 변경은 모델 계층(resources.ts)의 의존 규칙을
-//   통과하므로 저장값이 모순 상태(read=false 인데 update=true)로 남을 수 없다.
-//
-// [저장] localStorage(mock). 다른 탭에서 바꾼 값도 storage 이벤트로 따라온다.
+// [저장] localStorage(mock). 다른 탭에서 바꾼 값도 storage 이벤트로 따라온다 (permission-store.ts).
 // 백엔드가 붙으면 loadState/saveState 두 함수만 갈아끼우면 되고 화면 코드는 그대로다.
 // TODO(backend): GET /api/roles · PUT /api/roles/:id/permissions
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import type { ReactNode } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
-import { createWidgets, isDashboardWidgetKey } from './feature-registry';
-import type { DashboardWidgetKey, FeatureKey, WidgetMap } from './feature-registry';
+import { isDashboardWidgetKey } from './feature-registry';
+import type { DashboardWidgetKey, FeatureKey } from './feature-registry';
 import {
-  createMatrix,
-  isActionOn,
-  menuResourceIdFor,
-  withActionForAll,
-  withAllPermissions,
-  withResourceAction,
-} from './resources';
-import type { PermissionAction, PermissionMatrix, ResourceId } from './resources';
-import {
-  ROLE_STATE_VERSION,
-  createInitialRoleState,
-  createRoleId,
-  createSuperAdminRole,
-  findRole,
-  migrateLegacyPermissions,
-  migrateLegacyRoleState,
-  normalizeRoleState,
-  validateRoleName,
-} from './roles';
-import type { Role, RoleScope, RoleState } from './roles';
+  activeRoleOf,
+  selectedRoleOf,
+  subscribeToOtherTabs,
+  usePermissionStore,
+} from './permission-store';
+import type { PermissionStore, RoleMutationResult } from './permission-store';
+import { isActionOn, menuResourceIdFor } from './resources';
+import type { PermissionAction, ResourceId } from './resources';
+import type { Role, RoleScope } from './roles';
 
-const STORAGE_KEY = 'tds-admin.roles';
+// RoleFormModal 이 이 경로에서 계약 타입을 계속 import 한다 — 재노출로 소비처 무수정 유지
+export type { RoleMutationResult };
 
-/** 역할 도입 이전의 평면 PermissionMap 키 — 첫 로드 때 '운영자' 역할의 권한으로 흡수한다 */
-const LEGACY_FLAT_KEY = 'tds-admin.permissions';
-
-function saveState(state: RoleState): void {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // 저장 실패는 무시한다 — 현재 세션 동안은 메모리 상태로 계속 동작한다
-  }
-}
-
-/**
- * 저장값 → RoleState. 세 갈래를 모두 흡수한다.
- *   v2 (version:2)      — 그대로 정규화
- *   v1 (역할 + 평면 맵)  — 역할별 menu.* 를 read=true 로 흡수
- *   v0 (평면 맵 단독)    — '운영자' 역할의 권한으로 흡수
- * 깨져 있으면 기본 역할로 폴백한다.
- */
-function loadState(): RoleState {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw !== null) {
-      const parsed: unknown = JSON.parse(raw);
-      const version =
-        typeof parsed === 'object' && parsed !== null
-          ? (parsed as Record<string, unknown>)['version']
-          : undefined;
-
-      const state =
-        version === ROLE_STATE_VERSION
-          ? normalizeRoleState(parsed)
-          : migrateLegacyRoleState(parsed);
-      if (version !== ROLE_STATE_VERSION) saveState(state);
-      return state;
-    }
-
-    const legacyRaw = window.localStorage.getItem(LEGACY_FLAT_KEY);
-    const migrated =
-      legacyRaw === null
-        ? createInitialRoleState()
-        : migrateLegacyPermissions(JSON.parse(legacyRaw));
-
-    saveState(migrated);
-    try {
-      window.localStorage.removeItem(LEGACY_FLAT_KEY);
-    } catch {
-      // 정리 실패는 무시한다 — 새 키가 있으면 옛 키를 다시 읽지 않는다
-    }
-    return migrated;
-  } catch {
-    // 저장소 접근 불가(프라이빗 모드) · JSON 파손 — 기본 역할로 동작한다
-    return createInitialRoleState();
-  }
-}
-
-/* ── 역할 편집 결과 ──────────────────────────────────────────────────────── */
-
-export type RoleMutationResult =
-  { readonly ok: true } | { readonly ok: false; readonly error: string };
-
-const OK: RoleMutationResult = { ok: true };
-
-function fail(error: string): RoleMutationResult {
-  return { ok: false, error };
-}
-
-/** 역할 목록이 비는 일은 없어야 하지만(정규화가 막는다), 타입 안전을 위한 최후 보루 */
-const FALLBACK_ROLE: Role = createSuperAdminRole();
-
-/* ── 컨텍스트 ────────────────────────────────────────────────────────────── */
+/* ── 컨텍스트 계약 (불변 — 소비처가 의존하는 표면) ──────────────────────── */
 
 interface PermissionContextValue {
   /** 기존 API — 활성 역할 기준. dashboard.* = 위젯 토글, menu.* = 그 메뉴의 read */
@@ -155,243 +80,62 @@ interface PermissionContextValue {
   readonly setScope: (scope: RoleScope) => void;
 }
 
-const PermissionContext = createContext<PermissionContextValue | null>(null);
+/* ── 액션 셀렉터 ─────────────────────────────────────────────────────────── */
 
-export function PermissionProvider({ children }: { readonly children: ReactNode }) {
-  const [state, setState] = useState<RoleState>(loadState);
-  // 권한 관리 화면에서 '보고 있는' 역할. 고르기 전에는 활성 역할과 같다
-  const [requestedRoleId, setRequestedRoleId] = useState<string | null>(null);
+/** 스토어 액션(참조 안정)만 골라낸다 — useShallow 로 안정 객체를 얻어 불필요한 재계산을 막는다 */
+function selectActions(store: PermissionStore) {
+  return {
+    selectRole: store.selectRole,
+    activateRole: store.activateRole,
+    createRole: store.createRole,
+    renameRole: store.renameRole,
+    deleteRole: store.deleteRole,
+    setResourceAction: store.setResourceAction,
+    setActionForAll: store.setActionForAll,
+    setAllPermissions: store.setAllPermissions,
+    setWidget: store.setWidget,
+    setAllWidgets: store.setAllWidgets,
+    setScope: store.setScope,
+  };
+}
 
-  // 다른 탭에서 바꾼 역할/권한을 따라간다
-  useEffect(() => {
-    function handleStorage(event: StorageEvent) {
-      if (event.key !== STORAGE_KEY) return;
-      setState(loadState());
-    }
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
+/* ── 소비 계약 ───────────────────────────────────────────────────────────── */
 
-  const { roles, activeRoleId } = state;
+export function usePermissions(): PermissionContextValue {
+  // 데이터 조각만 구독한다 — 상태가 바뀌지 않으면 재계산도 재렌더도 없다
+  const roleState = usePermissionStore((store) => store.roleState);
+  const requestedRoleId = usePermissionStore((store) => store.requestedRoleId);
+  // 액션은 스토어 생성 시 한 번 만들어져 참조가 불변 — useShallow 로 안정 객체를 유지
+  const actions = usePermissionStore(useShallow(selectActions));
 
-  // 역할이 사라졌거나(다른 탭에서 삭제) 아직 고르지 않았으면 활성 역할을 본다.
-  const activeRole = findRole(roles, activeRoleId) ?? roles[0] ?? FALLBACK_ROLE;
-  const selectedRole =
-    (requestedRoleId === null ? null : findRole(roles, requestedRoleId)) ?? activeRole;
+  const activeRole = activeRoleOf(roleState);
+  const selectedRole = selectedRoleOf(roleState, requestedRoleId);
 
-  const mutate = useCallback((updater: (prev: RoleState) => RoleState) => {
-    setState((prev) => {
-      const next = updater(prev);
-      saveState(next);
-      return next;
-    });
-  }, []);
-
-  /** roleId 의 역할을 갈아끼운다. 시스템 역할은 항상 전 권한 ON 이라 편집을 무시한다 */
-  const updateRole = useCallback(
-    (roleId: string, update: (role: Role) => Role) => {
-      mutate((prev) => ({
-        ...prev,
-        roles: prev.roles.map((role) => (role.id !== roleId || role.system ? role : update(role))),
-      }));
-    },
-    [mutate],
-  );
-
-  const selectedId = selectedRole.id;
-
-  const updatePermissions = useCallback(
-    (update: (permissions: PermissionMatrix) => PermissionMatrix) => {
-      updateRole(selectedId, (role) => ({ ...role, permissions: update(role.permissions) }));
-    },
-    [selectedId, updateRole],
-  );
-
-  const updateWidgets = useCallback(
-    (update: (widgets: WidgetMap) => WidgetMap) => {
-      updateRole(selectedId, (role) => ({ ...role, widgets: update(role.widgets) }));
-    },
-    [selectedId, updateRole],
-  );
-
-  const setResourceAction = useCallback(
-    (resourceId: ResourceId, action: PermissionAction, enabled: boolean) => {
-      updatePermissions((permissions) =>
-        withResourceAction(permissions, resourceId, action, enabled),
-      );
-    },
-    [updatePermissions],
-  );
-
-  const setActionForAll = useCallback(
-    (action: PermissionAction, enabled: boolean) => {
-      updatePermissions((permissions) => withActionForAll(permissions, action, enabled));
-    },
-    [updatePermissions],
-  );
-
-  const setAllPermissions = useCallback(
-    (enabled: boolean) => {
-      updatePermissions(() => withAllPermissions(enabled));
-    },
-    [updatePermissions],
-  );
-
-  const setWidget = useCallback(
-    (key: DashboardWidgetKey, enabled: boolean) => {
-      updateWidgets((widgets) => ({ ...widgets, [key]: enabled }));
-    },
-    [updateWidgets],
-  );
-
-  const setAllWidgets = useCallback(
-    (enabled: boolean) => {
-      updateWidgets(() => createWidgets(enabled));
-    },
-    [updateWidgets],
-  );
-
-  const setScope = useCallback(
-    (scope: RoleScope) => {
-      updateRole(selectedId, (role) => ({ ...role, scope }));
-    },
-    [selectedId, updateRole],
-  );
-
-  const selectRole = useCallback((roleId: string) => {
-    setRequestedRoleId(roleId);
-  }, []);
-
-  const activateRole = useCallback(
-    (roleId: string) => {
-      mutate((prev) =>
-        prev.roles.some((role) => role.id === roleId) ? { ...prev, activeRoleId: roleId } : prev,
-      );
-    },
-    [mutate],
-  );
-
-  const createRole = useCallback(
-    (name: string): RoleMutationResult => {
-      const invalid = validateRoleName(name, roles, null);
-      if (invalid !== null) return fail(invalid);
-
-      const role: Role = {
-        id: createRoleId(),
-        name: name.trim(),
-        system: false,
-        scope: 'all',
-        // 새 역할은 전 권한 OFF 로 시작한다 — 필요한 것만 켜서 쓴다 (최소 권한)
-        permissions: createMatrix(false),
-        widgets: createWidgets(false),
-      };
-      mutate((prev) => ({ ...prev, roles: [...prev.roles, role] }));
-      setRequestedRoleId(role.id);
-      return OK;
-    },
-    [roles, mutate],
-  );
-
-  const renameRole = useCallback(
-    (roleId: string, name: string): RoleMutationResult => {
-      const role = findRole(roles, roleId);
-      if (role === null) return fail('역할을 찾을 수 없습니다.');
-      if (role.system) return fail('시스템 역할은 이름을 바꿀 수 없습니다.');
-
-      const invalid = validateRoleName(name, roles, roleId);
-      if (invalid !== null) return fail(invalid);
-
-      const trimmed = name.trim();
-      mutate((prev) => ({
-        ...prev,
-        roles: prev.roles.map((item) => (item.id === roleId ? { ...item, name: trimmed } : item)),
-      }));
-      return OK;
-    },
-    [roles, mutate],
-  );
-
-  const deleteRole = useCallback(
-    (roleId: string): RoleMutationResult => {
-      const role = findRole(roles, roleId);
-      if (role === null) return fail('역할을 찾을 수 없습니다.');
-      if (role.system) return fail('시스템 역할은 삭제할 수 없습니다.');
-      if (roles.length <= 1) return fail('마지막 역할은 삭제할 수 없습니다.');
-
-      mutate((prev) => {
-        const remaining = prev.roles.filter((item) => item.id !== roleId);
-        const first = remaining[0];
-        if (first === undefined) return prev;
-        return {
-          ...prev,
-          roles: remaining,
-          // 적용 중이던 역할을 지웠다면 남은 첫 역할이 적용된다 (권한 없는 상태로 남지 않게)
-          activeRoleId: prev.activeRoleId === roleId ? first.id : prev.activeRoleId,
-        };
-      });
-
-      const fallback = roles.find((item) => item.id !== roleId);
-      setRequestedRoleId(fallback?.id ?? null);
-      return OK;
-    },
-    [roles, mutate],
-  );
-
-  const value = useMemo<PermissionContextValue>(() => {
-    const permissions = activeRole.permissions;
-
-    return {
+  return useMemo<PermissionContextValue>(
+    () => ({
       // 유효 권한 = 활성 역할. 이 두 함수가 기존 소비처(AppShell·Dashboard)를 지탱한다
       isEnabled: (key) => {
         if (isDashboardWidgetKey(key)) return activeRole.widgets[key];
         const resourceId = menuResourceIdFor(key);
-        return resourceId === null ? false : isActionOn(permissions, resourceId, 'read');
+        return resourceId === null ? false : isActionOn(activeRole.permissions, resourceId, 'read');
       },
-      can: (resourceId, action) => isActionOn(permissions, resourceId, action),
+      can: (resourceId, action) => isActionOn(activeRole.permissions, resourceId, action),
 
-      roles,
+      roles: roleState.roles,
       activeRole,
       activeRoleId: activeRole.id,
       selectedRole,
       selectedRoleId: selectedRole.id,
 
-      selectRole,
-      activateRole,
-      createRole,
-      renameRole,
-      deleteRole,
-
-      setResourceAction,
-      setActionForAll,
-      setAllPermissions,
-      setWidget,
-      setAllWidgets,
-      setScope,
-    };
-  }, [
-    activeRole,
-    selectedRole,
-    roles,
-    selectRole,
-    activateRole,
-    createRole,
-    renameRole,
-    deleteRole,
-    setResourceAction,
-    setActionForAll,
-    setAllPermissions,
-    setWidget,
-    setAllWidgets,
-    setScope,
-  ]);
-
-  return <PermissionContext.Provider value={value}>{children}</PermissionContext.Provider>;
+      ...actions,
+    }),
+    [roleState, activeRole, selectedRole, actions],
+  );
 }
 
-export function usePermissions(): PermissionContextValue {
-  const value = useContext(PermissionContext);
-  if (value === null) {
-    throw new Error('usePermissions 는 <PermissionProvider> 안에서만 쓸 수 있습니다.');
-  }
-  return value;
+/* ── 크로스탭 동기화 mount 지점 ──────────────────────────────────────────── */
+
+export function PermissionProvider({ children }: { readonly children: ReactNode }) {
+  useEffect(() => subscribeToOtherTabs(), []);
+  return <>{children}</>;
 }
