@@ -4,8 +4,8 @@
 > 커밋되는 기준선이다 — **커버리지가 실제로 바뀔 때만 바뀐다.** 실행 시각은 여기 없다(콘솔/tmp 참조).
 > **커버리지는 라인 %가 아니다.** 계약이 정의한 상태 전부 + FS가 정의한 예외 축 전부다.
 
-- 판정: **WARN** (exit 0) — blocker 0건 · major 1028건
-- 입력: 계약 15종 · FS 8건 · 테스트 파일 38개 · 스토리 파일 25개
+- 판정: **WARN** (exit 0) — blocker 0건 · major 2105건
+- 입력: 계약 15종 · FS 14건 · 테스트 파일 38개 · 스토리 파일 25개
 - **단언을 가진 실행 단위(= 테스트): 437건** / 단언 없는 실행 단위: 0건
 
 ## 축별 요약
@@ -15,7 +15,7 @@
 | 1 | 테스트 존재 (워크스페이스 스코프별 · 단언을 가진 실행 단위) | **blocker** | 2 | 2 | 0 | 스코프마다 >= 1건 | G5·G6 | PASS |
 | 2 | 계약 states 커버리지 (contracts/*.contract.json → states[]) | **blocker** | 46 | 46 | 0 | 미커버 상태 0건 (전수) | G5·G6 | PASS |
 | 3 | 계약 events.blockedWhen 커버리지 (금지 동작의 비발생 단언) | **blocker** | 10 | 10 | 0 | 미커버 차단 조건 0건 (전수) | G5·G6 | PASS |
-| 4 | FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) | major | 137 | 1163 | 1026 | 미커버 칸 0건 (major) · **커버 칸 수 후퇴 = blocker** | G6 | VIOLATED |
+| 4 | FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) | major | 137 | 2240 | 2103 | 미커버 칸 0건 (major) · **커버 칸 수 후퇴 = blocker** | G6 | VIOLATED |
 | 5 | 검증 도구의 골든 픽스처 (codegen · contract-test) | major | 0 | 2 | 2 | 도구당 골든 픽스처 >= 1건 | G5·G6 | VIOLATED |
 
 ### 축 1 — 스코프별 (워크스페이스 파생)
@@ -33,23 +33,23 @@
 - 기준선 출처: `reports/test-coverage/all.json`
 - 축 4는 major 다 — **새 테스트를 요구하지 않는다.** 그러나 **있던 커버리지를 잃으면 blocker** 다. 커버 칸 수는 단조 증가만 한다.
 
-## 축 4 — FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) (1026건, major)
+## 축 4 — FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) (2103건, major)
 
 | 원천 | 덮이지 않은 항목 | 기대 테스트 이름 |
 |---|---|---|
-| `specs/dashboard/FS-002-dashboard.md` | FS-002-EL-002 × 빈 상태 | `FS-002-EL-002: 빈 상태 — 표시 가능한 항목이 0개인 섹션은 제목까지 렌더하지 않는다` |
-| `specs/dashboard/FS-002-dashboard.md` | FS-002-EL-004 × 빈 상태 | `FS-002-EL-004: 빈 상태 — 하위 항목이 0개인 가지는 구성상 존재하지 않는다 — 13개 가지 모두 3개 이상의 하위 항목을 갖는다` |
-| `specs/dashboard/FS-002-dashboard.md` | FS-002-EL-004.1 × 권한없음 | `FS-002-EL-004.1: 권한없음 — 소속 가지(EL-004)가 사라지면 함께 사라진다` |
-| `specs/dashboard/FS-002-dashboard.md` | FS-002-EL-005 × 대량 | `FS-002-EL-005: 대량 — 총 69개 항목을 페이징 없이 전부 렌더한다. 사이드바는 세로 스크롤(overflow-y: auto)로 넘치` |
-| `specs/dashboard/FS-002-dashboard.md` | FS-002-EL-006 × 권한없음 | `FS-002-EL-006: 권한없음 — 활성 항목이 권한으로 사라지면 활성 표시도 함께 사라진다` |
-| `specs/dashboard/FS-002-dashboard.md` | FS-002-EL-006 × 대량 | `FS-002-EL-006: 대량 — 활성 항목은 동시에 최대 1개다 — 경로 완전 일치 조건이므로 중복 활성이 발생하지 않는다` |
-| `specs/dashboard/FS-002-dashboard.md` | FS-002-EL-007 × 유효성 | `FS-002-EL-007: 유효성 — 등록되지 않은 키는 버리고, 빠진 키는 기본값 ON으로 채운다` |
-| `specs/dashboard/FS-002-dashboard.md` | FS-002-EL-007 × 대량 | `FS-002-EL-007: 대량 — 권한 키가 14개로 고정이다` |
-| `specs/dashboard/FS-002-dashboard.md` | FS-002-EL-009 × 빈 상태 | `FS-002-EL-009: 빈 상태 — 경로에 대응하는 라벨을 찾지 못하면 경로 문자열을 그대로 표시한다 — 빈 제목을 렌더하지 않는다` |
-| `specs/dashboard/FS-002-dashboard.md` | FS-002-EL-010 × 경합 | `FS-002-EL-010: 경합 — 렌더 시점에 1회 계산하므로 화면을 열어둔 채 자정이 지나도 값이 바뀌지 않는다` |
-| `specs/dashboard/FS-002-dashboard.md` | FS-002-EL-012 × 실패 | `FS-002-EL-012: 실패 — 조회 실패 시에도 탭바는 유지된다(실패 배너는 탭바 아래에 렌더된다)` |
-| `specs/dashboard/FS-002-dashboard.md` | FS-002-EL-012 × 대량 | `FS-002-EL-012: 대량 — 탭이 3개로 고정이다` |
-| … 외 **1014건** | 전수 목록은 JSON 리포트 `gaps[]` 참조 | |
+| `specs/content/banners/FS-012-banners.md` | FS-012-EL-001 × 빈 상태 | `FS-012-EL-001: 빈 상태 — 매치 0건이면 빈 상태(FS-012-EL-008)` |
+| `specs/content/banners/FS-012-banners.md` | FS-012-EL-001 × 로딩 | `FS-012-EL-001: 로딩 — 250ms 디바운스 후 조회. 조회 중 키워드 변경 시 이전 요청 취소` |
+| `specs/content/banners/FS-012-banners.md` | FS-012-EL-001 × 실패 | `FS-012-EL-001: 실패 — 조회 실패 시 FS-012-EL-009 로 대체. 입력값 유지` |
+| `specs/content/banners/FS-012-banners.md` | FS-012-EL-001 × 유효성 | `FS-012-EL-001: 유효성 — 자유 텍스트, 제약 없음. 앞뒤 공백 제거. 빈 문자열이면 조건 없음` |
+| `specs/content/banners/FS-012-banners.md` | FS-012-EL-001 × 경합 | `FS-012-EL-001: 경합 — 조회 시점만 반영` |
+| `specs/content/banners/FS-012-banners.md` | FS-012-EL-001 × 대량 | `FS-012-EL-001: 대량 — 매치 10건 초과 시 페이지네이션` |
+| `specs/content/banners/FS-012-banners.md` | FS-012-EL-002 × 빈 상태 | `FS-012-EL-002: 빈 상태 — 해당 위치 0건이면 빈 상태` |
+| `specs/content/banners/FS-012-banners.md` | FS-012-EL-002 × 로딩 | `FS-012-EL-002: 로딩 — 변경 시 진행 중 조회 취소 후 재조회` |
+| `specs/content/banners/FS-012-banners.md` | FS-012-EL-002 × 실패 | `FS-012-EL-002: 실패 — 조회 실패 시 FS-012-EL-009 로 대체` |
+| `specs/content/banners/FS-012-banners.md` | FS-012-EL-002 × 경합 | `FS-012-EL-002: 경합 — 조회 시점만 반영` |
+| `specs/content/banners/FS-012-banners.md` | FS-012-EL-002 × 대량 | `FS-012-EL-002: 대량 — 결과 10건 초과 시 페이지네이션` |
+| `specs/content/banners/FS-012-banners.md` | FS-012-EL-004 × 빈 상태 | `FS-012-EL-004: 빈 상태 — 0건이면 '전체 0건'` |
+| … 외 **2091건** | 전수 목록은 JSON 리포트 `gaps[]` 참조 | |
 
 ## 축 5 — 검증 도구의 골든 픽스처 (codegen · contract-test) (2건, major)
 
