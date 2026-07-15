@@ -48,7 +48,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       # 패키지 소스가 generated 타입/토큰에 의존하므로 codegen 선행 필수
@@ -65,7 +65,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Playwright 브라우저 설치 (test-runner 실행 환경)
@@ -81,17 +81,28 @@ jobs:
     name: Storybook 빌드 (Pages 아티팩트)
     needs: [gates, a11y] # 게이트 통과 없이는 여기 도달할 수 없다
     runs-on: ubuntu-latest
+    # configure-pages 가 Pages 사이트를 조회/활성화하려면 이 job 에도 pages 권한이 필요하다.
+    # 이게 없으면 최상위 `contents: read` 만 물려받아 Pages API 접근이
+    # "Resource not accessible by integration" 으로 거부된다 (실제 발생).
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: 코드젠 (토큰/계약 → generated 산출물)
         run: pnpm codegen
       - uses: actions/configure-pages@v5
+        # enablement: Pages 가 아직 켜지지 않았으면 워크플로가 자동 활성화한다
+        # (Settings→Pages→Source 를 손으로 'GitHub Actions' 로 바꾸지 않아도 됨).
+        with:
+          enablement: true
       - name: Storybook 정적 빌드
         run: pnpm sb:build
       - name: Pages 아티팩트 업로드
@@ -125,7 +136,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: 코드젠 (토큰/계약 → generated 산출물)
