@@ -103,6 +103,13 @@ import EmailListPage from './pages/marketing/email/EmailListPage';
 import EmailFormPage from './pages/marketing/email/EmailFormPage';
 import TemplateListPage from './pages/marketing/templates/TemplateListPage';
 import TemplateFormPage from './pages/marketing/templates/TemplateFormPage';
+import ReservationListPage from './pages/reservations/ReservationListPage';
+import ReservationFormPage from './pages/reservations/ReservationFormPage';
+import ApplicationListPage from './pages/reservations/applications/ApplicationListPage';
+import ApplicationDetailPage from './pages/reservations/applications/ApplicationDetailPage';
+import ConsultationBookingListPage from './pages/reservations/consultations/ConsultationBookingListPage';
+import ConsultationBookingFormPage from './pages/reservations/consultations/ConsultationBookingFormPage';
+import ScheduleCalendarPage from './pages/reservations/schedule/ScheduleCalendarPage';
 
 /**
  * 실제 화면이 있는 경로 — 나머지 사이드바 항목(nav-config.ts)은 준비 중 화면으로 간다.
@@ -156,6 +163,10 @@ const IMPLEMENTED = new Set([
   '/marketing/sms',
   '/marketing/email',
   '/marketing/templates',
+  '/reservations',
+  '/reservations/applications',
+  '/reservations/consultations',
+  '/reservations/schedule',
 ]);
 
 export default function App() {
@@ -392,6 +403,36 @@ export default function App() {
             <Route path="/marketing/templates" element={<TemplateListPage />} />
             <Route path="/marketing/templates/new" element={<TemplateFormPage />} />
             <Route path="/marketing/templates/:id/edit" element={<TemplateFormPage />} />
+
+            {/* 예약/신청 관리 — 예약 (목록 · 등록 · 수정). 등록/수정은 하나의 폼(:id 유무로 갈린다).
+              같은 자원에 시간이 겹치는 더블부킹·과거 일시는 폼에서 경고한다(비차단). 정원 초과·예약금
+              음수·시간 역전은 검증으로 차단한다. '/new' 는 '/:id/edit' 보다 먼저 온다(정적 경로 우선). */}
+            <Route path="/reservations" element={<ReservationListPage />} />
+            <Route path="/reservations/new" element={<ReservationFormPage />} />
+
+            {/* 예약/신청 관리 — 신청서 (읽기 전용 목록 · 상세 처리). 신청은 고객 채널이 만들고 관리자는
+              상태 전이(허용 전이만) + 메모 + 처리 이력 타임라인으로 처리한다. 등록/삭제는 없다. */}
+            <Route path="/reservations/applications" element={<ApplicationListPage />} />
+            <Route path="/reservations/applications/:id" element={<ApplicationDetailPage />} />
+
+            {/* 예약/신청 관리 — 상담 예약 (목록 · 등록 · 수정 · 삭제팝업). 상담유형·희망일시·담당·상태.
+              상태는 전이 규칙이 허용하는 후보로만 좁힌다. '/new' 는 '/:id/edit' 보다 먼저 온다. */}
+            <Route path="/reservations/consultations" element={<ConsultationBookingListPage />} />
+            <Route
+              path="/reservations/consultations/new"
+              element={<ConsultationBookingFormPage />}
+            />
+            <Route
+              path="/reservations/consultations/:id/edit"
+              element={<ConsultationBookingFormPage />}
+            />
+
+            {/* 예약/신청 관리 — 예약 일정 (라이브러리 없이 직접 만든 일/주 캘린더). 시간 슬롯별 예약·
+              가용량·마감을 격자로 보여주고, 슬롯 클릭 → 해당 예약. 예약 화면과 같은 어댑터를 읽는다. */}
+            <Route path="/reservations/schedule" element={<ScheduleCalendarPage />} />
+
+            {/* 예약 수정 폼 — 정적 하위 경로(applications·consultations·schedule) 뒤에 둔다(:id 최후) */}
+            <Route path="/reservations/:id/edit" element={<ReservationFormPage />} />
 
             {/* 사이드바 정의는 있으나 미구현 — 화면을 만들 때마다 위로 옮긴다 */}
             {pendingRoutes.map((leaf) => (

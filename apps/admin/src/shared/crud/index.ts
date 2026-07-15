@@ -30,6 +30,7 @@ export {
   createCrudAdapter,
   useCrudCreate,
   useCrudDelete,
+  useCrudItem,
   useCrudListQuery,
   useCrudUpdate,
 } from './crud';
