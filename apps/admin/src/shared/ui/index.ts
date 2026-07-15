@@ -22,13 +22,13 @@ import './ui.css';
  *
  * 예전에는 이 두 이름이 shared/ui 안의 **사본**을 가리켰다. 그 사본들은 삭제됐다.
  */
-export { Alert, Button } from '@tds/ui';
+export { Alert, Button, HelpTip, ImageThumb, StatusBadge } from '@tds/ui';
+/** @tds/ui 의 StatusBadgeTone 을 앱이 쓰던 이름(StatusTone)으로 재노출한다 — 호출부 API 보존 */
+export type { StatusBadgeTone as StatusTone } from '@tds/ui';
 
 export { Card, CardTitle } from './Card';
 
 export { ConfirmDialog } from './ConfirmDialog';
-
-export { HelpTip } from './HelpTip';
 
 export { Modal } from './Modal';
 
@@ -36,9 +36,8 @@ export { Pagination } from './Pagination';
 
 /* ── 콘텐츠 관리 공통 (공지·FAQ·팝업·배너·약관·개인정보 처리방침이 공유) ─────
  *
- * 도메인을 모르는 프리미티브다 — 근거·소비자 목록은 ./README.md 를 읽는다. */
-export { StatusBadge } from './StatusBadge';
-export type { StatusTone } from './StatusBadge';
+ * StatusBadge 는 **@tds/ui 의 것**이다 (위 재수출). StatusTone 은 계약 생성 타입
+ * StatusBadgeTone 을 앱 이름으로 alias 한 것이다 — 근거·소비자 목록은 ./README.md. */
 
 /* ── 이벤트 타임라인 (영업 문의·고객센터 티켓 상세가 공유) ─────────────────────
  *
@@ -58,7 +57,7 @@ export { ImageUploadField } from './ImageUploadField';
 
 export { ImageGalleryField } from './ImageGalleryField';
 
-export { ImageThumb } from './ImageThumb';
+/* ImageThumb 는 @tds/ui 의 것이다 (상단 재수출). */
 
 export { imageFileError } from './imageFile';
 

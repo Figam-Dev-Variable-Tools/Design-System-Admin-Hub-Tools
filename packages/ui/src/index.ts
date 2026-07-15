@@ -13,6 +13,12 @@ export { Card } from './atoms/Card';
 export type { CardPadding, CardProps, CardState } from './atoms/Card';
 export { Checkbox } from './atoms/Checkbox';
 export type { CheckboxProps, CheckboxState } from './atoms/Checkbox';
+export { HelpTip } from './atoms/HelpTip';
+export type { HelpTipProps, HelpTipState } from './atoms/HelpTip';
+export { ImageThumb } from './atoms/ImageThumb';
+export type { ImageThumbProps, ImageThumbState } from './atoms/ImageThumb';
+export { StatusBadge } from './atoms/StatusBadge';
+export type { StatusBadgeProps, StatusBadgeState, StatusBadgeTone } from './atoms/StatusBadge';
 export { TextField, textFieldErrorId } from './atoms/TextField';
 export type { TextFieldProps, TextFieldState, TextFieldType } from './atoms/TextField';
 

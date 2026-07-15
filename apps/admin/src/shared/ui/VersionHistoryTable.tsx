@@ -12,8 +12,8 @@ import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 
 import { RowActions } from './RowActions';
-import { StatusBadge } from './StatusBadge';
-import type { StatusTone } from './StatusBadge';
+import { StatusBadge } from '@tds/ui';
+import type { StatusBadgeTone as StatusTone } from '@tds/ui';
 import {
   RowSelectCell,
   SelectAllHeaderCell,

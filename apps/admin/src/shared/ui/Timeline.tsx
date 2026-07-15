@@ -9,8 +9,8 @@
 import type { CSSProperties } from 'react';
 
 import { formatDateTime } from '../format';
-import { StatusBadge } from './StatusBadge';
-import type { StatusTone } from './StatusBadge';
+import { StatusBadge } from '@tds/ui';
+import type { StatusBadgeTone as StatusTone } from '@tds/ui';
 
 const listStyle: CSSProperties = {
   display: 'flex',

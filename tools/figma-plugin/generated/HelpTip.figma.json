@@ -1,0 +1,32 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/HelpTip.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "HelpTip",
+  "component": "HelpTip",
+  "version": "1.0.0",
+  "variantProperties": {},
+  "properties": [
+    {
+      "name": "Label",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Children",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "triggerColor": "color.text.muted",
+    "triggerRadius": "radius.full",
+    "triggerTypography": "typography.label.md",
+    "panelSurface": "color.feedback.info.surface",
+    "panelBorder": "color.feedback.info.border",
+    "panelText": "color.feedback.info.text",
+    "panelRadius": "radius.md",
+    "panelPaddingX": "space.3",
+    "panelPaddingY": "space.2",
+    "borderWidth": "border-width.thin",
+    "typography": "typography.caption.md"
+  }
+}

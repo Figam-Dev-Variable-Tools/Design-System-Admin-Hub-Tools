@@ -11,8 +11,9 @@
 //   호출부가 컨트롤의 aria-describedby 에 물릴 수 있게 helpers 로 돌려준다.
 import type { CSSProperties, ReactNode } from 'react';
 
+import { HelpTip } from '@tds/ui';
+
 import { errorTextStyle, fieldLabelStyle, fieldStyle, hintStyle } from './styles';
-import { HelpTip } from './HelpTip';
 
 const labelRowStyle: CSSProperties = {
   display: 'flex',

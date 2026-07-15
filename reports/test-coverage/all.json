@@ -6,12 +6,12 @@
   "exitCode": 0,
   "blockedGates": [],
   "inputs": {
-    "contracts": 15,
+    "contracts": 18,
     "specs": 14,
-    "testFiles": 80,
-    "storyFiles": 25,
-    "testUnits": 834,
-    "assertionFreeUnits": 0
+    "testFiles": 83,
+    "storyFiles": 28,
+    "testUnits": 852,
+    "assertionFreeUnits": 2
   },
   "summary": [
     {
@@ -36,10 +36,10 @@
       "title": "계약 states 커버리지 (contracts/*.contract.json → states[])",
       "severity": "blocker",
       "threshold": "미커버 상태 0건 (전수)",
-      "covered": 46,
-      "total": 46,
+      "covered": 54,
+      "total": 54,
       "gaps": 0,
-      "scanned": "계약 15종 · states 총 46칸 (직전 46칸)",
+      "scanned": "계약 18종 · states 총 54칸 (직전 46칸)",
       "status": "PASS",
       "gates": [
         "G5",
@@ -55,7 +55,7 @@
       "covered": 10,
       "total": 10,
       "gaps": 0,
-      "scanned": "계약 15종 · blockedWhen 총 10칸 (직전 10칸)",
+      "scanned": "계약 18종 · blockedWhen 총 10칸 (직전 10칸)",
       "status": "PASS",
       "gates": [
         "G5",
@@ -105,8 +105,8 @@
     {
       "name": "@tds/ui",
       "dir": "packages/ui",
-      "testUnits": 177,
-      "assertionFreeUnits": 0,
+      "testUnits": 195,
+      "assertionFreeUnits": 2,
       "status": "PASS"
     }
   ],
@@ -25385,7 +25385,20 @@
       ]
     }
   ],
-  "assertionFree": [],
+  "assertionFree": [
+    {
+      "file": "packages/ui/src/atoms/HelpTip/HelpTip.stories.tsx",
+      "line": 73,
+      "name": "적립금 정책 설명",
+      "kind": "play"
+    },
+    {
+      "file": "packages/ui/src/atoms/HelpTip/HelpTip.stories.tsx",
+      "line": 85,
+      "name": "그룹 유형 설명",
+      "kind": "play"
+    }
+  ],
   "selfAudit": [
     "대조 키는 **테스트 이름**이다. 이름이 계약 상태·FS 요소 번호를 인용하지 않으면 이 도구는 그것을 \"없는 것\"으로 센다 — 거짓 음성(실제로 검증했는데 미커버로 셈)이 가능하다. 반대로 **이름만 맞고 단언이 엉뚱한 테스트**는 커버로 세어질 수 있다 — 거짓 양성이다. 도구는 단언의 **존재**를 보지만 단언의 **내용이 옳은지**는 보지 않는다. 그 판정은 A33(G5)·A42(G6)의 사람 검수 몫이다.",
     "축 3(blockedWhen)만 예외적으로 단언의 **종류**까지 본다 (비발생 단언 필수). 금지 동작은 렌더 단언으로 증명되지 않기 때문이다.",

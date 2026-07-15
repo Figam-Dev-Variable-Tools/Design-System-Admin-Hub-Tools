@@ -1,0 +1,26 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/ImageThumb.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "ImageThumb",
+  "component": "ImageThumb",
+  "version": "1.0.0",
+  "variantProperties": {},
+  "properties": [
+    {
+      "name": "Src",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Alt",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "placeholderSurface": "color.surface.raised",
+    "placeholderText": "color.text.muted",
+    "placeholderBorder": "color.border.default",
+    "placeholderRadius": "radius.sm",
+    "borderWidth": "border-width.thin"
+  }
+}

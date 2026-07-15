@@ -1,0 +1,57 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/StatusBadge.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "StatusBadge",
+  "component": "StatusBadge",
+  "version": "1.0.0",
+  "variantProperties": {
+    "Tone": {
+      "values": [
+        "neutral",
+        "success",
+        "warning",
+        "danger",
+        "info"
+      ],
+      "default": "neutral"
+    }
+  },
+  "properties": [
+    {
+      "name": "Tone",
+      "type": "VARIANT",
+      "values": [
+        "neutral",
+        "success",
+        "warning",
+        "danger",
+        "info"
+      ]
+    },
+    {
+      "name": "Label",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "neutralSurface": "color.surface.raised",
+    "neutralText": "color.text.muted",
+    "neutralBorder": "color.border.default",
+    "surfaceSuccess": "color.feedback.success.surface",
+    "borderSuccess": "color.feedback.success.border",
+    "textSuccess": "color.feedback.success.text",
+    "surfaceWarning": "color.feedback.warning.surface",
+    "borderWarning": "color.feedback.warning.border",
+    "textWarning": "color.feedback.warning.text",
+    "surfaceDanger": "color.feedback.danger.surface",
+    "borderDanger": "color.feedback.danger.border",
+    "textDanger": "color.feedback.danger.text",
+    "surfaceInfo": "color.feedback.info.surface",
+    "borderInfo": "color.feedback.info.border",
+    "textInfo": "color.feedback.info.text",
+    "borderWidth": "border-width.thin",
+    "radius": "radius.full",
+    "paddingX": "space.2",
+    "typography": "typography.label.sm"
+  }
+}
