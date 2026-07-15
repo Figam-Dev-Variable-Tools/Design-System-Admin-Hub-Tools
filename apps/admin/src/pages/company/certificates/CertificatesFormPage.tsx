@@ -1,0 +1,145 @@
+// CertificatesFormPage — 인증서/특허 등록/수정 (라우트: /company/certificates/new · /:id/edit) · A41 소유
+import type { CSSProperties } from 'react';
+
+import { controlStyle, errorIdOf, FormField, ImageUrlField, SelectField } from '../../../shared/ui';
+import { FormPageShell } from '../_shared/FormPageShell';
+import { useCrudForm } from '../_shared/useCrudForm';
+import { certificatesAdapter } from './data-source';
+import { CERT_KIND_OPTIONS, ISSUER_MAX_LENGTH, NAME_MAX_LENGTH } from './types';
+import type { CertInput, CertItem, CertKind } from './types';
+import { certSchema } from './validation';
+import type { CertFormValues } from './validation';
+
+const ENTITY_LABEL = '인증서/특허';
+const LIST_PATH = '/company/certificates';
+const UNSAVED_MESSAGE =
+  '인증서/특허에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+
+const rowStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 5), 1fr))',
+  gap: 'var(--tds-space-4)',
+};
+
+export default function CertificatesFormPage() {
+  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
+    useCrudForm<CertItem, CertInput, CertFormValues>({
+      resource: 'certificates',
+      adapter: certificatesAdapter,
+      entityLabel: ENTITY_LABEL,
+      listPath: LIST_PATH,
+      schema: certSchema,
+      empty: { name: '', issuer: '', issuedOn: '', kind: 'certificate', imageUrl: '' },
+      toInput: (values) => ({
+        name: values.name.trim(),
+        issuer: values.issuer.trim(),
+        issuedOn: values.issuedOn.trim(),
+        kind: values.kind as CertKind,
+        imageUrl: values.imageUrl.trim(),
+      }),
+      toValues: (item) => ({
+        name: item.name,
+        issuer: item.issuer,
+        issuedOn: item.issuedOn,
+        kind: item.kind,
+        imageUrl: item.imageUrl,
+      }),
+    });
+
+  const {
+    register,
+    watch,
+    setValue,
+    formState: { errors },
+  } = form;
+  const disabled = saving || loadingDetail;
+  const imageUrl = watch('imageUrl');
+
+  return (
+    <FormPageShell
+      entityLabel={ENTITY_LABEL}
+      cardTitle="인증서/특허 정보"
+      description="별표(*) 항목은 필수입니다. 이미지 URL 로 인증서/특허 이미지를 등록합니다."
+      listPath={LIST_PATH}
+      isEdit={isEdit}
+      loadingDetail={loadingDetail}
+      loadFailed={loadFailed}
+      serverError={serverError}
+      saving={saving}
+      isDirty={isDirty}
+      unsavedMessage={UNSAVED_MESSAGE}
+      onSubmit={submit}
+    >
+      <FormField htmlFor="cert-name" label="명칭" required error={errors.name?.message}>
+        <input
+          id="cert-name"
+          type="text"
+          className="tds-ui-input tds-ui-focusable"
+          style={controlStyle(errors.name !== undefined)}
+          maxLength={NAME_MAX_LENGTH}
+          placeholder="예: ISO 9001 품질경영시스템 인증"
+          disabled={disabled}
+          aria-invalid={errors.name !== undefined}
+          aria-describedby={errors.name !== undefined ? errorIdOf('cert-name') : undefined}
+          {...register('name')}
+        />
+      </FormField>
+
+      <div style={rowStyle}>
+        <FormField htmlFor="cert-issuer" label="발급기관" required error={errors.issuer?.message}>
+          <input
+            id="cert-issuer"
+            type="text"
+            className="tds-ui-input tds-ui-focusable"
+            style={controlStyle(errors.issuer !== undefined)}
+            maxLength={ISSUER_MAX_LENGTH}
+            placeholder="예: 예시인증원"
+            disabled={disabled}
+            aria-invalid={errors.issuer !== undefined}
+            {...register('issuer')}
+          />
+        </FormField>
+
+        <FormField htmlFor="cert-date" label="발급일" required error={errors.issuedOn?.message}>
+          <input
+            id="cert-date"
+            type="date"
+            className="tds-ui-input tds-ui-focusable"
+            style={controlStyle(errors.issuedOn !== undefined)}
+            disabled={disabled}
+            aria-invalid={errors.issuedOn !== undefined}
+            {...register('issuedOn')}
+          />
+        </FormField>
+
+        <FormField htmlFor="cert-kind" label="구분" required error={errors.kind?.message}>
+          <SelectField
+            id="cert-kind"
+            invalid={errors.kind !== undefined}
+            disabled={disabled}
+            aria-invalid={errors.kind !== undefined}
+            {...register('kind')}
+          >
+            {CERT_KIND_OPTIONS.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </SelectField>
+        </FormField>
+      </div>
+
+      <ImageUrlField
+        label="이미지 URL"
+        required
+        value={imageUrl}
+        onChange={(value) =>
+          setValue('imageUrl', value, { shouldValidate: false, shouldDirty: true })
+        }
+        disabled={disabled}
+        error={errors.imageUrl?.message}
+        hint="업로드 대신 호스팅된 이미지 URL 을 입력합니다."
+      />
+    </FormPageShell>
+  );
+}
