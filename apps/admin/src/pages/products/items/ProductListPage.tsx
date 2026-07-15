@@ -16,7 +16,7 @@ import {
   StatusBadge,
   ToggleSwitch,
 } from '../../../shared/ui';
-import { CrudListShell, useCrudList, useCrudRowUpdate } from '../../../shared/crud';
+import { CrudListShell, parseFilter, useCrudList, useCrudRowUpdate } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { fetchProductCategoryOptions, productAdapter } from './data-source';
 import {
@@ -41,6 +41,9 @@ import type { Product, ProductInput } from '../_shared/store';
 const RESOURCE = 'products';
 const ENTITY_LABEL = '상품';
 const LIST_PATH = '/products';
+const SALE_STATUS_FILTER_VALUES: readonly SaleStatusFilter[] = SALE_STATUS_FILTERS.map(
+  (option) => option.id,
+);
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
@@ -238,7 +241,11 @@ export default function ProductListPage() {
         <span style={selectWrapStyle}>
           <SelectField
             value={status}
-            onChange={(event) => setStatus(event.target.value as SaleStatusFilter)}
+            onChange={(event) =>
+              setStatus(
+                parseFilter(event.target.value, SALE_STATUS_FILTER_VALUES, PRODUCT_FILTER_ALL),
+              )
+            }
             aria-label="판매상태로 거르기"
           >
             {SALE_STATUS_FILTERS.map((option) => (

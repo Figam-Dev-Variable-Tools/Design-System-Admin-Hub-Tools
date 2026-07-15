@@ -6,7 +6,7 @@ import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button, ImageThumb, PlusCircleIcon, SelectField, StatusBadge } from '../../../shared/ui';
-import { CrudListShell, useCrudList, type CrudColumn } from '../../../shared/crud';
+import { CrudListShell, parseFilter, useCrudList, type CrudColumn } from '../../../shared/crud';
 import { certificatesAdapter } from './data-source';
 import {
   CERT_FILTER_ALL,
@@ -20,6 +20,10 @@ import type { CertFilter, CertInput, CertItem } from './types';
 const RESOURCE = 'certificates';
 const ENTITY_LABEL = '인증서/특허';
 const LIST_PATH = '/company/certificates';
+const CERT_FILTER_VALUES: readonly CertFilter[] = [
+  CERT_FILTER_ALL,
+  ...CERT_KIND_OPTIONS.map((option) => option.id),
+];
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
@@ -88,7 +92,9 @@ export default function CertificatesListPage() {
           <SelectField
             aria-label="구분 필터"
             value={filter}
-            onChange={(event) => setFilter(event.target.value as CertFilter)}
+            onChange={(event) =>
+              setFilter(parseFilter(event.target.value, CERT_FILTER_VALUES, CERT_FILTER_ALL))
+            }
           >
             <option value={CERT_FILTER_ALL}>전체</option>
             {CERT_KIND_OPTIONS.map((option) => (

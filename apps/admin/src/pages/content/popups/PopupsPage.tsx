@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { SegmentedControl } from '@tds/ui';
 
 import { isAbort } from '../../../shared/async';
+import { parseFilter } from '../../../shared/crud';
 import { formatNumber } from '../../../shared/format';
 import {
   Alert,
@@ -35,6 +36,7 @@ import { ENABLED_FILTERS, PAGE_SIZE } from './types';
 import type { EnabledFilter, Popup } from './types';
 
 const SEARCH_DEBOUNCE_MS = 250;
+const ENABLED_FILTER_VALUES: readonly EnabledFilter[] = ENABLED_FILTERS.map((filter) => filter.id);
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -258,7 +260,7 @@ export default function PopupsPage() {
             value={enabled}
             options={ENABLED_FILTERS.map((filter) => ({ id: filter.id, label: filter.label }))}
             ariaLabel="팝업 상태 필터"
-            onChange={(id) => setEnabled(id as EnabledFilter)}
+            onChange={(id) => setEnabled(parseFilter(id, ENABLED_FILTER_VALUES, 'all'))}
           />
         </div>
         <Button variant="primary" size="md" onClick={() => navigate('/content/popups/new')}>

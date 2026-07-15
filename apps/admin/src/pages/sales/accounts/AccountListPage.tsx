@@ -14,7 +14,7 @@ import {
   StatusBadge,
   ToggleSwitch,
 } from '../../../shared/ui';
-import { CrudListShell, useCrudList, useCrudRowUpdate } from '../../../shared/crud';
+import { CrudListShell, parseFilter, useCrudList, useCrudRowUpdate } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { accountAdapter } from './data-source';
 import {
@@ -34,6 +34,10 @@ import type { Account, AccountInput, TradeFilter } from './types';
 const RESOURCE = 'sales-accounts';
 const ENTITY_LABEL = '거래처';
 const LIST_PATH = '/sales/accounts';
+const TRADE_FILTER_VALUES: readonly TradeFilter[] = [
+  TRADE_FILTER_ALL,
+  ...TRADE_TYPE_OPTIONS.map((option) => option.id),
+];
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
@@ -158,7 +162,9 @@ export default function AccountListPage() {
         <span style={selectWrapStyle}>
           <SelectField
             value={filter}
-            onChange={(event) => setFilter(event.target.value as TradeFilter)}
+            onChange={(event) =>
+              setFilter(parseFilter(event.target.value, TRADE_FILTER_VALUES, TRADE_FILTER_ALL))
+            }
             aria-label="거래유형으로 거르기"
           >
             <option value={TRADE_FILTER_ALL}>전체 유형</option>

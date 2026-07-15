@@ -7,7 +7,7 @@ import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button, PlusCircleIcon, SearchField, SelectField, StatusBadge } from '../../../shared/ui';
-import { CrudListShell, useCrudList, useCrudRowUpdate } from '../../../shared/crud';
+import { CrudListShell, parseFilter, useCrudList, useCrudRowUpdate } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { formatWon } from '../_shared/business';
 import { quoteAdapter } from './data-source';
@@ -26,6 +26,10 @@ import type { Quote, QuoteInput, QuoteStatusFilter } from './types';
 const RESOURCE = 'sales-quotes';
 const ENTITY_LABEL = '견적';
 const LIST_PATH = '/sales/quotes';
+const QUOTE_STATUS_FILTER_VALUES: readonly QuoteStatusFilter[] = [
+  QUOTE_FILTER_ALL,
+  ...QUOTE_STATUS_OPTIONS.map((option) => option.id),
+];
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
@@ -143,7 +147,11 @@ export default function QuoteListPage() {
         <span style={selectWrapStyle}>
           <SelectField
             value={filter}
-            onChange={(event) => setFilter(event.target.value as QuoteStatusFilter)}
+            onChange={(event) =>
+              setFilter(
+                parseFilter(event.target.value, QUOTE_STATUS_FILTER_VALUES, QUOTE_FILTER_ALL),
+              )
+            }
             aria-label="상태로 거르기"
           >
             <option value={QUOTE_FILTER_ALL}>전체 상태</option>

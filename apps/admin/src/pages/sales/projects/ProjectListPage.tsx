@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { formatNumber } from '../../../shared/format';
 import { Button, PlusCircleIcon, SearchField, SelectField, StatusBadge } from '../../../shared/ui';
-import { CrudListShell, useCrudList } from '../../../shared/crud';
+import { CrudListShell, parseFilter, useCrudList } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { formatWon } from '../_shared/business';
 import { projectAdapter } from './data-source';
@@ -25,6 +25,10 @@ import type { Project, ProjectInput, StageFilter } from './types';
 const RESOURCE = 'sales-projects';
 const ENTITY_LABEL = '프로젝트';
 const LIST_PATH = '/sales/projects';
+const STAGE_FILTER_VALUES: readonly StageFilter[] = [
+  PROJECT_FILTER_ALL,
+  ...STAGES.map((stage) => stage.id),
+];
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
@@ -146,7 +150,9 @@ export default function ProjectListPage() {
         <span style={selectWrapStyle}>
           <SelectField
             value={filter}
-            onChange={(event) => setFilter(event.target.value as StageFilter)}
+            onChange={(event) =>
+              setFilter(parseFilter(event.target.value, STAGE_FILTER_VALUES, PROJECT_FILTER_ALL))
+            }
             aria-label="단계로 거르기"
           >
             <option value={PROJECT_FILTER_ALL}>전체 단계</option>

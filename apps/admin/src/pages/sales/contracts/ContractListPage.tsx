@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { formatDate } from '../../../shared/format';
 import { Button, PlusCircleIcon, SearchField, SelectField, StatusBadge } from '../../../shared/ui';
-import { CrudListShell, useCrudList } from '../../../shared/crud';
+import { CrudListShell, parseFilter, useCrudList } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { formatWon } from '../_shared/business';
 import { contractAdapter } from './data-source';
@@ -26,6 +26,10 @@ import type { Contract, ContractInput, ContractStatusFilter } from './types';
 const RESOURCE = 'sales-contracts';
 const ENTITY_LABEL = '계약';
 const LIST_PATH = '/sales/contracts';
+const CONTRACT_STATUS_FILTER_VALUES: readonly ContractStatusFilter[] = [
+  CONTRACT_FILTER_ALL,
+  ...CONTRACT_STATUS_OPTIONS.map((option) => option.id),
+];
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
@@ -121,7 +125,11 @@ export default function ContractListPage() {
         <span style={selectWrapStyle}>
           <SelectField
             value={filter}
-            onChange={(event) => setFilter(event.target.value as ContractStatusFilter)}
+            onChange={(event) =>
+              setFilter(
+                parseFilter(event.target.value, CONTRACT_STATUS_FILTER_VALUES, CONTRACT_FILTER_ALL),
+              )
+            }
             aria-label="상태로 거르기"
           >
             <option value={CONTRACT_FILTER_ALL}>전체 상태</option>

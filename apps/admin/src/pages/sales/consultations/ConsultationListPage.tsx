@@ -23,7 +23,7 @@ import {
   thStyle,
   visuallyHiddenStyle,
 } from '../../../shared/ui';
-import { useCrudListQuery } from '../../../shared/crud';
+import { parseFilter, useCrudListQuery } from '../../../shared/crud';
 import { consultationAdapter } from './data-source';
 import {
   CONSULT_FILTER_ALL,
@@ -40,6 +40,10 @@ import type { ConsultTypeFilter } from './types';
 const RESOURCE = 'sales-consultations';
 const LIST_PATH = '/sales/consultations';
 const COLUMN_COUNT = 8;
+const CONSULT_TYPE_FILTER_VALUES: readonly ConsultTypeFilter[] = [
+  CONSULT_FILTER_ALL,
+  ...CONSULT_TYPE_OPTIONS.map((option) => option.id),
+];
 
 const columnStyle: CSSProperties = {
   display: 'flex',
@@ -135,7 +139,11 @@ export default function ConsultationListPage() {
         <span style={selectWrapStyle}>
           <SelectField
             value={type}
-            onChange={(event) => setType(event.target.value as ConsultTypeFilter)}
+            onChange={(event) =>
+              setType(
+                parseFilter(event.target.value, CONSULT_TYPE_FILTER_VALUES, CONSULT_FILTER_ALL),
+              )
+            }
             aria-label="상담유형으로 거르기"
           >
             <option value={CONSULT_FILTER_ALL}>전체 유형</option>

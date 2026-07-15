@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { SegmentedControl } from '@tds/ui';
 
 import { isAbort } from '../../../shared/async';
+import { parseFilter } from '../../../shared/crud';
 import { formatNumber } from '../../../shared/format';
 import {
   Alert,
@@ -34,6 +35,9 @@ import { PAGE_SIZE, PLACEMENT_FILTERS } from './types';
 import type { Banner, PlacementFilter } from './types';
 
 const SEARCH_DEBOUNCE_MS = 250;
+const PLACEMENT_FILTER_VALUES: readonly PlacementFilter[] = PLACEMENT_FILTERS.map(
+  (filter) => filter.id,
+);
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -282,7 +286,7 @@ export default function BannersPage() {
             value={placement}
             options={PLACEMENT_FILTERS.map((filter) => ({ id: filter.id, label: filter.label }))}
             ariaLabel="배너 위치 필터"
-            onChange={(id) => setPlacement(id as PlacementFilter)}
+            onChange={(id) => setPlacement(parseFilter(id, PLACEMENT_FILTER_VALUES, 'all'))}
           />
         </div>
         <Button variant="primary" size="md" onClick={() => navigate('/content/banners/new')}>

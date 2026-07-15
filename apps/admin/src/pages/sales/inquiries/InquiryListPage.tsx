@@ -22,7 +22,7 @@ import {
   thStyle,
   visuallyHiddenStyle,
 } from '../../../shared/ui';
-import { useCrudListQuery } from '../../../shared/crud';
+import { parseFilter, useCrudListQuery } from '../../../shared/crud';
 import { inquiryAdapter } from './data-source';
 import {
   filterInquiries,
@@ -41,6 +41,18 @@ import type { InquiryChannelFilter, InquiryStatusFilter, InquiryTypeFilter } fro
 
 const RESOURCE = 'sales-inquiries';
 const LIST_PATH = '/sales/inquiries';
+const INQUIRY_TYPE_FILTER_VALUES: readonly InquiryTypeFilter[] = [
+  INQUIRY_FILTER_ALL,
+  ...INQUIRY_TYPE_OPTIONS.map((option) => option.id),
+];
+const INQUIRY_CHANNEL_FILTER_VALUES: readonly InquiryChannelFilter[] = [
+  INQUIRY_FILTER_ALL,
+  ...INQUIRY_CHANNEL_OPTIONS.map((option) => option.id),
+];
+const INQUIRY_STATUS_FILTER_VALUES: readonly InquiryStatusFilter[] = [
+  INQUIRY_FILTER_ALL,
+  ...INQUIRY_STATUS_OPTIONS.map((option) => option.id),
+];
 
 const columnStyle: CSSProperties = {
   display: 'flex',
@@ -125,7 +137,11 @@ export default function InquiryListPage() {
         <span style={selectWrapStyle}>
           <SelectField
             value={type}
-            onChange={(event) => setType(event.target.value as InquiryTypeFilter)}
+            onChange={(event) =>
+              setType(
+                parseFilter(event.target.value, INQUIRY_TYPE_FILTER_VALUES, INQUIRY_FILTER_ALL),
+              )
+            }
             aria-label="유형으로 거르기"
           >
             <option value={INQUIRY_FILTER_ALL}>전체 유형</option>
@@ -139,7 +155,11 @@ export default function InquiryListPage() {
         <span style={selectWrapStyle}>
           <SelectField
             value={channel}
-            onChange={(event) => setChannel(event.target.value as InquiryChannelFilter)}
+            onChange={(event) =>
+              setChannel(
+                parseFilter(event.target.value, INQUIRY_CHANNEL_FILTER_VALUES, INQUIRY_FILTER_ALL),
+              )
+            }
             aria-label="채널로 거르기"
           >
             <option value={INQUIRY_FILTER_ALL}>전체 채널</option>
@@ -153,7 +173,11 @@ export default function InquiryListPage() {
         <span style={selectWrapStyle}>
           <SelectField
             value={status}
-            onChange={(event) => setStatus(event.target.value as InquiryStatusFilter)}
+            onChange={(event) =>
+              setStatus(
+                parseFilter(event.target.value, INQUIRY_STATUS_FILTER_VALUES, INQUIRY_FILTER_ALL),
+              )
+            }
             aria-label="상태로 거르기"
           >
             <option value={INQUIRY_FILTER_ALL}>전체 상태</option>

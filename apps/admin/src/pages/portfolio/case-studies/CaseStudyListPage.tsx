@@ -7,7 +7,7 @@ import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button, PlusCircleIcon, SelectField, StatusBadge } from '../../../shared/ui';
-import { CrudListShell, useCrudList, useCrudRowUpdate } from '../../../shared/crud';
+import { CrudListShell, parseFilter, useCrudList, useCrudRowUpdate } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { caseStudyAdapter } from './data-source';
 import {
@@ -24,6 +24,10 @@ import { publishToggleColumn } from '../_shared/publishColumn';
 const RESOURCE = 'case-studies';
 const ENTITY_LABEL = '성공 사례';
 const LIST_PATH = '/portfolio/case-studies';
+const CASE_FILTER_VALUES: readonly CaseFilter[] = [
+  CASE_FILTER_ALL,
+  ...CASE_INDUSTRY_OPTIONS.map((option) => option.id),
+];
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
@@ -98,7 +102,9 @@ export default function CaseStudyListPage() {
       <span style={filterStyle}>
         <SelectField
           value={filter}
-          onChange={(event) => setFilter(event.target.value as CaseFilter)}
+          onChange={(event) =>
+            setFilter(parseFilter(event.target.value, CASE_FILTER_VALUES, CASE_FILTER_ALL))
+          }
           aria-label="업종으로 거르기"
         >
           <option value={CASE_FILTER_ALL}>전체 업종</option>

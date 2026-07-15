@@ -11,7 +11,7 @@
 // [스타일] 토큰 CSS 변수만 — 하드코딩 색상 hex / px 리터럴 0건.
 import { useCallback, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { Tabs } from '@tds/ui';
+import { Alert, Tabs } from '@tds/ui';
 
 import { usePermissions } from '../../shared/permissions/PermissionProvider';
 import { DashboardTabPanel } from './components/DashboardTabPanel';
@@ -25,19 +25,6 @@ const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--tds-space-5)',
-};
-
-const errorStyle: CSSProperties = {
-  margin: 0,
-  padding: 'var(--tds-space-4)',
-  borderStyle: 'solid',
-  borderWidth: 'thin',
-  borderColor: 'var(--tds-color-feedback-danger-border)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-feedback-danger-surface)',
-  color: 'var(--tds-color-feedback-danger-text)',
-  fontSize: 'var(--tds-typography-label-md-font-size)',
-  lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
 
 const emptyStyle: CSSProperties = {
@@ -94,9 +81,9 @@ export default function DashboardPage() {
       )}
 
       {error !== null && (
-        <p style={errorStyle} role="alert">
+        <Alert tone="danger">
           대시보드 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
-        </p>
+        </Alert>
       )}
 
       {needsTabData && error === null && (

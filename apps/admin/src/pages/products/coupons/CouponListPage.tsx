@@ -15,7 +15,7 @@ import {
   StatusBadge,
   ToggleSwitch,
 } from '../../../shared/ui';
-import { CrudListShell, useCrudList, useCrudRowUpdate } from '../../../shared/crud';
+import { CrudListShell, parseFilter, useCrudList, useCrudRowUpdate } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { couponAdapter } from './data-source';
 import {
@@ -33,6 +33,10 @@ import type { Coupon, CouponInput, CouponIssueFilter } from './types';
 const RESOURCE = 'coupons';
 const ENTITY_LABEL = '쿠폰';
 const LIST_PATH = '/products/coupons';
+const COUPON_FILTER_VALUES: readonly CouponIssueFilter[] = [
+  COUPON_FILTER_ALL,
+  ...COUPON_ISSUE_OPTIONS.map((option) => option.id),
+];
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
@@ -154,7 +158,9 @@ export default function CouponListPage() {
         <span style={selectWrapStyle}>
           <SelectField
             value={filter}
-            onChange={(event) => setFilter(event.target.value as CouponIssueFilter)}
+            onChange={(event) =>
+              setFilter(parseFilter(event.target.value, COUPON_FILTER_VALUES, COUPON_FILTER_ALL))
+            }
             aria-label="발급유형으로 거르기"
           >
             <option value={COUPON_FILTER_ALL}>전체 유형</option>

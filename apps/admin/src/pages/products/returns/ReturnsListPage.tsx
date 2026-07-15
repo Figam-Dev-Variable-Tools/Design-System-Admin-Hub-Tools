@@ -23,7 +23,7 @@ import {
   thStyle,
   visuallyHiddenStyle,
 } from '../../../shared/ui';
-import { useCrudListQuery } from '../../../shared/crud';
+import { parseFilter, useCrudListQuery } from '../../../shared/crud';
 import { returnAdapter } from './data-source';
 import {
   filterByStatus,
@@ -41,6 +41,13 @@ const RESOURCE = 'returns';
 const LIST_PATH = '/products/returns';
 const KIND_FILTER_ALL = 'all';
 type KindFilter = typeof KIND_FILTER_ALL | ReturnKind;
+const KIND_FILTER_VALUES: readonly KindFilter[] = [
+  KIND_FILTER_ALL,
+  ...KIND_OPTIONS.map((option) => option.id),
+];
+const STATUS_FILTER_VALUES: readonly StatusFilter[] = STATUS_FILTER_OPTIONS.map(
+  (option) => option.id,
+);
 
 const columnStyle: CSSProperties = {
   display: 'flex',
@@ -129,7 +136,9 @@ export default function ReturnsListPage() {
         <span style={selectWrapStyle}>
           <SelectField
             value={kind}
-            onChange={(event) => setKind(event.target.value as KindFilter)}
+            onChange={(event) =>
+              setKind(parseFilter(event.target.value, KIND_FILTER_VALUES, KIND_FILTER_ALL))
+            }
             aria-label="유형으로 거르기"
           >
             <option value={KIND_FILTER_ALL}>전체 유형</option>
@@ -143,7 +152,9 @@ export default function ReturnsListPage() {
         <span style={selectWrapStyle}>
           <SelectField
             value={status}
-            onChange={(event) => setStatus(event.target.value as StatusFilter)}
+            onChange={(event) =>
+              setStatus(parseFilter(event.target.value, STATUS_FILTER_VALUES, STATUS_FILTER_ALL))
+            }
             aria-label="상태로 거르기"
           >
             {STATUS_FILTER_OPTIONS.map((option) => (
