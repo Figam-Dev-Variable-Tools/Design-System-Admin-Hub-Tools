@@ -121,8 +121,6 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         ['회사 정보', '/company/profile'],
         ['CEO 인사말', '/company/ceo-message'],
         ['연혁', '/company/history'],
-        ['비전·미션', '/company/vision'],
-        ['조직도', '/company/org-chart'],
         ['오시는 길', '/company/directions'],
         ['인증서/특허', '/company/certificates'],
         ['파트너사', '/company/partners'],
