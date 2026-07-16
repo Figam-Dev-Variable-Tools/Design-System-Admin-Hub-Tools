@@ -9,8 +9,10 @@
   gap: var(--tds-space-4);
   box-sizing: border-box;
   inline-size: 100%;
-  padding-block: var(--tds-space-6);
-  padding-inline: var(--tds-space-6);
+  /* 표가 있어야 할 자리를 대신 채우는 상태다 — space.6 로는 빈 표 안에서 쪼그라들어 보인다.
+     세로는 space.10 으로 넉넉히, 가로는 space.7 로 연다 (TOKEN-08 'section breathing'). */
+  padding-block: var(--tds-space-10);
+  padding-inline: var(--tds-space-7);
   text-align: center;
   color: var(--tds-color-text-default);
 }
@@ -23,8 +25,8 @@
 
 /* 삽화 크기 — space.6 토큰의 2배로, 픽셀 리터럴 없이 */
 .tds-empty__glyph {
-  inline-size: calc(var(--tds-space-6) * 2);
-  block-size: calc(var(--tds-space-6) * 2);
+  inline-size: var(--tds-space-9);
+  block-size: var(--tds-space-9);
 }
 
 .tds-empty__title {

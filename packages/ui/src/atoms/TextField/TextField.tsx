@@ -1,4 +1,4 @@
-// TextField — 라벨 + 단일행 입력 + 인라인 에러 (atom · contracts/TextField.contract.json@1.1.0)
+// TextField — 라벨 + 단일행 입력 + 인라인 에러 (atom · contracts/TextField.contract.json@1.2.0)
 //
 // 값과 콜백만 받는 제어 컴포넌트 — 유효성 규칙·상태 머신·API 는 소유하지 않는다.
 // 에러는 색상만으로 전달하지 않는다(WCAG 1.4.1) — 메시지 텍스트를 함께 렌더하고
@@ -6,9 +6,9 @@
 //
 // [라벨에 마커(*)를 주입하지 않는다 — 계약 props.required]
 //   <label> 의 textContent 가 곧 input 의 접근 가능한 이름이다. 마커를 넣으면 이름이 "이메일*" 이 되어
-//   getByLabelText('이메일') 정확일치가 깨진다 (E2E FS-001). required 는 native required 속성으로만
-//   노출한다 (→ aria-required). aria-hidden 을 붙여도 소용없다 — Testing Library/Playwright 의 라벨
-//   텍스트 수집은 textContent 기반이라 이름이 그대로 오염된다.
+//   getByLabelText('이메일') 정확일치가 깨진다 (E2E FS-001). required 는 마커가 아니라 **native required
+//   + aria-required** 로 노출한다 (A11Y-11). aria-hidden 을 붙여도 소용없다 — Testing Library/Playwright 의
+//   라벨 텍스트 수집은 textContent 기반이라 이름이 그대로 오염된다.
 //
 // [ref · 네이티브 속성 패스스루]
 //   input 참조는 계약 prop 이 아니라 forwardRef 로 노출한다 (제출 실패 시 첫 오류 필드로 포커스 이동).
@@ -115,6 +115,9 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps & TextField
         inputMode={nativeInputMode(inputMode)}
         placeholder={attr(placeholder)}
         required={required}
+        // native required 에 더해 aria-required 를 명시한다 — <form noValidate> 아래에서도, 그리고
+        // 네이티브→AT 매핑에 기대지 않고 필수 여부가 스크린리더에 닿는다 (A11Y-11)
+        aria-required={required ? true : undefined}
         disabled={disabled}
         aria-invalid={invalid ? true : undefined}
         aria-describedby={invalid ? errorId : undefined}

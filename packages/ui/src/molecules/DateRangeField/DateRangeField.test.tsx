@@ -1,4 +1,4 @@
-// DateRangeField — 계약 검증 테스트 (contracts/DateRangeField.contract.json@1.0.0)
+// DateRangeField — 계약 검증 테스트 (contracts/DateRangeField.contract.json@1.1.0)
 //
 //   states[]                     default · focus-visible · disabled · error
 //   events onStartChange/onEndChange  payload string (값 콜백)
@@ -178,5 +178,47 @@ describe('DateRangeField — 값 콜백 · 힌트', () => {
       'tds-daterange__hint',
     );
     expect(screen.queryByRole('alert')).toBeNull();
+  });
+});
+
+// A11Y-11 acceptanceCheck: "required input 이 aria-required 노출"
+// 그룹 라벨의 마커(*)는 aria-hidden 장식이라 두 칸 어디에도 필수 여부가 닿지 않았다.
+describe('DateRangeField — required 를 두 칸 모두에 노출한다 (A11Y-11)', () => {
+  it('DateRangeField: required=true — 시작·종료 입력이 각각 native required + aria-required 를 낸다', () => {
+    render(<DateRangeField label="노출 기간" startValue="" endValue="" required />);
+
+    for (const name of ['노출 기간 시작일', '노출 기간 종료일']) {
+      const input = screen.getByLabelText(name) as HTMLInputElement;
+      expect(input.required, name).toBe(true);
+      expect(input.getAttribute('aria-required'), name).toBe('true');
+    }
+  });
+
+  it('DateRangeField: required=true + error — required 와 invalid 배선이 서로를 지우지 않는다', () => {
+    render(
+      <DateRangeField
+        label="노출 기간"
+        startValue=""
+        endValue=""
+        required
+        error="기간을 확인하세요"
+      />,
+    );
+
+    for (const name of ['노출 기간 시작일', '노출 기간 종료일']) {
+      const input = screen.getByLabelText(name);
+      expect(input.getAttribute('aria-required'), name).toBe('true');
+      expect(input.getAttribute('aria-invalid'), name).toBe('true');
+      const describedby = input.getAttribute('aria-describedby');
+      expect(document.getElementById(describedby ?? ''), name).not.toBeNull();
+    }
+  });
+
+  it('DateRangeField: required=false — 두 칸 모두 aria-required 를 남기지 않는다', () => {
+    render(<DateRangeField label="노출 기간" startValue="" endValue="" />);
+
+    for (const name of ['노출 기간 시작일', '노출 기간 종료일']) {
+      expect(screen.getByLabelText(name).hasAttribute('aria-required'), name).toBe(false);
+    }
   });
 });

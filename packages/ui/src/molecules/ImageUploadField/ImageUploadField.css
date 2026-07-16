@@ -86,8 +86,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  inline-size: calc(var(--tds-space-6) * 1.75);
-  block-size: calc(var(--tds-space-6) * 1.75);
+  inline-size: var(--tds-space-8);
+  block-size: var(--tds-space-8);
   border-radius: var(--tds-radius-full);
   background: var(--tds-color-surface-default);
   color: var(--tds-color-action-primary-default);

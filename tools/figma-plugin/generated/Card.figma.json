@@ -2,7 +2,7 @@
   "$generated": "AUTO-GENERATED from contracts/Card.contract.json — DO NOT EDIT (pnpm codegen)",
   "name": "Card",
   "component": "Card",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "variantProperties": {
     "Padding": {
       "values": [
@@ -59,7 +59,7 @@
   "tokens": {
     "background": "color.surface.default",
     "border": "color.border.default",
-    "radius": "radius.md",
+    "radius": "component.card.radius",
     "shadowRaised": "shadow.raised",
     "paddingMd": "space.5",
     "paddingLg": "space.6"

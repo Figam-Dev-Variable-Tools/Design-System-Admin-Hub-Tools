@@ -1,4 +1,4 @@
-// TextareaField — 제어 textarea + 글자수 카운터 (molecule · contracts/TextareaField.contract.json@1.0.0)
+// TextareaField — 제어 textarea + 글자수 카운터 (molecule · contracts/TextareaField.contract.json@1.1.0)
 //
 // Props 타입은 계약에서 생성된 generated/types/TextareaField.types 를 그대로 import 한다 (수동 선언 금지 — G6).
 // 계약 dependencies: FormField (molecule). 라벨/오류/힌트/필수 표식 + 우측 카운터('N/max')는 FormField 에
@@ -59,6 +59,10 @@ export function TextareaField({
         maxLength={maxLength}
         placeholder={placeholder}
         disabled={disabled}
+        // required 는 FormField 의 마커(aria-hidden 장식)로만 그려져 AT 에 닿지 않았다 —
+        // 컨트롤 자신에게 native required + aria-required 로 잇는다 (A11Y-11)
+        required={required}
+        aria-required={required ? true : undefined}
         aria-invalid={invalid}
         aria-describedby={invalid ? errorIdOf(id) : hint !== undefined ? hintIdOf(id) : undefined}
         onChange={(event) => {

@@ -2,7 +2,7 @@
   "$generated": "AUTO-GENERATED from contracts/ImageUploadField.contract.json — DO NOT EDIT (pnpm codegen)",
   "name": "ImageUploadField",
   "component": "ImageUploadField",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "variantProperties": {
     "Required": {
       "values": [
@@ -65,6 +65,7 @@
     "radius": "radius.md",
     "gap": "space.2",
     "focusRing": "color.border.focus",
-    "typography": "typography.label.md"
+    "typography": "typography.label.md",
+    "iconButtonSize": "space.8"
   }
 }

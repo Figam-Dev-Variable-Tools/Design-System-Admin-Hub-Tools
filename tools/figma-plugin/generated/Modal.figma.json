@@ -2,7 +2,7 @@
   "$generated": "AUTO-GENERATED from contracts/Modal.contract.json — DO NOT EDIT (pnpm codegen)",
   "name": "Modal",
   "component": "Modal",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "variantProperties": {},
   "properties": [
     {
@@ -35,7 +35,7 @@
     "surface": "color.surface.default",
     "shadow": "shadow.modal",
     "border": "color.border.default",
-    "radius": "radius.lg",
+    "radius": "component.modal.radius",
     "padding": "space.5",
     "gap": "space.4",
     "headerGap": "space.3",

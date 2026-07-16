@@ -11,7 +11,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 버전 | `1.0.1` |
+| 버전 | `1.1.0` |
 | 레벨 | `molecule` |
 | 상태 | `beta` |
 | 소유 | code `A30` · design `A14` · figma `A51` |
@@ -63,6 +63,16 @@ _계약에 정의된 이벤트가 없습니다._
 | `surface` | `color.surface.default` | `--tds-color-surface-default` |
 | `typography` | `typography.label.md` | `--tds-typography-label-md` |
 | `focusRing` | `color.border.focus` | `--tds-color-border-focus` |
+| `lineColor2` | `color.chart.series-2` | `--tds-color-chart-series-2` |
+| `areaColor2` | `color.chart.series-2-fill` | `--tds-color-chart-series-2-fill` |
+| `lineColor3` | `color.chart.series-3` | `--tds-color-chart-series-3` |
+| `areaColor3` | `color.chart.series-3-fill` | `--tds-color-chart-series-3-fill` |
+| `lineColor4` | `color.chart.series-4` | `--tds-color-chart-series-4` |
+| `areaColor4` | `color.chart.series-4-fill` | `--tds-color-chart-series-4-fill` |
+| `lineColor5` | `color.chart.series-5` | `--tds-color-chart-series-5` |
+| `areaColor5` | `color.chart.series-5-fill` | `--tds-color-chart-series-5-fill` |
+| `lineColor6` | `color.chart.series-6` | `--tds-color-chart-series-6` |
+| `areaColor6` | `color.chart.series-6-fill` | `--tds-color-chart-series-6-fill` |
 
 > 하드코딩 색상/치수 금지 — 시각 속성은 반드시 위 토큰만 참조합니다.
 

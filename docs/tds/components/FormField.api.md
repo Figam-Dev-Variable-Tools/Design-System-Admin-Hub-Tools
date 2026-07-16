@@ -19,11 +19,11 @@
 
 | 항목 | 값 |
 |---|---|
-| 버전 | `1.0.0` |
+| 버전 | `1.1.0` |
 | 레벨 | `molecule` |
 | 상태 | `beta` |
 | 소유 | code `A30` · design `A14` · figma `A51` |
-| 의존 컴포넌트 | `HelpTip` |
+| 의존 컴포넌트 | `HelpTip`, `SelectField` |
 
 ## Props
 
@@ -31,7 +31,7 @@
 |---|---|---|---|---|---|
 | `htmlFor` | `string` | — | ✅ | — | 컨트롤의 id — <label> 의 htmlFor 와 잇는다. 힌트/오류 <p> 의 id 는 여기서 파생한다(errorIdOf·hintIdOf) |
 | `label` | `string` | — | ✅ | — | 필드 레이블 텍스트. 시각적으로 노출되며 htmlFor 로 컨트롤의 접근 가능한 이름이 된다 |
-| `required` | `boolean` | `false` | — | `Required` | 필수 필드 — 레이블 옆에 붉은 시각 마커(*)를 붙인다. 마커는 aria-hidden 장식이다(라벨 텍스트 오염 방지). 실제 필수 검증은 자식 컨트롤/스키마가 소유한다 |
+| `required` | `boolean` | `false` | — | `Required` | 필수 필드 — 레이블 옆에 붉은 시각 마커(*)를 붙인다. 마커는 aria-hidden 장식이다(라벨 텍스트 오염 방지). 마커만으로는 필수 여부가 AT 에 닿지 않으므로, 구현이 이 값을 **단일 폼 컨트롤 자식의 aria-required 로 주입**한다 (a11y.aria.required-wiring — A11Y-11). 실제 필수 검증은 자식 컨트롤/스키마가 소유한다 |
 | `error` | `string` | `""` | — | — | 인라인 오류 메시지. 빈 문자열/미지정이면 오류 없음(힌트를 대신 그린다). 값이 있으면 role=alert 로 오류 <p>(id=errorIdOf(htmlFor))를 그린다. 호출부는 errors.x?.message(string\|undefined)를 그대로 넘긴다 — 구현이 정규화한다 |
 | `hint` | `string` | `""` | — | — | 보조 안내 문구. 오류가 없을 때만 힌트 <p>(id=hintIdOf(htmlFor))로 그린다. 빈 문자열/미지정이면 그리지 않는다 |
 | `counter` | `string` | `""` | — | — | 우측 상단 글자수 카운터 표시 문자열('12/500' 등). 빈 문자열/미지정이면 그리지 않는다. tabular-nums 로 자릿수 흔들림을 막는다 |
@@ -60,6 +60,7 @@ _계약에 정의된 이벤트가 없습니다._
 | `role-alert` | 오류 <p> 는 role=alert 로 스크린리더에 즉시 알린다. 색만으로 전달하지 않고 메시지 텍스트를 함께 그린다 (WCAG 1.4.1) |
 | `describedBy` | 오류 <p> id=errorIdOf(htmlFor), 힌트 <p> id=hintIdOf(htmlFor) — 호출부가 이 id 를 자식 컨트롤의 aria-describedby 에 물린다 (헬퍼 함수로 노출) |
 | `required-mark` | 필수 마커(*)는 aria-hidden 장식 — 라벨 textContent(=접근 가능한 이름)를 오염시키지 않는다 |
+| `required-wiring` | 마커가 aria-hidden 이라 required 는 그 자체로 AT 에 닿지 않는다. 그래서 required=true 이면 구현이 **자식 컨트롤에 aria-required=true 를 주입**한다 (A11Y-11 acceptanceCheck: 'required input 이 aria-required 노출'). 주입 대상은 단일 자식이면서 (a) 네이티브 폼 컨트롤(input/select/textarea) 이거나 (b) native 속성을 컨트롤로 패스스루하는 DS 컨트롤(SelectField) 일 때뿐이다 — 래퍼 <div>/표시 전용 <p>/비-컨트롤 컴포넌트에 얹으면 거짓 시맨틱이 되므로 건너뛴다. 호출부가 aria-required 를 명시하면 그 값이 우선한다(override). 이 배선 덕에 호출부(입력을 직접 넣는 폼 150여 곳)는 무변경으로 필수 시맨틱을 얻는다 |
 | 최소 대비 | 4.5:1 |
 
 ## Tokens

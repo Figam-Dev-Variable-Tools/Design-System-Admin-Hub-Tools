@@ -2,7 +2,7 @@
   "$generated": "AUTO-GENERATED from contracts/TextField.contract.json — DO NOT EDIT (pnpm codegen)",
   "name": "TextField",
   "component": "TextField",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "variantProperties": {
     "Type": {
       "values": [
@@ -114,6 +114,7 @@
     "gap": "space.1",
     "labelTypography": "typography.label.md",
     "inputTypography": "typography.body.md",
-    "errorTypography": "typography.label.md"
+    "errorTypography": "typography.label.md",
+    "trailingInset": "space.9"
   }
 }

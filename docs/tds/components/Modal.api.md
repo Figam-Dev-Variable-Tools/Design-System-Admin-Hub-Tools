@@ -15,7 +15,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 버전 | `1.0.0` |
+| 버전 | `1.1.0` |
 | 레벨 | `organism` |
 | 상태 | `beta` |
 | 소유 | code `A30` · design `A14` · figma `A51` |
@@ -63,7 +63,7 @@ _계약에 정의된 이벤트가 없습니다._
 | `surface` | `color.surface.default` | `--tds-color-surface-default` |
 | `shadow` | `shadow.modal` | `--tds-shadow-modal` |
 | `border` | `color.border.default` | `--tds-color-border-default` |
-| `radius` | `radius.lg` | `--tds-radius-lg` |
+| `radius` | `component.modal.radius` | `--tds-component-modal-radius` |
 | `padding` | `space.5` | `--tds-space-5` |
 | `gap` | `space.4` | `--tds-space-4` |
 | `headerGap` | `space.3` | `--tds-space-3` |

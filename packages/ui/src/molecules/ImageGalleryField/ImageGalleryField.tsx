@@ -1,4 +1,4 @@
-// ImageGalleryField — 다중 이미지 업로드(갤러리) 필드 (molecule · contracts/ImageGalleryField.contract.json@1.0.0)
+// ImageGalleryField — 다중 이미지 업로드(갤러리) 필드 (molecule · contracts/ImageGalleryField.contract.json@1.1.0)
 //
 // 계약 dependencies: [] — ImageUploadField 와 검증(imageFileError)을 공유하고, FormField 의 id 헬퍼를 재사용한다.
 // 드래그드롭·object URL·검증·개수 상한을 손코딩으로 유지한다(react-dropzone 기각). 아이콘은 인라인 글리프.

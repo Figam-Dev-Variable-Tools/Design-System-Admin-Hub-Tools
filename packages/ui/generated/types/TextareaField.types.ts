@@ -1,4 +1,4 @@
-// AUTO-GENERATED from contracts/TextareaField.contract.json@1.0.0 — DO NOT EDIT (pnpm codegen)
+// AUTO-GENERATED from contracts/TextareaField.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
 // 레벨: molecule · 상태: beta
 
 /** 계약에 선언된 상호작용 상태 */
@@ -29,7 +29,7 @@ export interface TextareaFieldProps {
    */
   maxLength: number;
   /**
-   * 필수 필드 — FormField 로 내려보내 레이블에 마커(*)를 그린다
+   * 필수 필드 — FormField 로 내려보내 레이블에 마커(*)를 그리고, **동시에 <textarea> 자신에게 native required + aria-required 로 잇는다** (마커는 aria-hidden 장식이라 그것만으로는 AT 에 닿지 않는다 — A11Y-11)
    * @default false
    */
   required?: boolean;

@@ -19,7 +19,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 버전 | `1.0.0` |
+| 버전 | `1.1.0` |
 | 레벨 | `molecule` |
 | 상태 | `beta` |
 | 소유 | code `A30` · design `A14` · figma `A51` |
@@ -32,7 +32,7 @@
 | `label` | `string` | — | ✅ | — | 필드 레이블 — FormField 로 내려보낸다 |
 | `value` | `string` | — | ✅ | — | 제어 컴포넌트 입력값. 카운터('value.length/maxLength')의 분자도 이 길이에서 나온다 |
 | `maxLength` | `number` | — | ✅ | — | 최대 길이 — native maxLength 와 카운터 분모('N/max')를 함께 정한다 |
-| `required` | `boolean` | `false` | — | `Required` | 필수 필드 — FormField 로 내려보내 레이블에 마커(*)를 그린다 |
+| `required` | `boolean` | `false` | — | `Required` | 필수 필드 — FormField 로 내려보내 레이블에 마커(*)를 그리고, **동시에 <textarea> 자신에게 native required + aria-required 로 잇는다** (마커는 aria-hidden 장식이라 그것만으로는 AT 에 닿지 않는다 — A11Y-11) |
 | `disabled` | `boolean` | `false` | — | `Disabled` | 비활성 — native disabled 로 입력을 막는다. onChange 발화도 차단한다(blockedWhen) |
 | `error` | `string` | `""` | — | — | 인라인 오류 메시지 — FormField 로 내려보낸다. 값이 있으면 aria-invalid=true + aria-describedby=errorIdOf(id). 빈 문자열/미지정이면 오류 없음 |
 | `hint` | `string` | `""` | — | — | 보조 안내 — FormField 로 내려보낸다. 오류가 없을 때만 그리고, 그때 aria-describedby=hintIdOf(id) |
@@ -63,6 +63,7 @@
 | `aria-invalid` | error 가 빈 문자열이 아닐 때 true |
 | `aria-describedby` | 오류가 있으면 errorIdOf(id), 없고 힌트가 있으면 hintIdOf(id) — FormField 가 그 id 로 <p> 를 그린다 |
 | `native-disabled` | disabled 는 native 속성으로 반영 — 입력·포커스가 브라우저 기본으로 막힌다 |
+| `aria-required` | required=true 이면 <textarea> 에 native required + aria-required="true" 를 함께 낸다 (TextField 미러). FormField 의 마커(*)는 aria-hidden 장식이라 시각 경로일 뿐 — 필수 여부의 AT 경로는 이 속성이다 (A11Y-11). required=false 면 두 속성 모두 부여하지 않는다 |
 | 최소 대비 | 4.5:1 |
 
 ## Tokens

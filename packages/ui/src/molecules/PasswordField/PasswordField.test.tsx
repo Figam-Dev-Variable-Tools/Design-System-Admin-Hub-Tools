@@ -232,3 +232,21 @@ describe('PasswordField — 계약 props.name · autoComplete · placeholder · 
     expect(inputOf(container).selectionStart).toBe(3);
   });
 });
+
+// A11Y-11 acceptanceCheck: "required input 이 aria-required 노출"
+// PasswordField 는 required 를 TextField 로 내려보낸다 — 그 경로가 실제로 AT 까지 닿는지 확인한다.
+describe('PasswordField — required 를 AT 에 노출한다 (A11Y-11)', () => {
+  it('PasswordField: required=true — input 이 native required + aria-required 를 낸다', () => {
+    render(<PasswordField id="pw" label="비밀번호" value="" required />);
+
+    const input = screen.getByLabelText('비밀번호') as HTMLInputElement;
+    expect(input.required).toBe(true);
+    expect(input.getAttribute('aria-required')).toBe('true');
+  });
+
+  it('PasswordField: required=false — aria-required 를 남기지 않는다', () => {
+    render(<PasswordField id="pw" label="비밀번호" value="" />);
+
+    expect(screen.getByLabelText('비밀번호').hasAttribute('aria-required')).toBe(false);
+  });
+});

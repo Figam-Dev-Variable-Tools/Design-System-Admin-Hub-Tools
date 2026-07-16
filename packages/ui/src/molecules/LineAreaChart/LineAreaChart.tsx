@@ -1,4 +1,4 @@
-// LineAreaChart — 범용 선 + 면적 차트 (molecule · contracts/LineAreaChart.contract.json@1.0.0)
+// LineAreaChart — 범용 선 + 면적 차트 (molecule · contracts/LineAreaChart.contract.json@1.1.0)
 //
 // 외부 차트 라이브러리 의존 0 — SVG 좌표를 직접 계산하고 Catmull-Rom → 3차 베지어로 스무딩한다.
 // 색은 전부 chart.* 토큰. SVG 내부 좌표는 viewBox 기준의 무단위 수라 px 리터럴이 아니다
@@ -19,11 +19,29 @@ const AXIS_LABEL_SIZE = 11;
 const POINT_RADIUS = 3.5;
 const STROKE = 2;
 
-/** 계열 색 — chart.series-N 토큰을 순환 참조한다 (계약 tokens.lineColor / areaColor) */
+/**
+ * 계열 색 — chart.series-N 토큰을 순환 참조한다 (계약 tokens.lineColor / areaColor).
+ * 6계열까지 서로 다른 hue 를 낸다 (TOKEN-13) — 매출/채널/상태 분포 같은 다범주 ERP 차트가
+ * 3번째 계열부터 1번 색으로 되돌아오는 일이 없어야 한다.
+ */
 const DEFAULT_STROKE = 'var(--tds-color-chart-series-1)';
 const DEFAULT_FILL = 'var(--tds-color-chart-series-1-fill)';
-const SERIES_STROKE: readonly string[] = [DEFAULT_STROKE, 'var(--tds-color-chart-series-2)'];
-const SERIES_FILL: readonly string[] = [DEFAULT_FILL, 'var(--tds-color-chart-series-2-fill)'];
+const SERIES_STROKE: readonly string[] = [
+  DEFAULT_STROKE,
+  'var(--tds-color-chart-series-2)',
+  'var(--tds-color-chart-series-3)',
+  'var(--tds-color-chart-series-4)',
+  'var(--tds-color-chart-series-5)',
+  'var(--tds-color-chart-series-6)',
+];
+const SERIES_FILL: readonly string[] = [
+  DEFAULT_FILL,
+  'var(--tds-color-chart-series-2-fill)',
+  'var(--tds-color-chart-series-3-fill)',
+  'var(--tds-color-chart-series-4-fill)',
+  'var(--tds-color-chart-series-5-fill)',
+  'var(--tds-color-chart-series-6-fill)',
+];
 
 /** 계열 인덱스 → 선/점 색 (계열이 토큰 수를 넘으면 순환) */
 function strokeOf(index: number): string {

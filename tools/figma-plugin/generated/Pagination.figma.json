@@ -2,13 +2,18 @@
   "$generated": "AUTO-GENERATED from contracts/Pagination.contract.json — DO NOT EDIT (pnpm codegen)",
   "name": "Pagination",
   "component": "Pagination",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "variantProperties": {},
   "properties": [
     {
       "name": "Label",
       "type": "TEXT",
       "default": "회원 목록 페이지"
+    },
+    {
+      "name": "SizeLabel",
+      "type": "TEXT",
+      "default": "페이지당"
     }
   ],
   "tokens": {
@@ -24,6 +29,9 @@
     "gap": "space.1",
     "typography": "typography.label.md",
     "focusRing": "color.border.focus",
-    "borderWidth": "border-width.thin"
+    "borderWidth": "border-width.thin",
+    "summaryText": "color.text.muted",
+    "summaryTypography": "typography.label.md",
+    "barGap": "space.3"
   }
 }

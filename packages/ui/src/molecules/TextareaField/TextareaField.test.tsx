@@ -1,4 +1,4 @@
-// TextareaField — 계약 검증 테스트 (contracts/TextareaField.contract.json@1.0.0)
+// TextareaField — 계약 검증 테스트 (contracts/TextareaField.contract.json@1.1.0)
 //
 //   states[]            default · focus-visible · disabled · error
 //   events.onChange     payload string · blockedWhen: ["disabled"]  (스파이 비발생 단언)
@@ -94,5 +94,26 @@ describe('TextareaField — 계약 events.onChange.blockedWhen', () => {
     });
 
     expect(onChange).not.toHaveBeenCalled();
+  });
+});
+
+// A11Y-11 acceptanceCheck: "required input 이 aria-required 노출"
+// required 는 FormField 마커(aria-hidden 장식)로만 그려져 <textarea> 자신에는 아무 속성도 닿지 않았다 —
+// 이 스위트가 그 회귀를 막는다.
+describe('TextareaField — required 를 AT 에 노출한다 (A11Y-11)', () => {
+  it('TextareaField: required=true — <textarea> 가 native required + aria-required 를 낸다', () => {
+    render(<TextareaField label="본문" value="" maxLength={500} required />);
+
+    const textarea = screen.getByLabelText(/본문/) as HTMLTextAreaElement;
+    expect(textarea.required).toBe(true);
+    expect(textarea.getAttribute('aria-required')).toBe('true');
+  });
+
+  it('TextareaField: required=false — 두 속성 모두 남기지 않는다', () => {
+    render(<TextareaField label="본문" value="" maxLength={500} />);
+
+    const textarea = screen.getByLabelText(/본문/) as HTMLTextAreaElement;
+    expect(textarea.required).toBe(false);
+    expect(textarea.hasAttribute('aria-required')).toBe(false);
   });
 });

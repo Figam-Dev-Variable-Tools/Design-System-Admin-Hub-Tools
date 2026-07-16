@@ -2,7 +2,7 @@
   "$generated": "AUTO-GENERATED from contracts/LineAreaChart.contract.json — DO NOT EDIT (pnpm codegen)",
   "name": "LineAreaChart",
   "component": "LineAreaChart",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "variantProperties": {
     "ShowLegend": {
       "values": [
@@ -36,6 +36,16 @@
     "areaColor": "color.chart.series-1-fill",
     "surface": "color.surface.default",
     "typography": "typography.label.md",
-    "focusRing": "color.border.focus"
+    "focusRing": "color.border.focus",
+    "lineColor2": "color.chart.series-2",
+    "areaColor2": "color.chart.series-2-fill",
+    "lineColor3": "color.chart.series-3",
+    "areaColor3": "color.chart.series-3-fill",
+    "lineColor4": "color.chart.series-4",
+    "areaColor4": "color.chart.series-4-fill",
+    "lineColor5": "color.chart.series-5",
+    "areaColor5": "color.chart.series-5-fill",
+    "lineColor6": "color.chart.series-6",
+    "areaColor6": "color.chart.series-6-fill"
   }
 }

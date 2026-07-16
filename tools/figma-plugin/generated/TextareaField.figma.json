@@ -2,7 +2,7 @@
   "$generated": "AUTO-GENERATED from contracts/TextareaField.contract.json — DO NOT EDIT (pnpm codegen)",
   "name": "TextareaField",
   "component": "TextareaField",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "variantProperties": {
     "Required": {
       "values": [

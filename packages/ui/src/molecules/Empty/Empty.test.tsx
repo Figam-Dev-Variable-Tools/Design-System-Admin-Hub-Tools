@@ -1,4 +1,4 @@
-// Empty — 계약 검증 테스트 (contracts/Empty.contract.json@1.0.0)
+// Empty — 계약 검증 테스트 (contracts/Empty.contract.json@1.1.0)
 //
 //   states[]        default
 //   events.onClearSearch  '검색 지우기' 클릭 발화 (검색 상태 · 콜백 지정 시에만 버튼 렌더)

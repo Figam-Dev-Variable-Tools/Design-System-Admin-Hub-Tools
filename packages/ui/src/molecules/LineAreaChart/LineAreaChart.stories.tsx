@@ -25,6 +25,46 @@ const SERIES = [
   },
 ];
 
+/** 6계열 데모 — 채널별 유입 (TOKEN-13: series-1..6 이 서로 다른 hue 로 구분되는지 보이는 자리) */
+const CHANNEL_SERIES = [
+  {
+    id: 'organic',
+    label: '자연 검색',
+    kind: 'line' as const,
+    values: [820, 940, 880, 1020, 990, 540, 470],
+  },
+  {
+    id: 'paid',
+    label: '유료 광고',
+    kind: 'line' as const,
+    values: [640, 700, 760, 820, 780, 420, 360],
+  },
+  {
+    id: 'social',
+    label: '소셜',
+    kind: 'line' as const,
+    values: [480, 520, 610, 580, 640, 700, 660],
+  },
+  {
+    id: 'referral',
+    label: '리퍼럴',
+    kind: 'line' as const,
+    values: [320, 360, 340, 420, 400, 260, 210],
+  },
+  {
+    id: 'email',
+    label: '이메일',
+    kind: 'line' as const,
+    values: [210, 190, 240, 300, 280, 140, 120],
+  },
+  {
+    id: 'direct',
+    label: '직접 유입',
+    kind: 'line' as const,
+    values: [140, 160, 150, 180, 200, 320, 380],
+  },
+];
+
 const meta: Meta<typeof LineAreaChart> = {
   title: 'Molecules/LineAreaChart',
   component: LineAreaChart,
@@ -142,6 +182,30 @@ export const LongData: Story = {
     ],
     ariaLabel: '최근 30일 페이지뷰와 순 방문자 추이 — 주기적 등락 반복',
   },
+};
+
+/**
+ * TOKEN-13 — 6계열이 서로 다른 hue 로 구분된다 (하드코딩 색 0건 · chart.series-1..6 토큰).
+ * 다범주 ERP 차트(매출/채널/상태 분포)의 실사용 형태다 — 3번째 계열부터 1번 색으로 되돌아오면 안 된다.
+ */
+export const SixSeries: Story = {
+  name: 'LineAreaChart: 6계열 구분 (TOKEN-13)',
+  args: {
+    labels: LABELS,
+    series: CHANNEL_SERIES,
+    ariaLabel: '요일별 채널 6종 유입 추이 — 채널마다 다른 색으로 구분된다',
+  },
+};
+
+/** TOKEN-13 — 6계열 다크. 각 series 토큰이 dark 페어로 전환된다 */
+export const SixSeriesDark: Story = {
+  name: 'LineAreaChart: 6계열 구분 — Dark (TOKEN-13)',
+  args: {
+    labels: LABELS,
+    series: CHANNEL_SERIES,
+    ariaLabel: '요일별 채널 6종 유입 추이 (다크)',
+  },
+  decorators: [darkFrame],
 };
 
 /** Dark — chart.* 토큰이 다크에서 자동 전환된다 */

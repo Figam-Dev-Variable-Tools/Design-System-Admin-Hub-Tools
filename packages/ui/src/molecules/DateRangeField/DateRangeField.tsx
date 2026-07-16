@@ -1,4 +1,4 @@
-// DateRangeField — 시작~종료 날짜 쌍 입력 (molecule · contracts/DateRangeField.contract.json@1.0.0)
+// DateRangeField — 시작~종료 날짜 쌍 입력 (molecule · contracts/DateRangeField.contract.json@1.1.0)
 //
 // Props 타입은 계약에서 생성된 generated/types/DateRangeField.types 를 그대로 import 한다 (수동 선언 금지 — G6).
 // 팝업·배너·이벤트·프로모션·쿠폰·계약 등의 '노출 시작~종료' — 두 date 입력을 '~' 로 잇는다.
@@ -43,6 +43,9 @@ export function DateRangeField({
   const invalid = error !== undefined && error !== '';
   // aria-invalid 는 반드시 describedby 와 함께 나간다 (A11Y-11)
   const invalidProps = invalid ? { 'aria-invalid': true, 'aria-describedby': errorId } : {};
+  // 마커(*)는 aria-hidden 장식이라 AT 에 필수 여부가 닿지 않는다 — 두 칸 모두에 잇는다 (A11Y-11).
+  // 범위는 시작·종료가 함께 있어야 성립하므로 required 는 두 입력 각각에 참이다.
+  const requiredProps = required ? { required: true, 'aria-required': true } : {};
   const controlClass = invalid
     ? 'tds-daterange__control tds-daterange__control--invalid'
     : 'tds-daterange__control';
@@ -64,6 +67,7 @@ export function DateRangeField({
           className={controlClass}
           value={startValue}
           disabled={disabled}
+          {...requiredProps}
           {...invalidProps}
           onChange={(event) => onStartChange?.(event.target.value)}
         />
@@ -81,6 +85,7 @@ export function DateRangeField({
           className={controlClass}
           value={endValue}
           disabled={disabled}
+          {...requiredProps}
           {...invalidProps}
           onChange={(event) => onEndChange?.(event.target.value)}
         />

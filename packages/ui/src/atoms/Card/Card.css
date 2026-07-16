@@ -8,7 +8,7 @@
   border-style: solid;
   border-width: var(--tds-border-width-thin);
   border-color: var(--tds-color-border-default);
-  border-radius: var(--tds-radius-md);
+  border-radius: var(--tds-component-card-radius);
 }
 
 .tds-card--md {

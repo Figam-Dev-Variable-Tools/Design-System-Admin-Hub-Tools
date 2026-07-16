@@ -18,7 +18,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 버전 | `1.0.0` |
+| 버전 | `1.1.0` |
 | 레벨 | `molecule` |
 | 상태 | `beta` |
 | 소유 | code `A30` · design `A14` · figma `A51` |
@@ -79,6 +79,7 @@
 | `gap` | `space.2` | `--tds-space-2` |
 | `focusRing` | `color.border.focus` | `--tds-color-border-focus` |
 | `typography` | `typography.label.md` | `--tds-typography-label-md` |
+| `iconButtonSize` | `space.8` | `--tds-space-8` |
 
 > 하드코딩 색상/치수 금지 — 시각 속성은 반드시 위 토큰만 참조합니다.
 

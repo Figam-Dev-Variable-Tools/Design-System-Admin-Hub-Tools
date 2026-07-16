@@ -1,4 +1,4 @@
-// AUTO-GENERATED from contracts/TextField.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
+// AUTO-GENERATED from contracts/TextField.contract.json@1.2.0 — DO NOT EDIT (pnpm codegen)
 // 레벨: atom · 상태: beta
 
 import type { ChangeEvent, FocusEvent, ReactNode } from 'react';
@@ -45,7 +45,7 @@ export interface TextFieldProps {
    */
   disabled?: boolean;
   /**
-   * 필수 입력. native required 속성 → aria-required. **라벨에 시각 마커(*)를 주입하지 않는다** — <label> 의 textContent 가 곧 접근 가능한 이름이므로 마커를 넣으면 이름이 "이메일*" 이 되어 getByLabel/getByLabelText 정확일치 셀렉터가 깨지고(E2E FS-001), 오너 확정 로그인 화면에 없던 표식이 새로 나타난다. 현행 구현(TextField.tsx:63-67)이 계약에 없는 마커를 주입하고 있다 — 정정 대상(A30). 표식이 필요한 화면이 실제로 생기면 그때 실호출부와 함께 prop 을 추가한다
+   * 필수 입력. native required + aria-required 로 노출한다 (a11y.aria.aria-required). **라벨에 시각 마커(*)를 주입하지 않는다** — <label> 의 textContent 가 곧 접근 가능한 이름이므로 마커를 넣으면 이름이 "이메일*" 이 되어 getByLabel/getByLabelText 정확일치 셀렉터가 깨지고(E2E FS-001), 오너 확정 로그인 화면에 없던 표식이 새로 나타난다. 표식이 필요한 화면이 실제로 생기면 그때 실호출부와 함께 prop 을 추가한다 (마커가 필요한 폼은 FormField 껍데기가 그린다 — 그쪽은 마커를 <label> 밖 <span aria-hidden> 으로 두어 이름을 오염시키지 않는다)
    * @default false
    */
   required?: boolean;

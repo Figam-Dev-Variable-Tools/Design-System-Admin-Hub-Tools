@@ -30,7 +30,7 @@
   overflow-y: auto;
   padding: var(--tds-space-5);
   border: var(--tds-border-width-thin) solid var(--tds-color-border-default);
-  border-radius: var(--tds-radius-lg);
+  border-radius: var(--tds-component-modal-radius);
   background: var(--tds-color-surface-default);
   /* 최상위 floating surface — 부드러운 layered shadow 로 배경 위에 확실히 부상시킨다 (TOKEN-04) */
   box-shadow: var(--tds-shadow-modal);

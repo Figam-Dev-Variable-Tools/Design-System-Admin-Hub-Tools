@@ -1,4 +1,4 @@
-// Modal — 계약 검증 테스트 (contracts/Modal.contract.json@1.0.0)
+// Modal — 계약 검증 테스트 (contracts/Modal.contract.json@1.1.0)
 //
 //   a11y      role="dialog" + aria-modal + aria-labelledby(제목)
 //   focus     열릴 때 첫 포커스 가능 요소(또는 initialFocusRef)로 이동, 닫히면 직전 요소로 복귀

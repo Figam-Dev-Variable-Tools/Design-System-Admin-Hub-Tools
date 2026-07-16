@@ -1,4 +1,4 @@
-// AUTO-GENERATED from contracts/LineAreaChart.contract.json@1.0.1 — DO NOT EDIT (pnpm codegen)
+// AUTO-GENERATED from contracts/LineAreaChart.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
 // 레벨: molecule · 상태: beta
 
 /** 계약에 선언된 상호작용 상태 */

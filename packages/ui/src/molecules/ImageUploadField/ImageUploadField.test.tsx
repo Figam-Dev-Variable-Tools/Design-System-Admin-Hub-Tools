@@ -1,4 +1,4 @@
-// ImageUploadField — 계약 검증 테스트 (contracts/ImageUploadField.contract.json@1.0.0)
+// ImageUploadField — 계약 검증 테스트 (contracts/ImageUploadField.contract.json@1.1.0)
 //
 //   default   미선택이면 업로드 안내(placeholder) — 이미지는 없다
 //   preview   값이 있으면 미리보기 이미지(alt)

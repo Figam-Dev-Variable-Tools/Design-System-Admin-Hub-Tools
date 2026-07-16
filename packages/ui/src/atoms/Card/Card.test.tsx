@@ -1,4 +1,4 @@
-// Card — 계약 검증 테스트 (contracts/Card.contract.json@1.1.0)
+// Card — 계약 검증 테스트 (contracts/Card.contract.json@1.2.0)
 //
 //   states[]   default · loading   (loading 은 busy prop 으로 진입 — 계약 a11y.ariaBusy: "when busy")
 //   props      padding(md|lg) · elevation(flat|raised) · busy

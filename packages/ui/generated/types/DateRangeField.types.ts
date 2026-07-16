@@ -1,4 +1,4 @@
-// AUTO-GENERATED from contracts/DateRangeField.contract.json@1.0.0 — DO NOT EDIT (pnpm codegen)
+// AUTO-GENERATED from contracts/DateRangeField.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
 // 레벨: molecule · 상태: beta
 
 /** 계약에 선언된 상호작용 상태 */
@@ -29,7 +29,7 @@ export interface DateRangeFieldProps {
    */
   endValue: string;
   /**
-   * 필수 필드 — 그룹 라벨 옆에 aria-hidden 마커(*)를 붙인다
+   * 필수 필드 — 그룹 라벨 옆에 aria-hidden 마커(*)를 붙이고, **두 날짜 입력 각각에 native required + aria-required 를 낸다** (범위는 시작·종료가 함께 있어야 성립한다). 마커만으로는 AT 에 닿지 않는다 — A11Y-11
    * @default false
    */
   required?: boolean;

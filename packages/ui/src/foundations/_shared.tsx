@@ -182,7 +182,11 @@ export function typographyStyle(path: TokenPath): CSSProperties {
   };
 }
 
-const monoFontFamily = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+/**
+ * 고정폭 — 토큰 경로/CSS 변수명/값처럼 **글자를 하나씩 대조해 읽는** 텍스트에 쓴다
+ * (비례폭에서는 0/O · 1/l 이 구분되지 않는다). 폰트 스택을 여기 박아 두던 것을 토큰으로 돌린다.
+ */
+const monoFontFamily = cssVar('primitive.typography.font-family.mono');
 
 /** 경로/변수명/값 등 메타 텍스트 스타일 */
 export const metaTextStyle: CSSProperties = {

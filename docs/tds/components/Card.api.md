@@ -13,7 +13,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 버전 | `1.1.0` |
+| 버전 | `1.2.0` |
 | 레벨 | `atom` |
 | 상태 | `beta` |
 | 소유 | code `A30` · design `A14` · figma `A51` |
@@ -54,7 +54,7 @@ _계약에 정의된 이벤트가 없습니다._
 |---|---|---|
 | `background` | `color.surface.default` | `--tds-color-surface-default` |
 | `border` | `color.border.default` | `--tds-color-border-default` |
-| `radius` | `radius.md` | `--tds-radius-md` |
+| `radius` | `component.card.radius` | `--tds-component-card-radius` |
 | `shadowRaised` | `shadow.raised` | `--tds-shadow-raised` |
 | `paddingMd` | `space.5` | `--tds-space-5` |
 | `paddingLg` | `space.6` | `--tds-space-6` |
