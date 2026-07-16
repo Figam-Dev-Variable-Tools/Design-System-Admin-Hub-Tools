@@ -1,7 +1,16 @@
 // PointsPolicyPage — 적립금 정책 (라우트: /products/points) · A41 소유
 //
 // 정책 설정형: 문서 1건을 불러와 고치고 저장한다(회사 정보 화면과 같은 단일 문서형 껍데기 재사용).
-// 회원 상세의 PointsCard(개별 잔액)와는 별개 — 여기는 적립률·기준·사용조건·유효기간 정책이다.
+// 회원 상세의 PointsCard(개별 잔액)와는 별개 — 여기는 적립 기준·사용조건·유효기간 **정책**이다.
+//
+// [상품별 적립과의 경계 — 이 화면이 남아 있는 이유]
+// 적립률은 상품별로 갈라졌다(상품 폼의 '적립금' 카드 — 상품마다 정률/정액/미적용). 하지만 이 화면의
+// 나머지 다섯 가지는 **상품에 속하지 않는다**:
+//   · 회원가입 적립금 — 가입 시점의 지급이라 상품이 없다
+//   · 최소 사용 포인트 · 사용 단위 · 1회 사용 한도 — 주문 단위의 '사용' 규칙이다(적립이 아니다)
+//   · 유효기간 — 적립된 포인트의 소멸 규칙이라 어느 상품에서 왔는지와 무관하다
+// 그래서 여기 '기본 적립률'은 **새 상품의 초기값**(DEFAULT_POINTS)으로 남고, 상품이 그 값을 자기
+// 사정에 맞게 덮어쓴다. 배송(전역 배송 정책 ↔ 상품별 배송 카드)과 정확히 같은 구조다.
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useForm } from 'react-hook-form';
@@ -36,9 +45,9 @@ const NUMBER_FIELDS: readonly NumberFieldSpec[] = [
   {
     name: 'earnRate',
     id: 'pts-earn-rate',
-    label: '적립률 (%)',
+    label: '기본 적립률 (%)',
     placeholder: '예: 1',
-    hint: '구매 금액의 %를 적립합니다.',
+    hint: '새 상품의 초기 적립률입니다. 상품별 적립 설정이 이 값을 덮어씁니다.',
   },
   { name: 'signupBonus', id: 'pts-signup', label: '회원가입 적립금 (원)', placeholder: '예: 3000' },
   {
@@ -108,7 +117,7 @@ export default function PointsPolicyPage() {
   return (
     <DocumentFormShell
       cardTitle="적립금 정책"
-      description="별표(*) 항목은 필수입니다. 저장하면 적립·사용 규칙 전반에 반영됩니다."
+      description="별표(*) 항목은 필수입니다. 적립률은 상품별로 설정하며, 여기서는 새 상품의 기본 적립률과 적립금 사용·소멸 규칙을 정합니다."
       loading={loading}
       loadFailed={error !== null}
       onRetry={() => void refetch()}

@@ -1,17 +1,22 @@
 // 견적 동작 회귀 테스트 (A41) — 공급가액·부가세(라인별 반올림 합산)·수주전환·필터(순수) + 폼 검증
+//   + 문의 승계(자동 생성 견적의 승계 필드·잠금·중복 발행 방지)
 import { describe, expect, it } from 'vitest';
 
 import {
+  addDays,
+  buildQuoteFromInquiry,
   canConvertToOrder,
   computeTotals,
   filterQuotes,
+  isInherited,
   lineSupply,
   makeQuoteNo,
+  QUOTE_VALID_DAYS,
   searchQuotes,
   sortQuotes,
   toQuoteInput,
 } from './types';
-import type { Quote, QuoteLineItem } from './types';
+import type { Quote, QuoteInheritance, QuoteLineItem } from './types';
 import { quoteSchema } from './validation';
 import type { QuoteFormValues } from './validation';
 
@@ -26,12 +31,16 @@ function quoteOf(overrides: Partial<Quote> & { id: string }): Quote {
     accountName: '(주)테스트',
     accountBizNo: '124-81-00998',
     accountCeo: '김대표',
+    contactName: '',
     issueDate: '2026-07-10',
     validUntil: '2026-08-09',
     taxMode: 'standard',
     items,
     status: 'draft',
     note: '',
+    inquiryId: '',
+    inquiryNo: '',
+    inquiryBody: '',
     ...overrides,
   };
 }
@@ -96,18 +105,77 @@ describe('필터·검색·정렬·변환(순수)', () => {
   });
 });
 
+describe('문의 → 견적 승계(순수)', () => {
+  const inheritance: QuoteInheritance = {
+    inquiryId: 'inq-1',
+    inquiryNo: 'INQ-20260714-001',
+    company: '(주)한빛소프트웨어',
+    customerName: '김담당',
+    body: '100석 기준 ERP 견적을 요청드립니다.',
+    issueDate: '2026-07-16',
+  };
+
+  it('회사·담당자·문의내용·문의번호를 승계한다', () => {
+    const quote = buildQuoteFromInquiry(inheritance);
+    expect(quote.accountName).toBe('(주)한빛소프트웨어');
+    expect(quote.contactName).toBe('김담당');
+    expect(quote.inquiryBody).toBe('100석 기준 ERP 견적을 요청드립니다.');
+    expect(quote.inquiryNo).toBe('INQ-20260714-001');
+    expect(quote.inquiryId).toBe('inq-1');
+  });
+  it('견적번호는 승계하지 않는다 — 저장 시 자동 채번한다', () => {
+    expect(buildQuoteFromInquiry(inheritance).quoteNo).toBe('');
+  });
+  it('품목이 비어 있으므로 작성중으로 시작한다(발송 아님)', () => {
+    const quote = buildQuoteFromInquiry(inheritance);
+    expect(quote.status).toBe('draft');
+    expect(quote.items).toHaveLength(0);
+  });
+  it('유효기간은 견적일 + 30일이다', () => {
+    expect(buildQuoteFromInquiry(inheritance).validUntil).toBe('2026-08-15');
+  });
+  it('문의가 갖지 않는 값(사업자번호·대표자)은 비워 둔다', () => {
+    const quote = buildQuoteFromInquiry(inheritance);
+    expect(quote.accountBizNo).toBe('');
+    expect(quote.accountCeo).toBe('');
+  });
+  it('승계 견적은 잠금 대상이고, 수동 견적은 아니다', () => {
+    expect(isInherited(buildQuoteFromInquiry(inheritance))).toBe(true);
+    expect(isInherited({ inquiryId: '' })).toBe(false);
+  });
+});
+
+describe('날짜 더하기(순수)', () => {
+  it('월 경계를 넘긴다', () => {
+    expect(addDays('2026-07-16', QUOTE_VALID_DAYS)).toBe('2026-08-15');
+  });
+  it('연 경계를 넘긴다', () => {
+    expect(addDays('2026-12-20', 30)).toBe('2027-01-19');
+  });
+  it('윤년 2월을 센다', () => {
+    expect(addDays('2028-02-28', 1)).toBe('2028-02-29');
+  });
+  it('해석할 수 없는 날짜는 그대로 돌려준다', () => {
+    expect(addDays('', 30)).toBe('');
+  });
+});
+
 function valuesOf(overrides: Partial<QuoteFormValues> = {}): QuoteFormValues {
   return {
     quoteNo: 'Q-20260710-001',
     accountName: '(주)테스트',
     accountBizNo: '124-81-00998',
     accountCeo: '김대표',
+    contactName: '',
     issueDate: '2026-07-10',
     validUntil: '2026-08-09',
     taxMode: 'standard',
     items: [{ id: 'a', name: '품목A', spec: '', quantity: 2, unitPrice: 1500 }],
     status: 'draft',
     note: '',
+    inquiryId: '',
+    inquiryNo: '',
+    inquiryBody: '',
     ...overrides,
   };
 }

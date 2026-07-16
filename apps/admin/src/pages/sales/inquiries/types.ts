@@ -7,9 +7,9 @@ import type { StatusTone } from '../../../shared/ui';
 type InquiryType = 'quote' | 'product' | 'support' | 'partnership' | 'claim' | 'etc';
 type InquiryChannel = 'web' | 'phone' | 'email' | 'visit';
 type InquiryPriority = 'urgent' | 'high' | 'normal' | 'low';
-/** 처리상태 — 접수→배정→처리중→(보류)→완료→종결 */
+/** 처리상태 — 접수→배정→처리중→(보류)→견적 발행→완료→종결 */
 export type InquiryStatus =
-  'received' | 'assigned' | 'in_progress' | 'hold' | 'answered' | 'closed';
+  'received' | 'assigned' | 'in_progress' | 'hold' | 'quote_issued' | 'answered' | 'closed';
 
 /** 타임라인 이벤트 종류 — 접수/내부메모/고객답변/상태변경 (append-only) */
 export type InquiryEventKind = 'received' | 'note' | 'reply' | 'status';
@@ -39,10 +39,22 @@ export interface Inquiry {
   /** 접수 일시 ISO */
   readonly receivedAt: string;
   readonly body: string;
+  /** 이 문의로 발행된 견적 id — '' 면 미발행. 중복 발행을 막는 키이자 견적으로 가는 링크다 */
+  readonly quoteId: string;
   readonly timeline: readonly InquiryEvent[];
 }
 
 export type InquiryInput = Omit<Inquiry, 'id'>;
+
+/** 이미 견적이 발행된 문의인가 — 중복 발행 방지·역링크 판정의 단일 정의 */
+export function hasIssuedQuote(inquiry: Pick<Inquiry, 'quoteId'>): boolean {
+  return inquiry.quoteId !== '';
+}
+
+/** 견적 발행을 요청하는 전이인가 — 상태값 리터럴을 화면마다 흩뿌리지 않는다 */
+export function requestsQuoteIssue(status: InquiryStatus): boolean {
+  return status === 'quote_issued';
+}
 
 export const INQUIRY_REPLY_MAX = 1000;
 
@@ -79,6 +91,7 @@ export const INQUIRY_STATUS_OPTIONS: readonly Option<InquiryStatus>[] = [
   { id: 'assigned', label: '배정' },
   { id: 'in_progress', label: '처리중' },
   { id: 'hold', label: '보류' },
+  { id: 'quote_issued', label: '견적 발행' },
   { id: 'answered', label: '완료' },
   { id: 'closed', label: '종결' },
 ];
@@ -97,6 +110,8 @@ const STATUS_TONE: Record<InquiryStatus, StatusTone> = {
   assigned: 'info',
   in_progress: 'info',
   hold: 'warning',
+  // 견적 발행은 산출물이 나온 진행 단계다 — 종료(완료/종결)와 색으로 구분한다.
+  quote_issued: 'info',
   answered: 'success',
   closed: 'neutral',
 };
@@ -129,6 +144,7 @@ const STATUS_VALUES = [
   'assigned',
   'in_progress',
   'hold',
+  'quote_issued',
   'answered',
   'closed',
 ] as const;
@@ -190,6 +206,7 @@ export function toInquiryInput(inquiry: Inquiry): InquiryInput {
     status: inquiry.status,
     receivedAt: inquiry.receivedAt,
     body: inquiry.body,
+    quoteId: inquiry.quoteId,
     timeline: inquiry.timeline,
   };
 }

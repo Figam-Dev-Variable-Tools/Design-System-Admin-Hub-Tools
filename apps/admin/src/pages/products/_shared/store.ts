@@ -82,6 +82,29 @@ interface ProductShipping {
   readonly freeThreshold: number;
 }
 
+/* ── 적립금 (상품별 적립 설정 — 정책 화면과 별개의 개별 상품 오버라이드) ──── */
+
+/**
+ * 적립 방식 — 정률(%)/정액(원)/미적용.
+ *
+ * [왜 상품별인가] 적립률은 상품마다 다르다 — 마진이 낮은 특가 상품은 적립을 빼고(none), 밀어주는
+ * 신상품은 정률을 올리며, 사은품 성격의 상품은 정액을 준다. 전역 정책 하나로는 표현되지 않는다.
+ *
+ * [전역 정책과의 관계 — 배송과 같은 결] `/products/points` 의 적립금 정책은 여전히 전역이다:
+ * 기본 적립률(새 상품의 초기값 — DEFAULT_POINTS)과 **상품에 속하지 않는** 규칙(회원가입 적립금 ·
+ * 사용 단위 · 최소 사용 · 1회 사용 한도 · 유효기간)을 소유한다. 여기 값은 그 기본 적립률을 상품
+ * 단위로 덮어쓰는 오버라이드이며, 배송(ProductShipping ↔ /products/shipping)과 정확히 같은 관계다.
+ */
+export type PointsEarnMode = 'rate' | 'fixed' | 'none';
+
+interface ProductPoints {
+  readonly mode: PointsEarnMode;
+  /** 적립률 — % (mode==='rate' 에서만 의미) */
+  readonly rate: number;
+  /** 정액 적립액 — 원 (mode==='fixed' 에서만 의미) */
+  readonly amount: number;
+}
+
 /** 판매상태(다중) — 판매중/품절/판매중지. 전시상태(displayed)는 이진 토글로 별도. */
 export type ProductSaleStatus = 'on_sale' | 'sold_out' | 'stopped';
 
@@ -102,6 +125,8 @@ export interface Product {
   readonly optionGroups: readonly ProductOptionGroup[];
   readonly variants: readonly ProductVariant[];
   readonly shipping: ProductShipping;
+  /** 상품별 적립 설정 — 전역 적립금 정책의 기본 적립률을 이 상품에 한해 덮어쓴다 */
+  readonly points: ProductPoints;
   /** 대표 이미지 — 목록엔 넣지 않는다(상세/폼 전용) */
   readonly coverImageUrl: string;
   /** 상세 이미지 다중 */
@@ -122,6 +147,7 @@ export interface ProductInput {
   readonly optionGroups: readonly ProductOptionGroup[];
   readonly variants: readonly ProductVariant[];
   readonly shipping: ProductShipping;
+  readonly points: ProductPoints;
   readonly coverImageUrl: string;
   readonly imageUrls: readonly string[];
   readonly description: string;
@@ -136,12 +162,20 @@ export const DEFAULT_SHIPPING: ProductShipping = {
   freeThreshold: 50000,
 };
 
+/**
+ * 새 상품의 적립 기본값 — 전역 정책의 '기본 적립률'(1%)을 그대로 물려받는다.
+ * DEFAULT_SHIPPING 과 같은 자리다: 정책 화면이 기본값을 정하고, 상품이 필요할 때만 덮어쓴다.
+ */
+export const DEFAULT_POINTS: ProductPoints = { mode: 'rate', rate: 1, amount: 0 };
+
 export const PRODUCT_NAME_MAX = 100;
 export const PRODUCT_CODE_MAX = 40;
 export const PRODUCT_BRAND_MAX = 40;
 export const PRODUCT_DESCRIPTION_MAX = 2000;
 export const PRODUCT_PRICE_MAX = 100_000_000;
 export const PRODUCT_STOCK_MAX = 999_999;
+/** 상품별 적립률 상한 — % (전역 정책의 적립률과 같은 범위) */
+export const PRODUCT_POINTS_RATE_MAX = 100;
 export const MAX_PRODUCT_IMAGES = 10;
 export const MAX_OPTION_GROUPS = 3;
 export const MAX_TAGS = 20;
@@ -159,8 +193,11 @@ export function totalStock(product: Pick<Product, 'variants'>): number {
   return product.variants.reduce((sum, variant) => sum + variant.stock, 0);
 }
 
-/** 최종 판매가(할인 반영) — 목록·미리보기가 함께 쓴다 */
-export function finalPrice(pricing: ProductPricing): number {
+/** 할인 계산에 필요한 가격 조각 — 과세 여부는 최종가에 영향을 주지 않는다 */
+type PriceFields = Pick<ProductPricing, 'price' | 'discountType' | 'discountValue'>;
+
+/** 최종 판매가(할인 반영) — 목록·미리보기·적립 계산이 함께 쓴다 */
+export function finalPrice(pricing: PriceFields): number {
   if (pricing.discountType === 'amount') {
     return Math.max(0, pricing.price - pricing.discountValue);
   }
@@ -178,6 +215,20 @@ export function discountRate(pricing: ProductPricing): number {
     return Math.round((pricing.discountValue / pricing.price) * 100);
   }
   return 0;
+}
+
+/**
+ * 이 상품 1개를 살 때 쌓이는 적립 포인트(원 단위 절사).
+ *
+ * 기준은 **할인 반영 최종가**다 — 정가로 적립하면 할인 상품이 실결제액보다 많은 포인트를 준다.
+ * (전역 정책의 '적립 기준'(실결제금액/주문금액)은 주문 단위 계산에 쓰이고, 여기 미리보기는
+ * 상품 1개 기준의 실결제 근사값을 보여 준다.)
+ * 미적용이면 0, 정액이면 금액 그대로, 정률이면 최종가 × 적립률.
+ */
+export function earnedPoints(pricing: PriceFields, points: ProductPoints): number {
+  if (points.mode === 'none') return 0;
+  if (points.mode === 'fixed') return Math.max(0, points.amount);
+  return Math.floor((finalPrice(pricing) * points.rate) / 100);
 }
 
 /** 재고 부족(품절은 아니지만 임계값 미만) — 목록 경고 배지 판단 */
@@ -265,6 +316,34 @@ export function searchProducts(list: readonly Product[], keyword: string): reado
 /** 특정 카테고리를 쓰는 상품 수 — 카테고리 삭제 차단 판단 */
 export function countProductsUsingCategory(categoryId: string, list: readonly Product[]): number {
   return list.filter((product) => product.categoryId === categoryId).length;
+}
+
+/**
+ * 카테고리 id → 상품 수. 좌측 필터의 건수 배지가 쓴다.
+ *
+ * [건수는 다른 축의 필터를 반영하지 않는다] '아우터 12' 는 언제나 아우터 상품 전체 수다 —
+ * 판매상태 필터를 걸었다고 이 숫자가 바뀌면, 운영자는 '지금 무엇을 걸러냈는지' 를 읽을 기준을
+ * 잃는다(두 축이 서로의 건수를 흔든다). 회원 화면의 등급/그룹 건수와 같은 규칙이다.
+ */
+export function countProductsByCategory(
+  list: readonly Product[],
+): Readonly<Record<string, number>> {
+  const counts: Record<string, number> = {};
+  for (const product of list) {
+    counts[product.categoryId] = (counts[product.categoryId] ?? 0) + 1;
+  }
+  return counts;
+}
+
+/** 판매상태 → 상품 수. 좌측 필터의 건수 배지가 쓴다 */
+export function countProductsBySaleStatus(
+  list: readonly Product[],
+): Readonly<Record<ProductSaleStatus, number>> {
+  const counts: Record<ProductSaleStatus, number> = { on_sale: 0, sold_out: 0, stopped: 0 };
+  for (const product of list) {
+    counts[product.saleStatus] += 1;
+  }
+  return counts;
 }
 
 /** 상품명 오름차순(가나다). 같은 이름은 id 로 안정 정렬. */
@@ -383,6 +462,8 @@ let products: Product[] = [
       },
     ],
     shipping: { method: 'courier', feeType: 'conditional', fee: 3000, freeThreshold: 50000 },
+    // 밀어주는 주력 상품 — 기본 적립률(1%)보다 높게 잡았다
+    points: { mode: 'rate', rate: 2, amount: 0 },
     coverImageUrl: 'https://cdn.example.com/products/lumien-padding-cover.jpg',
     imageUrls: ['https://cdn.example.com/products/lumien-padding-1.jpg'],
     description: '가벼운 충전재로 보온성과 활동성을 모두 잡은 데일리 패딩입니다.',
@@ -418,6 +499,7 @@ let products: Product[] = [
       },
     ],
     shipping: { method: 'courier', feeType: 'paid', fee: 2500, freeThreshold: 0 },
+    points: { mode: 'rate', rate: 1, amount: 0 },
     coverImageUrl: 'https://cdn.example.com/products/nova-tee-cover.jpg',
     imageUrls: [],
     description: '두께감 있는 코튼 원단으로 사계절 입기 좋은 기본 티셔츠입니다.',
@@ -461,6 +543,8 @@ let products: Product[] = [
       },
     ],
     shipping: { method: 'courier', feeType: 'free', fee: 0, freeThreshold: 0 },
+    // 정액 적립 — 가격과 무관하게 2,000P 를 준다
+    points: { mode: 'fixed', rate: 0, amount: 2000 },
     coverImageUrl: 'https://cdn.example.com/products/terra-sneakers-cover.jpg',
     imageUrls: [],
     description: '가벼운 쿠셔닝으로 데일리 착화감이 좋은 스니커즈입니다.',
@@ -504,6 +588,7 @@ let products: Product[] = [
       },
     ],
     shipping: { method: 'courier', feeType: 'conditional', fee: 3000, freeThreshold: 70000 },
+    points: { mode: 'rate', rate: 1, amount: 0 },
     coverImageUrl: 'https://cdn.example.com/products/camil-denim-cover.jpg',
     imageUrls: [],
     description: '자연스러운 워싱과 편안한 핏의 데님 팬츠입니다.',
@@ -522,6 +607,8 @@ let products: Product[] = [
     optionGroups: [],
     variants: [singleVariant('OBJ-BAG-338', 30)],
     shipping: { method: 'direct', feeType: 'paid', fee: 5000, freeThreshold: 0 },
+    // 특가·판매중지 상품 — 적립을 빼 둔다(전역 정책 하나로는 표현되지 않는 바로 그 경우)
+    points: { mode: 'none', rate: 0, amount: 0 },
     coverImageUrl: 'https://cdn.example.com/products/obje-bag-cover.jpg',
     imageUrls: [],
     description: '가벼운 외출에 어울리는 미니멀한 크로스백입니다.',

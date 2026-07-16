@@ -4,7 +4,7 @@
 // 항목 → 폼 입력 변환처럼 이 화면에만 필요한 뷰 헬퍼만 둔다.
 import type { StatusTone } from '../../../shared/ui';
 import { PRODUCT_FILTER_ALL } from '../_shared/store';
-import type { Product, ProductInput, ProductSaleStatus } from '../_shared/store';
+import type { PointsEarnMode, Product, ProductInput, ProductSaleStatus } from '../_shared/store';
 
 /** 판매상태 → 배지 톤·문구 (다중 상태 배지) */
 interface SaleStatusMeta {
@@ -51,6 +51,16 @@ export const SALE_STATUS_FILTERS: readonly {
   { id: 'stopped', label: '판매중지' },
 ];
 
+/** 적립 방식 선택지 — 상품 폼의 '적립금' 카드가 쓴다 (F: 상품별 적립률/고정액/미적용) */
+export const POINTS_MODE_OPTIONS: readonly {
+  readonly id: PointsEarnMode;
+  readonly label: string;
+}[] = [
+  { id: 'rate', label: '정률 적립(%)' },
+  { id: 'fixed', label: '정액 적립(원)' },
+  { id: 'none', label: '적립 미적용' },
+];
+
 /** 항목 → 폼/쓰기 입력(id·비정규화 라벨 제외). 목록 인라인 토글과 폼이 함께 쓴다. */
 export function toProductInput(product: Product): ProductInput {
   return {
@@ -62,6 +72,7 @@ export function toProductInput(product: Product): ProductInput {
     saleStatus: product.saleStatus,
     displayed: product.displayed,
     shipping: { ...product.shipping },
+    points: { ...product.points },
     optionGroups: product.optionGroups.map((group) => ({ ...group, values: [...group.values] })),
     variants: product.variants.map((variant) => ({
       ...variant,

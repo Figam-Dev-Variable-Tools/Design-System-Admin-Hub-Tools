@@ -39,10 +39,16 @@ import { productSchema } from './validation';
 import type { ProductFormValues } from './validation';
 import { ProductCardPreview } from './components/ProductCardPreview';
 import { ProductOptionMatrix } from './components/ProductOptionMatrix';
-import { ProductPriceDiscountCard, ProductShippingCard } from './components/ProductPricingCards';
+import {
+  ProductPointsCard,
+  ProductPriceDiscountCard,
+  ProductShippingCard,
+} from './components/ProductPricingCards';
 import { SALE_STATUS_OPTIONS } from './types';
 import {
+  DEFAULT_POINTS,
   DEFAULT_SHIPPING,
+  earnedPoints,
   MAX_PRODUCT_IMAGES,
   PRODUCT_BRAND_MAX,
   PRODUCT_CODE_MAX,
@@ -136,6 +142,12 @@ const EMPTY: ProductFormValues = {
     fee: String(DEFAULT_SHIPPING.fee),
     freeThreshold: String(DEFAULT_SHIPPING.freeThreshold),
   },
+  // 새 상품은 전역 정책의 기본 적립률에서 출발한다 — 필요할 때만 이 상품에 한해 바꾼다
+  points: {
+    mode: DEFAULT_POINTS.mode,
+    rate: String(DEFAULT_POINTS.rate),
+    amount: '',
+  },
   optionGroups: [],
   variants: [
     { id: 'variant-single', sku: '', optionValues: [], addPrice: 0, stock: 0, soldOut: false },
@@ -154,6 +166,10 @@ function toInput(values: ProductFormValues): ProductInput {
     values.shipping.feeType === 'conditional'
       ? Number(values.shipping.freeThreshold.trim() || '0')
       : 0;
+  // 쓰이지 않는 축은 0 으로 눕힌다 — '정액'으로 바꿔 저장한 뒤 남은 적립률이 되살아나지 않게 한다
+  const pointsRate = values.points.mode === 'rate' ? Number(values.points.rate.trim() || '0') : 0;
+  const pointsAmount =
+    values.points.mode === 'fixed' ? Number(values.points.amount.trim() || '0') : 0;
   return {
     name: values.name.trim(),
     code: values.code.trim(),
@@ -173,6 +189,7 @@ function toInput(values: ProductFormValues): ProductInput {
       fee,
       freeThreshold,
     },
+    points: { mode: values.points.mode, rate: pointsRate, amount: pointsAmount },
     optionGroups: values.optionGroups,
     variants: values.variants,
     coverImageUrl: values.coverImageUrl,
@@ -180,6 +197,16 @@ function toInput(values: ProductFormValues): ProductInput {
     description: values.description.trim(),
     tags: values.tags,
   };
+}
+
+/**
+ * 입력 중인 문자열 → 숫자(미리보기 전용).
+ *
+ * 검증을 통과하기 **전** 값도 그려야 한다 — '129,000' 처럼 타이핑 중인 값에서 숫자만 건져낸다.
+ * 저장 경로(toInput)는 이 관대함을 쓰지 않는다: 거기서는 스키마가 이미 형식을 통과시킨 뒤다.
+ */
+function previewNumber(raw: string): number {
+  return Number((raw.trim() || '0').replace(/\D/g, '')) || 0;
 }
 
 function toValues(product: Product): ProductFormValues {
@@ -200,6 +227,12 @@ function toValues(product: Product): ProductFormValues {
       feeType: product.shipping.feeType,
       fee: String(product.shipping.fee),
       freeThreshold: String(product.shipping.freeThreshold),
+    },
+    // 쓰이지 않는 축은 빈 칸으로 — '미적용' 상품의 폼에 의미 없는 0 이 찍혀 있지 않게 한다
+    points: {
+      mode: product.points.mode,
+      rate: product.points.mode === 'rate' ? String(product.points.rate) : '',
+      amount: product.points.mode === 'fixed' ? String(product.points.amount) : '',
     },
     optionGroups: product.optionGroups.map((group) => ({ ...group, values: [...group.values] })),
     variants: product.variants.map((variant) => ({
@@ -270,9 +303,22 @@ export default function ProductFormPage() {
   const optionGroups = watch('optionGroups');
   const variants = watch('variants');
   const feeType = watch('shipping.feeType');
+  const pointsMode = watch('points.mode');
+  const pointsRate = watch('points.rate');
+  const pointsAmount = watch('points.amount');
 
   const imagesError = (errors.imageUrls as { message?: string } | undefined)?.message;
   const variantsError = (errors.variants as { message?: string } | undefined)?.message;
+
+  // 적립 미리보기는 순수 규칙(earnedPoints)이 계산한다 — 화면이 적립 산식을 따로 갖지 않는다
+  const earnedPreview = earnedPoints(
+    {
+      price: previewNumber(price),
+      discountType,
+      discountValue: previewNumber(discountValue),
+    },
+    { mode: pointsMode, rate: previewNumber(pointsRate), amount: previewNumber(pointsAmount) },
+  );
 
   // [EXC-12] 404 와 서버 오류는 복구 수단이 다르다 — 이미 삭제된 항목에 '다시 시도'를 권하면
   // 영원히 실패하는 버튼을 누르게 된다.
@@ -455,6 +501,15 @@ export default function ProductFormPage() {
               taxable={taxable}
             />
 
+            {/* ── 적립금 (상품별 적립 설정 — 전역 정책의 기본 적립률을 이 상품에 한해 덮어쓴다) ── */}
+            <ProductPointsCard
+              register={register}
+              errors={errors}
+              disabled={disabled}
+              mode={pointsMode}
+              earned={earnedPreview}
+            />
+
             {/* ── 옵션 · 재고(SKU) ── */}
             <Card>
               <CardTitle>옵션 · 재고</CardTitle>
@@ -561,9 +616,9 @@ export default function ProductFormPage() {
               name={name}
               brand={brand}
               coverImageUrl={coverImageUrl}
-              price={Number((price.trim() || '0').replace(/\D/g, '')) || 0}
+              price={previewNumber(price)}
               discountType={discountType}
-              discountValue={Number((discountValue.trim() || '0').replace(/\D/g, '')) || 0}
+              discountValue={previewNumber(discountValue)}
               saleStatus={saleStatus}
               displayed={displayed}
             />

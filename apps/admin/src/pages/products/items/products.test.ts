@@ -3,8 +3,11 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildVariantMatrix,
+  countProductsByCategory,
+  countProductsBySaleStatus,
   countProductsUsingCategory,
   discountRate,
+  earnedPoints,
   filterBySaleStatus,
   filterProducts,
   finalPrice,
@@ -35,6 +38,7 @@ function productOf(overrides: Partial<Product> & { id: string }): Product {
     optionGroups: [],
     variants: [variantOf({ id: 'v1', stock: 10 })],
     shipping: { method: 'courier', feeType: 'free', fee: 0, freeThreshold: 0 },
+    points: { mode: 'rate', rate: 1, amount: 0 },
     coverImageUrl: 'blob:cover',
     imageUrls: [],
     description: '',
@@ -84,6 +88,46 @@ describe('finalPrice · discountRate — 할인 반영(순수)', () => {
     };
     expect(finalPrice(pricing)).toBe(19900);
     expect(discountRate(pricing)).toBe(0);
+  });
+});
+
+describe('earnedPoints — 상품별 적립(순수)', () => {
+  const pricing = { price: 100000, discountType: 'percent' as const, discountValue: 20 };
+
+  it('정률은 할인 반영 최종가 기준으로 적립한다', () => {
+    // 정가 100,000 이 아니라 최종가 80,000 의 2% — 정가 기준이면 실결제액보다 많이 준다
+    expect(earnedPoints(pricing, { mode: 'rate', rate: 2, amount: 0 })).toBe(1600);
+  });
+
+  it('정액은 가격과 무관하게 그 금액을 적립한다', () => {
+    expect(earnedPoints(pricing, { mode: 'fixed', rate: 0, amount: 2000 })).toBe(2000);
+  });
+
+  it('미적용은 0P', () => {
+    expect(earnedPoints(pricing, { mode: 'none', rate: 5, amount: 5000 })).toBe(0);
+  });
+
+  it('정률 적립은 원 단위로 절사한다', () => {
+    const odd = { price: 19900, discountType: 'none' as const, discountValue: 0 };
+    // 19,900 × 1% = 199 — 소수점이 남는 경우에도 정수 포인트만 준다
+    expect(earnedPoints(odd, { mode: 'rate', rate: 1, amount: 0 })).toBe(199);
+    expect(earnedPoints({ ...odd, price: 19999 }, { mode: 'rate', rate: 1, amount: 0 })).toBe(199);
+  });
+});
+
+describe('countProductsByCategory · countProductsBySaleStatus — 좌측 필터 건수(순수)', () => {
+  const list = [
+    productOf({ id: 'a', categoryId: 'top', saleStatus: 'on_sale' }),
+    productOf({ id: 'b', categoryId: 'top', saleStatus: 'stopped' }),
+    productOf({ id: 'c', categoryId: 'bottom', saleStatus: 'on_sale' }),
+  ];
+
+  it('카테고리별 건수를 센다', () => {
+    expect(countProductsByCategory(list)).toEqual({ top: 2, bottom: 1 });
+  });
+
+  it('판매상태별 건수를 센다 — 0건 상태도 키를 남긴다', () => {
+    expect(countProductsBySaleStatus(list)).toEqual({ on_sale: 2, sold_out: 0, stopped: 1 });
   });
 });
 
@@ -201,6 +245,7 @@ function valuesOf(overrides: Partial<ProductFormValues> = {}): ProductFormValues
     saleStatus: 'on_sale',
     displayed: true,
     shipping: { method: 'courier', feeType: 'conditional', fee: '3000', freeThreshold: '50000' },
+    points: { mode: 'rate', rate: '1', amount: '' },
     optionGroups: [],
     variants: [
       { id: 'v', sku: 'LMN-001', optionValues: [], addPrice: 0, stock: 10, soldOut: false },
@@ -250,6 +295,31 @@ describe('productSchema — 폼 검증', () => {
         'discountValue',
       ),
     ).toContain('미만');
+  });
+
+  it('정률 적립인데 적립률이 비거나 범위를 벗어나면 막는다', () => {
+    expect(
+      messageFor(valuesOf({ points: { mode: 'rate', rate: '', amount: '' } }), 'points.rate'),
+    ).toContain('적립률');
+    expect(
+      messageFor(valuesOf({ points: { mode: 'rate', rate: '150', amount: '' } }), 'points.rate'),
+    ).toContain('100%');
+  });
+
+  it('정액 적립인데 적립액이 없으면 막는다', () => {
+    expect(
+      messageFor(valuesOf({ points: { mode: 'fixed', rate: '', amount: '' } }), 'points.amount'),
+    ).toContain('적립액');
+  });
+
+  it('적립 미적용이면 적립률·적립액이 비어도 통과한다', () => {
+    const values = valuesOf({ points: { mode: 'none', rate: '', amount: '' } });
+    expect(productSchema.safeParse(values).success).toBe(true);
+  });
+
+  it('정액 적립이면 적립률이 비어도 통과한다 — 쓰이지 않는 축은 묻지 않는다', () => {
+    const values = valuesOf({ points: { mode: 'fixed', rate: '', amount: '2000' } });
+    expect(productSchema.safeParse(values).success).toBe(true);
   });
 
   it('조건부 무료배송인데 기준 금액이 없으면 막는다', () => {
