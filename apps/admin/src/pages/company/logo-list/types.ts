@@ -14,6 +14,8 @@ export interface LogoItem {
   readonly linkUrl: string;
   /** 정렬 순서 — 작을수록 앞에 온다 */
   readonly order: number;
+  /** 노출 여부 — 목록에서 바로 ON/OFF 토글한다(등록 시 기본 노출) */
+  readonly active: boolean;
 }
 
 /** 등록/수정 입력 — 정렬 순서는 목록의 드래그로 관리하므로 폼에서 받지 않는다 */

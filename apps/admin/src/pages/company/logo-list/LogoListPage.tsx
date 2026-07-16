@@ -21,7 +21,13 @@ import {
 import type { LogoAdapter } from './adapter';
 import { LogoFormModal } from './LogoFormModal';
 import { LogoListTable } from './LogoListTable';
-import { useBulkDeleteLogos, useDeleteLogo, useLogosQuery, useReorderLogos } from './queries';
+import {
+  useBulkDeleteLogos,
+  useDeleteLogo,
+  useLogosQuery,
+  useReorderLogos,
+  useSetLogoActive,
+} from './queries';
 import { filterLogos } from './types';
 import type { LogoItem } from './types';
 
@@ -91,6 +97,8 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
   const bulkDeleting = bulkDelete.isPending;
   const reorderLogos = useReorderLogos(resource, adapter);
   const reordering = reorderLogos.isPending;
+  const setActiveLogo = useSetLogoActive(resource, adapter);
+  const [togglingIds, setTogglingIds] = useState<ReadonlySet<string>>(new Set());
 
   const { data, isFetching: loading, error, refetch } = useLogosQuery(resource, adapter);
   const all = useMemo(() => data ?? [], [data]);
@@ -124,6 +132,34 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
           toast.error('정렬 순서를 변경하지 못했습니다.', { retry: () => onReorder(orderedIds) });
+        },
+      },
+    );
+  };
+
+  const onToggleActive = (item: LogoItem, next: boolean) => {
+    const controller = new AbortController();
+    setTogglingIds((prev) => new Set(prev).add(item.id));
+    setActiveLogo.mutate(
+      { id: item.id, active: next, signal: controller.signal },
+      {
+        onSuccess: () => {
+          toast.success(
+            next ? `'${item.name}' 을(를) 노출합니다.` : `'${item.name}' 을(를) 숨깁니다.`,
+          );
+        },
+        onError: (cause: unknown) => {
+          if (isAbort(cause)) return;
+          toast.error('노출 여부를 변경하지 못했습니다.', {
+            retry: () => onToggleActive(item, next),
+          });
+        },
+        onSettled: () => {
+          setTogglingIds((prev) => {
+            const nextSet = new Set(prev);
+            nextSet.delete(item.id);
+            return nextSet;
+          });
         },
       },
     );
@@ -251,6 +287,8 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
                 checked,
               )
             }
+            onToggleActive={onToggleActive}
+            togglingIds={togglingIds}
           />
         </>
       ) : (

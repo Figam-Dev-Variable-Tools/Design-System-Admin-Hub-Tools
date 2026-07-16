@@ -15,6 +15,7 @@ function logoOf(overrides: Partial<LogoItem> & { id: string }): LogoItem {
     logoUrl: 'https://cdn.example.com/a.png',
     linkUrl: '',
     order: 1,
+    active: true,
     ...overrides,
   };
 }
@@ -118,5 +119,20 @@ describe('createLogoAdapter — CRUD 규약', () => {
     await adapter.remove('a');
     const list = await adapter.fetchAll(new AbortController().signal);
     expect(list.map((x) => x.id)).toEqual(['b', 'c']);
+  });
+
+  it('신규 등록 항목은 기본 노출(active: true)', async () => {
+    const adapter = createLogoAdapter('test', SAMPLE);
+    await adapter.create({ name: '델타', logoUrl: 'https://cdn.example.com/d.png', linkUrl: '' });
+    const list = await adapter.fetchAll(new AbortController().signal);
+    expect(list.find((x) => x.name === '델타')?.active).toBe(true);
+  });
+
+  it('setActive 는 해당 항목의 노출 여부만 바꾼다', async () => {
+    const adapter = createLogoAdapter('test', SAMPLE);
+    await adapter.setActive('b', false);
+    const list = await adapter.fetchAll(new AbortController().signal);
+    expect(list.find((x) => x.id === 'b')?.active).toBe(false);
+    expect(list.find((x) => x.id === 'a')?.active).toBe(true);
   });
 });

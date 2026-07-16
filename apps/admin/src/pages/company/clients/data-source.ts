@@ -12,6 +12,7 @@ const CLIENT_SEED: readonly LogoItem[] = [
     logoUrl: 'https://cdn.example.com/clients/c1.png',
     linkUrl: 'https://example.com/c1',
     order: 1,
+    active: true,
   },
   {
     id: 'clients-2',
@@ -19,6 +20,7 @@ const CLIENT_SEED: readonly LogoItem[] = [
     logoUrl: 'https://cdn.example.com/clients/c2.png',
     linkUrl: '',
     order: 2,
+    active: false,
   },
   {
     id: 'clients-3',
@@ -26,8 +28,9 @@ const CLIENT_SEED: readonly LogoItem[] = [
     logoUrl: 'https://cdn.example.com/clients/c3.png',
     linkUrl: 'https://example.com/c3',
     order: 3,
+    active: true,
   },
 ];
 
-// TODO(backend): GET/POST /api/company/clients · PUT/DELETE /api/company/clients/:id · PUT /api/company/clients/reorder
+// TODO(backend): GET/POST /api/company/clients · PUT/DELETE /api/company/clients/:id · PUT /api/company/clients/reorder · PATCH /api/company/clients/:id/active
 export const clientsAdapter = createLogoAdapter('clients', CLIENT_SEED);

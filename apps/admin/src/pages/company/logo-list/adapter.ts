@@ -16,6 +16,8 @@ export interface LogoAdapter {
   readonly update: (id: string, input: LogoInput, signal?: AbortSignal) => Promise<void>;
   readonly remove: (id: string, signal?: AbortSignal) => Promise<void>;
   readonly reorder: (orderedIds: readonly string[], signal?: AbortSignal) => Promise<void>;
+  /** 노출 여부 토글 — 목록에서 바로 ON/OFF */
+  readonly setActive: (id: string, active: boolean, signal?: AbortSignal) => Promise<void>;
 }
 
 const sortByOrder = (list: readonly LogoItem[]): LogoItem[] =>
@@ -37,7 +39,8 @@ export function createLogoAdapter(scope: string, seed: readonly LogoItem[]): Log
       failIfRequested(scope, 'save');
       seq += 1;
       const id = `${scope}-${String(seq)}`;
-      items = [...items, { id, order: nextLogoOrder(items), ...input }];
+      // 신규 항목은 기본 노출(active: true) — 노출 여부는 목록에서 토글한다
+      items = [...items, { id, order: nextLogoOrder(items), active: true, ...input }];
     },
     async update(id, input, signal) {
       await wait(LATENCY_MS, signal);
@@ -53,6 +56,11 @@ export function createLogoAdapter(scope: string, seed: readonly LogoItem[]): Log
       await wait(LATENCY_MS, signal);
       failIfRequested(scope, 'reorder');
       items = reorderLogosByIds(items, orderedIds);
+    },
+    async setActive(id, active, signal) {
+      await wait(LATENCY_MS, signal);
+      failIfRequested(scope, 'save');
+      items = items.map((item) => (item.id === id ? { ...item, active } : item));
     },
   };
 }

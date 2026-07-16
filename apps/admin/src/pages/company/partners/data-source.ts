@@ -13,6 +13,7 @@ const PARTNER_SEED: readonly LogoItem[] = [
     logoUrl: 'https://cdn.example.com/partners/alpha.png',
     linkUrl: 'https://example.com/alpha',
     order: 1,
+    active: true,
   },
   {
     id: 'partners-2',
@@ -20,6 +21,7 @@ const PARTNER_SEED: readonly LogoItem[] = [
     logoUrl: 'https://cdn.example.com/partners/beta.png',
     linkUrl: 'https://example.com/beta',
     order: 2,
+    active: true,
   },
   {
     id: 'partners-3',
@@ -27,6 +29,7 @@ const PARTNER_SEED: readonly LogoItem[] = [
     logoUrl: 'https://cdn.example.com/partners/gamma.png',
     linkUrl: '',
     order: 3,
+    active: false,
   },
   {
     id: 'partners-4',
@@ -34,8 +37,9 @@ const PARTNER_SEED: readonly LogoItem[] = [
     logoUrl: 'https://cdn.example.com/partners/delta.png',
     linkUrl: 'https://example.com/delta',
     order: 4,
+    active: true,
   },
 ];
 
-// TODO(backend): GET/POST /api/company/partners · PUT/DELETE /api/company/partners/:id · PUT /api/company/partners/reorder
+// TODO(backend): GET/POST /api/company/partners · PUT/DELETE /api/company/partners/:id · PUT /api/company/partners/reorder · PATCH /api/company/partners/:id/active
 export const partnersAdapter = createLogoAdapter('partners', PARTNER_SEED);

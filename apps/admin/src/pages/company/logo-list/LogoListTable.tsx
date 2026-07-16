@@ -18,6 +18,7 @@ import {
   tableStyle,
   tdStyle,
   thStyle,
+  ToggleSwitch,
   useReorderableRows,
   visuallyHiddenStyle,
 } from '../../../shared/ui';
@@ -64,7 +65,9 @@ const emptyCellStyle: CSSProperties = {
   textAlign: 'center',
 };
 
-const COLUMNS = ['이름', '링크'] as const;
+const COLUMNS = ['이름', '링크', '상태'] as const;
+
+const statusCellStyle: CSSProperties = { ...tdStyle, whiteSpace: 'nowrap' };
 
 interface LogoListTableProps {
   readonly items: readonly LogoItem[];
@@ -79,6 +82,10 @@ interface LogoListTableProps {
   readonly selectedIds: ReadonlySet<string>;
   readonly onToggleOne: (id: string, checked: boolean) => void;
   readonly onToggleAll: (checked: boolean) => void;
+  /** 노출 여부를 목록에서 바로 ON/OFF — 링크 오른쪽 상태 열 */
+  readonly onToggleActive: (item: LogoItem, next: boolean) => void;
+  /** 토글 요청 중인 항목 — 해당 토글이 busy 로 잠긴다 */
+  readonly togglingIds: ReadonlySet<string>;
 }
 
 function SkeletonRows({ columns }: { readonly columns: number }) {
@@ -110,6 +117,8 @@ export function LogoListTable({
   selectedIds,
   onToggleOne,
   onToggleAll,
+  onToggleActive,
+  togglingIds,
 }: LogoListTableProps) {
   const ids = items.map((item) => item.id);
   const { rowProps, rowStyle, moveBy } = useReorderableRows(ids, onReorder, reordering);
@@ -121,7 +130,8 @@ export function LogoListTable({
   return (
     <table style={tableStyle} aria-busy={loading}>
       <caption style={visuallyHiddenStyle}>
-        {entityLabel} 목록 — 체크박스로 선택, 각 행에서 수정·삭제할 수 있습니다.
+        {entityLabel} 목록 — 체크박스로 선택, 각 행에서 노출 여부를 ON/OFF 토글하거나 수정·삭제할 수
+        있습니다.
         {reorderable && ' 각 행의 위/아래 버튼 또는 드래그로 정렬 순서를 바꿉니다.'}
       </caption>
 
@@ -184,6 +194,14 @@ export function LogoListTable({
                 ) : (
                   <span style={thumbEmptyStyle}>—</span>
                 )}
+              </td>
+              <td style={statusCellStyle}>
+                <ToggleSwitch
+                  checked={item.active}
+                  label={`${item.name} 노출 여부`}
+                  busy={togglingIds.has(item.id)}
+                  onChange={(next) => onToggleActive(item, next)}
+                />
               </td>
               <td style={actionCellStyle}>
                 <span style={rowActionsWrapStyle}>

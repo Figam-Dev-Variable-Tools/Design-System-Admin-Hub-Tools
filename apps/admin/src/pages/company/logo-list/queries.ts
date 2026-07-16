@@ -86,6 +86,36 @@ export function useBulkDeleteLogos(resource: string, adapter: LogoAdapter) {
   });
 }
 
+interface SetActiveVars {
+  readonly id: string;
+  readonly active: boolean;
+  readonly signal: AbortSignal;
+}
+
+/** 노출 여부 토글 — 낙관적 업데이트 후 실패 시 스냅샷으로 롤백(재정렬과 같은 규칙) */
+export function useSetLogoActive(resource: string, adapter: LogoAdapter) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, active, signal }: SetActiveVars) => adapter.setActive(id, active, signal),
+    onMutate: async ({ id, active }) => {
+      await client.cancelQueries({ queryKey: listKey(resource) });
+      const snapshot = client.getQueryData<readonly LogoItem[]>(listKey(resource));
+      client.setQueryData<readonly LogoItem[]>(listKey(resource), (old) =>
+        old?.map((item) => (item.id === id ? { ...item, active } : item)),
+      );
+      return { snapshot };
+    },
+    onError: (_error, _vars, context) => {
+      if (context?.snapshot !== undefined) {
+        client.setQueryData(listKey(resource), context.snapshot);
+      }
+    },
+    onSettled: () => {
+      void client.invalidateQueries({ queryKey: listKey(resource) });
+    },
+  });
+}
+
 interface ReorderVars {
   readonly orderedIds: readonly string[];
   readonly signal: AbortSignal;
