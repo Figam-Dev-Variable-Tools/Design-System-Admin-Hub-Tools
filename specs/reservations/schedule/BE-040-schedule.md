@@ -6,7 +6,7 @@ owner: A63
 reviewer: A64
 gate: G9
 status: draft
-version: 1.0
+version: 1.1
 date: 2026-07-17
 ---
 
@@ -28,14 +28,14 @@ date: 2026-07-17
 >
 > **엔드포인트 상속**: **BE-037 을 그대로 재사용한다.** 아래 §4 는 새 계약이 아니라 '이 화면이 BE-037 의 무엇을 어떤 조건으로 쓰는가'의 선언이다.
 
-### 1.1 재사용의 근거 (코드 대조 · F2 `3cd3078` 기준)
+### 1.1 재사용의 근거 (코드 대조 · `HEAD = 4b805ad` 기준 재확인)
 
-이 문서가 전용 엔드포인트를 정의하지 **않는** 이유는 추정이 아니라 코드다.
+이 문서가 전용 엔드포인트를 정의하지 **않는** 이유는 추정이 아니라 코드다. **F3a·F3b·통합(PR #8·#11·#12·#14·#16) 이후 아래 다섯 사실을 전부 다시 확인했고 하나도 바뀌지 않았다** — 재사용 선언은 그대로 유효하다.
 
 | 사실 | 근거 |
 |---|---|
-| **이 화면에 `// TODO(backend)` 심이 0건이다** | `schedule/ScheduleCalendarPage.tsx` · `schedule/components/CalendarGrid.tsx` · `schedule/schedule-data.ts` 전체에 백엔드 주석이 없다 |
-| 데이터를 예약 어댑터에서 읽는다 | `ScheduleCalendarPage.tsx:22` `import { reservationAdapter } from '../_shared/reservation-store'` · `:116-121` `useCrudListQuery(RESOURCE, reservationAdapter)` (`RESOURCE = 'reservations'` — `:30`) |
+| **이 화면에 `// TODO(backend)` 심이 0건이다** | `schedule/ScheduleCalendarPage.tsx` · `schedule/components/CalendarGrid.tsx` · `schedule/schedule-data.ts` 전체에 백엔드 주석이 없다(`4b805ad` 재확인) |
+| 데이터를 예약 어댑터에서 읽는다 | `ScheduleCalendarPage.tsx:22` `import { reservationAdapter } from '../_shared/reservation-store'` · `:135` `useCrudListQuery(RESOURCE, reservationAdapter)` (`RESOURCE = 'reservations'` — `:30`) |
 | **예약 관리와 같은 쿼리 키를 공유한다** | `crud.ts:141` `listKey(resource) = [resource, 'list']` → 두 화면 다 `['reservations','list']`. 예약 관리에서 저장·삭제하면 **이 화면도 함께 무효화되어 갱신된다**(FS-040 §4.1) |
 | 달력 계산이 전부 클라이언트 순수 함수다 | `_shared/calendar.ts`(날짜 산술·겹침) · `_shared/reservation.ts:135-149`(`reservationsInSlot`) · `schedule-data.ts:30-56`(슬롯 정의·셀 집계) — 전부 서버 왕복 없이 배열을 훑는다 |
 | 전용 데이터 소스 파일이 없다 | 섹션의 다른 화면들과 달리 `schedule/` 아래에 `data-source.ts` 가 없다(`applications/data-source.ts` · `consultations/data-source.ts` 와 대조) |
@@ -246,7 +246,7 @@ date: 2026-07-17
 | 7 | 범위 조회 도입 시 쿼리 키가 기간별로 쪼개져 예약 목록과의 자동 동기화가 깨진다 — 캐시 전략을 함께 설계해야 한다(§7.2) | A41 · A63 |
 
 ## 8. 자기 점검
-- [x] **F2(`3cd3078`) 기준으로 `schedule-data.ts` 에 `// TODO(backend)` 심이 없음을 재확인**했고, `ScheduleCalendarPage.tsx:116-121` 이 `reservationAdapter` 를 `useCrudListQuery` 로 읽어 **예약 엔드포인트를 재사용**한다는 사실을 코드로 확인해 §1.1 에 근거표로 남겼다
+- [x] **`HEAD = 4b805ad` 기준으로 `schedule-data.ts` 에 `// TODO(backend)` 심이 없음을 재확인**했고, `ScheduleCalendarPage.tsx:135` 가 `reservationAdapter` 를 `useCrudListQuery` 로 읽어 **예약 엔드포인트를 재사용**한다는 사실을 코드로 확인해 §1.1 에 근거표로 남겼다. **엔드포인트 발명 0건 유지** — F3b 가 이 화면의 STATE-01 을 고쳤으나 그것은 렌더 계층의 변경이고 데이터 계약은 건드리지 않았다
 - [x] **전용 엔드포인트를 지어내지 않았다** — EP-01·EP-02 는 BE-037-EP-01·EP-06 의 **재사용 선언**이고, 범위 조회(EP-03)·슬롯 정의(EP-04)·가용량 집계(EP-05)는 **'심 없음(미정)'** 으로 표기하고 §7.2·§7.4·§7.5 에서 판정했다
 - [x] FS-040 §5 의 연동 지점이 전부 커버됐다 — 누락 0건
 - [x] §5 예외 9축 빈칸 0건, 모든 `N/A` 사유 있음 (2행 × 9열). **읽기 전용이라 409·422 가 원리적으로 성립하지 않음**을 명시했다
