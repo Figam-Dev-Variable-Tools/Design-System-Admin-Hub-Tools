@@ -8,13 +8,17 @@
 // - 토큰에 없는 파생 치수(사이드바 폭 등)는 space 토큰의 calc 배수로만 표현한다.
 // - 보더 두께는 px 리터럴 대신 CSS 키워드(thin)를 사용한다.
 // - React 스타일에서 단축 속성(padding)과 개별 속성(paddingLeft)을 섞지 않는다 — 병합이 깨진다.
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 
 import './app-shell.css';
 import AppHeader from './AppHeader';
 import LogoPlaceholder from './LogoPlaceholder';
+import { ErrorBoundary } from '../errors/ErrorBoundary';
+import { RouteErrorScreen } from '../errors/ErrorScreens';
+import { RequirePermission } from '../permissions/RequirePermission';
+import { visuallyHiddenStyle } from '../ui';
 import { SIDEBAR_WIDTH, TOP_BAR_HEIGHT } from './layout-metrics';
 import {
   BarChartIcon,
@@ -36,7 +40,7 @@ import {
 } from '../icons';
 import { usePermissions } from '../permissions/PermissionProvider';
 import { navGroupResourceId, navPageResourceId } from '../permissions/resources';
-import { NAV_SECTIONS } from './nav-config';
+import { findNavLabel, NAV_SECTIONS } from './nav-config';
 import type { NavBranch, NavEntry, NavIconName } from './nav-config';
 
 function NavIcon({ name }: { readonly name: NavIconName }): ReactNode {
@@ -235,7 +239,105 @@ const mainStyle: CSSProperties = {
   paddingRight: 'var(--tds-space-6)',
 };
 
+/** <main> 의 앵커 id — skip link 의 목적지이자 라우트 이동 시 포커스 착지점 */
+const MAIN_ID = 'tds-main';
+
+/**
+ * skip link (A11Y-06) — 평소엔 화면 밖, 포커스되면 좌상단에 뜬다.
+ *
+ * 모든 라우트가 **큰 다중 섹션 nav 를 main 앞에** 렌더한다. 우회로가 없으면 키보드/SR 사용자는
+ * 화면을 옮길 때마다 메뉴 수십 개를 Tab 으로 지나야 한다 (WCAG 2.4.1).
+ */
+const skipLinkStyle: CSSProperties = {
+  ...visuallyHiddenStyle,
+};
+
+const skipLinkFocusedStyle: CSSProperties = {
+  position: 'absolute',
+  top: 'var(--tds-space-2)',
+  left: 'var(--tds-space-2)',
+  zIndex: 1,
+  width: 'auto',
+  height: 'auto',
+  paddingTop: 'var(--tds-space-2)',
+  paddingBottom: 'var(--tds-space-2)',
+  paddingLeft: 'var(--tds-space-3)',
+  paddingRight: 'var(--tds-space-3)',
+  marginTop: 0,
+  marginBottom: 0,
+  marginLeft: 0,
+  marginRight: 0,
+  overflow: 'visible',
+  clip: 'auto',
+  borderRadius: 'var(--tds-radius-md)',
+  background: 'var(--tds-color-surface-raised)',
+  color: 'var(--tds-color-text-default)',
+  fontSize: 'var(--tds-typography-label-md-font-size)',
+  lineHeight: 'var(--tds-typography-label-md-line-height)',
+  textDecoration: 'none',
+};
+
 /* ── 렌더 ─────────────────────────────────────────────────────────────── */
+
+/**
+ * 본문으로 건너뛰기 (A11Y-06).
+ *
+ * 앵커 대신 button + focus() 를 쓴다: `<a href="#id">` 는 URL 에 해시를 남기고, 그 해시가 남은 채
+ * 다른 라우트로 이동하면 react-router 가 스크롤 앵커로 오인한다. 목적은 '포커스 이동' 하나뿐이라
+ * 그것만 한다.
+ */
+function SkipToMain() {
+  const [focused, setFocused] = useState(false);
+
+  return (
+    <button
+      type="button"
+      className="tds-ui-focusable"
+      style={focused ? skipLinkFocusedStyle : skipLinkStyle}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      onClick={() => {
+        document.getElementById(MAIN_ID)?.focus();
+      }}
+    >
+      본문으로 건너뛰기
+    </button>
+  );
+}
+
+/**
+ * 라우트 변경 시 포커스를 main 으로 옮기고 새 화면을 알린다 (A11Y-07).
+ *
+ * NavLink 이동은 포커스를 **누른 nav 항목에 남기고** 아무것도 announce 하지 않는다 — SR 사용자는
+ * 화면이 바뀐 사실조차 모른 채 nav 를 다시 훑는다.
+ *
+ * [최초 진입에는 포커스를 옮기지 않는다] 페이지를 처음 열었을 때 포커스를 강제로 main 에 두면
+ * 첫 Tab 이 main **안쪽**으로 들어가 skip link 를 건너뛴다 — A11Y-06 이 깨진다. 그래서 '이동'
+ * 에만 반응한다.
+ *
+ * [왜 boolean 플래그가 아니라 pathname 을 기억하나 — StrictMode]
+ * `firstRender` boolean 은 **StrictMode 에서 틀린다**: 개발 모드는 effect 를 mount→unmount→remount
+ * 로 두 번 돌리므로, 첫 실행이 플래그를 소비하고 **재실행이 최초 진입을 '이동' 으로 오인해** main 에
+ * 포커스를 준다(실측: 첫 Tab 이 skip link 가 아니라 탭바에 떨어졌다). 마지막으로 포커스를 준
+ * 경로를 기억하면 몇 번을 다시 돌든 결과가 같다(멱등) — 같은 경로면 아무 일도 하지 않는다.
+ */
+function RouteFocusAnnouncer({ label }: { readonly label: string }) {
+  const { pathname } = useLocation();
+  const focusedPathRef = useRef(pathname);
+
+  useEffect(() => {
+    if (focusedPathRef.current === pathname) return;
+    focusedPathRef.current = pathname;
+    document.getElementById(MAIN_ID)?.focus();
+  }, [pathname]);
+
+  // polite live region — 이동한 화면의 이름을 읽어 준다. 항상 마운트돼 있어야 주입이 announce 된다.
+  return (
+    <div aria-live="polite" aria-atomic="true" style={visuallyHiddenStyle}>
+      {label}
+    </div>
+  );
+}
 
 /**
  * 확장형 항목 — 현재 경로가 basePath 아래면 기본 펼침.
@@ -323,6 +425,9 @@ export default function AppShell() {
 
   return (
     <div style={shellStyle}>
+      {/* shell 의 첫 focusable — 첫 Tab 이 여기 멈춘다 (A11Y-06) */}
+      <SkipToMain />
+
       <aside style={sidebarStyle}>
         <div style={brandStyle}>
           <LogoPlaceholder />
@@ -363,8 +468,29 @@ export default function AppShell() {
 
       <div style={contentColumnStyle}>
         <AppHeader />
-        <main style={mainStyle}>
-          <Outlet />
+
+        {/* tabIndex=-1 — 프로그램적 포커스만 받는다(Tab 순서엔 끼지 않는다). skip link 와
+            라우트 이동(RouteFocusAnnouncer)이 이 지점으로 포커스를 보낸다 (A11Y-06/07). */}
+        <main id={MAIN_ID} tabIndex={-1} style={mainStyle}>
+          <RouteFocusAnnouncer label={findNavLabel(pathname)} />
+
+          {/*
+            [경계의 자리 — EXC-01] <Outlet> 바로 바깥이다. 화면이 던져도 여기서 멈추므로
+            사이드바·헤더는 살아남고 운영자는 다른 메뉴로 걸어 나갈 수 있다. resetKey=pathname 이라
+            **다른 화면으로 이동하는 것만으로 경계가 스스로 풀린다**.
+
+            [순서] 경계가 권한 가드보다 바깥이다 — 403 화면 자체가 던져도 앱이 죽지 않는다.
+          */}
+          <ErrorBoundary
+            resetKey={pathname}
+            fallback={({ reference, reset }) => (
+              <RouteErrorScreen reference={reference} onRetry={reset} />
+            )}
+          >
+            <RequirePermission>
+              <Outlet />
+            </RequirePermission>
+          </ErrorBoundary>
         </main>
       </div>
     </div>

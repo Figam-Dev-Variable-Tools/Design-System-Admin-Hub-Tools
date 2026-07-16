@@ -157,6 +157,7 @@ export {
   hintStyle,
   mutedTextStyle,
   numericCellStyle,
+  pageTitleStyle,
   tableStyle,
   tdStyle,
   thStyle,
