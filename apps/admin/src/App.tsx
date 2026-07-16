@@ -107,6 +107,16 @@ import EmailListPage from './pages/marketing/email/EmailListPage';
 import EmailFormPage from './pages/marketing/email/EmailFormPage';
 import TemplateListPage from './pages/marketing/templates/TemplateListPage';
 import TemplateFormPage from './pages/marketing/templates/TemplateFormPage';
+import AdminLogPage from './pages/logs/admin/AdminLogPage';
+import MemberActivityPage from './pages/logs/member-activity/MemberActivityPage';
+import ApiLogPage from './pages/logs/api/ApiLogPage';
+import ErrorLogPage from './pages/logs/errors/ErrorLogPage';
+import RuleListPage from './pages/notifications/send/RuleListPage';
+import RuleFormPage from './pages/notifications/send/RuleFormPage';
+import EmailTemplateListPage from './pages/notifications/email-templates/EmailTemplateListPage';
+import EmailTemplateFormPage from './pages/notifications/email-templates/EmailTemplateFormPage';
+import SmsTemplateListPage from './pages/notifications/sms-templates/SmsTemplateListPage';
+import SmsTemplateFormPage from './pages/notifications/sms-templates/SmsTemplateFormPage';
 import ReservationListPage from './pages/reservations/ReservationListPage';
 import ReservationFormPage from './pages/reservations/ReservationFormPage';
 import ApplicationListPage from './pages/reservations/applications/ApplicationListPage';
@@ -114,6 +124,16 @@ import ApplicationDetailPage from './pages/reservations/applications/Application
 import ConsultationBookingListPage from './pages/reservations/consultations/ConsultationBookingListPage';
 import ConsultationBookingFormPage from './pages/reservations/consultations/ConsultationBookingFormPage';
 import ScheduleCalendarPage from './pages/reservations/schedule/ScheduleCalendarPage';
+import VisitorStatsPage from './pages/stats/visitors/VisitorStatsPage';
+import MemberStatsPage from './pages/stats/members/MemberStatsPage';
+import RevenueStatsPage from './pages/stats/revenue/RevenueStatsPage';
+import OrderStatsPage from './pages/stats/orders/OrderStatsPage';
+import TrafficStatsPage from './pages/stats/traffic/TrafficStatsPage';
+import KeywordStatsPage from './pages/stats/keywords/KeywordStatsPage';
+import SiteSettingsPage from './pages/settings/site/SiteSettingsPage';
+import LanguagesPage from './pages/settings/languages/LanguagesPage';
+import ApiKeysPage from './pages/settings/api-keys/ApiKeysPage';
+import OAuthPage from './pages/settings/oauth/OAuthPage';
 
 /**
  * AppShell(사이드바) 안에서 인증 후 렌더하는 라우트 — 선언 배열의 **단일 원천**이다.
@@ -267,6 +287,18 @@ const APP_ROUTES: readonly AppRoute[] = [
   { path: '/marketing/templates/new', element: <TemplateFormPage /> },
   { path: '/marketing/templates/:id/edit', element: <TemplateFormPage /> },
 
+  // 알림 관리 — 트랜잭션/시스템 알림(마케팅 캠페인과 역할이 다르다: 이벤트 트리거로 시스템이 자동 발송).
+  // 발송 규칙/이메일 템플릿/SMS 템플릿. 등록/수정은 하나의 폼이 :id 유무로 겸한다.
+  { path: '/notifications/send', element: <RuleListPage />, implemented: true },
+  { path: '/notifications/send/new', element: <RuleFormPage /> },
+  { path: '/notifications/send/:id/edit', element: <RuleFormPage /> },
+  { path: '/notifications/email-templates', element: <EmailTemplateListPage />, implemented: true },
+  { path: '/notifications/email-templates/new', element: <EmailTemplateFormPage /> },
+  { path: '/notifications/email-templates/:id/edit', element: <EmailTemplateFormPage /> },
+  { path: '/notifications/sms-templates', element: <SmsTemplateListPage />, implemented: true },
+  { path: '/notifications/sms-templates/new', element: <SmsTemplateFormPage /> },
+  { path: '/notifications/sms-templates/:id/edit', element: <SmsTemplateFormPage /> },
+
   // 예약/신청 — 예약/신청서/상담예약/일정. 정적 하위 경로 뒤에 '/reservations/:id/edit'(:id 최후).
   { path: '/reservations', element: <ReservationListPage />, implemented: true },
   { path: '/reservations/new', element: <ReservationFormPage /> },
@@ -281,6 +313,31 @@ const APP_ROUTES: readonly AppRoute[] = [
   { path: '/reservations/consultations/:id/edit', element: <ConsultationBookingFormPage /> },
   { path: '/reservations/schedule', element: <ScheduleCalendarPage />, implemented: true },
   { path: '/reservations/:id/edit', element: <ReservationFormPage /> },
+
+  // 통계 — 6개 분석 화면. 조회 전용이라 상세/폼 라우트가 없다(:id 가 없는 유일한 섹션).
+  // 조회 조건은 전부 쿼리스트링에 실린다(preset·start·end·compare·segment·view·metric·sort·page)
+  // — 라우트가 아니라 URL 파라미터가 화면 상태의 원천이다 (IA-13).
+  { path: '/stats/visitors', element: <VisitorStatsPage />, implemented: true },
+  { path: '/stats/members', element: <MemberStatsPage />, implemented: true },
+  { path: '/stats/revenue', element: <RevenueStatsPage />, implemented: true },
+  { path: '/stats/orders', element: <OrderStatsPage />, implemented: true },
+  { path: '/stats/traffic', element: <TrafficStatsPage />, implemented: true },
+  { path: '/stats/keywords', element: <KeywordStatsPage />, implemented: true },
+
+  // 로그 관리 — 읽기 전용 감사 로그 4종. 상세는 목록 위의 다이얼로그라 라우트가 없고,
+  // 쓰기 라우트(등록/수정)는 **존재하지 않는다**: 감사 기록은 불변이다 (pages/logs/types.ts).
+  { path: '/logs/admin', element: <AdminLogPage />, implemented: true },
+  { path: '/logs/member-activity', element: <MemberActivityPage />, implemented: true },
+  { path: '/logs/api', element: <ApiLogPage />, implemented: true },
+  { path: '/logs/errors', element: <ErrorLogPage />, implemented: true },
+
+  // 시스템 설정 — 설정 폼 4종(상세/폼 라우트 없음: 각 화면이 문서 1건 또는 목록 1개를 그대로 편집한다).
+  // 시크릿을 다루는 화면이지만 403 게이팅은 이 섹션이 따로 하지 않는다 — AppShell 이 <Outlet> 을
+  // RequirePermission 으로 감싸 모든 라우트를 한 번에 덮는다 (shared/permissions · EXC-03).
+  { path: '/settings/site', element: <SiteSettingsPage />, implemented: true },
+  { path: '/settings/languages', element: <LanguagesPage />, implemented: true },
+  { path: '/settings/api-keys', element: <ApiKeysPage />, implemented: true },
+  { path: '/settings/oauth', element: <OAuthPage />, implemented: true },
 ];
 
 /**

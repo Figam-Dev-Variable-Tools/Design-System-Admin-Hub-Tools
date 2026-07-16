@@ -4,9 +4,9 @@
 > 커밋되는 기준선이다 — **커버리지가 실제로 바뀔 때만 바뀐다.** 실행 시각은 여기 없다(콘솔/tmp 참조).
 > **커버리지는 라인 %가 아니다.** 계약이 정의한 상태 전부 + FS가 정의한 예외 축 전부다.
 
-- 판정: **WARN** (exit 0) — blocker 0건 · major 2105건
-- 입력: 계약 37종 · FS 14건 · 테스트 파일 109개 · 스토리 파일 47개
-- **단언을 가진 실행 단위(= 테스트): 1164건** / 단언 없는 실행 단위: 4건
+- 판정: **WARN** (exit 0) — blocker 0건 · major 6080건
+- 입력: 계약 37종 · FS 40건 · 테스트 파일 131개 · 스토리 파일 47개
+- **단언을 가진 실행 단위(= 테스트): 1453건** / 단언 없는 실행 단위: 4건
 
 ## 축별 요약
 
@@ -15,7 +15,7 @@
 | 1 | 테스트 존재 (워크스페이스 스코프별 · 단언을 가진 실행 단위) | **blocker** | 2 | 2 | 0 | 스코프마다 >= 1건 | G5·G6 | PASS |
 | 2 | 계약 states 커버리지 (contracts/*.contract.json → states[]) | **blocker** | 109 | 109 | 0 | 미커버 상태 0건 (전수) | G5·G6 | PASS |
 | 3 | 계약 events.blockedWhen 커버리지 (금지 동작의 비발생 단언) | **blocker** | 17 | 17 | 0 | 미커버 차단 조건 0건 (전수) | G5·G6 | PASS |
-| 4 | FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) | major | 137 | 2240 | 2103 | 미커버 칸 0건 (major) · **커버 칸 수 후퇴 = blocker** | G6 | VIOLATED |
+| 4 | FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) | major | 137 | 6215 | 6078 | 미커버 칸 0건 (major) · **커버 칸 수 후퇴 = blocker** | G6 | VIOLATED |
 | 5 | 검증 도구의 골든 픽스처 (codegen · contract-test) | major | 0 | 2 | 2 | 도구당 골든 픽스처 >= 1건 | G5·G6 | VIOLATED |
 
 ### 축 1 — 스코프별 (워크스페이스 파생)
@@ -24,7 +24,7 @@
 
 | 스코프 | 경로 | 테스트 (단언 有) | 단언 없는 실행 단위 | 판정 |
 |---|---|---|---|---|
-| @tds/admin | `apps/admin` | **685** | 1 | PASS |
+| @tds/admin | `apps/admin` | **974** | 1 | PASS |
 | @tds/ui | `packages/ui` | **416** | 3 | PASS |
 
 ### 축 4 — 래칫 (후퇴 금지)
@@ -44,23 +44,23 @@
 | `apps/admin/src/shared/token-guard.test.ts` | 1건 |
 | `packages/ui/src/foundations/TokenGuard.test.ts` | 1건 |
 
-## 축 4 — FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) (2103건, major)
+## 축 4 — FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) (6078건, major)
 
 | 원천 | 덮이지 않은 항목 | 기대 테스트 이름 |
 |---|---|---|
-| `specs/content/banners/FS-012-banners.md` | FS-012-EL-001 × 빈 상태 | `FS-012-EL-001: 빈 상태 — 매치 0건이면 빈 상태(FS-012-EL-008)` |
-| `specs/content/banners/FS-012-banners.md` | FS-012-EL-001 × 로딩 | `FS-012-EL-001: 로딩 — 250ms 디바운스 후 조회. 조회 중 키워드 변경 시 이전 요청 취소` |
-| `specs/content/banners/FS-012-banners.md` | FS-012-EL-001 × 실패 | `FS-012-EL-001: 실패 — 조회 실패 시 FS-012-EL-009 로 대체. 입력값 유지` |
-| `specs/content/banners/FS-012-banners.md` | FS-012-EL-001 × 유효성 | `FS-012-EL-001: 유효성 — 자유 텍스트, 제약 없음. 앞뒤 공백 제거. 빈 문자열이면 조건 없음` |
-| `specs/content/banners/FS-012-banners.md` | FS-012-EL-001 × 경합 | `FS-012-EL-001: 경합 — 조회 시점만 반영` |
-| `specs/content/banners/FS-012-banners.md` | FS-012-EL-001 × 대량 | `FS-012-EL-001: 대량 — 매치 10건 초과 시 페이지네이션` |
-| `specs/content/banners/FS-012-banners.md` | FS-012-EL-002 × 빈 상태 | `FS-012-EL-002: 빈 상태 — 해당 위치 0건이면 빈 상태` |
-| `specs/content/banners/FS-012-banners.md` | FS-012-EL-002 × 로딩 | `FS-012-EL-002: 로딩 — 변경 시 진행 중 조회 취소 후 재조회` |
-| `specs/content/banners/FS-012-banners.md` | FS-012-EL-002 × 실패 | `FS-012-EL-002: 실패 — 조회 실패 시 FS-012-EL-009 로 대체` |
-| `specs/content/banners/FS-012-banners.md` | FS-012-EL-002 × 경합 | `FS-012-EL-002: 경합 — 조회 시점만 반영` |
-| `specs/content/banners/FS-012-banners.md` | FS-012-EL-002 × 대량 | `FS-012-EL-002: 대량 — 결과 10건 초과 시 페이지네이션` |
-| `specs/content/banners/FS-012-banners.md` | FS-012-EL-004 × 빈 상태 | `FS-012-EL-004: 빈 상태 — 0건이면 '전체 0건'` |
-| … 외 **2091건** | 전수 목록은 JSON 리포트 `gaps[]` 참조 | |
+| `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-001 × 권한없음 | `FS-016-EL-001: 권한없음 — 이 경로의 read 권한이 없으면 본문이 403 화면으로 바뀌지만 헤더 제목은 그대로 남는다(AppShell` |
+| `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-002 × 로딩 | `FS-016-EL-002: 로딩 — 로딩 중에도 그대로 표시된다` |
+| `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-002 × 실패 | `FS-016-EL-002: 실패 — 조회 실패 시 FS-016-EL-012 가 화면을 대체하며 함께 사라진다` |
+| `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-003 × 로딩 | `FS-016-EL-003: 로딩 — 카드·제목·푸터는 유지되고 본문만 FS-016-EL-005 로 바뀐다` |
+| `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-003 × 실패 | `FS-016-EL-003: 실패 — 조회 실패 시 카드째 FS-016-EL-012 로 대체. 저장 실패는 카드 안 FS-016-EL-004` |
+| `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-003 × 유효성 | `FS-016-EL-003: 유효성 — 검증은 하위 입력이 담당. noValidate 라 브라우저 풍선 없음` |
+| `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-004 × 로딩 | `FS-016-EL-004: 로딩 — 재제출 시 먼저 지워진다(setServerError(null))` |
+| `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-004 × 실패 | `FS-016-EL-004: 실패 — 이것이 저장 실패 표현. 1문구 고정. 복구는 재제출뿐 — 배너에 재시도 버튼이 없다` |
+| `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-004 × 유효성 | `FS-016-EL-004: 유효성 — 유효성 위반은 여기 오지 않는다(각 필드 인라인)` |
+| `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-004 × 권한없음 | `FS-016-EL-004: 권한없음 — §4.1 공통 규칙 적용 — 권한 부족(403)도 같은 문구` |
+| `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-004 × 경합 | `FS-016-EL-004: 경합 — 409/412 도 같은 문구로 뭉개진다 — 충돌 다이얼로그 없음(§7 #2)` |
+| `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-005 × 로딩 | `FS-016-EL-005: 로딩 — 이것이 로딩 표현. 막대 4개 고정(입력은 3종 — 수가 일치하지 않는다)` |
+| … 외 **6066건** | 전수 목록은 JSON 리포트 `gaps[]` 참조 | |
 
 ## 축 5 — 검증 도구의 골든 픽스처 (codegen · contract-test) (2건, major)
 

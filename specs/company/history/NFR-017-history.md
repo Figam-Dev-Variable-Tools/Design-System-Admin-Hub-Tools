@@ -1,0 +1,256 @@
+---
+id: NFR-017
+title: "연혁 관리 비기능 명세"
+functionalSpec: FS-017
+backendSpec: BE-017
+qualityBar: specs/quality-bar.md
+owner: A64
+reviewer: A62
+gate: G9
+status: draft
+version: 1.0
+date: 2026-07-17
+---
+
+# NFR-017. 연혁 관리 비기능 명세
+
+## 1. 이 문서의 위치
+
+| 항목 | 내용 |
+|---|---|
+| 대상 화면 | FS-017 연혁 관리 (`/company/history` · `/new` · `/:id/edit`) |
+| 상위 기준 정본 | `specs/quality-bar.md` — 9차원 100요구(P0 30건). **이 문서는 그 요구를 재서술하지 않는다** |
+| 이 문서의 역할 | quality-bar 의 **이 화면 적용본**이다. 각 요구가 이 화면에서 ① 적용되는가 ② 어떤 코드로 충족되는가 ③ 무엇을 재현하면 판정되는가만 적는다 |
+| 함께 읽는 문서 | FS-017(요소·예외) · BE-017(계약·보안 판정) · `specs/quality-bar.md`(요구 원문) |
+| 갱신 규칙 | 요구 문구가 바뀌면 quality-bar 만 고친다. 이 문서는 **판정과 코드 근거**만 갱신한다. 코드가 바뀌면 근거의 파일:라인을 다시 확인한다 |
+| 판정 기준일 | 2026-07-17 · 커밋 `3cd3078` 기준 코드 대조 |
+
+### 1.1 표기 규약
+
+| 기호 | 뜻 |
+|---|---|
+| 적용 `직접` | 이 화면(전용 모듈 `pages/company/history/**`) 또는 이 화면이 소비하는 CRUD 프레임워크(`shared/crud/**`)의 코드가 충족을 결정 — 판정 책임이 이 문서에 있다 |
+| 적용 `상속` | AppShell·DS(`@tds/ui`)·공용 프레임워크가 결정하고 이 화면은 소비자 — **이 화면에 그 표면이 실재할 때만** 적는다 |
+| 적용 `N/A` | 표면(appliesTo)이 이 화면에 없다 — **반드시 사유** |
+| 판정 `pass` | 코드 근거로 충족 확인. **상속 항목이라도 이 화면이 쓰는 그 표면의 코드를 직접 읽어 확인했으면 pass** |
+| 판정 `gap` | 미충족 확인 — §5 로 이관. **P0 의 gap 은 quality-bar '배치 실패' 사유** |
+| 판정 `종속` | 상속 항목인데 이 문서의 범위에서 확정할 수 없다(DS 전역 grep 등) — 소유 문서의 판정을 따른다 |
+
+> **E2E 미실행 — 이 문서의 모든 판정 근거는 코드 대조다.** 측정 기준 열은 '무엇을 재현하면 이 판정이 확인/반증되는가'를 적은 것이며, 아직 실행된 절차가 아니다(§6).
+
+## 2. P0 30건 — 이 화면 적용 판정 (전수)
+
+| 요구 ID | 차원 | 적용 | 이 화면에서의 충족 방식 (코드 근거) | 측정 기준 (재현 절차) | 판정 |
+|---|---|---|---|---|---|
+| STATE-01 | STATE | 직접 | `useCrudList.tsx:71-72` 가 `firstLoading = isFetching && data === undefined` · `refreshing = isFetching && data !== undefined` 로 **갈라서** 파생한다. `CrudListShell.tsx:136` 이 `loading={firstLoading}` 만 표에 넘기고, `CrudTable.tsx:143` 이 그때만 스켈레톤·`153` 이 0행일 때만 Empty·`CrudListShell.tsx:113` 이 error 일 때만 배너를 그린다. 폼도 같다 — `useCrudForm.ts:130`. **이 화면은 자체 `useQuery` 를 두지 않아 `isFetching` 직결 경로가 없다** | `/company/history` 진입 → 스켈레톤만(빈 상태 문구 없음). 등록 후 목록 복귀로 재조회 → 표가 스켈레톤/blank 로 바뀌지 않고 이전 행 유지 + '새로고침 중…'. `?fail=history:list` → Alert 만 | pass |
+| STATE-02 | STATE | 직접 | `CrudListShell.tsx:157-164` 목록 조회 실패 → 인라인 `Alert tone="danger"` + '다시 시도'(`controller.refetch`). `FormPageShell.tsx:124-140` 상세 조회 실패 → 인라인 Alert. **read 실패에 토스트를 띄우는 경로가 없다**(`useCrudList` 의 `toast` 는 삭제 성공에만 쓰인다 — `useCrudList.tsx:107`) | `?fail=history:list` → 인라인 danger Alert + '다시 시도' 가 조회 재발행. 토스트 0건. `?fail=history:detail` 로 `/company/history/history-1/edit` → 폼 대신 Alert | pass |
+| STATE-04 | STATE | **N/A** | **표면이 없다** — 이 화면에는 페이지네이션·필터·검색·정렬 컨트롤이 하나도 없다(`HistoryListPage.tsx` 전체 63줄, `CrudListShell` 에 Pagination 없음). 따라서 (a) total 축소 시 clamp 할 `page` 가 없고 (b) 선택을 해제할 계기(page/filter/keyword 변경)가 없다 | — (N/A) | n-a |
+| TOKEN-01 | TOKEN | 직접 | 이 화면 전용 모듈의 시각 값이 전부 `var(--tds-*)` 다 — `HistoryListPage.tsx:17-23`(toolbarStyle) · `HistoryFormPage.tsx:17-21`(rowStyle). hex 0건, px 리터럴 0건, border/outline 키워드 0건. 파생 치수는 `calc(var(--tds-space-6) * 5)` 토큰 배수(TOKEN-08 이 지적하는 우회이나 P1) | `pages/company/history/**` 에 `#hex` · `[1-9]px` · `(outline\|border): (thin\|medium\|thick)` grep = 0. ESLint/stylelint 0 warning. **앱 전역 grep 은 TOKEN 소유 문서의 몫** | pass |
+| TOKEN-02 | TOKEN | 상속 | 이 화면의 포커스 링은 두 곳에서 온다: `.tds-ui-focusable:focus-visible`(`shared/ui/ui.css:14-16`)이 `outline: var(--tds-border-width-medium) solid var(--tds-color-border-focus)` — 연도 입력(`HistoryFormPage.tsx:97`)·'목록으로' 버튼(`FormPageShell.tsx:149`)이 소비한다. TOKEN-02 가 지목한 nav row 위반은 **이미 해소**됐다 — `app-shell.css:14` 가 같은 토큰 쌍을 쓴다 | 연도 입력·목록으로 버튼·nav row 를 Tab → 링 두께가 픽셀 동일. bare border 키워드 grep = 0 | pass |
+| TOKEN-03 | TOKEN | 상속 | 이 화면의 easing 소비자는 **토스트뿐**이다(삭제 성공 — `useCrudList.tsx:107`). `Toast.css:25` 가 `animation: tds-toast-in var(--tds-motion-duration-normal) var(--tds-motion-easing-decelerate)` 로 easing 토큰을 **그대로** timing-function 자리에 쓴다 — 토큰이 codegen 에서 `cubic-bezier()` 로 감싸 emit 되므로 유효하게 파싱된다(`Motion.stories.tsx:43` 이 이 사실을 명시). 폼·표의 transition 은 duration 만 쓴다 | 연혁 삭제 → 토스트 entrance 가 실제 재생(non-reduced-motion). 계산된 스타일의 animation-timing-function 이 `cubic-bezier(...)` 로 해석 | pass |
+| TOKEN-04 | TOKEN | 상속 | 이 화면의 floating/raised 표면 둘 다 semantic shadow 토큰을 쓴다: 삭제·이탈·충돌 다이얼로그 → `Modal.css:36` `box-shadow: var(--tds-shadow-modal)`; 폼 카드 → `Card.css:31` `box-shadow: var(--tds-shadow-raised)`. raw box-shadow 값 0건 | 삭제 다이얼로그·폼 카드가 light/dark 양쪽에서 배경 위로 부상. `box-shadow:` grep 이 `var(--tds-*shadow*)`/`none` 만 | pass |
+| TOKEN-05 | TOKEN | 직접+상속 | 폼 `<h1>` 이 공유 `pageTitleStyle`(title.xl = 20px/600) 하나에서 온다 — `FormPageShell.tsx:159`(`h1 style={pageTitleStyle}`). AppHeader 의 `<h1>` 도 같은 원천(`AppHeader.tsx:52-55`). 다이얼로그 제목은 `Modal.css:57-60` title-xl. 본문은 body-md(16px)라 계층이 내려간다 | `/company/history/new` 의 `<h1>` 계산 font-size > body-md. 두 h1(헤더·본문)이 같은 tier 를 쓴다 — **다만 그 둘이 동시에 보이는 것 자체가 IA-02 gap 이다** | pass |
+| COMP-10 | COMP | **N/A** | **표면이 없다** — 이 화면에 텍스트 검색·텍스트 필터 입력이 하나도 없다(`HistoryListPage.tsx` 에 `SearchField`·`useDebouncedSearch`·`useListState` import 0건). 폼의 연도(`type=number`)·내용(textarea)은 검색·필터 입력이 아니라 **저장 대상 입력**이라 query 발행·debounce·IME 커밋 규칙의 대상이 아니다(제출 시에만 검증 — `HistoryFormPage.tsx:131` `shouldValidate: false`) | — (N/A). **검색이 도입되면 `shared/crud/useDebouncedSearch.ts`(isComposing 처리 보유)를 소비해야 하며 그때 직접 판정으로 승격한다** | n-a |
+| FEEDBACK-02 | FEEDBACK | 직접 | 파괴적 액션(단건·일괄 삭제)이 전부 `ConfirmDialog intent="delete"` 로 게이팅된다 — `useCrudList.tsx:151-177`. busy → `ConfirmDialog.tsx:148-155` 확인 버튼 `disabled` + `aria-busy` + 라벨 '처리 중…'. 실패 → 다이얼로그 유지 + `error` 배너(`ConfirmDialog.tsx:164`), 재클릭이 재시도. 취소/Esc/딤 → `closeDelete`(`useCrudList.tsx:86-92`)가 `abort()` + `mutation.reset()` + 상태 리셋 | `?fail=history:delete` → 행 삭제 확인 → 다이얼로그가 배너와 함께 열려 있고 재클릭이 재시도. 진행 중 Esc → 토스트 없이 버튼 상태 복원 | pass |
+| FEEDBACK-04 | FEEDBACK | 직접 | `FormPageShell.tsx:113` 이 `useUnsavedChangesDialog(isDirty && !saving, {message})` 를 배선하고, 훅이 3경로를 모두 덮는다 — beforeunload(`useUnsavedChangesDialog.tsx:120-131`) · capture 단계 링크 가로채기(`134-155`, `_self`/수식키 edge case 포함) · popstate sentinel(`157-182`). `isDirty` 는 RHF(`useCrudForm.ts:254`). 저장 성공은 `replace` 이동이며 dirty 가 풀려 가드가 발화하지 않는다 | 연도를 고치고 ① 탭 닫기 ② 사이드바 '오시는 길' 클릭 ③ 브라우저 Back → 각각 discard 다이얼로그. 저장 후 같은 이동 → 프롬프트 없음 | pass |
+| FEEDBACK-06 | FEEDBACK | **N/A** | **표면이 없다** — 이 화면에 **폼을 담은 모달이 없다**. 등록·수정은 전용 라우트(`App.tsx:187-188`)이고, 뜨는 모달은 확인 다이얼로그 3종(삭제·일괄 삭제·이탈 가드·충돌)뿐이라 담긴 입력이 없다. 폼의 dirty 보호는 FEEDBACK-04 가 담당한다 | — (N/A). IA-06 의 무게 규칙상 연혁은 rich 엔티티 → route 이므로 이 N/A 는 의도된 설계다 | n-a |
+| A11Y-01 | A11Y | 상속 | `ToastProvider.tsx:164-171` 이 라이브 영역 2개(polite `role="status"` · assertive)를 **토스트보다 먼저·항상** 마운트하고 텍스트만 주입한다. 이 화면의 토스트(삭제 성공·저장 성공·취소)가 그 큐로 들어간다 | 연혁 삭제 → 스크린리더가 `'<이름>' 을(를) 삭제했습니다.` announce. 토스트 0건일 때도 컨테이너가 DOM 에 존재 | pass |
+| A11Y-02 | A11Y | 상속 | `ConfirmDialog.tsx:130,135` 가 `useId()` 로 만든 `messageId` 를 `Modal` 의 `describedBy` 로 넘기고 `161` 이 그 id 를 본문 `<p>` 에 건다. `Modal.tsx:158` `aria-describedby={describedBy}`. 이 화면의 다이얼로그 4종이 전부 이 경로를 탄다 | 삭제 다이얼로그 open → 스크린리더가 제목 + `'<이름>' 을(를) 삭제합니다…` 를 함께 읽음. dialog 의 aria-describedby 가 message `<p>` id 로 해석 | pass |
+| A11Y-11 | A11Y | 직접 | **절반만 충족.** ① `aria-invalid` ↔ `aria-describedby` 짝은 전수 성립한다 — 연도 `HistoryFormPage.tsx:101-102`, 월 `112-113`, 내용은 `TextareaField.tsx:62-63` 이 자체 배선하며 `FormField.tsx:72` 가 그 id 로 `role="alert"` `<p>` 를 그린다. ② **required 가 AT 에 노출되지 않는다** — `FormField.tsx:58-62` 는 `*` 를 `aria-hidden="true"` 로만 그리고, 세 컨트롤 어디에도 native `required`/`aria-required` 가 없다. `<form noValidate>`(`FormPageShell.tsx:163`) 라 브라우저도 알리지 않는다. `aria-required` grep 결과 이 화면 소비 컴포넌트에 0건(TextField/PasswordField 만 보유 — 이 폼은 raw input + SelectField + TextareaField 를 쓴다) | 빈 폼 제출 → 각 입력의 `aria-describedby` === `role=alert` `<p>` id (통과). **연도·월·내용 입력의 `aria-required`/`required` 속성 조회 → 전부 없음 (반증)** | **gap** |
+| A11Y-12 | A11Y | **N/A** | **표면이 없다** — 이 화면에 좌측 필터 목록·토글 필터가 없다(필터 자체가 없다). 따라서 selected state 를 표기할 대상이 없다. 앱 전역 `aria-current` 는 nav `NavLink` 가 자체적으로 붙이는 것뿐이며 그것은 toggle 이 아니라 navigation 이라 이 요구의 대상이 아니다 | — (N/A) | n-a |
+| MOTION-01 | MOTION | 상속 | **미충족.** 이 화면은 다이얼로그를 4종 띄우지만(삭제·일괄·이탈·충돌) `Modal.tsx` 에 enter/exit transition 이 없다 — `createPortal(body, ...)` 로 **즉시 삽입/제거**된다(`Modal.tsx:196`). `Modal.css` 에 `animation`/`@keyframes`/backdrop fade 선언 0건. AnimatePresence 로 exit 후 unmount 하는 경로도 없다. **리포 전체에 Motion 라이브러리가 없다** — `AnimatePresence\|framer-motion\|from 'motion\|useReducedMotion\|MotionConfig` grep 이 `specs/quality-bar.md` 1건(요구 문구 자체)만 히트 | 삭제 확인 다이얼로그 open/close → backdrop fade 없음, dialog scale/translate 없음, DOM 이 즉시 제거됨. `Modal.css` 에 animation 선언 grep = 0 | **gap** |
+| MOTION-02 | MOTION | 상속 | **미충족.** 이 화면의 토스트(삭제·저장 성공)는 `ToastProvider.tsx:99-101` `dismiss` 가 `setToasts(prev => prev.filter(...))` 로 **즉시 filter-out** 한다 — exit 애니메이션 없이 unmount 된다. `Toast.css:25` 는 entrance(`tds-toast-in`)만 정의하고 exit 대응물이 없다 | 삭제 성공 토스트가 4초 후 자동 소멸 → fade/translate 없이 즉시 사라짐. 3개 스택에서 특히 가시적 | **gap** |
+| MOTION-03 | MOTION | 상속 | 이 화면에서 움직이는 표면이 전부 reduced-motion 게이트를 통과한다: 스켈레톤 pulse → `ui.css:110-114` `animation-name: none`; Button 배경 transition → `Button.css:158` reduced-motion off. **이 화면에는 move/scale transition 자체가 없다**(Modal/Toast 는 MOTION-01/02 상 애니메이션이 아예 없고, ToggleSwitch 는 이 화면에 렌더되지 않는다). 따라서 reduced-motion 에서 제거할 movement 가 남지 않는다 | `prefers-reduced-motion: reduce` 로 `/company/history` 구동 → 스켈레톤 pulse 정지, 어떤 요소도 move/scale 하지 않음. **단 DS 전역으로는 `ToggleSwitch.css:56` 의 `transition: transform` 이 여전히 게이트 밖이다 — 이 화면의 표면이 아니라 여기서는 판정하지 않는다(§3 참조)** | pass |
+| IA-01 | IA | 상속 | 이 화면의 3개 라우트가 전부 `RequireAuth > AppShell` 레이아웃 라우트 아래에 있다 — `App.tsx:324-336` 이 `APP_ROUTES`(186-188 에 연혁 3건)를 그 안에서 렌더한다. `HistoryListPage`/`HistoryFormPage` 는 자체 sidebar/top bar/outer frame 을 만들지 않는다(파일 전수 확인) | `/company/history` · `/new` · `/:id/edit` 모두 사이드바 + AppHeader + 단일 `<main>` 안에 렌더. 페이지가 그리는 frame 0건 | pass |
+| IA-02 | IA | 직접 | **미충족.** `findNavLabel('/company/history/new')`(`nav-config.ts:253-264`)은 잎 정확 일치에 실패한 뒤(`254`) 가지 루프에서 `'/company/history/new'.startsWith('/company')` 로 **'기업 관리'** 를 반환한다(`260`). `AppHeader.tsx:92,101` 이 그것을 `<h1>` 으로 그린다. 동시에 `FormPageShell.tsx:159` 가 두 번째 `<h1>연혁 등록</h1>` 을 그린다 — **한 화면에 h1 이 둘이고 상단의 것이 모호한 가지 라벨이다.** 목록(`/company/history`)은 반대로 잎 일치라 헤더가 '연혁' 을 보이지만 본문 `<h1>` 이 없다 → title 의 원천이 화면 종류마다 다르다 | `/company/history/new` 진입 → AppHeader 제목이 '연혁 등록' 이 아니라 **'기업 관리'**. `document.querySelectorAll('h1')` 길이 = 2 | **gap** |
+| IA-04 | IA | 직접 | **미충족.** 템플릿 앞 4단은 성립한다 — 툴바 우상단 primary 등록 버튼(`HistoryListPage.tsx:42-49` `justifyContent: flex-end`), 결과 count 요약(`CrudListShell.tsx:118-122`), SelectionBar(`125-133`), 표(`135`). **마지막 단(Pagination)이 없다** — `CrudListShell.tsx` 에 Pagination import·렌더 0건이고 `HistoryListPage.tsx:55` 가 `visibleItems={controller.items}` 로 **전 행을 그대로** 넘긴다. `CrudTable.tsx:171` 이 그것을 전부 map 한다. 연혁은 해마다 단조 증가하는 누적 데이터라 'page size 초과 가능'이 확실하다 | 연혁을 11건 이상 등록 → Pagination 이 렌더되지 않고 전 행이 한 화면에 쌓인다. `CrudListShell.tsx` 에 `Pagination` grep = 0 | **gap** |
+| IA-05 | IA | 직접 | `App.tsx:187-188` 이 `/company/history/new` 와 `/company/history/:id/edit` 를 **같은 `<HistoryFormPage />`** 에 매핑한다. `useCrudForm.ts:73-74` 가 `useParams().id` 유무로 `isEdit` 를 정하고, `FormPageShell.tsx:159,189` 가 그 값으로 title('연혁 등록'/'연혁 수정')과 제출 라벨('등록'/'저장')만 바꾼다. 레이아웃·필드는 동일하며 create 전용/edit 전용 페이지가 없다 | 두 경로가 같은 컴포넌트로 해석. `/new` = 빈 폼 + '연혁 등록', `/:id/edit` = prefill + '연혁 수정'. 레이아웃 차이 0 | pass |
+| IA-13 | IA | **N/A** | **직렬화할 상태가 없다** — 이 화면에 page·page-size·filter·keyword·sort 가 **하나도 없다**(`HistoryListPage.tsx` 는 `useState`·`useSearchParams`·`useListState` 를 전혀 쓰지 않는다. 정렬은 `sortHistory` 고정). 따라서 back/forward·refresh·링크 복사가 잃을 view 상태가 존재하지 않는다 — 목록 URL 은 언제나 `/company/history` 하나다 | — (N/A). **이 N/A 는 IA-04 gap 의 그림자다**: Pagination·필터가 도입되는 순간 IA-13 은 `직접` 으로 승격되며 `shared/crud/useListState.ts`(URL 직렬화 보유)를 소비해야 한다. 그때 이 행을 다시 판정한다 | n-a |
+| EXC-01 | EXC | 상속 | 경계가 2겹이다 — `App.tsx:311-315` 루트 경계(셸 자체가 던지는 경우) + `AppShell.tsx:484-489` `<Outlet>` **바로 바깥** 경계(`resetKey={pathname}`). 후자가 이 화면의 렌더 예외를 잡아 사이드바·헤더를 살린 채 `RouteErrorScreen` 을 그리고, 다른 메뉴로 이동하면 `resetKey` 변경으로 스스로 풀린다 | `HistoryListPage` 에 강제 throw 주입 → 사이드바 유지 + 복구 UI, 다른 메뉴 이동 가능, 앱 unmount 안 됨 | pass |
+| EXC-02 | EXC | 상속 | ① 라우트 가드: `App.tsx:324-329` 이 `RequireAuth` 를 **AppShell 바깥**에 둬 세션이 없으면 셸도 그리지 않고 `/login?returnUrl=<현재 경로>` 로 보낸다. ② mid-session 401: `queryClient.ts:41-43` 이 `QueryCache`·`MutationCache` 의 `onError` 에 **단일 인터셉터**(`handleQueryLayerError` → `isUnauthorized` → `notifySessionExpired`)를 걸어 이 화면의 조회·쓰기 401 을 전부 덮는다 — 화면에 복사된 분기가 없다 | 세션 없이 `/company/history` deep-link → `/login?returnUrl=%2Fcompany%2Fhistory` 로 redirect 후 로그인하면 복귀. `?status=history:list:401` → 재인증 경로 | pass |
+| EXC-03 | EXC | 직접 | **절반만 충족.** ① route-level authorization 은 성립한다 — `AppShell.tsx:490-492` 가 `<Outlet>` 을 `RequirePermission` 으로 감싸고, `RequirePermission.tsx:62-63` 이 `useRouteCan('read')` 실패 시 `ForbiddenScreen` 을 렌더한다. 리소스는 `route-resource.ts:36-46` 이 경로에서 파생하므로 `/company/history/new` 도 잎 `/company/history` 로 덮인다. ② **write-action 게이팅이 배선되지 않았다** — `useRouteWritePermissions`(`RequirePermission.tsx:45-52`)의 **소비자가 리포 전체에 0건**이다(`useRouteWritePermissions\|useRouteCan` grep → 정의 파일 1건뿐). 그래서 `HistoryListPage.tsx:44` 의 '연혁 등록', `CrudTable.tsx:192-197` 의 행 수정/삭제, `CrudListShell.tsx:126-132` 의 일괄 삭제가 **read-only 역할에도 그대로 렌더되고 눌린다**. 강등 reconcile 도 같은 이유로 성립하지 않는다 | read 권한 OFF 로 `/company/history` deep-link → 403 화면 (통과). **remove/create 권한만 OFF → '연혁 등록'·행 휴지통·'선택 N건 삭제' 가 여전히 보이고 클릭되어 서버 403 으로만 막힌다 (반증)** | **gap** |
+| EXC-04 | EXC | 직접 | 어댑터가 유령 저장을 차단한다 — `crud.ts:71-73` `update` 가 대상 id 부재 시 `HttpError(409, '다른 사용자가 먼저 삭제한 항목입니다.')`, `82-84` `remove` 가 `HttpError(409, '이미 삭제된 항목입니다.')` 를 던진다(예전에는 `map`/`filter` 가 조용히 통과시켜 success 를 반환했다). `useCrudForm.ts:160-172` 가 `isConflict`(409+412 — `http-error.ts:105-107`)로 잡아 **입력을 보존한 채** conflict 상태를 세우고, `FormPageShell.tsx:195` → `FormFeedback.tsx:58-74` 가 '최신 내용 불러오기'/'이어서 편집' 다이얼로그를 띄운다. **성공 토스트도 목록 이동도 없다**(`useCrudForm.ts:211-217` 의 `onSuccess` 를 타지 않는다) | `?status=history:save:409` 로 수정 저장 → 입력 유지 + 충돌 다이얼로그, success toast/navigation 0건. 목록에서 지워진 id 로 `/:id/edit` 저장 → ghost 'saved' 대신 충돌 다이얼로그. **잔여**: `HistoryItem` 에 `updatedAt`/`version` 이 없어(BE-017 §3) *동시 편집*(삭제가 아닌)은 여전히 last-write-wins — appliesTo 가 '엔티티에 updatedAt 존재'로 한정되고 acceptanceCheck 2건이 모두 통과하므로 pass 로 판정하되 BE-017 §7.4 에 승격 계약을 남겼다 | pass |
+| EXC-08 | EXC | 직접 | 3중이다 — ① `FormPageShell.tsx:188` `disabled={saving \|\| loadingDetail}` ② `useCrudForm.ts:102,195-196` **동기 제출 락**(`submitLockRef`)이 RHF 비동기 검증 때문에 생기는 'saving 이 true 가 되기 전' 틈을 닫는다(ref 는 렌더를 기다리지 않는다) ③ `useCrudForm.ts:112-117,205` **제출 시도 단위 멱등키**를 `mutationFn` **밖**(ref)에서 만들어 재시도가 같은 키를 재사용하고, 성공 시 버린다(`214`). `onInvalid`(`239-241`)가 검증 실패 시 락을 푼다 | '등록' 더블클릭 / 응답 전 Enter 연타 → 정확히 1건 요청. 실패 후 재클릭 → 같은 `Idempotency-Key`(키가 `mutationFn` 밖에 존재) | pass |
+| EXC-09 | EXC | 직접 | 단일 predicate `isAbort`(`async.ts:40-42`)로 통일된다 — `useCrudList.tsx:110` 삭제 onError 가 abort 면 즉시 return(배너 없음), `86-89` `closeDelete` 가 `abort()` + `deleteItem.reset()`; `useCrudForm.ts:157` 쓰기 onError 가 abort 면 return, `92` 언마운트 시 abort; `bulk.ts:20` `settleAll` 이 **abort 를 실패 건수에서 제외**; `crud.ts:238` `useCrudBulkDelete.onSuccess` 가 `signal.aborted` 면 무효화도 하지 않는다 | 삭제 요청 중 Esc → 토스트 0건 + 버튼 상태 복원 + `isPending` 리셋. 저장 중 라우트 이탈 → 실패 배너 0건. 일괄 중 취소 → 부분 실패 건수에 abort 미포함 | pass |
+
+### 2.1 P0 판정 요약
+
+| 판정 | 건수 | 요구 ID |
+|---|---|---|
+| pass | **19** | STATE-01 · STATE-02 · TOKEN-01 · TOKEN-02 · TOKEN-03 · TOKEN-04 · TOKEN-05 · FEEDBACK-02 · FEEDBACK-04 · A11Y-01 · A11Y-02 · MOTION-03 · IA-01 · IA-05 · EXC-01 · EXC-02 · EXC-04 · EXC-08 · EXC-09 |
+| 종속 | **0** | — (상속 항목이라도 이 화면이 소비하는 표면의 코드를 전부 직접 읽어 pass/gap 으로 확정했다) |
+| n-a | **5** | STATE-04 · COMP-10 · FEEDBACK-06 · A11Y-12 · IA-13 |
+| **gap** | **6** | **A11Y-11 · MOTION-01 · MOTION-02 · IA-02 · IA-04 · EXC-03** |
+| **합계** | **30** | 19 + 0 + 5 + 6 = **30** ✅ |
+
+> **P0 gap 6건 → quality-bar §How to use 상 이 화면은 현재 acceptance 실패다.** 6건 중 이 화면 전용 원인은 0건이다 — 전부 공용 계층(`shared/crud` 껍데기 · DS Modal/Toast · FormField · AppHeader/nav-config · permissions 배선)에서 발생하며 형제 화면(인증서·ESG)에 동일하게 걸린다. §5 참조.
+
+## 3. 이 화면에 걸리는 P1 · P2 (선별)
+
+표면이 실재하는 것만 적는다.
+
+| 요구 ID | P | 이 화면에서의 상태 | 측정 기준 | 판정 |
+|---|---|---|---|---|
+| STATE-03 | P1 | `useCrudListQuery`(`crud.ts:151`)가 `placeholderData: (previous) => previous`, `queryClient.ts:24,47` 이 `staleTime: 30_000`. `CrudListShell.tsx:118-120` 이 재조회 중 건수를 유지한 채 '새로고침 중…'만 덧붙인다 | 등록 후 목록 복귀 → 이전 행 유지. 30초 내 재진입은 network refetch 없음 | pass |
+| STATE-05 | P1 | Empty 3분기 자체는 `Empty.tsx:53-99` 가 갖췄고 조사(이/가)도 자동(`hasBatchim`)이나, **이 화면은 맥락을 넘기지 않는다** — `HistoryListPage.tsx:52-61` 에 `empty` prop 이 없어 `CrudTable.tsx:108` 의 `empty = {}` 로 떨어진다. 검색·필터가 없어 3분기 중 'truly empty' 만 도달 가능하므로 분기 자체는 문제가 아니지만, **`createAction`(생성 CTA)이 없어** '등록된 연혁이 없습니다' 만 보이고 등록 버튼은 툴바에만 있다 | 시드 0건 → Empty 에 primary create CTA 없음 | gap |
+| STATE-06 | P1 | `crud.ts:180,199-201,219` 가 create/update/delete 성공 시 list(+detail) 만 정확히 무효화한다. 이 화면에 다른 의존 쿼리(summary/count)가 없다 | 등록 후 목록 복귀 → 수동 새로고침 없이 새 행 | pass |
+| A11Y-03 | P1 | `ConfirmDialog.tsx:132-158` 이 `Modal` 에 `initialFocusRef` 를 넘기지 않는다 → `Modal.tsx:91-93` 이 `focusables()[0]` 로 폴백하는데, DOM 순서상 첫 focusable 은 **헤더의 닫기(×) 버튼**(`Modal.tsx:169`)이다. delete/discard intent 에서 Cancel 에 초기 포커스가 가야 한다는 요구와 어긋난다 | 삭제 다이얼로그 open → `document.activeElement` 가 Cancel 이 아니라 `aria-label="닫기"` 버튼 | gap |
+| A11Y-05 | P1 | 월 select 가 `SelectField`(`SelectField.tsx:57`)로 `aria-invalid` 를 AT 에 전달하고, 호출부가 `aria-describedby` 를 넘긴다(`HistoryFormPage.tsx:113`) | 월 미선택 제출 → `<select aria-invalid="true" aria-describedby="history-month-error">` | pass |
+| A11Y-06 | P1 | `AppShell.tsx:429` `<SkipToMain />` 이 셸의 첫 focusable, `474` `<main id="tds-main" tabIndex={-1}>` | `/company/history` 에서 첫 Tab → skip link, 활성화 → main 포커스 | pass |
+| A11Y-07 | P1 | `AppShell.tsx:324-340` `RouteFocusAnnouncer` 가 pathname 변경 시 main 포커스 + polite live region 에 `findNavLabel(pathname)` 주입 | 목록 → 등록 이동 시 포커스가 main 으로. **다만 announce 되는 이름이 IA-02 와 같은 이유로 '기업 관리' 다** | pass(문구는 IA-02 gap 에 종속) |
+| A11Y-08 | P1 | `CrudTable.tsx:172` 가 `rowActivateProps` 로 행 클릭 이동을 붙이지만 **행 안에 같은 목적지로 가는 focusable 링크가 없다** — 연도·월·내용 셀은 전부 plain text(`HistoryListPage.tsx:36-40`). `useRowNavigation.ts:9-11` 이 스스로 '마우스 전용이며 접근 가능한 경로가 이미 존재한다는 전제 위에서만 쓴다' 고 못 박았는데 그 전제가 이 화면에서 성립하지 않는다. 키보드 사용자는 행 액션의 연필 버튼으로만 도달한다 | 행을 Tab → 체크박스 → 연필 → 휴지통 순. 이름 링크 없음 | gap(연필 버튼이 등가 경로라는 해석이면 완화 — A11 판단 필요) |
+| A11Y-13 | P1 | 제출 검증 실패 시 첫 invalid 필드로 포커스는 성립한다 — `useCrudForm.ts:253` 이 `handleSubmit(onValid, onInvalid)` 를 쓰고 RHF `shouldFocusError` 기본값이 동작한다. **폼 진입 시 첫 필드 자동 포커스는 없다** — `HistoryFormPage.tsx` 에 `setFocus`/autoFocus 0건 | 빈 폼 제출 → activeElement = 연도 입력 (통과). `/new` 진입 직후 activeElement = body (반증) | 부분 gap |
+| A11Y-16 | P1 | 이 화면이 새로 만든 인터랙티브 표면은 없다 — 전부 DS/공용 프레임워크 소비 | — | 종속 |
+| MOTION-04 | P1 | `CrudTable.tsx:171-201` 행이 add/remove 시 snap in/out 한다(FLIP 없음). Motion 라이브러리 부재라 MOTION-01/02 와 같은 뿌리 | 행 삭제 → 나머지 행이 즉시 점프 | gap |
+| MOTION-08 | P1 | 이 화면의 transition 은 duration 만 쓰고 easing recipe(accelerate/overlay)를 소비하지 않는다 — Modal/Toast enter·exit 토큰 소비가 MOTION-01/02 상 불가 | Modal/Toast 가 enter/exit 토큰을 소비하지 않음 | gap(MOTION-01/02 종속) |
+| IA-03 | P1 | breadcrumb 이 없다 — `AppHeader.tsx` 는 단일 라벨만 그린다. `/company/history/new` 에서 '기업 관리 > 연혁 > 등록' trail 부재 | 등록 화면에 trail 0건 | gap |
+| IA-07 | P1 | `FormPageShell.tsx:147-155` 이 '목록으로' + `ChevronLeftIcon` + 좌상단 배치 — 표준과 일치 | 폼 back-link 문구·아이콘·위치 일치 | pass |
+| IA-08 | P1 | `FormPageShell.tsx:179-191` 이 카드 **안** 우측에 취소(secondary) → 저장(primary) 순 | 취소·저장이 in-card footer 우측 | pass |
+| IA-14 | P1 | 반응형 선언이 없다 — `AppShell.tsx:83` 사이드바 폭 고정, `CrudTable` 에 가로 scroll 컨테이너 없음. 행 액션 아이콘 버튼의 touch-target 미검증 | 768/375px 에서 사이드바 collapse 없음, 표 overflow | gap(앱 전역) |
+| ERP-06 | P1 | 문구 대부분이 shared 템플릿을 타지만 '연혁을(를) 등록했습니다.'(`useCrudForm.ts:215`) 처럼 리터럴 조사 폴백이 출하된다. 월 미선택 문구가 '월을(를) **입력**하세요.'(select 인데 '입력') | 사용자 대상 문자열에 '을(를)' 리터럴 존재 | gap |
+| ERP-08 | P1 관련(P2) | **`formatNumber(item.year)`(`HistoryListPage.tsx:25,37`)가 공유 formatter 를 잘못된 축에 적용한다** — 연도는 수량이 아닌데 천 단위 구분이 붙어 '2,018년' 이 된다. `nameOf` 를 타고 접근 이름·확인 문구·토스트까지 전파 | 목록의 연도 셀이 '2,018년'. 삭제 확인 문구가 `'2,018년 3월' 을(를) 삭제합니다.` | **gap (이 화면 고유 결함)** |
+| ERP-13 | P1 | `useCrudList.tsx:107,157` · `useCrudForm.ts:215` 가 리터럴 '을(를)' 을 출하한다. `Empty.tsx:17-27` 만 josa 를 계산한다(앱 shared 에는 헬퍼 부재) | 사용자 대상 문자열 `'을(를)'` grep > 0 | gap(앱 전역) |
+| ERP-15 | P1 | 전 행 렌더(IA-04 참조). virtualization·page-size cap 없음 | 연혁 1,000건 → 1,000행 DOM | gap |
+| EXC-05 | P1 | `AbortSignal.timeout` 이 앱 전체 0건. `async.ts:15-32` `wait` 에 ceiling 없음 | never-resolving fixture → 무한 spinner | gap(앱 전역) |
+| EXC-06 | P1 | `HttpError`(`http-error.ts:45-61`)가 status 를 지니고 화면이 404/409/412/422 로 분기한다. **단 403·429 는 이 화면에서 별도 surface 가 없다** — 조회는 일반 배너, 쓰기는 일반 저장 실패 배너로 떨어진다 | `?status=history:save:403` → '저장하지 못했습니다' 일반 배너(권한 전용 문구 아님) | 부분 gap |
+| EXC-07 | P1 | `useCrudForm.ts:176-186` 이 422 `violations` 를 RHF `setError` 로 각 입력에 꽂고 첫 필드로 포커스. **서버가 필드 거절을 400 으로 주면 이 경로를 타지 않는다** — BE-017 §7.8/§7.9 #1 | `?status=history:save:422` 는 violations 가 없어 일반 배너. 실제 백엔드 연결 후 재판정 | 종속(BE-017) |
+| EXC-10 | P1 | **`crud.ts:239` 가 `failed === 0` 일 때만 목록을 무효화한다** → 부분 실패 시 이미 삭제된 행이 표에 남는다. 게다가 `useCrudList.tsx:126,144` 가 실패 시 선택을 유지하므로 재클릭이 **성공분까지 다시 DELETE** 하고, 그것들은 `crud.ts:83` 의 409 로 떨어져 실패 건수가 오히려 늘어난다. `settleAll`(`bulk.ts:19-21`)이 건수만 돌려주고 실패 id 를 주지 않아 '실패분만 재시도'가 구조적으로 불가능 | 3건 선택 + `?fail=history:delete` 를 일부에만 적용해 부분 실패 재현 → 삭제된 행이 표에 잔존, 재클릭 시 실패 건수 증가 | **gap** |
+| EXC-11 | P1 | `navigator.onLine` 앱 전체 0건 | offline 토글 → 배너 없음 | gap(앱 전역) |
+| EXC-12 | P1 | `useCrudForm.ts:138-143` 이 `isNotFound` 로 `loadFailure` 를 'not-found'/'error' 로 가르고, `FormPageShell.tsx:115-142` 가 404 는 '목록으로'만·그 외는 '다시 시도'+'목록으로' 를 준다 | 없는 id 로 `/:id/edit` → '연혁을(를) 찾을 수 없습니다…' + '목록으로'만. `?fail=history:detail` → '다시 시도' 포함 | pass |
+| EXC-14 | P1 | 이 화면에 optimistic write 가 없다(전부 비관적) — un-rolled-back optimistic 도 0건 | 인라인 토글·재정렬 표면 없음 | pass(N/A 성) |
+| EXC-18 | P1 | `useCrudList.tsx:41` `toggleAll(ids, checked)` 가 넘겨받은 ids(= 보이는 전 행)를 토글한다. 페이지 개념이 없어 scope 모호성은 없으나 **Shift-range 선택·대량 confirm 강화·progress·cancel 이 없다** | 전 행 선택 후 일괄 삭제 → count 만 표시, progress/cancel 없음 | gap |
+| EXC-20 | P1 | `useCrudForm.ts:189` `referenceOf(cause)` + `FormFeedback.tsx:38-47` 이 '오류 코드 TDS-…' 를 `userSelect: all` 로 보인다. raw body/stack 미노출 | `?status=history:save:500` → 친근한 문구 + 복사 가능한 reference | pass |
+| COMP-12 | P2 | 내용 textarea 는 카운터 보유(`TextareaField.tsx:52` 'N/300'). **연도 입력은 없음**(number 라 무관) | 내용 입력 시 실시간 카운트 | pass |
+| COMP-06 | P2 | `CrudTable.tsx:144` `Array.from({ length: 5 })` — 하드코딩 5행. PAGE_SIZE 가 없어 대응물도 없다 | skeleton row 수 = 5 고정 | gap |
+| COMP-09 | P2 | 내용 셀(`HistoryListPage.tsx:39`)에 truncation 없음 — 300자가 그대로 렌더돼 컬럼을 민다 | 300자 내용 → 셀이 세로로 늘어남 | gap |
+
+## 4. quality-bar 가 다루지 않는 축
+
+### 4.1 성능 예산
+
+| 축 | 예산 | 현재 |
+|---|---|---|
+| 목록 조회 p95 | **400ms**(서버 처리, BE-017 §2 상한 5초 내) | 측정 불가 — 백엔드 없음 |
+| 첫 렌더(스켈레톤 등장) | 100ms 이내 | 라우트 코드가 정적 import(`App.tsx:56-57`)라 번들에 포함 — 네트워크 왕복 없음 |
+| 목록 → 폼 이동 | 재조회 없음 | 폼은 `fetchOne` 1회. `staleTime: 30s` 라 목록 복귀 시 재조회 없음 |
+| 재조회 횟수 | 화면당 1회 + 쓰기 성공당 1회 | `refetchOnWindowFocus: false` · `retry: false`(`queryClient.ts:59,67`)로 확정. 등록·수정·삭제 성공 시 list 무효화 1회 |
+| 목록 DOM 노드 | **행 200개 이하** | **예산 미준수 위험** — 상한이 없다(IA-04 gap). 연혁 1,000건이면 1,000행 |
+| 메모리 | 픽스처 배열 1벌(`crud.ts:40` 클로저) | 화면 언마운트 후에도 모듈 스코프에 남는다 — 픽스처 한정 |
+| 번들 | 이 화면 전용 코드 ≈ 6KB(4파일) | 공용 CRUD 키트를 공유해 화면당 증분이 작다 |
+
+> **`LATENCY_MS = 400`(`shared/crud/dev.ts:12`)은 성능 예산이 아니다.** 픽스처 응답에 인위적 지연을 넣어 **로딩 상태를 화면에서 볼 수 있게** 하는 개발용 상수다. 백엔드가 붙으면 사라진다 — 이 값을 SLO 로 읽지 마라.
+
+### 4.2 가용성 · 복원력
+
+| 시나리오 | 요구 동작 | 현재 상태 |
+|---|---|---|
+| 목록 조회 실패 | 인라인 배너 + 재시도 | 충족 (STATE-02) |
+| 렌더 예외 | 셸 유지 + 복구 UI | 충족 (EXC-01) |
+| 세션 만료 | 재인증 + 원경로 복원 | 충족 (EXC-02). **단 dirty 폼 draft 는 유실**(EXC-19 미구현) |
+| 다른 관리자가 먼저 삭제 | 유령 저장 금지 + 충돌 안내 | 충족 (EXC-04) |
+| 다른 관리자와 동시 수정 | 덮어쓰기 금지 | **미충족** — `version`/`ETag` 부재로 last-write-wins (BE-017 §7.4) |
+| 일괄 삭제 부분 실패 | 실패분만 재시도 | **미충족** — 성공분까지 재요청 (EXC-10) |
+| 네트워크 단절 | 배너 + 쓰기 게이트 | **미충족** (EXC-11) |
+| 응답 없음(무한 대기) | ceiling abort + 재시도 | **미충족** (EXC-05) |
+| 서버 5xx | 친근한 문구 + reference | 충족 (EXC-20) |
+
+### 4.3 데이터 보존 · 감사
+
+| 축 | 현재 |
+|---|---|
+| 삭제 | **하드 삭제 · undo 없음**(`crud.ts:86`). 확인 다이얼로그가 유일한 방어(FEEDBACK-05 P2 는 confirm 만으로 충족) |
+| 미저장 입력 | 3경로 이탈 가드로 보호(FEEDBACK-04). **단 세션 만료 redirect 는 programmatic navigate 라 가드가 발화하지 않아 입력이 유실된다**(EXC-19) |
+| 감사 로그 | 누가 언제 연혁을 바꿨는지 기록이 없다 — `HistoryItem` 에 `updatedAt`·`updatedBy` 부재. **BE-017 §7.4 의 `version` 도입 시 함께 정한다** |
+| 연혁의 성격 | 회사 공식 연혁은 **고객 대상 공개 기록**이다. 하드 삭제 + 감사 부재 + undo 부재의 조합은 오조작 복구 수단이 백업뿐임을 뜻한다 — A63 판단 필요 |
+
+## 5. 미충족(gap) 요약 → 이관
+
+| # | 요구 ID | P | 내용 | 범위 | 이관 |
+|---|---|---|---|---|---|
+| 1 | **A11Y-11** | **P0** | required 필드가 AT 에 노출되지 않는다 — `FormField.tsx:58-62` 가 `*` 를 `aria-hidden` 으로만 그리고 컨트롤에 `required`/`aria-required` 가 없다. `aria-invalid`↔`describedby` 짝은 성립 | DS(`FormField`) + 이 폼 | A11 / DS 소유자 |
+| 2 | **MOTION-01** | **P0** | Modal enter/exit transition 부재 — 리포에 Motion 라이브러리 자체가 없다 | DS(`Modal`) · 앱 전역 | DS 소유자 |
+| 3 | **MOTION-02** | **P0** | Toast exit 애니메이션 부재 — `ToastProvider.tsx:100` 즉시 filter-out | DS(`Toast`)+`ToastProvider` · 앱 전역 | DS 소유자 / A40 |
+| 4 | **IA-02** | **P0** | 하위 라우트 제목이 가지 라벨 '기업 관리' 로 폴백(`nav-config.ts:260`)하고 본문 h1 과 **둘이 공존**한다. 목록은 본문 h1 이 없어 원천이 화면마다 다르다 | 앱 전역(`AppHeader`·`findNavLabel`) | A40 / A11 |
+| 5 | **IA-04** | **P0** | Pagination 부재 — `CrudListShell` 이 전 행을 렌더한다. 연혁은 단조 증가 데이터 | 공용(`CrudListShell`) → 형제 화면 동일 | A11 / A41 |
+| 6 | **EXC-03** | **P0** | write-action 게이팅 미배선 — `useRouteWritePermissions` 소비자 0건. 등록·수정·삭제 버튼이 권한 무관하게 렌더 | 앱 전역(공용 CRUD 껍데기) | A11 / A41 |
+| 7 | ERP-08 | P1 | **`formatNumber(year)` → '2,018년'**(`HistoryListPage.tsx:25,37`). 접근 이름·확인 문구·토스트로 전파 | **이 화면 고유** | A11 change_request (A41) |
+| 8 | EXC-10 | P1 | 일괄 삭제 부분 실패 시 무효화 누락(`crud.ts:239`) + 재시도가 성공분을 재삭제해 실패 건수 증가 | 공용(`crud.ts`·`bulk.ts`) | A11 / A41 / A63 |
+| 9 | STATE-05 | P1 | 빈 상태에 생성 CTA 없음 — `empty` prop 미전달 | 이 화면 + 공용 껍데기 | A11 |
+| 10 | A11Y-03 | P1 | ConfirmDialog 초기 포커스가 Cancel 이 아니라 닫기(×) | DS(`ConfirmDialog`) | DS 소유자 |
+| 11 | A11Y-08 | P1 | 행 클릭 이동의 키보드 등가 링크 부재 | 공용(`CrudTable`) | A11 |
+| 12 | A11Y-13 | P1 | 폼 진입 시 첫 필드 자동 포커스 없음(error 포커스는 성립) | 공용(`useCrudForm`) | A41 |
+| 13 | IA-03 | P1 | breadcrumb 부재 | 앱 전역 | A40 / A11 |
+| 14 | IA-14 · ERP-15 | P1 | 반응형 미선언 · 대형 리스트 계약 부재 | 앱 전역 | A11 / A40 |
+| 15 | ERP-06 · ERP-13 | P1 | 리터럴 조사 '을(를)' 출하 · select 에 '입력하세요' 문구 | 앱 전역 + 이 화면 검증 문구 | A11 |
+| 16 | EXC-05 · EXC-11 | P1 | client timeout · offline 감지 부재 | 앱 전역 | A40 / A11 |
+| 17 | EXC-06 | P1 | 403·429 전용 surface 없음 — 일반 실패 배너로 수렴 | 공용 | A11 / A63 |
+| 18 | EXC-18 | P1 | Shift-range · 대량 confirm · progress · cancel 부재 | 공용 | A11 |
+| 19 | MOTION-04 · MOTION-08 | P1 | 행 FLIP · easing recipe 부재(MOTION-01/02 종속) | DS · 앱 전역 | DS 소유자 |
+| 20 | COMP-06 · COMP-09 | P2 | skeleton `length: 5` 하드코딩 · 내용 셀 truncation 없음 | 공용(`CrudTable`) | A41 |
+| 21 | — | — | **동시 편집 last-write-wins** — `version`/`ETag` 부재(EXC-04 acceptanceCheck 는 통과하나 잔여 위험) | 계약 | A63 (BE-017 §7.4) |
+| 22 | EXC-19 | P1 | 세션 만료 redirect 시 dirty 폼 draft 유실 | 앱 전역 | A40 / A11 |
+
+## 6. 측정 도구 · 재현 스위치
+
+> **E2E 미실행.** 이 문서의 판정 근거는 **코드 대조**다. 아래는 판정을 확인·반증하기 위해 **무엇을 구동해야 하는가**의 목록이며, 이 화면의 e2e 스펙은 현재 존재하지 않는다(`e2e/` 에 history 스펙 0건).
+
+### 6.1 이 화면에서 실제로 동작하는 스위치
+
+`shared/crud/dev.ts` 가 소유한다. 이 화면의 어댑터 scope 는 **`'history'`**(`data-source.ts:21` `scope: 'history'`)이고, op 는 `createCrudAdapter` 가 고정한 **4종**뿐이다.
+
+| op | 발생 지점 (crud.ts) | 이 화면의 표면 |
+|---|---|---|
+| `list` | `fetchAll` — `45` | 목록 조회 (FS-017-EL-008) |
+| `detail` | `fetchOne` — `50` | 수정 진입 시 상세 조회 (FS-017-EL-020) |
+| `save` | `create` — `61` · `update` — `66` | 등록·수정 저장 (FS-017-EL-013 / EL-022) |
+| `delete` | `remove` — `79` | 단건·일괄 삭제 (FS-017-EL-009.1 / EL-010.1) |
+
+**`?fail=` (generic Error)** — `dev.ts:81-93`
+```
+?fail=list              # op 지정 (전 scope)
+?fail=history:list      # scope:op 지정 — 이 화면만
+?fail=save,delete       # 콤마 다중
+?fail=all               # 전 op
+```
+
+**`?status=` (특정 HTTP status)** — `dev.ts:56-71`. `?fail=` 은 언제나 같은 generic Error 를 던져 401/403/409/422 처럼 **UX 가 완전히 다른 실패**를 재현할 수 없어 추가된 스위치다.
+```
+?status=save:409        # 충돌 다이얼로그 (EXC-04)
+?status=history:save:409
+?status=list:401        # 재인증 경로 (EXC-02)
+?status=save:403        # 권한 (EXC-03 서버 측)
+?status=detail:404      # not-found 갈래 (EXC-12)
+?status=save:500        # 오류 코드 표시 (EXC-20)
+?status=all:500
+```
+재현 가능 status(`dev.ts:27-37`): `400 · 401 · 403 · 404 · 409 · 412 · 422 · 429 · 500`.
+
+### 6.2 이 화면에 **없는** 스위치
+
+- **`?delay=` 는 이 화면에서 동작하지 않는다.** `shared/crud/dev.ts` 에 없다 — `pages/dashboard/api.ts` · `pages/members/data-source.ts` 에만 존재한다. 이 화면의 지연은 `LATENCY_MS = 400` 고정(`dev.ts:12`)이며 URL 로 바꿀 수 없다. STATE-01 의 acceptanceCheck 가 `?delay=3000` 을 요구하지만 **이 화면에서는 그 절차를 그대로 쓸 수 없다** — 대신 재조회(등록 후 목록 복귀) 시 표가 스켈레톤으로 덮이는지로 판정한다.
+
+### 6.3 코드 대조 도구
+
+| 판정 | 명령 |
+|---|---|
+| TOKEN-01 | `rg '#[0-9a-fA-F]{3,6}\|[1-9][0-9]*px\|(outline\|border): (thin\|medium\|thick)' apps/admin/src/pages/company/history` |
+| A11Y-11 | `rg 'aria-required\|required=' apps/admin/src/pages/company/history` · `rg -A2 'aria-invalid' apps/admin/src/pages/company/history` |
+| MOTION-01/02 | `rg 'AnimatePresence\|framer-motion\|useReducedMotion' --glob '!node_modules'` → 0건 |
+| EXC-03 | `rg 'useRouteWritePermissions\|useRouteCan' apps/admin/src` → 정의 파일 1건뿐 |
+| IA-04 | `rg 'Pagination' apps/admin/src/shared/crud` → 0건 |
+| IA-13 | `rg 'useListState\|useSearchParams' apps/admin/src/pages/company/history` → 0건 |
+| 단위 테스트 | `pnpm vitest run apps/admin/src/pages/company/history` — `history.test.ts` 는 `sortHistory`(순수) + `historySchema`(검증)만 덮는다. **렌더·상호작용 테스트 0건** |
+
+## 7. 자기 점검
+
+- [x] P0 30건을 지정된 순서로 **전수** 판정했다 — 빈칸 0건
+- [x] §2.1 산수 검산: pass 19 + 종속 0 + n-a 5 + gap 6 = **30** ✅
+- [x] 모든 `N/A` 에 '표면이 없다'는 **구체적 사유**를 적었다 (STATE-04·COMP-10·FEEDBACK-06·A11Y-12·IA-13)
+- [x] 모든 `pass` 에 파일:라인 코드 근거를 적었다
+- [x] 모든 `gap` 에 재현 가능한 측정 기준(무엇을 하면 반증되는가)을 적었다
+- [x] quality-bar 요구 문구를 복제하지 않고 **ID 로만 참조**했다
+- [x] `LATENCY_MS = 400` 이 예산이 아님을 §4.1 에 명시했다
+- [x] `?fail=` scope(`history`)와 op 4종을 **어댑터 코드에서 확인**해 §6 에 적었다. `?delay=` 가 이 화면에 없음을 명시했다
+- [x] 'E2E 미실행 — 판정 근거는 코드 대조' 를 §1.1·§6 에 명시했다
+- [x] FS-017 §7 ↔ BE-017 §7.9 ↔ 이 문서 §5 의 상호 참조를 일치시켰다
+- [x] 이 화면이 공용 모듈을 **실제로 소비하는지** 확인했다 — `useListState`·`useDebouncedSearch`·`useModalDirtyGuard`·`useCrudRowUpdate` 는 **쓰지 않는다**(각각 IA-13·COMP-10·FEEDBACK-06·EXC-14 의 N/A 사유)

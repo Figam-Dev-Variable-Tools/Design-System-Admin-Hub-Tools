@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { objectParticle } from '../../../shared/format';
 import { Button, PlusCircleIcon, SearchField, SelectField, StatusBadge } from '../../../shared/ui';
 import {
   CrudListShell,
@@ -151,9 +152,11 @@ export default function QuoteListPage() {
               convert.run(
                 item.id,
                 { ...toQuoteInput(item), status: 'ordered' },
-                // [ERP-13] 조사 fallback 형('을(를)')을 출하하지 않는다 — 견적번호는 받침 유무가
-                // 값마다 달라 조사를 붙일 수 없다.
-                { success: `수주로 전환했습니다 — ${item.quoteNo}` },
+                // [ERP-13] 조사는 shared/format 이 런타임에 고른다 — 견적번호마다 받침이 달라도
+                // objectParticle 이 마지막 글자를 보고 '을/를' 을 정한다.
+                {
+                  success: `'${item.quoteNo}'${objectParticle(item.quoteNo)} 수주로 전환했습니다.`,
+                },
               )
             }
           >

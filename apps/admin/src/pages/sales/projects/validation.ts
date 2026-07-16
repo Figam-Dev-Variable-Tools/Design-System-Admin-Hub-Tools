@@ -3,6 +3,8 @@
 // 확률·진척은 0~100, 예상매출은 숫자, 기간 역전 금지, 실주 단계는 실주사유 필수, 마일스톤은 이름·목표일.
 import * as z from 'zod/mini';
 
+import { topicParticle } from '../../../shared/format';
+
 import { requiredText } from '../../../shared/crud';
 import { PROJECT_NAME_MAX } from './types';
 
@@ -23,10 +25,10 @@ const milestoneSchema = z.object({
 const percentString = (label: string) =>
   z.string().check(
     z.refine((value) => INT_RE.test(value.trim()), {
-      error: `${label}은(는) 숫자만 입력할 수 있습니다.`,
+      error: `${label}${topicParticle(label)} 숫자만 입력할 수 있습니다.`,
     }),
     z.refine((value) => !INT_RE.test(value.trim()) || Number(value.trim()) <= 100, {
-      error: `${label}은(는) 0~100 사이여야 합니다.`,
+      error: `${label}${topicParticle(label)} 0~100 사이여야 합니다.`,
     }),
   );
 

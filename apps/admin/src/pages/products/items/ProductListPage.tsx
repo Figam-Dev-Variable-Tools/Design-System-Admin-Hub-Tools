@@ -7,7 +7,7 @@ import type { CSSProperties } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-import { formatNumber } from '../../../shared/format';
+import { formatNumber, objectParticle } from '../../../shared/format';
 import {
   Button,
   PlusCircleIcon,
@@ -192,8 +192,8 @@ export default function ProductListPage() {
               { ...toProductInput(item), displayed: next },
               {
                 success: next
-                  ? `'${item.name}' 을(를) 전시했습니다.`
-                  : `'${item.name}' 을(를) 숨겼습니다.`,
+                  ? `'${item.name}'${objectParticle(item.name)} 전시했습니다.`
+                  : `'${item.name}'${objectParticle(item.name)} 숨겼습니다.`,
               },
             )
           }

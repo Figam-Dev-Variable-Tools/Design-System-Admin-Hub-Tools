@@ -57,6 +57,7 @@ export { useListState } from './useListState';
 export type { ListState, ListStateConfig } from './useListState';
 /** 검색창 하나만 필요한 화면용 (URL 상태가 필요 없을 때) */
 export { useDebouncedSearch } from './useDebouncedSearch';
+export type { DebouncedSearch } from './useDebouncedSearch';
 
 // ── 폼 계층 ──────────────────────────────────────────────────────────────────
 export { useCrudForm } from './useCrudForm';

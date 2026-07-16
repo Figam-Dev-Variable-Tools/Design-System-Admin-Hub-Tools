@@ -5,15 +5,24 @@
 // 문구까지 같아 여기 한 벌만 둔다(모두 pages/company 아래라 결합이 아니다).
 import * as z from 'zod/mini';
 
+import { objectParticle, topicParticle } from '../format';
+
 /** URL 은 http(s) 로 시작하는 문자열만 받는다 */
 const HTTP_URL_RE = /^https?:\/\/\S+$/;
 
-/** 필수 텍스트 — 공백만이면 막고, 최대 길이를 넘으면 막는다 */
+/**
+ * 필수 텍스트 — 공백만이면 막고, 최대 길이를 넘으면 막는다.
+ *
+ * [ERP-13] label 은 호출부가 주입한다('제목'·'회사명'·'메시지'…). 그래서 조사를 리터럴로 쓰면
+ * '메시지을(를) 입력하세요' 가 나온다 — 받침을 보고 고른다.
+ */
 export function requiredText(label: string, max: number) {
   return z.string().check(
-    z.refine((value) => value.trim() !== '', { error: `${label}을(를) 입력하세요.` }),
+    z.refine((value) => value.trim() !== '', {
+      error: `${label}${objectParticle(label)} 입력하세요.`,
+    }),
     z.refine((value) => value.trim().length <= max, {
-      error: `${label}은(는) ${String(max)}자를 넘을 수 없습니다.`,
+      error: `${label}${topicParticle(label)} ${String(max)}자를 넘을 수 없습니다.`,
     }),
   );
 }
@@ -32,7 +41,9 @@ export function optionalHttpUrl(label = '이미지 URL') {
  * 등록 여부만 본다. (ImageUploadField 가 타입·용량을 클라이언트에서 이미 막는다.)
  */
 export function requiredImage(label = '이미지') {
-  return z
-    .string()
-    .check(z.refine((value) => value.trim() !== '', { error: `${label}을(를) 등록하세요.` }));
+  return z.string().check(
+    z.refine((value) => value.trim() !== '', {
+      error: `${label}${objectParticle(label)} 등록하세요.`,
+    }),
+  );
 }

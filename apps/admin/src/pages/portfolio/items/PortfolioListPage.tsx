@@ -15,6 +15,7 @@ import { categoryTone, toPortfolioInput } from './types';
 import { publishToggleColumn } from '../_shared/publishColumn';
 import { filterPortfolioItems, PORTFOLIO_FILTER_ALL } from '../_shared/store';
 import type { PortfolioItem, PortfolioItemInput } from '../_shared/store';
+import { objectParticle } from '../../../shared/format';
 
 const RESOURCE = 'portfolio';
 const ENTITY_LABEL = '포트폴리오';
@@ -87,8 +88,8 @@ export default function PortfolioListPage() {
         { ...toPortfolioInput(item), published: next },
         {
           success: next
-            ? `'${item.title}' 을(를) 게시했습니다.`
-            : `'${item.title}' 을(를) 숨겼습니다.`,
+            ? `'${item.title}'${objectParticle(item.title)} 게시했습니다.`
+            : `'${item.title}'${objectParticle(item.title)} 숨겼습니다.`,
         },
       ),
     ),

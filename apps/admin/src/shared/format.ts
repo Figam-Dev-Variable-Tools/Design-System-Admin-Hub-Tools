@@ -64,6 +64,66 @@ export function initialOf(nickname: string): string {
   return nickname.trim().slice(0, 1) || '?';
 }
 
+/* ── 조사(助詞) — ERP-13 ──────────────────────────────────────────────────────
+ *
+ * [무엇을 고치나] `'제목' + '을(를) 입력하세요'` 는 문법을 사람에게 떠넘긴 문장이다. 괄호를 읽는
+ * 사람은 없다 — 눈에 걸릴 뿐이고, 그 순간 화면은 '대충 만든 것'이 된다. 한국어 조사는 앞말의
+ * **받침 유무**로 갈리고, 그건 런타임에 계산할 수 있다. 계산할 수 있는 것을 사용자에게 미루지 않는다.
+ *
+ * [왜 여기 한 벌인가] 이 헬퍼가 없는 동안 세 곳이 각자 사본을 만들었다 — logs/josa.ts ·
+ * notifications/_shared/notification.ts · @tds/ui 의 Empty. 앞의 둘은 이 모듈로 수렴됐다.
+ * (@tds/ui 는 앱을 import 할 수 없어(레이어 경계) 자기 사본을 계속 갖는다 — 그건 의도된 자족이다.)
+ *
+ * [한글이 아니면] 영문·숫자로 끝나는 말('API'·'SMS')은 받침을 판정할 수 없다. 관용을 따라
+ * **받침 없음**으로 본다 — 'API를' 이 'API을' 보다 자연스럽다.
+ */
+
+/** 한글 음절 영역 U+AC00–U+D7A3 */
+const HANGUL_FIRST = 0xac00;
+const HANGUL_LAST = 0xd7a3;
+
+/** 한 음절 = 초성×21×28 + 중성×28 + 종성 — 나머지가 0이 아니면 종성(받침)이 있다 */
+const JONGSEONG_CYCLE = 28;
+
+/** 종성 코드 8 = 'ㄹ' — '(으)로' 는 ㄹ 받침을 받침 없음처럼 다룬다 ('서울로', '길로') */
+const JONGSEONG_RIEUL = 8;
+
+/** 마지막 글자의 종성 코드 — 한글 음절이 아니면 null(= 판정 불가) */
+function jongseongOf(word: string): number | null {
+  if (word.length === 0) return null;
+  const code = word.charCodeAt(word.length - 1);
+  if (code < HANGUL_FIRST || code > HANGUL_LAST) return null;
+  return (code - HANGUL_FIRST) % JONGSEONG_CYCLE;
+}
+
+/** 마지막 글자에 받침이 있는가 — 한글이 아니거나 빈 문자열이면 false */
+function hasBatchim(word: string): boolean {
+  const jongseong = jongseongOf(word);
+  return jongseong !== null && jongseong !== 0;
+}
+
+/** 목적격 '을/를' — '제목을 입력하세요' / '메시지를 입력하세요' */
+export function objectParticle(word: string): string {
+  return hasBatchim(word) ? '을' : '를';
+}
+
+/** 보조사 '은/는' — '제목은 100자를 넘을 수 없습니다' / '메시지는 …' */
+export function topicParticle(word: string): string {
+  return hasBatchim(word) ? '은' : '는';
+}
+
+/**
+ * 방향격 '(으)로' — '답변완료로 변경' / '보류중으로 변경'.
+ *
+ * ㄹ 받침은 예외다: '서울으로'가 아니라 '서울로'다. 그래서 다른 조사처럼 받침 **유무**만 보면
+ * 틀린다 — 종성이 무엇인지까지 봐야 한다.
+ */
+export function directionParticle(word: string): string {
+  const jongseong = jongseongOf(word);
+  if (jongseong === null || jongseong === 0 || jongseong === JONGSEONG_RIEUL) return '로';
+  return '으로';
+}
+
 /** 목록의 활동 컬럼 — '0/ 0/ 0/ 0' */
 export function formatActivity(counts: {
   readonly posts: number;

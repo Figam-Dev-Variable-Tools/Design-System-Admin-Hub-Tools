@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 
 import { isAbort } from '../../../shared/async';
-import { formatNumber } from '../../../shared/format';
+import { formatNumber, objectParticle } from '../../../shared/format';
 import {
   Alert,
   Button,
@@ -100,8 +100,20 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
   const setActiveLogo = useSetLogoActive(resource, adapter);
   const [togglingIds, setTogglingIds] = useState<ReadonlySet<string>>(new Set());
 
-  const { data, isFetching: loading, error, refetch } = useLogosQuery(resource, adapter);
+  const { data, isFetching, error, refetch } = useLogosQuery(resource, adapter);
   const all = useMemo(() => data ?? [], [data]);
+
+  /**
+   * [STATE-01] 스켈레톤은 **최초 로드에만** 뜬다.
+   *
+   * 예전엔 `isFetching` 을 그대로 `loading` 이라 불러 표에 넘겼다. 이 화면은 노출 토글과 순서
+   * 이동이 일상이고 둘 다 invalidate 를 건다 — 그때마다 **이미 채워져 있던 행이 스켈레톤으로
+   * 지워졌다.** 로고를 한 칸 내리려던 운영자 밑에서 표가 통째로 사라진다.
+   * (정의는 공유 useCrudList 와 글자까지 같다 — 이 화면은 순서 이동 때문에 그 훅을 쓰지 않는다.)
+   */
+  const firstLoading = isFetching && data === undefined;
+  /** 데이터가 있는 채로 백그라운드 재조회 중 — 가벼운 인디케이터용, 표를 비우지 않는다 (STATE-03) */
+  const refreshing = isFetching && data !== undefined;
 
   useEffect(() => {
     const timer = setTimeout(() => setKeyword(keywordInput), SEARCH_DEBOUNCE_MS);
@@ -145,7 +157,9 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
       {
         onSuccess: () => {
           toast.success(
-            next ? `'${item.name}' 을(를) 노출합니다.` : `'${item.name}' 을(를) 숨깁니다.`,
+            next
+              ? `'${item.name}'${objectParticle(item.name)} 노출합니다.`
+              : `'${item.name}'${objectParticle(item.name)} 숨깁니다.`,
           );
         },
         onError: (cause: unknown) => {
@@ -191,7 +205,7 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
         onSuccess: () => {
           if (controller.signal.aborted) return;
           setPendingDelete(null);
-          toast.success(`'${target.name}' 을(를) 삭제했습니다.`);
+          toast.success(`'${target.name}'${objectParticle(target.name)} 삭제했습니다.`);
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
@@ -237,7 +251,11 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
 
   const onSaved = (name: string, isEdit: boolean) => {
     setModal({ kind: 'closed' });
-    toast.success(isEdit ? `'${name}' 을(를) 저장했습니다.` : `'${name}' 을(를) 추가했습니다.`);
+    toast.success(
+      isEdit
+        ? `'${name}'${objectParticle(name)} 저장했습니다.`
+        : `'${name}'${objectParticle(name)} 추가했습니다.`,
+    );
   };
 
   return (
@@ -257,9 +275,10 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
       {error === null ? (
         <>
           <div style={summaryRowStyle}>
-            <p style={hintStyle}>
-              {loading ? '불러오는 중…' : `전체 ${formatNumber(total)}건`}
+            <p style={hintStyle} aria-busy={refreshing}>
+              {firstLoading ? '불러오는 중…' : `전체 ${formatNumber(total)}건`}
               {selectedCount > 0 && ` · ${formatNumber(selectedCount)}건 선택됨`}
+              {refreshing && ' · 새로고침 중…'}
             </p>
           </div>
 
@@ -271,7 +290,7 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
 
           <LogoListTable
             items={visible}
-            loading={loading}
+            loading={firstLoading}
             entityLabel={entityLabel}
             onEdit={(item) => setModal({ kind: 'edit', item })}
             onDelete={openDelete}
@@ -322,7 +341,7 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
         <ConfirmDialog
           intent="delete"
           title={`${entityLabel} 삭제`}
-          message={`'${pendingDelete.name}' 을(를) 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.name}'${objectParticle(pendingDelete.name)} 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
           confirmLabel="삭제"
           busy={deleting}
           error={deleteError}

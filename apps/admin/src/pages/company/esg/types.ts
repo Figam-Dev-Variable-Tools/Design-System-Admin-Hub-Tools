@@ -61,6 +61,12 @@ export function sortEsg(list: readonly EsgItem[]): readonly EsgItem[] {
 export const ESG_FILTER_ALL = 'all';
 export type EsgFilter = typeof ESG_FILTER_ALL | EsgCategory;
 
+/** 좌측 필터가 그리는 항목 — '전체' + 분류들 (공유 FilterPanel 에 그대로 넘긴다) */
+export const ESG_FILTER_OPTIONS: readonly { readonly id: EsgFilter; readonly label: string }[] = [
+  { id: ESG_FILTER_ALL, label: '전체' },
+  ...ESG_CATEGORY_OPTIONS,
+];
+
 /** 분류 필터 적용. **테스트가 이 순수 함수를 직접 부른다.** */
 export function filterEsg(list: readonly EsgItem[], filter: EsgFilter): readonly EsgItem[] {
   if (filter === ESG_FILTER_ALL) return list;

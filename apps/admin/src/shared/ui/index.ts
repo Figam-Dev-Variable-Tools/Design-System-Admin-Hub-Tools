@@ -60,6 +60,12 @@ export { Card, CardTitle } from './Card';
 
 export { ConfirmDialog } from './ConfirmDialog';
 
+/**
+ * 좌측 분류 필터 패널 (ESG·알림 관리가 공유). 도메인은 options/counts 로 주입한다 —
+ * 예전엔 두 화면이 같은 골격을 각자 복제해 aria 표기가 갈라져 있었다 (A11Y-12).
+ */
+export { FilterPanel } from './FilterPanel';
+
 /* Modal 은 **@tds/ui 의 것**이다 (organism 승격 · B4). 예전엔 shared/ui 안의 사본을 가리켰다 — 그 사본은 삭제됐다. */
 export { Modal } from '@tds/ui';
 

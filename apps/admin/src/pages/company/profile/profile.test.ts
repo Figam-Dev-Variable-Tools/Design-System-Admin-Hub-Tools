@@ -31,9 +31,7 @@ describe('companyProfileSchema — 회사 정보 폼 검증', () => {
   });
 
   it('회사명이 비면 막는다', () => {
-    expect(messageFor(valuesOf({ companyName: '  ' }), 'companyName')).toBe(
-      '회사명을(를) 입력하세요.',
-    );
+    expect(messageFor(valuesOf({ companyName: '  ' }), 'companyName')).toBe('회사명을 입력하세요.');
   });
 
   it('사업자등록번호 형식이 틀리면 막는다', () => {

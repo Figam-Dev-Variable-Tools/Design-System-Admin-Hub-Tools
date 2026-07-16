@@ -143,8 +143,8 @@ function issueQuoteIfRequested(item: Inquiry, input: InquiryInput): Inquiry {
       at: new Date().toISOString(),
       author: SYSTEM_AUTHOR,
       kind: 'status',
-      // [ERP-13] 조사 fallback 형('을(를)')을 출하하지 않는다. 견적번호는 받침 유무가 값마다 달라
-      // 조사를 붙일 수 없다 — 조사가 필요 없는 문형으로 쓴다.
+      // 타임라인 항목은 '무슨 일 — 대상' 라벨형이다. 조사가 붙을 자리가 없어 shared/format 의
+      // 조사 헬퍼가 필요 없다(리터럴 '을(를)' 도 물론 없다 — ERP-13).
       text: `견적 자동 생성 — ${quote.quoteNo}`,
     }),
   };

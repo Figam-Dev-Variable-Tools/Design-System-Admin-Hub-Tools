@@ -3,6 +3,7 @@
 // 국내 관례를 따른다: 커스텀 폼으로 접수된 신청(견적·상담·체험·제휴·채용)을 관리자가 처리한다.
 // 신청은 고객 채널이 만들고(생성 UI 없음) 관리자는 상태 전이 + 메모로 처리한다(교환/반품 처리 선례).
 // 상태 흐름: 접수 → 검토중 → 승인/반려, 승인 → 완료. 반려·완료는 종료. 처리 이력은 타임라인으로 본다.
+import { directionParticle } from '../../../shared/format';
 import type { StatusTone, TimelineEvent } from '../../../shared/ui';
 
 type ApplicationType = 'quote' | 'consulting' | 'trial' | 'partnership' | 'recruit';
@@ -127,7 +128,10 @@ export function toTimelineEvents(history: readonly ApplicationEvent[]): readonly
     badgeTone: applicationStatusTone(event.status),
     badgeLabel: applicationStatusLabel(event.status),
     author: event.by,
-    text: event.note === '' ? `${applicationStatusLabel(event.status)}(으)로 변경` : event.note,
+    text:
+      event.note === ''
+        ? `${applicationStatusLabel(event.status)}${directionParticle(applicationStatusLabel(event.status))} 변경`
+        : event.note,
   }));
 }
 

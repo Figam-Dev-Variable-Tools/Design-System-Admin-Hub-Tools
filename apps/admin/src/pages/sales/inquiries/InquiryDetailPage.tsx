@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { isAbort } from '../../../shared/async';
-import { formatDateTime } from '../../../shared/format';
+import { directionParticle, formatDateTime } from '../../../shared/format';
 import {
   Alert,
   alertActionRowStyle,
@@ -159,13 +159,14 @@ export default function InquiryDetailPage() {
     let timeline = inquiry.timeline;
 
     if (status !== inquiry.status) {
+      // [ERP-13] 조사는 shared/format 이 런타임에 고른다 — 문형을 비트는 대신 조사를 계산한다.
+      const statusText = inquiryStatusLabel(status);
       const statusEvent: InquiryEvent = {
         id: `ev-${String(Date.now())}-s`,
         at: now,
         author: ADMIN_AUTHOR,
         kind: 'status',
-        // [ERP-13] 조사 fallback 형('(으)로')을 출하하지 않는다 — 조사가 필요 없는 문형으로 쓴다.
-        text: `상태 변경 — ${inquiryStatusLabel(status)}`,
+        text: `상태를 '${statusText}'${directionParticle(statusText)} 변경`,
       };
       timeline = appendEvent(timeline, statusEvent);
     }

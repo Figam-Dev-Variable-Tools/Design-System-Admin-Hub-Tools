@@ -1,14 +1,18 @@
 // 배송 정책 폼 검증 규칙 (A41 — 검증의 정본은 이 zod 스키마다)
 import * as z from 'zod/mini';
 
+import { objectParticle, topicParticle } from '../../../shared/format';
+
 const INT_RE = /^\d+$/;
 
 /** 필수 정수 문자열 — 비면 막고, 숫자 형식이 아니면 막는다 */
 const intString = (label: string) =>
   z.string().check(
-    z.refine((value) => value.trim() !== '', { error: `${label}을(를) 입력하세요.` }),
+    z.refine((value) => value.trim() !== '', {
+      error: `${label}${objectParticle(label)} 입력하세요.`,
+    }),
     z.refine((value) => INT_RE.test(value.trim()), {
-      error: `${label}은(는) 0 이상의 정수만 입력할 수 있습니다.`,
+      error: `${label}${topicParticle(label)} 0 이상의 정수만 입력할 수 있습니다.`,
     }),
   );
 

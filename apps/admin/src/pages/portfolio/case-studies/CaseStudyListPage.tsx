@@ -20,6 +20,7 @@ import {
 } from './types';
 import type { CaseFilter, CaseStudy, CaseStudyInput } from './types';
 import { publishToggleColumn } from '../_shared/publishColumn';
+import { objectParticle } from '../../../shared/format';
 
 const RESOURCE = 'case-studies';
 const ENTITY_LABEL = '성공 사례';
@@ -90,8 +91,8 @@ export default function CaseStudyListPage() {
         { ...toCaseStudyInput(item), published: next },
         {
           success: next
-            ? `'${item.title}' 을(를) 게시했습니다.`
-            : `'${item.title}' 을(를) 숨겼습니다.`,
+            ? `'${item.title}'${objectParticle(item.title)} 게시했습니다.`
+            : `'${item.title}'${objectParticle(item.title)} 숨겼습니다.`,
         },
       ),
     ),

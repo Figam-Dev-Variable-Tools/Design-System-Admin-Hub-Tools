@@ -3,6 +3,8 @@
 // 숫자 필드(할인값·최대할인·최소주문·발급수량)는 입력 원값 보존을 위해 문자열로 받고 정수 형식을 판정한다.
 import * as z from 'zod/mini';
 
+import { objectParticle, topicParticle } from '../../../shared/format';
+
 import { requiredText } from '../../../shared/crud';
 import { COUPON_CODE_MAX, COUPON_NAME_MAX } from './types';
 
@@ -16,9 +18,11 @@ function isRealDate(value: string): boolean {
 
 const intString = (label: string) =>
   z.string().check(
-    z.refine((value) => value.trim() !== '', { error: `${label}을(를) 입력하세요.` }),
+    z.refine((value) => value.trim() !== '', {
+      error: `${label}${objectParticle(label)} 입력하세요.`,
+    }),
     z.refine((value) => INT_RE.test(value.trim()), {
-      error: `${label}은(는) 숫자만 입력할 수 있습니다.`,
+      error: `${label}${topicParticle(label)} 숫자만 입력할 수 있습니다.`,
     }),
   );
 

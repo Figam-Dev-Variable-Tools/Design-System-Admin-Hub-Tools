@@ -52,17 +52,26 @@ export default function CustomerFaqPage() {
   const reorderControllerRef = useRef<AbortController | null>(null);
   const [togglingIds, setTogglingIds] = useState<ReadonlySet<string>>(new Set());
 
-  const {
-    data,
-    isFetching: loading,
-    error,
-    refetch,
-  } = useQuery({
+  const { data, isFetching, error, refetch } = useQuery({
     queryKey: QUERY_KEY,
     queryFn: ({ signal }) => fetchCustomerFaqs(signal),
     placeholderData: (previous) => previous,
   });
   const faqs = data ?? [];
+
+  /**
+   * [STATE-01] 스켈레톤은 **최초 로드에만** 뜬다.
+   *
+   * 예전엔 `isFetching` 을 그대로 `loading` 이라 불러 표에 넘겼다. 그래서 노출/고정 토글이나
+   * 순서 이동이 invalidate 를 걸 때마다 **이미 채워져 있던 행이 스켈레톤으로 지워졌다** —
+   * 표를 훑던 운영자 밑에서 데이터가 사라진다. placeholderData 로 이전 행을 들고 있으면서도
+   * 화면이 그 이득을 스스로 버리고 있던 셈이다.
+   * (공유 useCrudList 는 F2 에서 이 규칙을 갖췄다. 이 화면은 순서 이동 때문에 그 훅을 쓰지 않아
+   *  같은 규칙을 여기에 둔다 — 이름과 값의 정의는 useCrudList 와 글자까지 같다.)
+   */
+  const firstLoading = isFetching && data === undefined;
+  /** 데이터가 있는 채로 백그라운드 재조회 중 — 가벼운 인디케이터용, 표를 비우지 않는다 (STATE-03) */
+  const refreshing = isFetching && data !== undefined;
 
   const setSnapshot = (next: readonly CustomerFaq[]) => {
     client.setQueryData<readonly CustomerFaq[]>(QUERY_KEY, next);
@@ -197,16 +206,17 @@ export default function CustomerFaqPage() {
         </div>
       </Alert>
 
-      <p style={hintStyle}>
-        {loading
+      <p style={hintStyle} aria-busy={refreshing}>
+        {firstLoading
           ? '불러오는 중…'
           : `전체 ${formatNumber(faqs.length)}건 · 노출 ${formatNumber(countVisible(faqs))}건`}
+        {refreshing && ' · 새로고침 중…'}
       </p>
 
       <Card>
         <CustomerFaqTable
           faqs={faqs}
-          loading={loading}
+          loading={firstLoading}
           onReorder={onReorder}
           reordering={reorder.isPending}
           onToggleVisible={onToggleVisible}
