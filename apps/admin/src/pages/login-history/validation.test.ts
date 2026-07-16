@@ -9,7 +9,11 @@ import { describe, expect, it } from 'vitest';
 import { MAX_RANGE_DAYS } from './types';
 import { issueOf, validateCustomRange } from './validation';
 
-const NOW = new Date('2026-07-15T12:00:00');
+// 한국 시각으로 2026-07-15 12:00. **오프셋을 명시한다** — 오프셋 없는 '2026-07-15T12:00:00' 은
+// 러너의 로컬 정오로 파싱되고, 그러면 뉴욕에서 '오늘'이 7/16 이 되어 '미래는 조회할 수 없다'
+// 단언이 통째로 무너진다(7/16 이 더는 미래가 아니게 된다). 검증의 기준 시각이 실행 환경을
+// 타면 그 검증은 아무것도 고정하지 못한다 (ERP-09).
+const NOW = new Date('2026-07-15T12:00:00+09:00');
 
 describe('validateCustomRange — 조회를 막는 규칙', () => {
   it('정상 구간은 range 를 만들어 준다', () => {

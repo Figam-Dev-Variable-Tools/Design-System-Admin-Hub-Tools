@@ -12,7 +12,7 @@
 // 빈 결과의 원인이 데이터가 아니라 **자기 입력**임을 알려주는 것이 이 검증의 일이다 (COMP-11).
 import * as z from 'zod/mini';
 
-import { dayCount, isCalendarDate, kstToday } from './time';
+import { dayCount, formatDate, isCalendarDate } from '../../shared/format';
 import { MAX_RANGE_DAYS } from './types';
 import type { DateRange } from './types';
 
@@ -100,7 +100,8 @@ export function validateCustomRange(
   draft: CustomRangeDraft,
   now: Date = new Date(),
 ): CustomRangeValidation {
-  const parsed = customRangeSchema(kstToday(now)).safeParse(draft);
+  // '오늘'은 서울의 오늘이다 (formatDate 는 KST 고정 — shared/format, ERP-09)
+  const parsed = customRangeSchema(formatDate(now)).safeParse(draft);
 
   if (parsed.success) return { range: { from: draft.from, to: draft.to }, issues: [] };
 

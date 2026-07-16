@@ -20,9 +20,9 @@
 import { useId } from 'react';
 import type { CSSProperties } from 'react';
 
+import { TIME_ZONE_NOTICE } from '../../../shared/format';
 import { Button, ddStyle, dlStyle, dtStyle, Modal } from '../../../shared/ui';
 import { formatMaskedPayload } from '../masking';
-import { TIME_ZONE_NOTICE } from '../time';
 import type { LogDetail } from '../types';
 
 const bodyStyle: CSSProperties = {

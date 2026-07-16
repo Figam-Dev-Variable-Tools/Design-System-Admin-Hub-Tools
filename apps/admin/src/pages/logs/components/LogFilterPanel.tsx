@@ -14,7 +14,7 @@
 // [여기에 없는 것] 필터를 저장하거나 로그를 삭제하는 버튼이 없다. 감사 로그는 조회 대상일 뿐이다.
 import type { CSSProperties } from 'react';
 
-import { formatNumber } from '../../../shared/format';
+import { formatNumber, TIME_ZONE_NOTICE } from '../../../shared/format';
 import {
   badgeStyle,
   DateRangeField,
@@ -26,7 +26,6 @@ import {
   filterPanelStyle,
   hintStyle,
 } from '../../../shared/ui';
-import { TIME_ZONE_NOTICE } from '../time';
 import { ALL_FILTER, MAX_RANGE_DAYS, PERIOD_FILTERS } from '../types';
 import type { LogAxisCounts, LogFilterAxis, PeriodId, RetentionPolicy } from '../types';
 import { firstIssueMessage } from '../validation';

@@ -12,7 +12,7 @@
 // 빈 결과의 원인이 데이터가 아니라 **자기 입력**임을 알려주는 것이 이 검증의 일이다.
 import * as z from 'zod/mini';
 
-import { dayCount, todayOf } from './period';
+import { dayCount, formatDate, isCalendarDate } from '../../shared/format';
 import { MAX_RANGE_DAYS } from './types';
 import type { DateRange } from './types';
 
@@ -39,19 +39,9 @@ interface CustomRangeValidation {
   readonly issues: readonly RangeIssue[];
 }
 
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-
-/** 형식뿐 아니라 **실재하는 날짜**인가 (2026-02-31 은 형식은 맞지만 존재하지 않는다) */
-function isCalendarDate(value: string): boolean {
-  if (!DATE_PATTERN.test(value)) return false;
-  const parsed = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(parsed.getTime())) return false;
-  // Date 는 2월 31일을 3월 3일로 굴려버린다 — 되돌려 찍어 같은지 본다
-  const roundTrip = `${String(parsed.getFullYear())}-${String(parsed.getMonth() + 1).padStart(2, '0')}-${String(
-    parsed.getDate(),
-  ).padStart(2, '0')}`;
-  return roundTrip === value;
-}
+// [isCalendarDate 는 여기 없다 — ERP-09] '실재하는 날짜인가'(2026-02-31 은 형식은 맞지만
+// 존재하지 않는다)의 판정은 shared/format 한 벌이다. 여기 있던 사본은 로컬 자정으로 되읽어
+// 판정했고, 그래서 같은 입력이 보는 사람의 타임존에 따라 다른 답을 낼 수 있었다.
 
 const FORMAT_MESSAGE = '날짜를 YYYY-MM-DD 형식으로 입력하세요.';
 
@@ -94,7 +84,7 @@ function customRangeSchema(today: string) {
       return;
     }
 
-    const days = dayCount({ from, to });
+    const days = dayCount(from, to);
     if (days !== null && days > MAX_RANGE_DAYS) {
       ctx.issues.push({
         code: 'custom',
@@ -114,7 +104,8 @@ export function validateCustomRange(
   draft: CustomRangeDraft,
   now: Date = new Date(),
 ): CustomRangeValidation {
-  const parsed = customRangeSchema(todayOf(now)).safeParse(draft);
+  // '오늘'은 서울의 오늘이다 (formatDate 는 KST 고정 — shared/format, ERP-09)
+  const parsed = customRangeSchema(formatDate(now)).safeParse(draft);
 
   if (parsed.success) return { range: { from: draft.from, to: draft.to }, issues: [] };
 

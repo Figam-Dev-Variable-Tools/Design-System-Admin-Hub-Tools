@@ -5,7 +5,8 @@
 //
 // TODO(backend): GET /api/stats/members?start&end&channel
 // TODO(backend): GET /api/stats/members/tiers?start&end&channel
-import { daysBetween, eachDay, formatDayLabel } from '../_shared/period';
+import { daysBetween } from '../../../shared/format';
+import { eachDay, formatDayLabel } from '../_shared/period';
 import type { StatsPeriod } from '../_shared/period';
 import { loadStats, seededRandom, seededSeries } from '../_shared/mock';
 import { EMPTY_MEMBER_STATS, MEMBER_TIERS } from './types';
@@ -53,7 +54,8 @@ const TIER_WEIGHTS: Readonly<Record<MemberTier, number>> = {
 
 /** 조회 기간이 시작되는 시점의 누적 회원 수 — 기준일에서 흘러온 만큼을 더한다 */
 function startCumulativeOf(start: string, weight: number): number {
-  const drift = daysBetween(ANCHOR_DATE, start) * DAILY_NET_DRIFT;
+  // ANCHOR_DATE 는 상수이고 start 는 검증을 통과한 값이라 null 이 나올 수 없다 — 0 은 '기준일 그대로'
+  const drift = (daysBetween(ANCHOR_DATE, start) ?? 0) * DAILY_NET_DRIFT;
   return Math.max(0, Math.round((BASE_MEMBERS + drift) * weight));
 }
 

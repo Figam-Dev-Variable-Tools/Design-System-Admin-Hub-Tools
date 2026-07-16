@@ -20,7 +20,7 @@
 //
 // [subjectId] 회원/운영자 픽스처에 **실재하는 id** 를 가리킨다 — 행을 눌러 상세로 갔을 때
 // 죽은 링크가 되지 않게 하기 위해서다. 미등록 계정만 null 이다(가리킬 레코드가 없다).
-import { shiftDays, todayOf } from './period';
+import { formatDate, shiftDays } from '../../shared/format';
 import type { AccountKind, LoginFailureReason, LoginHistoryEntry, LoginOutcome } from './types';
 
 /** 시도의 주체 — 계정 하나 */
@@ -97,9 +97,19 @@ export interface RawAttempt {
   readonly os: string;
 }
 
-/** '오늘'을 기준으로 d일 전, hh:mm 의 ISO date-time */
+/**
+ * '오늘'을 기준으로 d일 전, hh:mm 의 ISO date-time.
+ *
+ * [왜 오프셋(+09:00)을 붙이나 — ERP-09]
+ * 오프셋 없는 ISO('...T02:05:00')는 **읽는 사람의 로컬 시각**으로 파싱된다. 그러면 이 픽스처가
+ * 가리키는 '순간'이 실행 타임존마다 달라지고, 서울 기준으로 날짜를 접수하는 필터
+ * (period.withinRange)가 뉴욕에서 돌 때 하루씩 밀어 넣는다 — 픽스처가 스스로 흔들리면
+ * 그 위의 어떤 단언도 무의미하다. 여기서 뜻하는 시각은 **KST 의 그 시각**이므로 그렇게 적는다.
+ * (실제 서버는 UTC 로 내려주겠지만, 어느 쪽이든 오프셋이 **명시된** ISO 라는 점이 요점이다.)
+ */
 function at(daysAgo: number, hour: number, minute: number, now: Date = new Date()): string {
-  return `${shiftDays(todayOf(now), -daysAgo)}T${pad(hour, 2)}:${pad(minute, 2)}:00`;
+  const day = shiftDays(formatDate(now), -daysAgo);
+  return `${day}T${pad(hour, 2)}:${pad(minute, 2)}:00+09:00`;
 }
 
 function success(actor: Actor, seed: number, occurredAtIso: string): RawAttempt {

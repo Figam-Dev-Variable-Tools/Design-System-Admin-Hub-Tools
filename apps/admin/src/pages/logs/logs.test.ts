@@ -11,6 +11,7 @@
 // 를 추가하는 순간 이 테스트가 빨개진다.
 import { describe, expect, it } from 'vitest';
 
+import { dayCount, formatDate } from '../../shared/format';
 import * as adminSource from './admin/data-source';
 import { adminLogSpec, toCsv as adminToCsv } from './admin/data-source';
 import { ADMIN_LOGS } from './admin/fixtures';
@@ -34,7 +35,7 @@ import { MEMBER_ACTIVITY_LOGS } from './member-activity/fixtures';
 import { presetRange, withinRange } from './period';
 import { applyLogQuery, runLogQuery } from './query-engine';
 import type { LogDataSpec } from './query-engine';
-import { dayCount, formatLogTime, isCalendarDate, kstDayOf, kstToday, shiftDays } from './time';
+import { formatLogTime } from './time';
 import { ALL_FILTER, DEFAULT_SORT } from './types';
 import type { LogEntryBase, LogQuery } from './types';
 import { validateCustomRange } from './validation';
@@ -71,9 +72,14 @@ describe('불변성 — 4개 어댑터에 쓰기 경로가 없다', () => {
   });
 });
 
-/* ── 시각 — 표시 타임존 고정 (ERP-09) ────────────────────────────────────── */
+/* ── 시각 — 표시 타임존 고정 (ERP-09) ──────────────────────────────────────
+ *
+ * 타임존 고정·달력일 환산·달력 산술 자체의 단언은 이제 **구현이 사는 곳**에 있다
+ * (shared/format.test.ts). 사본이 하나로 합쳐졌으므로 그 사본을 검증하던 테스트도 합친다 —
+ * 여기 남는 것은 이 섹션 고유의 요구, 즉 **초 정밀도**뿐이다.
+ */
 
-describe('time — 표시는 언제나 KST 다', () => {
+describe('time — 표시는 언제나 KST 다 (초까지)', () => {
   it('UTC 로 들어온 시각을 KST 로 환산해 그린다 (+9시간)', () => {
     // 실행 OS 의 타임존이 무엇이든 같은 값이 나와야 한다 — 그것이 이 함수의 존재 이유다
     expect(formatLogTime('2026-07-14T02:31:09Z')).toBe('2026-07-14 11:31:09');
@@ -89,31 +95,14 @@ describe('time — 표시는 언제나 KST 다', () => {
     expect(formatLogTime('2026-07-14T11:31:09+09:00')).toBe(formatLogTime('2026-07-14T02:31:09Z'));
   });
 
-  it('kstDayOf — 기간 필터가 쓰는 달력일은 KST 기준이다 (자르기가 아니다)', () => {
-    // iso.slice(0,10) 이었다면 '2026-07-14' 가 나와 하루가 밀린다
-    expect(kstDayOf('2026-07-14T22:00:00Z')).toBe('2026-07-15');
-    expect(kstDayOf('2026-07-14T00:30:00Z')).toBe('2026-07-14');
+  it('**초를 버리지 않는다** — 1초 안의 연쇄를 분 단위로 뭉개면 순서가 사라진다', () => {
+    // 이것이 이 섹션이 shared 의 formatDateTime('분까지')을 쓰지 않는 유일한 이유다
+    expect(formatLogTime('2026-07-14T02:31:09Z')).not.toBe(formatLogTime('2026-07-14T02:31:41Z'));
+    expect(formatLogTime('2026-07-14T02:31:41Z')).toBe('2026-07-14 11:31:41');
   });
 
   it('파싱할 수 없는 값은 지어내지 않고 그대로 돌려준다', () => {
     expect(formatLogTime('not-a-date')).toBe('not-a-date');
-    expect(kstDayOf('not-a-date')).toBeNull();
-  });
-
-  it('shiftDays 는 월·연 경계를 넘는다', () => {
-    expect(shiftDays('2026-03-01', -1)).toBe('2026-02-28');
-    expect(shiftDays('2026-01-01', -1)).toBe('2025-12-31');
-  });
-
-  it('dayCount 는 양 끝을 포함한다', () => {
-    expect(dayCount('2026-07-01', '2026-07-01')).toBe(1);
-    expect(dayCount('2026-07-01', '2026-07-10')).toBe(10);
-  });
-
-  it('isCalendarDate — 실재하지 않는 날짜를 걸러낸다', () => {
-    expect(isCalendarDate('2026-02-31')).toBe(false);
-    expect(isCalendarDate('2026-02-28')).toBe(true);
-    expect(isCalendarDate('2026-7-1')).toBe(false);
   });
 });
 
@@ -138,7 +127,7 @@ describe('period — 기간 프리셋', () => {
   });
 
   it('구간의 끝은 언제나 오늘이다 — 감사 로그에 미래는 없다', () => {
-    expect(presetRange('last-30d', now).to).toBe(kstToday(now));
+    expect(presetRange('last-30d', now).to).toBe(formatDate(now));
   });
 
   it('withinRange 는 KST 달력일로 양 끝을 포함해 판정한다', () => {

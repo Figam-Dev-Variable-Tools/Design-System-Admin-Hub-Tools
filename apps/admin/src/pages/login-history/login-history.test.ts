@@ -17,12 +17,13 @@
 // 를 추가하는 순간 이 테스트가 빨개진다.
 import { describe, expect, it } from 'vitest';
 
+import { dayCount, shiftDays } from '../../shared/format';
 import * as dataSource from './data-source';
 import { applyQuery, toCsv } from './data-source';
 import type { LoginHistoryQuery } from './data-source';
 import { LOGIN_HISTORY, withConsecutiveFailures } from './fixtures';
 import type { RawAttempt } from './fixtures';
-import { dayCount, presetRange, shiftDays, withinRange } from './period';
+import { presetRange, withinRange } from './period';
 import { consecutiveFailureLabel, detailPathOf, FAILURE_STREAK_BADGE_MIN } from './types';
 import type { AccountKind, LoginFailureReason, LoginHistoryEntry, LoginOutcome } from './types';
 
@@ -32,7 +33,8 @@ const RANGE = { from: '2026-07-01', to: '2026-07-10' };
 
 function entryOf(overrides: Partial<LoginHistoryEntry> & { id: string }): LoginHistoryEntry {
   return {
-    occurredAtIso: '2026-07-05T10:00:00',
+    // 오프셋을 명시한다 — 이 표본이 가리키는 순간이 러너 타임존을 타면 안 된다 (ERP-09)
+    occurredAtIso: '2026-07-05T10:00:00+09:00',
     account: 'user1@example.com',
     name: '김**',
     accountKind: 'member' as AccountKind,
@@ -78,8 +80,10 @@ const SAMPLE: readonly LoginHistoryEntry[] = [
     ip: '198.51.100.22',
     subjectId: null,
   }),
-  // 구간 밖 — 기간 필터가 걸러내야 한다
-  entryOf({ id: '5', occurredAtIso: '2026-06-30T23:59:00', account: 'old@example.com' }),
+  // 구간 밖 — 기간 필터가 걸러내야 한다. **KST 6/30 23:59** 이라는 뜻이므로 오프셋을 명시한다:
+  // 오프셋이 없으면 러너의 로컬 23:59 로 읽혀 뉴욕에서는 KST 7/1 12:59(=구간 안)가 되고,
+  // '구간 밖'을 뜻하던 표본이 조용히 '구간 안'이 된다 (ERP-09).
+  entryOf({ id: '5', occurredAtIso: '2026-06-30T23:59:00+09:00', account: 'old@example.com' }),
 ];
 
 function queryOf(overrides: Partial<LoginHistoryQuery> = {}): LoginHistoryQuery {
@@ -371,7 +375,10 @@ describe('픽스처 — BE-001 §4 "미등록 이메일도 동일"', () => {
 /* ── 기간 계산 ────────────────────────────────────────────────────────────── */
 
 describe('period — 기간 프리셋', () => {
-  const now = new Date('2026-07-15T12:00:00');
+  // 한국 시각으로 2026-07-15 12:00. **오프셋을 명시한다** — 오프셋 없는 '2026-07-15T12:00:00'
+  // 은 러너의 로컬 정오로 파싱되고, 그러면 뉴욕에서 이 '오늘'이 7/16 이 되어 아래 단언이
+  // 전부 하루씩 밀린다. 기준 시각이 흔들리는 테스트는 아무것도 고정하지 못한다 (ERP-09).
+  const now = new Date('2026-07-15T12:00:00+09:00');
 
   it("'오늘'은 오늘 하루다", () => {
     expect(presetRange('today', now)).toEqual({ from: '2026-07-15', to: '2026-07-15' });
@@ -380,25 +387,39 @@ describe('period — 기간 프리셋', () => {
   it("'최근 7일'은 오늘을 포함한 7일이다 (6일이 아니다)", () => {
     const range = presetRange('last-7d', now);
     expect(range).toEqual({ from: '2026-07-09', to: '2026-07-15' });
-    expect(dayCount(range)).toBe(7);
+    expect(dayCount(range.from, range.to)).toBe(7);
   });
 
   it("'최근 30일'은 오늘을 포함한 30일이다", () => {
     const range = presetRange('last-30d', now);
     expect(range).toEqual({ from: '2026-06-16', to: '2026-07-15' });
-    expect(dayCount(range)).toBe(30);
+    expect(dayCount(range.from, range.to)).toBe(30);
   });
 
   it('구간의 끝은 언제나 오늘이다 — 감사 로그에 미래는 없다', () => {
     expect(presetRange('last-30d', now).to).toBe('2026-07-15');
   });
 
-  it('withinRange 는 양 끝을 포함한다', () => {
+  it('withinRange 는 **KST 달력일**로 양 끝을 포함해 판정한다', () => {
+    // 예전에는 occurredAtIso.slice(0, 10) 이었다 — 문자열을 잘라 날짜를 얻었다.
+    // 아래 네 줄은 전부 자르기로는 답이 틀리는 경계다 (ERP-09).
     const range = { from: '2026-07-01', to: '2026-07-10' };
-    expect(withinRange('2026-07-01T00:00:00', range)).toBe(true);
-    expect(withinRange('2026-07-10T23:59:59', range)).toBe(true);
-    expect(withinRange('2026-06-30T23:59:59', range)).toBe(false);
-    expect(withinRange('2026-07-11T00:00:00', range)).toBe(false);
+    expect(withinRange('2026-06-30T15:00:00Z', range)).toBe(true); // = KST 7/1 00:00
+    expect(withinRange('2026-06-30T14:59:00Z', range)).toBe(false); // = KST 6/30 23:59
+    expect(withinRange('2026-07-10T14:59:00Z', range)).toBe(true); // = KST 7/10 23:59
+    expect(withinRange('2026-07-10T15:00:00Z', range)).toBe(false); // = KST 7/11 00:00
+  });
+
+  it('UTC 새벽의 로그인이 하루 밀리지 않는다 — 자르기였다면 어제로 접수됐다', () => {
+    // '2026-07-14T22:00:00Z' 는 KST 로 7월 15일 오전 7시다. slice(0,10) 은 '2026-07-14' 를
+    // 내놓아 **오늘 아침의 로그인을 어제 것으로 만들었다**. 감사 화면에서 이것은 사건을 놓치는 일이다.
+    const today = { from: '2026-07-15', to: '2026-07-15' };
+    expect(withinRange('2026-07-14T22:00:00Z', today)).toBe(true);
+    expect(withinRange('2026-07-14T14:00:00Z', today)).toBe(false); // = KST 7/14 23:00 — 진짜 어제
+  });
+
+  it('읽을 수 없는 시각은 구간 밖이다 — 날짜를 모르는 기록을 이 기간의 것이라 우기지 않는다', () => {
+    expect(withinRange('not-a-date', { from: '2026-07-01', to: '2026-07-10' })).toBe(false);
   });
 
   it('shiftDays 는 월·연 경계를 넘는다', () => {

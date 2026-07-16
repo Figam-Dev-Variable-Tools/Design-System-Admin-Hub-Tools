@@ -4,19 +4,16 @@
 // 정렬 안정성, 페이지 경계 산술. 화면을 띄워 보는 것으로는 이 중 어느 것도 확인되지 않는다.
 import { describe, expect, it } from 'vitest';
 
+import { daysBetween } from '../../../shared/format';
 import {
-  addDays,
   comparePeriodOf,
-  daysBetween,
   eachDay,
   formatPeriodLabel,
-  isCalendarDate,
   isCompareMode,
   isPeriodPresetId,
   periodErrorOf,
   periodLength,
   resolvePreset,
-  toSeoulDate,
 } from './period';
 import {
   deltaOf,
@@ -31,33 +28,12 @@ import {
 import { clampPage, pageSlice, rangeTextOf, sortRows, totalPagesOf } from './table';
 import type { StatsColumn } from './types';
 
-describe('period — 서울 기준 달력 날짜 (ERP-09)', () => {
-  it('UTC 입력을 러너 타임존과 무관하게 서울 날짜로 떨어뜨린다', () => {
-    // 2026-07-15 16:30 UTC = 2026-07-16 01:30 KST → 서울에서는 이미 16일이다.
-    // 이 단언이 통과한다는 것은 브라우저/러너 로컬 타임존을 타지 않는다는 뜻이다.
-    expect(toSeoulDate(new Date('2026-07-15T16:30:00Z'))).toBe('2026-07-16');
-  });
+// [서울 고정·달력 산술 자체의 단언은 shared/format.test.ts 로 옮겨갔다 — ERP-09]
+// 이 파일에 있던 toSeoulDate/isCalendarDate/addDays 는 shared/format 한 벌로 수렴했다.
+// 구현이 그리로 갔으니 그 구현을 지키는 단언도 그리로 간다 — 여기 남는 것은 **기간 모델**,
+// 즉 공유 산술 위에 이 섹션이 얹은 것(기간 길이·프리셋·비교 기간)이다.
 
-  it('서울 자정 직전은 아직 전날이다', () => {
-    // 2026-07-15 14:59 UTC = 2026-07-15 23:59 KST
-    expect(toSeoulDate(new Date('2026-07-15T14:59:00Z'))).toBe('2026-07-15');
-  });
-
-  it('존재하지 않는 날짜를 달력 날짜로 인정하지 않는다', () => {
-    expect(isCalendarDate('2026-07-16')).toBe(true);
-    expect(isCalendarDate('2026-02-31')).toBe(false);
-    expect(isCalendarDate('2026-13-01')).toBe(false);
-    expect(isCalendarDate('20260716')).toBe(false);
-    expect(isCalendarDate(20260716)).toBe(false);
-    expect(isCalendarDate(null)).toBe(false);
-  });
-
-  it('윤년 2월을 넘나든다', () => {
-    expect(addDays('2028-02-28', 1)).toBe('2028-02-29');
-    expect(addDays('2028-02-28', 2)).toBe('2028-03-01');
-    expect(addDays('2026-03-01', -1)).toBe('2026-02-28');
-  });
-
+describe('period — 기간 길이 (서울 기준 달력 날짜 위에서)', () => {
   it('일수는 시작·종료를 모두 포함한다', () => {
     expect(daysBetween('2026-07-10', '2026-07-16')).toBe(6);
     expect(periodLength({ start: '2026-07-10', end: '2026-07-16' })).toBe(7);

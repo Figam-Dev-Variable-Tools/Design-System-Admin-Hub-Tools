@@ -15,10 +15,10 @@
 // 진짜 서버는 UTC 로 로그를 남긴다. 픽스처가 로컬 순진(naive) 문자열('2026-07-14T03:00:00')을
 // 쓰면 **타임존 버그가 숨는다** — 브라우저가 그것을 로컬로 해석해 우연히 맞아 보이기 때문이다.
 // 그래서 여기서는 '서울 기준 몇 시'를 받아 **UTC ISO(Z)로 바꿔** 저장한다. 화면은 그것을 다시
-// KST 로 환산해 그린다(time.ts). 즉 픽스처부터 화면까지 실제 환산 경로를 그대로 탄다 —
+// KST 로 환산해 그린다(shared/format). 즉 픽스처부터 화면까지 실제 환산 경로를 그대로 탄다 —
 // 환산이 깨지면 새벽 3시의 침입 시도가 정오로 보이고, 그 버그는 테스트에서 잡힌다.
 // ─────────────────────────────────────────────────────────────────────────────
-import { kstToday, shiftDays } from './time';
+import { formatDate, shiftDays } from '../../shared/format';
 
 function pad2(value: number): string {
   return String(value).padStart(2, '0');
@@ -39,7 +39,8 @@ export function atKst(
   second: number,
   now: Date = new Date(),
 ): string {
-  const day = shiftDays(kstToday(now), -daysAgo);
+  // formatDate 는 KST 고정이다 — 여기서 얻는 '오늘'은 서울의 오늘이다 (shared/format)
+  const day = shiftDays(formatDate(now), -daysAgo);
   return new Date(`${day}T${pad2(hour)}:${pad2(minute)}:${pad2(second)}+09:00`).toISOString();
 }
 
