@@ -24,7 +24,7 @@ date: 2026-07-17
 | 포함 화면 | 목록 `/marketing/promotions` · 등록 `/marketing/promotions/new` · 수정 `/marketing/promotions/:id/edit`. **읽기 전용 상세 화면은 없다** — 행을 누르면 곧바로 수정 폼으로 간다 |
 | 구현 경로 | `apps/admin/src/pages/marketing/promotions/**` · 공용 도메인 `apps/admin/src/pages/marketing/_shared/campaign.ts` |
 | 대응 SCR | SCR-032 (미작성 — §7 #1) |
-| 공통 컴포넌트 | `shared/crud/{CrudListShell,CrudTable,useCrudList,useCrudForm,FormPageShell,createCrudAdapter,requiredText}` · `shared/ui/{SearchField,SelectField,StatusBadge,Button,FormField,TextareaField,ToggleSwitch,SelectionBar,ConfirmDialog,RowActions,RowSelectCell,SeqCell,Empty,useRowSelection,useToast,useUnsavedChangesDialog}` · `@tds/ui DateRangeField` · `shared/useRowNavigation` · `shared/format.{formatDate,formatNumber}` · `shared/async.isAbort` · `shared/bulk.settleAll` |
+| 공통 컴포넌트 | `shared/crud/{CrudListShell,CrudTable,useCrudList,useCrudForm,FormPageShell,useListState,useDebouncedSearch,parseFilter,createCrudAdapter,requiredText}` · `shared/ui/{SearchField,SelectField,StatusBadge,Button,FormField,TextareaField,ToggleSwitch,SelectionBar,ConfirmDialog,RowActions,RowSelectCell,SeqCell,Empty,useRowSelection,useToast,useUnsavedChangesDialog}` · `@tds/ui DateRangeField` · `shared/useRowNavigation` · `shared/format.{formatDate,formatNumber,objectParticle}` · `shared/async.isAbort` · `shared/bulk.settleAll` |
 
 > **FS-031(이벤트)과의 관계**: 두 화면은 `_shared/campaign.ts`(상태 enum·라벨·tone·기간→상태 파생·날짜 실재 검사)를 공유하고 **같은 골격**(목록 = `CrudListShell` + `useCrudList`, 폼 = `FormPageShell` + `useCrudForm`)을 쓴다. **골격 동작(조회 상태 머신·선택·삭제·충돌·미저장 가드·abort 규칙)의 정본은 FS-031** 이며, 이 문서는 그 골격을 상속하고 **프로모션 고유의 차이만** 상세히 기술한다.
 >
@@ -48,8 +48,8 @@ date: 2026-07-17
 
 | 요소번호 | 영역 | 이름 | 유형 | 동작 | [서버] | 비고 |
 |---|---|---|---|---|---|---|
-| FS-032-EL-001 | FS-032-SEC-01 | 검색 입력 | 입력 | `SearchField`, 접근 이름 '프로모션명·대상 검색', placeholder '프로모션명 · 대상 검색'. **이미 받아 둔 목록에 대해** 대소문자 무시·앞뒤 공백 제거 부분 일치로 **프로모션명 또는 대상**을 거른다(`searchPromotions`). 입력이 바뀌면 행 선택이 해제된다 | — | 클라이언트 필터. **디바운스·IME 조합 처리 없음**(§7 #2). **쿠폰코드는 검색 대상이 아니다** |
-| FS-032-EL-002 | FS-032-SEC-01 | 상태 필터 select | 입력 | `SelectField`, 접근 이름 '상태로 거르기'. 옵션: '전체 상태' + 예정/진행/종료. 모르는 값은 `parseCampaignPhase` 가 null 로 떨어뜨려 '전체 상태'로 되돌린다. 변경 시 행 선택 해제 | — | 클라이언트 필터(`filterPromotions`). **할인 유형·금액대 필터는 없다** |
+| FS-032-EL-001 | FS-032-SEC-01 | 검색 입력 | 입력 | `SearchField`, 접근 이름 '프로모션명·대상 검색', placeholder '프로모션명 · 대상 검색'. 값은 **URL 쿼리 `?q=`** 가 소유한다(`useListState.ts:90`). **이미 받아 둔 목록에 대해** 대소문자 무시·앞뒤 공백 제거 부분 일치로 **프로모션명 또는 대상**을 거른다(`searchPromotions`). 커밋된 키워드가 바뀌면 행 선택이 해제된다 | — | 클라이언트 필터. **IME 안전 + 250ms 디바운스** — `list.searchInputProps`(`PromotionListPage.tsx:151`)가 `useDebouncedSearch`(`useListState.ts:227-230`)의 조합 판정·Enter 차단을 잇는다. **쿠폰코드는 검색 대상이 아니다** |
+| FS-032-EL-002 | FS-032-SEC-01 | 상태 필터 select | 입력 | `SelectField`, 접근 이름 '상태로 거르기'. 옵션: '전체 상태' + 예정/진행/종료. 값은 **URL 쿼리 `?phase=`** 가 소유하고, 손으로 고친 모르는 값은 공용 `parseFilter`(`PromotionListPage.tsx:82-86`)가 허용 목록으로 걸러 '전체 상태'로 되돌린다. 변경 시 행 선택 해제 + `?page` 리셋 | — | 클라이언트 필터(`filterPromotions`). 기본값(`all`)과 같은 값은 URL 에서 지워진다(`useListState.ts:115-117`). **할인 유형·금액대 필터는 없다** |
 | FS-032-EL-003 | FS-032-SEC-01 | '프로모션 등록' 버튼 | 버튼 | primary, `<PlusCircleIcon/>` + '프로모션 등록'. 클릭 시 `/marketing/promotions/new` 로 이동. 툴바 우측 | — | 권한과 무관하게 항상 렌더된다(§7 #4) |
 | FS-032-EL-004 | FS-032-SEC-02 | 목록 상태 라이브 리전 | 텍스트 | **항상 마운트된** `aria-live="polite"` `aria-atomic="true"` 시각 숨김 영역. 최초 로드 중 침묵, 실패 시 '프로모션 목록을 불러오지 못했습니다.', 0건이면 '조건에 맞는 프로모션 결과가 없습니다.', 그 외 '프로모션 N건을 찾았습니다.' | — | 비표시. `CrudListShell` 이 소유 |
 | FS-032-EL-005 | FS-032-SEC-02 | 조회 요약 텍스트 | 텍스트 | 최초 로드 중 '불러오는 중…', 그 외 '전체 N건'. 재조회 중이면 ' · 새로고침 중…' + `aria-busy`. 선택 1건 이상이면 ' · N건 선택됨' | — | **재조회 중에도 건수를 지우지 않는다** |
@@ -64,23 +64,23 @@ date: 2026-07-17
 | FS-032-EL-007.5 | FS-032-SEC-03 | 기간 셀 | 텍스트 | `'<startAt> ~ <endAt>'`. muted 색, `tabular-nums`, 줄바꿈 방지 | — | 저장값(YYYY-MM-DD)을 그대로 잇는다 |
 | FS-032-EL-007.6 | FS-032-SEC-03 | 대상 셀 | 텍스트 | `promotion.target` 원문 ('전체 회원'·'신규 가입 회원' 등 자유 텍스트) | — | 구조화된 세그먼트가 아니다 |
 | FS-032-EL-007.7 | FS-032-SEC-03 | **할인 셀** | 텍스트 | **숫자 열**(우측 정렬 + `tabular-nums`, 줄바꿈 방지). 정률이면 `'<값>%'`(예: '20%'), 정액이면 `'<천단위구분값>원'`(예: '5,000원') — `discountLabel`. **최소 주문금액은 목록에 표시되지 않는다** | — | **'원' 단위가 숫자에 붙어 있어** 우측 정렬 시 자릿수가 어긋난다(§7 #21). 정률은 `String(value)` 로 천단위 구분을 거치지 않는다(§7 #22) |
-| FS-032-EL-007.8 | FS-032-SEC-03 | 상태 셀 | 배지 | 관리자가 **지정한** 상태를 `StatusBadge` 로(예정=info / 진행=success / 종료=neutral). 오늘 날짜로 **파생한** 상태(`derivePhase`)가 다르면 옆에 warning 톤 `'기간상 <파생상태>'` 배지 | — | 파생 기준일 = `formatDate(new Date())` — **브라우저 로컬 타임존**(§7 #7) |
+| FS-032-EL-007.8 | FS-032-SEC-03 | 상태 셀 | 배지 | 관리자가 **지정한** 상태를 `StatusBadge` 로(예정=info / 진행=success / 종료=neutral). 오늘 날짜로 **파생한** 상태(`derivePhase`)가 다르면 옆에 warning 톤 `'기간상 <파생상태>'` 배지 | — | 파생 기준일 = `formatDate(new Date())`(`PromotionListPage.tsx:88`) — **KST 고정**(`format.ts:63,76-85` — Intl `timeZone: 'Asia/Seoul'`). 보는 사람의 OS 타임존과 무관하다 |
 | FS-032-EL-007.9 | FS-032-SEC-03 | 행 액션(수정·삭제) | 버튼 | `RowActions`, 접근 이름 '<프로모션명>'. 연필=수정(`/marketing/promotions/<id>/edit`), 휴지통=삭제(FS-032-EL-011). 그 행 삭제 진행 중 둘 다 비활성 | O | **키보드로 수정에 도달하는 유일한 경로** |
 | FS-032-EL-007.10 | FS-032-SEC-03 | 행 클릭 이동 규칙 | 텍스트 | 행 빈 영역 클릭 시 `/marketing/promotions/<id>/edit` 이동(`useRowNavigation`). 체크박스·행 액션 버튼은 자기 동작만 한다 | — | 비표시 규칙. **마우스 전용** — 키보드 등가물은 FS-032-EL-007.9 |
 | FS-032-EL-008 | FS-032-SEC-03 | 목록 로딩 스켈레톤 | 스켈레톤 | **최초 로드에서만**(`data === undefined`) 표 본문을 5행 스켈레톤으로 대체 + `aria-busy`. 재조회 중에는 렌더되지 않는다 | — | 비표시. 행 수 5 고정 |
 | FS-032-EL-009 | FS-032-SEC-03 | 빈 상태(3분기) | 빈상태 | `Empty` 가 3분기: ① 검색어 있음 → '조건에 맞는 프로모션이 없습니다' + '검색 지우기' ② 필터 있음 → '필터에 맞는 프로모션이 없습니다' + '필터 초기화' ③ 진짜 비어있음 → '등록된 프로모션이 없습니다' | — | 비표시. 생성 CTA 슬롯은 넘기지 않는다 |
 | FS-032-EL-010 | FS-032-SEC-04 | 조회 실패 배너 | 배너 | 목록 조회 실패 시 요약·선택 바·표 **대신** 위험 톤 Alert '프로모션 목록을 불러오지 못했습니다.' + '다시 시도'. 자동 소멸하지 않는다 | O | 401/403/500 이 모두 이 한 문구로 수렴한다(§7 #8) |
-| FS-032-EL-011 | FS-032-SEC-05 | 단건 삭제 확인 다이얼로그 | 모달 | `ConfirmDialog` intent=delete. 제목 '프로모션 삭제', 본문 `'<프로모션명>' 을(를) 삭제합니다. 이 작업은 되돌릴 수 없습니다.`, 확인 라벨 '삭제'. 진행 중 확인 버튼 잠금. 성공 시 닫고 토스트 + 목록 무효화. 실패 시 **다이얼로그 안** 배너 — 재클릭이 재시도. 취소/Esc/딤 클릭 시 abort | O | FS-031-EL-011 과 동일 골격 |
+| FS-032-EL-011 | FS-032-SEC-05 | 단건 삭제 확인 다이얼로그 | 모달 | `ConfirmDialog` intent=delete. 제목 '프로모션 삭제', 본문 `'<프로모션명>'<을/를> 삭제합니다. 이 작업은 되돌릴 수 없습니다.`, 확인 라벨 '삭제'. 진행 중 확인 버튼 잠금. 성공 시 닫고 토스트 + 목록 무효화. 실패 시 **다이얼로그 안** 배너 — 재클릭이 재시도. 취소/Esc/딤 클릭 시 abort | O | FS-031-EL-011 과 동일 골격. 조사는 **프로모션명의 받침**이 고른다(`useCrudList.tsx:108,158` → `format.ts:306` `objectParticle`) — '봄 시즌 10% 특가**를** 삭제합니다'. 리터럴 '을(를)' 출하 0건 |
 | FS-032-EL-012 | FS-032-SEC-05 | 일괄 삭제 확인 다이얼로그 | 모달 | 제목 '프로모션 일괄 삭제', 확인 라벨 'N건 삭제'. `settleAll` 로 독립 요청. 전원 성공: 닫고 선택 해제 + 토스트. **부분 실패: 닫지 않고** 배너 'N건 중 M건을…', 선택 유지 | O | 실패한 id 를 알려주지 않는다(§7 #10) |
 | FS-032-EL-013 | FS-032-SEC-06 | 폼 '목록으로' 버튼 | 버튼 | `<ChevronLeftIcon/>` + '목록으로'. 좌상단. 클릭 시 `/marketing/promotions` 이동. 변경이 있으면 FS-032-EL-030 이 가로챈다 | — | DS `<Button>` 이 아니다(§7 #11) |
-| FS-032-EL-014 | FS-032-SEC-06 | 폼 헤더 | 텍스트 | `<h1>` — '프로모션 등록' / '프로모션 수정'. 설명 '별표(*) 항목은 필수입니다. 기간·할인 조건을 확인하세요.' | — | **AppHeader 도 `<h1>` '마케팅 관리' 를 그린다** — h1 2개(§7 #3) |
+| FS-032-EL-014 | FS-032-SEC-06 | 폼 헤더 | 텍스트 | `<h1>` — '프로모션 등록' / '프로모션 수정'(`FormPageShell.tsx:160`). 설명 '별표(*) 항목은 필수입니다. 기간·할인 조건을 확인하세요.' | — | **AppHeader 도 동시에 `<h1>` 을 그린다**(`AppHeader.tsx:101`). 그 라벨은 이제 `findCoveringLeaf`(`nav-config.ts:260-278,297-299`)가 풀어 **'프로모션'** 이다 — 브랜치 폴백('마케팅 관리')은 해소됐다. 그러나 **h1 은 여전히 2개**이고 상단 h1 은 '등록/수정' 행위를 반영하지 않는다(§7 #3) |
 | FS-032-EL-015 | FS-032-SEC-07 | 저장 실패 배너 | 배너 | 예상외 저장 실패 시 카드 상단 '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.' + **복사 가능한 참조 코드** | O | 비표시. 409/412·422 는 여기로 오지 않는다 |
-| FS-032-EL-016 | FS-032-SEC-06 | 프로모션명 입력 | 입력 | `FormField` '프로모션명'(필수·`*`), `maxLength=80`, placeholder '예: 전 상품 20% 할인'. `aria-invalid` + `aria-describedby` 짝. 빈값 '프로모션명을(를) 입력하세요.' · 80자 초과 '프로모션명은(는) 80자를 넘을 수 없습니다.' | O | 카운터 없음(§7 #12) |
+| FS-032-EL-016 | FS-032-SEC-06 | 프로모션명 입력 | 입력 | `FormField` '프로모션명'(필수·`*`), `maxLength=80`, placeholder '예: 전 상품 20% 할인'. `aria-invalid` + `aria-describedby` 짝. 빈값 '프로모션명을 입력하세요.' · 80자 초과 '프로모션명은 80자를 넘을 수 없습니다.'(조사는 `requiredText` 가 받침으로 고른다 — `shared/crud/validation.ts:22,25`) | O | 카운터 없음(§7 #12). `FormField` 가 `required` 를 자식 `<input>` 의 `aria-required` 로 주입한다(`FormField.tsx:50-56,107`) |
 | FS-032-EL-017 | FS-032-SEC-06 | 프로모션 기간 | 입력 | `DateRangeField` '프로모션 기간'(필수). `<input type="date">` 2개 + 시각 숨김 라벨. 에러는 그룹 하나(`role="alert"`) + 두 칸 `aria-invalid`+`aria-describedby`. `startAt` 문구 우선, 없으면 `endAt` | O | **preset 없음.** 검증 정본은 `promotionSchema` |
 | FS-032-EL-017.1 | FS-032-SEC-06 | 기간 형식 검증 | 텍스트 | 시작·종료 중 하나라도 실재 날짜(YYYY-MM-DD)가 아니면 '프로모션 기간을 YYYY-MM-DD 형식으로 입력하세요.' 를 `startAt` 에 붙이고 **거기서 멈춘다** | — | 비표시 규칙. `isRealDate` |
 | FS-032-EL-017.2 | FS-032-SEC-06 | 기간 역전 검증 | 텍스트 | 둘 다 실재 날짜이고 `종료 < 시작` 이면 `endAt` 에 '종료일은 시작일보다 빠를 수 없습니다.'. **같은 날은 통과** | — | 비표시 규칙. 위반이 조용한 빈 목록으로 새지 않는다 |
 | FS-032-EL-018 | FS-032-SEC-06 | 상태 select | 입력 | `FormField` '상태'(필수·`*`) + `SelectField`. 옵션 예정/진행/종료. 기본값 '예정' | O | 기간과 어긋나도 **폼은 막지 않는다**(§7 #13) |
-| FS-032-EL-019 | FS-032-SEC-06 | 대상 입력 | 입력 | `FormField` '대상'(필수·`*`), placeholder '예: 전체 회원 · 신규 가입 회원'. 빈값 '대상을(를) 입력하세요.' · 60자 초과 | O | `maxLength` 속성 없음 |
+| FS-032-EL-019 | FS-032-SEC-06 | 대상 입력 | 입력 | `FormField` '대상'(필수·`*`), placeholder '예: 전체 회원 · 신규 가입 회원'. 빈값 '대상을 입력하세요.' · 60자 초과 | O | `maxLength` 속성 없음 |
 | FS-032-EL-020 | FS-032-SEC-06 | **할인 유형 select** | 입력 | `FormField` '할인 유형'(필수·`*`) + `SelectField`. 옵션: **정률(%)** / **정액(원)**. 기본값 '정률(%)'. **선택에 따라 FS-032-EL-021 의 라벨·placeholder·검증이 바뀐다** | O | `DISCOUNT_TYPE_OPTIONS` |
 | FS-032-EL-021 | FS-032-SEC-06 | **할인값 입력** | 입력 | `FormField` — 라벨이 **동적**: 정률이면 '할인율 (%)', 정액이면 '할인액 (원)'(필수·`*`). placeholder 도 '예: 20' / '예: 5000'. `<input type="text" inputMode="numeric">`. `aria-invalid` + `aria-describedby` 짝. 기본값 `'10'` | O | **문자열로 받아 원값을 보존**한다. **실시간 천단위 구분·마스킹 없음**(§7 #23) |
 | FS-032-EL-021.1 | FS-032-SEC-06 | 할인값 숫자 검증 | 텍스트 | `/^\d+$/` 위반 시 '할인값은 숫자만 입력할 수 있습니다.' 후 **거기서 멈춘다**. **콤마·'원'·음수 부호가 전부 여기서 거절된다** — 붙여넣은 '1,234,000' 은 normalize 되지 않고 막힌다(§7 #23) | — | 비표시 규칙. 음수는 `-` 때문에 이 규칙이 잡는다(범위 검사가 아니다) |
@@ -92,9 +92,9 @@ date: 2026-07-17
 | FS-032-EL-024 | FS-032-SEC-06 | **연동 쿠폰코드 입력** | 입력 | **쿠폰 연동이 켜졌을 때만 렌더**. '연동 쿠폰코드'(필수·`*`), hint '상품 관리 쿠폰과 연결됩니다.', placeholder '예: SUMMER20'. `aria-invalid` + `aria-describedby` 짝. 빈값 '연동할 쿠폰코드를 입력하세요.' | O | **자유 텍스트다 — 쿠폰 id 참조가 아니다.** 실재 쿠폰인지 검사하지 않는다(§7 #14). 형식·대소문자 규칙 없음. hint 미연결 |
 | FS-032-EL-025 | FS-032-SEC-06 | 설명 textarea | 입력 | `TextareaField` '설명'(선택), `maxLength=1000`, rows=4, placeholder '프로모션 조건·안내 문구를 입력하세요.'. **'현재/최대' 카운터 실시간 표시**. 초과 시 '설명은 1000자를 넘을 수 없습니다.' | O | `aria-invalid`·`aria-describedby` 자체 배선. 고객 노출 — 정제 정본은 BE-032 §7.1 |
 | FS-032-EL-026 | FS-032-SEC-06 | 취소 버튼 | 버튼 | secondary '취소' → `/marketing/promotions` 이동. 저장 중 비활성 | — | 카드 하단 우측 정렬의 **왼쪽** |
-| FS-032-EL-027 | FS-032-SEC-06 | 제출 버튼 | 버튼 | primary, 라벨 '저장 중…' / '저장'(수정) / '등록'. 저장 중·상세 로딩 중 비활성. **동기 제출 락**. 성공 → 토스트 '프로모션을(를) 등록했습니다.' + `/marketing/promotions` 로 **replace** 이동. **제출 시 `digitsToNumber` 가 할인값·최소주문금액을 숫자로 바꾼다** | O | 제출 **시도** 단위 멱등키 생성(**전송되지는 않는다**). `digitsToNumber` 의 콤마 제거는 **검증이 먼저 막아 도달하지 않는다**(§7 #23) |
+| FS-032-EL-027 | FS-032-SEC-06 | 제출 버튼 | 버튼 | primary, 라벨 '저장 중…' / '저장'(수정) / '등록'. 저장 중·상세 로딩 중 비활성. **동기 제출 락**(`useCrudForm.ts:103,202-203`). 성공 → 토스트 '프로모션을 등록했습니다.'(`useCrudForm.ts:222`) + `/marketing/promotions` 로 **replace** 이동. **제출 시 `digitsToNumber` 가 할인값·최소주문금액을 숫자로 바꾼다** | O | 제출 **시도** 단위 멱등키 생성(`useCrudForm.ts:118-123`). **이제 어댑터까지 도달한다** — `WriteContext.idempotencyKey`(`crud.ts:41,47-48`)로 실려 `createCrudAdapter` 의 ledger(`crud.ts:91,114,121`)가 같은 키의 재시도를 재생한다. `digitsToNumber` 의 콤마 제거는 **검증이 먼저 막아 도달하지 않는다**(§7 #23) |
 | FS-032-EL-028 | FS-032-SEC-07 | 수정 로딩 스켈레톤 | 스켈레톤 | 수정 진입 시 상세 도착 전 카드 본문을 4개 막대로 대체 + `aria-busy`. 필드 미렌더. 제출 버튼 비활성 | O | 비표시. 도착 시 `reset(toValues(promotion))` — **숫자를 문자열로 되돌린다**(`String(discountValue)`) |
-| FS-032-EL-029 | FS-032-SEC-07 | 로드 실패 대체 화면 | 배너 | 상세 조회 실패 시 폼 **전체**를 Alert 로 대체. **404 → '프로모션을(를) 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.' + '목록으로'만**(재시도 없음). **그 외 → '프로모션을(를) 불러오지 못했습니다.' + '다시 시도' + '목록으로'** | O | 비표시. 무한 스피너 없음 |
+| FS-032-EL-029 | FS-032-SEC-07 | 로드 실패 대체 화면 | 배너 | 상세 조회 실패 시 폼 **전체**를 Alert 로 대체. **404 → '프로모션을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.' + '목록으로'만**(재시도 없음). **그 외 → '프로모션을 불러오지 못했습니다.' + '다시 시도' + '목록으로'**. 조사는 `FormPageShell.tsx:129-130` 의 `objectParticle(entityLabel)` 이 고른다 | O | 비표시. 무한 스피너 없음 |
 | FS-032-EL-030 | FS-032-SEC-07 | 저장 충돌 다이얼로그 | 모달 | **409/412** 시 입력을 **보존한 채** 다이얼로그. 성공 토스트·목록 이동 없음. '최신 내용 불러오기' → 상세 재조회 후 폼 덮기 / '닫기' → 입력 유지 | O | 비표시. 동시성 토큰이 없어 '먼저 **수정**' 은 감지 못 한다(§7 #15) |
 | FS-032-EL-031 | FS-032-SEC-07 | 미저장 변경 가드 | 모달 | `isDirty && !saving` 일 때 이탈 3경로를 가로채 discard 확인. 문구 '프로모션에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.' | — | 비표시. 세션 만료 강제 이동은 못 가로챈다(§7 #16) |
 | FS-032-EL-032 | FS-032-SEC-06 | 언마운트 abort 규칙 | 텍스트 | 폼 언마운트 시 진행 중 저장 abort. 삭제 다이얼로그 닫으면 삭제 abort. **abort 는 실패가 아니다** — 토스트·배너 없음, 일괄 실패 건수 제외 | — | 비표시 규칙 |
@@ -172,7 +172,7 @@ date: 2026-07-17
 | 권한 없음 | **역할 기반 분기가 이 화면에 없다.** 읽기 권한은 셸의 라우트 가드가 403 화면으로 막지만 **쓰기 컨트롤은 권한과 무관하게 렌더된다**(§7 #4). **할인액·최소 주문금액에 마스킹이 없다** — 목록·폼을 여는 누구나 금액을 본다(§7 #26). 은닉 정책은 BE-032 §2.1 |
 | 행 선택의 수명 | 선택은 화면 로컬. 상태 필터·키워드가 바뀌면 전부 해제. 범위는 **현재 보이는 행** |
 | 필터·검색의 자리 | 둘 다 **클라이언트 필터**다 — 서버 쿼리 파라미터가 아니다 |
-| URL 반영 | **없다.** 상태 필터·키워드는 컴포넌트 지역 상태다(§7 #20) |
+| URL 반영 | **있다.** 상태 필터(`?phase=`)·키워드(`?q=`)의 단일 원천이 URL 쿼리스트링이다(`PromotionListPage.tsx:80` `useListState`). `replace: true`(`useListState.ts:125`)라 필터 한 번에 history 가 쌓이지 않고, 수정 폼에서 Back 하면 조건이 복원된다. 기본값과 같은 값은 URL 에서 지워진다. 링크 공유로도 재현된다 |
 | **숫자 입력의 왕복** | 할인값·최소 주문금액은 **문자열로 폼에 살고**(원값 보존) 저장 시 `digitsToNumber` 로 숫자가 되며, 수정 진입 시 `String(...)` 으로 다시 문자열이 된다. 검증(`/^\d+$/`)이 `digitsToNumber` **보다 먼저** 돌기 때문에 콤마 있는 입력은 normalize 되지 못하고 거절된다(§7 #23) |
 
 ## 5. 서버 연동 지점
@@ -201,20 +201,21 @@ date: 2026-07-17
 - [x] 엔드포인트·HTTP 메서드·에러코드·DB 스키마를 쓰지 않았다 (BE-032 영역). §3·§4·§5 의 '404'·'409' 는 **어댑터가 실제로 던지는 값**이라 남겼다
 - [x] **기간 검증을 코드로 재확인했다** — `validation.ts:43-50` 의 `end < start` 검사가 실재하고 `promotions.test.ts:92-96` 이 이를 고정한다. quality-bar COMP-11 이 우려한 '종료일<시작일 → silent empty' 는 **이 화면에 없다**
 - [x] **할인값 검증을 코드로 재확인했다** — 0 이하(`validation.ts:65-72`)·정률 100 초과(`:74-81`)를 막고 `promotions.test.ts:78-91` 이 고정한다. **정액 상한 부재**(§7 #24)와 **최소 주문금액의 `aria-invalid` 누락**(§7 #25)을 코드에서 확인해 적었다
+- [x] **2026-07-17 · `HEAD = 4b805ad`(F3a·F3b·통합 머지 후) 기준으로 전수 재검증했다.** F2(`3cd3078`) 판정을 재사용하지 않았다. 뒤집힌 것: **검색 디바운스·IME**(`PromotionListPage.tsx:80,145-151` → `useListState.ts:227-230` → `useDebouncedSearch.ts:84-131`) · **URL 조회 상태**(`useListState.ts:87-99`) · **리터럴 '을(를)' 0건**(`format.ts:306-311` 로 승격) · **파생 기준일 KST 고정**(`format.ts:63,76-85`) · **멱등키가 어댑터에 도달**(`crud.ts:41,47-48,114`) · **AppHeader 라벨이 '프로모션'**(`nav-config.ts:260-278`). 그대로인 것: **최소 주문금액의 `aria-invalid` 누락**(`PromotionFormPage.tsx:227-243` — F3a 의 `aria-required` 주입은 이 축과 무관하다), h1 2개, 쓰기 권한 게이팅 부재, 페이지네이션 부재, 동시성 토큰 부재
 
 ## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
 | 1 | 대응 SCR(마케팅 관리) 문서 부재 | A11 / A01 |
-| 2 | 검색 입력에 디바운스·IME 조합 처리가 없다 — 자모마다 목록이 다시 걸러지고 **행 선택이 해제된다**(`PromotionListPage.tsx:66-67,78-80,125-130`). 공용 `useDebouncedSearch` 를 소비하지 않는다 | A11 change_request (COMP-10 P0) |
-| 3 | 하위 라우트에서 `<h1>` 이 2개다 — AppHeader '마케팅 관리' + FormPageShell '프로모션 등록'(`AppHeader.tsx:92` · `nav-config.ts:253-264` · `FormPageShell.tsx:159`) | A11 change_request (IA-02 P0 · 앱 전역) |
-| 4 | 쓰기 컨트롤이 권한과 무관하게 렌더된다 — `useRouteWritePermissions` 소비자 0건 | A11 change_request (EXC-03 P0 · 앱 전역) |
-| 5 | 페이지네이션·정렬 헤더가 없다 — 전량 렌더, 정렬 고정 | A11 change_request (IA-04 P0 · ERP-04/05/15) |
+| 2 | **해소됨 (F3b · 2026-07-17)** — 검색이 공용 `useListState`(`PromotionListPage.tsx:80`)를 거쳐 `useDebouncedSearch`(`useListState.ts:227-230`)를 소비한다. 조합 중 커밋 금지·Enter 차단·250ms 디바운스가 붙어(`useDebouncedSearch.ts:87,121-129`) 자모마다 재필터·선택 해제가 일어나지 않는다 | — (COMP-10 P0 **pass**) |
+| 3 | 하위 라우트에서 `<h1>` 이 2개다 — `AppHeader.tsx:101` + `FormPageShell.tsx:160`. **사유가 바뀌었다**: 브랜치 폴백은 `findCoveringLeaf`(`nav-config.ts:260-278,297-299`)로 해소돼 상단 h1 이 '프로모션' 이다. 남은 것은 ① h1 이 둘이라는 사실 ② 상단 h1 이 '등록/수정' 행위를 반영하지 않는다는 사실(`nav-config.ts:294-296` 이 그것을 의도로 명시) — quality-bar IA-02 의 '단일 title 메커니즘'이 여전히 미충족 | A11 change_request (IA-02 P0 · 앱 전역) |
+| 4 | 쓰기 컨트롤이 권한과 무관하게 렌더된다 — `useRouteWritePermissions`(`RequirePermission.tsx:45`)는 이제 **7곳이 소비한다**(products 3 · settings 4). **그러나 `pages/marketing/**` 소비 0건** — 이 화면의 '프로모션 등록'·`RowActions`·'선택 N건 삭제'는 여전히 권한과 무관하게 렌더된다. **할인 정의는 금전 권한이라 이 gap 의 무게가 이벤트보다 크다** | A11 change_request (EXC-03 P0) |
+| 5 | 페이지네이션·정렬 헤더가 없다 — 전량 렌더, 정렬 고정. (`useListState` 는 `page`·`clampPage` 를 이미 제공하나 이 화면이 쓰지 않는다 — `useListState.ts:89,217-223`. DS `Pagination` 은 F3a 에서 범위/page-size 를 **opt-in**(`Pagination.tsx:112` `pageSize > 0`)으로 열었지만 `pages/marketing/**` 에 `<Pagination` 소비 0건) | A11 change_request (IA-04 P0 · ERP-04/05/15) |
 | 6 | 순번이 `index + 1` 이다(`CrudTable.tsx:179`) | A11 change_request (COMP-07 · #5 와 함께) |
-| 7 | '기간상 XX' 파생 기준일이 `formatDate(new Date())` 로 **브라우저 로컬 타임존**이다(`PromotionListPage.tsx:68` · `format.ts:21`) | A63 (BE-032 §7) / A40 |
+| 7 | **해소됨 (F3b · 2026-07-17)** — '기간상 XX' 파생 기준일 `formatDate(new Date())`(`PromotionListPage.tsx:88`)이 **KST 고정**이다. `shared/format.ts:63,76-85` 가 `Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' })` 의 `formatToParts` 로 조각을 뽑아 조립한다 — 로컬 getter 0건 | — (ERP-09 **pass**) |
 | 8 | 403 에 전용 문구가 없다 — 403 vs 404 은닉 정책 미정 | A63 (BE-032 §2.1) |
-| 9 | 사용자 대상 문구가 리터럴 '을(를)' 를 출하한다 — '프로모션을(를) 등록했습니다'(받침이 있어 우연히 맞지만 규칙이 아니라 우연이다) · '프로모션명을(를) 입력하세요' | A11 change_request (ERP-13 · 앱 전역) |
+| 9 | **해소됨 (통합 · 2026-07-17)** — 사용자 대상 리터럴 `'을(를)'` 출하 **0건**. 목적격 `objectParticle`·보조사 `topicParticle` 헬퍼가 `shared/format.ts:306,311` 로 승격됐고 이 화면의 전 경로가 소비한다: 토스트 `useCrudForm.ts:222` ('프로모션을 등록했습니다' — 이제 **우연이 아니라 규칙**) · 삭제 문구 `useCrudList.tsx:108,158`(**행 이름의 받침**으로 고른다) · 로드 실패 `FormPageShell.tsx:129-130` · 검증 `shared/crud/validation.ts:22,25` | — (ERP-13 **pass**) |
 | 10 | 일괄 삭제가 실패한 id 를 알려주지 않는다. 임계값 강화 확인·진행률·취소도 없다 | A11 change_request (EXC-10 · EXC-18) |
 | 11 | 폼 '목록으로' 가 DS `<Button>` 이 아니고, 제출 버튼이 `loading` prop 대신 '저장 중…' 문자열을 쓴다(`FormPageShell.tsx:147-155,189`) | A11 change_request (COMP-01 · 공용 셸) |
 | 12 | 길이 제한 필드 중 **설명만** 카운터가 있다 — 프로모션명(80자)·대상(60자)에는 없다 | A11 change_request (COMP-12) |
@@ -225,7 +226,7 @@ date: 2026-07-17
 | 17 | 긴 자유 텍스트(프로모션명·대상)에 말줄임이 없다 | A11 change_request (COMP-09) |
 | 18 | 오프라인 감지·배너가 없다 | A11 change_request (EXC-11 · 앱 전역) |
 | 19 | 프론트 요청 타임아웃 상한이 없다 | A63 (BE-032 §3.4) / A11 (EXC-05) |
-| 20 | 목록 조회 상태(필터·키워드)가 URL 에 없다 — 공용 `useListState` 미소비 | A11 change_request (IA-13 P0) |
+| 20 | **해소됨 (F3b · 2026-07-17)** — 목록 조회 상태(`?phase=`·`?q=`)의 단일 원천이 URL 이다. `PromotionListPage.tsx:80` 이 공용 `useListState` 를 소비하고 그것이 `useSearchParams`(`useListState.ts:87`)로 직렬화한다. `replace: true`(`:125`)라 히스토리가 쌓이지 않고, 수정 폼에서 Back 하면 조건이 복원되며, 링크 공유로도 재현된다 | — (IA-13 P0 **pass**) |
 | 21 | **할인 컬럼의 '원' 단위가 숫자에 붙어 있다**(`types.ts:48` `discountLabel`) — 우측 정렬 숫자 열인데 단위가 마지막 자릿수를 따라가 자릿수 정렬이 깨진다 | A11 change_request (ERP-07) |
 | 22 | **정률 표기가 `String(value)` 로 천단위 구분을 거치지 않는다**(`types.ts:48`) — 정액은 `formatNumber` 를 쓴다. 현재 정률 상한이 100 이라 무해하나 셀에서 raw `String()` 을 호출하는 것 자체가 규약 이탈이다 | A11 change_request (ERP-08) |
 | 23 | **금액 입력에 마스킹·paste normalize 가 없다** — `digitsToNumber`(`PromotionFormPage.tsx:52-55`)가 콤마를 벗기지만 **검증(`/^\d+$/`)이 먼저 막아 도달하지 않는다.** 붙여넣은 '1,234,000' 은 normalize 되지 않고 '할인값은 숫자만 입력할 수 있습니다.' 로 거절된다 — `digitsToNumber` 의 관용은 사실상 죽은 코드다. 실시간 천단위 구분도 없다 | A11 change_request (ERP-14) |
