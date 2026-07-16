@@ -1,0 +1,30 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/Timeline.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "Timeline",
+  "component": "Timeline",
+  "version": "1.0.0",
+  "variantProperties": {},
+  "properties": [
+    {
+      "name": "Label",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "EmptyLabel",
+      "type": "TEXT",
+      "default": "기록된 이력이 없습니다."
+    }
+  ],
+  "tokens": {
+    "itemBorder": "color.border.default",
+    "itemSurface": "color.surface.raised",
+    "radius": "radius.md",
+    "author": "color.text.default",
+    "time": "color.text.muted",
+    "text": "color.text.default",
+    "empty": "color.text.muted",
+    "gap": "space.3",
+    "typography": "typography.label.md"
+  }
+}

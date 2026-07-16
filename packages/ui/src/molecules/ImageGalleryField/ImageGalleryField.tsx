@@ -115,7 +115,7 @@ export function ImageGalleryField({
   const [dragActive, setDragActive] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
-  const shownError = (error ?? '') !== '' ? error : (localError ?? undefined);
+  const shownError = error ?? localError ?? undefined;
   const invalid = shownError !== undefined && shownError !== '';
   const full = values.length >= maxFiles;
 
@@ -180,11 +180,7 @@ export function ImageGalleryField({
     onChange?.(values.filter((_, position) => position !== index));
   };
 
-  const describedBy = invalid
-    ? errorIdOf(id)
-    : hint !== undefined && hint !== ''
-      ? hintIdOf(id)
-      : undefined;
+  const describedBy = invalid ? errorIdOf(id) : hint !== undefined ? hintIdOf(id) : undefined;
 
   const dragHandlers = {
     onDragOver: (event: DragEvent<HTMLButtonElement>) => {
@@ -301,8 +297,7 @@ export function ImageGalleryField({
           {shownError}
         </p>
       ) : (
-        hint !== undefined &&
-        hint !== '' && (
+        hint !== undefined && (
           <p id={hintIdOf(id)} className="tds-imagegallery__hint">
             {hint}
           </p>

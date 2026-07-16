@@ -72,8 +72,10 @@ export { Modal } from '@tds/ui';
 /* ── 이벤트 타임라인 (영업 문의·고객센터 티켓 상세가 공유) ─────────────────────
  *
  * 도메인을 모르는 프리미티브 — 각 페이지가 자기 이벤트를 TimelineEvent 로 매핑해 넘긴다. */
-export { Timeline } from './Timeline';
-export type { TimelineEvent } from './Timeline';
+/* Timeline 은 **@tds/ui 의 것**이다 (molecule 승격 · B4). 예전엔 shared/ui 사본 — 삭제됨.
+ * at(ISO) 포맷은 @tds/ui Timeline 이 자체 순수 함수로 갖는다(앱 shared/format 역의존 제거). */
+export { Timeline } from '@tds/ui';
+export type { TimelineEvent } from '@tds/ui';
 
 /* FormField · errorIdOf · hintIdOf · TextareaField · SearchField 는 @tds/ui 의 것이다 (상단 재수출).
  * 예전에는 이 이름들이 shared/ui 안의 사본을 가리켰다. 그 사본들은 삭제됐다 (B2 승격). */

@@ -128,7 +128,7 @@ export function ImageUploadField({
   const [loadFailed, setLoadFailed] = useState(false);
 
   const trimmed = value.trim();
-  const shownError = (error ?? '') !== '' ? error : (localError ?? undefined);
+  const shownError = error ?? localError ?? undefined;
   const invalid = shownError !== undefined && shownError !== '';
 
   useEffect(() => {
@@ -190,11 +190,7 @@ export function ImageUploadField({
   };
 
   const hasImage = trimmed !== '' && !loadFailed;
-  const describedBy = invalid
-    ? errorIdOf(id)
-    : hint !== undefined && hint !== ''
-      ? hintIdOf(id)
-      : undefined;
+  const describedBy = invalid ? errorIdOf(id) : hint !== undefined ? hintIdOf(id) : undefined;
 
   const dropzoneClass = [
     'tds-imageupload__dropzone',
@@ -290,8 +286,7 @@ export function ImageUploadField({
           {shownError}
         </p>
       ) : (
-        hint !== undefined &&
-        hint !== '' && (
+        hint !== undefined && (
           <p id={hintIdOf(id)} className="tds-imageupload__hint">
             {hint}
           </p>
