@@ -2,7 +2,12 @@
 //
 // 신청은 고객 채널이 만든다 — 읽기 위주다(생성/삭제 없음). 상태 필터 + 검색 + 행 → 상세(처리).
 // 데이터는 프레임워크 useCrudListQuery(읽기)로 배선한다. 목록엔 이미지 열이 없다.
-import { useMemo, useState } from 'react';
+//
+// [조회 상태의 소유자] 상태 필터·검색어는 이 파일의 useState 2개였다. 이제 shared/crud 의 useListState 가
+// **URL 쿼리스트링**으로 소유한다 (IA-13) — 신청 처리는 '접수' 만 걸러 위에서부터 하나씩 열고 처리하고
+// 돌아오는 반복 작업이다. 상태가 useState 에만 있으면 Back 할 때마다 전체 목록으로 튕겨 매번 필터를
+// 다시 걸어야 했다. 검색은 IME 안전이다 (COMP-10).
+import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,7 +27,7 @@ import {
   thStyle,
   visuallyHiddenStyle,
 } from '../../../shared/ui';
-import { useCrudListQuery } from '../../../shared/crud';
+import { parseFilter, useCrudListQuery, useListState } from '../../../shared/crud';
 import { useRowNavigation } from '../../../shared/useRowNavigation';
 import { applicationAdapter } from './data-source';
 import {
@@ -31,7 +36,6 @@ import {
   applicationStatusTone,
   applicationTypeLabel,
   filterApplications,
-  isApplicationStatus,
   searchApplications,
 } from './types';
 import type { ApplicationStatus, ApplicationStatusFilter } from './types';
@@ -47,6 +51,14 @@ const STATUS_FILTER_OPTIONS: readonly ApplicationStatus[] = [
   'rejected',
   'completed',
 ];
+/** 손으로 고친 ?status=거짓말 이 조회를 깨지 않게 한다 — select 가 그리는 옵션 전체가 허용 목록이다 */
+const APPLICATION_STATUS_FILTER_VALUES: readonly ApplicationStatusFilter[] = [
+  APPLICATION_FILTER_ALL,
+  ...STATUS_FILTER_OPTIONS,
+];
+
+/** URL 파라미터 기본값 — 기본값과 같은 값은 URL 에서 지운다(공유 링크를 짧게 · IA-13) */
+const FILTER_DEFAULTS = { status: APPLICATION_FILTER_ALL } as const;
 
 const columnStyle: CSSProperties = {
   display: 'flex',
@@ -91,8 +103,15 @@ const emptyCellStyle: CSSProperties = {
 export default function ApplicationListPage() {
   const navigate = useNavigate();
   const { rowNavProps } = useRowNavigation();
-  const [filter, setFilter] = useState<ApplicationStatusFilter>(APPLICATION_FILTER_ALL);
-  const [keyword, setKeyword] = useState('');
+
+  // 상태·검색어의 단일 원천 = URL (IA-13). 검색은 IME 안전 (COMP-10).
+  const list = useListState({ filterDefaults: FILTER_DEFAULTS });
+  const filter: ApplicationStatusFilter = parseFilter(
+    list.filters['status'] ?? APPLICATION_FILTER_ALL,
+    APPLICATION_STATUS_FILTER_VALUES,
+    APPLICATION_FILTER_ALL,
+  );
+  const { keyword } = list;
 
   const { data, isFetching, error, refetch } = useCrudListQuery(RESOURCE, applicationAdapter);
 
@@ -133,22 +152,17 @@ export default function ApplicationListPage() {
     <div style={columnStyle}>
       <div style={toolbarStyle}>
         <SearchField
-          value={keyword}
-          onChange={setKeyword}
+          value={list.searchInput}
+          onChange={list.setSearchInput}
           label="신청번호·신청자·연락처 검색"
           placeholder="신청번호 · 신청자 · 연락처 검색"
+          // 조합 중 커밋 금지 + Enter 차단 — '김민준' 을 치는 도중 '김민ㅈ' 로 검색되지 않는다 (COMP-10)
+          {...list.searchInputProps}
         />
         <span style={selectWrapStyle}>
           <SelectField
             value={filter}
-            onChange={(event) => {
-              const next = event.target.value;
-              setFilter(
-                next === APPLICATION_FILTER_ALL || isApplicationStatus(next)
-                  ? next
-                  : APPLICATION_FILTER_ALL,
-              );
-            }}
+            onChange={(event) => list.setFilter('status', event.target.value)}
             aria-label="상태로 거르기"
           >
             <option value={APPLICATION_FILTER_ALL}>전체 상태</option>

@@ -22,16 +22,10 @@ export const CAMPAIGN_PHASE_OPTIONS: readonly Option<CampaignPhase>[] = [
   { id: 'ended', label: '종료' },
 ] as const;
 
-const PHASE_VALUES = ['upcoming', 'ongoing', 'ended'] as const;
-
-function isCampaignPhase(value: unknown): value is CampaignPhase {
-  return typeof value === 'string' && (PHASE_VALUES as readonly string[]).includes(value);
-}
-
-/** 드롭다운 문자열 → 상태(모르면 null). 이벤트·프로모션 목록 필터가 `as` 없이 값을 좁힌다 */
-export function parseCampaignPhase(value: string): CampaignPhase | null {
-  return isCampaignPhase(value) ? value : null;
-}
+// [삭제됨] parseCampaignPhase / isCampaignPhase / PHASE_VALUES
+//   이벤트·프로모션 목록이 URL 문자열을 좁힐 때 쓰던 사본이다. IA-13 롤아웃으로 공용
+//   `shared/crud/parseFilter` 가 그 자리를 가져가며(허용 목록은 위 CAMPAIGN_PHASE_OPTIONS 의
+//   id 에서 파생) 마지막 소비자가 사라졌다 (A83 축5 죽은 코드 0).
 
 export const campaignPhaseLabel = (v: CampaignPhase): string =>
   optionLabel(CAMPAIGN_PHASE_OPTIONS, v);

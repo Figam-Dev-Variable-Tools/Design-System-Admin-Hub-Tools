@@ -5,11 +5,16 @@
 //
 // [카테고리 등록은 모달] members 의 CreateGroupModal 패턴 — 목록에서 모달을 열어 만든다.
 // [실패는 조용히 삼키지 않는다] 조회 실패=인라인 배너, 삭제 결과=토스트(실패는 다이얼로그 배너).
+//
+// [조회 상태의 소유자] category·visibility·keyword·page 와 선택은 shared/crud/useListState 가
+// **URL 쿼리스트링**으로 소유한다 (IA-13). 여기 있던 사본(검색 디바운스 · 조건 변경 시 page=1 ·
+// 페이지 보정 · 선택 해제)은 전부 그 훅으로 갔다.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { isAbort } from '../../../shared/async';
+import { parseFilter, useListState } from '../../../shared/crud';
 import { formatNumber } from '../../../shared/format';
 import {
   Alert,
@@ -20,7 +25,6 @@ import {
   PlusCircleIcon,
   SearchField,
   SelectionBar,
-  useRowSelection,
   useToast,
 } from '../../../shared/ui';
 import { FaqFilters } from './components/FaqFilters';
@@ -35,10 +39,16 @@ import {
   useReorderFaqs,
   useSetFaqVisibility,
 } from './queries';
-import { CATEGORY_ALL, PAGE_SIZE } from './types';
+import { CATEGORY_ALL, PAGE_SIZE, VISIBILITY_FILTERS } from './types';
 import type { FaqSummary, VisibilityFilter } from './types';
 
-const SEARCH_DEBOUNCE_MS = 250;
+/** URL 파라미터 기본값 — 기본값과 같은 값은 URL 에서 지운다(같은 화면이 두 개의 URL 을 갖지 않게) */
+const FILTER_DEFAULTS = { category: CATEGORY_ALL, visibility: 'all' } as const;
+
+/** URL 문자열 → 도메인 유니온. 허용 목록은 좌측 필터가 그리는 항목 전체다 (캐스팅 금지) */
+const VISIBILITY_FILTER_VALUES: readonly VisibilityFilter[] = VISIBILITY_FILTERS.map(
+  (filter) => filter.id,
+);
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -94,11 +104,25 @@ export default function FaqPage() {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const [categoryId, setCategoryId] = useState<string>(CATEGORY_ALL);
-  const [visibility, setVisibility] = useState<VisibilityFilter>('all');
-  const [keywordInput, setKeywordInput] = useState('');
-  const [keyword, setKeyword] = useState('');
-  const [page, setPage] = useState(1);
+  /**
+   * [IA-13] 카테고리·노출 필터·검색어·페이지의 단일 원천 = URL.
+   *
+   * FAQ 는 '결제 카테고리의 숨김 항목' 처럼 좁힌 뒤 한 건을 열어 고치고 돌아오는 일이 반복된다.
+   * 상태가 useState 에만 있으면 그 Back 마다 전체·1페이지로 튕겨 조건을 다시 세워야 한다.
+   * 검색 입력은 훅이 IME 안전하게 다룬다 (COMP-10) — 한글 질문을 찾는 화면이다.
+   *
+   * [categoryId 만 parseFilter 를 쓰지 않는다] 카테고리는 서버가 만드는 값이라 컴파일 시점의
+   * 유니온이 없다 — 좁힐 대상 자체가 없으므로 문자열 그대로 쓴다(캐스팅이 아니다).
+   */
+  const list = useListState({ filterDefaults: FILTER_DEFAULTS });
+  const categoryId = list.filters['category'] ?? CATEGORY_ALL;
+  const visibility: VisibilityFilter = parseFilter(
+    list.filters['visibility'] ?? 'all',
+    VISIBILITY_FILTER_VALUES,
+    'all',
+  );
+  const { keyword, page, selectedIds, clearSelection } = list;
+
   const [managingCategories, setManagingCategories] = useState(false);
 
   const [pendingDelete, setPendingDelete] = useState<FaqSummary | null>(null);
@@ -112,8 +136,7 @@ export default function FaqPage() {
   const reorderFaqs = useReorderFaqs();
   const reordering = reorderFaqs.isPending;
 
-  // 선택 + 일괄 삭제
-  const { selectedIds, toggleOne, toggleAll, clear } = useRowSelection();
+  // 일괄 삭제 (선택 자체는 useListState 가 쥔다 — 조건이 바뀌면 자동으로 해제된다)
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkError, setBulkError] = useState<string | null>(null);
   const bulkControllerRef = useRef<AbortController | null>(null);
@@ -152,34 +175,30 @@ export default function FaqPage() {
 
   const { data: categories } = useFaqCategoriesQuery();
 
-  useEffect(() => {
-    const timer = setTimeout(() => setKeyword(keywordInput), SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [keywordInput]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [categoryId, visibility, keyword]);
-
-  useEffect(() => {
-    clear();
-  }, [categoryId, visibility, keyword, page, clear]);
-
   const query = useMemo(
     () => ({ categoryId, visibility, keyword, page }),
     [categoryId, visibility, keyword, page],
   );
-  const { data, isFetching: loading, error, refetch } = useFaqsQuery(query);
+  const { data, isFetching, error, refetch } = useFaqsQuery(query);
+  /**
+   * [STATE-01] 스켈레톤은 '데이터가 아직 **없을** 때' 만이다.
+   *
+   * 예전엔 `isFetching` 을 그대로 `loading` 이라 불러 표에 넘겼다. 이 화면은 **순서 이동**이
+   * 일상이고 그것이 곧 invalidate 다 — 한 칸 올릴 때마다 표 전체가 스켈레톤으로 깜빡여 방금
+   * 옮긴 행을 눈으로 좇을 수 없었다.
+   */
+  const firstLoading = isFetching && data === undefined;
 
   const faqs = useMemo(() => data?.faqs ?? [], [data]);
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
+  // 다른 관리자가 지워 총 페이지가 줄면 현재 페이지를 마지막으로 보정한다 (STATE-04-a · 훅이 소유)
+  const { clampPage } = list;
   useEffect(() => {
     if (data === undefined) return;
-    const pages = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
-    if (page > pages) setPage(pages);
-  }, [data, page]);
+    clampPage(Math.ceil(data.total / PAGE_SIZE));
+  }, [data, clampPage]);
 
   const openDelete = (faq: FaqSummary) => {
     setDeleteError(null);
@@ -266,7 +285,7 @@ export default function FaqPage() {
             );
             return;
           }
-          clear();
+          clearSelection();
           toast.success(`FAQ ${formatNumber(ids.length)}건을 ${label} 처리했습니다.`);
         },
       },
@@ -300,7 +319,7 @@ export default function FaqPage() {
             return;
           }
           setBulkOpen(false);
-          clear();
+          clearSelection();
           toast.success(`FAQ ${formatNumber(ids.length)}건을 삭제했습니다.`);
         },
       },
@@ -316,13 +335,18 @@ export default function FaqPage() {
           categories={categories ?? []}
           categoryCounts={data?.categoryCounts ?? null}
           visibilityCounts={data?.visibilityCounts ?? null}
-          onCategoryChange={setCategoryId}
-          onVisibilityChange={setVisibility}
+          onCategoryChange={(next) => list.setFilter('category', next)}
+          onVisibilityChange={(next) => list.setFilter('visibility', next)}
         />
 
         <div style={mainColumnStyle}>
           <div style={toolbarStyle}>
-            <SearchField value={keywordInput} onChange={setKeywordInput} label="FAQ 질문 검색" />
+            <SearchField
+              value={list.searchInput}
+              onChange={list.setSearchInput}
+              label="FAQ 질문 검색"
+              {...list.searchInputProps}
+            />
             <div style={toolbarActionsStyle}>
               <Button variant="secondary" size="md" onClick={() => setManagingCategories(true)}>
                 카테고리 관리
@@ -338,12 +362,12 @@ export default function FaqPage() {
             <>
               <div style={summaryRowStyle}>
                 <p style={hintStyle}>
-                  {loading ? '불러오는 중…' : `전체 ${formatNumber(total)}건`}
+                  {firstLoading ? '불러오는 중…' : `전체 ${formatNumber(total)}건`}
                   {selectedCount > 0 && ` · ${formatNumber(selectedCount)}건 선택됨`}
                 </p>
               </div>
 
-              <SelectionBar count={selectedCount} onClear={clear}>
+              <SelectionBar count={selectedCount} onClear={clearSelection}>
                 <Button
                   variant="secondary"
                   disabled={bulkTogglingVisibility}
@@ -365,16 +389,16 @@ export default function FaqPage() {
 
               <FaqTable
                 faqs={faqs}
-                loading={loading}
+                loading={firstLoading}
                 onDelete={openDelete}
                 deletingId={deleting ? (pendingDelete?.id ?? null) : null}
                 reorderable={reorderable}
                 onReorder={onReorder}
                 reordering={reordering}
                 selectedIds={selectedIds}
-                onToggleOne={toggleOne}
+                onToggleOne={list.toggleOne}
                 onToggleAll={(checked) =>
-                  toggleAll(
+                  list.toggleAll(
                     faqs.map((faq) => faq.id),
                     checked,
                   )
@@ -387,7 +411,7 @@ export default function FaqPage() {
               <Pagination
                 page={page}
                 totalPages={totalPages}
-                onChange={setPage}
+                onChange={list.setPage}
                 label="FAQ 페이지"
               />
             </>

@@ -2,13 +2,18 @@
 //
 // CRUD 프레임워크(useCrudList + CrudListShell) 위에 단계 필터 + 검색 + 진척률 + 단계 배지 + 삭제팝업을
 // 얹는다. 목록엔 이미지 열이 없다.
-import { useEffect, useMemo, useState } from 'react';
+//
+// [조회 상태의 소유자] 단계 필터·검색어는 이 파일의 useState 2개였다. 이제 shared/crud 의 useListState 가
+// **URL 쿼리스트링**으로 소유한다 (IA-13) — '제안' 단계만 걸러 놓고 프로젝트 상세로 갔다 Back 하면
+// 그 파이프라인 view 가 그대로 살아 있고, 주간 회의에 그 URL 을 그대로 붙여 넣을 수 있다.
+// 검색은 IME 안전이다 (COMP-10).
+import { useEffect, useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { formatNumber } from '../../../shared/format';
 import { Button, PlusCircleIcon, SearchField, SelectField, StatusBadge } from '../../../shared/ui';
-import { CrudListShell, parseFilter, useCrudList } from '../../../shared/crud';
+import { CrudListShell, parseFilter, useCrudList, useListState } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { formatWon } from '../_shared/business';
 import { projectAdapter } from './data-source';
@@ -29,6 +34,9 @@ const STAGE_FILTER_VALUES: readonly StageFilter[] = [
   PROJECT_FILTER_ALL,
   ...STAGES.map((stage) => stage.id),
 ];
+
+/** URL 파라미터 기본값 — 기본값과 같은 값은 URL 에서 지운다(공유 링크를 짧게 · IA-13) */
+const FILTER_DEFAULTS = { stage: PROJECT_FILTER_ALL } as const;
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
@@ -91,8 +99,16 @@ const nameOf = (item: Project) => item.name;
 
 export default function ProjectListPage() {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<StageFilter>(PROJECT_FILTER_ALL);
-  const [keyword, setKeyword] = useState('');
+
+  // 단계·검색어의 단일 원천 = URL (IA-13). 검색은 IME 안전 (COMP-10).
+  const list = useListState({ filterDefaults: FILTER_DEFAULTS });
+  // 손으로 고친 ?stage=거짓말 이 조회를 깨지 않게 한다 — 모르는 값은 '전체'로 되돌린다
+  const filter: StageFilter = parseFilter(
+    list.filters['stage'] ?? PROJECT_FILTER_ALL,
+    STAGE_FILTER_VALUES,
+    PROJECT_FILTER_ALL,
+  );
+  const { keyword } = list;
 
   const controller = useCrudList<Project, ProjectInput>({
     resource: RESOURCE,
@@ -102,6 +118,9 @@ export default function ProjectListPage() {
   });
   const { clear } = controller;
 
+  // 보고 있는 행 집합이 바뀌면 선택은 무의미해진다 — 화면에 없는 행이 선택된 채
+  // '선택 3건 삭제' 가 되지 않게 한다. 선택은 useCrudList(=CrudListShell)가 쥐고 있으므로
+  // 조건 변화를 여기서 그 선택에 이어 준다 (STATE-04-b)
   useEffect(() => {
     clear();
   }, [filter, keyword, clear]);
@@ -142,17 +161,17 @@ export default function ProjectListPage() {
     <div style={toolbarStyle}>
       <div style={filtersStyle}>
         <SearchField
-          value={keyword}
-          onChange={setKeyword}
+          value={list.searchInput}
+          onChange={list.setSearchInput}
           label="프로젝트명·거래처 검색"
           placeholder="프로젝트명 · 거래처 검색"
+          // 조합 중 커밋 금지 + Enter 차단 — '신사옥' 을 치는 도중 '신사ㅇ' 로 검색되지 않는다 (COMP-10)
+          {...list.searchInputProps}
         />
         <span style={selectWrapStyle}>
           <SelectField
             value={filter}
-            onChange={(event) =>
-              setFilter(parseFilter(event.target.value, STAGE_FILTER_VALUES, PROJECT_FILTER_ALL))
-            }
+            onChange={(event) => list.setFilter('stage', event.target.value)}
             aria-label="단계로 거르기"
           >
             <option value={PROJECT_FILTER_ALL}>전체 단계</option>
@@ -178,11 +197,12 @@ export default function ProjectListPage() {
       visibleItems={visible}
       columns={columns}
       nameOf={nameOf}
+      // 왜 비었는지에 따라 복구 수단이 다르다 — 검색 지우기 / 필터 초기화 (STATE-05)
       empty={{
-        hasQuery: keyword !== '',
-        hasActiveFilters: filter !== PROJECT_FILTER_ALL,
-        onClearSearch: () => setKeyword(''),
-        onResetFilters: () => setFilter(PROJECT_FILTER_ALL),
+        hasQuery: list.hasQuery,
+        hasActiveFilters: list.hasActiveFilters,
+        onClearSearch: list.clearSearch,
+        onResetFilters: list.resetFilters,
       }}
       selectAllLabelId="project-select-all"
       toolbar={toolbar}

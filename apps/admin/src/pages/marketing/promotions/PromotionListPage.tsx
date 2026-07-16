@@ -2,13 +2,18 @@
 //
 // CRUD 프레임워크(useCrudList + CrudListShell) 위에 상태 필터 + 검색 + 기간·대상·할인·상태 배지 + 삭제팝업.
 // 지정 상태가 기간과 어긋나면 '기간상 XX' 힌트 배지로 알린다. 목록엔 이미지 열이 없다.
-import { useEffect, useMemo, useState } from 'react';
+//
+// [조회 상태의 소유자] phase·keyword 는 이 파일의 useState 2개였다. 이제 shared/crud 의 useListState 가
+// **URL 쿼리스트링**으로 소유한다 (IA-13) — '진행' 중인 프로모션만 추려 하나를 열고 Back 하면 예전에는
+// 필터 없는 전체 목록에 착지해 셋업이 날아갔다. F5 도 같았다. 이제 그 조건이 URL 에 남아 복원되고,
+// 링크로 공유된다. 검색은 IME 안전이다 (COMP-10) — '봄맞이' 를 치는 도중 자모마다 조회가 나가지 않는다.
+import { useEffect, useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { formatDate } from '../../../shared/format';
 import { Button, PlusCircleIcon, SearchField, SelectField, StatusBadge } from '../../../shared/ui';
-import { CrudListShell, useCrudList } from '../../../shared/crud';
+import { CrudListShell, parseFilter, useCrudList, useListState } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { promotionAdapter } from './data-source';
 import { discountLabel, filterPromotions, PROMOTION_FILTER_ALL, searchPromotions } from './types';
@@ -18,12 +23,20 @@ import {
   campaignPhaseLabel,
   campaignPhaseTone,
   derivePhase,
-  parseCampaignPhase,
 } from '../_shared/campaign';
 
 const RESOURCE = 'marketing-promotions';
 const ENTITY_LABEL = '프로모션';
 const LIST_PATH = '/marketing/promotions';
+
+/** 이 select 가 그리는 option id 전체 — URL 문자열을 `as` 없이 좁히는 허용 목록이다 */
+const PROMOTION_PHASE_FILTER_VALUES: readonly PromotionPhaseFilter[] = [
+  PROMOTION_FILTER_ALL,
+  ...CAMPAIGN_PHASE_OPTIONS.map((option) => option.id),
+];
+
+/** URL 파라미터 기본값 — 기본값과 같은 값은 URL 에서 지워진다(공유 링크가 짧아진다) */
+const FILTER_DEFAULTS = { phase: PROMOTION_FILTER_ALL } as const;
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
@@ -63,8 +76,15 @@ const nameOf = (item: Promotion) => item.title;
 
 export default function PromotionListPage() {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<PromotionPhaseFilter>(PROMOTION_FILTER_ALL);
-  const [keyword, setKeyword] = useState('');
+  // phase·keyword 의 단일 원천 = URL (IA-13). 검색은 IME 안전 (COMP-10).
+  const list = useListState({ filterDefaults: FILTER_DEFAULTS });
+  // 손으로 고친 ?phase=거짓말 이 조회를 깨지 않게 한다 — 모르는 값은 '전체'로 되돌린다
+  const filter: PromotionPhaseFilter = parseFilter(
+    list.filters['phase'] ?? PROMOTION_FILTER_ALL,
+    PROMOTION_PHASE_FILTER_VALUES,
+    PROMOTION_FILTER_ALL,
+  );
+  const { keyword } = list;
   const today = formatDate(new Date());
 
   const controller = useCrudList<Promotion, PromotionInput>({
@@ -123,17 +143,17 @@ export default function PromotionListPage() {
     <div style={toolbarStyle}>
       <div style={filtersStyle}>
         <SearchField
-          value={keyword}
-          onChange={setKeyword}
+          value={list.searchInput}
+          onChange={list.setSearchInput}
           label="프로모션명·대상 검색"
           placeholder="프로모션명 · 대상 검색"
+          // 조합 중 커밋 금지 + Enter 차단 — 자모마다 조회가 나가지 않는다 (COMP-10)
+          {...list.searchInputProps}
         />
         <span style={selectWrapStyle}>
           <SelectField
             value={filter}
-            onChange={(event) =>
-              setFilter(parseCampaignPhase(event.target.value) ?? PROMOTION_FILTER_ALL)
-            }
+            onChange={(event) => list.setFilter('phase', event.target.value)}
             aria-label="상태로 거르기"
           >
             <option value={PROMOTION_FILTER_ALL}>전체 상태</option>
@@ -160,10 +180,10 @@ export default function PromotionListPage() {
       columns={columns}
       nameOf={nameOf}
       empty={{
-        hasQuery: keyword !== '',
-        hasActiveFilters: filter !== PROMOTION_FILTER_ALL,
-        onClearSearch: () => setKeyword(''),
-        onResetFilters: () => setFilter(PROMOTION_FILTER_ALL),
+        hasQuery: list.hasQuery,
+        hasActiveFilters: list.hasActiveFilters,
+        onClearSearch: list.clearSearch,
+        onResetFilters: list.resetFilters,
       }}
       selectAllLabelId="marketing-promotions-select-all"
       toolbar={toolbar}

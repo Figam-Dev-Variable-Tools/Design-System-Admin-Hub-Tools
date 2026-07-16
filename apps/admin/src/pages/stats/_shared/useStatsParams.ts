@@ -35,14 +35,13 @@ import { useCallback, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { parseFilter } from '../../../shared/crud';
+import { formatDate, isCalendarDate } from '../../../shared/format';
 import {
   DEFAULT_COMPARE_MODE,
   DEFAULT_PRESET_ID,
-  isCalendarDate,
   isCompareMode,
   isPeriodPresetId,
   resolvePreset,
-  toSeoulDate,
 } from './period';
 import type { CompareMode, PeriodPresetId, StatsPeriod } from './period';
 import type { SegmentOption, SortDirection, SortState } from './types';
@@ -159,7 +158,8 @@ export function useStatsParams(config: StatsParamsConfig): StatsParamsApi {
 
   // '오늘'은 마운트 시 한 번 고정한다 — 매 렌더 new Date() 를 부르면 자정을 넘길 때
   // 조회 기간이 사용자 몰래 바뀌고, useMemo 의존성이 매번 달라져 무한 재조회가 된다.
-  const [today] = useState(() => toSeoulDate(new Date()));
+  // formatDate 는 KST 고정이므로 이 '오늘'은 **서울의 오늘**이다 (ERP-09 — shared/format).
+  const [today] = useState(() => formatDate(new Date()));
 
   const segmentIds = useMemo(() => config.segments.map((option) => option.id), [config.segments]);
   const viewIds = useMemo(() => config.views.map((option) => option.id), [config.views]);

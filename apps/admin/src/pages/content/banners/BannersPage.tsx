@@ -2,13 +2,17 @@
 //
 // '목록 + 등록'이 한 화면에 있다 — 팝업 관리와 같은 구조(위치 필터만 메인/서브로 다르다).
 // [실패는 조용히 삼키지 않는다] 조회 실패=인라인 배너, 저장/삭제 결과=토스트(삭제 실패는 다이얼로그 배너).
+//
+// [조회 상태의 소유자] placement·keyword·page 와 선택은 shared/crud/useListState 가 **URL
+// 쿼리스트링**으로 소유한다 (IA-13). 여기 있던 사본(검색 디바운스 · 조건 변경 시 page=1 ·
+// 페이지 보정 · 선택 해제)은 전부 그 훅으로 갔다.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SegmentedControl } from '@tds/ui';
 
 import { isAbort } from '../../../shared/async';
-import { parseFilter } from '../../../shared/crud';
+import { parseFilter, useListState } from '../../../shared/crud';
 import { formatNumber } from '../../../shared/format';
 import {
   Alert,
@@ -19,7 +23,6 @@ import {
   PlusCircleIcon,
   SearchField,
   SelectionBar,
-  useRowSelection,
   useToast,
 } from '../../../shared/ui';
 import { BannersTable } from './components/BannersTable';
@@ -34,7 +37,8 @@ import {
 import { PAGE_SIZE, PLACEMENT_FILTERS } from './types';
 import type { Banner, PlacementFilter } from './types';
 
-const SEARCH_DEBOUNCE_MS = 250;
+/** URL 파라미터 기본값 — 기본값과 같은 값은 URL 에서 지운다(같은 화면이 두 개의 URL 을 갖지 않게) */
+const FILTER_DEFAULTS = { placement: 'all' } as const;
 const PLACEMENT_FILTER_VALUES: readonly PlacementFilter[] = PLACEMENT_FILTERS.map(
   (filter) => filter.id,
 );
@@ -79,10 +83,20 @@ export default function BannersPage() {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const [placement, setPlacement] = useState<PlacementFilter>('all');
-  const [keywordInput, setKeywordInput] = useState('');
-  const [keyword, setKeyword] = useState('');
-  const [page, setPage] = useState(1);
+  /**
+   * [IA-13] 위치 필터·검색어·페이지의 단일 원천 = URL.
+   *
+   * 배너는 노출 사고가 나면 '메인 배너 2페이지의 그 배너' 를 서로 링크로 주고받으며 확인한다.
+   * 상태가 useState 에만 있으면 그 링크가 존재하지 않고, F5 한 번에 필터가 전부 풀린다.
+   * 검색 입력은 훅이 IME 안전하게 다룬다 (COMP-10) — 한글 배너 제목을 찾는 화면이다.
+   */
+  const list = useListState({ filterDefaults: FILTER_DEFAULTS });
+  const placement: PlacementFilter = parseFilter(
+    list.filters['placement'] ?? 'all',
+    PLACEMENT_FILTER_VALUES,
+    'all',
+  );
+  const { keyword, page, selectedIds, clearSelection } = list;
 
   const [pendingDelete, setPendingDelete] = useState<Banner | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -91,7 +105,6 @@ export default function BannersPage() {
   const deleteBanner = useDeleteBanner();
   const deleting = deleteBanner.isPending;
 
-  const { selectedIds, toggleOne, toggleAll, clear } = useRowSelection();
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkError, setBulkError] = useState<string | null>(null);
   const bulkControllerRef = useRef<AbortController | null>(null);
@@ -128,31 +141,27 @@ export default function BannersPage() {
     );
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => setKeyword(keywordInput), SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [keywordInput]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [placement, keyword]);
-
-  useEffect(() => {
-    clear();
-  }, [placement, keyword, page, clear]);
-
   const query = useMemo(() => ({ placement, keyword, page }), [placement, keyword, page]);
-  const { data, isFetching: loading, error, refetch } = useBannersQuery(query);
+  const { data, isFetching, error, refetch } = useBannersQuery(query);
+  /**
+   * [STATE-01] 스켈레톤은 '데이터가 아직 **없을** 때' 만이다.
+   *
+   * 예전엔 `isFetching` 을 그대로 `loading` 이라 불러 표에 넘겼다. 이 화면은 노출 토글과 삭제가
+   * 일상이고 둘 다 목록을 invalidate 한다 — 그때마다 표가 스켈레톤으로 덮여 방금 만지던 배너가
+   * 사라졌다. queries.ts 가 placeholderData 로 이전 행을 들고 있는 이유를 화면이 스스로 버렸다.
+   */
+  const firstLoading = isFetching && data === undefined;
 
   const banners = useMemo(() => data?.banners ?? [], [data]);
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
+  // 다른 관리자가 지워 총 페이지가 줄면 현재 페이지를 마지막으로 보정한다 (STATE-04-a · 훅이 소유)
+  const { clampPage } = list;
   useEffect(() => {
     if (data === undefined) return;
-    const pages = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
-    if (page > pages) setPage(pages);
-  }, [data, page]);
+    clampPage(Math.ceil(data.total / PAGE_SIZE));
+  }, [data, clampPage]);
 
   const openDelete = (banner: Banner) => {
     setDeleteError(null);
@@ -236,7 +245,7 @@ export default function BannersPage() {
             );
             return;
           }
-          clear();
+          clearSelection();
           toast.success(`배너 ${formatNumber(ids.length)}건을 ${label} 처리했습니다.`);
         },
       },
@@ -270,7 +279,7 @@ export default function BannersPage() {
             return;
           }
           setBulkOpen(false);
-          clear();
+          clearSelection();
           toast.success(`배너 ${formatNumber(ids.length)}건을 삭제했습니다.`);
         },
       },
@@ -281,12 +290,17 @@ export default function BannersPage() {
     <div style={pageStyle}>
       <div style={toolbarStyle}>
         <div style={toolbarLeftStyle}>
-          <SearchField value={keywordInput} onChange={setKeywordInput} label="배너 제목 검색" />
+          <SearchField
+            value={list.searchInput}
+            onChange={list.setSearchInput}
+            label="배너 제목 검색"
+            {...list.searchInputProps}
+          />
           <SegmentedControl
             value={placement}
             options={PLACEMENT_FILTERS.map((filter) => ({ id: filter.id, label: filter.label }))}
             ariaLabel="배너 위치 필터"
-            onChange={(id) => setPlacement(parseFilter(id, PLACEMENT_FILTER_VALUES, 'all'))}
+            onChange={(id) => list.setFilter('placement', id)}
           />
         </div>
         <Button variant="primary" size="md" onClick={() => navigate('/content/banners/new')}>
@@ -299,12 +313,12 @@ export default function BannersPage() {
         <>
           <div style={summaryRowStyle}>
             <p style={hintStyle}>
-              {loading ? '불러오는 중…' : `전체 ${formatNumber(total)}건`}
+              {firstLoading ? '불러오는 중…' : `전체 ${formatNumber(total)}건`}
               {selectedCount > 0 && ` · ${formatNumber(selectedCount)}건 선택됨`}
             </p>
           </div>
 
-          <SelectionBar count={selectedCount} onClear={clear}>
+          <SelectionBar count={selectedCount} onClear={clearSelection}>
             <Button
               variant="secondary"
               disabled={bulkTogglingEnabled}
@@ -326,14 +340,14 @@ export default function BannersPage() {
 
           <BannersTable
             banners={banners}
-            loading={loading}
+            loading={firstLoading}
             onEdit={(banner) => navigate(`/content/banners/${banner.id}/edit`)}
             onDelete={openDelete}
             deletingId={deleting ? (pendingDelete?.id ?? null) : null}
             selectedIds={selectedIds}
-            onToggleOne={toggleOne}
+            onToggleOne={list.toggleOne}
             onToggleAll={(checked) =>
-              toggleAll(
+              list.toggleAll(
                 banners.map((banner) => banner.id),
                 checked,
               )
@@ -346,7 +360,12 @@ export default function BannersPage() {
             reordering={reordering}
           />
 
-          <Pagination page={page} totalPages={totalPages} onChange={setPage} label="배너 페이지" />
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onChange={list.setPage}
+            label="배너 페이지"
+          />
         </>
       ) : (
         <Alert tone="danger">

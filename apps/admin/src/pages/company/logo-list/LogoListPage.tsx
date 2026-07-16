@@ -2,10 +2,17 @@
 //
 // 목록 + 추가/수정 모달 + 삭제팝업. 배치·패턴은 콘텐츠 목록(FAQ)을 따른다: 검색 + 등록 버튼 + 선택
 // 일괄 삭제(SelectionBar) + 표 + 확인 다이얼로그. 파트너사/고객사는 config(resource·라벨·adapter)만 다르다.
-import { useEffect, useMemo, useRef, useState } from 'react';
+//
+// [조회 상태의 소유자] 검색어와 선택은 shared/crud/useListState 가 **URL 쿼리스트링**으로 소유한다
+// (IA-13). 이 화면에 직렬화할 상태는 검색어뿐이다 — 필터가 없고, 페이지네이션도 없다(로고는 순서가
+// 곧 의미라 전부 한 화면에 그리고 드래그로 옮긴다). 여기 있던 사본(검색 디바운스 · 선택 해제)은
+// 그 훅으로 갔다. 두 라우트(/company/partners · /company/clients)가 이 컴포넌트를 공유하지만
+// 각자 자기 URL 을 가지므로 검색어가 서로 섞이지 않는다.
+import { useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 
 import { isAbort } from '../../../shared/async';
+import { useListState } from '../../../shared/crud';
 import { formatNumber, objectParticle } from '../../../shared/format';
 import {
   Alert,
@@ -15,7 +22,6 @@ import {
   PlusCircleIcon,
   SearchField,
   SelectionBar,
-  useRowSelection,
   useToast,
 } from '../../../shared/ui';
 import type { LogoAdapter } from './adapter';
@@ -30,8 +36,6 @@ import {
 } from './queries';
 import { filterLogos } from './types';
 import type { LogoItem } from './types';
-
-const SEARCH_DEBOUNCE_MS = 250;
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -77,8 +81,13 @@ interface LogoListConfig {
 export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig) {
   const toast = useToast();
 
-  const [keywordInput, setKeywordInput] = useState('');
-  const [keyword, setKeyword] = useState('');
+  /**
+   * [IA-13] 검색어의 단일 원천 = URL — 새로고침해도 걸어 둔 검색이 남고, 그 화면에 링크가 생긴다.
+   * [COMP-10] 검색 입력의 IME 처리 — '파트너사 이름' 은 대부분 한글이라 조합 중 조회가 나가면
+   * 자모 단위로 요청이 붙고, 조합 확정용 Enter 가 반쯤 조합된 낱말로 제출된다.
+   */
+  const list = useListState();
+  const { keyword, selectedIds, clearSelection } = list;
   const [modal, setModal] = useState<ModalState>({ kind: 'closed' });
 
   const [pendingDelete, setPendingDelete] = useState<LogoItem | null>(null);
@@ -86,7 +95,7 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
   const deleteControllerRef = useRef<AbortController | null>(null);
   const reorderControllerRef = useRef<AbortController | null>(null);
 
-  const { selectedIds, toggleOne, toggleAll, clear } = useRowSelection();
+  // 일괄 삭제 (선택 자체는 useListState 가 쥔다 — 검색어가 바뀌면 자동으로 해제된다)
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkError, setBulkError] = useState<string | null>(null);
   const bulkControllerRef = useRef<AbortController | null>(null);
@@ -114,15 +123,6 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
   const firstLoading = isFetching && data === undefined;
   /** 데이터가 있는 채로 백그라운드 재조회 중 — 가벼운 인디케이터용, 표를 비우지 않는다 (STATE-03) */
   const refreshing = isFetching && data !== undefined;
-
-  useEffect(() => {
-    const timer = setTimeout(() => setKeyword(keywordInput), SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [keywordInput]);
-
-  useEffect(() => {
-    clear();
-  }, [keyword, clear]);
 
   const visible = useMemo(() => filterLogos(all, keyword), [all, keyword]);
   const total = visible.length;
@@ -242,7 +242,7 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
             return;
           }
           setBulkOpen(false);
-          clear();
+          clearSelection();
           toast.success(`${entityLabel} ${formatNumber(ids.length)}건을 삭제했습니다.`);
         },
       },
@@ -262,9 +262,10 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
     <div style={pageStyle}>
       <div style={toolbarStyle}>
         <SearchField
-          value={keywordInput}
-          onChange={setKeywordInput}
+          value={list.searchInput}
+          onChange={list.setSearchInput}
           label={`${entityLabel} 이름 검색`}
+          {...list.searchInputProps}
         />
         <Button variant="primary" size="md" onClick={() => setModal({ kind: 'create' })}>
           <PlusCircleIcon />
@@ -282,7 +283,7 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
             </p>
           </div>
 
-          <SelectionBar count={selectedCount} onClear={clear}>
+          <SelectionBar count={selectedCount} onClear={clearSelection}>
             <Button variant="danger" disabled={bulkDeleting} onClick={() => setBulkOpen(true)}>
               {`선택 ${formatNumber(selectedCount)}건 삭제`}
             </Button>
@@ -299,9 +300,9 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
             onReorder={onReorder}
             reordering={reordering}
             selectedIds={selectedIds}
-            onToggleOne={toggleOne}
+            onToggleOne={list.toggleOne}
             onToggleAll={(checked) =>
-              toggleAll(
+              list.toggleAll(
                 visible.map((item) => item.id),
                 checked,
               )

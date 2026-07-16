@@ -23,7 +23,7 @@ import type { CSSProperties } from 'react';
 
 import { isAbort } from '../../../shared/async';
 import { downloadCsv } from '../../../shared/download';
-import { formatNumber, objectParticle } from '../../../shared/format';
+import { formatDate, formatNumber, objectParticle } from '../../../shared/format';
 import { useRouteCan } from '../../../shared/permissions/RequirePermission';
 import { Alert, Button, hintStyle, Pagination, useToast } from '../../../shared/ui';
 import { useDebouncedSearch } from '../../../shared/crud';
@@ -31,7 +31,6 @@ import '../logs.css';
 import { useLogListState } from '../list-state';
 import { presetRange } from '../period';
 import { useLogExport, useLogQuery } from '../queries';
-import { kstToday } from '../time';
 import type { DateRange, LogEntryBase, LogQuery, LogScreenSpec, PeriodId } from '../types';
 import { validateCustomRange } from '../validation';
 import type { RangeIssue } from '../validation';
@@ -179,7 +178,8 @@ export function LogListShell<E extends LogEntryBase>({
       { query, signal: controller.signal },
       {
         onSuccess: (all) => {
-          downloadCsv(`${spec.csvBaseName}-${kstToday()}`, spec.toCsv(all));
+          // 파일명의 날짜도 서울 기준이다 — 화면이 KST 로 보여준 것을 KST 로 저장한다
+          downloadCsv(`${spec.csvBaseName}-${formatDate(new Date())}`, spec.toCsv(all));
           // 무엇을 받았는지 숨기지 않는다 — 현재 페이지가 아니라 '필터 전체'임을 명시한다 (ERP-12)
           toast.success(
             `${spec.entityLabel} ${formatNumber(all.length)}건을 CSV 로 내보냈습니다. (현재 필터 조건 전체)`,

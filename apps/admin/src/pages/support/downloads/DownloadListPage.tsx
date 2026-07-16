@@ -3,7 +3,12 @@
 // 목록 + 등록/수정(폼) + 삭제·일괄 삭제. 데이터·선택·삭제 배선은 공용 CRUD 프레임워크
 // (useCrudList + CrudListShell). 목록엔 이미지 열을 넣지 않는다 — 파일은 상세/폼 업로드로만 다룬다.
 // 노출 토글은 목록에서 바로 바꾼다(useCrudRowUpdate). 카테고리·노출 필터 + 검색 툴바.
-import { useMemo, useState } from 'react';
+//
+// [조회 상태의 소유자] 카테고리·노출·검색어는 이 파일의 useState 3개였다. 이제 shared/crud 의
+// useListState 가 **URL 쿼리스트링**으로 소유한다 (IA-13) — '숨김 자료만' 으로 걸러 한 건을 수정하고
+// 목록으로 돌아오면 그 정리 작업 view 가 그대로다(예전엔 전체 목록 처음으로 튕겨 매번 다시 걸었다).
+// 검색은 IME 안전이다 (COMP-10).
+import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,7 +23,13 @@ import {
   tdStyle,
   ToggleSwitch,
 } from '../../../shared/ui';
-import { useCrudList, CrudListShell, useCrudRowUpdate } from '../../../shared/crud';
+import {
+  useCrudList,
+  CrudListShell,
+  parseFilter,
+  useCrudRowUpdate,
+  useListState,
+} from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { downloadAdapter, DOWNLOAD_RESOURCE } from './data-source';
 import {
@@ -62,12 +73,28 @@ const VISIBILITY_OPTIONS: readonly { readonly id: VisibilityFilter; readonly lab
   { id: 'visible', label: '노출' },
   { id: 'hidden', label: '숨김' },
 ] as const;
+const VISIBILITY_FILTER_VALUES: readonly VisibilityFilter[] = VISIBILITY_OPTIONS.map(
+  (option) => option.id,
+);
+
+/** URL 파라미터 기본값 — 기본값과 같은 값은 URL 에서 지운다(공유 링크를 짧게 · IA-13) */
+const FILTER_DEFAULTS = { category: DOWNLOAD_FILTER_ALL, visibility: 'all' } as const;
 
 export default function DownloadListPage() {
   const navigate = useNavigate();
-  const [category, setCategory] = useState<CategoryFilter>(DOWNLOAD_FILTER_ALL);
-  const [visibility, setVisibility] = useState<VisibilityFilter>('all');
-  const [keyword, setKeyword] = useState('');
+
+  // 카테고리·노출·검색어의 단일 원천 = URL (IA-13). 검색은 IME 안전 (COMP-10).
+  const list = useListState({ filterDefaults: FILTER_DEFAULTS });
+  // 카테고리는 서버가 주는 자유 문자열이라 좁힐 유니온이 없다 — 모르는 값은 filterDownloads 가
+  // '일치하는 자료 없음' 으로 흘려보낸다(빈 목록일 뿐, 조회가 깨지지 않는다).
+  const category: CategoryFilter = list.filters['category'] ?? DOWNLOAD_FILTER_ALL;
+  // 노출 상태는 닫힌 유니온이다 — 손으로 고친 ?visibility=거짓말 은 '전체'로 되돌린다
+  const visibility: VisibilityFilter = parseFilter(
+    list.filters['visibility'] ?? 'all',
+    VISIBILITY_FILTER_VALUES,
+    'all',
+  );
+  const { keyword } = list;
 
   const controller = useCrudList<DownloadItem, DownloadInput>({
     resource: DOWNLOAD_RESOURCE,
@@ -138,15 +165,17 @@ export default function DownloadListPage() {
   const toolbar = (
     <div style={toolbarStyle}>
       <SearchField
-        value={keyword}
-        onChange={setKeyword}
+        value={list.searchInput}
+        onChange={list.setSearchInput}
         label="제목·파일명 검색"
         placeholder="제목 · 파일명 검색"
+        // 조합 중 커밋 금지 + Enter 차단 — '설치 매뉴얼' 을 치는 도중 '설치 매뉴ㅇ' 로 검색되지 않는다 (COMP-10)
+        {...list.searchInputProps}
       />
       <span style={selectWrapStyle}>
         <SelectField
           value={category}
-          onChange={(event) => setCategory(event.target.value)}
+          onChange={(event) => list.setFilter('category', event.target.value)}
           aria-label="카테고리로 거르기"
         >
           <option value={DOWNLOAD_FILTER_ALL}>전체 카테고리</option>
@@ -160,10 +189,7 @@ export default function DownloadListPage() {
       <span style={selectWrapStyle}>
         <SelectField
           value={visibility}
-          onChange={(event) => {
-            const next = event.target.value;
-            if (next === 'all' || next === 'visible' || next === 'hidden') setVisibility(next);
-          }}
+          onChange={(event) => list.setFilter('visibility', event.target.value)}
           aria-label="노출 상태로 거르기"
         >
           {VISIBILITY_OPTIONS.map((option) => (
@@ -190,8 +216,8 @@ export default function DownloadListPage() {
         columns={columns}
         nameOf={(item) => item.title}
         empty={{
-          hasQuery: keyword !== '',
-          onClearSearch: () => setKeyword(''),
+          hasQuery: list.hasQuery,
+          onClearSearch: list.clearSearch,
         }}
         selectAllLabelId={SELECT_ALL_LABEL_ID}
         toolbar={toolbar}

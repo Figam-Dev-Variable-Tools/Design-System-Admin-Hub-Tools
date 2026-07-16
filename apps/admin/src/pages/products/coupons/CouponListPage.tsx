@@ -2,7 +2,13 @@
 //
 // 승격된 CRUD 프레임워크(useCrudList + CrudListShell) 위에 발급유형 필터 + 검색 + 소진율 + 상태 배지
 // + 발급 상태 인라인 토글 + 삭제팝업을 얹는다.
-import { useEffect, useMemo, useState } from 'react';
+//
+// [조회 상태의 소유자] issue·keyword 는 이 파일의 useState 2개였다. 이제 shared/crud 의 useListState 가
+// **URL 쿼리스트링**으로 소유한다 (IA-13) — '정률 할인' 쿠폰만 골라 한 건을 열어 소진율을 확인하고
+// Back 하면 예전에는 필터 없는 전체 목록에 착지했다. F5 도 같았다. 이제 그 조건이 URL 에 남아
+// 복원되고, '이 조건 좀 봐주세요' 하며 링크로 공유된다. 검색은 IME 안전이다 (COMP-10) —
+// '신규가입' 을 치는 도중 자모마다 조회가 나가거나 Enter 가 '신규가ㅇ' 으로 제출되지 않는다.
+import { useEffect, useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,7 +21,13 @@ import {
   StatusBadge,
   ToggleSwitch,
 } from '../../../shared/ui';
-import { CrudListShell, parseFilter, useCrudList, useCrudRowUpdate } from '../../../shared/crud';
+import {
+  CrudListShell,
+  parseFilter,
+  useCrudList,
+  useCrudRowUpdate,
+  useListState,
+} from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { couponAdapter } from './data-source';
 import {
@@ -37,6 +49,9 @@ const COUPON_FILTER_VALUES: readonly CouponIssueFilter[] = [
   COUPON_FILTER_ALL,
   ...COUPON_ISSUE_OPTIONS.map((option) => option.id),
 ];
+
+/** URL 파라미터 기본값 — 기본값과 같은 값은 URL 에서 지워진다(공유 링크가 짧아진다) */
+const FILTER_DEFAULTS = { issue: COUPON_FILTER_ALL } as const;
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
@@ -68,8 +83,15 @@ const nameOf = (item: Coupon) => item.name;
 
 export default function CouponListPage() {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<CouponIssueFilter>(COUPON_FILTER_ALL);
-  const [keyword, setKeyword] = useState('');
+  // issue·keyword 의 단일 원천 = URL (IA-13). 검색은 IME 안전 (COMP-10).
+  const list = useListState({ filterDefaults: FILTER_DEFAULTS });
+  // 손으로 고친 ?issue=거짓말 이 조회를 깨지 않게 한다 — 모르는 값은 '전체'로 되돌린다
+  const filter: CouponIssueFilter = parseFilter(
+    list.filters['issue'] ?? COUPON_FILTER_ALL,
+    COUPON_FILTER_VALUES,
+    COUPON_FILTER_ALL,
+  );
+  const { keyword } = list;
   const today = formatDate(new Date());
 
   const controller = useCrudList<Coupon, CouponInput>({
@@ -150,17 +172,17 @@ export default function CouponListPage() {
     <div style={toolbarStyle}>
       <div style={filtersStyle}>
         <SearchField
-          value={keyword}
-          onChange={setKeyword}
+          value={list.searchInput}
+          onChange={list.setSearchInput}
           label="쿠폰명·코드 검색"
           placeholder="쿠폰명 · 코드 검색"
+          // 조합 중 커밋 금지 + Enter 차단 — 자모마다 조회가 나가지 않는다 (COMP-10)
+          {...list.searchInputProps}
         />
         <span style={selectWrapStyle}>
           <SelectField
             value={filter}
-            onChange={(event) =>
-              setFilter(parseFilter(event.target.value, COUPON_FILTER_VALUES, COUPON_FILTER_ALL))
-            }
+            onChange={(event) => list.setFilter('issue', event.target.value)}
             aria-label="발급유형으로 거르기"
           >
             <option value={COUPON_FILTER_ALL}>전체 유형</option>
@@ -187,10 +209,10 @@ export default function CouponListPage() {
       columns={columns}
       nameOf={nameOf}
       empty={{
-        hasQuery: keyword !== '',
-        hasActiveFilters: filter !== COUPON_FILTER_ALL,
-        onClearSearch: () => setKeyword(''),
-        onResetFilters: () => setFilter(COUPON_FILTER_ALL),
+        hasQuery: list.hasQuery,
+        hasActiveFilters: list.hasActiveFilters,
+        onClearSearch: list.clearSearch,
+        onResetFilters: list.resetFilters,
       }}
       selectAllLabelId="coupon-select-all"
       toolbar={toolbar}

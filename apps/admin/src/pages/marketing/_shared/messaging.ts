@@ -34,16 +34,11 @@ export const MESSAGE_CHANNEL_OPTIONS: readonly Option<MessageChannel>[] = [
   { id: 'alimtalk', label: '카카오 알림톡' },
 ] as const;
 
-const CHANNEL_VALUES = ['sms', 'email', 'alimtalk'] as const;
-
-function isMessageChannel(value: unknown): value is MessageChannel {
-  return typeof value === 'string' && (CHANNEL_VALUES as readonly string[]).includes(value);
-}
-
-/** 드롭다운 문자열 → 채널(모르면 null). 목록 필터가 `as` 없이 값을 좁힐 때 쓴다 */
-export function parseMessageChannel(value: string): MessageChannel | null {
-  return isMessageChannel(value) ? value : null;
-}
+// [삭제됨] parseMessageChannel / isMessageChannel / CHANNEL_VALUES
+//   목록 필터가 URL 문자열을 좁힐 때 쓰던 사본이다. IA-13 롤아웃으로 그 자리를 공용
+//   `shared/crud/parseFilter` 가 가져갔고 — 허용 목록은 위 MESSAGE_CHANNEL_OPTIONS 의 id 에서
+//   파생한다 — 마지막 소비자가 사라졌다. 소비자 없는 export 는 '나중에 쓸지도 모르는 것'이
+//   아니라 죽은 코드다(A83 축5 죽은 코드 0).
 
 const optionLabel = <T extends string>(options: readonly Option<T>[], id: T): string =>
   options.find((option) => option.id === id)?.label ?? id;
@@ -333,16 +328,8 @@ export const SEND_STATUS_OPTIONS: readonly Option<SendStatus>[] = [
   { id: 'canceled', label: '취소' },
 ] as const;
 
-const SEND_STATUS_VALUES = ['draft', 'scheduled', 'sending', 'sent', 'canceled'] as const;
-
-function isSendStatus(value: unknown): value is SendStatus {
-  return typeof value === 'string' && (SEND_STATUS_VALUES as readonly string[]).includes(value);
-}
-
-/** 드롭다운 문자열 → 발송상태(모르면 null). SMS·이메일·뉴스레터 목록 필터가 `as` 없이 값을 좁힌다 */
-export function parseSendStatus(value: string): SendStatus | null {
-  return isSendStatus(value) ? value : null;
-}
+// [삭제됨] parseSendStatus / isSendStatus / SEND_STATUS_VALUES — 위 parseMessageChannel 과 같은 이유.
+//   SMS·이메일·뉴스레터 목록이 IA-13 롤아웃으로 `parseFilter` 를 쓰면서 소비자가 0 이 됐다.
 
 export const sendStatusLabel = (v: SendStatus): string => optionLabel(SEND_STATUS_OPTIONS, v);
 

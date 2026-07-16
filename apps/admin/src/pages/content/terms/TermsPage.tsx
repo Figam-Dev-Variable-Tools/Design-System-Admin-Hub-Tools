@@ -6,11 +6,16 @@
 //   등록/수정은 별도 폼 페이지, 행 클릭은 상세 페이지로 간다.
 //
 // [실패는 조용히 삼키지 않는다] 조회 실패=인라인 배너, 삭제 결과=토스트(삭제 실패는 다이얼로그 배너).
-import { useEffect, useMemo, useRef, useState } from 'react';
+//
+// [조회 상태의 소유자] 약관 종류·검색어와 선택은 shared/crud/useListState 가 **URL 쿼리스트링**으로
+// 소유한다 (IA-13). 페이지네이션은 없다(한 종류의 버전 이력은 몇 건뿐이라 전부 그린다) — page 는
+// 쓰지 않는다. 여기 있던 사본(검색 디바운스 · 선택 해제)은 그 훅으로 갔다.
+import { useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { isAbort } from '../../../shared/async';
+import { useListState } from '../../../shared/crud';
 import { formatNumber } from '../../../shared/format';
 import {
   Alert,
@@ -22,7 +27,6 @@ import {
   PlusCircleIcon,
   SearchField,
   SelectionBar,
-  useRowSelection,
   useToast,
   VersionHistoryTable,
 } from '../../../shared/ui';
@@ -36,7 +40,14 @@ import {
 import { isCurrent, STATUS_LABEL, STATUS_TONE } from './types';
 import type { TermsVersion } from './types';
 
-const SEARCH_DEBOUNCE_MS = 250;
+/**
+ * URL 파라미터 기본값.
+ *
+ * 종류의 기본값이 '' 인 이유: 기본 화면은 '첫 종류' 인데 그 id 는 서버가 준다 — 컴파일 시점에
+ * 이름을 알 수 없다. '' 를 '아직 안 고름' 센티넬로 두면 기본 화면의 URL 은 파라미터가 없고
+ * (`/content/terms`), 종류를 고른 순간에만 `?type=…` 이 붙는다.
+ */
+const FILTER_DEFAULTS = { type: '' } as const;
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -97,21 +108,34 @@ export default function TermsPage() {
   const navigate = useNavigate();
 
   const { data: types } = useTermsTypesQuery();
-  const [selectedTypeId, setSelectedTypeId] = useState('');
-  const [keywordInput, setKeywordInput] = useState('');
-  const [keyword, setKeyword] = useState('');
 
-  useEffect(() => {
-    const timer = setTimeout(() => setKeyword(keywordInput), SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [keywordInput]);
+  /**
+   * [IA-13] 약관 종류·검색어의 단일 원천 = URL.
+   *
+   * 운영자는 '이용약관 v2.1 좀 봐주세요' 하며 링크를 준다. 종류가 useState 에만 있으면 그 링크는
+   * 언제나 첫 종류를 열어 상대가 종류를 다시 고르게 만든다 — 버전 상세에서 Back 해도 같다.
+   * 검색 입력의 IME 처리(COMP-10)도 이 훅이 함께 준다.
+   */
+  const list = useListState({ filterDefaults: FILTER_DEFAULTS });
+  const typeParam = list.filters['type'] ?? '';
+  const { keyword, selectedIds, clearSelection } = list;
 
-  // 종류 목록이 도착하면 첫 종류를 자동 선택한다
-  useEffect(() => {
-    if (selectedTypeId === '' && types !== undefined && types[0] !== undefined) {
-      setSelectedTypeId(types[0].id);
-    }
-  }, [types, selectedTypeId]);
+  /**
+   * 화면에 걸린 종류 — URL 이 비면 첫 종류(기존 자동 선택 동작 그대로).
+   *
+   * [effect 로 쓰지 않고 파생시킨다] URL 을 원천으로 삼으면 '첫 종류' 는 계산할 수 있는 값이지
+   * 저장할 값이 아니다. effect 로 URL 에 써 넣으면 목록에 들어서기만 해도 `?type=…` 이 붙어
+   * 기본 화면의 URL 이 둘로 갈린다.
+   *
+   * [목록에 없는 종류는 첫 종류로 접는다] URL 은 사람이 고친다 — 삭제된 종류나 오타(`?type=x`)로
+   * 아무 종류도 선택되지 않은 빈 화면에 착지하지 않게 한다. types 가 오기 전에는 검증할 수
+   * 없으므로 URL 값을 그대로 믿는다(그래야 첫 조회가 옳은 종류로 나간다).
+   */
+  const selectedTypeId = useMemo(() => {
+    if (types === undefined) return typeParam;
+    if (typeParam !== '' && types.some((type) => type.id === typeParam)) return typeParam;
+    return types[0]?.id ?? '';
+  }, [types, typeParam]);
 
   const {
     data: versions,
@@ -127,17 +151,12 @@ export default function TermsPage() {
   const deleteVersion = useDeleteTermsVersion();
   const deleting = deleteVersion.isPending;
 
-  const { selectedIds, toggleOne, toggleAll, clear } = useRowSelection();
+  // 일괄 삭제 (선택 자체는 useListState 가 쥔다 — 종류/검색이 바뀌면 자동으로 해제된다)
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkError, setBulkError] = useState<string | null>(null);
   const bulkControllerRef = useRef<AbortController | null>(null);
   const bulkDelete = useBulkDeleteTermsVersions();
   const bulkDeleting = bulkDelete.isPending;
-
-  // 종류/검색이 바뀌면 선택은 무의미해진다
-  useEffect(() => {
-    clear();
-  }, [selectedTypeId, keyword, clear]);
 
   const versionList = useMemo(() => versions ?? [], [versions]);
   const rows = useMemo(() => {
@@ -216,7 +235,7 @@ export default function TermsPage() {
             return;
           }
           setBulkOpen(false);
-          clear();
+          clearSelection();
           toast.success(`버전 ${formatNumber(ids.length)}건을 삭제했습니다.`);
         },
       },
@@ -238,7 +257,7 @@ export default function TermsPage() {
                     className="tds-ui-listitem tds-ui-focusable"
                     style={filterItemStyle(active)}
                     aria-pressed={active}
-                    onClick={() => setSelectedTypeId(type.id)}
+                    onClick={() => list.setFilter('type', type.id)}
                   >
                     <span>{type.label}</span>
                   </button>
@@ -250,7 +269,12 @@ export default function TermsPage() {
 
         <div style={mainColumnStyle}>
           <div style={toolbarStyle}>
-            <SearchField value={keywordInput} onChange={setKeywordInput} label="약관 버전 검색" />
+            <SearchField
+              value={list.searchInput}
+              onChange={list.setSearchInput}
+              label="약관 버전 검색"
+              {...list.searchInputProps}
+            />
             <Button
               variant="primary"
               size="md"
@@ -277,7 +301,7 @@ export default function TermsPage() {
             </Alert>
           ) : (
             <>
-              <SelectionBar count={selectedCount} onClear={clear}>
+              <SelectionBar count={selectedCount} onClear={clearSelection}>
                 <Button variant="danger" disabled={bulkDeleting} onClick={() => setBulkOpen(true)}>
                   {`선택 ${formatNumber(selectedCount)}건 삭제`}
                 </Button>
@@ -292,9 +316,9 @@ export default function TermsPage() {
                 detailPathOf={(id) => `/content/terms/${id}`}
                 emptyMessage={loading ? '불러오는 중…' : '등록된 버전이 없습니다.'}
                 selectedIds={selectedIds}
-                onToggleOne={toggleOne}
+                onToggleOne={list.toggleOne}
                 onToggleAll={(checked) =>
-                  toggleAll(
+                  list.toggleAll(
                     rows.map((row) => row.id),
                     checked,
                   )
