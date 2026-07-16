@@ -56,7 +56,24 @@ export default function DashboardPage() {
   const showLists = isEnabled('dashboard.lists');
   const needsTabData = visibleTabs.length > 0 && (showTodo || showLists);
 
-  // isFetching(= 재조회 중에도 true)을 로딩으로 쓴다 — useAsyncData 도 재조회 중 loading 이 true 였다
+  /**
+   * [STATE-01 의 예외 — `isFetching` 이 여기서는 **옳다**. 지우지 말 것]
+   *
+   * 목록 화면들은 스켈레톤 조건을 `data === undefined` 로 좁혔다(재조회 중 이전 행 유지).
+   * 이 화면은 그 규칙을 따르지 않는다. 이유는 '옛 동작 보존'이 아니라 **조회가 화면의 컨트롤에
+   * 종속**되기 때문이다:
+   *
+   *   · 탭 데이터 조회는 **활성 탭**의 함수다 (FS-002-EL-014). 탭을 '문의'로 바꾼 순간
+   *     이전 '상품' 탭 데이터는 갱신 중인 같은 행이 아니라 **다른 탭의 내용**이다 —
+   *     그것을 '문의' 탭 아래 남겨 두는 것은 유지가 아니라 **거짓말**이다.
+   *   · 그래서 명세가 스켈레톤을 요구한다: FS-002-EL-014 '조회 중에는 카드 골격을 유지한 채
+   *     EL-020 · EL-026 스켈레톤으로 대체한다', FS-002-EL-015 '조회 중 aria-busy="true" +
+   *     스켈레톤(EL-020)'.
+   *
+   * (TodoCard/ListCard 는 `busy` 와 스켈레톤을 `loading` 하나로 묶어 둔 계약이라, 설령 규칙을
+   *  바꾸고 싶어도 앱층에서 'aria-busy 는 켜고 내용은 남긴다'를 만들 수 없다 — packages/ui 의
+   *  계약 변경 사안이다.)
+   */
   const { data, isFetching: loading, error } = useTabDataQuery(activeTab, needsTabData);
 
   const hasStats = isEnabled('dashboard.stats.visitors') || isEnabled('dashboard.stats.period');

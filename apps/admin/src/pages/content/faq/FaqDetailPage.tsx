@@ -89,7 +89,9 @@ export default function FaqDetailPage() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const { data, isFetching: loading, error, refetch } = useFaqQuery(faqId);
+  // [STATE-01] 스켈레톤 조건은 `data === undefined` **하나뿐이다** — 아래 본문 분기를 보라.
+  // 예전엔 `isFetching || data === undefined` 라 재조회마다 읽고 있던 답변이 스켈레톤이 됐다.
+  const { data, error, refetch } = useFaqQuery(faqId);
 
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -180,7 +182,7 @@ export default function FaqDetailPage() {
             </span>
           </div>
         </Alert>
-      ) : loading || data === undefined ? (
+      ) : data === undefined ? (
         <Card>
           <div style={skeletonBodyStyle} aria-busy="true">
             {[0, 1, 2, 3].map((row) => (

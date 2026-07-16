@@ -116,8 +116,17 @@ export default function AdminsPage() {
   }, [groupId, keyword, page]);
 
   const query = useMemo(() => ({ groupId, keyword, page }), [groupId, keyword, page]);
-  // isFetching(= 재조회 중에도 true)을 로딩으로 쓴다 — useAsyncData 도 재조회 중 loading 이 true 였다
-  const { data, isFetching: loading, error, refetch } = useAdminsQuery(query);
+  const { data, isFetching, error, refetch } = useAdminsQuery(query);
+  /**
+   * [STATE-01] 스켈레톤은 '데이터가 아직 **없을** 때' 만이다.
+   *
+   * 예전 주석은 "useAsyncData 도 재조회 중 loading 이 true 였다"며 `isFetching` 을 그대로
+   * 넘기는 것을 **동작 보존**이라 정당화했다. 그러나 그것은 useAsyncData 의 한계였지 지키기로
+   * 한 계약이 아니다 — react-query 를 도입한 이유가 바로 '재조회 중 이전 행 유지'다(ADR-0008
+   * §3.2). queries.ts 의 placeholderData 도 그래서 켜 두었다. 보존해야 할 동작이 아니라
+   * 고쳐야 할 버그였다.
+   */
+  const firstLoading = isFetching && data === undefined;
 
   // 그룹 목록은 필터/검색과 무관하다 — 캐시 키가 달라 목록 조회와 별개로 산다
   const { data: groups } = useAdminGroupsQuery();
@@ -167,7 +176,7 @@ export default function AdminsPage() {
                   <CardTitle id="admins-table-title">
                     <>
                       전체 운영자{' '}
-                      <span style={countStyle}>{loading ? '—' : formatNumber(total)}</span>명
+                      <span style={countStyle}>{firstLoading ? '—' : formatNumber(total)}</span>명
                       {selectedIds.size > 0 && (
                         <span style={selectedHintStyle}>
                           {` · ${formatNumber(selectedIds.size)}명 선택됨`}
@@ -179,7 +188,7 @@ export default function AdminsPage() {
                   <div style={tableWrapStyle}>
                     <AdminsTable
                       admins={admins}
-                      loading={loading}
+                      loading={firstLoading}
                       selectedIds={selectedIds}
                       onToggleOne={toggleOne}
                       onToggleAll={toggleAll}

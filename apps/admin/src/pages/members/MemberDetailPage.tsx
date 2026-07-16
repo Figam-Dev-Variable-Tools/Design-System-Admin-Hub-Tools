@@ -130,13 +130,17 @@ export default function MemberDetailPage({
   const toast = useToast();
 
   // fetchDetail 은 라우트마다 고정된 함수다 — 캐시 키는 id + 컨텍스트(listPath)다.
-  // isFetching(= 재조회 중에도 true)을 로딩으로 쓴다 — useAsyncData 도 재조회 중 loading 이 true 였다
-  const {
-    data,
-    isFetching: loading,
-    error,
-    refetch,
-  } = useMemberDetailQuery(memberId, listPath, fetchDetail);
+  //
+  // [STATE-01] 스켈레톤 조건은 `data === undefined` **하나뿐이다** (아래 본문 분기).
+  //
+  // 예전엔 `isFetching || data === undefined` 였다. 무엇이 그것을 터뜨렸는가를 정확히 적는다 —
+  // 이 화면의 쓰기(적립금 지급·상태 변경)는 **이 상세를 invalidate 하지 않는다**(queries.ts 는
+  // memberKeys.lists() 만 무효화하고, 그 키는 detail 키의 접두사가 아니다). 진짜 방아쇠는
+  // **목록 ↔ 상세 왕복**이다: queryClient 는 staleTime 30초에 refetchOnMount 기본값(true)이므로,
+  // 30초 뒤 상세를 다시 열면 캐시된 데이터를 든 채(data 있음) 재조회가 돈다(isFetching true).
+  // 그 순간 예전 조건은 **캐시가 이미 쥐고 있는 회원 카드를 스켈레톤으로 교체**했다 —
+  // 캐시를 두고도 캐시의 이득(ADR-0008 §3.2)을 화면이 스스로 버린 셈이다.
+  const { data, error, refetch } = useMemberDetailQuery(memberId, listPath, fetchDetail);
 
   const [changingPassword, setChangingPassword] = useState(false);
 
@@ -255,7 +259,7 @@ export default function MemberDetailPage({
             </span>
           </div>
         </Alert>
-      ) : loading || data === undefined ? (
+      ) : data === undefined ? (
         <LoadingSkeleton />
       ) : (
         <div style={gridStyle}>

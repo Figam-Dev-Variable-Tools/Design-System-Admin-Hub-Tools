@@ -79,7 +79,24 @@ export function StatsSection({ range, onRangeChange }: StatsSectionProps) {
   const showVisitors = isEnabled('dashboard.stats.visitors');
   const showPeriod = isEnabled('dashboard.stats.period');
 
-  // isFetching(= 재조회 중에도 true)을 로딩으로 쓴다 — useAsyncData 도 재조회 중 loading 이 true 였다
+  /**
+   * [STATE-01 의 예외 — `isFetching` 이 여기서는 **옳다**. 지우지 말 것]
+   *
+   * 목록 화면들은 스켈레톤 조건을 `data === undefined` 로 좁혔다(재조회 중 이전 행 유지).
+   * 통계 카드는 그 규칙을 따르지 않는다. 이유는 '옛 동작 보존'이 아니라 **조회가 기간 토글에
+   * 종속**되기 때문이다:
+   *
+   *   · 조회는 기간(일/주/월)의 함수다 (FS-002-EL-027). '월'을 누른 순간 화면에 남아 있는
+   *     '일' 차트는 갱신 중인 같은 데이터가 아니라 **다른 기간의 집계**다 — 토글은 '월'을
+   *     가리키는데 차트는 '일'을 그리는 상태는 유지가 아니라 **거짓말**이다.
+   *   · 그래서 명세가 못 박는다: FS-002-EL-034 '**조회 중이거나 데이터가 아직 없으면** 범례·차트
+   *     대신 스켈레톤', EL-039(표도 동일), EL-027 '조회 중 두 카드 모두 aria-busy="true" 이며
+   *     스켈레톤으로 대체된다'. e2e FS-002-EL-027/028/036 이 기간 토글 직후의 aria-busy 를
+   *     그대로 단언한다.
+   *
+   * (StatsCard 는 `busy` 와 스켈레톤을 `loading` 하나로 묶은 계약이라 'aria-busy 는 켜고 차트는
+   *  남긴다'를 앱층에서 만들 수 없다 — 규칙을 바꾸려면 packages/ui 계약부터 갈라야 한다.)
+   */
   const { data, isFetching: loading, error } = useStatsQuery(range, showVisitors || showPeriod);
 
   const chart = useMemo(() => {

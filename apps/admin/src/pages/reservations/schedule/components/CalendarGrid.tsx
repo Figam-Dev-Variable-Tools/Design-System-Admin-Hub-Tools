@@ -79,6 +79,14 @@ const selectedCellStyle: CSSProperties = {
   background: 'var(--tds-color-feedback-info-surface)',
 };
 
+// 스켈레톤 셀은 실제 셀과 **같은 상자**여야 한다(패딩·최소 높이·최소 폭 동일) — 데이터가 도착할 때
+// 격자가 튀지 않고 그 자리에 숫자가 들어찬다. 클릭 대상이 아니므로 커서는 기본값이다.
+const skeletonCellStyle: CSSProperties = {
+  ...baseCellStyle,
+  justifyContent: 'center',
+  cursor: 'default',
+};
+
 const chipRowStyle: CSSProperties = {
   display: 'inline-flex',
   flexWrap: 'wrap',
@@ -100,6 +108,13 @@ const fullStyle: CSSProperties = {
 interface CalendarGridProps {
   readonly days: readonly string[];
   readonly all: readonly Reservation[];
+  /**
+   * [STATE-01] **최초 로드**(`data === undefined`)인가 — 재조회 중에는 false 다.
+   *
+   * 이 플래그가 없으면 격자는 `all` 만 보고 그리는데, 아직 도착하지 않은 데이터와 '예약 0건'이
+   * 둘 다 빈 배열이라 **구별할 방법이 없다**. 호출부가 이 사실을 따로 넘겨 준다.
+   */
+  readonly loading: boolean;
   readonly selectedDate: string;
   readonly selectedSlotStart: number | null;
   readonly onSelectSlot: (date: string, slot: Slot) => void;
@@ -108,6 +123,7 @@ interface CalendarGridProps {
 export function CalendarGrid({
   days,
   all,
+  loading,
   selectedDate,
   selectedSlotStart,
   onSelectSlot,
@@ -120,6 +136,7 @@ export function CalendarGrid({
         style={{ ...gridStyle, gridTemplateColumns: template }}
         role="grid"
         aria-label="예약 일정 달력"
+        aria-busy={loading}
       >
         <div style={headCellStyle} role="columnheader">
           시간
@@ -136,6 +153,23 @@ export function CalendarGrid({
               {slot.label}
             </div>
             {days.map((day) => {
+              // [STATE-01] 최초 로드 중에는 셀을 **집계하지 않는다**.
+              //
+              // 예전엔 `all = data ?? []` 하나만 받아 도착 전에도 slotCell 을 돌렸고, 그 결과 셀 77개가
+              // 전부 '0/4' 로 렌더됐다. 그건 로딩 표시가 아니라 **거짓 사실의 단정**이다 — 운영자는
+              // '이 시간 비었네' 하고 그 위에 예약을 잡는다. 실제로는 이미 마감된 슬롯일 수 있다.
+              // 스피너를 못 본 운영자는 기다리지만, '0/4' 를 본 운영자는 **그것을 믿고 행동한다.**
+              // 그래서 도착 전에는 아무 숫자도 말하지 않고 올 모양(스켈레톤)만 그린다.
+              // 클릭 대상도 아니다 — 열어 봐야 '이 시간대에 예약이 없습니다'라는 또 하나의 거짓말뿐이다.
+              if (loading) {
+                return (
+                  <div key={`${day}-${slot.label}`} style={skeletonCellStyle}>
+                    <span className="tds-ui-skeleton" aria-hidden="true" />
+                  </div>
+                );
+              }
+
+              // 여기서부터는 조회가 끝난 뒤다 — '0/4' 는 '아직 모른다'가 아니라 '정말 0건'을 뜻한다.
               const cell = slotCell(all, day, slot);
               const selected = day === selectedDate && slot.startMin === selectedSlotStart;
               return (

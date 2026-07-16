@@ -94,7 +94,10 @@ export default function NoticeDetailPage() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const { data, isFetching: loading, error, refetch } = useNoticeQuery(noticeId);
+  // [STATE-01] 스켈레톤 조건은 `data === undefined` **하나뿐이다** — 아래 본문 분기를 보라.
+  // 예전엔 `isFetching || data === undefined` 라, 목록↔상세를 오가며 staleTime(30초)이 지나
+  // 재조회가 돌면 캐시가 이미 쥐고 있던 공지 본문이 스켈레톤으로 교체됐다.
+  const { data, error, refetch } = useNoticeQuery(noticeId);
 
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -190,7 +193,7 @@ export default function NoticeDetailPage() {
             </span>
           </div>
         </Alert>
-      ) : loading || data === undefined ? (
+      ) : data === undefined ? (
         <Card>
           <div style={skeletonBodyStyle} aria-busy="true">
             {[0, 1, 2, 3, 4].map((row) => (

@@ -27,13 +27,13 @@ import type { CSSProperties } from 'react';
 
 import './login-history.css';
 import { downloadCsv } from '../../shared/download';
-import { formatNumber } from '../../shared/format';
+import { formatDate, formatNumber } from '../../shared/format';
 import { Alert, Button, hintStyle, Pagination, useToast } from '../../shared/ui';
 import { LoginHistoryFilters } from './components/LoginHistoryFilters';
 import { LoginHistoryTable } from './components/LoginHistoryTable';
 import { LoginHistoryToolbar } from './components/LoginHistoryToolbar';
 import { toCsv } from './data-source';
-import { presetRange, todayOf } from './period';
+import { presetRange } from './period';
 import { useExportLoginHistory, useLoginHistoryQuery } from './queries';
 import { PAGE_SIZE } from './types';
 import type { AccountKindFilter, DateRange, OutcomeFilter, PeriodId } from './types';
@@ -147,12 +147,17 @@ export default function LoginHistoryPage() {
     [outcome, accountKind, safeRange, keyword, page],
   );
 
-  const {
-    data,
-    isFetching: loading,
-    error,
-    refetch,
-  } = useLoginHistoryQuery(query, { enabled: range !== null });
+  const { data, isFetching, error, refetch } = useLoginHistoryQuery(query, {
+    enabled: range !== null,
+  });
+  /**
+   * [STATE-01] 스켈레톤은 '데이터가 아직 **없을** 때' 만이다.
+   *
+   * 예전엔 `isFetching` 을 그대로 `loading` 이라 불러 표에 넘겼다. 감사 화면은 기간·결과·계정
+   * 종류를 계속 바꿔 가며 훑는 곳이라 재조회가 잦고, queries.ts 가 placeholderData 로 이전 행을
+   * 들고 있는데도 조건을 한 번 만질 때마다 표가 통째로 깜빡였다.
+   */
+  const firstLoading = isFetching && data === undefined;
 
   const entries = data?.entries ?? [];
   const total = data?.total ?? 0;
@@ -184,7 +189,8 @@ export default function LoginHistoryPage() {
       {
         onSuccess: (all) => {
           const failed = all.filter((entry) => entry.outcome === 'failure').length;
-          downloadCsv(`login-history-${todayOf()}`, toCsv(all));
+          // 파일명의 날짜도 서울 기준이다 — 화면이 KST 로 보여준 것을 KST 로 저장한다
+          downloadCsv(`login-history-${formatDate(new Date())}`, toCsv(all));
 
           // 성공 안내에도 실패 건수를 함께 적는다 — 파일 안에 무엇이 들어 있는지 숨기지 않는다
           toast.success(
@@ -232,11 +238,11 @@ export default function LoginHistoryPage() {
                 <p style={hintStyle}>
                   {range === null
                     ? '조회 기간을 확인해 주세요.'
-                    : loading
+                    : firstLoading
                       ? '불러오는 중…'
                       : `전체 ${formatNumber(total)}건`}
                 </p>
-                {range !== null && !loading && failureTotal > 0 && (
+                {range !== null && !firstLoading && failureTotal > 0 && (
                   <p style={failureSummaryStyle}>
                     {`이 기간의 로그인 실패 ${formatNumber(failureTotal)}건`}
                   </p>
@@ -244,7 +250,7 @@ export default function LoginHistoryPage() {
               </div>
 
               <div style={tableWrapStyle}>
-                <LoginHistoryTable entries={entries} loading={loading && range !== null} />
+                <LoginHistoryTable entries={entries} loading={firstLoading && range !== null} />
               </div>
 
               <Pagination

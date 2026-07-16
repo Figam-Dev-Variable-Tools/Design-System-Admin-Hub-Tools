@@ -92,8 +92,15 @@ const skeletonStackStyle: CSSProperties = {
 
 export default function CustomerSettingsPage() {
   const toast = useToast();
-  // isFetching(= 재조회 중에도 true)을 로딩으로 쓴다 — useAsyncData 도 재조회 중 loading 이 true 였다
-  const { data, isFetching: loading, error, refetch } = useTierPolicyQuery();
+  const { data, isFetching, error, refetch } = useTierPolicyQuery();
+  /**
+   * [STATE-01] 스켈레톤은 '데이터가 아직 **없을** 때' 만이다.
+   *
+   * 예전 주석은 "useAsyncData 도 재조회 중 loading 이 true 였다"며 `isFetching` 을 그대로 쓰는
+   * 것을 동작 보존이라 했다. 그 결과 저장이 정책을 invalidate 할 때마다 **편집 중이던 폼 전체가
+   * 스켈레톤으로 교체**됐다 — 방금 저장한 사람이 자기 화면을 잃는다.
+   */
+  const firstLoading = isFetching && data === undefined;
 
   const [draft, setDraft] = useState<PolicyDraft | null>(null);
   /** 마지막으로 저장된(=서버가 알고 있는) 상태의 정규화 문자열 — 변경 감지의 기준선 */
@@ -284,7 +291,7 @@ export default function CustomerSettingsPage() {
     );
   }
 
-  if (loading || draft === null || validation === null) {
+  if (firstLoading || draft === null || validation === null) {
     return (
       <div style={pageStyle}>
         <div style={skeletonStackStyle} aria-busy="true" aria-live="polite">

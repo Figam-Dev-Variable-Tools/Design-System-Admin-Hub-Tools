@@ -90,7 +90,9 @@ export default function PrivacyDetailPage() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const { data, isFetching: loading, error, refetch } = usePrivacyVersionQuery(versionId);
+  // [STATE-01] 스켈레톤 조건은 `data === undefined` **하나뿐이다** — 아래 본문 분기를 보라.
+  // 예전엔 `isFetching || data === undefined` 라 재조회마다 읽고 있던 방침 본문이 사라졌다.
+  const { data, error, refetch } = usePrivacyVersionQuery(versionId);
 
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -181,7 +183,7 @@ export default function PrivacyDetailPage() {
             </span>
           </div>
         </Alert>
-      ) : loading || data === undefined ? (
+      ) : data === undefined ? (
         <Card>
           <div style={skeletonBodyStyle} aria-busy="true">
             {[0, 1, 2, 3, 4].map((row) => (
