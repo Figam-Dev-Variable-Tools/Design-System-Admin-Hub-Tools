@@ -1,4 +1,4 @@
-// AUTO-GENERATED from contracts/StatsCard.contract.json@1.0.1 — DO NOT EDIT (pnpm codegen)
+// AUTO-GENERATED from contracts/StatsCard.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
 
 /** Storybook argTypes — 계약에서 생성. Story 파일에서 spread 하여 사용한다. */
 export const StatsCardArgTypes = {
@@ -24,6 +24,21 @@ export const StatsCardArgTypes = {
       },
       defaultValue: {
         summary: 'null',
+      },
+    },
+  },
+  value: {
+    description: 'KPI 대표 수치 — 비어 있지 않으면 본문 위에 display 타이포(typography.display.sm = 24px, tabular-nums)로 렌더한다. 대시보드의 지배적 숫자이므로 본문(body.md)보다 확실히 크다 (TOKEN-05). 포맷팅(천단위·단위)은 호출부가 shared/format 으로 끝낸 문자열을 넘긴다 — 카드는 숫자를 모른다. 차트/표만 담는 카드는 비워 둔다',
+    control: {
+      type: 'text',
+    },
+    table: {
+      category: 'Props',
+      type: {
+        summary: 'string',
+      },
+      defaultValue: {
+        summary: '""',
       },
     },
   },

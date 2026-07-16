@@ -70,8 +70,6 @@
   --tds-primitive-typography-font-size-18: 1.125rem;
   --tds-primitive-typography-font-size-20: 1.25rem;
   --tds-primitive-typography-font-size-24: 1.5rem;
-  --tds-primitive-typography-font-size-28: 1.75rem;
-  --tds-primitive-typography-font-size-32: 2rem;
   --tds-primitive-typography-font-weight-regular: 400;
   --tds-primitive-typography-font-weight-medium: 500;
   --tds-primitive-typography-font-weight-semibold: 600;
@@ -171,10 +169,6 @@
   --tds-typography-display-sm-font-size: var(--tds-primitive-typography-font-size-24);
   --tds-typography-display-sm-font-weight: var(--tds-primitive-typography-font-weight-semibold);
   --tds-typography-display-sm-line-height: var(--tds-primitive-typography-line-height-tight);
-  --tds-typography-display-md-font-family: var(--tds-primitive-typography-font-family-sans);
-  --tds-typography-display-md-font-size: var(--tds-primitive-typography-font-size-28);
-  --tds-typography-display-md-font-weight: var(--tds-primitive-typography-font-weight-bold);
-  --tds-typography-display-md-line-height: var(--tds-primitive-typography-line-height-tight);
   --tds-typography-caption-md-font-family: var(--tds-primitive-typography-font-family-sans);
   --tds-typography-caption-md-font-size: var(--tds-primitive-typography-font-size-12);
   --tds-typography-caption-md-font-weight: var(--tds-primitive-typography-font-weight-regular);

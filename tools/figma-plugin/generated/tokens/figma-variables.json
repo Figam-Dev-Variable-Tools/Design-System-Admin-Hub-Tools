@@ -487,22 +487,6 @@
       }
     },
     {
-      "name": "primitive/typography/font-size/28",
-      "type": "FLOAT",
-      "values": {
-        "light": 28,
-        "dark": 28
-      }
-    },
-    {
-      "name": "primitive/typography/font-size/32",
-      "type": "FLOAT",
-      "values": {
-        "light": 32,
-        "dark": 32
-      }
-    },
-    {
       "name": "primitive/typography/font-weight/regular",
       "type": "FLOAT",
       "values": {
@@ -1560,54 +1544,6 @@
     },
     {
       "name": "typography/display/sm/line-height",
-      "type": "FLOAT",
-      "values": {
-        "light": 1.2,
-        "dark": 1.2
-      },
-      "alias": {
-        "light": "primitive/typography/line-height/tight",
-        "dark": "primitive/typography/line-height/tight"
-      }
-    },
-    {
-      "name": "typography/display/md/font-family",
-      "type": "STRING",
-      "values": {
-        "light": "Pretendard, -apple-system, Segoe UI, sans-serif",
-        "dark": "Pretendard, -apple-system, Segoe UI, sans-serif"
-      },
-      "alias": {
-        "light": "primitive/typography/font-family/sans",
-        "dark": "primitive/typography/font-family/sans"
-      }
-    },
-    {
-      "name": "typography/display/md/font-size",
-      "type": "FLOAT",
-      "values": {
-        "light": 28,
-        "dark": 28
-      },
-      "alias": {
-        "light": "primitive/typography/font-size/28",
-        "dark": "primitive/typography/font-size/28"
-      }
-    },
-    {
-      "name": "typography/display/md/font-weight",
-      "type": "FLOAT",
-      "values": {
-        "light": 700,
-        "dark": 700
-      },
-      "alias": {
-        "light": "primitive/typography/font-weight/bold",
-        "dark": "primitive/typography/font-weight/bold"
-      }
-    },
-    {
-      "name": "typography/display/md/line-height",
       "type": "FLOAT",
       "values": {
         "light": 1.2,

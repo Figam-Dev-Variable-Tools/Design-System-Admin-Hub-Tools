@@ -2,7 +2,7 @@
   "$generated": "AUTO-GENERATED from contracts/StatsCard.contract.json — DO NOT EDIT (pnpm codegen)",
   "name": "StatsCard",
   "component": "StatsCard",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "variantProperties": {
     "Loading": {
       "values": [
@@ -25,6 +25,11 @@
         "SegmentedControl",
         "Button"
       ]
+    },
+    {
+      "name": "Value",
+      "type": "TEXT",
+      "default": ""
     },
     {
       "name": "Children",
@@ -51,6 +56,7 @@
     "bodyGap": "space.4",
     "title": "color.text.default",
     "titleTypography": "typography.label.md",
+    "valueTypography": "typography.display.sm",
     "typography": "typography.body.md",
     "errorText": "color.feedback.danger.text",
     "focusRing": "color.border.focus"

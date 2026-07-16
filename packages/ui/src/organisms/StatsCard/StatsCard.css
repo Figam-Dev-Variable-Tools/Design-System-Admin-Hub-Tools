@@ -22,6 +22,18 @@
   align-items: center;
 }
 
+/* KPI 대표 수치 — 대시보드의 지배적 숫자. body-md(16) 위 display tier(24) 로 세운다 (TOKEN-05).
+ * tabular-nums: 자릿수 폭을 고정해 값이 갱신돼도 숫자가 흔들리지 않는다. */
+.tds-statscard__value {
+  margin: 0;
+  color: var(--tds-color-text-default);
+  font-family: var(--tds-typography-display-sm-font-family);
+  font-size: var(--tds-typography-display-sm-font-size);
+  font-weight: var(--tds-typography-display-sm-font-weight);
+  line-height: var(--tds-typography-display-sm-line-height);
+  font-variant-numeric: tabular-nums;
+}
+
 .tds-statscard__body {
   display: flex;
   flex-direction: column;

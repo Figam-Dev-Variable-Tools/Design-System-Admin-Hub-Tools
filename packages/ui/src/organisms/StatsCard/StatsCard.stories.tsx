@@ -96,6 +96,15 @@ export const Default: Story = {
 };
 
 /**
+ * value(KPI 수치) — 1.1.0. 본문 위에 display tier(typography.display.sm)로 지배적 숫자를 세운다.
+ * 제목(label.md)·본문(body.md)과 크기대가 갈려 대시보드에서 숫자가 먼저 읽힌다 (TOKEN-05).
+ * 포맷팅은 호출부가 끝낸 문자열을 넘긴다 — 카드는 숫자를 모른다.
+ */
+export const WithValue: Story = {
+  args: { value: '12,345' },
+};
+
+/**
  * loading — 본문만 스켈레톤으로 대체된다 (+ aria-busy). **액션 슬롯은 떠 있는 채 유지된다** (계약 1.0.1):
  * 그 액션은 기간 토글 자신이라, 로딩 중에 사라지면 자기 클릭에 자기가 없어진다.
  * 로딩 중 비활성은 호출부가 슬롯 컴포넌트에 disabled 를 줘서 만든다.
