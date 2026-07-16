@@ -1,4 +1,4 @@
-// TextField — 계약 검증 테스트 (contracts/TextField.contract.json@1.1.0)
+// TextField — 계약 검증 테스트 (contracts/TextField.contract.json@1.2.0)
 //
 //   states[]          default · hover · focus-visible · disabled · error
 //   props.required    라벨에 시각 마커(*)를 주입하지 않는다 (접근 가능한 이름 오염 금지)
@@ -93,9 +93,17 @@ describe('TextField — 계약 states[]', () => {
     expect(document.getElementById(describedby ?? '')).not.toBeNull();
   });
 
-  it('TextField: A11Y-11 — required=true 는 native required 로 노출된다 (aria-required)', () => {
+  it('TextField: A11Y-11 — required=true 는 native required + aria-required 로 함께 노출된다', () => {
     render(<TextField id="email" label="이메일" value="" required />);
-    expect((screen.getByLabelText('이메일') as HTMLInputElement).required).toBe(true);
+    const input = screen.getByLabelText('이메일') as HTMLInputElement;
+    expect(input.required).toBe(true);
+    // acceptanceCheck: "required input 이 aria-required 노출" — native 매핑에 기대지 않고 명시한다
+    expect(input.getAttribute('aria-required')).toBe('true');
+  });
+
+  it('TextField: A11Y-11 — required=false 면 aria-required 를 남기지 않는다', () => {
+    render(<TextField id="email" label="이메일" value="" />);
+    expect(screen.getByLabelText('이메일').hasAttribute('aria-required')).toBe(false);
   });
 });
 

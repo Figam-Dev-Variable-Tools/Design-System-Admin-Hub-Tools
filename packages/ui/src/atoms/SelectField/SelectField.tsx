@@ -1,4 +1,4 @@
-// SelectField — 드롭다운 컨트롤 (atom · contracts/SelectField.contract.json@1.0.0)
+// SelectField — 드롭다운 컨트롤 (atom · contracts/SelectField.contract.json@1.1.0)
 //
 // Props 타입은 계약에서 생성된 generated/types/SelectField.types 를 그대로 import 한다 (수동 선언 금지 — G6).
 // raw <select> 의 무손실 드롭인 — 네이티브 화살표를 지우고(appearance:none) 토큰 여백을 둔 커스텀
@@ -41,7 +41,7 @@ function ChevronGlyph() {
 }
 
 export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps & SelectNativeProps>(
-  function SelectField({ isInvalid = false, children, ...native }, ref) {
+  function SelectField({ isInvalid = false, required = false, children, ...native }, ref) {
     const controlClass = isInvalid
       ? 'tds-select__control tds-select__control--invalid'
       : 'tds-select__control';
@@ -50,10 +50,14 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps & Sele
       <span className="tds-select">
         {/* isInvalid 를 AT 에 전달한다 (색상만의 red border 금지 — WCAG 1.4.1/3.3.1, A11Y-05).
             aria-describedby(에러 메시지 연결)는 호출부가 native 로 넘긴다 — TextField 를 미러한다.
-            native 를 마지막에 spread 하므로 호출부가 aria-invalid 를 직접 주면 그 값이 우선한다(네이티브 override). */}
+            native 를 마지막에 spread 하므로 호출부가 aria-invalid 를 직접 주면 그 값이 우선한다(네이티브 override).
+            required 는 native 로 흘러들어오던 것을 여기서 받아 aria-required 까지 함께 낸다 —
+            네이티브→AT 매핑에 기대지 않고 필수 여부가 스크린리더에 닿는다 (A11Y-11, TextField 미러). */}
         <select
           ref={ref}
           className={controlClass}
+          required={required}
+          aria-required={required ? true : undefined}
           aria-invalid={isInvalid ? true : undefined}
           {...native}
         >

@@ -1,4 +1,4 @@
-// Card — 표면 컨테이너 (atom · contracts/Card.contract.json@1.0.0)
+// Card — 표면 컨테이너 (atom · contracts/Card.contract.json@1.2.0)
 //
 // 서피스 배경 + 테두리 + 라운드 + 내부 패딩만 제공하는 최소 단위 surface.
 // 헤더/본문 구조나 도메인 데이터는 갖지 않는다 — 조립은 organism 이 한다 (ADR-0003).

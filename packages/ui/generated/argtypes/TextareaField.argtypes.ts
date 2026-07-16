@@ -1,4 +1,4 @@
-// AUTO-GENERATED from contracts/TextareaField.contract.json@1.0.0 — DO NOT EDIT (pnpm codegen)
+// AUTO-GENERATED from contracts/TextareaField.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
 
 /** Storybook argTypes — 계약에서 생성. Story 파일에서 spread 하여 사용한다. */
 export const TextareaFieldArgTypes = {
@@ -39,7 +39,7 @@ export const TextareaFieldArgTypes = {
     },
   },
   required: {
-    description: '필수 필드 — FormField 로 내려보내 레이블에 마커(*)를 그린다',
+    description: '필수 필드 — FormField 로 내려보내 레이블에 마커(*)를 그리고, **동시에 <textarea> 자신에게 native required + aria-required 로 잇는다** (마커는 aria-hidden 장식이라 그것만으로는 AT 에 닿지 않는다 — A11Y-11)',
     control: {
       type: 'boolean',
     },

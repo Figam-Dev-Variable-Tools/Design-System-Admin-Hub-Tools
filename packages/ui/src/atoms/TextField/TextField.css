@@ -48,7 +48,7 @@
 
 /* trailing 요소와 텍스트가 겹치지 않도록 끝쪽 여백을 넓힌다 (space 토큰 배수) */
 .tds-textfield__input--trailing {
-  padding-inline-end: calc(var(--tds-space-6) * 2);
+  padding-inline-end: var(--tds-space-9);
 }
 
 .tds-textfield__input:hover:not(:disabled) {

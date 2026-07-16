@@ -1,4 +1,4 @@
-// AUTO-GENERATED from contracts/Card.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
+// AUTO-GENERATED from contracts/Card.contract.json@1.2.0 — DO NOT EDIT (pnpm codegen)
 // 레벨: atom · 상태: beta
 
 import type { ReactNode } from 'react';

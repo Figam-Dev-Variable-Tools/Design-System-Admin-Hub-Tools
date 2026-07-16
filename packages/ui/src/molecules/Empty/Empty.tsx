@@ -1,4 +1,4 @@
-// Empty — 빈 결과 상태 (molecule · contracts/Empty.contract.json@1.0.0)
+// Empty — 빈 결과 상태 (molecule · contracts/Empty.contract.json@1.1.0)
 //
 // Props 타입은 계약에서 생성된 generated/types/Empty.types 를 그대로 import 한다 (수동 선언 금지 — G6).
 // data view 가 0행일 때 '왜 비었는지'를 3가지로 구분한다 (STATE-05): 진짜 비어있음 / 검색 결과 없음 / 필터 결과 없음.

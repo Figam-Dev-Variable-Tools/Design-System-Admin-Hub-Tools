@@ -1,4 +1,4 @@
-// AUTO-GENERATED from contracts/FormField.contract.json@1.0.0 — DO NOT EDIT (pnpm codegen)
+// AUTO-GENERATED from contracts/FormField.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
 // 레벨: molecule · 상태: beta
 
 import type { ReactNode } from 'react';
@@ -27,7 +27,7 @@ export interface FormFieldProps {
    */
   label: string;
   /**
-   * 필수 필드 — 레이블 옆에 붉은 시각 마커(*)를 붙인다. 마커는 aria-hidden 장식이다(라벨 텍스트 오염 방지). 실제 필수 검증은 자식 컨트롤/스키마가 소유한다
+   * 필수 필드 — 레이블 옆에 붉은 시각 마커(*)를 붙인다. 마커는 aria-hidden 장식이다(라벨 텍스트 오염 방지). 마커만으로는 필수 여부가 AT 에 닿지 않으므로, 구현이 이 값을 **단일 폼 컨트롤 자식의 aria-required 로 주입**한다 (a11y.aria.required-wiring — A11Y-11). 실제 필수 검증은 자식 컨트롤/스키마가 소유한다
    * @default false
    */
   required?: boolean;

@@ -2,7 +2,7 @@
   "$generated": "AUTO-GENERATED from contracts/Empty.contract.json — DO NOT EDIT (pnpm codegen)",
   "name": "Empty",
   "component": "Empty",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "variantProperties": {
     "HasQuery": {
       "values": [
@@ -53,9 +53,11 @@
     "titleText": "color.text.default",
     "descriptionText": "color.text.muted",
     "gap": "space.4",
-    "padding": "space.6",
     "actionGap": "space.3",
     "titleTypography": "typography.title.md",
-    "descriptionTypography": "typography.body.md"
+    "descriptionTypography": "typography.body.md",
+    "paddingBlock": "space.10",
+    "paddingInline": "space.7",
+    "glyphSize": "space.9"
   }
 }

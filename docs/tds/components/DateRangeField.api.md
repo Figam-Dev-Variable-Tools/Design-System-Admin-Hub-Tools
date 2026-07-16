@@ -19,7 +19,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 버전 | `1.0.0` |
+| 버전 | `1.1.0` |
 | 레벨 | `molecule` |
 | 상태 | `beta` |
 | 소유 | code `A30` · design `A14` · figma `A51` |
@@ -31,7 +31,7 @@
 | `label` | `string` | — | ✅ | — | 그룹 라벨 텍스트 — 두 날짜 칸 위에 한 번 그린다. 각 칸의 숨김 라벨('label 시작일'·'label 종료일')도 여기서 파생한다 |
 | `startValue` | `string` | — | ✅ | — | 시작일 제어값 (YYYY-MM-DD) |
 | `endValue` | `string` | — | ✅ | — | 종료일 제어값 (YYYY-MM-DD) |
-| `required` | `boolean` | `false` | — | `Required` | 필수 필드 — 그룹 라벨 옆에 aria-hidden 마커(*)를 붙인다 |
+| `required` | `boolean` | `false` | — | `Required` | 필수 필드 — 그룹 라벨 옆에 aria-hidden 마커(*)를 붙이고, **두 날짜 입력 각각에 native required + aria-required 를 낸다** (범위는 시작·종료가 함께 있어야 성립한다). 마커만으로는 AT 에 닿지 않는다 — A11Y-11 |
 | `disabled` | `boolean` | `false` | — | `Disabled` | 비활성 — 두 날짜 입력을 native disabled 로 함께 막는다 |
 | `error` | `string` | `""` | — | — | 인라인 오류 메시지(종료≥시작 위반 등). 값이 있으면 role=alert 로 오류 <p> 를 그리고 두 입력에 aria-invalid=true 를 준다. 빈 문자열/미지정이면 오류 없음 |
 | `hint` | `string` | `""` | — | — | 보조 안내 — 오류가 없을 때만 그린다. 빈 문자열/미지정이면 그리지 않는다 |
@@ -61,6 +61,7 @@
 | `role-alert` | 오류 <p> 는 role=alert 로 즉시 알린다. 색만으로 전달하지 않고 메시지 텍스트를 함께 그린다 |
 | `aria-invalid` | error 가 빈 문자열이 아닐 때 두 입력 모두 aria-invalid=true 이며, **항상** aria-describedby 로 오류 <p> id 를 함께 가리킨다 (describedby 없는 aria-invalid 금지 — A11Y-11). 유효할 때는 두 속성 모두 부여하지 않는다 |
 | `native-disabled` | disabled 는 두 입력에 native 속성으로 반영된다 |
+| `aria-required` | required=true 이면 두 입력 **모두** native required + aria-required="true" 를 받는다 — 범위는 시작·종료가 함께 있어야 성립하므로 각 칸에 참이다. 그룹 라벨의 마커(*)는 aria-hidden 장식이라 시각 경로일 뿐이다 (A11Y-11). required=false 면 두 속성 모두 부여하지 않는다 |
 | 최소 대비 | 4.5:1 |
 
 ## Tokens

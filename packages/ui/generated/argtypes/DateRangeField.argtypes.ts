@@ -1,4 +1,4 @@
-// AUTO-GENERATED from contracts/DateRangeField.contract.json@1.0.0 — DO NOT EDIT (pnpm codegen)
+// AUTO-GENERATED from contracts/DateRangeField.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
 
 /** Storybook argTypes — 계약에서 생성. Story 파일에서 spread 하여 사용한다. */
 export const DateRangeFieldArgTypes = {
@@ -39,7 +39,7 @@ export const DateRangeFieldArgTypes = {
     },
   },
   required: {
-    description: '필수 필드 — 그룹 라벨 옆에 aria-hidden 마커(*)를 붙인다',
+    description: '필수 필드 — 그룹 라벨 옆에 aria-hidden 마커(*)를 붙이고, **두 날짜 입력 각각에 native required + aria-required 를 낸다** (범위는 시작·종료가 함께 있어야 성립한다). 마커만으로는 AT 에 닿지 않는다 — A11Y-11',
     control: {
       type: 'boolean',
     },

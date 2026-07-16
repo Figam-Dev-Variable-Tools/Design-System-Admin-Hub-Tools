@@ -1,4 +1,4 @@
-// Modal — 모달 다이얼로그 껍데기 (organism · contracts/Modal.contract.json@1.0.0)
+// Modal — 모달 다이얼로그 껍데기 (organism · contracts/Modal.contract.json@1.1.0)
 //
 // 계약 dependencies: [] — atom/molecule 를 조립하지 않는다(닫기 버튼은 자체 인라인 글리프).
 // 표면·타이포·간격은 전부 semantic 토큰 CSS 변수 — 하드코딩 hex/px 0건. 출처 인라인 스타일을 클래스로 옮긴 것.

@@ -23,7 +23,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 버전 | `1.0.0` |
+| 버전 | `1.1.0` |
 | 레벨 | `molecule` |
 | 상태 | `beta` |
 | 소유 | code `A30` · design `A14` · figma `A51` |
@@ -72,10 +72,12 @@
 | `titleText` | `color.text.default` | `--tds-color-text-default` |
 | `descriptionText` | `color.text.muted` | `--tds-color-text-muted` |
 | `gap` | `space.4` | `--tds-space-4` |
-| `padding` | `space.6` | `--tds-space-6` |
 | `actionGap` | `space.3` | `--tds-space-3` |
 | `titleTypography` | `typography.title.md` | `--tds-typography-title-md` |
 | `descriptionTypography` | `typography.body.md` | `--tds-typography-body-md` |
+| `paddingBlock` | `space.10` | `--tds-space-10` |
+| `paddingInline` | `space.7` | `--tds-space-7` |
+| `glyphSize` | `space.9` | `--tds-space-9` |
 
 > 하드코딩 색상/치수 금지 — 시각 속성은 반드시 위 토큰만 참조합니다.
 

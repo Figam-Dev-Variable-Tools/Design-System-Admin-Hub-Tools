@@ -2,7 +2,7 @@
   "$generated": "AUTO-GENERATED from contracts/FormField.contract.json — DO NOT EDIT (pnpm codegen)",
   "name": "FormField",
   "component": "FormField",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "variantProperties": {
     "Required": {
       "values": [

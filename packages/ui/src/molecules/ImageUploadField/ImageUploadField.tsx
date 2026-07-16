@@ -1,4 +1,4 @@
-// ImageUploadField — 이미지 업로드 필드 (molecule · contracts/ImageUploadField.contract.json@1.0.0)
+// ImageUploadField — 이미지 업로드 필드 (molecule · contracts/ImageUploadField.contract.json@1.1.0)
 //
 // 계약 dependencies: [] — FormField 의 id 헬퍼(errorIdOf/hintIdOf)만 재사용한다(같은 layer 유틸).
 // 드래그드롭·object URL·검증·placeholder 를 손코딩으로 유지한다(react-dropzone 기각). 아이콘은 인라인 글리프.

@@ -1,4 +1,4 @@
-// SelectField — 계약 검증 테스트 (contracts/SelectField.contract.json@1.0.0)
+// SelectField — 계약 검증 테스트 (contracts/SelectField.contract.json@1.1.0)
 //
 //   states[]   default · focus-visible · disabled · error(isInvalid)
 //   events     없음 — onChange 는 네이티브 <select> 로 그대로 패스스루된다 (계약 event 아님)
@@ -181,5 +181,42 @@ describe('SelectField — 네이티브 속성 패스스루', () => {
 
     const form = screen.getByTestId('form') as HTMLFormElement;
     expect(new FormData(form).get('pointKind')).toBe('deduct');
+  });
+});
+
+// A11Y-11 acceptanceCheck: "required input 이 aria-required 노출"
+describe('SelectField — required 를 AT 에 노출한다 (A11Y-11)', () => {
+  it('SelectField: required=true — <select> 가 native required + aria-required 를 낸다', () => {
+    render(
+      <SelectField aria-label="등급" required>
+        <option value="a">A</option>
+      </SelectField>,
+    );
+
+    const select = screen.getByLabelText('등급') as HTMLSelectElement;
+    expect(select.required).toBe(true);
+    expect(select.getAttribute('aria-required')).toBe('true');
+  });
+
+  it('SelectField: required=false — 두 속성 모두 남기지 않는다', () => {
+    render(
+      <SelectField aria-label="등급">
+        <option value="a">A</option>
+      </SelectField>,
+    );
+
+    const select = screen.getByLabelText('등급') as HTMLSelectElement;
+    expect(select.required).toBe(false);
+    expect(select.hasAttribute('aria-required')).toBe(false);
+  });
+
+  it('SelectField: 호출부가 aria-required 를 직접 주면 그 값이 우선한다 (native 를 마지막에 spread)', () => {
+    render(
+      <SelectField aria-label="등급" required aria-required={false}>
+        <option value="a">A</option>
+      </SelectField>,
+    );
+
+    expect(screen.getByLabelText('등급').getAttribute('aria-required')).toBe('false');
   });
 });

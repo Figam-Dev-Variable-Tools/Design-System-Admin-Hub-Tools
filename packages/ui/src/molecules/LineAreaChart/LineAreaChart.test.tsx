@@ -1,4 +1,4 @@
-// LineAreaChart — 계약 검증 테스트 (contracts/LineAreaChart.contract.json@1.0.0)
+// LineAreaChart — 계약 검증 테스트 (contracts/LineAreaChart.contract.json@1.1.0)
 //
 //   states[]   default · loading
 //   events     없음 → blockedWhen 없음
@@ -51,5 +51,55 @@ describe('LineAreaChart — 계약 states[]', () => {
     for (const label of labels) {
       expect(screen.getByText(label)).not.toBeNull();
     }
+  });
+});
+
+// TOKEN-13 acceptanceCheck: "chart story 가 하드코딩 색 없이 6개 구분 series 렌더"
+// 스토리는 눈으로만 확인되므로, '되돌아옴' 회귀는 여기서 기계적으로 막는다.
+describe('LineAreaChart — 6계열 categorical 팔레트 (TOKEN-13)', () => {
+  const sixSeries = Array.from({ length: 6 }, (_, index) => ({
+    id: `s${String(index + 1)}`,
+    label: `계열 ${String(index + 1)}`,
+    kind: 'line' as const,
+    values: [10, 20, 30],
+  }));
+
+  it('LineAreaChart: 6계열이 서로 다른 색 토큰을 받는다 (3번째부터 1번 색으로 되돌아오지 않는다)', () => {
+    const { container } = render(
+      <LineAreaChart series={sixSeries} labels={labels} ariaLabel="6계열 분포" />,
+    );
+
+    const dots = [...container.querySelectorAll('.tds-chart__legend-dot')];
+    expect(dots).toHaveLength(6);
+
+    const colors = dots.map((dot) => (dot as HTMLElement).style.background);
+    expect(new Set(colors).size).toBe(6);
+  });
+
+  it('LineAreaChart: 계열 색은 전부 chart.series-* 토큰 참조다 (하드코딩 색 0건)', () => {
+    const { container } = render(
+      <LineAreaChart series={sixSeries} labels={labels} ariaLabel="6계열 분포" />,
+    );
+
+    for (const dot of container.querySelectorAll('.tds-chart__legend-dot')) {
+      expect((dot as HTMLElement).style.background).toMatch(
+        /^var\(--tds-color-chart-series-[1-6]\)$/,
+      );
+    }
+  });
+
+  it('LineAreaChart: 7번째 계열부터 순환한다 (토큰 수를 넘으면 1번으로 되돌아온다)', () => {
+    const seven = [
+      ...sixSeries,
+      { id: 's7', label: '계열 7', kind: 'line' as const, values: [10, 20, 30] },
+    ];
+    const { container } = render(
+      <LineAreaChart series={seven} labels={labels} ariaLabel="7계열 분포" />,
+    );
+
+    const dots = [...container.querySelectorAll('.tds-chart__legend-dot')];
+    expect((dots[6] as HTMLElement).style.background).toBe(
+      (dots[0] as HTMLElement).style.background,
+    );
   });
 });

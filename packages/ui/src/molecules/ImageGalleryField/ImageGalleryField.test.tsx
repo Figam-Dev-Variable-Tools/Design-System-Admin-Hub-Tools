@@ -1,4 +1,4 @@
-// ImageGalleryField — 계약 검증 테스트 (contracts/ImageGalleryField.contract.json@1.0.0)
+// ImageGalleryField — 계약 검증 테스트 (contracts/ImageGalleryField.contract.json@1.1.0)
 //
 //   default   값이 없으면 업로드 placeholder — 썸네일 없음
 //   onChange  여러 파일을 고르면 URL 배열로 onChange

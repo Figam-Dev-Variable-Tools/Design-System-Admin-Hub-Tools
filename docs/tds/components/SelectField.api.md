@@ -15,7 +15,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 버전 | `1.0.0` |
+| 버전 | `1.1.0` |
 | 레벨 | `atom` |
 | 상태 | `beta` |
 | 소유 | code `A30` · design `A14` · figma `A51` |
@@ -49,6 +49,7 @@ _계약에 정의된 이벤트가 없습니다._
 | `native-passthrough` | value/onChange/name/id/disabled/ref/aria-* 는 <select> 로 그대로 전달한다 — 새 prop 을 만들지 않는다 (Button/Card 선례) |
 | `aria-invalid` | isInvalid=true 면 <select aria-invalid="true"> 를 렌더해 AT 에 무효를 알린다 (색상만의 red border 금지 — WCAG 1.4.1/3.3.1). 에러 메시지 연결(aria-describedby)은 호출부가 네이티브 패스스루로 준다 (TextField 미러). native 를 마지막에 spread 하므로 호출부가 aria-invalid 를 직접 주면 그 값이 우선한다 |
 | `chevron` | 커스텀 chevron 은 pointer-events:none 장식 — aria-hidden. 클릭은 아래 <select> 로 통과한다 |
+| `aria-required` | required 는 네이티브 패스스루로 들어오지만 구현이 그것을 받아 <select required aria-required="true"> 로 함께 낸다 — 네이티브→AT 매핑에 기대지 않고 필수 여부를 명시한다 (A11Y-11, TextField 미러). required=false 면 두 속성 모두 부여하지 않는다. native 를 마지막에 spread 하므로 호출부가 aria-required 를 직접 주면 그 값이 우선한다. 감싸는 FormField 가 required 를 받은 경우엔 FormField 가 이 컨트롤에 aria-required 를 주입한다(FormField a11y.aria.required-wiring) — 두 경로 모두 같은 결과로 수렴한다 |
 | 최소 대비 | 4.5:1 |
 
 ## Tokens

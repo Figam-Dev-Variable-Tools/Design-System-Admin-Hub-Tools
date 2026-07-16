@@ -15,7 +15,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 버전 | `1.1.0` |
+| 버전 | `1.2.0` |
 | 레벨 | `atom` |
 | 상태 | `beta` |
 | 소유 | code `A30` · design `A14` · figma `A51` |
@@ -30,7 +30,7 @@
 | `type` | `'text'` \| `'email'` \| `'password'` \| `'number'` | `"text"` | — | `Type` | input type |
 | `error` | `string` | `""` | — | — | 위반 메시지. 빈 문자열이면 정상 상태 — 비어있지 않으면 error 상태(테두리 danger + 메시지 렌더 + aria-invalid) |
 | `disabled` | `boolean` | `false` | — | `Disabled` | 비활성. native disabled 속성 — onBlur/onChange 발화 없음 |
-| `required` | `boolean` | `false` | — | `Required` | 필수 입력. native required 속성 → aria-required. **라벨에 시각 마커(*)를 주입하지 않는다** — <label> 의 textContent 가 곧 접근 가능한 이름이므로 마커를 넣으면 이름이 "이메일*" 이 되어 getByLabel/getByLabelText 정확일치 셀렉터가 깨지고(E2E FS-001), 오너 확정 로그인 화면에 없던 표식이 새로 나타난다. 현행 구현(TextField.tsx:63-67)이 계약에 없는 마커를 주입하고 있다 — 정정 대상(A30). 표식이 필요한 화면이 실제로 생기면 그때 실호출부와 함께 prop 을 추가한다 |
+| `required` | `boolean` | `false` | — | `Required` | 필수 입력. native required + aria-required 로 노출한다 (a11y.aria.aria-required). **라벨에 시각 마커(*)를 주입하지 않는다** — <label> 의 textContent 가 곧 접근 가능한 이름이므로 마커를 넣으면 이름이 "이메일*" 이 되어 getByLabel/getByLabelText 정확일치 셀렉터가 깨지고(E2E FS-001), 오너 확정 로그인 화면에 없던 표식이 새로 나타난다. 표식이 필요한 화면이 실제로 생기면 그때 실호출부와 함께 prop 을 추가한다 (마커가 필요한 폼은 FormField 껍데기가 그린다 — 그쪽은 마커를 <label> 밖 <span aria-hidden> 으로 두어 이름을 오염시키지 않는다) |
 | `placeholder` | `string` | `""` | — | — | 보조 예시 텍스트. 라벨을 대체하지 않는다 |
 | `name` | `string` | `""` | — | — | 폼 제출 키이자 브라우저 자동완성·비밀번호 관리자의 필드 판정 근거. 빈 문자열이면 속성을 부여하지 않는다. 실사용: LoginForm(name="email") |
 | `autoComplete` | `string` | `""` | — | — | 브라우저 자동완성 힌트 (username · email · current-password …). 빈 문자열이면 속성을 부여하지 않는다. **없으면 자격증명 자동완성이 퇴행한다** — 기능 손실이지 장식이 아니다. 실사용: LoginForm(autoComplete="username") |
@@ -61,7 +61,7 @@
 | `aria-invalid` | error 가 비어있지 않으면 true — 항상 aria-describedby 와 짝을 이룬다 (aria-invalid without describedby 금지, A11Y-11) |
 | `aria-describedby` | error 가 비어있지 않으면 `{id}-error` (에러 메시지 요소의 id) 를 가리킨다 |
 | `error-alert` | 에러 메시지 `<p>` 는 role="alert" 를 가진다 — 이미 포커스된 필드에 on-blur/변경으로 나타나는 에러도 announce 된다 (FormField/ImageUploadField 와 일치, A11Y-10) |
-| `aria-required` | required=true 이면 native required 속성으로 노출 |
+| `aria-required` | required=true 이면 native required 속성 **과 aria-required="true" 를 함께** 낸다. native required 만으로는 <form noValidate> 아래에서, 그리고 네이티브→AT 매핑에 기대는 만큼, 필수 여부가 확실히 노출된다고 보장할 수 없다 — 명시 속성으로 못 박는다 (A11Y-11 acceptanceCheck: 'required input 이 aria-required 노출'). required=false 면 두 속성 모두 부여하지 않는다 (aria-required="false" 를 남기지 않는다 — aria-invalid 선례) |
 | `label` | 가시 라벨을 htmlFor={id} 로 연결한다 — placeholder 만으로 라벨을 대신하지 않는다 |
 | `accessible-name` | <label> 의 textContent = input 의 접근 가능한 이름이다. 라벨 안에 마커·배지·카운터 등 부가 텍스트를 넣지 않는다 (aria-hidden 을 붙여도 Testing Library/Playwright 의 라벨 텍스트 수집은 textContent 기반이라 이름이 오염된다) |
 | `error-color` | 에러는 색상만으로 전달하지 않는다 (WCAG 1.4.1) — 텍스트 메시지를 함께 렌더한다 |
@@ -86,6 +86,7 @@
 | `labelTypography` | `typography.label.md` | `--tds-typography-label-md` |
 | `inputTypography` | `typography.body.md` | `--tds-typography-body-md` |
 | `errorTypography` | `typography.label.md` | `--tds-typography-label-md` |
+| `trailingInset` | `space.9` | `--tds-space-9` |
 
 > 하드코딩 색상/치수 금지 — 시각 속성은 반드시 위 토큰만 참조합니다.
 

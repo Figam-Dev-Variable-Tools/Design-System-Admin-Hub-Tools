@@ -1,4 +1,4 @@
-// AUTO-GENERATED from contracts/Modal.contract.json@1.0.0 — DO NOT EDIT (pnpm codegen)
+// AUTO-GENERATED from contracts/Modal.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
 // 레벨: organism · 상태: beta
 
 import type { ReactNode } from 'react';

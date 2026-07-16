@@ -43,6 +43,16 @@
   --tds-primitive-color-amber-600: #D97706;
   --tds-primitive-color-amber-700: #B45309;
   --tds-primitive-color-amber-800: #78350F;
+  --tds-primitive-color-violet-100: #EDE9FE;
+  --tds-primitive-color-violet-200: #DDD6FE;
+  --tds-primitive-color-violet-400: #A78BFA;
+  --tds-primitive-color-violet-600: #7C3AED;
+  --tds-primitive-color-violet-800: #5B21B6;
+  --tds-primitive-color-teal-100: #CCFBF1;
+  --tds-primitive-color-teal-200: #99F6E4;
+  --tds-primitive-color-teal-400: #2DD4BF;
+  --tds-primitive-color-teal-600: #0D9488;
+  --tds-primitive-color-teal-800: #115E59;
   --tds-primitive-color-overlay-light: #11182773;
   --tds-primitive-color-overlay-dark: #000000A6;
   --tds-primitive-shadow-raised: 0 1px 2px 0 rgba(17, 24, 39, 0.06), 0 1px 3px 0 rgba(17, 24, 39, 0.10);
@@ -59,11 +69,17 @@
   --tds-primitive-space-4: 16px;
   --tds-primitive-space-5: 20px;
   --tds-primitive-space-6: 24px;
+  --tds-primitive-space-7: 32px;
+  --tds-primitive-space-8: 40px;
+  --tds-primitive-space-9: 48px;
+  --tds-primitive-space-10: 64px;
   --tds-primitive-radius-sm: 4px;
   --tds-primitive-radius-md: 8px;
   --tds-primitive-radius-lg: 12px;
+  --tds-primitive-radius-xl: 16px;
   --tds-primitive-radius-full: 9999px;
   --tds-primitive-typography-font-family-sans: Pretendard, -apple-system, Segoe UI, sans-serif;
+  --tds-primitive-typography-font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --tds-primitive-typography-font-size-12: 0.75rem;
   --tds-primitive-typography-font-size-14: 0.875rem;
   --tds-primitive-typography-font-size-16: 1rem;
@@ -119,6 +135,14 @@
   --tds-color-chart-series-1-fill: var(--tds-primitive-color-blue-200);
   --tds-color-chart-series-2: var(--tds-primitive-color-green-600);
   --tds-color-chart-series-2-fill: var(--tds-primitive-color-green-100);
+  --tds-color-chart-series-3: var(--tds-primitive-color-amber-600);
+  --tds-color-chart-series-3-fill: var(--tds-primitive-color-amber-100);
+  --tds-color-chart-series-4: var(--tds-primitive-color-violet-600);
+  --tds-color-chart-series-4-fill: var(--tds-primitive-color-violet-100);
+  --tds-color-chart-series-5: var(--tds-primitive-color-red-600);
+  --tds-color-chart-series-5-fill: var(--tds-primitive-color-red-100);
+  --tds-color-chart-series-6: var(--tds-primitive-color-teal-600);
+  --tds-color-chart-series-6-fill: var(--tds-primitive-color-teal-100);
   --tds-color-chart-axis: var(--tds-primitive-color-gray-300);
   --tds-color-chart-label: var(--tds-primitive-color-gray-600);
   --tds-border-width-thin: var(--tds-primitive-border-width-1);
@@ -133,9 +157,14 @@
   --tds-space-4: var(--tds-primitive-space-4);
   --tds-space-5: var(--tds-primitive-space-5);
   --tds-space-6: var(--tds-primitive-space-6);
+  --tds-space-7: var(--tds-primitive-space-7);
+  --tds-space-8: var(--tds-primitive-space-8);
+  --tds-space-9: var(--tds-primitive-space-9);
+  --tds-space-10: var(--tds-primitive-space-10);
   --tds-radius-sm: var(--tds-primitive-radius-sm);
   --tds-radius-md: var(--tds-primitive-radius-md);
   --tds-radius-lg: var(--tds-primitive-radius-lg);
+  --tds-radius-xl: var(--tds-primitive-radius-xl);
   --tds-radius-full: var(--tds-primitive-radius-full);
   --tds-shadow-raised: var(--tds-primitive-shadow-raised);
   --tds-shadow-overlay: var(--tds-primitive-shadow-overlay);
@@ -191,6 +220,8 @@
   --tds-component-button-typography: var(--tds-typography-label-md);
   --tds-component-button-transition-duration: var(--tds-motion-duration-fast);
   --tds-component-button-transition-easing: var(--tds-motion-easing-standard);
+  --tds-component-card-radius: var(--tds-radius-lg);
+  --tds-component-modal-radius: var(--tds-radius-xl);
 }
 
 /* 다크 테마 오버라이드 */
@@ -226,6 +257,14 @@
   --tds-color-chart-series-1-fill: var(--tds-primitive-color-blue-800);
   --tds-color-chart-series-2: var(--tds-primitive-color-green-400);
   --tds-color-chart-series-2-fill: var(--tds-primitive-color-green-800);
+  --tds-color-chart-series-3: var(--tds-primitive-color-amber-400);
+  --tds-color-chart-series-3-fill: var(--tds-primitive-color-amber-800);
+  --tds-color-chart-series-4: var(--tds-primitive-color-violet-400);
+  --tds-color-chart-series-4-fill: var(--tds-primitive-color-violet-800);
+  --tds-color-chart-series-5: var(--tds-primitive-color-red-400);
+  --tds-color-chart-series-5-fill: var(--tds-primitive-color-red-800);
+  --tds-color-chart-series-6: var(--tds-primitive-color-teal-400);
+  --tds-color-chart-series-6-fill: var(--tds-primitive-color-teal-800);
   --tds-color-chart-axis: var(--tds-primitive-color-gray-700);
   --tds-color-chart-label: var(--tds-primitive-color-gray-400);
   --tds-shadow-raised: var(--tds-primitive-shadow-dark-raised);
