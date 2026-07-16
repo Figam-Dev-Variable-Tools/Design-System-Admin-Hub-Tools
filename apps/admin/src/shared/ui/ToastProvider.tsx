@@ -125,8 +125,10 @@ export function ToastProvider({ children }: { readonly children: ReactNode }) {
     <ToastContext.Provider value={api}>
       {children}
 
-      {/* 비어 있어도 DOM 에 남는다 — live 영역이 미리 있어야 스크린리더가 새 토스트를 읽는다 */}
-      <div style={viewportStyle}>
+      {/* 비어 있어도 DOM 에 남는 persistent live region (A11Y-01) — 컨테이너 자체가 role=status +
+          aria-live 를 가져야 동적으로 삽입되는 토스트를 스크린리더가 신뢰성 있게 읽는다. 동적으로
+          생성되는 Toast 의 aria-live 에만 의존하지 않는다. (error 토스트는 자체 role=alert 로 assertive 유지) */}
+      <div style={viewportStyle} role="status" aria-live="polite" aria-atomic="false">
         {toasts.map((toast) => (
           <Toast
             key={toast.id}

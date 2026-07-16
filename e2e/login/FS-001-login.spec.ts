@@ -36,7 +36,10 @@ function form(page: Page) {
     remember: page.getByLabel('이메일 저장', { exact: true }),
     // 접근 가능한 이름은 '로그인' → 제출 중에는 '로그인 중' 이다 (부분 일치로 두 상태를 모두 잡는다)
     submit: page.getByRole('button', { name: '로그인' }),
-    alert: page.getByRole('alert'),
+    // 서버 응답이 만드는 인증 에러 배너(@tds/ui Alert). TextField 인라인 에러도 이제 role="alert"
+    // 이므로(A11Y-10), role 만으로는 배너와 필드 에러가 구분되지 않는다 — 배너는 Alert 컴포넌트
+    // 클래스(.tds-alert)로 특정한다. 필드 에러는 .tds-textfield__error 라 여기에 걸리지 않는다.
+    alert: page.locator('.tds-alert'),
   };
 }
 

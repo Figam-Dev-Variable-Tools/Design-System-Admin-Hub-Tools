@@ -58,8 +58,9 @@
 | role | `textbox` |
 | 키보드 | `Tab`, `Shift+Tab`, `텍스트 편집 키(문자·Backspace·Delete·화살표)` |
 | focus-visible | 필수 |
-| `aria-invalid` | error 가 비어있지 않으면 true |
+| `aria-invalid` | error 가 비어있지 않으면 true — 항상 aria-describedby 와 짝을 이룬다 (aria-invalid without describedby 금지, A11Y-11) |
 | `aria-describedby` | error 가 비어있지 않으면 `{id}-error` (에러 메시지 요소의 id) 를 가리킨다 |
+| `error-alert` | 에러 메시지 `<p>` 는 role="alert" 를 가진다 — 이미 포커스된 필드에 on-blur/변경으로 나타나는 에러도 announce 된다 (FormField/ImageUploadField 와 일치, A11Y-10) |
 | `aria-required` | required=true 이면 native required 속성으로 노출 |
 | `label` | 가시 라벨을 htmlFor={id} 로 연결한다 — placeholder 만으로 라벨을 대신하지 않는다 |
 | `accessible-name` | <label> 의 textContent = input 의 접근 가능한 이름이다. 라벨 안에 마커·배지·카운터 등 부가 텍스트를 넣지 않는다 (aria-hidden 을 붙여도 Testing Library/Playwright 의 라벨 텍스트 수집은 textContent 기반이라 이름이 오염된다) |

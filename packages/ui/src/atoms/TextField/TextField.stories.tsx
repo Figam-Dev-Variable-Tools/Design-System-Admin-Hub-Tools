@@ -84,6 +84,16 @@ const focusVisible = async (ctx: PlayCtx) => {
   await expect(input).toHaveFocus();
 };
 
+/** error 상태 — 메시지 <p> 가 role="alert" 로 announce 되고 aria-invalid ↔ aria-describedby 로 짝지어진다 (A11Y-10/11) */
+const errorAlert = async (ctx: PlayCtx) => {
+  const canvas = within(ctx.canvasElement);
+  const alert = canvas.getByRole('alert');
+  await expect(alert).toBeInTheDocument();
+  const input = inputOf(ctx.canvasElement);
+  await expect(input).toHaveAttribute('aria-invalid', 'true');
+  await expect(input).toHaveAttribute('aria-describedby', alert.id);
+};
+
 const darkFrame: Decorator = (Story) => (
   <div
     data-theme="dark"
@@ -115,9 +125,10 @@ export const TextFocusVisible: Story = {
 export const TextDisabled: Story = {
   args: { type: 'text', label: '이름', value: '홍길동', disabled: true },
 };
-/** text · error — 테두리 danger + 메시지 + aria-invalid + aria-describedby */
+/** text · error — 테두리 danger + 메시지(role=alert) + aria-invalid + aria-describedby */
 export const TextError: Story = {
   args: { type: 'text', label: '이름', value: '', error: '이름을 입력하세요.' },
+  play: errorAlert,
 };
 
 // --- type=email × state 5 ----------------------------------------------------

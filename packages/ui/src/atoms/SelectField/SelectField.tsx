@@ -48,8 +48,15 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps & Sele
 
     return (
       <span className="tds-select">
-        {/* native 가 마지막이다 — 호출부의 aria-* / value / onChange 를 그대로 흘려보낸다 */}
-        <select ref={ref} className={controlClass} {...native}>
+        {/* isInvalid 를 AT 에 전달한다 (색상만의 red border 금지 — WCAG 1.4.1/3.3.1, A11Y-05).
+            aria-describedby(에러 메시지 연결)는 호출부가 native 로 넘긴다 — TextField 를 미러한다.
+            native 를 마지막에 spread 하므로 호출부가 aria-invalid 를 직접 주면 그 값이 우선한다(네이티브 override). */}
+        <select
+          ref={ref}
+          className={controlClass}
+          aria-invalid={isInvalid ? true : undefined}
+          {...native}
+        >
           {children}
         </select>
         <span className="tds-select__chevron" aria-hidden="true">

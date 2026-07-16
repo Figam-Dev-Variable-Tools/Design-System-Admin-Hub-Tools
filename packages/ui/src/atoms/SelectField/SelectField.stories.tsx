@@ -62,9 +62,14 @@ export const Default: Story = {
   },
 };
 
-/** error(isInvalid) — 붉은 테두리 (메시지는 감싸는 FormField 담당) */
+/** error(isInvalid) — 붉은 테두리 + aria-invalid (메시지는 감싸는 FormField 담당) */
 export const Invalid: Story = {
   args: { isInvalid: true },
+  play: async ({ canvasElement }) => {
+    // A11Y-05 — isInvalid 는 시각(테두리)만이 아니라 AT 에도 aria-invalid 로 알린다
+    const select = within(canvasElement).getByRole('combobox', { name: '구분' });
+    await expect(select).toHaveAttribute('aria-invalid', 'true');
+  },
 };
 
 /** disabled — native disabled 패스스루 */

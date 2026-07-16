@@ -141,7 +141,9 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps & TextField
         )}
 
         {invalid ? (
-          <p id={errorId} className="tds-textfield__error">
+          // role="alert" — 이미 포커스된 필드에 on-blur/변경으로 나타나는 에러도 announce 되게 한다
+          // (FormField/ImageUploadField 와 일치, aria-describedby 연결에 더해서 — A11Y-10)
+          <p id={errorId} className="tds-textfield__error" role="alert">
             {error}
           </p>
         ) : null}

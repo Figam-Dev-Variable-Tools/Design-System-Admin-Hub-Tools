@@ -102,6 +102,42 @@ describe('SelectField — 계약 states[] + 무손실 패스스루', () => {
       'var(--tds-color-feedback-danger-border)',
     );
   });
+
+  it('SelectField: error 상태(isInvalid) — <select aria-invalid="true"> 로 AT 에 무효를 알린다 (A11Y-05)', () => {
+    render(
+      <SelectField id="kind" aria-label="구분" isInvalid>
+        {options()}
+      </SelectField>,
+    );
+
+    expect(screen.getByRole('combobox', { name: '구분' }).getAttribute('aria-invalid')).toBe(
+      'true',
+    );
+  });
+
+  it('SelectField: isInvalid 가 false 면 aria-invalid 속성이 없다', () => {
+    render(
+      <SelectField id="kind" aria-label="구분">
+        {options()}
+      </SelectField>,
+    );
+
+    expect(screen.getByRole('combobox', { name: '구분' }).getAttribute('aria-invalid')).toBeNull();
+  });
+
+  it('SelectField: A11Y-05 — 호출부 aria-describedby(에러 메시지 연결)를 네이티브 패스스루로 흘려보낸다', () => {
+    render(
+      <div>
+        <SelectField id="kind" aria-label="구분" isInvalid aria-describedby="kind-error">
+          {options()}
+        </SelectField>
+        <p id="kind-error">구분을 선택해 주세요</p>
+      </div>,
+    );
+    const select = screen.getByRole('combobox', { name: '구분' });
+    expect(select.getAttribute('aria-invalid')).toBe('true');
+    expect(select.getAttribute('aria-describedby')).toBe('kind-error');
+  });
 });
 
 describe('SelectField — 네이티브 속성 패스스루', () => {
