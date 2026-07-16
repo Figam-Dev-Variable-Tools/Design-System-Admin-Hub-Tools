@@ -16,7 +16,7 @@
 //     '홍기'로 확정 질의를 보내는 사고를 막는다. 조합이 끝난 Enter 는 debounce 를 건너뛰고 즉시 커밋한다.
 //   · 응답 경합(stale last-response-wins)은 이 섹션에 없다 — 목록은 캐시된 배열을 동기 필터하므로
 //     질의당 네트워크가 발생하지 않는다. 커밋된 URL 값이 언제나 유일한 진실이다.
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CompositionEvent, KeyboardEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
@@ -62,9 +62,15 @@ export function useListQueryState(): ListQueryState {
   const [draft, setDraft] = useState(keyword);
   const [composing, setComposing] = useState(false);
 
-  // URL → 입력창. 뒤로/앞으로·링크 복원으로 커밋값이 바뀌면 입력창도 따라간다.
-  // 타이핑 경로에서는 커밋값 === draft 라 재설정이 일어나지 않는다(값이 같으면 React 가 무시한다).
+  // 우리가 마지막으로 URL 에 쓴 값. '내가 만든 URL 변화'와 '밖에서 온 URL 변화'를 가른다.
+  const lastCommitted = useRef(keyword);
+
+  // URL → 입력창. **밖에서 온** 변화(뒤로/앞으로·링크 복원)일 때만 입력창을 맞춘다.
+  // 자기 커밋에도 되받아 쓰면 안 된다: 커밋은 trim 을 하므로 '홍 ' 를 치고 잠깐 멈추면 URL 은 '홍' 이 되고,
+  // 그 값을 입력창에 되쓰면 사용자가 친 공백이 타이핑 도중에 사라진다(다음 글자가 '홍길'로 붙는다).
   useEffect(() => {
+    if (keyword === lastCommitted.current) return;
+    lastCommitted.current = keyword;
     setDraft(keyword);
   }, [keyword]);
 
@@ -85,7 +91,9 @@ export function useListQueryState(): ListQueryState {
 
   const commit = useCallback(
     (value: string) => {
-      writeParam(KEYWORD_PARAM, value.trim(), '');
+      const trimmed = value.trim();
+      lastCommitted.current = trimmed;
+      writeParam(KEYWORD_PARAM, trimmed, '');
     },
     [writeParam],
   );
