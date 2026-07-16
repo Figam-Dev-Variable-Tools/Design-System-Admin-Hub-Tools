@@ -12,6 +12,7 @@ import {
   PRODUCT_CODE_MAX,
   PRODUCT_DESCRIPTION_MAX,
   PRODUCT_NAME_MAX,
+  PRODUCT_POINTS_RATE_MAX,
   PRODUCT_PRICE_MAX,
   PRODUCT_STOCK_MAX,
 } from '../_shared/store';
@@ -64,6 +65,12 @@ export const productSchema = z
       feeType: z.enum(['free', 'paid', 'conditional']),
       fee: z.string(),
       freeThreshold: z.string(),
+    }),
+    // 상품별 적립 설정 — 값의 의미가 mode 에 달려 있어 범위 판정은 아래 .check 가 맡는다
+    points: z.object({
+      mode: z.enum(['rate', 'fixed', 'none']),
+      rate: z.string(),
+      amount: z.string(),
     }),
     optionGroups: z.array(optionGroupSchema),
     variants: z.array(variantSchema).check(
@@ -135,6 +142,40 @@ export const productSchema = z
           input: discountValue,
           path: ['discountValue'],
           message: '할인 금액은 1원 이상 판매가 미만으로 입력하세요.',
+        });
+      }
+    }
+  })
+  .check((ctx) => {
+    // 적립금 — 방식에 따라 필요한 값이 다르다(정률이면 적립률, 정액이면 적립액, 미적용이면 없음).
+    const { mode, rate, amount } = ctx.value.points;
+
+    if (mode === 'rate') {
+      const raw = rate.trim();
+      if (
+        raw === '' ||
+        !INT_RE.test(raw) ||
+        Number(raw) < 1 ||
+        Number(raw) > PRODUCT_POINTS_RATE_MAX
+      ) {
+        ctx.issues.push({
+          code: 'custom',
+          input: rate,
+          path: ['points', 'rate'],
+          message: `적립률은 1% 이상 ${String(PRODUCT_POINTS_RATE_MAX)}% 이하로 입력하세요.`,
+        });
+      }
+      return;
+    }
+
+    if (mode === 'fixed') {
+      const raw = amount.trim();
+      if (raw === '' || !INT_RE.test(raw) || Number(raw) < 1) {
+        ctx.issues.push({
+          code: 'custom',
+          input: amount,
+          path: ['points', 'amount'],
+          message: '적립액을 1원 이상 입력하세요.',
         });
       }
     }
