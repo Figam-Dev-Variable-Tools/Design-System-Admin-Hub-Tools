@@ -1,0 +1,253 @@
+---
+id: NFR-021
+title: "고객사 관리 비기능 명세"
+functionalSpec: FS-021
+backendSpec: BE-021
+qualityBar: specs/quality-bar.md
+owner: A64
+reviewer: A62
+gate: G9
+status: draft
+version: 1.0
+date: 2026-07-17
+---
+
+# NFR-021. 고객사 관리 비기능 명세
+
+## 1. 이 문서의 위치
+
+| 항목 | 내용 |
+|---|---|
+| 대상 화면 | FS-021 고객사 관리 (`/company/clients`) — 구현: `pages/company/clients/**` + 공용 골격 `pages/company/logo-list/**` |
+| 상위 기준 정본 | `specs/quality-bar.md` (9차원 100요구 · P0 30건). **이 문서는 그 요구 문구를 복제하지 않는다** — ID 로만 참조한다 |
+| 이 문서의 역할 | quality-bar 의 **'이 화면 적용본'**. 각 요구가 이 화면에서 ① 적용되는가 ② 무엇이 그것을 충족하는가(코드 근거) ③ 무엇을 재현하면 판정되는가 만 기술한다 |
+| 함께 읽는 문서 | FS-021(요소·예외) · BE-021(엔드포인트·보안 판정) · **NFR-020(파트너사)** |
+| 갱신 규칙 | quality-bar 가 바뀌면 §2 표를 다시 채운다. **`logo-list/**` 가 바뀌면 NFR-020·NFR-021 을 함께 갱신한다** |
+
+### 1.1 NFR-020(파트너사)과의 관계 — 판정이 같은 이유와 그 범위
+
+두 화면은 **같은 모듈**(`logo-list/**`)을 config 만 바꿔 렌더한다(FS-021 §1.1). 따라서 **P0 30건의 판정이 전부 동일하다** — 같은 코드 줄이 같은 요구를 충족하거나 어긴다. 이 문서는 그 사실을 근거로 판정을 복제하되, **근거 줄 번호는 그대로이고 재현 절차의 URL·scope·문구만 고객사의 것**(`/company/clients` · `?fail=clients:*` · '고객사')이다.
+
+**공유가 판정에 미치는 실질적 영향 두 가지**:
+1. **P0 gap 9건 중 7건이 공용 골격의 결함**이라 **한 번 고치면 두 화면이 함께 닫힌다** — 수선 비용이 두 배가 아니다. 반대로 **`logo-list/**` 를 한쪽 요구만 보고 고치면 다른 화면이 조용히 회귀한다.**
+2. 검증도 공유된다 — `logo-list.test.ts` 는 `createLogoAdapter('test', SAMPLE)` 로 **팩토리 자체**를 테스트하므로(`:97`) 파트너사·고객사 어느 쪽 이름도 달지 않는다. 즉 **두 화면 중 어느 쪽에도 화면 고유 회귀 방어선이 없다.**
+
+**고객사 고유 판정**(파트너사와 다른 유일한 항목): §3 의 도메인 경계 항목과 §4.3 의 노출 정책 — 고객사명은 실재 거래처 상호이고 '우리 고객이 누구인가' 가 영업 정보라, 숨김(`active: false`) 항목의 노출 통제가 파트너사보다 무겁다(BE-021 §7.2).
+
+### 1.2 표기 규약
+
+| 기호 | 뜻 |
+|---|---|
+| 적용 `직접` | 이 화면(`logo-list/**` · `clients/**`)의 코드가 충족을 결정 — 판정 책임이 이 문서에 있다 |
+| 적용 `상속` | AppShell·DS(`@tds/ui`)·공용 프레임워크가 결정하고 이 화면은 소비자 — **이 화면에 그 표면이 실재할 때만** 적는다. 판정은 소유 문서에 종속되며, 여기서는 **이 화면의 어느 표면이 그 계약을 상속하는지**를 못 박는다 |
+| 적용 `N/A` | 표면(appliesTo)이 이 화면에 없다 — **반드시 사유** |
+| 판정 `pass` | 코드 근거로 충족 확인 |
+| 판정 `gap` | 미충족 확인 — §5 로 이관. **P0 의 gap 은 quality-bar '배치 실패' 사유** |
+| 판정 `종속` | `상속` 항목 — 소유 문서/DS 판정을 따른다 |
+
+## 2. P0 30건 — 이 화면 적용 판정 (전수)
+
+| 요구 ID | 차원 | 적용 | 이 화면에서의 충족 방식 (코드 근거) | 측정 기준 (재현 절차) | 판정 |
+|---|---|---|---|---|---|
+| STATE-01 | STATE | 직접 | **충족하지 못한다.** `LogoListPage.tsx:103` 이 `const { data, isFetching: loading, … }` 로 **`isFetching` 을 `loading` 에 직결**한다. 그 `loading` 이 `LogoListTable.tsx:160-161` 에서 `SkeletonRows` 를 그린다 — `data !== undefined` 인 재조회에서도 표가 5행 스켈레톤으로 바뀐다(시드가 3건인데 스켈레톤은 5행이라 표가 늘었다 줄기까지 한다). 공용 `useCrudList`(F2 가 `firstLoading = isFetching && data === undefined` 로 고친 것)를 쓰지 않고 자체 `useQuery` 를 쓴다. `placeholderData: (previous) => previous`(`queries.ts:21`)로 **데이터는 유지되는데 화면이 그것을 가린다** | `/company/clients` 진입 후 '예시전자' 의 노출 토글을 켠다 → `useSetLogoActive.onSettled` 가 `invalidateQueries({ queryKey: ['clients','list'] })`(`queries.ts:113-115`) → `isFetching=true` → 표 전체가 스켈레톤 5행으로 깜빡이고 **방금 낙관 반영한 토글 상태가 사라졌다 보인다**. 재정렬·삭제·저장 직후에도 동일 | **gap** |
+| STATE-02 | STATE | 직접 | `error !== null` 이면 요약·SelectionBar·표를 통째로 `Alert tone="danger"` 로 대체하고 '다시 시도' 버튼이 `refetch()` 를 부른다(`LogoListPage.tsx:294-308`). read 실패에 토스트를 띄우는 코드가 없고, 빈 상태로 폴백하지도 않는다(빈 상태는 `error === null` 가지 안에만 있다) | `/company/clients?fail=list` 진입 → 인라인 danger Alert '고객사 목록을 불러오지 못했습니다.' + '다시 시도'만 뜬다. 토스트 0건, 빈 상태 문구 미노출. '다시 시도' 클릭이 쿼리를 재발행한다 | pass |
+| STATE-04 | STATE | 직접 | **selection 리셋 절**: `useEffect(() => { clear(); }, [keyword, clear])`(`LogoListPage.tsx:111-113`) — 검색어가 확정되면 행 선택을 전부 해제한다. **page clamp 절**: 이 화면에 페이지네이션이 없어(FS-021-EL-005 · IA-04 참조) out-of-range page 자체가 성립하지 않는다 | 시드 3건을 모두 선택한 뒤 '은행' 을 검색해 결과를 1건으로 좁힌다 → 요약의 '3건 선택됨' 이 사라지고 SelectionBar 가 걷힌다. clamp: 재현 대상 없음(페이지 개념 부재) | pass |
+| TOKEN-01 | TOKEN | 직접 | 이 화면이 소유한 style object 전량이 `var(--tds-*)` 만 참조한다 — `pageStyle`·`toolbarStyle`·`summaryRowStyle`·`errorBodyStyle`(`LogoListPage.tsx:36-64`), `nameCellStyle`·`linkCellStyle`·`actionCellStyle`·`emptyCellStyle`·`statusCellStyle`(`LogoListTable.tsx:29-70`), `bodyStyle`(`LogoFormModal.tsx:28-32`). 래퍼(`ClientsPage.tsx`)·시드(`clients/data-source.ts`)에는 스타일이 없다 | `grep -nE "#[0-9a-fA-F]{3,6}\b|[0-9]+px" pages/company/{logo-list,clients}/*` → 0건(실측). ESLint/stylelint 0 warning | pass |
+| TOKEN-02 | TOKEN | 상속 | 이 화면의 포커스 가능 표면 — 검색 입력·버튼·체크박스·토글·행 액션·모달 컨트롤 — 이 전부 DS 컴포넌트이거나 `tds-ui-focusable` 클래스를 쓴다(`LogoListTable.tsx:187`·`LogoFormModal.tsx:151·189`). ring 토큰 자체는 DS/`ui.css` 소유 | DS 소유 문서의 판정을 따른다. 이 화면에서는 '자체 outline 선언 0건'만 확인한다 | 종속 |
+| TOKEN-03 | TOKEN | 상속 | 이 화면이 소비하는 motion 은 DS 것뿐이다 — `ToggleSwitch.css` · `Toast` · `AppShell` nav row. easing 토큰의 유효성은 tokens codegen·DS 소유 | DS 소유 문서의 판정을 따른다 | 종속 |
+| TOKEN-04 | TOKEN | 상속 | 이 화면의 floating surface 는 DS `Modal`(등록/수정 모달 · ConfirmDialog ×3)과 `Toast` 다. `Modal.css:36` 이 `box-shadow: var(--tds-shadow-modal)` 를 쓴다 — raw 값 0건 | DS 소유 문서의 판정을 따른다 | 종속 |
+| TOKEN-05 | TOKEN | 상속 | 이 화면의 `<h1>` 은 AppHeader 가 그린다(`AppHeader.tsx:101`). 화면 안에 자체 h1·KPI·StatsCard 가 없다 | DS/AppHeader 소유 문서의 판정을 따른다. 이 화면에서는 '자체 title 스타일 재선언 0건'만 확인한다 | 종속 |
+| COMP-10 | COMP | 직접 | **충족하지 못한다.** 검색이 `useDebouncedSearch`(IME 조합·`isComposing`·최소 길이를 처리하는 공용 훅)를 **쓰지 않는다.** 대신 로컬 `useState` + 맨손 타이머다: `useEffect(() => { const timer = setTimeout(() => setKeyword(keywordInput), 250); return () => clearTimeout(timer); }, [keywordInput])`(`LogoListPage.tsx:106-109`). 250ms 디바운스는 있으나 **조합 상태를 보지 않는다** — `logo-list/**` 전체에 `isComposing`/`compositionstart`/`compositionend` 0건. `SearchField`(DS)도 조합을 다루지 않는다(값 콜백만 — `SearchField.tsx:66`) | 검색창에 '샘플리테일'을 IME 로 치되 중간에 250ms 이상 멈춘다 → 조합 중인 부분 자모('샘프ㄹ')가 `keyword` 로 **커밋**되고 표가 그 부분 문자열로 필터돼 '등록된 고객사가 없습니다.' 가 번쩍인다. 기대: compositionend 전에는 커밋하지 않음. (현재는 클라이언트 필터라 네트워크 쿼리는 0건이지만, BE-021 §7.4 대로 서버 검색이 붙는 순간 자모마다 쿼리가 나간다) | **gap** |
+| FEEDBACK-02 | FEEDBACK | 직접 | 파괴적 액션 2종이 모두 `ConfirmDialog(intent="delete")` 로 게이트된다 — 단건(`LogoListPage.tsx:321-332`) · 일괄(`:334-345`). busy 중 확인 잠금: `busy={deleting}`/`busy={bulkDeleting}`. 실패 시 다이얼로그를 **열어 둔 채** danger 배너: `error={deleteError}`(`:198` 에서 세팅) / `error={bulkError}`(`:225-228`), 복구는 재클릭. 취소/Esc/딤은 `closeDelete`/`closeBulk` 로 가고 거기서 `controller.abort()` + `mutation.reset()` + pending 리셋(`:173-179`·`:204-210`) | `/company/clients?fail=clients:delete` 진입 → '가상은행' 삭제 → 확인 → 다이얼로그가 남고 '삭제하지 못했습니다…' 배너, 재클릭이 재시도. 별도로 `?fail=` 없이 삭제 확인을 누른 직후 400ms 안에 '취소' → false 실패 토스트 없이 버튼 상태 복원 | pass |
+| FEEDBACK-04 | FEEDBACK | **N/A** | **표면이 없다.** 이 요구의 3경로(browser unload · in-app link · back/forward)는 **페이지 폼**의 이탈 경로이고, 이 화면에는 폼 라우트가 없다 — 등록·수정이 전부 모달이다(FS-021-EL-009 · IA-06 taxonomy 무게 규칙). 모달 폼의 이탈 가드는 FEEDBACK-06 이 담당하며 그쪽에서 판정한다. `useUnsavedChangesDialog` 소비 0건 | 재현 대상 없음. **다만 잔여 위험이 있다** — dirty 모달이 열린 채 브라우저 Back/새로고침을 하면 두 요구 중 어느 쪽도 막지 않는다. §4.2 시나리오 표에 기록 | n-a |
+| FEEDBACK-06 | FEEDBACK | 직접 | **4경로 전부 덮인다.** `const { requestClose, discardDialog } = useModalDirtyGuard(isDirty && !saving, onClose)`(`LogoFormModal.tsx:79`)를 `Modal.onClose`(`:126`)와 **취소 버튼**(`:135`)에 **둘 다** 넘긴다. DS `Modal` 이 Esc(`Modal.tsx:115-118`) · 딤 클릭(`:151`) · ×(`:169`)를 **모두 `onClose` 한 곳으로** 모으므로 세 경로가 한 번에 덮이고, 네 번째(취소)는 같은 `requestClose` 다. `discardDialog` 는 모달 **밖**에 렌더된다(`:202`) — 안에 두면 포커스 트랩이 확인 다이얼로그를 가둔다. pristine 모달은 `requestClose` 가 즉시 `onClose()` 한다(`useModalDirtyGuard.tsx:54-56`). `saving` 중에는 가드가 꺼진다. **quality-bar 가 `LogoFormModal` 을 appliesTo 로 명시한 파일이며, 그 요구를 충족한다** | '고객사 추가' → 이름에 한 글자 입력 → ① Esc ② 딤 클릭 ③ × ④ '취소' 각각에서 '저장하지 않은 변경 사항이 있습니다' 확인이 뜬다. 아무것도 입력하지 않고 같은 4경로 → 프롬프트 없이 즉시 닫힌다 | pass |
+| A11Y-01 | A11Y | 상속 | 이 화면의 결과 통지는 전량 토스트다 — 토글 성공/실패(`LogoListPage.tsx:147·153`) · 재정렬(`:130·134`) · 삭제(`:194`) · 일괄 삭제(`:232`) · 저장(`:240`) · 취소(ConfirmDialog 어댑터). live region 은 `ToastProvider`(앱 전역, 라우트 밖) 소유 | ToastProvider 소유 문서의 판정을 따른다. 이 화면에서는 '자체 live region 을 만들지 않는다'만 확인한다 | 종속 |
+| A11Y-02 | A11Y | 상속 | 이 화면은 DS `Modal` 1종(등록/수정)과 `ConfirmDialog` 3종(단건 삭제 · 일괄 삭제 · discard 가드)을 렌더한다. `describedBy` 배선은 `ConfirmDialog`(DS)가 message 요소 id 를 `Modal` 에 넘겨 수행한다(`Modal.tsx:63·158`) | DS 소유 문서의 판정을 따른다 | 종속 |
+| A11Y-11 | A11Y | 직접 | **aria-invalid↔describedby 절은 충족한다**: 이름 입력이 `aria-invalid={nameInvalid}` + `aria-describedby={nameInvalid ? errorIdOf('logo-name') : undefined}`(`LogoFormModal.tsx:156-157`), 링크 입력이 같은 쌍(`:193-194`)이며, 그 id 의 오류 `<p role="alert">` 는 `FormField` 가 그린다(`FormField.tsx:72`). `ImageUploadField` 는 자체 배선(`ImageUploadField.tsx:193·219·285`). **그러나 required 노출 절을 충족하지 못한다** — `logoSchema` 가 `name` 을 필수로 강제하고(`validation.ts:8`) `FormField` 에 `required` 를 넘기지만(`LogoFormModal.tsx:147`), 그 `required` 는 **`aria-hidden` 인 `*` 마커만** 그리고(`FormField.tsx:58-62`) `<input id="logo-name">`(`:148-165`)에는 native `required` 도 `aria-required` 도 없다. DS `TextField` 는 native required 를 노출하는데 이 모달은 `TextField` 를 쓰지 않고 raw `<input>` 을 조립한다 | ① `grep "aria-invalid"` 짝 검사 → 짝 없는 것 0건(pass 절). ② 모달을 열고 이름 입력의 접근성 속성을 본다 → `required`/`aria-required` 없음 → 스크린리더가 '필수'로 읽지 않는다. RTL: `expect(getByLabelText('이름')).toBeRequired()` 실패 | **gap** |
+| A11Y-12 | A11Y | **N/A** | **표면이 없다.** 이 요구는 '좌측 필터 list item 의 selected 표기'이고 이 화면에는 좌측 필터 사이드바도 toggle 필터 버튼도 없다 — 좁히는 수단은 이름 검색 하나뿐이다(FS-021-SEC-01). `logo-list/**` 에 `aria-current`·`aria-pressed`·`filterItemStyle` 0건 | 재현 대상 없음. `grep "aria-current" pages/company/logo-list` → 0건 | n-a |
+| MOTION-01 | MOTION | 상속 | 이 화면은 DS `Modal`(등록/수정)과 그것을 조립한 `ConfirmDialog` 3종의 소비자다. enter/exit transition 은 DS `Modal` organism 소유 | DS 소유 문서의 판정을 따른다 | 종속 |
+| MOTION-02 | MOTION | 상속 | 이 화면의 토스트는 앱 전역 `ToastProvider` 큐가 그린다. exit 애니메이션은 ToastProvider/DS `Toast` 소유 | ToastProvider/DS 소유 문서의 판정을 따른다 | 종속 |
+| MOTION-03 | MOTION | 상속 | 이 요구의 appliesTo 중 **`ToggleSwitch.css` 가 이 화면의 실재 표면이다** — 목록의 노출 토글(`LogoListTable.tsx:199-204`)이 그 컴포넌트다. handle transform transition(`ToggleSwitch.css:56`)의 reduced-motion 게이트는 DS 소유 | DS 소유 문서의 판정을 따른다. 이 화면에서는 '자체 transition/animation 선언 0건'만 확인한다 | 종속 |
+| IA-01 | IA | 직접 | `ClientsPage` 는 `<LogoListPage …/>` 한 줄이고(`ClientsPage.tsx:8`) 자체 sidebar/top bar/outer frame 을 만들지 않는다. 라우트는 `{ path: '/company/clients', element: <ClientsPage />, implemented: true }`(`App.tsx:183`)로 `APP_ROUTES` 에 있고, 그 배열 전체가 `RequireAuth > AppShell` 레이아웃 라우트의 자식으로 렌더된다 | `/company/clients` 진입 → 고정 사이드바 + AppHeader + 단일 padded `<main>` 안에 목록이 든다. 화면이 그리는 최상위는 `pageStyle` flex column 하나(`LogoListPage.tsx:36-41`) | pass |
+| IA-02 | IA | 직접 | 이 화면의 title 은 **AppHeader 단일 메커니즘**에서 온다 — `findNavLabel(pathname)`(`AppHeader.tsx:92`). `/company/clients` 는 nav-config 의 **잎**이라(`nav-config.ts:127` — `['고객사', '/company/clients']`) `findNavLabel` 의 **정확 일치 분기**(`nav-config.ts:254-255`)가 '고객사'를 돌려준다. **branch 라벨 폴백(`:257-262`)에 도달하지 않는다** — 이 요구가 문제 삼는 sub-route(`/new`·`/:id/edit`)가 이 화면에 **없기 때문이다**: 등록·수정이 모달이라 URL 이 바뀌지 않는다(IA-06). 화면 안에 경쟁하는 in-content h1 도 없다 | `/company/clients` 진입 → 헤더 `<h1>` 이 '고객사'. '고객사 추가' 를 눌러 모달을 열어도 URL·제목이 그대로고, 모달 자체 제목('고객사 추가')은 `Modal` 의 `<h2>` 다(`Modal.tsx:165`) — h1 과 경쟁하지 않는다 | pass |
+| IA-04 | IA | 직접 | **템플릿 절은 충족한다**: toolbar row(검색 좌측 + '고객사 추가' primary 우상단 — `LogoListPage.tsx:245-255`, `justifyContent: 'space-between'`) → 결과 count 요약(`:259-264`) → SelectionBar(`:266-270`) → table(`:272-292`) 순서가 요구와 일치한다. **Pagination 절을 충족하지 못한다**: 이 화면에 페이지네이션이 없고 `visible` 전량을 렌더한다(`LogoListTable.tsx:169`) — 페이지 크기도 목록 상한도 정의돼 있지 않아 '한 page 초과 가능 시' 조건 자체가 미정이다. BE-021-EP-01 도 페이징 없는 전량 응답이다(§7.4) | 시드 3건에서는 넘치지 않는다. 고객사를 반복 등록해 수십 건으로 늘리면 Pagination 없이 표가 계속 길어진다 — 페이지 크기·상한·서버 페이징이 어디에도 정의돼 있지 않음을 코드로 확인(`logo-list/**` 에 `Pagination`·`PAGE_SIZE` 0건, `clients/data-source.ts:35` TODO 주석에 쿼리 없음) | **gap** |
+| IA-05 | IA | **N/A** | **표면이 없다.** 이 요구는 '엔티티의 create·edit 를 `:id` 로 구분되는 하나의 **route** 쌍에서 제공' 이고, 이 화면은 폼 라우트를 갖지 않는다 — `App.tsx` 에 `/company/clients/new`·`/company/clients/:id/edit` 가 없고 `/company/clients` 하나뿐이다(`:183`). IA-06 의 무게 규칙에 따라 taxonomy 성격의 짧은 엔티티를 모달로 편집하는 경로를 택했다. **요구의 정신(하나의 컴포넌트가 등록/수정을 겸하고 레이아웃 동일·title 과 prefill 만 다름)은 `LogoFormModal` 이 `editing` 유무로 갈라 그대로 지킨다**(`LogoFormModal.tsx:53·125·64-68·139`) | 재현 대상 없음(라우트 부재). 모달 차원의 등가 확인: '추가' 와 행 '수정' 이 같은 모달을 열고 제목·초기값만 다르다 | n-a |
+| IA-13 | IA | 직접 | **충족하지 못한다.** 이 화면의 유일한 list query state 인 **검색어가 URL 에 없다** — `const [keywordInput, setKeywordInput] = useState('')` · `const [keyword, setKeyword] = useState('')`(`LogoListPage.tsx:80-81`)로 컴포넌트 state 에만 산다. 공용 `useListState`(URL 직렬화 — 실소비자는 `members/**` 뿐)·`useSearchParams` 를 `logo-list/**` 어디서도 import 하지 않는다. (page·sort·filter 는 이 화면에 애초에 없다 — 페이지네이션 없음·정렬 컬럼 없음·필터 없음. 그래서 이 요구의 이 화면 표면은 keyword 하나이며, 그것이 미충족이다) | '예시'를 검색해 목록을 좁힌 뒤 ① F5 → 검색어가 사라지고 전체 3건이 뜬다 ② URL 을 새 탭에 복사 → 검색 없는 전체 목록 ③ 모달을 열었다 닫아도 URL 은 내내 `/company/clients`. 기대: `?keyword=예시` 로 직렬화돼 세 경로 모두 복원 | **gap** |
+| EXC-01 | EXC | 상속 | 이 화면은 **AppShell `<Outlet>` 바로 바깥 경계**의 소비자다 — `<ErrorBoundary resetKey={pathname} fallback={RouteErrorScreen}><RequirePermission><Outlet /></RequirePermission></ErrorBoundary>`(`AppShell.tsx:484-493`). 그 바깥에 루트 경계가 하나 더 있다(`App.tsx`). 화면이 자체 경계를 두지 않는다 | AppShell/App 소유 문서의 판정을 따른다. 이 화면에서는 '자체 ErrorBoundary 0건'과 '경계가 이 라우트를 감싼다'만 확인한다 | 종속 |
+| EXC-02 | EXC | 상속 | 두 층 모두 이 화면 밖이다 — ① 라우트 가드: `RequireAuth` 가 AppShell **바깥**이라 세션 없이 `/company/clients` 로 deep-link 하면 셸도 그리지 않고 `/login?returnUrl=…` 로 보낸다(`App.tsx`) ② 401 인터셉터: `queryClient` 의 `QueryCache`/`MutationCache` `onError` 가 `isUnauthorized` 면 `notifySessionExpired()`(`queryClient.ts:37-43`) — 이 화면의 조회·쓰기 전부가 그 캐시를 지나므로 배선이 필요 없다 | RequireAuth/queryClient 소유 문서의 판정을 따른다. 이 화면에서 상속을 확인하는 재현: `/company/clients?status=list:401` → 화면이 자체 401 분기를 갖지 않고 전역 인터셉터가 처리한다 | 종속 |
+| EXC-03 | EXC | 직접 | **read 게이팅은 상속으로 충족된다** — `RequirePermission` 이 AppShell `<Outlet>` 을 감싸(`AppShell.tsx:490`) `resourceIdForPath('/company/clients')` → 잎 리소스로 해석되고(`route-resource.ts:36-46`) read 가 없으면 `ForbiddenScreen`. **그러나 write-action 게이팅 절을 충족하지 못한다.** `logo-list/**`·`clients/**` 전체에 `useRouteWritePermissions`/`useRouteCan` import 0건이며, **`apps/admin/src/pages` 전체에서도 소비자가 0건**이다(공용 훅은 존재하나 아무 화면도 쓰지 않는다). 그 결과 '고객사 추가'(`LogoListPage.tsx:251`) · 행 수정/삭제(`LogoListTable.tsx:217-222`) · 노출 토글(`:199`) · 일괄 삭제(`LogoListPage.tsx:267`)가 **권한과 무관하게 전부 렌더되고 눌린다** | read 만 있고 create/update/remove 가 꺼진 역할로 `/company/clients` 진입 → 403 화면이 아니라 목록이 정상으로 뜨고, '고객사 추가'·수정·삭제·토글이 **그대로 보이고 눌린다**(서버가 없으므로 픽스처가 성공까지 시킨다). 기대: 그 컨트롤들이 렌더되지 않거나 비활성. 강등 reconcile 도 같은 이유로 성립하지 않는다 | **gap** |
+| EXC-04 | EXC | 직접 | **충족하지 못한다.** ① **동시성 토큰 없음**: `LogoItem` 에 `updatedAt`/`version` 이 없고(`types.ts:8-19`) `If-Match` 를 보내지 않는다 — 수정은 전체 치환이라 last-write-wins 다. ② **ghost 'saved'**: `createLogoAdapter.update` 가 `items = items.map(item => item.id === id ? { ...item, ...input } : item)`(`adapter.ts:48`)이라 **없는 id 면 배열이 그대로일 뿐 아무도 실패하지 않고 resolve** 한다. `remove`(`:53` — `filter`) · `setActive`(`:63` — `map`)도 같다. 그래서 다른 관리자가 이미 지운 고객사를 수정하면 `useUpdateLogo` 가 성공으로 흘러 `onSaved` 가 `'…' 을(를) 저장했습니다.` 토스트를 띄우고 모달을 닫는다(`LogoFormModal.tsx:103` → `LogoListPage.tsx:238-241`) — quality-bar 가 지목한 바로 그 시나리오다. ③ conflict dialog 가 없다 | 한 탭에서 '샘플리테일' 의 '수정' 모달을 연 채, **같은 탭의 목록에서** 그 항목을 삭제한다(어댑터 배열에서 id 가 사라진다). 그 뒤 모달의 '저장' 을 누른다 → 실패도 conflict 도 없이 **'샘플리테일' 을(를) 저장했습니다.' 토스트 + 모달 닫힘**. 목록에는 그 항목이 없다. 기대: conflict/404 배너 + 입력 보존. BE-021 §7.5 가 서버측 404(`CLIENT_NOT_FOUND`) 계약을 정한다 | **gap** |
+| EXC-08 | EXC | 직접 | **충족하지 못한다.** 이 화면의 폼은 공용 `useCrudForm`(F2 가 `submitLockRef` 와 제출 시도 단위 멱등키를 넣은 그것 — `useCrudForm.ts:102·196-197·205`)을 **쓰지 않는다** — 모달 폼이라 `useForm` 을 직접 잡고 `onValid` 를 손으로 쓴다(`LogoFormModal.tsx:62·88`). 그 `onValid` 에는 **동기 락도 멱등키도 없고**(`:88-117`) 방어는 `disabled={saving}`(`:138`) 하나뿐이다. `saving` 은 `create.isPending || update.isPending`(`:73`)이라 **상태가 렌더에 반영되기까지 한 틈이 있고**, 등록은 비멱등 POST 다(`adapter.create` 가 `seq += 1` 로 `clients-N` id 를 만들어 append — `adapter.ts:40-43`) | 모달에 유효값을 채우고 '추가' 버튼에 포커스를 준 뒤 **Enter 를 연타**(또는 매우 빠른 더블클릭)한다 → 두 번째 제출이 첫 렌더 전에 통과해 `adapter.create` 가 두 번 돌고 **같은 이름의 고객사가 2건**(`clients-4`·`clients-5`) 생긴다. 기대: 정확히 1건. 재시도가 같은 `Idempotency-Key` 를 재사용해야 한다(현재 키 자체가 없다) | **gap** |
+| EXC-09 | EXC | 직접 | **부분적으로만 충족한다 → gap.** 취소 판정은 공용 `isAbort` 로 일원화돼 있고(`shared/async.ts:40-42`) 재정렬(`LogoListPage.tsx:122-124` — 직전 요청 abort)·삭제(`:174` — 다이얼로그 닫기)·일괄 삭제(`:205`)·모달 저장(`LogoFormModal.tsx:84` — 언마운트)은 실제로 abort 하고 `isAbort` 로 실패 토스트를 막는다. **그러나 노출 토글이 `AbortController` 를 만들고도 어디서도 abort 하지 않는다** — `const controller = new AbortController();`(`LogoListPage.tsx:141`)를 ref 에 담지도, 언마운트 정리에 걸지도 않아 그 signal 은 영원히 aborted 가 되지 않는다. 그 결과 `onError` 의 `if (isAbort(cause)) return;`(`:152`)은 **도달 불가능한 죽은 코드**이고, 토글 중 화면을 떠나도 요청이 취소되지 않는다. `settleAll` 의 abort 제외 절은 충족(`bulk.ts:20`) | 토글 in-flight(400ms) 중 사이드바에서 '파트너사' 로 나간다 → 요청이 계속 살아 있다. 코드 확인이 더 결정적이다: `LogoListPage.tsx:141` 의 `controller` 를 참조하는 곳이 `mutate` 인자 하나뿐이므로(`:144`) `controller.abort()` 호출이 소스에 존재하지 않는다 → `:152` 분기는 절대 참이 될 수 없다. 기대: 재정렬(`reorderControllerRef`)·삭제(`deleteControllerRef`)와 같이 ref + 정리 경로 | **gap** |
+
+### 2.1 P0 판정 요약
+
+| 판정 | 건수 | 요구 ID |
+|---|---|---|
+| pass | **7** | STATE-02 · STATE-04 · TOKEN-01 · FEEDBACK-02 · FEEDBACK-06 · IA-01 · IA-02 |
+| 종속(상속) | **11** | TOKEN-02 · TOKEN-03 · TOKEN-04 · TOKEN-05 · A11Y-01 · A11Y-02 · MOTION-01 · MOTION-02 · MOTION-03 · EXC-01 · EXC-02 |
+| n-a | **3** | FEEDBACK-04 · A11Y-12 · IA-05 |
+| **gap** | **9** | STATE-01 · COMP-10 · A11Y-11 · IA-04 · IA-13 · EXC-03 · EXC-04 · EXC-08 · EXC-09 |
+| **합계** | **30** | 7 + 11 + 3 + 9 = **30** ✅ |
+
+> **P0 gap 9건 — quality-bar '배치 실패' 사유.** **NFR-020(파트너사)과 동일한 9건이며 같은 코드 줄이 원인이다**(§1.1) — 별개 결함 18건이 아니라 **공유 결함 9건이 두 화면에 나타난 것**이다. `logo-list/**` 를 한 번 고치면 두 문서가 함께 닫힌다. 전부 §5 로 이관한다.
+
+## 3. 이 화면에 걸리는 P1 · P2 (선별)
+
+표면이 실재하는 것만 적는다. **마지막 행(도메인 경계)을 뺀 전부가 NFR-020 §3 과 동일한 코드·동일한 판정이다.**
+
+| 요구 ID | P | 이 화면에서의 상태 | 측정 기준 | 판정 |
+|---|---|---|---|---|
+| STATE-03 | P1 | `placeholderData: (previous) => previous`(`queries.ts:21`)로 **데이터는 유지되는데** STATE-01 gap 이 그것을 스켈레톤으로 덮는다 | 토글 후 재조회에서 이전 행이 보이는가 → 보이지 않는다(스켈레톤). STATE-01 수선 시 자동으로 닫힌다 | gap |
+| STATE-05 | P1 | 빈 상태가 한 문구뿐이다 — `등록된 {entityLabel}가 없습니다.`(`LogoListTable.tsx:165`). 공용 `Empty` 컴포넌트·생성 CTA·'검색 지우기' 없음. F2 가 다른 목록에 넣은 empty context 가 이 파일에는 오지 않았다 | 없는 이름을 검색 → '등록된 고객사가 없습니다.' 가 뜬다(실제로는 3건이 등록돼 있다). 기대: '조건에 맞는 고객사가 없습니다' + 검색 지우기 | gap |
+| STATE-06 | P1 | 모든 쓰기가 자기 목록만 정확히 무효화한다 — `listKey('clients') = ['clients','list']`(`queries.ts:12`)를 create/update/delete/setActive/reorder 가 무효화한다(`:35·51·66·114·149`). **고객사 쓰기가 파트너사 캐시(`['partners','list']`)를 건드리지 않는다** | 고객사를 등록 → 목록에 즉시 보인다. 파트너사 화면으로 이동해도 그쪽 캐시는 무효화되지 않는다 | pass |
+| FEEDBACK-01 | P1 | 배치 규칙이 정확하다 — read 실패=인라인 Alert(`LogoListPage.tsx:295`) / 다이얼로그 내부 실패=그 다이얼로그 배너(`:328·342`) / 모달 저장 실패=모달 안 배너(`LogoFormModal.tsx:145`) / 독립 write 실패(토글·재정렬)=retry 토스트(`:134·153`). page-level 임의 배너 state 없음 | `?fail=clients:delete` → 다이얼로그 배너(토스트 아님). `?fail=clients:save` + 토글 → retry 토스트(배너 아님) | pass |
+| FEEDBACK-03 | P1 | 모든 mutation 이 성공·실패 양 경로를 갖는다 — 토글(`:147·153`) · 재정렬(`:130·134`) · 삭제(`:194·198`) · 일괄(`:225·232`) · 저장(`LogoFormModal.tsx:103·113` → `onSaved` 토스트 / `:96` 배너). no-op 클릭 없음 | 각 액션을 `?fail=all` 로 구동 → 전부 사용자 가시 실패를 낸다 | pass |
+| FEEDBACK-05 | P2 | 단건·일괄 삭제 모두 `intent="delete"` ConfirmDialog + '이 작업은 되돌릴 수 없습니다.' 고지(`LogoListPage.tsx:325·338`). undo window 는 없으나 요구가 '확인 **또는** undo' 라 확인으로 충족 | 단일 미확인 클릭으로 실행되는 delete 0건 | pass |
+| A11Y-03 | P1 | 이 화면의 ConfirmDialog 3종은 DS 것이고 초기 포커스 규칙은 DS 소유다 | DS 소유 문서의 판정을 따른다 | 종속 |
+| A11Y-06 | P1 | skip link 는 `AppShell.tsx:429`(`SkipToMain`), `<main id="tds-main" tabIndex={-1}>`(`:474`). 이 화면은 그 `<main>` 안의 `<Outlet>` 콘텐츠다 | AppShell 소유 문서의 판정을 따른다 | 종속 |
+| A11Y-07 | P1 | 라우트 포커스·announce 는 `RouteFocusAnnouncer`(`AppShell.tsx:324-340`, `label={findNavLabel(pathname)}`)가 한다 — 이 화면 진입 시 '고객사' 가 announce 된다 | AppShell 소유 문서의 판정을 따른다 | 종속 |
+| A11Y-08 | P1 | **표면 없음** — 행 클릭 이동(`useRowNavigation`)을 쓰지 않는다. 이름 셀이 링크가 아니고(`LogoListTable.tsx:183`) 상세 라우트도 없다. 행의 목적지는 '수정 모달' 이며 그것은 `RowActions` 의 **focusable 버튼**이다(`:217-222`) — 키보드로 도달 가능 | 재현 대상 없음. 행을 Tab 하면 체크박스·링크·토글·이동 버튼·행 액션에 모두 도달한다 | n-a |
+| A11Y-13 | P1 | **폼 진입 포커스는 충족**: `initialFocusRef={nameRef}`(`LogoFormModal.tsx:132`) → 모달이 열리면 이름 입력에 포커스(`Modal.tsx:91-93`). **그러나 '첫 invalid 필드' 절을 충족하지 못한다**: `handleSubmit(onValid, () => nameRef.current?.focus())`(`:130`) 가 onInvalid 에서 **언제나 이름으로** 보낸다 | 이름만 채우고 '추가' 제출 → 로고 필드에 오류가 뜨는데 포커스는 이름 입력에 있다. 기대: 첫 invalid(로고)로 이동 | gap |
+| COMP-02 | P1 | 선택 셀·순번 셀이 전부 DS 프리미티브다 — `SelectAllHeaderCell`(`LogoListTable.tsx:140`) · `RowSelectCell`(`:175`) · `SeqHeaderCell`(`:147`) · `SeqCell`(`:182`) · `tableSelectionState`(`:125`). raw checkbox 조립 0건 | `grep 'type="checkbox"' pages/company/logo-list` → 0건 | pass |
+| COMP-03 | P1 | 검색이 DS `SearchField`(`LogoListPage.tsx:246-250`). raw `<input type="search">` + 절대 위치 아이콘 재구현 없음 | `grep 'type="search"' pages/company/logo-list` → 0건 | pass |
+| COMP-04 | P1 | required 필드 2종이 `*` 마커를 렌더한다 — `FormField … required`(`LogoFormModal.tsx:147`) · `ImageUploadField … required`(`:170`). (마커의 **AT 노출**은 별개 문제 — A11Y-11 참조) | 모달의 '이름'·'로고 이미지' 라벨 옆에 `*` 가 보인다 | pass |
+| COMP-06 | P2 | skeleton 이 `Array.from({ length: 5 })` 하드코딩(`LogoListTable.tsx:94`)이다. **고객사 시드는 3건이라 스켈레톤 5행 → 데이터 3행으로 표가 줄어든다** — 이 화면에서 불일치가 더 눈에 띈다. 이 화면은 PAGE_SIZE 자체가 없어(IA-04 gap) '=== PAGE_SIZE' 를 만족시킬 기준이 없다. cell 수는 `totalCols` 로 실제 컬럼에서 파생돼(`:127-128·161`) 그 절은 충족 | `/company/clients` 첫 진입 → 5행 스켈레톤이 3행 데이터로 바뀌며 표 높이가 줄어든다 | gap |
+| COMP-09 | P2 | 링크 셀은 말줄임한다(`linkCellStyle` — `LogoListTable.tsx:39-45`). **이름 셀은 truncation 이 없다**(`nameCellStyle` — `:29-32`) — 60자 이름이 컬럼을 민다. hover/expand 전체 값 노출은 어느 쪽에도 없다 | 60자 이름을 등록 → 이름 컬럼이 넓어지고 표 레이아웃이 밀린다 | gap |
+| IA-06 | P1 | **무게 규칙에 부합한다.** 고객사는 필드 3개(이름·로고·링크)에 본문/에디터/미리보기가 없는 짧은 taxonomy 성격 엔티티이므로 inline-list + Modal 경로가 맞다(`LogoFormModal`). 혼용이 없다 — 이 엔티티에 폼 라우트가 **하나도** 없다(`App.tsx:183` 이 유일). 같은 `pages/company` 안에서 rich 엔티티(연혁·인증서·ESG)는 전용 폼 라우트를 쓴다(`App.tsx:187-188·190-191·193-194`) — 두 경로가 무게로 갈린다 | `/company/clients/new` 로 이동 → 라우트가 없어 `*` 폴백이 `/dashboard` 로 리다이렉트한다(모달 경로임을 확인). 수정은 행 액션에서만 열린다 | pass |
+| IA-14 | P1 | 반응형·sidebar collapse·touch-target 은 AppShell/DS 소유다. 이 화면의 표는 `minWidth: 0` 컨테이너 안에 있고(`LogoListPage.tsx:40`) 자체 breakpoint 를 선언하지 않는다 | AppShell/DS 소유 문서의 판정을 따른다 | 종속 |
+| MOTION-05 | P2 | 이 요구가 **`logo-list reorder` 를 appliesTo 로 명시**한다. 드래그 lift·grabbing cursor·drop settle 은 DS `TableReorder` 소유이고 이 화면은 `useReorderableRows`·`ReorderGripCell`·`ReorderMoveButtons` 의 소비자다(`LogoListTable.tsx:124·181·209-215`). optimistic update/rollback 절은 이 화면 몫이며 충족한다(EXC-14 참조) | DS 소유 문서의 판정을 따른다. 이 화면 몫(drop 이 낙관 반영/롤백을 정확히 적용, 키보드 재정렬이 동일 순서 생성)은 EXC-14 재현으로 확인 | 종속 |
+| EXC-05 | P1 | 프론트 타임아웃 상한이 없다 — `AbortSignal.timeout` 이 `apps/admin/src` 전체에 0건 | never-resolving 응답을 만들 스위치가 없다(`?delay=` 미구현 — §6). 코드 대조로 판정: `grep "AbortSignal.timeout"` → 0건 | gap (앱 전역) |
+| EXC-06 | P1 | 에러 타입은 status 를 갖는다 — `?status=` 스위치가 `HttpError(status, message)` 를 던지고(`dev.ts:84`) `shared/errors/http-error.ts` 가 판정자를 제공한다. **그러나 이 화면이 status 로 분기하지 않는다** — 모든 실패가 한 문구로 붕괴한다: 조회는 '고객사 목록을 불러오지 못했습니다.'(`LogoListPage.tsx:297`), 저장은 '저장하지 못했습니다…'(`LogoFormModal.tsx:96`), 삭제는 '삭제하지 못했습니다…'(`:198`). 401 만 전역 인터셉터가 가로챈다 | `?status=save:403` 과 `?status=save:422` 와 `?status=save:500` 으로 각각 저장 → **세 문구가 동일**하다. 기대: 403=권한 메시지(retry 없음) / 422=필드 인라인 / 500=retriable + reference | gap |
+| EXC-07 | P1 | 서버 필드 오류(422 `error.fields`)를 RHF `setError` 로 매핑하는 코드가 없다 — `LogoFormModal` 의 실패 경로는 form-level 배너 하나뿐(`:94-97`). BE-021-EP-02 는 `error.fields` 를 계약에 담는다 | `?status=save:422` → 어느 필드가 틀렸는지 알 수 없는 generic 배너. 기대: 해당 입력에 인라인 오류 + 포커스 | gap |
+| EXC-10 | P1 | `settleAll` 이 **실패 건수만** 돌려준다(`bulk.ts:15-21` — `Promise<number>`). 실패 id 목록이 없어 재클릭이 **선택 전원을 재전송**한다(`LogoListPage.tsx:213·219`). 게다가 **부분 실패 시 목록을 무효화하지 않아**(`queries.ts:84` — `if (failed === 0)` 일 때만) 이미 삭제된 행이 표에 남는다. abort 제외 절은 충족(`bulk.ts:20`), 다이얼로그 유지·선택 유지 절도 충족(`LogoListPage.tsx:224-229`) | 3건(시드 전부)을 선택하고 `?fail=clients:delete` 로 일괄 삭제 → 'N중 M건 실패' 배너가 뜬다(pass). 그 상태에서 스위치를 끄고 재클릭 → 이미 지워진 id 까지 다시 DELETE 된다. BE-021-EP-04 의 멱등성(204)이 피해를 흡수하지만 요청이 낭비되고 화면은 stale 하다 | gap |
+| EXC-11 | P1 | 오프라인 감지가 없다 — `navigator.onLine`·`online`/`offline` 이벤트가 `apps/admin/src` 전체에 0건 | 코드 대조로 판정: `grep "navigator.onLine"` → 0건 | gap (앱 전역) |
+| EXC-12 | P1 | **표면 없음** — detail/edit **라우트**가 없다(모달 편집). 존재하지 않는 `:id` 로 진입할 경로 자체가 없어 404 not-found surface 가 성립하지 않는다. (동시 삭제된 항목의 수정은 라우트 404 가 아니라 쓰기 경합 문제이며 EXC-04 가 다룬다) | 재현 대상 없음(`/company/clients/:id` 라우트 부재) | n-a |
+| EXC-14 | P1 | **충족한다.** 되돌릴 수 있는 인라인 액션 2종에 정확히 3박자가 붙어 있다. **토글**: `onMutate` 가 `cancelQueries` + `getQueryData` 스냅샷 + `setQueryData` 낙관 반영, `onError` 가 스냅샷 롤백, `onSettled` 가 무효화(`queries.ts:100-116`). **재정렬**: 같은 3박자 + 낙관 반영을 **id 구성이 정확히 일치할 때만** 적용하는 가드(`:138` — `if (reordered.length !== old.length) return old;`)(`:129-151`). 롤백 시 실패 토스트 + retry 가 붙는다(`LogoListPage.tsx:153-155`·`:134`). **create/delete 는 낙관하지 않는다** — 확인 다이얼로그 + busy 로 비관적 처리(요구가 그것을 요구한다) | `?fail=clients:save` 로 '가상은행' 토글 → 스위치가 즉시 켜졌다가 **이전 값(OFF)으로 되돌아가고** '노출 여부를 변경하지 못했습니다.' + 다시 시도 토스트. `?fail=clients:reorder` 로 행 이동 → 순서가 즉시 바뀌었다 롤백 + 재시도 토스트. un-rolled-back optimistic write 0건 | **pass** |
+| EXC-15 | P1 | 업로드 전 client 검증은 DS 가 한다 — `imageFileError(file, 5)` 가 `image/*` 타입·용량을 막고 요청 전에 인라인 문구로 거절한다(`ImageUploadField.tsx:19-25·152-157`). load 실패 fallback 도 있다(`:233`, src 변경 시 리셋 `:134-136`). **그러나 progress·cancel 경로가 없고, 애초에 업로드 자체가 없다** — `URL.createObjectURL` 로 끝난다(§4.3 · BE-021 §7.1) | DS 소유 문서의 판정을 따르되, **이 화면 몫의 실질 결함은 업로드 심 부재**다 — FS-021 §7 #8 · BE-021-EP-07 로 이관 | 종속 |
+| EXC-18 | P1 | selection scope 는 암묵적으로 '현재 보이는 행' 하나다(페이지네이션이 없어 cross-page 개념 자체가 없다 — `toggleAll(visible.map(i => i.id), checked)`, `LogoListPage.tsx:284-289`). **Shift-click 범위 선택 없음**(`useRowSelection` 에 range 개념 0건). 일괄 삭제 확인이 count 를 echo 하지만(`:338-339`) **임계값 강화 confirm·determinate progress·cancel 이 없다** | 20건을 Shift-click 으로 선택 시도 → 한 건씩만 토글된다. 대량 삭제 시작 후 취소·진행률 없음 | gap |
+| EXC-20 | P1 | 실패 문구에 복사 가능한 reference code 가 없다 — 이 화면의 세 실패 문구(`LogoListPage.tsx:297·198`·`LogoFormModal.tsx:96`) 어디에도 traceId 자리가 없다. raw 서버 body/stack 을 노출하지 않는 절은 충족(문구가 전부 하드코딩 상수다) | `?status=save:500` → '저장하지 못했습니다…' 만. reference code 없음 | gap |
+| ERP-13 | P1 | 사용자 문구가 리터럴 조사 폴백을 쓴다 — `'${item.name}' 을(를) 노출합니다.`(`LogoListPage.tsx:148`) 등. `shared/format.ts` 에 조사 헬퍼가 없다 | **'예시전자'(받침 없음) 토글 → `'예시전자' 을(를) 노출합니다.`** 기대: `'예시전자'를 노출합니다.` 시드 3건 중 '예시전자'·'가상은행'(받침 있음)·'샘플리테일'(받침 없음)이 섞여 있어 어느 폴백을 써도 절반이 틀린다 | gap (앱 전역) |
+| **도메인 경계** | — | **고객사 고유 — quality-bar 밖 축.** '고객사' 와 '파트너사' 를 구분하는 도메인 규칙이 화면·데이터 어디에도 없다. 두 목록은 `LogoItem` 으로 모양이 같고 이름만 다르므로 **한 회사가 양쪽에 중복 등록돼도 아무도 막지 않는다**(BE-021 §7.9 — 상호 유니크·외래키 없음). 고객 화면에서 두 목록이 어떻게 구분 노출되는지도 미정 | '알파클라우드'(파트너사 시드)를 고객사로도 등록 → 경고 없이 등록된다. 두 화면 어디에도 중복 고지가 없다 | gap |
+
+## 4. quality-bar 가 다루지 않는 축
+
+### 4.1 성능 예산
+
+> **`LATENCY_MS = 400`(`shared/crud/dev.ts:12`)은 개발용 지연이며 예산이 아니다.** 픽스처가 로딩 상태를 화면에서 볼 수 있게 하려고 넣은 인위적 `wait()` 이고, 백엔드가 붙으면 이 상수는 사라진다. 아래 예산은 **실제 백엔드 기준의 목표치**이며 현재 코드로는 측정할 수 없다(네트워크 호출 0건).
+
+| 축 | 예산 | 현재 상태 |
+|---|---|---|
+| 목록 응답 p95 | 400ms (BE-021-EP-01, 전량 반환) | 측정 불가 — 픽스처. 서버 상한은 5초 → 504(BE-021 §2) |
+| 쓰기 응답 p95 | 500ms (등록·수정·삭제·토글·재정렬) | 측정 불가 — 픽스처 |
+| 첫 렌더(진입 → 표 첫 행) | 800ms (목록 응답 + 렌더) | 픽스처에서 `LATENCY_MS` 400ms + 렌더 |
+| 재조회 횟수 | 진입 1회. `staleTime` 30초 안의 재진입은 0회. 창 포커스 재조회 0회(`queryClient.ts:24·67`). 검색은 **클라이언트 필터라 0회**(FS-021-EL-001) | **쓰기마다 1회 추가**(`onSettled`/`onSuccess` 무효화 — `queries.ts:35·51·66·114·149`). 이것이 STATE-01 gap 과 곱해져 **쓰기마다 표가 스켈레톤으로 깜빡이는** 비용이 된다 |
+| 메모리 | 목록 전량을 캐시에 1벌 + `placeholderData` 로 직전 1벌. **파트너사 화면을 오가면 두 캐시(`['partners','list']`·`['clients','list']`)가 동시에 산다** — 각각 30초 staleTime | **`blob:` URL 누수 위험**: `ImageUploadField` 는 자기 것만 revoke 하고(`ImageUploadField.tsx:124-125·145-150`) 모달 언마운트 시 정리한다(`:138-143`) — 누수는 없으나 그 때문에 **저장된 값이 죽는다**(§4.3) |
+| 번들 | 이 화면은 라우트 분할 없이 `App.tsx` 정적 import(`:55`). 자체 무거운 의존성 0. **`logo-list/**` 7파일을 파트너사와 공유하므로 두 화면의 추가 코드는 래퍼 2파일 + 시드뿐이다** | 화면 고유 코드는 `ClientsPage.tsx`(9줄) + `clients/data-source.ts`(시드 3건) |
+
+### 4.2 가용성 · 복원력
+
+| 시나리오 | 요구 동작 | 현재 상태 |
+|---|---|---|
+| 목록 조회 실패 | 인라인 danger Alert + '다시 시도' | **충족**(`LogoListPage.tsx:294-308`). `retry: false`(`queryClient.ts:59`)라 자동 재시도 없이 즉시 배너 |
+| 쓰기 실패 | 실패를 알리고 복구 경로 제시 | **충족** — 토글·재정렬은 롤백 + retry 토스트, 삭제는 다이얼로그 배너 + 재클릭, 저장은 모달 배너 + 재제출 |
+| 화면 이탈 중 in-flight | 요청 abort, false 실패 통지 없음 | **부분** — 재정렬·삭제·일괄·모달 저장은 abort 한다. **노출 토글은 abort 하지 않는다**(§2 EXC-09) |
+| 화면이 렌더 중 throw | 사이드바 유지 + 복구 UI | AppShell `<Outlet>` 바깥 경계가 잡는다(`AppShell.tsx:484-493`). `resetKey={pathname}` 이라 다른 메뉴로 이동하면 스스로 풀린다 |
+| 세션 만료 | 재인증 후 원래 경로 복원 | 전역 인터셉터가 처리(`queryClient.ts:37-43`) |
+| **dirty 모달 + 브라우저 Back/새로고침** | 입력 보존 또는 경고 | **미충족 — 어느 요구도 덮지 않는다.** FEEDBACK-06 은 모달의 4경로(Esc·딤·× ·취소)만 덮고, FEEDBACK-04 의 3경로(unload·링크·back)는 이 화면에 폼 **라우트**가 없어 배선되지 않았다. 반쯤 채운 모달에서 브라우저 Back 을 누르면 라우트가 바뀌며 모달이 조용히 사라진다. §5 #10 |
+| **파트너사 ↔ 고객사 이동** | 각 화면이 자기 데이터만 본다 | **충족** — 캐시 키·어댑터 배열이 `resource` 로 갈린다(`queries.ts:12` · `adapter.ts:28`). 한쪽 쓰기가 다른 쪽을 오염시키지 않는다 |
+| 새로고침 후 데이터 | 서버 상태가 정본 | **픽스처 한계** — 어댑터가 브라우저 안 mutable 배열이라(`adapter.ts:28`) 새로고침하면 모든 변경이 시드 3건으로 되돌아간다. 백엔드 연결 시 해소 |
+
+### 4.3 데이터 보존 · 감사
+
+| 축 | 현재 상태 |
+|---|---|
+| **로고 이미지의 수명** | **저장값이 즉시 죽는다.** `ImageUploadField` 가 `URL.createObjectURL(file)` 로 만든 `blob:` URL 이 `logoUrl` 로 저장되는데(`ImageUploadField.tsx:160-163`), 그 필드는 **언마운트 시 `URL.revokeObjectURL`** 한다(`:138-143`). 모달이 닫히는 순간(= 저장 성공 직후) 그 URL 은 무효가 된다. 새로고침·다른 탭·고객 화면에서는 처음부터 깨진 이미지다. 검증(`requiredImage`)이 이를 막지 않고, **테스트가 통과를 단언한다**(`logo-list.test.ts:87`). BE-021 §7.1 이 서버측 스킴 화이트리스트를 방어선으로 정하고, EP-07(업로드)이 근본 해결이다 |
+| **숨김 고객사의 노출 통제** | **고객사 고유 위험.** `active: false` 인 고객사(시드의 '가상은행')는 관리자 목록에 계속 보이고 API 도 내린다 — 그것이 맞다(관리자가 켜고 꺼야 하므로). 그러나 **고객 화면이 `active` 를 존중한다는 계약이 어디에도 없다**. 고객사명은 실재 거래처 상호이고 '우리 고객이 누구인가' 는 영업 정보라, 숨김 항목이 새면 파트너사보다 피해가 크다. BE-021 §7.2·§7.7 #7 이 공개 API 계약을 미정으로 이관한다 |
+| 삭제의 비가역성 | 단건·일괄 모두 hard delete. undo window·soft-delete 없음. 확인 다이얼로그가 '이 작업은 되돌릴 수 없습니다.' 를 고지한다(FEEDBACK-05 pass) |
+| 감사 로그 | 없다 — 누가 언제 고객사를 등록/수정/삭제/숨김 했는지 기록하는 필드도 엔드포인트도 없다(`LogoItem` 에 `updatedAt`/`updatedBy` 없음). 고객 노출 콘텐츠의 변경 이력이 남지 않는다 → §5 #12 |
+| 정렬 순서의 정합 | 재정렬이 전체 `order` 를 1..n 으로 다시 매긴다(`types.ts:42-54` · BE-021-EP-06). `order` 는 유니크가 아니며 등록은 `nextLogoOrder`(최대+1)로 끝에 붙는다(`types.ts:57-58`) |
+
+## 5. 미충족(gap) 요약 → 이관
+
+> **#1~#9(P0)와 #11~#14 는 공용 골격(`logo-list/**`)의 사안이라 NFR-020 §5 와 같은 항목이다** — 두 화면에 각각 청구되는 별개 작업이 아니라 **한 번의 수선**이다. 이 문서는 그 사실을 명시하되 항목을 생략하지 않는다.
+
+| # | 요구 ID | P | 내용 | 범위 | 이관 |
+|---|---|---|---|---|---|
+| 1 | **STATE-01** (+STATE-03) | **P0** | `LogoListPage.tsx:103` 이 `isFetching` 을 `loading` 으로 직결해 재조회마다 표가 스켈레톤이 된다. `useCrudList` 의 `firstLoading = isFetching && data === undefined` · `refreshing` 파생을 적용해야 한다 | 공용 골격(파트너사와 공유) | A11 change_request · A40 |
+| 2 | **COMP-10** | **P0** | 검색이 IME 조합을 보지 않는다 — 공용 `useDebouncedSearch` 대신 맨손 `setTimeout`(`LogoListPage.tsx:106-109`) | 공용 골격 | A11 change_request · A40 |
+| 3 | **A11Y-11** | **P0** | 필수 이름 입력이 AT 에 필수로 노출되지 않는다(`LogoFormModal.tsx:148`). DS `TextField` 로 이관하거나 속성을 명시해야 한다 | 공용 골격 | A11 change_request · A40 |
+| 4 | **IA-04** | **P0** | 페이지네이션·페이지 크기·목록 상한이 없어 전량이 한 표에 렌더된다. BE-021-EP-01 도 페이징 없는 전량 응답이다(BE-021 §7.4). **파트너사와 같은 결정 필수** | 공용 골격 · 계약 | A11 · A63 (BE-021) |
+| 5 | **IA-13** | **P0** | 검색어가 URL 에 직렬화되지 않는다. 공용 `useListState` 미사용 | 공용 골격 | A11 change_request · A40 |
+| 6 | **EXC-03** | **P0** | 등록·수정·삭제·토글 컨트롤에 권한 게이팅이 없다. `useRouteWritePermissions` 소비자가 **`apps/admin/src/pages` 전체에서 0건** | **앱 전역** | A11 change_request · A40 |
+| 7 | **EXC-04** | **P0** | 동시성 토큰 부재 + 어댑터가 없는 id 에 조용히 no-op resolve(`adapter.ts:48·53·63`) → **유령 '저장/삭제했습니다' 토스트**. BE-021 §7.5 가 서버측 404(`CLIENT_NOT_FOUND`) 계약을 정한다 | 공용 골격 · 계약 | A11 · A63 (BE-021) |
+| 8 | **EXC-08** | **P0** | 모달 제출에 동기 락·멱등키 없음(`LogoFormModal.tsx:88`) → 비멱등 POST 에 중복 등록이 열려 있다. 공용 `useCrudForm.ts:102·196` 의 `submitLockRef` 패턴 미적용 | 공용 골격 | A11 change_request · A40 |
+| 9 | **EXC-09** | **P0** | 노출 토글이 만든 `AbortController`(`LogoListPage.tsx:141`)를 어디서도 abort 하지 않아 `isAbort` 분기(`:152`)가 죽은 코드다 | 공용 골격 | A11 change_request · A40 |
+| 10 | FEEDBACK-04 / 06 경계 | P1 | dirty 모달 + 브라우저 Back/새로고침을 **어느 요구도 덮지 않는다**(§4.2) | 앱 전역(모달 폼 8종) | A11 change_request |
+| 11 | STATE-05 | P1 | 빈 상태가 '검색 결과 없음'과 '진짜 0건'을 구분하지 않는다(`LogoListTable.tsx:165`) | 공용 골격 | A11 change_request |
+| 12 | A11Y-13 | P1 | 검증 실패 포커스가 **언제나 이름**으로 간다(`LogoFormModal.tsx:130`) | 공용 골격 | A11 change_request |
+| 13 | EXC-06 / EXC-07 | P1 | 실패가 status 별로 갈리지 않고 422 `error.fields` 를 입력에 매핑하지 않는다 | 공용 골격 · 계약 | A11 · A63 (BE-021) |
+| 14 | EXC-10 | P1 | `settleAll` 이 실패 id 를 돌려주지 않아 재시도가 전원을 재전송하고(`bulk.ts:15-21`), 부분 실패 시 목록을 무효화하지 않아 화면이 stale(`queries.ts:84`) | 공용(`shared/bulk.ts`) + 골격 | A11 change_request · A40 |
+| 15 | EXC-18 | P1 | Shift-click 범위 선택·대량 임계값 confirm·진행률·취소 없음 | 공용(`useRowSelection`) + 골격 | A11 change_request |
+| 16 | EXC-20 | P1 | 5xx 실패에 복사 가능한 reference code 없음 | 앱 전역 | A11 · A40 |
+| 17 | EXC-05 / EXC-11 | P1 | 프론트 타임아웃 상한·오프라인 감지 전무 | **앱 전역** | A40 |
+| 18 | ERP-13 | P1 | 리터럴 조사 폴백('을(를)') — 시드 3건이 받침 유무가 섞여 있어 어느 폴백도 맞지 않는다 | **앱 전역** | A40 |
+| 19 | COMP-06 / COMP-09 | P2 | skeleton `length: 5` 하드코딩(시드 3건과 불일치 — `LogoListTable.tsx:94`) · 이름 셀 truncation 없음(`:29-32`) | 공용 골격 | A11 |
+| 20 | **도메인 경계** | — | **고객사 고유.** '고객사'/'파트너사' 를 구분하는 도메인 규칙이 없어 한 회사가 양쪽에 중복 등록될 수 있다(BE-021 §7.9 · FS-021 §7 #15) — quality-bar 밖 축 | 두 화면 · 계약 | A01 · A63 |
+| 21 | **숨김 항목 노출 통제** | — | **고객사 고유.** `active: false` 고객사가 고객 화면에 새지 않도록 하는 공개 API 계약이 없다(§4.3 · BE-021 §7.2·§7.7 #7) — quality-bar 밖 축 | 계약 | A63 · A01 |
+| 22 | 감사 로그 부재 | — | 고객 노출 콘텐츠의 변경 이력이 남지 않는다(§4.3) | 계약 | A63 (BE-021) |
+| 23 | 로고 `blob:` 저장 | — | 업로드 심 부재로 저장값이 `blob:` 이고 모달이 닫히는 순간 죽는다(§4.3 · BE-021 §7.1 · EP-07) — **기능 자체가 성립하지 않는다** | 공용 골격 · 계약 | A63 (BE-021) · A11 |
+
+## 6. 측정 도구 · 재현 스위치
+
+> **E2E 미실행 — 이 문서의 판정 근거는 코드 대조다.** 아래는 판정을 재현하려는 사람을 위한 스위치 목록이며, 실제 코드(`shared/crud/dev.ts`)에서 확인한 것만 적는다.
+
+**`?fail=` — 결정적 실패 재현** (`dev.ts:81-93`). 형식: `?fail=<op>` · `?fail=<scope>:<op>` · `?fail=all`(쉼표로 복수 지정 가능). generic `Error` 를 던진다.
+
+| scope | 이 화면의 값 | 근거 |
+|---|---|---|
+| `clients` | **고객사 전용** | `createLogoAdapter('clients', CLIENT_SEED)`(`clients/data-source.ts:36`) |
+| `partners` | 파트너사 — **이 화면에 영향 없음** | `createLogoAdapter('partners', PARTNER_SEED)`(`partners/data-source.ts:45`) |
+
+> **scope 를 붙이지 않은 `?fail=<op>` 은 두 화면 모두에 걸린다** — `failIfRequested` 가 `requested.includes(op)` 를 먼저 보기 때문이다(`dev.ts:90`). 고객사만 실패시키려면 반드시 `?fail=clients:<op>` 를 쓴다.
+
+| op | 걸리는 어댑터 함수 | 화면 효과 |
+|---|---|---|
+| `list` | `fetchAll`(`adapter.ts:34`) | FS-021-EL-008 조회 실패 배너 |
+| `save` | `create`(`:39`) · `update`(`:47`) · `setActive`(`:62`) — **셋이 같은 op 을 공유한다** | 모달 저장 실패 배너 / 토글 롤백 + retry 토스트 |
+| `delete` | `remove`(`:52`) | 다이얼로그 실패 배너 / 일괄 부분 실패 배너 |
+| `reorder` | `reorder`(`:57`) | 재정렬 롤백 + retry 토스트 |
+
+예: `/company/clients?fail=clients:save` (고객사 저장·토글만 실패) · `/company/clients?fail=list` (scope 무관 — 이 화면의 목록도 실패) · `?fail=all`.
+
+**`?status=` — HTTP status 재현** (`dev.ts:57-71·82-85`). 형식: `<target>:<code>` 에서 target 이 `all`\|`<op>`\|`<scope>:<op>` 다(`:64`). 재현 가능 code: **400 · 401 · 403 · 404 · 409 · 412 · 422 · 429 · 500**(`:27-37`). `HttpError` 를 던진다.
+
+예: `?status=save:409` · `?status=list:401`(전역 401 인터셉터 경로 — EXC-02) · `?status=clients:save:422`(EXC-07 재현) · `?status=all:500`(EXC-20 재현).
+
+**`?delay=` — 이 화면에 없다.** `shared/crud/dev.ts` 에 지연 스위치가 없다(`pages/dashboard/api.ts` · `pages/members/data-source.ts` 에만 존재). 이 화면의 지연은 상수 `LATENCY_MS = 400`(`dev.ts:12`)으로 고정이며 URL 로 바꿀 수 없다 — **STATE-01 의 quality-bar acceptanceCheck 가 제안하는 `?delay=3000` 을 이 화면에서는 쓸 수 없다.** 대신 §2 STATE-01 의 '토글 후 무효화' 절차로 재현한다.
+
+**코드 대조 grep** (판정 근거로 실제 사용한 것):
+- `grep -nE "#[0-9a-fA-F]{3,6}\b|[0-9]+px" pages/company/{logo-list,clients}/*` → 0건 (TOKEN-01)
+- `grep -rn "useRouteWritePermissions\|useRouteCan" pages/` → 0건 (EXC-03)
+- `grep -rn "isComposing\|compositionend" pages/company/logo-list/` → 0건 (COMP-10)
+- `grep -rn "useListState\|useSearchParams" pages/company/logo-list/` → 0건 (IA-13)
+- `grep -rn "aria-required\|required=" pages/company/logo-list/LogoFormModal.tsx` → `FormField required` 2건, input 속성 0건 (A11Y-11)
+- `grep -rn "AbortSignal.timeout\|navigator.onLine" apps/admin/src` → 0건 (EXC-05 · EXC-11)
+- `grep -n "controller" pages/company/logo-list/LogoListPage.tsx` → 토글의 `controller`(`:141`)에 `.abort()` 호출 없음 (EXC-09)
+
+## 7. 자기 점검
+
+- [x] quality-bar 요구 문구를 복제하지 않았다 — ID 참조 + '이 화면에서 어떻게' 만 썼다
+- [x] §2 P0 **30행 전수**, 순서가 quality-bar 지정 순서와 일치한다. 빈칸 0건
+- [x] **NFR-020 참조로 표를 비우지 않았다** — 30행을 고객사 근거·고객사 재현 절차로 완결했다. 공유 사실은 §1.1 이 설명한다
+- [x] 모든 `N/A`(3건)에 '표면이 왜 없는지' 사유를 달았다
+- [x] 모든 `pass`(7건)에 파일:라인 코드 근거가 있다
+- [x] 모든 `gap`(9건)에 재현 가능한 측정 기준이 있다
+- [x] §2.1 산수 검산 — 7 + 11 + 3 + 9 = 30 ✅
+- [x] `상속` 항목(11건)은 **이 화면의 어느 표면이 그 계약을 상속하는지**를 못 박고 판정을 소유 문서로 넘겼다
+- [x] §3 은 표면이 실재하는 P1·P2 만 담았다 + **고객사 고유 축(도메인 경계)** 을 추가했다
+- [x] §6 의 `?fail=` scope 를 `dev.ts`·`adapter.ts`·`clients/data-source.ts` 에서 실제로 확인했다(`'clients'`). **scope 없는 `?fail=<op>` 이 두 화면에 함께 걸린다는 사실**을 명시했다. **`?delay=` 는 이 화면에 없음**을 명시했다
+- [x] `LATENCY_MS = 400` 이 개발용 지연이며 예산이 아님을 §4.1 에 명시했다
+- [x] FS-021 §7 ↔ BE-021 §7.7 ↔ 이 문서 §5 의 이관 항목이 일치한다
+- [x] **파트너사(NFR-020)와의 공유 관계**를 §1.1·§2.1·§5 머리말에 명시해 '별개 결함 18건' 오독을 막았다
+- [x] E2E 를 실행하지 않았다 — 판정은 전부 코드 대조다
