@@ -39,7 +39,7 @@ date: 2026-07-17
 
 | 요구 ID | 차원 | 적용 | 이 화면에서의 충족 방식 (코드 근거) | 측정 기준 (재현 절차) | 판정 |
 |---|---|---|---|---|---|
-| STATE-01 | STATE | 직접 | **미충족.** `CustomerFaqPage.tsx:57` 이 `isFetching: loading` 으로 직결하고 `CustomerFaqTable.tsx:86` 이 그 `loading` 으로 5행 스켈레톤을 렌더한다. `placeholderData: (previous) => previous`(`:63`)가 이전 데이터를 캐시에 유지해도 **`isFetching` 이 true 라 표는 스켈레톤으로 덮인다**. 게다가 세 쓰기 전부 `onSettled` 에서 `invalidateQueries`(`:83`·`:112`·`:142`)를 불러 **토글·재정렬마다 재조회가 일어난다** → 데이터가 있는 상태의 재조회에서 표가 사라진다. 공용 `useCrudList` 는 이를 `firstLoading = isFetching && data === undefined` 로 이미 고쳤으나(`shared/crud/useCrudList.tsx:71`) 이 화면은 그것을 우회하고 자체 `useQuery` 를 쓴다 | 노출 토글을 1회 클릭 → 낙관 반영 직후 `invalidateQueries` 로 재조회가 시작되면 **표 6행이 5행 스켈레톤으로 바뀌었다가 돌아온다**. 요약 줄(`:201`)도 '불러오는 중…' 으로 건수를 덮는다. 기대: 재조회 중 이전 행 유지 + 가벼운 인디케이터만 | **gap** |
+| STATE-01 | STATE | 직접 | **충족(F3b 가 `isFetching` 직결을 끊었다).** 이 화면은 재정렬 때문에 공용 `useCrudList` 를 쓰지 않고 자체 `useQuery`(`CustomerFaqPage.tsx:55-59`)를 쓰지만, **그 자리에서 공유 훅과 글자까지 같은 파생을 둔다** — `:72` `const firstLoading = isFetching && data === undefined` · `:74` `const refreshing = isFetching && data !== undefined`(`:62-71` 주석이 '예전엔 isFetching 을 그대로 loading 이라 불러 표에 넘겼다 … placeholderData 로 이전 행을 들고 있으면서도 화면이 그 이득을 스스로 버리고 있던 셈'이라고 전환을 밝힌다. 정본은 `shared/crud/useCrudList.tsx:71-72`). 네 상태가 배타적이다: `CustomerFaqTable` 에 `loading={firstLoading}` 만 넘기고(`:219`) 표는 그 값으로만 5행 스켈레톤/빈상태/행을 가른다(`CustomerFaqTable.tsx:86`·`:96`·`:103`). 요약(`:210-212`)은 `firstLoading` 일 때만 '불러오는 중…' 이고, **재조회 중에는 `전체 N건 · 노출 M건` 을 유지한 채 `:213` 이 '· 새로고침 중…' 만 덧붙이며 `:209` `aria-busy={refreshing}` 로 AT 에도 알린다**. read 실패는 `:180-193` 이 Alert 로 가른다. **이것이 이 화면에 특히 중요했다** — 세 쓰기가 전부 `onSettled` 에서 `invalidateQueries` 를 부르므로(`:92`·`:121`·`:151`) **토글·재정렬마다 재조회가 일어난다**. 예전엔 그때마다 표가 자기 자신의 결과를 스켈레톤으로 덮었다 | 노출 토글을 1회 클릭 → 낙관 반영 직후 `invalidateQueries` 로 재조회가 시작되지만 **표 6행이 그대로 남고**(스켈레톤으로 바뀌지 않는다) 요약이 `전체 6건 · 노출 5건 · 새로고침 중…` 이 된다. 최초 진입에서만 5행 스켈레톤. `?fail=support-faq:list` → danger Alert 만 | pass |
 | STATE-02 | STATE | 직접 | `CustomerFaqPage.tsx:171-184` 이 `error !== null` 일 때 `Alert tone="danger"` + '다시 시도'(`refetch`) 를 인라인 렌더한다. 토스트가 아니고 빈 상태로 폴백하지 않는다 | `?fail=support-faq:list` 로 진입 → 인라인 danger Alert 1개 + '다시 시도' 버튼. error toast 0건. '다시 시도' 클릭 시 조회 재발행 | pass |
 | STATE-04 | STATE | N/A | **표면 없음** — 이 화면에 페이지네이션이 없고(전량 렌더) **행 선택도 없다**(`CustomerFaqTable.tsx:3` 이 '선택/삭제 열이 없다' 를 선언하고 표에 체크박스 열이 존재하지 않는다). clamp 대상 page 도, 해제할 `selectedIds` 도 없다 | — | n-a |
 | TOKEN-01 | TOKEN | 직접 | 이 화면의 style object 전량이 `var(--tds-*)` 만 참조한다 — `CustomerFaqPage.tsx:26-47`(space·색), `CustomerFaqTable.tsx:26-39`(space·색·font-weight). 하드코딩 hex 0건 · px 리터럴 0건 · border/outline 키워드 0건 | `pages/support/faq/**` 에 `#[0-9a-f]{3,6}` · `[1-9]px` · `(outline\|border): (thin\|medium\|thick)` grep = 0 | pass |
@@ -74,19 +74,21 @@ date: 2026-07-17
 
 | 판정 | 건수 | 요구 ID |
 |---|---|---|
-| pass | 5 | STATE-02 · TOKEN-01 · IA-01 · IA-02 · EXC-09 |
+| pass | **6** | **STATE-01** · STATE-02 · TOKEN-01 · IA-01 · IA-02 · EXC-09 |
 | 종속 | 10 | TOKEN-02 · TOKEN-03 · TOKEN-04 · TOKEN-05 · A11Y-01 · MOTION-02 · MOTION-03 · EXC-01 · EXC-02 · EXC-03 |
 | n-a | 12 | STATE-04 · COMP-10 · FEEDBACK-02 · FEEDBACK-04 · FEEDBACK-06 · A11Y-02 · A11Y-11 · A11Y-12 · MOTION-01 · IA-05 · IA-13 · EXC-04 |
-| **gap** | **3** | **STATE-01 · IA-04 · EXC-08** |
-| **합계** | **30** | 5 + 10 + 12 + 3 = **30** ✓ |
+| **gap** | **2** | **IA-04 · EXC-08** |
+| **합계** | **30** | 6 + 10 + 12 + 2 = **30** ✓ |
 
-> **P0 gap 3건 → quality-bar '배치 실패' 사유.** 그중 **STATE-01 이 이 화면의 핵심 결함**이다 — 큐레이션의 주 동작(토글·재정렬)이 매번 자기 자신의 결과를 스켈레톤으로 덮는다.
+> **`4b805ad` 재판정: P0 gap 이 3 → 2 로 줄었다.** 뒤집힌 1건은 **STATE-01** — F3b 가 `isFetching` 직결을 끊고 `CustomerFaqPage.tsx:72,74` 에 `firstLoading`/`refreshing` 파생을 넣었다. **이것이 이 화면의 핵심 결함이었다**: 큐레이션의 주 동작(토글·재정렬)이 전부 `onSettled` 무효화로 재조회를 유발하므로(`:92`·`:121`·`:151`) 예전엔 **매 조작마다 표가 자기 자신의 결과를 스켈레톤으로 덮었다**. 이제 낙관 반영된 행이 그대로 남고 요약에 '· 새로고침 중…' 만 붙는다. **P1 1건도 함께 pass**(STATE-03 — 같은 한 줄의 효과).
+>
+> **P0 gap 2건 → quality-bar '배치 실패' 사유.** 둘 다 이 화면 고유다 — **IA-04**(툴바 행·페이지네이션·상한 부재)와 **EXC-08**(토글 재진입 가드가 state 기반이라 동기 락이 아니다). EXC-08 은 F3b 가 `WriteContext.idempotencyKey`(`shared/crud/crud.ts:30-42`)와 `submitLockRef` 정본(`useCrudForm.ts:103`)을 만들어 뒀지만 **이 화면이 자체 `useMutation` 을 써 둘 다 물려받지 못했다** — '앱에 기능이 없다'가 아니라 '이 화면의 미소비'로 사유가 바뀌었다.
 
 ## 3. 이 화면에 걸리는 P1 · P2 (선별 — 표면이 실재하는 것만)
 
 | 요구 ID | P | 이 화면에서의 상태 | 측정 기준 | 판정 |
 |---|---|---|---|---|
-| STATE-03 | P1 | `placeholderData: (previous) => previous`(`:63`)로 캐시는 이전 데이터를 유지하나, 화면이 `isFetching` 으로 스켈레톤을 그려 **그 이득을 스스로 버린다**(STATE-01 과 같은 원인·같은 한 줄) | 토글 1회 → 재조회 중 이전 6행이 유지되고 가벼운 인디케이터만 표시되어야 하나, 5행 스켈레톤으로 대체된다 | gap |
+| STATE-03 | P1 | **해소됨(F3b).** `placeholderData: (previous) => previous`(`:58`)로 캐시가 이전 데이터를 유지하고, **이제 화면이 그 이득을 쓴다** — `:74` `refreshing = isFetching && data !== undefined` 를 파생해 `:209` `<p aria-busy={refreshing}>` + `:213` `{refreshing && ' · 새로고침 중…'}` 으로 **건수를 지우지 않고 가벼운 인디케이터만 덧붙인다**. 스켈레톤은 `firstLoading` 에만 걸린다(`:219`) | 토글 1회 → 재조회 중 이전 6행이 유지되고 요약이 `전체 6건 · 노출 5건 · 새로고침 중…` 이 된다 | pass |
 | STATE-05 | P1 | 빈 상태가 표 안의 단일 문구뿐이다 — '고객센터에 노출할 FAQ 가 없습니다.'(`CustomerFaqTable.tsx:99`). 공용 `Empty` 컴포넌트를 쓰지 않고(`CrudTable` 은 씀) 복구 CTA·일러스트가 없다. 다만 이 화면은 검색·필터가 없어 **3분기(진짜 빈/검색 0/필터 0) 중 '진짜 빈' 하나만 성립**한다 | 픽스처를 빈 배열로 → 문구 1줄만 표시되고 '콘텐츠 관리에서 FAQ 발행하기' 같은 복구 CTA 가 없다 | gap |
 | STATE-06 | P1 | 세 쓰기 전부 `onSettled` 에서 목록을 무효화한다(`:83`·`:112`·`:142`) — 자기 변경이 즉시 보인다. 다만 **정확한 무효화가 아니라 전량 재조회**이며, 그 재조회가 STATE-01 을 발현시킨다 | 토글 → 서버 상태로 정합됨(pass 방향). 그러나 무효화 대신 낙관 반영을 신뢰하면 재조회 자체가 불필요 | pass |
 | A11Y-16 | P1 | 표에 `aria-busy={loading}`(`CustomerFaqTable.tsx:66`)와 시각적 숨김 caption(`:67-70`)이 있고, 토글은 DS `ToggleSwitch`(`role="switch"`·`aria-checked`·`aria-busy`), 이동 버튼은 행별 고유 접근 이름(`<질문> 위로 이동`)을 갖는다. 드래그는 마우스 전용이나 **동등한 키보드 경로(이동 버튼)가 같은 순수 연산으로 귀결**한다. **그러나 목록 상태를 알리는 지속 live region 이 없다** — `CrudListShell.tsx:107-109` 가 가진 것을 이 화면은 갖지 않는다(자체 표를 쓰므로) | 스크린리더로 재정렬 → 순서가 바뀐 사실이 토스트로만 들리고 목록 상태(건수·결과) announce 가 없다 | gap |
@@ -97,7 +99,7 @@ date: 2026-07-17
 | EXC-14 | P1 | **충족.** 세 쓰기 모두 낙관 반영 + 스냅샷 롤백 + 실패 토스트(재시도 포함)로 짝지어져 있다 — 재정렬 `:90-104`(스냅샷 `:90`, 낙관 `:91`, 롤백 `:102`), 노출 `:118-133`, BEST `:148-165`. `onSettled` 무효화까지 3단이 갖춰졌다(`:83`·`:112`·`:142`). 비가역 create/delete 는 이 화면에 없어 낙관 적용 대상이 아니다 — **optimism 을 reversibility 에만 적용**한 정확한 사례다. 다만 공용 `useCrudRowUpdate` 로 통합돼 있지 않고 손복제다(3벌) | `?fail=support-faq:save` 로 토글 → 즉시 반영됐던 값이 **이전 값으로 롤백**되고 재시도가 붙은 실패 토스트. 롤백 안 된 낙관적 쓰기 0건 | pass |
 | MOTION-04 | P1 | 행 재정렬에 FLIP/layout motion 이 없다 — 순서가 즉시 스냅된다. 드래그 중 시각 피드백은 `useReorderableRows.rowStyle` 의 opacity 0.5 + 드롭 위치 강조선(DS `TableReorder.tsx:145-153`)뿐 | 이동 버튼 클릭 → 행이 애니메이션 없이 즉시 자리를 바꾼다 | gap |
 | COMP-06 | P2 | 스켈레톤 행 수가 `length: 5` 하드코딩(`CustomerFaqTable.tsx:87`)이며 실제 목록 길이(6건)와 다르다. 열 수는 `totalCols` 로 파생(`:63`)돼 정확하다 | 스켈레톤 5행 vs 실제 6행 — 로드 전후 표 높이가 튄다 | gap |
-| ERP-13 | P1 | 토스트 문구가 조사 헬퍼를 쓰지 않는다 — `'${faq.question}' 를 노출합니다.`(`:125`)는 받침과 무관하게 '를' 고정이다. '비밀번호를 잊어버렸어요**를** 노출합니다' 는 맞지만 받침으로 끝나는 질문이면 '**을**' 이어야 한다 | 질문이 받침으로 끝나는 행(`적립금은 어떻게 사용하나요?`)을 토글 → 조사 오류. 다만 리터럴 '을(를)' 형은 쓰지 않아 acceptanceCheck 의 grep = 0 은 만족 | gap |
+| ERP-13 | P1 | **잔존 — 그러나 사유가 바뀌었다.** 통합이 조사 헬퍼를 `shared/format.ts:269+` 로 승격했고(`objectParticle` `:306`) 앱 전역에서 **리터럴 '을(를)' 형은 0건**이라 요구의 마지막 문장('어떤 사용자 대상 문자열도 폴백형을 출하하지 않는다')은 충족이다. **그러나 이 화면은 그 헬퍼를 소비하지 않고 조사를 리터럴로 고정한다** — `CustomerFaqPage.tsx:134` `` `'${faq.question}' 를 노출합니다.` `` / `` `'${faq.question}' 를 숨겼습니다.` `` · `:165` `` `'${faq.question}' 를 BEST 로 고정했습니다.` ``. 받침으로 끝나는 질문이면 '**을**' 이어야 한다. **같은 섹션의 `support/downloads/DownloadListPage.tsx:118` 이 같은 패턴을 복제한다.** 대조: 같은 앱의 `portfolio/items/PortfolioListPage.tsx:91-92` 는 같은 토글 토스트를 `objectParticle(item.title)` 로 옳게 낸다 — **고칠 헬퍼가 이미 있고 선례도 있다** | 질문이 받침으로 끝나는 행(`적립금은 어떻게 사용하나요?` → 물음표로 끝나 한글 판정 불가 / `비밀번호를 잊어버렸어요` → 받침 없음 '요')과 받침으로 끝나는 질문을 각각 토글 → 조사 오류 관측. **리터럴 '을(를)' grep = 0 은 여전히 만족** — 이 gap 은 요구의 첫 문장('명사/이름을 interpolate 하는 모든 templated copy 를 헬퍼로 라우팅한다') 위반이다 | gap |
 
 ## 4. quality-bar 가 다루지 않는 축
 
@@ -138,10 +140,10 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | **STATE-01** | **P0** | `isFetching` 을 loading 으로 직결(`CustomerFaqPage.tsx:57`)해 **데이터가 있는 상태의 재조회마다 표가 5행 스켈레톤으로 바뀐다**(`CustomerFaqTable.tsx:86`). 토글·재정렬이 `onSettled` 무효화로 재조회를 유발하므로 **주 동작마다 발현**한다. 수정 방향: `useCrudList.tsx:71-72` 의 `firstLoading`/`refreshing` 파생을 그대로 채용 | 이 화면(동일 패턴이 5개 화면에 더 있다 — 브리핑 §3.1) | A41 |
+| ~~1~~ | ~~**STATE-01**~~ | ~~P0~~ | **해소됨(F3b)** — `CustomerFaqPage.tsx:72` `firstLoading = isFetching && data === undefined` · `:74` `refreshing = isFetching && data !== undefined` 를 파생하고 표에 `loading={firstLoading}` 만 넘긴다(`:219`). 요약(`:209-213`)은 건수를 유지한 채 '· 새로고침 중…' 만 덧붙이고 `aria-busy={refreshing}` 를 건다. **'동일 패턴이 5개 화면에 더 있다'고 적었던 화면들도 함께 고쳐졌다** — `CategoriesPage.tsx:176-178` · `PortfolioCategoriesPage.tsx:175-177` · `TicketListPage.tsx:163-165` 를 직접 확인했다 | — | — |
 | 2 | **IA-04** | **P0** | 툴바 행이 없고 페이지네이션·상한이 없어 발행 FAQ 전량을 한 화면에 렌더한다 | 이 화면 | A41 · A11(전량 렌더 결정) · A63(상한 — BE-029 §7.3) |
-| 3 | **EXC-08** | **P0** | 토글 재진입 가드가 state 기반이라 동기 락이 아니다(`:53`·`:116`) — 같은 틱의 두 번째 클릭이 중복 요청을 만든다. PATCH 가 멱등이라 피해는 제한적 | 이 화면 | A41 |
-| 4 | STATE-03 | P1 | 재조회 중 이전 행 유지 실패 — #1 과 동일 원인 | 이 화면 | A41 (#1 과 함께 해소) |
+| 3 | **EXC-08** | **P0** | 토글 재진입 가드가 state 기반이라 동기 락이 아니다(`:53`·`:125`·`:155`) — 같은 틱의 두 번째 클릭이 중복 요청을 만든다. PATCH 가 멱등이라 피해는 제한적. **F3b 가 정본과 자리를 만들어 뒀다** — `submitLockRef`(`useCrudForm.ts:103,201-203`, ref 라 렌더를 기다리지 않는다) · `WriteContext.idempotencyKey`(`crud.ts:30-42`). 이 화면은 자체 `useMutation`(`:118-122`·`:148-152`)을 써 둘 다 물려받지 못했고, 어댑터(`setCustomerFaqVisible`/`setCustomerFaqPinned`)도 `signal`·키를 받지 않는다 | 이 화면 | A41 |
+| ~~4~~ | ~~STATE-03~~ | ~~P1~~ | **해소됨(F3b)** — #1 과 같은 한 줄의 효과. 재조회 중 이전 행이 유지되고 요약에 `· 새로고침 중…` 만 덧붙는다(`:74`·`:209`·`:213`) | — | — |
 | 5 | STATE-05 | P1 | 빈 상태에 복구 CTA·`Empty` 컴포넌트 미사용 | 이 화면 | A41 |
 | 6 | A11Y-16 | P1 | 목록 상태 지속 live region 부재(`CrudListShell` 이 가진 것을 자체 표라 못 받는다) | 이 화면 | A41 |
 | 7 | — | — | **큐레이션 변경 감사 로그 부재**(§4.3) — 고객 노출에 직접 영향을 주는 조작의 이력이 없다 | 이 화면 · 백엔드 | A63 · A11 |
@@ -156,7 +158,7 @@ date: 2026-07-17
 
 ## 6. 측정 도구 · 재현 스위치
 
-> **E2E 미실행 — 이 문서의 판정 근거는 전부 코드 대조다.** 아래는 판정을 재현하려는 QA/구현자를 위한 스위치 목록이며, 각 값은 어댑터 코드에서 확인했다.
+> **E2E 미실행 — 이 문서의 판정 근거는 전부 `4b805ad`(2026-07-17) 코드 대조다.** 아래는 판정을 재현하려는 QA/구현자를 위한 스위치 목록이며, 각 값은 어댑터 코드에서 확인했다.
 
 | 스위치 | 이 화면에서 유효한 값 | 근거 |
 |---|---|---|
@@ -183,7 +185,8 @@ date: 2026-07-17
 - [x] 모든 `N/A` 에 사유를 적었다 (12건 — 전부 '표면 없음' 의 구체적 근거)
 - [x] 모든 `pass` 에 코드 근거(파일:라인)를 적었다
 - [x] 모든 `gap` 에 재현 가능한 측정 기준을 적었다
-- [x] §2.1 산수 검산 — 5 + 10 + 12 + 3 = **30** ✓
+- [x] §2.1 산수 검산 — 6 pass + 10 종속 + 12 n-a + 2 gap = **30** ✓
+- [x] **판정 기준일을 `2026-07-17 · HEAD = 4b805ad` 로 갱신하고 F3a·F3b·통합 이후 코드로 P0 30건을 전수 재확인했다.** 뒤집힌 P0 **1건**(STATE-01)을 pass 로 올리고 §2.1·§5 를 함께 갱신했다. **P1 1건도 pass 로 전환**(STATE-03). **ERP-13 은 여전히 gap 이다** — 조사 헬퍼가 `shared/format.ts:269+` 로 승격됐는데도 이 화면(`:134`·`:165`)이 조사를 리터럴 '를' 로 고정한다. 낙관적으로 pass 로 바꾸지 않았다
 - [x] §3 은 **표면이 실재하는** P1·P2 만 골랐다
 - [x] `LATENCY_MS = 400` 이 개발용 지연이며 예산이 아님을 §4.1 에 명시했다
 - [x] §6 의 `?fail=` scope(`support-faq`)·op(`list`·`save`)를 **어댑터 코드에서 확인**했고, `?delay=` 가 이 화면에 없음을 명시했다

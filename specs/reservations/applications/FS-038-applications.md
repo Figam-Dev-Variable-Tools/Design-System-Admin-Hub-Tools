@@ -8,7 +8,7 @@ reviewer: A64
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
-version: 1.0
+version: 1.1
 date: 2026-07-17
 ---
 
@@ -24,7 +24,8 @@ date: 2026-07-17
 | 포함 화면 | 목록 `/reservations/applications` · 상세(처리) `/reservations/applications/:id` |
 | 구현 경로 | `apps/admin/src/pages/reservations/applications/**` |
 | 대응 SCR | SCR-038 (미작성 — §7) |
-| 공통 컴포넌트 | `shared/ui/{Alert,Button,SearchField,SelectField,SeqCell,SeqHeaderCell,StatusBadge,Card,CardTitle,FormField,TextareaField,Timeline,ToastProvider,useUnsavedChangesDialog,ChevronLeftIcon}` · `shared/crud/{useCrudListQuery,useCrudUpdate,createCrudAdapter}` · `shared/useRowNavigation` · `shared/format` · `shared/async(isAbort)` |
+| 공통 컴포넌트 | `shared/ui/{Alert,Button,SearchField,SelectField,SeqCell,SeqHeaderCell,StatusBadge,Card,CardTitle,FormField,TextareaField,Timeline,ToastProvider,useUnsavedChangesDialog,ChevronLeftIcon}` · `shared/crud/{useCrudListQuery,useCrudUpdate,createCrudAdapter,**useListState**,**parseFilter**}` · `shared/useRowNavigation` · `shared/format`(`formatDateTime`·`formatNumber`·`directionParticle`) · `shared/async(isAbort)` |
+| 판정 기준일 | 2026-07-17 · `HEAD = 4b805ad` — **1.1 갱신**: F3b 가 `useListState`(URL 조회 상태 + IME 안전 검색)를 배선하고 `firstLoading` 파생을 넣었다 → §7 #3 닫힘 · NFR-038 의 STATE-01·COMP-10·IA-13 이 pass 로 뒤집혔다. 통합의 `findCoveringLeaf` 로 §7 #2 의 '브랜치 라벨' 절이 해소됐다(이중 h1 은 유지). **새 결함 1건 발견 — §7 #16**(종료 상태 안내의 하드코딩 조사) |
 
 > **생성·삭제가 없다.** 신청서는 고객이 제출한다 — 이 화면에 등록 버튼도, 삭제 경로도, 행 선택도, 일괄 작업도 없다(`ApplicationListPage.tsx` 전수 · `data-source.ts:3-4` 주석이 같은 판정). 처리는 **상태 전이 + 메모 저장(update)** 하나뿐이며 감사 성격상 삭제하지 않는다(`ApplicationDetailPage.tsx:4`).
 
@@ -44,11 +45,11 @@ date: 2026-07-17
 
 | 요소번호 | 영역 | 이름 | 유형 | 동작 | [서버] | 비고 |
 |---|---|---|---|---|---|---|
-| FS-038-EL-001 | FS-038-SEC-01 | 검색 입력 | 입력 | `SearchField`, 접근 이름 '신청번호·신청자·연락처 검색'. **디바운스 없이** 매 입력마다 `keyword` state 를 바꾸고, 이미 받아 둔 목록 배열을 **클라이언트에서** 걸러 낸다(`searchApplications` — 신청번호·신청자·연락처에 대소문자 무시·앞뒤 공백 제거 부분 일치). 서버를 재조회하지 않는다 | — | IME 조합 처리 없음 — §7 #3 |
+| FS-038-EL-001 | FS-038-SEC-01 | 검색 입력 | 입력 | `SearchField`, 접근 이름 '신청번호·신청자·연락처 검색'. **IME 조합이 끝난 뒤 250ms 디바운스로 커밋**되며(`useListState` → `useDebouncedSearch`), 커밋된 값은 **URL 의 `q`** 가 된다. 그 `keyword` 로 이미 받아 둔 목록 배열을 **클라이언트에서** 걸러 낸다(`searchApplications` — 신청번호·신청자·연락처에 대소문자 무시·앞뒤 공백 제거 부분 일치). 서버를 재조회하지 않는다 | — | **IME 조합 처리 있음**(조합 중 커밋 금지 + Enter 차단 — `ApplicationListPage.tsx:160`). 상태의 단일 원천은 URL(IA-13) |
 | FS-038-EL-002 | FS-038-SEC-01 | 상태 필터 select | 입력 | `SelectField`, 접근 이름 '상태로 거르기'. 옵션: '전체 상태' + 접수·검토중·승인·반려·완료. 선택값이 `ApplicationStatus` 가 아니면 '전체 상태'로 되돌린다(`isApplicationStatus` 타입가드). 클라이언트 필터(`filterApplications`) | — | 서버 재조회 없음 |
 | FS-038-EL-003 | FS-038-SEC-01 | 검색 × 상태 AND 조합 | 텍스트 | 두 축을 AND 로 겹쳐 적용한다 — 상태로 거른 결과에 키워드를 다시 건다(`searchApplications(filterApplications(data, filter), keyword)`) | — | 비표시 규칙 |
-| FS-038-EL-004 | FS-038-SEC-02 | 조회 요약 텍스트 | 텍스트 | 조회 중 '불러오는 중…', 그 외 `전체 N건`(`formatNumber`). **N 은 필터·검색을 적용한 뒤의 건수**이지 전체 신청 수가 아니다 | — | 라벨과 값이 어긋난다 — §7 #6 |
-| FS-038-EL-005 | FS-038-SEC-02 | 신청서 목록 표 | 표 | 컬럼: 순번 · 접수일시 · 신청번호 · 신청유형 · 신청자 · 상태 · 행 액션. `aria-busy={loading}`. caption(스크린리더 전용)이 행 클릭 규칙을 설명한다. **페이지네이션 없음 — 조회된 전량을 한 화면에 렌더**한다 | O | 정렬은 접수일시 내림차순 고정(`sortApplications`) |
+| FS-038-EL-004 | FS-038-SEC-02 | 조회 요약 텍스트 | 텍스트 | **최초 로드**(`firstLoading`)면 '불러오는 중…', 그 외 `전체 N건`(`formatNumber`). **재조회 중이면 `aria-busy` + '· 새로고침 중…'을 덧붙인다**(`ApplicationListPage.tsx:178-181`). **N 은 필터·검색을 적용한 뒤의 건수**이지 전체 신청 수가 아니다 | — | 라벨과 값이 어긋난다 — §7 #6 |
+| FS-038-EL-005 | FS-038-SEC-02 | 신청서 목록 표 | 표 | 컬럼: 순번 · 접수일시 · 신청번호 · 신청유형 · 신청자 · 상태 · 행 액션. `aria-busy={firstLoading}`(`ApplicationListPage.tsx:183` — 재조회 중에는 false). caption(스크린리더 전용)이 행 클릭 규칙을 설명한다. **페이지네이션 없음 — 조회된 전량을 한 화면에 렌더**한다 | O | 정렬은 접수일시 내림차순 고정(`sortApplications`) |
 | FS-038-EL-005.1 | FS-038-SEC-02 | 순번 셀 | 텍스트 | `SeqCell seq={index + 1}` — 화면에 보이는 행의 위치 | — | 페이지 오프셋 미반영 — §7 #5 |
 | FS-038-EL-005.2 | FS-038-SEC-02 | 접수일시 셀 | 텍스트 | `formatDateTime(item.submittedAt)`. `white-space: nowrap` + `tabular-nums` | — | — |
 | FS-038-EL-005.3 | FS-038-SEC-02 | 신청번호 셀 | 텍스트 | `item.code` — 'APP-YYYYMMDD-NNN' | — | 상호작용 없음 |
@@ -57,23 +58,23 @@ date: 2026-07-17
 | FS-038-EL-005.6 | FS-038-SEC-02 | 상태 배지 | 배지 | `StatusBadge`. 톤: 접수=neutral · 검토중=info · 승인=success · 반려=danger · 완료=success | — | 매핑은 이 화면 로컬 — §7 #7 |
 | FS-038-EL-005.7 | FS-038-SEC-02 | '상세' 버튼 | 버튼 | 접근 이름 `'<신청번호> 상세'`. 클릭 시 `/reservations/applications/<id>` 이동. **행 전체 클릭(FS-038-EL-005.8)과 목적지가 같다** — 키보드 사용자의 유일한 도달 경로이기도 하다 | — | DS `<Button>` 이 아니라 손조립 — §7 #4 |
 | FS-038-EL-005.8 | FS-038-SEC-02 | 행 전체 클릭 이동 | 텍스트 | 행 빈 영역 클릭 시 `/reservations/applications/<id>` 이동(`rowNavProps`). 텍스트를 드래그 선택 중이거나 행 안의 인터랙티브 요소(버튼 등)에서 난 클릭은 이동하지 않는다. `<tr>` 에 tabIndex 를 주지 않는다 — 마우스 보조 수단 | — | 비표시 규칙 |
-| FS-038-EL-006 | FS-038-SEC-02 | 목록 로딩 스켈레톤 | 스켈레톤 | 조회 중 표 본문을 **5행** 고정 스켈레톤으로 대체한다(행마다 7칸). 툴바는 계속 조작 가능 | — | 비표시. 행 수 고정 — §7 #5 |
+| FS-038-EL-006 | FS-038-SEC-02 | 목록 로딩 스켈레톤 | 스켈레톤 | **최초 로드에만**(`firstLoading = isFetching && data === undefined` — `ApplicationListPage.tsx:127`) 표 본문을 **5행** 고정 스켈레톤으로 대체한다(행마다 7칸). **재조회 중에는 뜨지 않는다** — 이전 행을 유지한다(`:129` `refreshing`). 툴바는 계속 조작 가능 | — | 비표시. 행 수 고정 — §7 #5 |
 | FS-038-EL-007 | FS-038-SEC-02 | 목록 빈 상태 | 빈상태 | 조회 완료·0건이면 표 본문 1칸에 '신청서가 없습니다.'. **검색·필터로 0건이 된 경우와 진짜 0건을 구분하지 않는다** — 검색 지우기·필터 초기화 액션이 없다 | — | 비표시. §7 #8 |
 | FS-038-EL-008 | FS-038-SEC-03 | 목록 조회 실패 배너 | 배너 | 조회 실패 시 **툴바·요약·표를 전부 대체**하고 위험 톤 Alert '신청서를 불러오지 못했습니다.' + '다시 시도'(`refetch`)만 남는다. 자동 소멸 안 함 | O | 실패 중에는 검색·필터를 조작할 수 없다 |
 | FS-038-EL-009 | FS-038-SEC-04 | 상세 '목록으로' 버튼(상단) | 버튼 | `<ChevronLeftIcon/>` + '목록으로'. 클릭 시 `/reservations/applications` 이동. dirty 면 FS-038-EL-020 이 가로챈다 | — | 좌상단 |
-| FS-038-EL-010 | FS-038-SEC-04 | 상세 페이지 제목 | 텍스트 | `<h1>신청서 처리</h1>`(`pageTitleStyle`). **AppHeader 도 동시에 `<h1>` 을 그리며 그 값은 '예약/신청 관리'(브랜치 라벨)다** | — | h1 2개 — §7 #2 |
+| FS-038-EL-010 | FS-038-SEC-04 | 상세 페이지 제목 | 텍스트 | `<h1>신청서 처리</h1>`(`pageTitleStyle` — `ApplicationDetailPage.tsx:191`). **AppHeader 도 동시에 `<h1>` 을 그리며 그 값은 `findCoveringLeaf` 가 준 '신청서' 다**(`nav-config.ts:269-279,297-299` — 1.0 이 적은 브랜치 라벨 '예약/신청 관리'가 **아니다**) | — | **h1 2개 — §7 #2**(제목이 틀린 것이 아니라 둘인 것이 결함) |
 | FS-038-EL-011 | FS-038-SEC-04 | 상세 로딩 표시 | 텍스트 | 상세 도착 전 카드 1장에 '불러오는 중…'. 스켈레톤이 아니라 텍스트 1줄 | — | 비표시 |
 | FS-038-EL-012 | FS-038-SEC-04 | 상세 조회 실패 배너 | 배너 | 조회 실패 시 본문 전체를 위험 톤 Alert '신청서를 불러오지 못했습니다. ' + '목록으로' 로 대체한다. **'다시 시도' 가 없다** — 재조회 수단이 없어 목록으로 나갔다 다시 들어와야 한다 | O | 404 와 5xx 를 구분하지 않는다 — §7 #9 |
 | FS-038-EL-013 | FS-038-SEC-04 | 신청 내용 카드 | 카드 | CardTitle = `applicationTypeLabel(type)` + 상태 배지(FS-038-EL-005.6 과 같은 톤 규칙) | O | — |
 | FS-038-EL-013.1 | FS-038-SEC-04 | 신청 기본 정보 | 표 | 정의 목록(`dl/dt/dd`): 신청번호 · 신청자 · **연락처** · 접수일시(`formatDateTime`) | O | 연락처는 픽스처에서 마스킹 표기 |
 | FS-038-EL-013.2 | FS-038-SEC-04 | 신청 유형별 커스텀 필드 | 표 | `application.fields` 의 `{label, value}` 쌍을 순서대로 `dt/dd` 로 잇는다. 신청 유형마다 항목이 다르다(견적='희망 품목/예상 인원/희망 예산' 등). 값은 텍스트로만 렌더 | O | 개수·라벨이 서버 데이터에 종속 |
 | FS-038-EL-014 | FS-038-SEC-05 | 처리 상태 select | 입력 | `FormField htmlFor="app-status" label="처리 상태"` + `SelectField`. 후보는 `statusChoices(application.status)` = **현재 상태 + 허용 전이만**(접수↦검토중·반려 / 검토중↦승인·반려 / 승인↦완료 / 반려·완료↦없음). 저장 중이거나 **종료 상태면 비활성**. 값이 `ApplicationStatus` 가 아니면 무시(타입가드) | — | 후보 축소가 유일한 전이 강제 수단 — §7 #10 |
-| FS-038-EL-015 | FS-038-SEC-05 | 종료 상태 안내 | 배너 | 현재 상태가 종료(반려·완료)면 정보 톤 Alert `'<상태>' 은 종료 상태라 더 이상 전이할 수 없습니다.` | — | 비표시(비종료 시) |
+| FS-038-EL-015 | FS-038-SEC-05 | 종료 상태 안내 | 배너 | 현재 상태가 종료(반려·완료)면 정보 톤 Alert `'<상태>' 은 종료 상태라 더 이상 전이할 수 없습니다.`(`ApplicationDetailPage.tsx:248-252`) | — | 비표시(비종료 시). ⚠ **조사 `은` 이 하드코딩돼 있는데 이 배너가 뜨는 두 상태('반려'·'완료')는 둘 다 받침이 없어 '는' 이 옳다 — 가능한 두 경우 모두 틀린 문장을 낸다** — §7 #16 |
 | FS-038-EL-016 | FS-038-SEC-05 | 처리 메모 textarea | 입력 | `TextareaField` '처리 메모', `maxLength=500`, placeholder '검토·승인·반려 사유 등 처리 내역을 기록하세요.', 4행. 저장 중 비활성. 저장 시 `trim()` | O | 필수 아님. 검증 스키마 없음 — §7 #11 |
 | FS-038-EL-017 | FS-038-SEC-05 | 저장 실패 배너 | 배너 | 저장 실패 시 카드 상단에 위험 톤 Alert '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'. 재저장 시 먼저 지운다. **취소(abort)는 실패로 보지 않는다**(`isAbort`) | O | 비표시. 실패 원인별 분기 없음 |
 | FS-038-EL-018 | FS-038-SEC-05 | 하단 '목록으로' 버튼 | 버튼 | secondary. 저장 중 비활성. 클릭 시 목록 이동(dirty 면 FS-038-EL-020 가 가로챈다) | — | — |
 | FS-038-EL-019 | FS-038-SEC-05 | '처리 저장' 버튼 | 버튼 | primary. 라벨 '저장 중…'/'처리 저장'. **`saving` 이거나 dirty 가 아니면 비활성**. 성공 시 토스트 '처리 내용을 저장했습니다.' + 상세 재조회. 실패 시 FS-038-EL-017 | O | **비가역 전이(반려·완료)에도 확인 다이얼로그가 없다** — §7 #1 |
-| FS-038-EL-020 | FS-038-SEC-06 | 처리 이력 타임라인 | 표 | `Timeline`, 접근 이름 '신청서 처리 이력'. `application.history` 를 `toTimelineEvents` 로 환산: 상태 배지(라벨·톤) · 시각 · 작성자(`by`) · 본문(메모가 비면 `'<상태>(으)로 변경'`) | O | 읽기 전용 |
+| FS-038-EL-020 | FS-038-SEC-06 | 처리 이력 타임라인 | 표 | `Timeline`, 접근 이름 '신청서 처리 이력'. `application.history` 를 `toTimelineEvents`(`types.ts:124-136`)로 환산: 상태 배지(라벨·톤) · 시각 · 작성자(`by`) · 본문(메모가 비면 `'<상태>로/으로 변경'` — **조사를 `directionParticle`(`shared/format.ts:321`)이 받침으로 고른다**(`types.ts:133`). 1.0 의 리터럴 `(으)로` 는 통합이 해소했다) | O | 읽기 전용 |
 | FS-038-EL-021 | FS-038-SEC-07 | 미저장 변경 가드 | 모달 | `dirty && !saving` 일 때 이탈 3경로(브라우저 unload · 앱 내 링크 · 뒤로/앞으로)를 가로채 discard 확인을 띄운다. 문구 '처리 내용에 저장하지 않은 변경이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.'. `dirty` = 상태 또는 메모가 로드값과 다름 | — | 비표시 |
 | FS-038-EL-022 | FS-038-SEC-05 | 처리 이력 덧붙임 규칙 | 텍스트 | **상태가 바뀐 경우에만** 이력에 한 칸을 덧붙인다(`appendHistory`) — 메모만 고쳤으면 이력은 그대로다. 새 칸은 **클라이언트가 만든다**: `id = '<신청id>-h<기존 길이+1>'` · `at = new Date().toISOString()`(브라우저 시각) · `by = '관리자'`(상수) · `note = 입력 메모의 trim()`. 그리고 **`history` 배열 전체**를 쓰기 바디에 실어 보낸다 | O | **감사 이력의 작성자·시각을 클라이언트가 정한다 — BE-038 §7.1 이 서버 정본을 요구한다** |
 | FS-038-EL-023 | FS-038-SEC-05 | 언마운트 abort | 텍스트 | 화면을 벗어나면 진행 중인 저장 요청을 abort 한다(`controllerRef` cleanup). abort 는 실패 배너·토스트를 띄우지 않는다 | — | 비표시 규칙 |
@@ -157,8 +158,8 @@ date: 2026-07-17
 | # | 내용 | 이관 대상 |
 |---|---|---|
 | 1 | **종료 상태(반려·완료)로의 전이가 비가역인데 확인 다이얼로그가 없다** — '처리 저장' 한 번이면 되돌릴 수 없다(`TRANSITIONS[rejected] = []`). 오조작 복구 수단이 화면에 없다 | A11 change_request (FEEDBACK-02 P0) |
-| 2 | 대응 SCR 문서 부재. 더해 상세 화면에 `<h1>` 이 둘이다 — AppHeader 가 브랜치 라벨 '예약/신청 관리'를, 본문이 '신청서 처리'를 그린다(`findNavLabel` 이 하위 라우트를 잎에서 못 찾아 브랜치로 폴백) | A11 / A01 / A40 (IA-02 P0) |
-| 3 | 검색에 IME 조합 처리·디바운스가 없다 — 한글 조합 중의 자모가 그대로 필터 조건이 된다('ㅎ' → '한' → '한빛'). 서버 왕복이 없어 요청 경합은 없지만, 공용 `useDebouncedSearch` 를 쓰지 않아 조합 중 결과가 튄다 | A11 change_request (COMP-10 P0) |
+| 2 | 대응 SCR 문서 부재. 더해 **상세 화면에 `<h1>` 이 둘이다** — AppHeader(`:101`)와 본문(`ApplicationDetailPage.tsx:191` '신청서 처리')이 각각 그린다. ⚠ **`4b805ad` 재확인 — 1.0 의 'AppHeader 가 브랜치 라벨 「예약/신청 관리」를 그린다(`findNavLabel` 이 잎에서 못 찾아 폴백)' 는 이제 틀렸다**: 통합이 `findNavLabel` 을 `findCoveringLeaf`(`nav-config.ts:269-279,297-299` — '자기를 감싸는 가장 긴 잎', 세그먼트 경계 매칭) 위에 얹어 **폴백을 없앴고**, `/reservations/applications/:id` 는 이제 **'신청서'** 를 받는다. **남은 결함은 이중 h1 하나** | A11 / A01 / A40 (IA-02 P0) |
+| ~~3~~ | ~~검색에 IME 조합 처리·디바운스가 없다~~ → **해소됨(F3b · `HEAD = 4b805ad`).** 이 화면이 `useListState` 를 소비하고(`ApplicationListPage.tsx:108`) 그 훅이 `useDebouncedSearch` 를 배선한다(`useListState.ts:24,227-230`). 입력창이 `{...list.searchInputProps}`(`:160`)로 `compositionstart/end` 와 조합 중 Enter 차단을 받으며, 조회에 들어가는 것은 커밋된 `keyword`(URL 의 `q`)뿐이다 — 조합 중 자모는 `searchInput` 에만 머문다 | **닫힘** — NFR-038 §2 COMP-10 = pass |
 | 4 | '상세' 버튼이 DS `<Button>` 이 아니라 `buttonStyle('secondary')` + `tds-ui-btn-secondary` 손조립이고, **행 전체 클릭과 목적지가 같아 중복**이다. 다만 이 버튼이 현재 **키보드 사용자의 유일한 상세 진입 경로**라 그냥 지우면 접근성이 깨진다 — 행 안 링크로 바꾸는 것이 정답 | A11 change_request (COMP-01 P1 · COMP-08 P2 · A11Y-08 P1 동시 해소) |
 | 5 | 스켈레톤 행 수가 `length: 5` 고정(실제 컬럼 수와도 무관하게 `COLUMN_COUNT + 1` 로 별도 계산)이고, 순번이 `index + 1` 이다. **페이지네이션이 없어 지금은 둘 다 재현 불가능한 잠복 결함**이다 — 페이지네이션을 넣는 순간 2페이지 순번이 1로 리셋된다 | A11 change_request (COMP-06 P2 · COMP-07 P2) |
 | 6 | 조회 요약이 '전체 N건'인데 N 은 **필터·검색 후** 건수다 — '전체'라는 낱말과 값이 어긋난다 | A11 change_request (ERP-06 P1) |
@@ -171,3 +172,4 @@ date: 2026-07-17
 | 13 | 세션 만료 리다이렉트가 dirty 한 처리 입력을 버린다 — 앱이 programmatic 이동을 하므로 FS-038-EL-021 가드가 발화하지 못한다 | A11 · A40 (EXC-19 P1) |
 | 14 | 감사 이력의 작성자·시각·id 를 클라이언트가 만들고 `history` 배열 전체를 쓰기 바디에 싣는다(FS-038-EL-022) — 서버 정본·위조 방지 계약이 필요하다 | A63 (BE-038 §7.1) |
 | 15 | 신청서에 **생성·삭제 경로가 없다**(고객이 제출, 감사 성격상 미삭제). 보존 기간·파기 정책이 이 화면 밖에서 정의돼야 한다 — 개인정보(신청자·연락처)를 담기 때문이다 | A63 (BE-038) · A01 |
+| 16 | **종료 상태 안내 문구의 조사가 하드코딩돼 항상 틀린다**(`4b805ad` 에서 새로 발견). `ApplicationDetailPage.tsx:250` 이 `` `'<상태>' 은 종료 상태라 더 이상 전이할 수 없습니다.` `` 로 조사 `은` 을 고정한다. 이 Alert 는 `terminal === true` 일 때만 뜨고(`:248`) 종료 상태는 `TRANSITIONS` 가 빈 배열인 **'반려'·'완료'** 둘뿐인데(`types.ts:105-106,119-121`) **둘 다 받침이 없어 옳은 조사는 '는'** 이다 — 즉 이 문장은 **가능한 두 경우 모두 틀린다**('반려 은' · '완료 은'). 통합이 `topicParticle` 을 `shared/format.ts:311` 로 승격해 두었고 같은 파일의 `toTimelineEvents`(`types.ts:133`)는 이미 `directionParticle` 을 쓴다 — **한 모듈 안에서 규칙이 갈렸다** | A11 change_request (ERP-13 P1 — NFR-038 §3) |

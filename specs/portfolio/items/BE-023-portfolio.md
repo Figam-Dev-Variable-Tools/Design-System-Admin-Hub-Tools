@@ -22,6 +22,7 @@ date: 2026-07-17
 | 프론트 어댑터 | `apps/admin/src/pages/portfolio/items/data-source.ts` (`createStoreAdapter` 로 `_shared/store.ts` 에 배선) |
 | 도메인 타입 | `apps/admin/src/pages/portfolio/_shared/store.ts` (`PortfolioItem` · `PortfolioItemInput` · `PortfolioCategory`) |
 | 검증 정본 | `apps/admin/src/pages/portfolio/items/validation.ts` (`portfolioSchema`) |
+| 판정 기준일 | **2026-07-17 · HEAD = `4b805ad`** (F3a·F3b·통합 머지 후). 이전 판정은 F2(`3cd3078`) 기준이었다 — §7.3 · §7.8 · §6 이 그 사이 바뀐 프론트 사실을 반영해 갱신됐다 |
 
 > **에러 봉투·권한 모델 상속**: BE-003 §2·§3 을 그대로 상속한다(BE-010 §2 와 동일 선언). 아래는 포트폴리오 고유 차이만 기술한다.
 
@@ -31,7 +32,7 @@ date: 2026-07-17
 - **권한**: `admin` = 전체. `operator` = 조회 계열만(목록·상세·분류 선택지), 쓰기(등록·수정·삭제·노출 토글) → 403. 포트폴리오 읽기 권한 없는 관리자 → 컬렉션 403 / 개별 404 은닉(BE-003 §3.2, §7.5).
 - **CSRF**: 쓰기(POST·PUT·DELETE)에 `X-CSRF-Token`.
 - **타임아웃**: 조회·쓰기 5초 → 504. **프론트에는 타임아웃 상한이 없다**(FS-023 §7 #22) — 서버 상한이 유일한 천장이다.
-- **프론트 역할 분기 없음**(FS-023 §4.1) — 쓰기 컨트롤이 권한과 무관하게 렌더되므로(FS-023 §7 #2) **권한 강제는 전적으로 서버 책임**이다. 프론트는 403 을 다른 실패와 같은 문구로 표시한다.
+- **프론트 역할 분기 없음**(FS-023 §4.1) — 이 화면의 쓰기 컨트롤이 권한과 무관하게 렌더되므로(FS-023 §7 #2 — `useRouteWritePermissions` 는 앱에 존재하고 7곳이 쓰지만 `pages/portfolio/**` 는 그 밖이다) **권한 강제는 전적으로 서버 책임**이다. 프론트는 403 을 다른 실패와 같은 문구로 표시한다. **프론트가 게이팅을 붙여도 이 책임은 줄지 않는다** — 클라이언트 게이팅은 UX 이지 보안 경계가 아니다.
 
 ## 3. 데이터 계약 (store.ts 대조)
 
@@ -168,7 +169,7 @@ date: 2026-07-17
 | 엔드포인트 | 400 검증 | 401 인증 | 403 vs 404 | 404 대상없음 | 409 충돌 | 422 상태위반 | 429 과부하 | 500 오류 | 타임아웃 |
 |---|---|---|---|---|---|---|---|---|---|
 | EP-01 목록 | N/A — 쿼리 파라미터가 없다 | 401 → 전역 인터셉터가 재인증 경로로. 화면은 FS-023-EL-009 배너 | **403** 컬렉션(존재는 비밀이 아니다) | N/A — 0건이면 200 빈 배열 → FS-023-EL-008 빈 상태 | N/A — 읽기 전용 | N/A — 상태 전이 없음 | 429 분당 120 | 500 + `traceId` → FS-023-EL-009 | 5초 → 504. **프론트 상한 없음**(FS-023 §7 #22) |
-| EP-02 상세 | id 형식 → 400 | 401 → FS-023-EL-015 | 읽기 권한 없음 → **404 은닉**(§7.5) | **404 `PORTFOLIO_NOT_FOUND`** → 셸의 '찾을 수 없습니다' + '목록으로'(재시도 없음). **현재 어댑터가 status 를 안 실어 이 분기가 죽어 있다** — §7.3 | N/A | N/A | 429 | 500 + `traceId` → '불러오지 못했습니다' + '다시 시도' | 5초 → 504 |
+| EP-02 상세 | id 형식 → 400 | 401 → FS-023-EL-015 | 읽기 권한 없음 → **404 은닉**(§7.5) | **404 `PORTFOLIO_NOT_FOUND`** → 셸의 '찾을 수 없습니다' + '목록으로'(재시도 없음). **F3b 이후 이 분기는 픽스처에서도 살아 있다** — `crud.ts:192-194` 가 `HttpError(404)` 를 던진다 | N/A | N/A | 429 | 500 + `traceId` → '불러오지 못했습니다' + '다시 시도' | 5초 → 504 |
 | EP-03 등록 | `title`·`categoryId`·`client`·`summary`·`date`·`coverImageUrl`·`imageUrls` → `error.fields`. **`blob:`/`data:` 이미지 URL 도 여기서 거절**(§7.2) | 401 → FS-023-EL-016 | **403** 컬렉션 쓰기 | N/A — 생성 | N/A — 생성에 충돌 없음(제목 유니크 제약을 두지 않는다 — §7.9) | **422 `CATEGORY_NOT_FOUND`** 존재하지 않는 `categoryId`(§7.5) | 429 분당 30 | 500 + `traceId` → FS-023-EL-016 배너 + 오류 참조 코드 | 5초 → 504 |
 | EP-04 수정·토글 | 위 + id 형식 | 401 → 폼은 FS-023-EL-016, 토글은 실패 토스트 | `operator` → **403** / 읽기 권한 없음 → **404** 은닉 | **404 `PORTFOLIO_NOT_FOUND`** — 존재한 적 없는 id | **409 `CONFLICT`** 동시 삭제·동시 수정(§7.3) → FS-023-EL-029 충돌 다이얼로그(입력 보존, 유령 저장 금지) | 422 `CATEGORY_NOT_FOUND` | 429 분당 60 | 500 + `traceId` → 폼 배너 / 토글 실패 토스트 | 5초 → 504 |
 | EP-05 삭제 | id 형식 | 401 → 다이얼로그 안 배너(FS-023-EL-010) | `operator` → **403** / 읽기 권한 없음 → **404** | 404 = 존재한 적 없는 id만. **이미 삭제는 204(멱등)** | N/A — DELETE 멱등 | N/A | 429 분당 60 | 500 → 단건 다이얼로그 배너 / 일괄은 부분 실패 건수(FS-023-EL-011) | 5초 → 504 |
@@ -180,16 +181,16 @@ date: 2026-07-17
 | data-source.ts 함수 | TODO(backend) | 엔드포인트 | 응답 | 일치 |
 |---|---|---|---|---|
 | `portfolioAdapter.fetchAll(signal)` | `GET /api/portfolio/items` | EP-01 | `PortfolioItem[]` | O |
-| `portfolioAdapter.fetchOne(id, signal)` | `GET /api/portfolio/items/:id` | EP-02 | `PortfolioItem` | **△ — 404 를 status 로 실어야 한다**(현재 generic Error) |
-| `portfolioAdapter.create(input, signal)` | `POST /api/portfolio/items` | EP-03 | `void`(201 본문 무시) | O |
-| `portfolioAdapter.update(id, input, signal)` | `PUT /api/portfolio/items/:id` | EP-04 | `void` | **△ — 404·409 를 던지지 않는다**(§7.3) |
-| `portfolioAdapter.remove(id, signal)` | `DELETE /api/portfolio/items/:id` | EP-05 | `void`(204) | **△ — 이미 삭제된 id 에 409 를 던지지 않는다**(§7.3) |
+| `portfolioAdapter.fetchOne(id, signal)` | `GET /api/portfolio/items/:id` | EP-02 | `PortfolioItem` | **O — 404 를 status 로 싣는다**(`crud.ts:192-194` `HttpError(HTTP_STATUS.notFound, …)`) |
+| `portfolioAdapter.create(input, { signal, idempotencyKey })` | `POST /api/portfolio/items` | EP-03 | `void`(201 본문 무시) | **O — 멱등키가 `WriteContext` 로 도달한다**(§7.8) |
+| `portfolioAdapter.update(id, input, { signal, idempotencyKey })` | `PUT /api/portfolio/items/:id` | EP-04 | `void` | **△ — 409(존재 검사)는 던지지만**(`crud.ts:219-221`) **동시성 토큰이 없다**(§7.3) |
+| `portfolioAdapter.remove(id, { signal })` | `DELETE /api/portfolio/items/:id` | EP-05 | `void`(204) | **O — 이미 삭제된 id 에 409 를 던진다**(`crud.ts:232-234`). ⚠ 계약(EP-05)은 **이미 삭제 = 204 멱등**이라 픽스처와 갈린다 — §7.3 |
 | `fetchPortfolioCategoryOptions(signal)` | `GET /api/portfolio/categories` | EP-06 | `PortfolioCategory[]` | O |
 | **(없음)** | **(없음)** | **EP-07 — 심 없음(미정)** | — | **X — 업로드 경로 부재**(§7.2) |
 
-**어댑터 본문 요구사항(시그니처 불변)**: 쓰기 함수 전부 `X-CSRF-Token` 헤더 · 모든 실패를 `HttpError(status, message, { violations, reference })` 로 변환(`shared/errors/http-error.ts` 가 이미 그 타입이다 — 화면의 404/409/422 분기가 전부 status 를 본다) · `fetchOne` 은 404 → `HttpError(404, …)` · 422 응답의 `error.fields` → `HttpError.violations`(그래야 `useCrudForm` 이 RHF `setError` 로 그 입력에 꽂는다) · 500 응답의 `error.traceId` → `HttpError.reference`(FS-023-EL-016 의 오류 참조 코드).
+**어댑터 본문 요구사항(시그니처 불변)**: 쓰기 함수 전부 `X-CSRF-Token` 헤더 · 모든 실패를 `HttpError(status, message, { violations, reference })` 로 변환(`shared/errors/http-error.ts` 가 이미 그 타입이다 — 화면의 404/409/422 분기가 전부 status 를 본다) · `fetchOne` 은 404 → `HttpError(404, …)` · 422 응답의 `error.fields` → `HttpError.violations`(그래야 `useCrudForm` 이 RHF `setError` 로 그 입력에 꽂는다) · 500 응답의 `error.traceId` → `HttpError.reference`(FS-023-EL-016 의 오류 참조 코드) · **`WriteContext.idempotencyKey` 를 `Idempotency-Key` 헤더로 전송**(자리는 이미 있다 — `crud.ts:39` 의 심).
 
-> **`createStoreAdapter` 가 `createCrudAdapter` 의 존재 검사를 상속하지 않는다.** `shared/crud/crud.ts:71`·`:82` 는 `update`/`remove` 에서 대상이 없으면 409 를 던지도록 F2 가 고쳤으나, **같은 파일의 `createStoreAdapter`(`:126`·`:131`)에는 그 검사가 없다** — 포트폴리오는 이쪽을 쓴다. §7.3.
+> **`createStoreAdapter` 가 존재 검사를 갖췄다 (F3b — 이전 판정 정정).** 예전엔 `createCrudAdapter` 만 409 를 냈고 `createStoreAdapter` 는 store 의 `map`/`filter` 에 위임해 없는 id 를 조용히 통과시켰다. 이제 `shared/crud/crud.ts:171` 의 `exists()` 가 세 곳을 막는다 — `fetchOne` 404(`:192-194`) · `update` 409(`:219-221`) · `remove` 409(`:232-234`). 포트폴리오가 이쪽을 쓴다. **어댑터 본문을 HTTP 로 바꿀 때 이 세 분기를 서버 응답으로 그대로 이어받으면 화면 코드는 0줄 바뀐다.** §7.3.
 
 ## 7. 핵심 판정
 
@@ -217,11 +218,13 @@ BE-010 §7.2 와 동일 판정: **서버가 저장 시(EP-03·EP-04) 정제**한
 
 ### 7.3 낙관적 동시성 — 토큰이 없다. 서버가 존재를 정본으로 판정한다 【정합 판정】
 
-**관측 사실 세 가지:**
+**관측 사실 세 가지 (⚠ 2번은 F3b 에서 뒤집혔다 — 정정한다):**
 
-1. `PortfolioItem` 에 `updatedAt`·`version` 이 **없다**(`_shared/store.ts:23-40`) → **If-Match/ETag 로 쓸 값이 없다**.
-2. `createStoreAdapter.update`/`remove`(`shared/crud/crud.ts:126`·`:131`)는 **대상 존재를 검사하지 않고** `store.updateItem`(`map`)·`store.removeItem`(`filter`)에 위임한다 → **없는 id 도 성공으로 resolve** 한다(유령 저장·유령 삭제). 같은 파일의 `createCrudAdapter`(`:71`·`:82`)는 F2 가 409 로 고쳤으나 포트폴리오가 쓰는 store 어댑터에는 그 검사가 없다.
-3. 화면은 **이미 409/412 를 처리할 준비가 돼 있다** — `useCrudForm` 이 `isConflict` 로 분기해 입력을 보존한 채 충돌 다이얼로그를 띄운다(FS-023-EL-029). 즉 **소비자는 있는데 생산자가 없다**.
+1. `PortfolioItem` 에 `updatedAt`·`version` 이 **없다**(`_shared/store.ts:23-40`) → **If-Match/ETag 로 쓸 값이 없다**. *(변함없음)*
+2. ~~`createStoreAdapter` 가 대상 존재를 검사하지 않는다~~ → **정정: 이제 검사한다.** F3b 가 `shared/crud/crud.ts:171` 에 `exists()` 를 넣고 `update` 없는 id → **409 `'다른 사용자가 먼저 삭제한 항목입니다.'`**(`:219-221`), `remove` 없는 id → **409 `'이미 삭제된 항목입니다.'`**(`:232-234`), `fetchOne` 없는 id → **404**(`:192-194`) 를 던지게 했다. **유령 저장·유령 삭제·404 미도달은 전부 해소됐다** — 아래 판정의 '존재 재확인 409' 는 이제 픽스처에서도 관측된다.
+3. 화면은 **이미 409/412 를 처리할 준비가 돼 있다** — `useCrudForm.ts:166-179` 가 `isConflict` 로 분기해 입력을 보존한 채 충돌 다이얼로그를 띄운다(FS-023-EL-029). **F3b 이후로는 생산자도 있다** — 소비자·생산자가 모두 성립하므로 이 계약은 프론트에서 검증 가능하다.
+
+**남은 결손은 하나다: 낙관적 동시성 토큰.** 409 는 **'대상이 아직 존재하는가'** 만 판정하므로 **둘 다 존재하는 동시 편집은 last-write-wins** 다. 이 구분을 흐리지 말 것 — 해소된 것은 '유령 저장'이고, 미해소인 것은 '토큰'이다.
 
 **판정:**
 
@@ -254,9 +257,13 @@ BE-010 §7.2 와 동일 판정: **서버가 저장 시(EP-03·EP-04) 정제**한
 
 EP-01 은 쿼리도 페이징도 없이 전량을 준다. 프론트에 페이지네이션·검색 표면이 없고(FS-023 §7 #3), 어댑터 시그니처가 `fetchAll(signal)` 이라 **파라미터를 실을 자리조차 없다**. 스키마를 미리 만드는 것은 지어내기다. **승격 트리거**: 항목 수가 실측 상한(예: 200건)을 넘거나 프론트에 페이지네이션이 들어오는 시점 — 그때 `page`·`size`·`categoryId` 쿼리와 `{ items, total }` 응답으로 바꾸고 어댑터 시그니처를 함께 넓힌다.
 
-### 7.8 멱등키 — 계약에 없다 (심 미완)
+### 7.8 멱등키 — 경로가 생겼다. 계약을 확정한다 (F3b — 이전 판정 정정)
 
-`useCrudForm.ts:112-117` 이 제출 시도 단위 키를 ref 에 만들지만 `:206` 이 **반환값을 버리고**, `CrudAdapter.create/update` 시그니처(`crud.ts:19-20`)에 키 파라미터가 없다. 즉 **`Idempotency-Key` 헤더가 나갈 경로가 없다**. EP-03 은 비멱등이며, 지금은 프론트의 동기 제출 락(`submitLockRef`)이 중복 제출을 막는 유일한 장치다 — 그것은 **한 탭 안에서만** 성립한다(네트워크 재전송·사용자의 새로고침 후 재제출은 못 막는다). 포트폴리오 등록은 금액·발송이 아니므로 중복의 대가가 '중복 항목 1건'이라 이 문서는 **비멱등으로 확정**하고, 키 전달 경로 승격을 §7.10 으로 이관한다.
+~~키가 생성되지만 전달 경로가 없다~~ → **정정**: F3b 가 `CrudAdapter.create/update` 시그니처에 `WriteContext`(`crud.ts:30-42`)를 넣어 **키가 앉을 자리를 만들었다**. 이제 `useCrudForm.ts:118-123` 의 `idempotencyKeyRef` 가 잡은 **제출 시도 단위** 키가 `:211` → `:228`·`:235`(mutation variables) → `crud.ts:288`·`:310`(`adapter.create/update(…, { signal, idempotencyKey })`) 로 **어댑터까지 도달한다**. 키를 mutationFn **밖**(variables)에 두는 이유가 `crud.ts:273-278` 에 적혀 있다 — 안에서 만들면 react-query 재시도마다 새 키가 생겨 서버가 두 요청을 별개 거래로 본다. `useCrudForm.ts:220` 은 **성공했을 때만** 키를 버린다.
+
+픽스처는 그 키로 서버를 흉내 낸다 — `createIdempotencyLedger()`(`crud.ts:62-72`)가 `isReplay`/`record` 를 제공하고 `createStoreAdapter` 가 `create`(`:201-203`)·`update`(`:208`)에서 그것을 통과시킨다. **기록은 적용에 성공한 뒤에만** 한다(`:55-60`: 미리 기록하면 실패한 첫 시도가 키를 태워 재시도가 영원한 no-op 이 되고, 사용자는 '저장했습니다'를 보지만 아무것도 저장되지 않는다).
+
+**계약 판정**: EP-03(등록)은 선택적 **`Idempotency-Key: <uuid>` 요청 헤더**를 받는다 — 심은 `crud.ts:39`(`TODO(backend): 이 값은 Idempotency-Key: <key> 요청 헤더로 나간다 (BE-004-EP-03)`). 같은 키의 재요청은 **재처리 없이 최초 응답을 재생**하고, 키 보존 창은 **24시간**(`pages/members/data-source.ts:243-253` 의 선례 심과 같은 값). 키가 없는 요청(노출 토글 — `useCrudRowUpdate.ts:45` 는 키를 싣지 않는다)은 평소대로 처리한다. 프론트의 동기 제출 락(`submitLockRef`)은 **한 탭 안**의 중복만 막으므로 — 네트워크 재전송·새로고침 후 재제출은 못 막는다 — 서버 측 키 처리가 그 구멍을 닫는다.
 
 ### 7.9 제목 유니크 제약을 두지 않는다
 
@@ -270,9 +277,10 @@ BE-010 §7.5 는 **카테고리명**에 유니크를 걸었다 — 필터·selec
 | 2 | 낙관적 동시성 토큰(`updatedAt`/`version` + `If-Match`) 승격 — 전체 치환 토글이 남의 수정을 되돌리는 시나리오(§7.3)를 412 로 흡수한다. **도메인 타입 변경이 선행돼야 한다** | A63 · A11 |
 | 3 | 노출 토글 전용 `PATCH /:id/visibility` 승격 — 프론트 어댑터에 전용 함수가 생길 때. §7.3 의 손실 시나리오를 근본에서 없앤다 | A63 · A11 |
 | 4 | 목록 페이징·필터·검색 쿼리 승격(§7.7) — 프론트 페이지네이션 도입과 동시 | A63 · A11 |
-| 5 | 멱등키 전달 경로(`Idempotency-Key`) — `CrudAdapter` 시그니처 확장 필요(§7.8) | A63 · A11 |
+| 5 | ~~멱등키 전달 경로~~ **— 해소됨(F3b)**: `WriteContext.idempotencyKey`(`crud.ts:30-42`)로 키가 어댑터에 도달한다. §7.8 이 이제 계약(헤더·24h 창·재생 규칙)을 **확정**한다 — 서버 구현만 남았다 | A63 |
 | 6 | 분류 선택지 조회 실패의 프론트 표면 부재(§7.6) — 서버가 고칠 수 없다 | A11 |
-| 7 | 어댑터가 모든 실패를 `HttpError(status, …)` 로 변환하도록 본문 교체(§6) — 특히 `fetchOne` 의 404, `update`/`remove` 의 409. 화면 분기는 이미 status 를 본다 | A63 · A11 |
+| 7 | 어댑터가 모든 실패를 `HttpError(status, …)` 로 변환하도록 본문 교체(§6) — **`fetchOne` 404 · `update`/`remove` 409 는 F3b 가 이미 픽스처에서 성립시켰다**(`crud.ts:192-194`·`:219-221`·`:232-234`). 남은 것은 `?fail=` 경로(`dev.ts` 가 status 없는 generic Error 를 던진다)와 422 `violations` 매핑이다 | A63 · A11 |
+| 9 | **EP-05 계약(이미 삭제 = 204 멱등) ↔ 픽스처(409) 불일치** — `createStoreAdapter.remove`(`crud.ts:232-234`)는 없는 id 에 409 를 던지는데 §4 EP-05 는 DELETE 를 멱등으로 정의한다. 백엔드 연결 시 **어느 쪽이 정본인지 확정해야 한다**(일괄 삭제의 부분 실패 건수 집계가 여기에 걸린다 — 이미 삭제된 항목이 '실패 1건'으로 세어지면 운영자에게 거짓 실패다) | A63 · A11 |
 | 8 | 프론트 타임아웃 상한 부재 — 서버 5초 상한이 유일한 천장이다(EXC-05) | A40 · A11 |
 
 ## 8. 자기 점검
@@ -281,7 +289,8 @@ BE-010 §7.5 는 **카테고리명**에 유니크를 걸었다 — 필터·selec
 - [x] 모든 엔드포인트가 FS 요소와 **`// TODO(backend)` 주석**을 역참조한다. **심에 없는 엔드포인트를 만들지 않았다** — 노출 토글 PATCH·일괄 삭제 벌크·이미지 업로드를 지어내지 않고 각각 §7.4 · §7.4 · EP-07(심 없음)으로 처리했다
 - [x] §5 예외 9축 빈칸 0건, 모든 `N/A`·'심 없음(미정)' 에 사유 (7행 × 9열)
 - [x] 에러 봉투·권한 모델을 BE-003 §2·§3 상속으로 선언, 재정의 안 함
-- [x] 멱등성 판정 — 조회 GET / 수정·삭제 멱등 / 등록 비멱등(§7.8)
+- [x] 멱등성 판정 — 조회 GET / 수정·삭제 멱등 / **등록은 선택적 `Idempotency-Key` 로 멱등화**(§7.8 — F3b 가 전달 경로를 만들어 계약을 확정할 수 있게 됐다)
+- [x] **`4b805ad`(2026-07-17) 코드로 재대조했다.** F2 기준의 판정 중 **§7.3 의 관측 사실 2번(유령 저장)·§7.8(멱등키 경로 부재)·§6 의 △ 3건**이 F3b 에서 뒤집혀 정정했다. **새 엔드포인트를 발명하지 않았다** — 여전히 6 엔드포인트 + 심 없음 1건이고, EP-07 은 '심 없음(미정)' 그대로다. 새로 발견한 **계약↔픽스처 불일치 1건**(EP-05 의 204 멱등 vs 어댑터 409)을 §7.10 #9 로 이관했다
 - [x] **보안 판정 2건 이상**: 저장형 XSS(§7.1) · 이미지 스킴 화이트리스트(§7.2) · 403/404 은닉 + 카테고리 참조 무결성(§7.5) · 정합 판정 동시성(§7.3)
 - [x] 서버 코드·저장소 설계·정제 라이브러리를 지정하지 않았다 — 관측 동작만 정했다
 - [x] FS-023 §7 ↔ 이 문서 §7.10 ↔ NFR-023 §5 의 이관 항목을 일치시켰다

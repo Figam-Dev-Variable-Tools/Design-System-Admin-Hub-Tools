@@ -159,7 +159,7 @@ CEO 인사말 3필드는 **관리자 입력이며 고객 인사말 페이지에 
 
 **(a) 보안**: `photoUrl` 은 고객 화면의 `<img src>` 로 나간다. 프론트 검증이 `z.string()`(`validation.ts:16`) 이라 **어떤 문자열도 통과한다**. `shared/crud/validation.ts:22` 의 `optionalHttpUrl()` 헬퍼가 **이미 있고** `company/logo-list` 는 그것을 쓴다 — 이 화면과 회사 정보만 무방비다.
 
-**(b) 정합**: 업로드 심이 없어(§4 BE-016-EP-03) 저장되는 값이 `blob:` 인 경우가 **정상 경로에서 발생한다.** `ceo-message.test.ts:42-46` 이 `data:image/png;base64,xx` 통과를 **테스트로 고정**하고 있어 프론트만 고쳐서는 회귀가 난다.
+**(b) 정합**: 업로드 심이 없어(§4 BE-016-EP-03) 저장되는 값이 `blob:` 인 경우가 **정상 경로에서 발생한다.** **⚠ 이것은 프론트의 결함이 아니라 '알려진 빚(known debt)'이며, 서버 계약을 세울 때 그렇게 읽어야 한다** — `ImageUploadField` 에는 URL 을 칠 입력이 없어 사용자 조작으로 도달 가능한 값이 `blob:…` 과 빈 문자열뿐이고, 프론트가 http(s) 를 강제하면 **회사 관리 5개 폼이 제출 불가**가 된다(근거 전문: `shared/crud/validation.ts` 의 `requiredImage` 주석). 그래서 **깨질 것을 아는 채로 통과시키고** 테스트가 그 상태를 못 박는다 — `pages/company/certificates/certificates.test.ts:106-107` · `logo-list/logo-list.test.ts:98-99` · `profile/profile.test.ts:71` 이 전부 `TODO(backend): POST /api/uploads 가 붙으면 이 단언은 뒤집힌다(blob: 거절)` 를 달고 있다. **즉 프론트는 EP-03 이 붙는 순간 조일 준비가 되어 있고, 아래 화이트리스트 계약과 충돌하지 않는다.** (이 화면의 `photoUrl` 은 `ceoMessageSchema` 가 형식을 강제하지 않아 `data:` 도 통과한다 — `ceo-message.test.ts:42-46`.) `ceo-message.test.ts:42-46` 이 `data:image/png;base64,xx` 통과를 **테스트로 고정**하고 있어 프론트만 고쳐서는 회귀가 난다.
 
 **판정**: EP-02 가 `photoUrl` 을 **스킴 화이트리스트로 검사**한다 — 빈 문자열 또는 `https://` + 허용 호스트만 통과, 그 외(`blob:`·`data:`·`javascript:`·`file:`·`http:`)는 **400 `VALIDATION_FAILED`**(`error.fields[].name = 'photoUrl'`). 업로드 엔드포인트가 정해지기 전에도 적용하는 **임시 방어**다: 조용히 저장됐다가 나중에 깨지는 실패를 **저장 시점의 명시적 거절**로 바꾼다. **서버 검사가 정본**이다(§7.7 이관 #1).
 

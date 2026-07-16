@@ -140,10 +140,10 @@ date: 2026-07-17
 // TODO(backend): GET/POST /api/company/certificates · GET/PUT/DELETE /api/company/certificates/:id
 ```
 
-현재 프론트는 `ImageUploadField` 가 `URL.createObjectURL(file)` 로 만든 **`blob:` URL 을 `imageUrl` 에 그대로 저장**한다(`ImageUploadField.tsx:160-163`). 파일은 어디로도 전송되지 않는다. 그 결과:
+현재 프론트는 `ImageUploadField` 가 `URL.createObjectURL(file)` 로 만든 **`blob:` URL 을 `imageUrl` 에 그대로 저장**한다(`ImageUploadField.tsx:178-181`). 파일은 어디로도 전송되지 않는다. 그 결과:
 
 1. 저장된 `imageUrl` 은 **그 탭·그 세션에서만** 유효하다.
-2. 컴포넌트가 언마운트되며 `URL.revokeObjectURL` 로 그 URL 을 **스스로 무효화한다**(`ImageUploadField.tsx:138-143`) — 저장 후 목록으로 돌아가는 순간 이미 깨져 있다.
+2. 컴포넌트가 언마운트되며 `URL.revokeObjectURL` 로 그 URL 을 **스스로 무효화한다**(`ImageUploadField.tsx:156-161`) — 저장 후 목록으로 돌아가는 순간 이미 깨져 있다.
 3. `certSchema` 의 `requiredImage`(`shared/crud/validation.ts:34-38`)는 **등록 여부만 검사하고 형식을 강제하지 않는다.** 단위 테스트가 이 사실을 계약으로 못 박았다 — `certificates.test.ts:95` 가 `imageUrl: 'blob:abc-123'` 의 `success === true` 를 단언한다. 즉 **`blob:` 통과는 버그가 아니라 현재의 명시적 계약이다** — 업로드 심이 없기 때문에.
 
 **따라서 백엔드 개발자가 정해야 하는 것**(§7.6 에서 판정):
@@ -235,7 +235,7 @@ BE-017 §7.4 와 동일 판정이다. `CertItem` 에 `updatedAt`·`version` 이 
 |---|---|---|---|
 | 1 | 업로드 방식 | (a) `POST /api/uploads` 멀티파트 → `{ url }` (b) presigned URL 2단계(`POST /api/uploads/sign` → 스토리지 직접 PUT → `url` 회신) | (b)가 앱 서버를 파일 트래픽에서 뺀다. 다만 `ImageUploadField` 가 2단계를 알아야 해 **DS 계약 변경 폭이 커진다**. 인증서 이미지는 5MB·저빈도라 **(a) 로 시작하고 필요 시 (b) 로 승격**을 권고 |
 | 2 | 응답 URL 의 형식 | `https://<cdn>/company/certificates/<uuid>.<ext>` | §7.5 의 화이트리스트와 정합해야 한다 — 서버가 발급한 도메인만 통과시킬 수 있다 |
-| 3 | 크기·타입 상한의 정본 | 서버가 정본. 프론트의 `image/*`·5MB(`ImageUploadField.tsx:19-25`)는 **UX 편의이며 우회 가능**하다 | 클라이언트 검증은 보안 경계가 아니다. 서버가 실제 바이트를 검사해야 한다(확장자·Content-Type 이 아니라 **매직 넘버**로) |
+| 3 | 크기·타입 상한의 정본 | 서버가 정본. 프론트의 `image/*`·5MB(`ImageUploadField.tsx:37-43`)는 **UX 편의이며 우회 가능**하다 | 클라이언트 검증은 보안 경계가 아니다. 서버가 실제 바이트를 검사해야 한다(확장자·Content-Type 이 아니라 **매직 넘버**로) |
 | 4 | SVG 허용 여부 | **불허 권고** | SVG 는 스크립트를 담을 수 있다(§7.5 `data:` 항목과 같은 이유). PNG·JPG·GIF 만 — 프론트 안내 문구도 이미 'PNG · JPG · GIF'다(`ImageUploadField.tsx:239`) |
 | 5 | 고아 파일 회수 | (a) 업로드 즉시 영구 저장 + 주기적 GC(참조 없는 자산 삭제) (b) 임시 업로드 → EP-03/EP-04 성공 시 커밋 | 등록을 취소하거나(FS-019-EL-020) 이탈 가드로 나가면 업로드된 파일이 참조 없이 남는다. **EP-05 삭제 시 연결 자산 처리도 여기서 함께 정한다**(§7.4 의 덮어쓰기 고아 포함) |
 | 6 | 업로드 타임아웃 | 조회·쓰기 5초와 **별도 상한**(예: 30초) | 5MB 업로드는 5초 안에 끝나지 않을 수 있다. BE-003 §3.4 의 내보내기(30초)와 같은 결 |

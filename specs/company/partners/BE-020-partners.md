@@ -46,8 +46,8 @@ date: 2026-07-17
 
 | 필드 | 규칙 | 위반 문구(프론트) |
 |---|---|---|
-| `name` | 앞뒤 공백 제거 후 1–60자(`requiredText('이름', 60)`) | '이름을(를) 입력하세요.' / '이름은(는) 60자를 넘을 수 없습니다.' |
-| `logoUrl` | **비어 있지 않기만** 확인(`requiredImage('로고')`) — **형식·스킴을 강제하지 않는다** | '로고을(를) 등록하세요.' |
+| `name` | 앞뒤 공백 제거 후 1–60자(`requiredText('이름', 60)`) | '이름을 입력하세요.' / '이름은 60자를 넘을 수 없습니다.' — **리터럴 폴백이 아니다**: `requiredText` 가 `objectParticle`/`topicParticle` 로 조사를 파생한다(`shared/crud/validation.ts:17,21,24` → `shared/format.ts:269+`) |
+| `logoUrl` | **비어 있지 않기만** 확인(`requiredImage('로고')`) — **형식·스킴을 강제하지 않는다(누락이 아니라 판정 — §7.1)** | '로고를 등록하세요.'(조사 받침 파생) |
 | `linkUrl` | 비면 통과, 채우면 `^https?://\S+$`(`optionalHttpUrl('링크 URL')`) | '링크 URL 은 http:// 또는 https:// 로 시작해야 합니다.' |
 
 ## 4. 엔드포인트 명세
@@ -85,7 +85,7 @@ date: 2026-07-17
 
 **바디**(`LogoInput`): `name`(1–60자) · `logoUrl`(비어 있지 않은 문자열 — **서버가 스킴을 검증해야 한다, §7.1**) · `linkUrl`(빈 문자열 또는 `http(s)://…`).
 
-**서버가 정하는 값**: `order` = 현재 최대 order + 1(목록 끝에 붙인다 — `nextLogoOrder`), `active` = `true`(신규는 기본 노출 — `adapter.ts:42-43` · `logo-list.test.ts:124-129`). **입력으로 받지 않는다.**
+**서버가 정하는 값**: `order` = 현재 최대 order + 1(목록 끝에 붙인다 — `nextLogoOrder`), `active` = `true`(신규는 기본 노출 — `adapter.ts:56-58` · `logo-list.test.ts:108-115`). **입력으로 받지 않는다.**
 
 **응답 201** — 생성 `LogoItem`. 프론트 `create(...): Promise<void>` 라 본문을 읽지 않고 목록을 무효화한다(계약상 본문을 내려도 무방).
 
@@ -108,7 +108,7 @@ date: 2026-07-17
 
 **동시성 (§7.5)**: `If-Match`/`updatedAt` 을 **보내지 않는다** — 마지막 쓰기가 이긴다.
 
-**에러**: 400 `VALIDATION_FAILED` · 401 · 403 · 403 CSRF · **404 `PARTNER_NOT_FOUND`**(§7.5 — 현재 프론트는 조용히 성공한다) · 422 `INVALID_IMAGE_URL` · 429 · 500 · 504.
+**에러**: 400 `VALIDATION_FAILED` · 401 · 403 · 403 CSRF · **404 `PARTNER_NOT_FOUND`**(§7.5 — 현재 프론트 픽스처는 같은 상황에 **409** 를 던지고, 화면은 그것을 generic 배너로 뭉갠다) · 422 `INVALID_IMAGE_URL` · 429 · 500 · 504.
 
 ---
 
@@ -163,7 +163,7 @@ date: 2026-07-17
 
 `// TODO(backend)` 주석에 **없다.** 프론트에 업로드 어댑터도, 업로드를 부르는 코드도 없다.
 
-현재 동작: `ImageUploadField`(`packages/ui/src/molecules/ImageUploadField/ImageUploadField.tsx:160`)가 선택한 파일을 `URL.createObjectURL(file)` 로 감싼 **`blob:` URL** 을 `onChange` 로 넘기고, 그 문자열이 `logoUrl` 로 그대로 EP-02/EP-03 바디에 실린다. 검증(`requiredImage`)이 비어 있지 않은지만 보므로 통과한다.
+현재 동작: `ImageUploadField`(`packages/ui/src/molecules/ImageUploadField/ImageUploadField.tsx:178-181`)가 선택한 파일을 `URL.createObjectURL(file)` 로 감싼 **`blob:` URL** 을 `onChange` 로 넘기고, 그 문자열이 `logoUrl` 로 그대로 EP-02/EP-03 바디에 실린다. 검증(`requiredImage`)이 비어 있지 않은지만 보므로 통과한다 — **그 관대함은 프론트의 의도된 빚이다**(§7.1).
 
 따라서 **업로드 엔드포인트·응답 URL 규약·용량/타입 서버 재검증·저장소 수명주기가 전부 미정**이다. §7.1 이 이 공백의 판정과 서버측 방어선을 정한다.
 
@@ -173,7 +173,7 @@ date: 2026-07-17
 |---|---|---|---|---|---|---|---|---|---|
 | EP-01 목록 | N/A — 쿼리 파라미터가 없다(§7.4) | 401 → 전역 인터셉터가 재인증. 화면은 FS-020-EL-008 | **403** 컬렉션(존재는 비밀이 아니다) | N/A — 0건이면 200 빈 배열 → FS-020-EL-007 | N/A 읽기 전용 | N/A — 상태 없음 | 429 분당 120 | 500 + `traceId` → FS-020-EL-008 | 5초 → 504 → FS-020-EL-008 |
 | EP-02 등록 | `name`·`logoUrl`·`linkUrl` → `error.fields`. 프론트는 필드 매핑 없이 FS-020-EL-009.1 배너(§7.7 #2) | 401 → FS-020-EL-009.1 | **403** 컬렉션 쓰기 | N/A — 생성 | N/A — 중복 이름을 막지 않는다(§7.8) | **422 `INVALID_IMAGE_URL`** 허용 스킴 밖 `logoUrl`(§7.1) | 429 분당 30 | 500 + `traceId` → FS-020-EL-009.1 | 5초 → 504 |
-| EP-03 수정 | 위 + id 형식 | 401 → FS-020-EL-009.1 | `operator` → **403** / 기업 관리 읽기 없음 → **404** | **404 `PARTNER_NOT_FOUND`** — 동시 삭제된 항목. **현재 프론트는 이 응답이 없어 유령 저장 토스트를 띄운다(§7.5)** | N/A — 낙관적 잠금 미도입, 마지막 쓰기 승리(§7.5) | 422 `INVALID_IMAGE_URL` | 429 분당 30 | 500 + `traceId` | 5초 → 504 |
+| EP-03 수정 | 위 + id 형식 | 401 → FS-020-EL-009.1 | `operator` → **403** / 기업 관리 읽기 없음 → **404** | **404 `PARTNER_NOT_FOUND`** — 동시 삭제된 항목. **프론트 픽스처는 F3b 이후 같은 상황에 409 를 던져 유령 저장을 막지만, 화면이 그 응답을 generic 배너로 뭉갠다(§7.5)** | N/A — 낙관적 잠금 미도입. **어댑터의 409 는 '존재 여부' 기반이라 둘 다 존재하는 동시 편집은 마지막 쓰기 승리**(§7.5) | 422 `INVALID_IMAGE_URL` | 429 분당 30 | 500 + `traceId` | 5초 → 504 |
 | EP-04 삭제 | id 형식 | 401 → 다이얼로그 배너(FS-020-EL-010.1) | `operator` → **403** / 읽기 없음 → **404** | 404 = 존재한 적 없는 id 만. **이미 삭제 204(멱등)** | N/A — DELETE 멱등 | N/A — 참조 무결성 제약 없음(§7.9) | 429 분당 60 | 500 → 단건 배너 / 일괄 부분 실패 건수(FS-020-EL-011.1) | 5초 → 504 |
 | EP-05 노출 토글 | `active` 형식·id | 401. 프론트는 롤백 + 재시도 토스트 | `operator` → **403** / 읽기 없음 → **404** | 404 `PARTNER_NOT_FOUND` → 롤백 + 재시도 토스트 | N/A — 멱등(목표 상태 세팅) | N/A | 429 분당 120 | 500 → 롤백 + 재시도 토스트(FS-020-EL-005.7) | 5초 → 504 |
 | EP-06 재정렬 | `orderedIds` 미존재 id · 중복 · 전체 구성 불일치 → 400 | 401. 프론트는 롤백 + 재시도 토스트 | `operator` → **403** | N/A — 대상은 목록 전체 | **동시 재정렬은 마지막 쓰기 승리**(§7.5) — 409 로 올리지 않는다 | N/A | 429 분당 60 | 500 → 롤백 + 재시도 토스트(FS-020-EL-005.10) | 5초 → 504 |
@@ -191,16 +191,18 @@ date: 2026-07-17
 | `partnersAdapter.reorder(orderedIds, signal?)` | `PUT /api/company/partners/reorder { orderedIds }` | EP-06 | `void` | O |
 | **없음** — `ImageUploadField` 가 `blob:` URL 을 만든다 | **없음** | EP-07 **심 없음(미정)** | — | **X — §7.1** |
 
-**어댑터 본문 요구사항(시그니처 불변)**: 쓰기 함수 전부 `X-CSRF-Token` 헤더 · `fetchAll` 은 `order` 오름차순을 서버가 보장하므로 클라이언트 재정렬(`sortByOrder`)을 지워도 된다 · `update`/`remove`/`setActive` 는 **404 를 던져야 한다**(현재 no-op resolve — §7.5) · 어댑터 팩토리(`createLogoAdapter`)는 `scope` 로 경로 베이스(`/api/company/${scope}`)를 파생할 수 있다 — 파트너사/고객사가 같은 본문을 공유하는 지점이다(BE-021 §6 동일).
+**어댑터 본문 요구사항(시그니처 불변)**: 쓰기 함수 전부 `X-CSRF-Token` 헤더 · `fetchAll` 은 `order` 오름차순을 서버가 보장하므로 클라이언트 재정렬(`sortByOrder`)을 지워도 된다 · `update`/`remove`/`setActive` 는 **404 를 던져야 한다**(현재 픽스처는 같은 자리에서 **409** 를 던진다 — `adapter.ts:40-44`. 방향은 같고 status 만 다르다. §7.5) · **멱등키를 실으려면 `LogoAdapter` 시그니처 변경이 필요하다**(현재 `create(input, signal?)` — `adapter.ts:16`. 공용 `CrudAdapter` 의 `WriteContext` 선례 — `crud.ts:30-42`) · 어댑터 팩토리(`createLogoAdapter`)는 `scope` 로 경로 베이스(`/api/company/${scope}`)를 파생할 수 있다 — 파트너사/고객사가 같은 본문을 공유하는 지점이다(BE-021 §6 동일).
 
 ## 7. 핵심 판정
 
 ### 7.1 로고 이미지 스킴 화이트리스트 — 서버가 거절해야 한다 【보안 판정】
 
-**관측 사실**: `logoUrl` 은 관리자 입력이 아니라 `ImageUploadField` 의 출력이지만, 그 출력이 **`blob:` URL** 이다(`ImageUploadField.tsx:160`). 프론트 검증 `requiredImage`(`shared/crud/validation.ts:34-38`)는 **비어 있지 않은지만** 보고 형식을 강제하지 않으며, 테스트가 이 관대함을 **명시적으로 단언**한다(`logo-list.test.ts:87` — `logoUrl: 'blob:abc-123'` 이 통과). 즉 서버가 받게 될 `logoUrl` 은 임의 문자열이다.
+**관측 사실**: `logoUrl` 은 관리자 입력이 아니라 `ImageUploadField` 의 출력이지만, 그 출력이 **`blob:` URL** 이다(`ImageUploadField.tsx:178-181`). 프론트 검증 `requiredImage`(`shared/crud/validation.ts`)는 **비어 있지 않은지만** 보고 형식을 강제하지 않으며, 테스트가 이 관대함을 **명시적으로 단언**한다 — `logo-list.test.ts:98-99` (`logoUrl: 'blob:abc-123'` → `success: true`). 즉 서버가 받게 될 `logoUrl` 은 임의 문자열이다.
+
+**⚠ 이 관대함은 프론트의 결함이 아니라 '알려진 빚(known debt)'이다 — 서버 계약을 세울 때 그렇게 읽어야 한다.** `ImageUploadField` 에는 URL 을 칠 입력이 없어 **사용자 조작으로 도달 가능한 값이 `blob:…` 과 빈 문자열뿐이고**, 프론트가 http(s) 를 강제하면 사용자가 그것을 만족시킬 방법이 없어 **회사 관리 5개 폼이 제출 불가**가 된다(근거 전문: `shared/crud/validation.ts` 의 `requiredImage` 주석). 그래서 **깨질 것을 아는 채로 통과시키고**, 테스트 이름과 주석이 그 상태를 못 박는다 — `logo-list.test.ts:96` 의 `TODO(backend): POST /api/uploads 가 붙으면 이 단언은 뒤집힌다(blob: 거절)` · `:90-97` 의 '이 단언을 설계로 읽지 말 것'. **즉 프론트는 EP-07 이 붙는 순간 조일 준비가 되어 있고, 아래 화이트리스트 계약과 충돌하지 않는다.** (같은 파일의 `linkUrl` 은 `optionalHttpUrl` 로 http(s) 를 **강제한다** — 사람이 칠 수 있는 값이기 때문이다. 두 필드의 규칙 차이는 일관성 부족이 아니라 **이음매의 유무**다.)
 
 **두 가지 결과**:
-1. **정합 파손(현재 확정)** — `blob:` URL 은 그 문서(탭)에서만 유효하고, `ImageUploadField` 는 언마운트 시 `URL.revokeObjectURL` 한다(`ImageUploadField.tsx:138-143`). 모달이 닫히는 순간 저장된 `logoUrl` 이 죽는다. 새로고침·다른 관리자·고객 화면에서는 처음부터 깨진 이미지다.
+1. **정합 파손(현재 확정)** — `blob:` URL 은 그 문서(탭)에서만 유효하고, `ImageUploadField` 는 교체·제거·언마운트 시 `URL.revokeObjectURL` 한다(`ImageUploadField.tsx:156-161,163-168`). 모달이 닫히는 순간 저장된 `logoUrl` 이 죽는다. 새로고침·다른 관리자·고객 화면에서는 처음부터 깨진 이미지다.
 2. **보안(서버가 막아야 함)** — `logoUrl` 은 고객 화면의 `<img src>` 로 나간다. 형식 제약이 없으면 `javascript:`·`data:text/html`·`vbscript:` 스킴이 저장될 수 있고, 렌더러가 이를 `<img>` 밖 컨텍스트(예: 링크·CSS `url()`·서버 사이드 템플릿)로 흘리면 **저장형 XSS** 가 된다. 프론트 검증은 우회 가능하므로(요청을 직접 만들면 그만) 방어선은 서버에 있어야 한다.
 
 **계약**: 서버는 `logoUrl` 을 **허용 스킴 화이트리스트로 검증**한다 — 업로드 응답으로 받은 자사 저장소 URL(`https://` 절대 URL 또는 서버가 발급한 상대 경로)만 허용하고, 그 밖의 스킴(`blob:`·`data:`·`javascript:`·`vbscript:`·`file:`)은 **422 `INVALID_IMAGE_URL`** 로 거절한다. 화이트리스트는 **거부 목록이 아니라 허용 목록**이어야 한다 — 스킴은 계속 생기고 거부 목록은 반드시 뒤처진다.
@@ -223,7 +225,9 @@ FS-020-EL-001 의 이름 검색은 **클라이언트 필터**이고(`filterLogos
 
 ### 7.5 참조 무결성 · 동시성 — 서버가 404 를 줘야 한다 【정합 판정】
 
-**관측 사실**: `createLogoAdapter` 의 `update`·`remove`·`setActive` 는 **없는 id 에 대해 조용히 no-op 하고 resolve** 한다 — `items.map(item => item.id === id ? … : item)`(`adapter.ts:48`) / `items.filter(item => item.id !== id)`(`adapter.ts:53`) / 같은 패턴(`adapter.ts:63`). 대상이 없으면 배열이 그대로일 뿐 아무도 실패하지 않는다. 그 결과 다른 관리자가 이미 지운 파트너사를 수정하면 프론트가 **유령 `'…' 을(를) 저장했습니다.` 토스트**를 띄우고 모달을 닫는다(quality-bar EXC-04 가 지목한 바로 그 시나리오다).
+**⚠ 관측 사실이 F3b 에서 바뀌었다 — 프론트가 이미 절반을 막는다.** 직전 판정은 `update`·`remove`·`setActive` 가 '없는 id 에 대해 조용히 no-op 하고 resolve' 한다고 적었으나, 그것은 이제 사실이 아니다: `createLogoAdapter` 는 `requireExisting(id, message)` 게이트를 갖고(`adapter.ts:40-44`) 없는 id 면 `throw new HttpError(HTTP_STATUS.conflict, …)` 한다 — `update`(`:63` — '다른 사용자가 먼저 삭제한 항목입니다.') · `remove`(`:69` — '이미 삭제된 항목입니다.') · `setActive`(`:80`). `adapter.ts:32-39` 주석이 그 판정을 기록한다('공용 CRUD 프레임워크의 두 팩토리가 같은 자리에서 같은 판정을 한다. 이 팩토리만 뚫려 있을 이유가 없다'). **유령 저장 토스트는 사라졌다.**
+
+**그러나 계약은 여전히 필요하다 — 두 가지 이유다.** ① **픽스처의 409 는 서버 계약이 아니다**: 그것은 프론트가 자기 배열을 보고 내는 것이고, 실제 백엔드가 붙으면 그 판정의 정본은 서버여야 한다. ② **프론트가 그 응답을 아직 쓰지 못한다**: `LogoFormModal.tsx:94-97` 의 `onError` 가 `isAbort` 만 거르고 나머지를 generic '저장하지 못했습니다…' 로 뭉개, **어댑터가 실어 보낸 정확한 문구가 그 자리에서 버려진다**(공용 `useCrudForm.ts:166-179` 는 같은 자리에 `isConflict` 분기를 갖는다). 즉 서버가 404 를 줘도 지금 화면은 그것을 구분해 보여 주지 못한다 — 계약과 프론트 수선이 함께 가야 한다(§7.7 #3).
 
 **계약**: 서버는 대상이 없으면 **404 `PARTNER_NOT_FOUND`** 를 반환한다(EP-03·EP-05). DELETE(EP-04)만 멱등성을 위해 204 를 준다.
 
@@ -233,7 +237,7 @@ FS-020-EL-001 의 이름 검색은 **클라이언트 필터**이고(`filterLogos
 
 EP-02 는 비멱등이고 `Idempotency-Key` 를 받지 않는다(`// TODO(backend)` 주석에 없다). 프론트도 동기 제출 락이 없어(FS-020 §7 #9 — `LogoFormModal.tsx:88` 의 `onValid` 는 `disabled={saving}` 에만 의존) **비활성 렌더 전의 빠른 재클릭이 두 건을 만든다**. 파트너사 등록은 돈이 걸린 작업이 아니라 중복분을 지우면 되지만, 중복 이름 제약도 없어(§7.8) 서버가 이를 걸러 낼 근거도 없다.
 
-**판정**: 이 배치에서 계약을 늘리지 않는다 — 옳은 수선은 **프론트의 `submitLockRef`**(공용 `useCrudForm.ts:102·196` 패턴)이며 서버 계약 없이 닫힌다. 다만 그것이 붙기 전까지 중복 등록은 열려 있다. §7.7 #2 로 이관한다.
+**판정**: 이 배치에서 계약을 늘리지 않는다 — 옳은 수선은 **프론트의 `submitLockRef`**(공용 `useCrudForm.ts:103,202-203` 패턴)이며 서버 계약 없이 닫힌다. 다만 그것이 붙기 전까지 중복 등록은 열려 있다. **⚠ F3b 가 멱등 ledger 를 공용 CRUD 두 팩토리(`createCrudAdapter`·`createStoreAdapter`)에 넣었지만**(`shared/crud/crud.ts:62-72` `createIdempotencyLedger`) **이 화면의 `createLogoAdapter` 에는 이식되지 않았다** — 그 팩토리의 `create(input, signal?)` 시그니처(`adapter.ts:16`)에 **키가 앉을 자리조차 없다**(공용 `CrudAdapter` 는 `WriteContext` 로 그 자리를 만들었다 — `crud.ts:30-42,47`). 즉 프론트 수선은 어댑터 시그니처 변경을 포함한다. §7.7 #2 로 이관한다.
 
 ### 7.7 후속 이관
 
@@ -244,7 +248,7 @@ EP-02 는 비멱등이고 `Idempotency-Key` 를 받지 않는다(`// TODO(backen
 | 3 | 수정·재정렬 동시성 — 마지막 쓰기 승리(§7.5). `updatedAt`/`If-Match` 승격 시 BE-021 과 동시 변경 | A63 · A11 |
 | 4 | 일괄 삭제가 실패 id 를 돌려받지 못해 재시도가 전원을 재전송한다(FS-020 §7 #10) — EP-04 의 멱등성이 피해를 흡수하지만 요청 수가 낭비되고 부분 실패 시 목록이 무효화되지 않아 화면이 stale 하다 | A11 · A40 |
 | 5 | 저장 실패가 status 별로 갈리지 않는다 — 422 `error.fields` 를 입력에 매핑하지 않는다(FS-020 §7 #6 · EXC-06/07) | A11 · A40 |
-| 6 | 로고 이미지 업로드 엔드포인트 부재(EP-07 · §7.1) — 저장값이 `blob:` 이라 현재도 깨진다 | A63 · A11 |
+| 6 | 로고 이미지 업로드 엔드포인트 부재(EP-07 · §7.1) — 저장값이 `blob:` 이라 현재도 깨진다. **프론트의 관대한 검증은 결함이 아니라 이 엔드포인트를 기다리는 '알려진 빚'이며**(§7.1), EP-07 이 붙는 순간 `requiredImage` 가 조여지고 `logo-list.test.ts:98-99` 의 단언이 뒤집힌다 | A63 · A11 |
 
 ## 8. 자기 점검
 

@@ -85,7 +85,7 @@ date: 2026-07-17
 
 **응답 200** — `EsgItem`. 프론트는 수정 폼을 채우는 데만 쓴다(읽기 전용 상세 화면이 없다 — FS-022 §1).
 
-**404 의 UX 가 다르다**: 어댑터가 `HttpError(404)` 를 던지면(`crud.ts:54-57`) `useCrudForm` 이 `loadFailure = 'not-found'` 로 갈라(`useCrudForm.ts:138-143`) **'다시 시도' 를 주지 않고** '목록으로' 만 제공한다(`FormPageShell.tsx:120-142`). 그러므로 **일시적 장애를 404 로 내리면 안 된다** — 그것은 영구 부재의 신호다.
+**404 의 UX 가 다르다**: 어댑터가 `HttpError(404)` 를 던지면(`crud.ts:54-57`) `useCrudForm` 이 `loadFailure = 'not-found'` 로 갈라(`useCrudForm.ts:144-149`) **'다시 시도' 를 주지 않고** '목록으로' 만 제공한다(`FormPageShell.tsx:120-142`). 그러므로 **일시적 장애를 404 로 내리면 안 된다** — 그것은 영구 부재의 신호다.
 
 **에러**: 400 `VALIDATION_FAILED`(id 형식) · 401 · 404 `NOT_FOUND` · 429 · 500 · 504.
 
@@ -186,8 +186,8 @@ date: 2026-07-17
 | 엔드포인트 | 400 검증 | 401 인증 | 403 vs 404 | 404 대상없음 | 409 충돌 | 422 상태위반 | 429 과부하 | 500 오류 | 타임아웃 |
 |---|---|---|---|---|---|---|---|---|---|
 | EP-01 목록 | N/A — 쿼리 파라미터가 없다(§4 EP-01) | 401 → 전역 인터셉터(`queryClient.ts:37-39`)가 재인증 경로로 | 기업 도메인 읽기 권한 없음 → **403** 컬렉션(BE-003 §3.2 원칙 1) | **N/A — 0건이면 200 `[]`** → FS-022-EL-008 빈 상태 | N/A — 읽기 전용 | N/A — 조회에 상태 전이 없다 | 429 분당 120 → FS-022-EL-009 배너(`Retry-After` 무시 — 프론트에 백오프 없음) | 500 + `traceId` → FS-022-EL-009 배너. **문구가 403/500 을 구분하지 않는다**(§7.12) | 5초 → 504 → FS-022-EL-009 배너 |
-| EP-02 상세 | id 형식 → 400 | 401 → 재인증 경로 | 기업 도메인 읽기 권한 없음 → **404 은닉**(§7.7) | 404 `NOT_FOUND` → FS-022-EL-014 의 **not-found 화면**('목록으로'만, 재시도 미제공 — `useCrudForm.ts:138-143`) | N/A — 읽기 전용 | N/A | 429 → FS-022-EL-014 의 error 화면 | 500 + `traceId` → FS-022-EL-014 의 error 화면('다시 시도'+'목록으로') | 5초 → 504 → error 화면 |
-| EP-03 등록 | `category`·`title`·`summary`·`date`·`imageUrls` → `error.fields` → FS-022-EL-014.2 generic 배너(**400 은 프론트가 인라인으로 꽂지 않는다** — `useCrudForm.ts:176` 은 422 만 본다 · §7.13) | 401 → 재인증. **편집 중 입력 손실**(FS-022 §4.1) | **403** 컬렉션 쓰기(`operator`) | N/A — 생성 | N/A — 생성에 충돌 대상이 없다 | **422 `UNPROCESSABLE`** + `error.fields` → **그 입력의 인라인 에러 + 첫 위반 필드 포커스**(`useCrudForm.ts:176-186`) | 429 분당 30 → FS-022-EL-014.2 배너 | 500 + `traceId` → FS-022-EL-014.2 배너 + **참조 코드 표시**(`FormFeedback.tsx:44`) | 5초 → 504 → FS-022-EL-014.2 배너 |
+| EP-02 상세 | id 형식 → 400 | 401 → 재인증 경로 | 기업 도메인 읽기 권한 없음 → **404 은닉**(§7.7) | 404 `NOT_FOUND` → FS-022-EL-014 의 **not-found 화면**('목록으로'만, 재시도 미제공 — `useCrudForm.ts:144-149`) | N/A — 읽기 전용 | N/A | 429 → FS-022-EL-014 의 error 화면 | 500 + `traceId` → FS-022-EL-014 의 error 화면('다시 시도'+'목록으로') | 5초 → 504 → error 화면 |
+| EP-03 등록 | `category`·`title`·`summary`·`date`·`imageUrls` → `error.fields` → FS-022-EL-014.2 generic 배너(**400 은 프론트가 인라인으로 꽂지 않는다** — `useCrudForm.ts:176` 은 422 만 본다 · §7.13) | 401 → 재인증. **편집 중 입력 손실**(FS-022 §4.1) | **403** 컬렉션 쓰기(`operator`) | N/A — 생성 | N/A — 생성에 충돌 대상이 없다 | **422 `UNPROCESSABLE`** + `error.fields` → **그 입력의 인라인 에러 + 첫 위반 필드 포커스**(`useCrudForm.ts:182-192`) | 429 분당 30 → FS-022-EL-014.2 배너 | 500 + `traceId` → FS-022-EL-014.2 배너 + **참조 코드 표시**(`FormFeedback.tsx:44`) | 5초 → 504 → FS-022-EL-014.2 배너 |
 | EP-04 수정 | 위 + id 형식 | 401 → 재인증 | `operator` → **403** / 읽기 권한 없음 → **404 은닉**(§7.7) | **404 를 쓰지 않는다** — 대상 부재는 409 다(§7.11). 서버가 404 를 내리면 충돌 UI 가 죽는다(§4 EP-04) | **409 `CONFLICT`** 대상 삭제됨 → FS-022-EL-014.4 **충돌 다이얼로그**(입력 보존·이동 없음). 412 도 같은 UX(`http-error.ts:105-107`) | **422** → 인라인 필드 에러 + 포커스 | 429 분당 30 | 500 + `traceId` → 배너 + 참조 코드 | 5초 → 504 → 배너 |
 | EP-05 삭제 | id 형식 | 401 → 재인증. 다이얼로그 안 배너로도 보인다 | `operator` → **403** / 읽기 권한 없음 → **404 은닉** | **404 를 쓰지 않는다** — 이미 삭제는 409 다(§7.11) | **409** 이미 삭제됨 → 단건은 다이얼로그 안 배너(FS-022-EL-015) / 일괄은 실패 건수에 포함(FS-022-EL-016) | N/A — 삭제에 상태 전이가 없다(승인 대기 등의 lifecycle 이 이 도메인에 없다) | 429 분당 60 — **일괄이 항목당 개별 요청이라 여기 걸릴 수 있다**(§7.1) | 500 → 단건 다이얼로그 배너 / 일괄 부분 실패 건수 | 5초 → 504 → 같은 자리 |
 | EP-06 이미지 업로드 | N/A — 심 없음(미정) | N/A — 심 없음 | N/A — 심 없음 | N/A — 심 없음 | N/A — 심 없음 | N/A — 심 없음 | N/A — 심 없음 | N/A — 심 없음 | N/A — 심 없음 |
@@ -207,7 +207,7 @@ date: 2026-07-17
 
 **어댑터 본문 요구사항(시그니처 불변)**: `esgAdapter` 의 타입은 `CrudAdapter<EsgItem, EsgInput>`(`crud.ts:16-22`)이다 — `fetchAll(signal)` · `fetchOne(id, signal)` · `create(input, signal?)` · `update(id, input, signal?)` · `remove(id, signal?)`. 백엔드 연결 시 **`createCrudAdapter({...})` 호출을 손으로 짠 어댑터로 교체**하면 되고 `EsgListPage`·`EsgFormPage` 는 한 줄도 바뀌지 않는다. 요구사항:
 
-- 쓰기 3종에 `X-CSRF-Token` 헤더. `create`·`update` 에 `Idempotency-Key`(§7.10 — `useCrudForm.ts:112-117` 이 이미 키를 만들지만 **어댑터가 그것을 받지 않는다**, §7.10)
+- 쓰기 3종에 `X-CSRF-Token` 헤더. `create`·`update` 에 `Idempotency-Key`(§7.10 — `useCrudForm.ts:118-123` 이 이미 키를 만들지만 **어댑터가 그것을 받지 않는다**, §7.10)
 - `fetchOne` 은 404 를 **`HttpError(404, ...)` 로** 변환해야 한다 — generic `Error` 면 `isNotFound`(`http-error.ts:97-99`)가 false 라 not-found 화면이 죽는다
 - `update` 는 409/412 를 **`HttpError`** 로 변환해야 한다 — 같은 이유로 충돌 다이얼로그가 죽는다
 - 5종 전부 `signal` 을 fetch 에 그대로 넘겨 abort(FS-022-EL-014.6)를 유지한다
@@ -267,7 +267,7 @@ EP-01 은 페이징 파라미터가 없고(`fetchAll(signal)`) `EsgItem` 전 필
 `EsgItem` 에 `createdAt`/`updatedAt`/`createdBy`/`updatedBy` 가 없다(§3). ESG 활동은 **고객에게 공개되는 대외 발표**이며 누가 언제 무엇을 바꿨는지가 남아야 하는 성질이다(잘못된 ESG 공시는 기업 리스크다). 지금은 화면이 그 필드를 요구하지 않으므로 **계약에 넣지 않되**, 서버측 감사 로그(요청 단위)는 이 계약과 별개로 반드시 필요하다고 기록한다. 화면에 '최종 수정' 열/필드를 노출하려면 FS 변경이 선행된다 — §7.14.
 
 ### 7.10 멱등키 — 프론트가 만들지만 어댑터가 받지 않는다 【정합 판정】
-`useCrudForm.ts:112-117` 의 `idempotencyKeyRef` 는 **제출 시도 단위로** 키를 만들고(mutationFn **밖**에서 — 재시도가 같은 키를 재사용하도록), 성공하면 폐기한다(`:214`). 주석(`:110`)이 `TODO(backend): 이 키는 Idempotency-Key 헤더로 나간다` 라고 명시한다.
+`useCrudForm.ts:118-123` 의 `idempotencyKeyRef` 는 **제출 시도 단위로** 키를 만들고(mutationFn **밖**에서 — 재시도가 같은 키를 재사용하도록), 성공하면 폐기한다(`:214`). 주석(`:110`)이 `TODO(backend): 이 키는 Idempotency-Key 헤더로 나간다` 라고 명시한다.
 
 **그러나 `takeIdempotencyKey()`(`:204`)의 반환값이 어디에도 쓰이지 않는다** — `CrudAdapter.create/update`(`crud.ts:19-20`)의 시그니처가 `(input, signal?)` 라 키를 받을 자리가 없다. 즉 **키는 만들어지고 버려진다.** 이것은 죽은 코드가 아니라 **미완의 배선**이다.
 

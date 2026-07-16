@@ -53,7 +53,7 @@ date: 2026-07-17
 
 | 요소번호 | 영역 | 이름 | 유형 | 동작 | [서버] | 비고 |
 |---|---|---|---|---|---|---|
-| FS-030-EL-001 | FS-030-SEC-01 | 검색 입력 | 입력 | `SearchField`, 접근 이름 '제목·파일명 검색', placeholder '제목 · 파일명 검색'. **제목 또는 파일명**에 대소문자 무시·앞뒤 공백 제거 부분 일치(`searchDownloads`) | — | **클라이언트 필터** — 서버를 호출하지 않는다. **디바운스·IME 조합 처리 없음**(§7 #4) |
+| FS-030-EL-001 | FS-030-SEC-01 | 검색 입력 | 입력 | `SearchField`, 접근 이름 '제목·파일명 검색', placeholder '제목 · 파일명 검색'. **IME 안전 + 250ms 디바운스**로 커밋한다(`DownloadListPage.tsx:167-174` 가 `list.searchInput`/`setSearchInput`/`searchInputProps` 를 넘기고, `useListState`(`:87`)가 내부에서 `useDebouncedSearch` 를 소비한다 — `useListState.ts:227-230`). 커밋된 값은 **URL `?q=`** 로 나가고, **제목 또는 파일명**에 대소문자 무시·앞뒤 공백 제거 부분 일치로 거른다(`searchDownloads`) | — | **클라이언트 필터** — 서버를 호출하지 않는다. **조합 중 커밋 금지**(`useDebouncedSearch.ts:87`) · **조합 중 Enter 차단**(`:121-124`) · **조합 아닌 Enter 는 즉시 커밋**(`:126-129`). **검색어가 바뀌어도 행 선택은 해제되지 않는다** — §7 (STATE-04) |
 | FS-030-EL-002 | FS-030-SEC-01 | 카테고리 필터 | 입력 | `SelectField`, 접근 이름 '카테고리로 거르기'. '전체 카테고리' + `DOWNLOAD_CATEGORY_OPTIONS` 5종(카탈로그·제품 매뉴얼·양식/서식·브로슈어·기타) | — | 클라이언트 필터(`filterDownloads`). 카테고리는 **클라이언트 고정 상수**이며 서버 목록이 아니다(§7 #10) |
 | FS-030-EL-003 | FS-030-SEC-01 | 노출 상태 필터 | 입력 | `SelectField`, 접근 이름 '노출 상태로 거르기'. '전체 노출상태'/'노출'/'숨김' | — | 클라이언트 필터. 카테고리와 **AND 결합** |
 | FS-030-EL-004 | FS-030-SEC-01 | '자료 등록' 버튼 | 버튼 | `<PlusCircleIcon/>` + '자료 등록'(primary). spacer 로 우상단에 밀린다. 클릭 시 `/support/downloads/new` | — | — |
@@ -185,7 +185,8 @@ date: 2026-07-17
 - [x] §4 예외 7축 빈칸 0건. 모든 `N/A` 에 사유
 - [x] `[서버]` = O 요소가 §5 에 전부 요약됐다 — 업로드는 '어댑터 함수 없음' 으로 명시
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-030 영역)
-- [x] 발견한 결함(선택 미해제 · 가드 우회 · `hasActiveFilters` 누락 · `aria-describedby` 누락 · `accept` 누락)을 §7 로 올렸다
+- [x] 발견한 결함(선택 미해제 · 가드 우회 · `hasActiveFilters` 누락 · `aria-describedby` 누락 · `accept` 누락 · **`FileUploadField` 의 `aria-required` 누락** · **이 화면 전용 조사 문구 2곳**)을 §7 로 올렸다
+- [x] **2026-07-17 · HEAD = `4b805ad`(F3a·F3b·통합 머지 후) 코드로 재검증했다** — F2(`3cd3078`) 기준의 이전 판정 중 **검색 디바운스/IME 부재(§7 #4) · 필터·검색의 URL 부재 · 공용 프레임워크의 조사 폴백형 리터럴(§7 #14 의 일부) · IA-02 의 가지 라벨 폴백** 은 해소되어 갱신했다. **§7 의 선택 미해제·가드 우회는 여전히 gap 이고, 선택 미해제는 F3b 가 선택 상태를 두 벌로 만들면서 사유가 더 분명해졌다.** 남은 것만 적었다 — 낙관적으로 pass 로 바꾸지 않았다
 
 ## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
 
@@ -194,9 +195,9 @@ date: 2026-07-17
 | 1 | **【중대】 파일이 실제로 업로드되지 않는다.** `FileUploadField.acceptFile`(`:150-158`)이 검증 후 `onSelect(file.name, file.size)` 로 메타만 넘기고 `File` 을 버린다. 저장되는 것은 파일명·용량뿐이라 **고객이 내려받을 실체가 없다**. `POST /api/uploads` 심은 선언돼 있으나 호출부가 없다 — 백엔드 연결 시 파일 전달 경로(필드 → 폼 → 어댑터)를 새로 설계해야 한다 | A63 (BE-030) · A41 |
 | 2 | **【중대】 필터·검색을 바꿔도 행 선택이 해제되지 않는다.** `DownloadListPage.tsx:68-70` 의 세 필터 setter 가 `controller.clear()` 를 부르지 않는다. `useRowSelection`(`shared/ui/useRowSelection.ts:7-8`)이 '페이지/필터가 바뀌면 호출부가 clear() 로 비운다' 를 계약으로 선언했는데 이 화면이 위반한다. 일괄 삭제는 `[...selectedIds]` 전량을 대상으로 하고(`useCrudList.tsx:126`) `visibleItems` 와 교집합을 취하지 않는다. 결과: 10건 선택 → 카테고리 필터로 1건만 보이게 → '선택 10건 삭제' 가 **화면에 없는 9건까지 지운다** | A41 (STATE-04 P0) |
 | 3 | 빈 상태에 `hasActiveFilters` 를 넘기지 않아(`DownloadListPage.tsx:192-195` 가 `hasQuery` 만 전달) 카테고리·노출 필터로 0건이 되면 '등록된 자료가 없습니다'(진짜 비어있음)로 오보한다 — '필터 초기화' 복구 경로가 나타나지 않는다 | A41 (STATE-05 P1) |
-| 4 | 검색 입력에 디바운스·IME 조합 처리가 없다(`onChange={setKeyword}` 직결, `:141-145`). 공용 `useDebouncedSearch` 가 있는데 쓰지 않고 DS `SearchField` 는 조합을 다루지 않는다. 클라이언트 필터라 네트워크 폭주는 없으나 **조합 중 자모마다 표가 재필터돼 깜빡인다** | A41 (COMP-10 P0) |
+| 4 | ~~검색 입력에 디바운스·IME 조합 처리가 없다~~ **— 해소됨(F3b)**: `DownloadListPage.tsx:167-173` 이 `list.searchInputProps` 를 `SearchField` 에 스프레드하고 `useListState`(`:87`)가 내부에서 `useDebouncedSearch`(`useListState.ts:227-230`)를 소비한다 — 조합 중 커밋 금지 · 조합 중 Enter 차단 · 250ms 디바운스. 조합 중 자모마다 표가 재필터되던 깜빡임이 사라졌다 (COMP-10 P0 → pass) | — (해소) |
 | 5 | **미저장 변경 가드를 화면 안의 이탈 버튼 2개가 우회한다.** '목록으로'(`:190-198`)와 '취소'(`:306-314`)가 `<button>` + `navigate()` 라, 앵커를 찾는 `routableAnchorFrom`(`useUnsavedChangesDialog.tsx:63-70`)에 걸리지 않고 popstate 도 아니다. 사이드바 링크·브라우저 뒤로가기는 가드되는데 **폼 자신의 이탈 버튼은 입력을 조용히 버린다** | A41 (FEEDBACK-04 P0) |
-| 6 | `/support/downloads/new`·`/:id/edit` 에서 AppHeader 가 `findNavLabel` 의 branch 폴백으로 **'고객센터'** 를 h1 에 그리고(`nav-config.ts:257-262`), 동시에 폼이 '자료 등록' h1 을 그린다(`DownloadFormPage.tsx:201`) — **화면에 h1 이 둘이고 상단의 것이 덜 구체적**이다 | A40 · A41 (IA-02 P0) |
+| 6 | **한 화면에 `<h1>` 이 둘이다.** *(통합에서 절반 해소: `findCoveringLeaf`(`nav-config.ts:260-278`)가 '자기를 감싸는 가장 긴 잎'을 쓰므로 `/support/downloads/new`·`/:id/edit` 의 AppHeader `<h1>` 은 이제 브랜치 라벨 '고객센터' 가 아니라 잎 라벨 **'자료실'** 이다.)* **남은 것**: `AppHeader.tsx:101` 의 `<h1>자료실</h1>` 과 폼의 `<h1>자료 등록</h1>`(`DownloadFormPage.tsx:201`)이 **동시에** 렌더된다 — 요구의 '단일 title 메커니즘' 미충족이고, 목록은 in-content h1 이 없어 title 소스가 화면 타입마다 갈린다. 더해 `nav-config.ts:294-296` 주석이 밝히듯 '등록/수정' **행위는 제목에 넣지 않는 것이 의도**라 AppHeader 제목은 구체 title 이 아니다 | A40 · A41 (IA-02 P0) |
 | 7 | 버전 입력(`:249-258`)이 `aria-invalid`·`aria-describedby` 를 배선하지 않아 `FormField` 가 렌더한 오류 `<p>`(`errorIdOf('download-version')`)와 hint 가 AT 에 연결되지 않는다. `FormField` 는 id 만 노출하고 배선은 호출부 책임이다(제목 입력은 정상 배선 — 같은 폼 안에서 규칙이 갈린다) | A41 (A11Y-11 P0) |
 | 8 | 숨은 `<input type="file">`(`:249-258`)에 **`accept` 속성이 없다** — OS 파일 선택창이 모든 파일을 보여준다. 사용자가 `.exe` 를 고른 뒤에야 거절 문구를 본다. 허용 확장자 목록이 `types.ts:62-76` 에 이미 있으므로 `accept` 로 내보낼 수 있다 | A41 (EXC-15 P1) |
 | 9 | 409 충돌 다이얼로그는 배선돼 있으나 **현재 409 는 '이미 삭제된 항목' 에서만 발생**한다. `DownloadItem` 에 `updatedAt`/version 이 없고 어댑터가 `If-Match` 를 싣지 않아 '다른 관리자가 먼저 수정' 을 탐지할 수단이 없다 — 그 경우 마지막 쓰기가 조용히 이긴다. (`version` 필드는 **문서의 판**이지 동시성 토큰이 아니다) | A63 (BE-030) |
@@ -204,5 +205,6 @@ date: 2026-07-17
 | 11 | 페이지네이션이 없어 자료 전량을 한 화면에 렌더하고, 필터·검색도 전량을 받은 뒤 클라이언트가 거른다 — 자료가 수백 건이 되면 응답·DOM 이 함께 커진다. 상한 미정 | A11 · A63 (BE-030) |
 | 12 | 파일 검증이 **확장자 기반**이며 MIME 를 보지 않는다(`downloadFileError` → `fileKindOf`). `payload.svg` 로 이름만 바꾼 파일이 통과한다 — 클라이언트 검증은 UX 편의이므로 **서버가 정본**이어야 한다(BE-030 §7 보안 판정) | A63 (BE-030) |
 | 13 | 일괄 삭제에 선택 상한·진행률·취소가 없고 실패한 id 를 알려주지 않는다 — 재시도가 성공분까지 재실행한다 | A11 change_request (EXC-10 · EXC-18 P1) |
-| 14 | 토스트·다이얼로그 문구에 조사 오류가 있다 — '자료을(를) 등록했습니다'(`useCrudForm:215` 템플릿), '자료 찾을 수 없습니다'(조사 누락, `DownloadFormPage.tsx:171`), 리터럴 '을(를)'(`useCrudList.tsx:157`) | A41 (ERP-13 P1) |
+| 14 | **이 화면 전용 문구 2곳에 조사 오류가 남았다** — ① **조사 누락**: `DownloadFormPage.tsx:171-172` `'자료 찾을 수 없습니다.'` / `'자료 불러오지 못했습니다.'`(→ '자료**를** …'). 이 화면은 `FormPageShell` 을 쓰지 않고 로드 실패 배너를 **자체 구현**(`:164-186`)하면서 셸의 `objectParticle(entityLabel)`(`FormPageShell.tsx:129-130`)을 옮겨오지 않았다. ② **리터럴 고정**: `DownloadListPage.tsx:118` `` `'${item.title}' 를 노출합니다.` `` / `` `… 를 숨겼습니다.` `` — 제목이 받침으로 끝나면('제품 설치 매뉴얼') '**을**' 이어야 한다. *(공용 프레임워크 문구는 통합의 조사 헬퍼 승격(`shared/format.ts:269+`)으로 **해소** — `useCrudForm.ts:222` 가 이제 '자료**를** 등록했습니다', `useCrudList.tsx:108`·`:158` 도 같다. 앱 전역 리터럴 '을(를)' 0건)*. 선례: `portfolio/items/PortfolioListPage.tsx:91-92` 가 같은 토글 토스트를 `objectParticle(item.title)` 로 옳게 낸다 | A41 (ERP-13 P1) |
 | 15 | 대응 SCR 문서 부재 (고객센터 섹션 D2 미작성) | A11 / A01 |
+| 16 | **`FileUploadField`(첨부 파일)의 required 가 AT 에 닿지 않는다** — 이 컴포넌트는 페이지 전용이라(`components/FileUploadField.tsx`) `FormField` 를 쓰지 않고 자기 라벨 + `aria-hidden` `*` 마커를 직접 그린다(`:187-194`). 드롭존 `<button>`(`:226-247`)에도 실제 `<input type="file">`(`:249-258`, `visuallyHidden` + `aria-hidden` + `tabIndex={-1}`)에도 `required`/`aria-required` 가 없다. **대조**: 같은 폼의 제목·카테고리는 F3a 의 `withAriaRequired`(`FormField.tsx:50-56` — 런타임 `cloneElement` 주입)로 충족한다. 공통 `@tds/ui` `ImageUploadField` 도 같은 계약 결손을 갖는다(FS-023 §7 #14) (quality-bar **A11Y-11 P0**) | A41 |

@@ -101,7 +101,7 @@ date: 2026-07-17
 
 | 규칙 | 내용 |
 |---|---|
-| 조회 상태 구분 | 이 화면은 `isFetching` 을 그대로 로딩으로 쓴다 — **first-load 와 refetch-with-data 를 구분하지 않는다.** 행 자체는 `placeholderData`(이전 값 유지) 덕에 남지만, 조회 요약(FS-024-EL-001)이 재조회마다 '불러오는 중…' 으로 되돌아간다. NFR-024 §2 STATE-01 gap |
+| 조회 상태 구분 | **first-load 와 refetch-with-data 를 구분한다** — `PortfolioCategoriesPage.tsx:175` `firstLoading = isFetching && data === undefined` · `:177` `refreshing = isFetching && data !== undefined`(정본은 `shared/crud/useCrudList.tsx:71-72`. 이 화면은 순서·모달 배선 때문에 그 훅을 쓰지 않고 규칙만 같이 둔다). 조회 요약(FS-024-EL-001)은 `firstLoading` 일 때만 '불러오는 중…' 이고, **데이터가 있는 재조회에서는 `전체 N개` 를 유지한 채 '· 새로고침 중…' 만 덧붙인다**(`:224-225`). 행은 `placeholderData`(이전 값 유지)가 지킨다. NFR-024 §2 STATE-01 pass |
 | 네트워크 단절 | 목록 조회 실패는 인라인 배너(FS-024-EL-006)로 카드를 대체한다. 쓰기 실패는 각 요소가 담당(모달 배너·다이얼로그 배너). 오프라인 감지(`navigator.onLine`)는 앱에 없다 — §7 |
 | 세션 만료 | 401 은 앱 전역 쿼리 계층 인터셉터가 잡아 재인증 경로로 보낸다(`queryClient` `QueryCache`/`MutationCache` `onError`). 이 화면에 고유 처리는 없다 |
 | 요청 타임아웃 | 프론트 타임아웃 상한 없음. abort 는 **모달 언마운트·삭제 다이얼로그 닫기** 에서만 발생 — §7 |
@@ -110,7 +110,7 @@ date: 2026-07-17
 | 취소(abort)의 지위 | abort 는 실패가 아니다 — `isAbort` 로 걸러 토스트·배너를 띄우지 않고, 삭제 다이얼로그를 닫을 때 뮤테이션을 `reset` 해 버튼 상태를 되돌린다 |
 | 낙관적 업데이트 | 없다. 등록·수정·삭제 모두 서버(픽스처) 응답 후 무효화로 정산한다 — 비가역 생성/삭제에 낙관 반영을 쓰지 않는다는 규칙과 일치 |
 | 동시 조회 | 목록 조회는 동시에 1건만 유지된다(react-query, `staleTime` 30초 · `retry: false` · `refetchOnWindowFocus: false`) |
-| 권한 없음 | **역할 기반 분기 없음.** 라우트 read 권한은 AppShell 의 `RequirePermission` 이 403 화면으로 막지만, 이 화면의 추가·수정·삭제 버튼은 쓰기 권한과 무관하게 렌더된다(`useRouteWritePermissions` 미소비). 서버 권한 응답은 조회=인라인 배너, 쓰기=각 요소 실패로 떨어진다. 은닉 정책은 BE-024 가 확정 |
+| 권한 없음 | **역할 기반 분기 없음.** 라우트 read 권한은 AppShell 의 `RequirePermission` 이 403 화면으로 막지만, 이 화면의 추가·수정·삭제 버튼은 쓰기 권한과 무관하게 렌더된다 — `useRouteWritePermissions`(`RequirePermission.tsx:45`)를 **앱의 7개 화면이 소비하는데 이 화면은 그 밖이다**(가장 가까운 선례는 같은 taxonomy+모달 패턴인 `products/categories/ProductCategoriesPage.tsx:181`). 서버 권한 응답은 조회=인라인 배너, 쓰기=각 요소 실패로 떨어진다. 은닉 정책은 BE-024 가 확정 |
 | 참조 무결성 | 사용 중(`itemCount > 0`) 카테고리는 삭제 버튼이 잠긴다. 이는 **UX 편의**이며 정본은 서버다 — 조회와 삭제 사이에 다른 관리자가 포트폴리오를 붙일 수 있다(BE-024 §7.1) |
 | 재정렬·정렬 | 카테고리에 정렬 순서 개념이 없다 — 저장소 배열 순서(추가 순)로 렌더된다. 재정렬 UI 없음 |
 
@@ -124,7 +124,9 @@ date: 2026-07-17
 | FS-024-EL-003.4 / EL-008 / EL-009 | 카테고리 삭제 | W | 카테고리 id | `portfolioCategoryAdapter.remove(id, signal)` → `removeCategory(id)` | 사용 중이면 저장소가 던진다(안전 기본값) |
 | — | 카테고리 단건 조회 | R | 카테고리 id | `portfolioCategoryAdapter.fetchOne(id, signal)` → `getCategoryUsage(id)` | **소비자 없음** — 어댑터 계약(`CrudAdapter`)을 채우려 배선만 돼 있다. 수정 모달은 행 데이터를 그대로 받는다(§7) |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드가 없다. `portfolioCategoryAdapter` 는 `createStoreAdapter` 로 만들어져 `pages/portfolio/_shared/store.ts` 의 **브라우저 안 mutable 배열**(`categories`·`items`)을 읽고 쓴다 — 실제 네트워크 0건. 각 함수는 `wait(LATENCY_MS=400, signal)` 로 지연을 흉내 내고 `failIfRequested(scope, op)` 로 실패를 재현한다. `removeCategory` 는 사용 중이면 던진다(안전 기본값). **`data-source.ts` 의 `// TODO(backend): GET/POST /api/portfolio/categories · PUT/DELETE /api/portfolio/categories/:id (사용 중이면 409)` 주석이 유일한 연동 지점**이다. 위 표는 백엔드 연결 후 의도된 동작이다. |
+> **현재 구현 상태 (A63 참고 · 2026-07-17 · HEAD = `4b805ad`)**: 백엔드가 없다. `portfolioCategoryAdapter` 는 `createStoreAdapter` 로 만들어져(`data-source.ts:21-30`) `pages/portfolio/_shared/store.ts` 의 **브라우저 안 mutable 배열**(`categories`·`items`)을 읽고 쓴다 — 실제 네트워크 0건. 각 함수는 `wait(LATENCY_MS=400, signal)` 로 지연을 흉내 내고 `failIfRequested(scope, op)` 로 실패를 재현한다. `removeCategory` 는 사용 중이면 던진다(안전 기본값). **`data-source.ts:20` 의 `// TODO(backend): GET/POST /api/portfolio/categories · PUT/DELETE /api/portfolio/categories/:id (사용 중이면 409)` 주석이 유일한 연동 지점**이다. 위 표는 백엔드 연결 후 의도된 동작이다.
+>
+> **F3b 가 `createStoreAdapter` 의 조용한 성공을 닫았다** — `shared/crud/crud.ts:171` 의 `exists()` 가 세 곳을 막는다: `fetchOne` 없는 id → `HttpError(404)`(`:192-194`) · `update` 없는 id → `HttpError(409, '다른 사용자가 먼저 삭제한 항목입니다.')`(`:219-221`) · `remove` 없는 id → `HttpError(409, '이미 삭제된 항목입니다.')`(`:232-234`). store 의 `updateCategory`(`map`)·`removeCategory`(`filter`)가 없는 id 를 조용히 지나치던 구멍이 **어댑터 경계에서 닫혔다** — 유령 저장/삭제는 해소됐다. **남은 것은 ① 낙관적 동시성 토큰**(`PortfolioCategory` 에 `updatedAt`/`version` 없음 → 동시 편집 last-write-wins) **② 이 모달의 409 복구 UI**(저수준 훅을 직접 써 `useCrudForm` 의 충돌 다이얼로그를 물려받지 못했고 409 가 generic 배너로 뭉개진다) — §7 #5. |
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -134,22 +136,23 @@ date: 2026-07-17
 - [x] `[서버]` = O 요소가 §5 에 전부 요약됐다
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-024 영역)
 - [x] 화면에 없는 요소를 쓰지 않았다 — 검색·필터·페이지네이션·행 선택·일괄 작업·스켈레톤·재정렬은 **실재하지 않아** 기술하지 않았다
-- [x] 발견한 실제 결함(재조회 로딩 혼동·동기 제출 락 부재·쓰기 권한 게이팅 부재·유령 저장/삭제)을 §4·§7 에 정직하게 남겼다
+- [x] 발견한 실제 결함(동기 제출 락 부재·쓰기 권한 게이팅 부재·동시성 토큰 부재·모달의 409 복구 UI 부재)을 §4·§7 에 정직하게 남겼다
+- [x] **`2026-07-17 · HEAD = 4b805ad`(F3a·F3b·통합 머지 후) 코드로 재검증했다** — F2 기준 판정 중 **재조회 로딩 혼동(§7 #2)** 과 **유령 저장/삭제(§7 #5 의 일부)** 는 해소되어 갱신했다. 남은 것만 적었다
 
 ## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
 | 1 | 대응 SCR 문서 부재 | A11 / A01 |
-| 2 | **재조회가 first-load 로 표시된다** — `PortfolioCategoriesPage.tsx:163` 이 `isFetching` 을 `loading` 으로 직결해, 데이터가 있는 재조회에서도 조회 요약이 '불러오는 중…' 으로 되돌아간다(STATE-01 P0) | A11 change_request |
-| 3 | **동기 제출 락·멱등키 부재** — 모달이 `useCrudCreate`/`useCrudUpdate` 저수준 훅을 직접 쓰고 `disabled={saving}` 렌더 가드에만 의존한다. `useCrudForm` 은 `submitLockRef`+멱등키를 갖지만 이 모달은 쓰지 않는다(EXC-08 P0) | A11 change_request |
-| 4 | **쓰기 권한 게이팅 부재** — `useRouteWritePermissions()` 가 존재하나 소비하는 화면이 앱에 없다. 읽기 전용 역할이 추가·수정·삭제 버튼을 그대로 보고 누른다(EXC-03 P0 · 앱 전역) | A11 change_request |
-| 5 | **유령 저장/삭제** — `createStoreAdapter.update/remove` 에 존재 검사가 없어(같은 파일의 `createCrudAdapter` 는 409 로 막는다) 이미 삭제된 카테고리를 수정·삭제해도 성공 토스트가 뜬다. 엔티티에 `updatedAt`/`version` 도 없어 낙관적 동시성 토큰을 실을 수 없다(EXC-04 P0) | A11 · A63 (BE-024 §7.3) |
+| 2 | ~~재조회가 first-load 로 표시된다~~ **— 해소됨(F3b)**: `PortfolioCategoriesPage.tsx:175-177` 이 `firstLoading`/`refreshing` 을 파생하고 요약(`:224`)·빈 상태(`:245`)가 `firstLoading` 만 읽는다. 재조회 중 `전체 N개` 가 유지되고 '· 새로고침 중…' 만 덧붙는다(STATE-01 pass) | — (해소) |
+| 3 | **동기 제출 락·멱등키 부재** — 모달이 `useCrudCreate`/`useCrudUpdate` 저수준 훅을 직접 쓰고(`PortfolioCategoryFormModal.tsx:57-58`) `disabled={saving}` 렌더 가드에만 의존하며, `mutate` 호출(`:85-94`)이 `idempotencyKey` 를 비운 채 보낸다. **F3b 가 자리를 만들어 뒀다** — `WriteContext.idempotencyKey`(`crud.ts:30-42`) + 어댑터 ledger(`:168`·`:201-203`)가 실재하고 `useCrudForm` 이 `submitLockRef`(`:103`)+키(`:118-123,211`)로 그것을 쓴다. 이 모달만 물려받지 못했다(EXC-08 P0) | A11 change_request |
+| 4 | **쓰기 권한 게이팅 부재** — `useRouteWritePermissions()` 를 **앱의 7개 화면이 소비하는데**(products 3 · settings 4) 이 화면은 그 밖이다. 읽기 전용 역할이 추가·수정·삭제 버튼을 그대로 보고 누른다. 최근접 선례: 같은 taxonomy+모달 패턴인 `products/categories/ProductCategoriesPage.tsx:181`(EXC-03 P0) | A11 change_request (이 화면) |
+| 5 | **동시성 토큰 부재 + 모달의 409 복구 UI 부재** *(유령 저장/삭제는 F3b 의 `createStoreAdapter` 존재 검사 — `crud.ts:219-221`·`:232-234` — 로 해소됨)*. 남은 것: ① `PortfolioCategory`(`_shared/store.ts:13-16`)에 `updatedAt`/`version` 이 없어 낙관적 토큰을 실을 수 없다 → **둘 다 존재하는 동시 편집은 last-write-wins** ② 어댑터가 던지는 409 를 모달이 `onError`(`PortfolioCategoryFormModal.tsx:80-83`)에서 generic '저장하지 못했습니다…' 배너로 뭉갠다 — '다른 사용자가 먼저 삭제했다'는 사실도, 재조회 경로도 사용자에게 닿지 않는다(EXC-04 P0) | A11 · A63 (BE-024 §7.3) |
 | 6 | 카테고리명 중복 검사가 프론트에 없다 — 동명 카테고리 둘이 만들어질 수 있고 필터·선택지가 구분되지 않는다. 서버 판정에 위임 | A63 (BE-024 §7.2) |
 | 7 | 저장 실패가 코드별로 갈리지 않는다 — 중복(409)·상태위반(422)·서버 오류(500)가 모두 '저장하지 못했습니다…' 한 문구 | A11 change_request |
 | 8 | 카테고리 수 상한이 없어 목록이 전량 렌더된다(페이지네이션 없음) — 카테고리가 늘면 화면이 그만큼 길어지고, 포트폴리오 폼의 분류 선택지도 함께 늘어난다 | A63 (BE-024 §7.5) · A11 |
 | 9 | 목록 첫 조회에 전용 스켈레톤이 없다 — '불러오는 중…' 텍스트 1줄로만 표현한다(빈 상태 자리를 빌려 쓴다) | A11 change_request |
-| 10 | 삭제 차단 안내 문구의 조사(助詞)가 깨진다 — `'<라벨> — 3개 사용 중라 삭제할 수 없습니다'`(→ '사용 중이라'). `shared/format` 의 조사 헬퍼 부재(ERP-13 P1) | A40 · A11 |
+| 10 | 삭제 차단 안내 문구의 조사(助詞)가 깨진다 — `PortfolioCategoriesPage.tsx:141` 의 접근 이름이 `'<라벨> — 3개 사용 중라 삭제할 수 없습니다'`(→ '사용 중**이라**'). **조사 헬퍼는 통합에서 `shared/format.ts:269+` 로 승격됐지만 계사 '이라/라' 는 없다**(`objectParticle`·`topicParticle`·`directionParticle` 3종뿐) — 헬퍼 확장이 선행돼야 한다. 같은 파일 `:144` 의 `title` 은 조사를 피해 가 파손이 없다. `support/categories/CategoriesPage.tsx:142` 가 같은 문구를 복제한다(ERP-13 P1) | A40 · A11 |
 | 11 | 세션 만료 경고·프론트 타임아웃 상한·오프라인 감지·권한 은닉(403 vs 404)이 미정 | A63 (BE-024) · A40 |
 | 12 | 어댑터의 `fetchOne`(`GET :id`)이 배선만 되고 소비자가 없다 — 수정 모달이 행 데이터를 그대로 쓰므로 열린 사이의 원격 변경을 반영하지 않는다 | A63 (BE-024 §7.6) |
 | 13 | 이름 입력에 실시간 글자 수 카운터가 없다(`maxLength=40` 이 조용히 자른다 — COMP-12 P2) | A11 change_request |

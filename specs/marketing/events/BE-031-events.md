@@ -115,7 +115,7 @@ BE-003 §3.2 의 두 원칙을 이 도메인에 적용한다.
 | 근거 (FS) | FS-031-EL-003, FS-031-EL-026 (등록 모드) |
 | 메서드 · 경로 | `POST /api/marketing/events` |
 | 권한 | `admin` 만. `operator` → 403 |
-| 멱등성 | **필요 — 미구현.** 프론트가 제출 시도 단위 멱등키를 `useCrudForm.ts:112-117` 에서 만들지만 **어댑터가 그 키를 받지 않아 전송되지 않는다**. 서버는 `Idempotency-Key` 헤더를 받도록 설계하고, 프론트 어댑터 시그니처 확장을 §7.11 로 이관한다 |
+| 멱등성 | **필요 — 프론트 배선은 완료, HTTP 전송만 미구현.** 프론트가 제출 시도 단위 멱등키를 `useCrudForm.ts:118-123` 에서 만들고 `:228,235` 로 mutation variables 에 실어 `crud.ts:288-289,310-311` 이 **어댑터까지 전달한다**(`WriteContext.idempotencyKey` — `crud.ts:41,47-48`). 픽스처 어댑터는 ledger(`crud.ts:62-72,91,114,121`)로 같은 키의 재요청을 재생한다. **남은 것은 HTTP 헤더 배선뿐이며 그 심은 `crud.ts:39` `TODO(backend): 이 값은 Idempotency-Key: <key> 요청 헤더로 나간다` 다.** 서버는 `Idempotency-Key` 헤더를 받도록 설계한다 → §7.11 |
 | 페이징 | N/A |
 | 레이트리밋 | 세션 분당 30회 (쓰기) |
 | 바디 | `MarketingEventInput` — §3 의 `id` 제외 전 필드. **모든 필드 필수**(프론트가 전량을 보낸다) |
@@ -136,7 +136,7 @@ BE-003 §3.2 의 두 원칙을 이 도메인에 적용한다.
 | 응답 200 | `MarketingEvent` — 갱신본. 프론트는 본문을 쓰지 않고 목록·상세를 무효화한다 |
 | 에러 | 400 · 401 · 403 · **409 `EVENT_CONFLICT`** — 대상이 이미 삭제됨(픽스처가 이 경로를 재현한다: `crud.ts:71-73`) → 프론트가 FS-031-EL-029 충돌 다이얼로그를 연다 · 422 · 429 · 500 · 504 |
 
-> **409 를 반드시 주어야 하는 이유**: 없는 id 에 대한 PUT 을 200 으로 응답하거나 조용히 upsert 하면, 프론트는 '이벤트을(를) 저장했습니다' 토스트를 띄우고 목록으로 이동한다 — **저장된 것은 아무것도 없는데도.** 픽스처가 이미 이 유령 저장을 409 로 막고 있다(`crud.ts:68-73` 주석). 서버도 같은 계약을 지켜야 한다. **upsert 금지.**
+> **409 를 반드시 주어야 하는 이유**: 없는 id 에 대한 PUT 을 200 으로 응답하거나 조용히 upsert 하면, 프론트는 '이벤트를 저장했습니다' 토스트를 띄우고 목록으로 이동한다 — **저장된 것은 아무것도 없는데도.** 픽스처가 이미 이 유령 저장을 409 로 막고 있다(`crud.ts:123-128` 주석 + 가드). 서버도 같은 계약을 지켜야 한다. **upsert 금지.**
 
 ### BE-031-EP-05 · 이벤트 삭제
 
@@ -182,7 +182,7 @@ BE-003 §3.2 의 두 원칙을 이 도메인에 적용한다.
 |---|---|---|---|---|
 | `eventAdapter.fetchAll(signal)` | `GET /api/marketing/events` | BE-031-EP-01 | `readonly MarketingEvent[]` | **부분** — 심에 쿼리 파라미터가 없어 전량 반환으로 계약했다. 필터·검색·페이징은 미정(§7.4) |
 | `eventAdapter.fetchOne(id, signal)` | `GET /api/marketing/events/:id` | BE-031-EP-02 | `MarketingEvent`. 없으면 `HttpError(404,'항목을 찾을 수 없습니다.')` | **O** — 404 → `loadFailure='not-found'`(`useCrudForm.ts:138-143`) |
-| `eventAdapter.create(input, signal)` | `POST /api/marketing/events` | BE-031-EP-03 | `Promise<void>` — **본문을 쓰지 않는다** | **부분** — 서버는 201 + 본문을 주지만 프론트가 버리고 목록을 무효화한다(§7.10). **멱등키가 전송되지 않는다**(§7.11) |
+| `eventAdapter.create(input, { signal, idempotencyKey })` | `POST /api/marketing/events` | BE-031-EP-03 | `Promise<void>` — **본문을 쓰지 않는다** | **부분** — 서버는 201 + 본문을 주지만 프론트가 버리고 목록을 무효화한다(§7.10). **멱등키가 어댑터까지는 오지만 HTTP 헤더로 나가는 배선이 아직 없다**(§7.11) |
 | `eventAdapter.update(id, input, signal)` | `PUT /api/marketing/events/:id` | BE-031-EP-04 | `Promise<void>`. 대상 없으면 `HttpError(409,'다른 사용자가 먼저 삭제한 항목입니다.')` | **부분** — 409 → 충돌 다이얼로그는 일치. **`If-Match`/version 헤더가 없다**(§7.3) |
 | `eventAdapter.remove(id, signal)` | `DELETE /api/marketing/events/:id` | BE-031-EP-05 | `Promise<void>`. 없으면 `HttpError(409,'이미 삭제된 항목입니다.')` | **O** — 409 계약 일치 |
 | (없음) | (없음) | BE-031-EP-06 일괄 삭제 | — | **심 없음** — `settleAll` 이 EP-05 를 N 번 부른다(§7.5) |
@@ -294,24 +294,30 @@ BE-003 §3.2 의 두 원칙을 이 도메인에 적용한다.
 2. **응답 본문은 규정하되(201/200 + 엔티티) 프론트가 안 쓰는 것을 허용한다.** 이유: ① `version`(§7.3)이 도입되면 프론트가 응답에서 그것을 받아야 한다 ② 서버가 배정한 `id`·정규화한 값을 확인할 수 있어야 한다 ③ 무효화 후 재조회는 한 번의 왕복을 더 쓰지만, `staleTime` 30초와 함께 현재 규모에서 수용 가능하다.
 3. 후속에서 `setQueryData` 로 응답을 직접 반영하면 왕복 1회가 준다(STATE-06 최적화) — A11 로 이관.
 
-### 7.11 【판정】 멱등키가 만들어지지만 전송되지 않는다
+### 7.11 【판정】 멱등키가 어댑터까지 도달한다 — 남은 것은 HTTP 헤더뿐 (2026-07-17 갱신)
 
-`useCrudForm.ts:112-117` 이 제출 **시도** 단위 멱등키를 ref 에 만들고 `takeIdempotencyKey()` 로 잡는다. 주석도 `TODO(backend): 이 키는 Idempotency-Key 헤더로 나간다` 라고 명시한다. **그러나 `CrudAdapter.create(input, signal)` 시그니처에 키 자리가 없어 실제로는 어디에도 전달되지 않는다.**
+**F3b 가 이 판정의 전제를 뒤집었다.** 예전 서술('시그니처에 키 자리가 없어 어디에도 전달되지 않는다')은 더 이상 사실이 아니다. 현재 경로를 코드로 재확인했다:
+
+1. `useCrudForm.ts:118-123` 이 제출 **시도** 단위 키를 ref 에 만들고 `takeIdempotencyKey()` 로 잡는다(mutationFn **밖** — 재시도가 같은 키를 재사용한다).
+2. `:211` 이 그것을 잡아 `:228`(update) · `:235`(create) 에서 **mutation variables** 에 싣는다.
+3. `crud.ts:288-289`(`useCrudCreate`) · `:310-311`(`useCrudUpdate`) 이 `adapter.create(input, { signal, idempotencyKey })` 로 넘긴다 — **`CrudAdapter` 시그니처에 자리가 생겼다**(`crud.ts:47-48`, 타입은 `WriteContext` — `:30-42`).
+4. 픽스처 어댑터가 그 키를 실제로 쓴다: `createIdempotencyLedger()`(`crud.ts:62-72`) → `createCrudAdapter` 가 `:91` 에서 생성하고 `:114`(create) · `:121`(update) · `:136`(remove) 에서 `isReplay` 로 재생 판정, `:116,131,144` 에서 **적용에 성공한 뒤에만** 기록한다.
 
 **판정**:
 1. **서버는 `POST /api/marketing/events` 에서 `Idempotency-Key` 헤더를 받도록 설계한다**(BE-004-EP-03 의 적립금 지급이 이 패턴의 정본). 같은 키의 재요청에는 최초 응답을 재생한다. 보관 기간 권고 24시간.
-2. **프론트 어댑터 시그니처 확장이 선행돼야 한다** — `create(input, signal, idempotencyKey?)`. 이는 공용 `CrudAdapter` 인터페이스 변경이므로 A41 스코프다. A11 로 이관한다.
+2. **프론트 어댑터 시그니처 확장은 더 이상 선행 과제가 아니다 — 이미 됐다.** 남은 것은 실 HTTP 어댑터가 `context.idempotencyKey` 를 요청 헤더로 옮기는 한 줄이며, 그 자리를 `crud.ts:39` 의 `TODO(backend)` 가 표시한다.
+3. **ledger 의 기록 순서를 서버도 지켜야 한다** — 키를 미리 태우면 실패한 첫 시도가 재시도를 영원히 no-op 으로 만든다(`crud.ts:54-60` 이 그 함정을 명시). '적용 → 기록' 순서가 계약이다.
 3. **현재 위험도는 낮다** — 동기 제출 락(`submitLockRef`)이 이중 발사를 이미 막고 있고(EXC-08 pass), 이벤트 등록은 금전 거래가 아니다. 다만 §7.2 대로 혜택이 **실제 발급**과 이어지는 순간 이 키는 필수가 된다 — 이중 등록 = 이중 쿠폰 발급이다.
 
 ### 7.12 【판정】 조회·삭제 실패에 참조 코드가 없다
 
-`HttpError.reference` 가 모든 오류에 존재하고 저장 실패는 이를 표시하지만(`useCrudForm.ts:189` → FS-031-EL-015), **목록 조회 실패 배너**(`CrudListShell.tsx:157-164`)와 **삭제 실패 배너**(`useCrudList.tsx:111`)는 참조 코드를 버린다. 운영자가 '이벤트 목록이 안 떠요' 라고 신고하면 개발자가 로그와 맞출 수단이 없다.
+`HttpError.reference` 가 모든 오류에 존재하고 저장 실패는 이를 표시하지만(`useCrudForm.ts:195` → FS-031-EL-015), **목록 조회 실패 배너**(`CrudListShell.tsx:157-164`)와 **삭제 실패 배너**(`useCrudList.tsx:112`)는 참조 코드를 버린다. 운영자가 '이벤트 목록이 안 떠요' 라고 신고하면 개발자가 로그와 맞출 수단이 없다.
 
 **판정**: 서버는 모든 5xx 에 `traceId` 를 싣는다(BE-003 §2 상속 — 이미 계약됨). **표시 누락은 프론트 결함**이므로 A11 로 이관한다(EXC-20).
 
 ### 7.13 【판정】 400 과 422 를 갈라야 프론트 인라인 매핑이 작동한다
 
-프론트는 **422 만** 필드 인라인 에러로 매핑한다(`useCrudForm.ts:176-186` — `isUnprocessable(cause) && cause.violations.length > 0`). **400 은 매핑하지 않아** '저장하지 못했습니다' 배너로 뭉개진다.
+프론트는 **422 만** 필드 인라인 에러로 매핑한다(`useCrudForm.ts:182-192` — `isUnprocessable(cause) && cause.violations.length > 0`). **400 은 매핑하지 않아** '저장하지 못했습니다' 배너로 뭉개진다.
 
 **판정**: 서버는 **필드 단위로 되돌릴 수 있는 거절은 전부 422 `UNPROCESSABLE` + `error.fields`** 로 준다 — 형식 위반이든 상태 위반이든. **400 은 필드에 귀속되지 않는 요청 자체의 파손**(JSON 파싱 실패 · 헤더 누락)에만 쓴다. 이 구분이 없으면 관리자는 **어느 필드가 틀렸는지 영영 알 수 없다.** BE-003 §2.1 의 `VALIDATION_FAILED`(400) 정의와 이 도메인의 운용이 다른 지점이므로 명시한다.
 
@@ -334,10 +340,10 @@ BE-003 §3.2 의 두 원칙을 이 도메인에 적용한다.
 | 7 | 403·429 전용 문구 분기 (프론트 status 분기) | A11 change_request | §7.7 |
 | 8 | 이벤트 이미지 도입 시 업로드 엔드포인트 분리 + `blob:`/`data:` 스킴 거절 | A63 · A11 | §7.8 |
 | 9 | `benefitDetail`·`bannerLabel` 길이 상한(권고 100자) 서버 강제 + 프론트 스키마·`maxLength` 동기화 | A63 · A11 | §7.9 |
-| 10 | `Idempotency-Key` 헤더 수용 + `CrudAdapter.create` 시그니처 확장 | A63 · A41 | §7.11 |
+| 10 | `Idempotency-Key` 헤더 수용 (**`CrudAdapter` 시그니처 확장은 F3b 에서 완료 — `crud.ts:47-48`. 남은 것은 서버 수용 + 실 HTTP 어댑터의 헤더 배선뿐**) | A63 | §7.11 |
 | 11 | 조회·삭제 실패 배너에 참조 코드 표시 | A11 change_request | §7.12 |
 | 12 | 필드 귀속 거절은 전부 422 + `error.fields` (400 은 요청 파손 전용) | A63 | §7.13 |
-| 13 | 표시 타임존 정책 확정 — `derivePhase` 기준일이 브라우저 로컬 TZ 다. 서버가 `today` 를 내리거나 표시 TZ(Asia/Seoul)를 고정 | A63 · A40 (`shared/format`) | FS-031 §7 #7 |
+| ~~13~~ | ~~표시 타임존 정책 확정~~ — **해소 (F3b · 2026-07-17)**. 표시 TZ 가 `Asia/Seoul` 로 고정됐다(`shared/format.ts:63` `DISPLAY_TIME_ZONE` · `:76-85` Intl 포매터 · `:161-165` `formatDate`). `derivePhase` 기준일이 보는 사람의 OS 타임존과 무관해졌고, 그 정책이 화면에도 적힌다(`:68` `TIME_ZONE_NOTICE`). **서버가 `today` 를 내릴 필요는 없다** — 달력일 문자열 비교라 클라이언트 KST 판정으로 충분하다. 서버가 `phase` 를 **파생**으로 확정하면(§7.6) 그때 서버 TZ 도 `Asia/Seoul` 이어야 한다 | — (닫힘) | FS-031 §7 #7 |
 | 14 | 세션 만료 시 편집 중 초안 스냅샷 (EXC-19) | A11 · A63 | FS-031 §7 #16 |
 
 ## 8. 자기 점검 (제출 전 확인)

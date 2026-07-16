@@ -107,7 +107,7 @@ date: 2026-07-17
 
 | 규칙 | 내용 |
 |---|---|
-| 조회 상태 구분 | 이 화면은 `isFetching` 을 그대로 로딩으로 쓴다 — **first-load 와 refetch-with-data 를 구분하지 않는다.** 행 자체는 `placeholderData`(이전 값 유지) 덕에 남지만, 조회 요약(FS-027-EL-001)이 재조회마다 '불러오는 중…' 으로 되돌아간다. NFR-027 §2 STATE-01 gap |
+| 조회 상태 구분 | **first-load 와 refetch-with-data 를 구분한다** — `CategoriesPage.tsx:176` `firstLoading = isFetching && data === undefined` · `:178` `refreshing = isFetching && data !== undefined`(정본은 `shared/crud/useCrudList.tsx:71-72`. 이 화면은 모달 배선 때문에 그 훅을 쓰지 않고 규칙만 같이 둔다). 조회 요약(FS-027-EL-001)은 `firstLoading` 일 때만 '불러오는 중…' 이고, **데이터가 있는 재조회에서는 `전체 N개` 를 유지한 채 '· 새로고침 중…' 만 덧붙인다**(`:223-224`). 행은 `placeholderData`(이전 값 유지)가 지킨다. NFR-027 §2 STATE-01 pass |
 | 네트워크 단절 | 목록 조회 실패는 인라인 배너(FS-027-EL-006)로 카드를 대체한다. 쓰기 실패는 각 요소가 담당(모달 배너·다이얼로그 배너). 오프라인 감지(`navigator.onLine`)는 앱에 없다 — §7 |
 | 세션 만료 | 401 은 앱 전역 쿼리 계층 인터셉터가 잡아 재인증 경로로 보낸다(`queryClient` `QueryCache`/`MutationCache` `onError`). 이 화면에 고유 처리는 없다 |
 | 요청 타임아웃 | 프론트 타임아웃 상한 없음. abort 는 **모달 언마운트·삭제 다이얼로그 닫기** 에서만 발생 — §7 |
@@ -116,7 +116,7 @@ date: 2026-07-17
 | 취소(abort)의 지위 | abort 는 실패가 아니다 — `isAbort` 로 걸러 토스트·배너를 띄우지 않고, 삭제 다이얼로그를 닫을 때 뮤테이션을 `reset` 해 버튼 상태를 되돌린다 |
 | 낙관적 업데이트 | 없다. 등록·수정·삭제 모두 서버(픽스처) 응답 후 무효화로 정산한다. **사용여부 토글도 목록에서 바로 켜고 끌 수 없다** — 모달을 열어 저장해야 한다(인라인 토글 없음) |
 | 동시 조회 | 목록 조회는 동시에 1건만 유지된다(react-query, `staleTime` 30초 · `retry: false` · `refetchOnWindowFocus: false`) |
-| 권한 없음 | **역할 기반 분기 없음.** 라우트 read 권한은 AppShell 의 `RequirePermission` 이 403 화면으로 막지만, 이 화면의 추가·수정·삭제 버튼은 쓰기 권한과 무관하게 렌더된다(`useRouteWritePermissions` 미소비). 서버 권한 응답은 조회=인라인 배너, 쓰기=각 요소 실패로 떨어진다. 은닉 정책은 BE-027 이 확정 |
+| 권한 없음 | **역할 기반 분기 없음.** 라우트 read 권한은 AppShell 의 `RequirePermission` 이 403 화면으로 막지만, 이 화면의 추가·수정·삭제 버튼은 쓰기 권한과 무관하게 렌더된다 — `useRouteWritePermissions`(`RequirePermission.tsx:45`)를 **앱의 7개 화면이 소비하는데 이 화면은 그 밖이다**(가장 가까운 선례는 같은 taxonomy+모달 패턴인 `products/categories/ProductCategoriesPage.tsx:181`). 서버 권한 응답은 조회=인라인 배너, 쓰기=각 요소 실패로 떨어진다. 은닉 정책은 BE-027 이 확정 |
 | 참조 무결성 | 참조 중(티켓+템플릿 > 0) 유형은 삭제 버튼이 잠긴다. 이는 **UX 편의**이며 정본은 서버다 — **이 화면의 참조는 관리자가 아니라 고객이 만든다**(문의 접수). 조회와 삭제 사이에 새 문의가 들어오면 프론트는 알 수 없다(BE-027 §7.1) |
 | 두 축의 관계 | **삭제 차단(하드)** 과 **사용여부(소프트)** 는 독립이다. 참조가 있으면 사용여부와 무관하게 삭제할 수 없고, 사용여부를 꺼도 기존 참조는 그대로 남는다. 사용여부는 '신규 선택지에서만 숨기는' 장치다(FS-027-EL-013) |
 | 재정렬·정렬 | 유형에 정렬 순서 개념이 없다 — 저장소 배열 순서(추가 순)로 렌더된다. 재정렬 UI 없음 |
@@ -143,17 +143,18 @@ date: 2026-07-17
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-027 영역)
 - [x] 화면에 없는 요소를 쓰지 않았다 — 검색·필터·페이지네이션·행 선택·일괄 작업·스켈레톤·인라인 사용여부 토글은 **실재하지 않아** 기술하지 않았다
 - [x] 두 축(삭제 차단 / 사용여부)의 독립성을 §4.1 에 못 박았다 — 코드(`categoryInUse` 가 `active` 를 보지 않는다)와 일치
-- [x] 발견한 실제 결함(재조회 로딩 혼동·동기 제출 락 부재·쓰기 권한 게이팅 부재·유령 저장/삭제·배지 문구 충돌)을 §4·§7 에 정직하게 남겼다
+- [x] 발견한 실제 결함(동기 제출 락 부재·쓰기 권한 게이팅 부재·동시성 토큰 부재·모달의 409 복구 UI 부재·배지 문구 충돌)을 §4·§7 에 정직하게 남겼다
+- [x] **2026-07-17 · HEAD = `4b805ad`(F3a·F3b·통합 머지 후) 코드로 재검증했다** — F2 기준 판정 중 **재조회 로딩 혼동(§7 #2)** 과 **유령 저장/삭제(§7 #5 의 일부)** 는 해소되어 갱신했다. 남은 것만 적었다
 
 ## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
 | 1 | 대응 SCR 문서 부재 | A11 / A01 |
-| 2 | **재조회가 first-load 로 표시된다** — `CategoriesPage.tsx:164` 가 `isFetching` 을 `loading` 으로 직결해, 데이터가 있는 재조회에서도 조회 요약이 '불러오는 중…' 으로 되돌아간다(STATE-01 P0) | A11 change_request |
+| 2 | ~~재조회가 first-load 로 표시된다~~ **— 해소됨(F3b)**: `CategoriesPage.tsx:176-178` 이 `firstLoading`/`refreshing` 을 파생하고 요약(`:223`)·빈 상태(`:245`)가 `firstLoading` 만 읽는다. 재조회 중 `전체 N개` 가 유지되고 '· 새로고침 중…' 만 덧붙는다(STATE-01 pass) | — (해소) |
 | 3 | **동기 제출 락·멱등키 부재** — 모달이 `useCrudCreate`/`useCrudUpdate` 저수준 훅을 직접 쓰고 `disabled={saving}` 렌더 가드에만 의존한다(EXC-08 P0) | A11 change_request |
-| 4 | **쓰기 권한 게이팅 부재** — `useRouteWritePermissions()` 가 존재하나 소비하는 화면이 앱에 없다(EXC-03 P0 · 앱 전역) | A11 change_request |
-| 5 | **유령 저장/삭제** — `createStoreAdapter.update/remove` 에 존재 검사 부재. 이미 삭제된 유형을 수정·삭제해도 성공 토스트가 뜬다(EXC-04 P0) | A11 · A63 (BE-027 §7.3) |
+| 4 | **쓰기 권한 게이팅 부재** — `useRouteWritePermissions()` 를 **앱의 7개 화면이 소비하는데**(products 3 · settings 4) 이 화면은 그 밖이다. 읽기 전용 역할이 추가·수정·삭제 버튼을 그대로 보고 누른다. 최근접 선례: 같은 taxonomy+모달 패턴인 `products/categories/ProductCategoriesPage.tsx:181`(EXC-03 P0) | A11 change_request (이 화면) |
+| 5 | **동시성 토큰 부재 + 모달의 409 복구 UI 부재** *(유령 저장/삭제는 F3b 의 `createStoreAdapter` 존재 검사 — `shared/crud/crud.ts:171` `exists()` → `update` 409 `:219-221` · `remove` 409 `:232-234` · `fetchOne` 404 `:192-194` — 로 해소됨)*. 남은 것: ① `SupportCategory`(`_shared/domain.ts:17-22`)에 `updatedAt`/`version` 이 없어 낙관적 토큰을 실을 수 없다 → **둘 다 존재하는 동시 편집은 last-write-wins** ② 어댑터가 던지는 409 를 모달이 `onError`(`CategoryFormModal.tsx:80-83`)에서 generic '저장하지 못했습니다…' 배너로 뭉갠다 — '다른 사용자가 먼저 삭제했다'는 사실도, 재조회 경로도 사용자에게 닿지 않는다(EXC-04 P0) | A11 · A63 (BE-027 §7.3) |
 | 6 | **배지 문구 충돌** — 사용여부가 꺼지고 참조도 0인 유형(시드의 '기타')은 `'미사용'`(사용여부)과 `'사용 안 함'`(참조 0) **두 neutral 배지가 나란히** 붙는다. 뜻이 전혀 다른데 문구·톤이 거의 같아 읽는 사람이 구분하지 못한다 | A11 change_request |
 | 7 | 0-참조 배지 문구가 포트폴리오 카테고리 화면('미사용' — `portfolio/categories/types.ts:15`)과 다르다('사용 안 함' — `_shared/domain.ts:43`). 같은 의미의 두 표현(ERP-06 P1) | A11 change_request |
 | 8 | 유형 이름 중복 검사가 프론트에 없다 — 동명 유형 둘이 만들어질 수 있고 티켓 목록·필터가 구분되지 않는다. 서버 판정에 위임 | A63 (BE-027 §7.2) |
@@ -162,7 +163,7 @@ date: 2026-07-17
 | 11 | **활성 유형 0개를 막지 않는다** — 모든 유형의 사용여부를 끄면 신규 문의·템플릿의 유형 선택지가 비어 고객이 문의를 넣지 못할 수 있다. 이 화면에 경고·최소 1개 보장이 없다 | A63 (BE-027 §7.6) · A11 |
 | 12 | 라벨 수정 후 **티켓·문의 답변 목록 캐시를 무효화하지 않는다** — `useCrudUpdate` 가 `['support-categories', …]` 키만 무효화한다. 두 화면은 `staleTime` 30초까지 옛 라벨을 보일 수 있다(STATE-06 P1) | A11 change_request |
 | 13 | 목록 첫 조회에 전용 스켈레톤이 없다 — '불러오는 중…' 텍스트 1줄로만 표현한다 | A11 change_request |
-| 14 | 삭제 차단 안내 문구의 조사(助詞)가 깨진다 — `'<라벨> — 티켓 3 · 템플릿 1라 삭제할 수 없습니다'`. `shared/format` 의 조사 헬퍼 부재(ERP-13 P1) | A40 · A11 |
+| 14 | 삭제 차단 안내 문구의 조사(助詞)가 깨진다 — `CategoriesPage.tsx:142` 의 접근 이름이 `'<라벨> — 티켓 3 · 템플릿 1라 삭제할 수 없습니다'`(→ '…**이라**'). **조사 헬퍼는 통합에서 `shared/format.ts:269+` 로 승격됐지만 계사 '이라/라' 는 없고**(`objectParticle`·`topicParticle`·`directionParticle` 3종뿐), 사용량 문구가 **숫자로 끝나** 한글 받침 판정 자체가 불가능하다 — 헬퍼 확장 + 숫자 발음 규칙이 선행돼야 한다. 같은 파일 `:144` 의 `title` 은 조사를 피해 가 파손이 없다. `portfolio/categories/PortfolioCategoriesPage.tsx:141` 이 같은 문구를 복제한다(ERP-13 P1) | A40 · A11 |
 | 15 | 세션 만료 경고·프론트 타임아웃 상한·오프라인 감지·권한 은닉(403 vs 404)이 미정 | A63 (BE-027) · A40 |
 | 16 | 어댑터의 `fetchOne`(`GET :id`)이 배선만 되고 소비자가 없다 | A63 (BE-027 §7.7) |
 | 17 | 이름 입력에 실시간 글자 수 카운터가 없다(`maxLength=30` 이 조용히 자른다 — COMP-12 P2) | A11 change_request |
