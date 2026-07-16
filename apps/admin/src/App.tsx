@@ -111,6 +111,12 @@ import ApplicationDetailPage from './pages/reservations/applications/Application
 import ConsultationBookingListPage from './pages/reservations/consultations/ConsultationBookingListPage';
 import ConsultationBookingFormPage from './pages/reservations/consultations/ConsultationBookingFormPage';
 import ScheduleCalendarPage from './pages/reservations/schedule/ScheduleCalendarPage';
+import VisitorStatsPage from './pages/stats/visitors/VisitorStatsPage';
+import MemberStatsPage from './pages/stats/members/MemberStatsPage';
+import RevenueStatsPage from './pages/stats/revenue/RevenueStatsPage';
+import OrderStatsPage from './pages/stats/orders/OrderStatsPage';
+import TrafficStatsPage from './pages/stats/traffic/TrafficStatsPage';
+import KeywordStatsPage from './pages/stats/keywords/KeywordStatsPage';
 
 /**
  * AppShell(사이드바) 안에서 인증 후 렌더하는 라우트 — 선언 배열의 **단일 원천**이다.
@@ -278,6 +284,16 @@ const APP_ROUTES: readonly AppRoute[] = [
   { path: '/reservations/consultations/:id/edit', element: <ConsultationBookingFormPage /> },
   { path: '/reservations/schedule', element: <ScheduleCalendarPage />, implemented: true },
   { path: '/reservations/:id/edit', element: <ReservationFormPage /> },
+
+  // 통계 — 6개 분석 화면. 조회 전용이라 상세/폼 라우트가 없다(:id 가 없는 유일한 섹션).
+  // 조회 조건은 전부 쿼리스트링에 실린다(preset·start·end·compare·segment·view·metric·sort·page)
+  // — 라우트가 아니라 URL 파라미터가 화면 상태의 원천이다 (IA-13).
+  { path: '/stats/visitors', element: <VisitorStatsPage />, implemented: true },
+  { path: '/stats/members', element: <MemberStatsPage />, implemented: true },
+  { path: '/stats/revenue', element: <RevenueStatsPage />, implemented: true },
+  { path: '/stats/orders', element: <OrderStatsPage />, implemented: true },
+  { path: '/stats/traffic', element: <TrafficStatsPage />, implemented: true },
+  { path: '/stats/keywords', element: <KeywordStatsPage />, implemented: true },
 ];
 
 /**
