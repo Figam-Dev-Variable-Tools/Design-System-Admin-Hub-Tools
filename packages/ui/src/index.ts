@@ -86,6 +86,8 @@ export type { TextareaFieldProps, TextareaFieldState } from './molecules/Textare
 // --- Organisms ---
 export { ListCard } from './organisms/ListCard';
 export type { ListCardProps, ListCardState } from './organisms/ListCard';
+export { Modal } from './organisms/Modal';
+export type { ModalProps, ModalState } from './organisms/Modal';
 export { StatsCard } from './organisms/StatsCard';
 export type { StatsCardProps, StatsCardState } from './organisms/StatsCard';
 export { TodoCard } from './organisms/TodoCard';

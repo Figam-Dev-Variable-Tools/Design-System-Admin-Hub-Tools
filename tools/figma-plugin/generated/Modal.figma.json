@@ -1,0 +1,46 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/Modal.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "Modal",
+  "component": "Modal",
+  "version": "1.0.0",
+  "variantProperties": {},
+  "properties": [
+    {
+      "name": "Title",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Icon",
+      "type": "INSTANCE_SWAP",
+      "accepts": [
+        "Icon"
+      ]
+    },
+    {
+      "name": "Children",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Footer",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "overlayPaddingY": "space.6",
+    "overlayPaddingX": "space.4",
+    "backdrop": "color.text.default",
+    "surface": "color.surface.default",
+    "border": "color.border.default",
+    "radius": "radius.lg",
+    "padding": "space.5",
+    "gap": "space.4",
+    "headerGap": "space.3",
+    "title": "color.text.default",
+    "titleTypography": "typography.title.lg",
+    "closeIcon": "color.text.muted",
+    "focusRing": "color.border.focus"
+  }
+}

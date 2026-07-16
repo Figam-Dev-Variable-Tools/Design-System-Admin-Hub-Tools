@@ -1,0 +1,100 @@
+/* Modal (organism) — 딤 + 가운데 다이얼로그. 모든 값은 semantic 토큰 CSS 변수(하드코딩 hex/px 0건). */
+
+.tds-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: var(--tds-space-6);
+  padding-inline: var(--tds-space-4);
+}
+
+/* 배경 딤 — 색을 섞지 않고 토큰 색 + opacity 로만 만든다 (하드코딩 rgba 금지) */
+.tds-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--tds-color-text-default);
+  opacity: 0.45;
+}
+
+.tds-modal__dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tds-space-4);
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: calc(var(--tds-space-6) * 18);
+  max-block-size: 100%;
+  overflow-y: auto;
+  padding: var(--tds-space-5);
+  border: var(--tds-border-width-thin) solid var(--tds-color-border-default);
+  border-radius: var(--tds-radius-lg);
+  background: var(--tds-color-surface-default);
+  color: var(--tds-color-text-default);
+}
+
+.tds-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--tds-space-3);
+}
+
+.tds-modal__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--tds-space-2);
+  min-inline-size: 0;
+}
+
+.tds-modal__title {
+  margin: 0;
+  font-family: var(--tds-typography-title-lg-font-family);
+  font-size: var(--tds-typography-title-lg-font-size);
+  font-weight: var(--tds-typography-title-lg-font-weight);
+  line-height: var(--tds-typography-title-lg-line-height);
+}
+
+.tds-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--tds-space-2);
+}
+
+.tds-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tds-space-4);
+}
+
+/* 닫기 — 아이콘 전용 ghost 버튼 (×). 출처: buttonStyle('ghost') + .tds-ui-btn-ghost/.tds-ui-focusable */
+.tds-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--tds-space-1);
+  border: var(--tds-border-width-thin) solid transparent;
+  border-radius: var(--tds-component-button-radius);
+  background: transparent;
+  color: var(--tds-color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--tds-component-button-transition-duration);
+}
+
+.tds-modal__close:hover:not(:disabled) {
+  background: var(--tds-color-surface-raised);
+  color: var(--tds-color-text-default);
+}
+
+.tds-modal__close:focus-visible {
+  outline: var(--tds-border-width-medium) solid var(--tds-color-border-focus);
+  outline-offset: var(--tds-space-1);
+}
+
+.tds-modal__close-glyph {
+  inline-size: 1.25em;
+  block-size: 1.25em;
+}

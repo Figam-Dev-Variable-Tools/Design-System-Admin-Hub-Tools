@@ -21,11 +21,10 @@
 // 눌렸는지 알 수 없기 때문이다. 성공/실패 토스트는 결과를 아는 **호출부**가 띄운다.
 // 폼 모달을 그냥 닫는 것처럼 '작업'이라 부르기 어색한 자리는 suppressCancelToast 로 끈다.
 import type { CSSProperties, ReactNode } from 'react';
-import { Alert, Button } from '@tds/ui';
+import { Alert, Button, Modal } from '@tds/ui';
 import type { ButtonVariant } from '@tds/ui';
 
 import { AlertTriangleIcon, PencilIcon, PlusCircleIcon, TrashIcon } from './icons';
-import { Modal } from './Modal';
 import { useToast } from './ToastProvider';
 
 type ConfirmIntent = 'create' | 'update' | 'delete' | 'discard';

@@ -59,7 +59,8 @@ export { Card, CardTitle } from './Card';
 
 export { ConfirmDialog } from './ConfirmDialog';
 
-export { Modal } from './Modal';
+/* Modal 은 **@tds/ui 의 것**이다 (organism 승격 · B4). 예전엔 shared/ui 안의 사본을 가리켰다 — 그 사본은 삭제됐다. */
+export { Modal } from '@tds/ui';
 
 /* Pagination 은 @tds/ui 의 것이다 (상단 재수출). 예전엔 shared/ui 안의 사본을 가리켰다 — 그 사본은 삭제됐다 (B3 승격). */
 
