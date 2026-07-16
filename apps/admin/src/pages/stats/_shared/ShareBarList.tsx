@@ -1,0 +1,156 @@
+// 구성비 막대 — 순위 + 점유율 (A40 소유 — apps/admin/src/pages/stats/**)
+//
+// [왜 파이/다계열 차트가 아닌가] 구분 가능한 계열 색이 2개뿐이다(chart.series-1/2). 유입경로
+// 5종을 색으로 나누면 3번째부터 색이 되돌아와 구분되지 않는다. 순위가 본질인 데이터는
+// **한 가지 색의 길이 비교**가 무지개 파이보다 읽기 쉽고 색각 이상에도 안전하다.
+//
+// [막대는 장식이다] 점유율 수치를 글자로 이미 찍으므로 막대에 aria 를 달지 않는다 —
+// 스크린리더가 같은 값을 두 번 읽게 하지 않는다.
+//
+// [상태는 여기가 든다 — StatsTable 과 같은 계약]
+// 처음에는 이 컴포넌트가 막대만 그리고 loading/empty 는 호출부가 알아서 했다. 그랬더니 주문·유입·
+// 회원 세 화면이 **똑같은 3분기(로딩 문구 → 합계 0 → 막대)** 를 각자 손으로 다시 썼다
+// (A83 축3 중복 · 두 에이전트가 독립적으로 같은 지적을 했다). 같은 자리에 사는 StatsTable 은
+// 이미 loading/empty 를 자기가 든다 — 형제 컴포넌트가 상태 계약을 달리 가지면 화면마다 빈 상태가
+// 갈라진다. 그래서 계약을 StatsTable 에 맞췄다.
+import type { CSSProperties, ReactNode } from 'react';
+
+import { deltaOf, formatDeltaPercent, formatMetric, formatPercentValue, shareOf } from './format';
+import type { DeltaTone, MetricUnit } from './format';
+import type { ShareItem } from './types';
+
+const listStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 'var(--tds-space-4)',
+  margin: 0,
+  paddingInlineStart: 0,
+  listStyle: 'none',
+};
+
+const headRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'baseline',
+  justifyContent: 'space-between',
+  gap: 'var(--tds-space-2)',
+};
+
+const labelStyle: CSSProperties = {
+  fontFamily: 'var(--tds-typography-label-md-font-family)',
+  fontSize: 'var(--tds-typography-label-md-font-size)',
+  lineHeight: 'var(--tds-typography-label-md-line-height)',
+  color: 'var(--tds-color-text-default)',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+};
+
+const valueStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'baseline',
+  gap: 'var(--tds-space-2)',
+  fontVariantNumeric: 'tabular-nums',
+  whiteSpace: 'nowrap',
+  fontFamily: 'var(--tds-typography-label-md-font-family)',
+  fontSize: 'var(--tds-typography-label-md-font-size)',
+  lineHeight: 'var(--tds-typography-label-md-line-height)',
+};
+
+const trackStyle: CSSProperties = {
+  blockSize: 'var(--tds-space-2)',
+  marginBlockStart: 'var(--tds-space-1)',
+  background: 'var(--tds-color-surface-raised)',
+  borderRadius: 'var(--tds-radius-full)',
+  overflow: 'hidden',
+};
+
+const fillStyle: CSSProperties = {
+  blockSize: '100%',
+  background: 'var(--tds-color-chart-series-1)',
+  borderRadius: 'var(--tds-radius-full)',
+};
+
+const shareStyle: CSSProperties = {
+  color: 'var(--tds-color-text-muted)',
+  fontVariantNumeric: 'tabular-nums',
+};
+
+const TONE_COLOR: Readonly<Record<DeltaTone, string>> = {
+  positive: 'var(--tds-color-feedback-success-text)',
+  negative: 'var(--tds-color-feedback-danger-text)',
+  neutral: 'var(--tds-color-text-muted)',
+};
+
+const skeletonRowStyle: CSSProperties = {
+  display: 'block',
+  blockSize: 'var(--tds-space-5)',
+  borderRadius: 'var(--tds-radius-sm)',
+};
+
+interface ShareBarListProps {
+  readonly items: readonly ShareItem[];
+  readonly unit: MetricUnit;
+  /** 최초 로드 — 이때만 스켈레톤이다. 재조회는 false 다 (STATE-01) */
+  readonly loading: boolean;
+  /**
+   * 스켈레톤 막대 수 — 이 축의 **항목 수**를 넘긴다(주문 상태 7 · 유입 채널 5 · 회원 등급 4).
+   * 로딩 중에는 items 가 비어 있어 셀 수 없으므로 호출부가 준다. 하드코딩된 5줄이 아니라
+   * 실제 모양과 같은 수여야 로딩→완료에서 레이아웃이 튀지 않는다 (COMP-06).
+   */
+  readonly skeletonCount: number;
+  /** 합계가 0일 때 — 호출부가 Empty 를 3분기로 만들어 넘긴다 (STATE-05) */
+  readonly empty: ReactNode;
+}
+
+export function ShareBarList({ items, unit, loading, skeletonCount, empty }: ShareBarListProps) {
+  const total = items.reduce((sum, item) => sum + item.value, 0);
+
+  // 스켈레톤은 StatsTable 과 같은 결이다 — 문구가 아니라 올 모양을 미리 그린다
+  if (loading) {
+    return (
+      <div style={listStyle} aria-busy="true">
+        {Array.from({ length: skeletonCount }, (_, index) => (
+          <span
+            key={`skeleton-${String(index)}`}
+            className="tds-ui-skeleton"
+            aria-hidden="true"
+            style={skeletonRowStyle}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // 조회는 성공했는데 집계된 값이 0 — 에러가 아니다 (STATE-01).
+  // 합계가 0이면 모든 막대가 0%라 '데이터가 없다'와 '전부 0이다'를 구분할 수 없다.
+  if (total === 0) return <>{empty}</>;
+
+  return (
+    <ul style={listStyle}>
+      {items.map((item) => {
+        const share = shareOf(item.value, total);
+        const delta = item.compareValue === null ? null : deltaOf(item.value, item.compareValue);
+        return (
+          <li key={item.id}>
+            <div style={headRowStyle}>
+              <span style={labelStyle}>{item.label}</span>
+              <span style={valueStyle}>
+                <span>{formatMetric(item.value, unit)}</span>
+                <span style={shareStyle}>{formatPercentValue(share)}%</span>
+                {delta === null ? null : (
+                  <span style={{ color: TONE_COLOR[delta.tone] }}>{formatDeltaPercent(delta)}</span>
+                )}
+              </span>
+            </div>
+            <div style={trackStyle}>
+              <div
+                aria-hidden="true"
+                style={{ ...fillStyle, inlineSize: `${formatPercentValue(share)}%` }}
+              />
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
