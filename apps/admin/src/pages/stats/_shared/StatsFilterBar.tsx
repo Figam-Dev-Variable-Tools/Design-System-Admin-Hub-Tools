@@ -16,6 +16,7 @@ import {
   filterItemStyle,
   mutedTextStyle,
 } from '../../../shared/ui';
+import { useDebouncedSearch } from '../../../shared/crud';
 
 import {
   COMPARE_MODES,
@@ -25,7 +26,6 @@ import {
   isCompareMode,
   periodErrorOf,
 } from './period';
-import { useImeSearch } from './useImeSearch';
 import type { SegmentOption } from './types';
 import type { StatsParamsApi } from './useStatsParams';
 import type { CsvExportState } from './useCsvExport';
@@ -114,7 +114,8 @@ export function StatsFilterBar({
   canExport,
   exportCount,
 }: StatsFilterBarProps) {
-  const search = useImeSearch(params.keyword, params.setKeyword);
+  // COMP-10 — IME 조합 판정·디바운스는 공유 훅이 소유한다 (이 섹션의 사본은 수렴됐다).
+  const search = useDebouncedSearch({ initial: params.keyword, onCommit: params.setKeyword });
   const periodError = periodErrorOf(params.period);
 
   return (
@@ -210,8 +211,8 @@ export function StatsFilterBar({
             <SearchField
               label={searchLabel}
               placeholder={searchLabel}
-              value={search.value}
-              onChange={search.onChange}
+              value={search.input}
+              onChange={search.setInput}
               {...search.inputProps}
             />
           </div>

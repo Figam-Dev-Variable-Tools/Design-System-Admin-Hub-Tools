@@ -8,11 +8,10 @@ import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { formatDateTime, formatNumber } from '../../../shared/format';
-import { Button, PlusCircleIcon, SearchField, StatusBadge } from '../../../shared/ui';
+import { Button, FilterPanel, PlusCircleIcon, SearchField, StatusBadge } from '../../../shared/ui';
 import { CrudListShell, useCrudList, useListState } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { smsTemplateAdapter, SMS_TEMPLATE_RESOURCE } from './data-source';
-import { CategoryFilter } from '../_shared/CategoryFilter';
 import { TransactionalNotice } from '../_shared/TransactionalNotice';
 import { triggerColumn } from '../_shared/triggerColumn';
 import {
@@ -31,6 +30,7 @@ import {
   countByCategory,
   filterByCategory,
   FILTER_ALL,
+  NOTIFICATION_CATEGORY_OPTIONS,
   parseCategoryFilter,
   searchTemplates,
   smsKindLabel,
@@ -125,8 +125,11 @@ export default function SmsTemplateListPage() {
       <TransactionalNotice>주문·배송·계정·보안 SMS 문구를 관리합니다.</TransactionalNotice>
 
       <div style={listLayoutStyle}>
-        <CategoryFilter
-          filter={category}
+        <FilterPanel
+          navLabel="이벤트 분류 필터"
+          heading="이벤트 분류"
+          options={NOTIFICATION_CATEGORY_OPTIONS}
+          value={category}
           counts={counts}
           onChange={(next) => list.setFilter(CATEGORY_PARAM, next)}
         />

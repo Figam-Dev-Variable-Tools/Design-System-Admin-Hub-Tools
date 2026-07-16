@@ -16,6 +16,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { RequirePermission } from '../../../shared/permissions/RequirePermission';
 import { usePermissionStore } from '../../../shared/permissions/permission-store';
 import { createMatrix, withResourceAction } from '../../../shared/permissions/resources';
 import type { PermissionAction } from '../../../shared/permissions/resources';
@@ -107,7 +108,10 @@ function renderShell(spec: LogScreenSpec<Row>) {
     <QueryClientProvider client={client}>
       <ToastProvider>
         <MemoryRouter initialEntries={[ROUTE]}>
-          <LogListShell spec={spec} />
+          {/* 실제 앱에서 AppShell 이 <Outlet> 을 감싸는 그대로 — 403 은 공유 가드가 그린다 (EXC-03) */}
+          <RequirePermission>
+            <LogListShell spec={spec} />
+          </RequirePermission>
         </MemoryRouter>
       </ToastProvider>
     </QueryClientProvider>,
@@ -124,7 +128,7 @@ describe('권한 게이팅', () => {
     const fetchPage = vi.fn();
     renderShell(specOf(fetchPage));
 
-    expect(screen.getByText('접근 권한이 없습니다.')).not.toBeNull();
+    expect(screen.getByText('접근 권한이 없습니다')).not.toBeNull();
     // 표는 아예 없다 — 숨기는 것이 아니라 그리지 않는다
     expect(screen.queryByRole('table')).toBeNull();
   });
@@ -135,14 +139,6 @@ describe('권한 게이팅', () => {
     renderShell(specOf(fetchPage));
 
     expect(fetchPage).not.toHaveBeenCalled();
-  });
-
-  it('403 문구가 조사를 올바로 붙인다 (ERP-13 — "을(를)" 을 출하하지 않는다)', () => {
-    seedPermissions(['read']);
-    renderShell(specOf(vi.fn()));
-
-    expect(screen.getByText(/관리자 로그를 조회할 권한이 없습니다/)).not.toBeNull();
-    expect(screen.queryByText(/을\(를\)/)).toBeNull();
   });
 
   it('내보내기 권한이 없으면 그 버튼을 렌더하지 않는다 (조회는 된다)', async () => {

@@ -7,8 +7,8 @@
 // [COMP-03] 검색은 DS <SearchField> 다. raw <input type="search"> 에 아이콘을 절대 위치로
 // 얹어 재구현하지 않는다 (로그인 이력이 그렇게 만들었고, 그것이 COMP-03 이 지적한 바로 그 이탈이다).
 //
-// [COMP-10 — 한글 IME] 조합 이벤트를 SearchField 의 native 패스스루로 <input> 에 그대로 흘린다.
-// 커밋 시점의 규칙은 useSearchInput(list-state.ts)이 갖는다 — 이 컴포넌트는 이벤트를 전달만 한다.
+// [COMP-10 — 한글 IME] 조합 판정·Enter 차단은 공유 useDebouncedSearch 가 갖는다 —
+// 이 컴포넌트는 그 핸들러 묶음을 SearchField 의 native 패스스루로 <input> 에 흘리기만 한다.
 import { useId } from 'react';
 import type { CSSProperties } from 'react';
 
@@ -19,9 +19,9 @@ import {
   SelectField,
   visuallyHiddenStyle,
 } from '../../../shared/ui';
+import type { DebouncedSearch } from '../../../shared/crud';
 import { PAGE_SIZE_OPTIONS } from '../types';
 import type { PageSize } from '../types';
-import type { SearchInputApi } from '../list-state';
 
 const barStyle: CSSProperties = {
   display: 'flex',
@@ -50,7 +50,7 @@ const sizeWrapStyle: CSSProperties = {
 };
 
 interface LogToolbarProps {
-  readonly search: SearchInputApi;
+  readonly search: DebouncedSearch;
   readonly searchLabel: string;
   readonly searchPlaceholder: string;
   readonly pageSize: PageSize;
@@ -81,15 +81,9 @@ export function LogToolbar({
         <SearchField
           label={searchLabel}
           placeholder={searchPlaceholder}
-          value={search.value}
-          onChange={search.onChange}
-          onCompositionStart={search.onCompositionStart}
-          onCompositionEnd={(event) => search.onCompositionEnd(event.currentTarget.value)}
-          onKeyDown={(event) => {
-            // 조합 중의 Enter 는 '한글을 확정한다'는 뜻이지 '검색해라'가 아니다.
-            // 여기서 막지 않으면 '홍길동'을 확정하는 Enter 가 '홍길'로 조회를 쏜다 (COMP-10).
-            if (search.shouldIgnoreKey(event.nativeEvent.isComposing)) event.preventDefault();
-          }}
+          value={search.input}
+          onChange={search.setInput}
+          {...search.inputProps}
         />
       </div>
 

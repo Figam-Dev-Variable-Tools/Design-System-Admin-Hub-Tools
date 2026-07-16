@@ -24,11 +24,11 @@ import type { CSSProperties } from 'react';
 import { isAbort } from '../../../shared/async';
 import { downloadCsv } from '../../../shared/download';
 import { formatNumber, objectParticle } from '../../../shared/format';
-import { usePermissions } from '../../../shared/permissions/PermissionProvider';
-import { navPageResourceId } from '../../../shared/permissions/resources';
+import { useRouteCan } from '../../../shared/permissions/RequirePermission';
 import { Alert, Button, hintStyle, Pagination, useToast } from '../../../shared/ui';
+import { useDebouncedSearch } from '../../../shared/crud';
 import '../logs.css';
-import { useLogListState, useSearchInput } from '../list-state';
+import { useLogListState } from '../list-state';
 import { presetRange } from '../period';
 import { useLogExport, useLogQuery } from '../queries';
 import { kstToday } from '../time';
@@ -93,34 +93,6 @@ const errorBodyStyle: CSSProperties = {
   flexWrap: 'wrap',
 };
 
-/**
- * 권한 없음 (EXC-03).
- *
- * **로그는 민감하다.** 사이드바에서 메뉴를 숨기는 것만으로는 부족하다 — 링크를 아는 사람은
- * 주소창에 그대로 칠 수 있고, 그러면 숨긴 화면이 통째로 렌더된다. 그래서 화면 자신이 묻는다.
- * 조회 권한이 없으면 **조회 자체를 걸지 않는다**(useLogQuery 의 enabled) — 권한 없는 화면이
- * 데이터를 받아 놓고 안 보여주는 것은 게이팅이 아니다.
- */
-const deniedTitleStyle: CSSProperties = {
-  margin: 0,
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
-};
-
-const deniedBodyStyle: CSSProperties = { margin: 0 };
-
-function AccessDenied({ label }: { readonly label: string }) {
-  return (
-    <Alert tone="danger">
-      <div>
-        <p style={deniedTitleStyle}>접근 권한이 없습니다.</p>
-        <p style={deniedBodyStyle}>
-          {`${label}${objectParticle(label)} 조회할 권한이 없습니다. 필요하다면 최상위 관리자에게 요청해 주세요.`}
-        </p>
-      </div>
-    </Alert>
-  );
-}
-
 /** 조회 구간 확정 — 프리셋은 코드가 만들고(틀릴 수 없다), 직접 지정만 검증을 거친다 */
 function useResolvedRange(
   period: PeriodId,
@@ -139,17 +111,16 @@ export function LogListShell<E extends LogEntryBase>({
   readonly spec: LogScreenSpec<E>;
 }) {
   const toast = useToast();
-  const { can } = usePermissions();
-
-  const resourceId = navPageResourceId(spec.route);
-  const canRead = can(resourceId, 'read');
-  const canExport = can(resourceId, 'export');
+  // EXC-03 (write) — 내보내기 버튼의 게이팅. read 게이팅은 이 화면의 일이 아니다:
+  // AppShell 이 <Outlet> 을 RequirePermission 으로 감싸 모든 라우트를 한 번에 덮는다.
+  const canExport = useRouteCan('export');
 
   const sortableKeys = useMemo(() => Object.keys(spec.sortValues), [spec.sortValues]);
   const list = useLogListState(spec.axes, sortableKeys);
   const { state, setKeyword, setPage } = list;
 
-  const search = useSearchInput(state.keyword, setKeyword);
+  // COMP-10 — 조합 판정·디바운스는 공유 훅이 소유한다 (이 섹션의 사본은 수렴됐다).
+  const search = useDebouncedSearch({ initial: state.keyword, onCommit: setKeyword });
 
   const [detailEntry, setDetailEntry] = useState<E | null>(null);
 
@@ -179,7 +150,7 @@ export function LogListShell<E extends LogEntryBase>({
     isFetching: loading,
     error,
     refetch,
-  } = useLogQuery(spec.scope, query, spec.fetchPage, { enabled: canRead && range !== null });
+  } = useLogQuery(spec.scope, query, spec.fetchPage, { enabled: range !== null });
 
   const exportLog = useLogExport(spec.fetchExport);
   const exporting = exportLog.isPending;
@@ -229,8 +200,6 @@ export function LogListShell<E extends LogEntryBase>({
   const onCancelExport = useCallback(() => {
     controllerRef.current?.abort();
   }, []);
-
-  if (!canRead) return <AccessDenied label={spec.entityLabel} />;
 
   return (
     <div style={pageStyle}>

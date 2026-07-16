@@ -5,15 +5,15 @@ import { useEffect, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Button, PlusCircleIcon, StatusBadge } from '../../../shared/ui';
+import { Button, FilterPanel, PlusCircleIcon, StatusBadge } from '../../../shared/ui';
 import { CrudListShell, useCrudList, type CrudColumn } from '../../../shared/crud';
 import { esgAdapter } from './data-source';
-import { EsgCategoryFilter } from './EsgCategoryFilter';
 import {
   countEsgByCategory,
   esgCategoryLabel,
   esgCategoryTone,
   ESG_FILTER_ALL,
+  ESG_FILTER_OPTIONS,
   filterEsg,
 } from './types';
 import type { EsgFilter, EsgInput, EsgItem } from './types';
@@ -93,7 +93,14 @@ export default function EsgListPage() {
 
   return (
     <div style={layoutStyle}>
-      <EsgCategoryFilter filter={filter} counts={counts} onChange={setFilter} />
+      <FilterPanel
+        navLabel="ESG 분류 필터"
+        heading="분류"
+        options={ESG_FILTER_OPTIONS}
+        value={filter}
+        counts={counts}
+        onChange={setFilter}
+      />
 
       <CrudListShell
         entityLabel={ENTITY_LABEL}

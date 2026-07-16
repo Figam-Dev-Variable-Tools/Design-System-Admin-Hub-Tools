@@ -34,7 +34,8 @@ interface DebouncedSearchConfig {
   readonly minLength?: number;
 }
 
-interface DebouncedSearch {
+/** 훅의 반환 — 검색 UI 를 자기 컴포넌트로 분리한 화면이 prop 타입으로 쓴다 (logs LogToolbar) */
+export interface DebouncedSearch {
   /** 입력창에 그대로 묶는 값 — 조합 중에도 사용자가 친 그대로 보인다 */
   readonly input: string;
   readonly setInput: (value: string) => void;

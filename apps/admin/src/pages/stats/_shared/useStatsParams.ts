@@ -11,6 +11,26 @@
 //
 // [기본값은 URL 에 쓰지 않는다] preset=last7 처럼 기본값이면 파라미터를 지운다.
 // 그래야 공유 링크가 짧고, '기본 상태'의 URL 이 언제나 하나로 정규화된다.
+//
+// ─────────────────────────────────────────────────────────────────────────────
+// [왜 shared/crud 의 useListState 를 쓰지 않는가 — 검토했고, 못 담는다]
+//
+// 공유 useListState 는 목록(CRUD)의 조회 상태를 담는다: page · keyword · filters(문자열 맵) ·
+// sort(문자열 하나) · 행 선택. 통계 화면은 그 모양이 아니다. 네 가지가 들어가지 않는다:
+//
+//   ① 정렬이 두 축이다 — {key, direction} 을 sort/dir 두 파라미터로 싣고 같은 컬럼을 다시
+//      누르면 방향만 뒤집는다 (ERP-04). 공유본의 sort 는 문자열 하나라 방향을 담을 자리가 없다.
+//   ② page-size 가 없다 — 공유본은 page 만 안다. 통계는 size 를 URL 에 싣는다 (ERP-05).
+//   ③ 기간이 조건이다 — preset(계산) vs custom(URL 의 start/end)이 서로를 무효화하는 관계이고,
+//      비교 기간(compare)까지 딸려 있다. 공유본의 filters(문자열 맵)로는 이 관계를 표현할 수 없다.
+//   ④ 파라미터마다 page 되돌림 정책이 다르다 — metric(차트 지표)은 표의 페이지와 무관해서
+//      page 를 지키고, 나머지 조건은 되돌린다. 공유본의 setFilter 는 언제나 되돌린다.
+//
+// 또한 통계는 조회 전용이라 공유본이 주는 것의 절반(행 선택·clampPage)이 쓸모없다.
+// 억지로 얹으면 두 훅이 같은 URLSearchParams 를 각자 쓰게 되어 소유자가 둘이 된다.
+// → 그래서 이 훅은 남는다. 다만 **검색 입력만은** 공유본을 쓴다 (StatsFilterBar 의
+//   useDebouncedSearch — COMP-10). 사본을 들 이유가 있는 것과 없는 것을 갈랐다.
+// ─────────────────────────────────────────────────────────────────────────────
 import { useCallback, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 

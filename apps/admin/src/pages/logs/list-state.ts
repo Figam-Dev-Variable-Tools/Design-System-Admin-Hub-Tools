@@ -20,7 +20,7 @@
 //   · 검색어 = 타이핑의 부산물 → replace. 한 글자마다 history 항목이 쌓이면 뒤로가기가
 //     '지웠다 썼다'를 되감는 기계가 된다.
 // ─────────────────────────────────────────────────────────────────────────────
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { presetRange } from './period';
@@ -316,74 +316,10 @@ export function useLogListState(
   };
 }
 
-/* ── 검색 입력 (COMP-10 — 한글 IME) ──────────────────────────────────────── */
-
-/** 타이핑 한 글자마다 조회하지 않는다 */
-const SEARCH_DEBOUNCE_MS = 250;
-
-export interface SearchInputApi {
-  readonly value: string;
-  readonly onChange: (value: string) => void;
-  readonly onCompositionStart: () => void;
-  readonly onCompositionEnd: (value: string) => void;
-  /** 조합 중의 Enter 는 submit 이 아니다 — true 면 호출부가 그 키를 무시한다 */
-  readonly shouldIgnoreKey: (isComposing: boolean) => boolean;
-}
-
-/**
- * 검색 입력의 상태 — **조합(composition)이 끝나야 조회한다.**
+/* ── 검색 입력 (COMP-10) ─────────────────────────────────────────────────────
  *
- * [왜 필요한가 — COMP-10]
- * 한국 운영자는 전부 IME 로 입력한다. '홍길동' 을 치면 브라우저는 ㅎ → 호 → 홀 → 홍 …
- * 자모마다 change 이벤트를 쏜다. 그대로 조회하면
- *   · 완성된 단어 하나에 **10번 넘는 조회**가 나가고,
- *   · 그중 늦게 도착한 '홀' 의 응답이 '홍길동' 의 응답을 덮어쓴다(last-response-wins).
- * 그래서 **조합 중에는 아무것도 커밋하지 않는다.** 조합이 끝난 뒤 디바운스가 한 번 돈다.
- *
- * [조합이 끝난 것을 어떻게 아는가] `composing` 이 true → false 로 바뀌면 아래 effect 가
- * 다시 돌면서 타이머를 건다. 조합 중에는 early return 이라 타이머 자체가 존재하지 않는다 —
- * 즉 조합 중 발생한 자모 단위 입력은 **커밋 후보가 되지 못한다.**
- *
- * [순서 뒤바뀐 응답] 커밋된 검색어는 react-query 의 **쿼리 키**가 된다. 늦게 도착한 이전
- * 검색어의 응답은 자기 키의 캐시로 들어갈 뿐 화면이 보는 키(최신 검색어)를 건드리지 못한다 —
- * 최신 키의 결과가 언제나 이긴다.
+ * 이 섹션은 자기 useSearchInput 사본을 갖고 있었다. 조합 판정·디바운스·조합 중 Enter 차단은
+ * shared/crud 의 useDebouncedSearch 가 소유한다 — 사본은 그리로 수렴됐다 (LogListShell 참조).
+ * 커밋된 검색어를 URL 에 쓰는 일(setKeyword)은 위 useLogListState 가 계속 갖는다: 검색어만
+ * replace 로 쓰는 규칙(타이핑이 history 를 쌓지 않는다)은 이 섹션의 결정이다.
  */
-export function useSearchInput(
-  committed: string,
-  onCommit: (value: string) => void,
-): SearchInputApi {
-  const [value, setValue] = useState(committed);
-  const [composing, setComposing] = useState(false);
-
-  // URL 이 밖에서 바뀌면(뒤로가기·링크 진입·'검색 지우기') 입력칸이 따라온다.
-  // 타이핑 중에는 URL 이 곧 이 입력에서 나온 값이므로 이 동기화는 무해하다.
-  const committedRef = useRef(committed);
-  useEffect(() => {
-    if (committedRef.current === committed) return;
-    committedRef.current = committed;
-    setValue(committed);
-  }, [committed]);
-
-  useEffect(() => {
-    // 조합 중에는 타이머를 걸지 않는다 — 자모 단위 입력은 커밋되지 않는다
-    if (composing) return undefined;
-    if (value === committedRef.current) return undefined;
-
-    const timer = setTimeout(() => {
-      committedRef.current = value;
-      onCommit(value);
-    }, SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [value, composing, onCommit]);
-
-  return {
-    value,
-    onChange: setValue,
-    onCompositionStart: () => setComposing(true),
-    onCompositionEnd: (next: string) => {
-      setValue(next);
-      setComposing(false);
-    },
-    shouldIgnoreKey: (isComposing: boolean) => isComposing,
-  };
-}

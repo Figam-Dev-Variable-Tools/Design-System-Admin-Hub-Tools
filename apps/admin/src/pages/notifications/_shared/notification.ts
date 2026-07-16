@@ -420,6 +420,12 @@ export type CategoryFilter = typeof FILTER_ALL | TriggerCategory;
  */
 export const CATEGORY_PARAM = 'cat';
 
+/** 좌측 필터가 그리는 항목 — '전체' + 이벤트 분류 (공유 FilterPanel 에 그대로 넘긴다) */
+export const NOTIFICATION_CATEGORY_OPTIONS: readonly {
+  readonly id: CategoryFilter;
+  readonly label: string;
+}[] = [{ id: FILTER_ALL, label: '전체' }, ...TRIGGER_CATEGORY_OPTIONS];
+
 const CATEGORY_VALUES = ['order', 'delivery', 'account', 'security'] as const;
 
 function isTriggerCategory(value: unknown): value is TriggerCategory {
