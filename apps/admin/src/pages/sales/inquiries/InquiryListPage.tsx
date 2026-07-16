@@ -23,6 +23,7 @@ import {
   visuallyHiddenStyle,
 } from '../../../shared/ui';
 import { parseFilter, useCrudListQuery } from '../../../shared/crud';
+import { useRowNavigation } from '../../../shared/useRowNavigation';
 import { inquiryAdapter } from './data-source';
 import {
   filterInquiries,
@@ -98,6 +99,7 @@ const COLUMN_COUNT = 9;
 
 export default function InquiryListPage() {
   const navigate = useNavigate();
+  const { rowNavProps } = useRowNavigation();
   const [type, setType] = useState<InquiryTypeFilter>(INQUIRY_FILTER_ALL);
   const [channel, setChannel] = useState<InquiryChannelFilter>(INQUIRY_FILTER_ALL);
   const [status, setStatus] = useState<InquiryStatusFilter>(INQUIRY_FILTER_ALL);
@@ -244,7 +246,7 @@ export default function InquiryListPage() {
             </tr>
           ) : (
             visible.map((item, index) => (
-              <tr key={item.id}>
+              <tr key={item.id} className="tds-ui-row" {...rowNavProps(`${LIST_PATH}/${item.id}`)}>
                 <SeqCell seq={index + 1} />
                 <td style={tdStyle}>
                   <StatusBadge

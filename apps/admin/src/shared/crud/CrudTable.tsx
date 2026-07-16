@@ -18,6 +18,7 @@ import {
   thStyle,
   visuallyHiddenStyle,
 } from '../ui';
+import { useRowNavigation } from '../useRowNavigation';
 
 export interface CrudColumn<T> {
   readonly header: string;
@@ -83,6 +84,7 @@ export function CrudTable<T extends { id: string }>({
   selectAllLabelId,
   emptyLabel,
 }: CrudTableProps<T>) {
+  const { rowActivateProps } = useRowNavigation();
   const selection = tableSelectionState(items, selectedIds);
   // 체크박스(1) + 순번(1) + 열 개수 + 액션(1)
   const totalCols = columns.length + 3;
@@ -90,7 +92,8 @@ export function CrudTable<T extends { id: string }>({
   return (
     <table style={tableStyle} aria-busy={loading}>
       <caption style={visuallyHiddenStyle}>
-        {entityLabel} 목록 — 체크박스로 선택, 각 행에서 수정·삭제할 수 있습니다.
+        {entityLabel} 목록 — 행을 누르면 해당 항목으로 이동합니다. 체크박스·수정·삭제 버튼은 각자의
+        동작을 수행합니다.
       </caption>
 
       <thead>
@@ -132,7 +135,7 @@ export function CrudTable<T extends { id: string }>({
           </tr>
         ) : (
           items.map((item, index) => (
-            <tr key={item.id}>
+            <tr key={item.id} className="tds-ui-row" {...rowActivateProps(() => onEdit(item))}>
               <RowSelectCell
                 id={item.id}
                 label={`${nameOf(item)} 선택`}

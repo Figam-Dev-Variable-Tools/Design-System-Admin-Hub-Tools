@@ -24,6 +24,7 @@ import {
   visuallyHiddenStyle,
 } from '../../../shared/ui';
 import { parseFilter, useCrudListQuery } from '../../../shared/crud';
+import { useRowNavigation } from '../../../shared/useRowNavigation';
 import { returnAdapter } from './data-source';
 import {
   filterByStatus,
@@ -96,6 +97,7 @@ const emptyCellStyle: CSSProperties = {
 
 export default function ReturnsListPage() {
   const navigate = useNavigate();
+  const { rowNavProps } = useRowNavigation();
   const [kind, setKind] = useState<KindFilter>(KIND_FILTER_ALL);
   const [status, setStatus] = useState<StatusFilter>(STATUS_FILTER_ALL);
   const [keyword, setKeyword] = useState('');
@@ -222,7 +224,11 @@ export default function ReturnsListPage() {
             visible.map((item, index) => {
               const meta = statusMeta(item.status);
               return (
-                <tr key={item.id}>
+                <tr
+                  key={item.id}
+                  className="tds-ui-row"
+                  {...rowNavProps(`${LIST_PATH}/${item.id}`)}
+                >
                   <SeqCell seq={index + 1} />
                   <td style={orderCellStyle}>{item.orderNo}</td>
                   <td style={tdStyle}>{item.productName}</td>

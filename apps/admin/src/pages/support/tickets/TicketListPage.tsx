@@ -24,6 +24,7 @@ import {
   visuallyHiddenStyle,
 } from '../../../shared/ui';
 import { useCrudListQuery } from '../../../shared/crud';
+import { useRowNavigation } from '../../../shared/useRowNavigation';
 import { ticketAdapter, TICKET_RESOURCE } from './data-source';
 import { listActiveCategories } from '../_shared/store';
 import {
@@ -96,6 +97,7 @@ const emptyCellStyle: CSSProperties = {
 
 export default function TicketListPage() {
   const navigate = useNavigate();
+  const { rowNavProps } = useRowNavigation();
   const [status, setStatus] = useState<TicketStatusFilter>(TICKET_FILTER_ALL);
   const [priority, setPriority] = useState<TicketPriorityFilter>(TICKET_FILTER_ALL);
   const [channel, setChannel] = useState<TicketChannelFilter>(TICKET_FILTER_ALL);
@@ -278,7 +280,11 @@ export default function TicketListPage() {
             visible.map((ticket, index) => {
               const sla = ticketSlaState(ticket, now);
               return (
-                <tr key={ticket.id}>
+                <tr
+                  key={ticket.id}
+                  className="tds-ui-row"
+                  {...rowNavProps(`${LIST_PATH}/${ticket.id}`)}
+                >
                   <SeqCell seq={index + 1} />
                   <td style={tdStyle}>
                     <StatusBadge

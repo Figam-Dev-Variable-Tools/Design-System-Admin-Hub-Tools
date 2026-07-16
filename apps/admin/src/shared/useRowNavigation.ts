@@ -17,32 +17,50 @@ import { useNavigate } from 'react-router-dom';
 const INTERACTIVE_SELECTOR =
   'a, button, input, select, textarea, label, [role="menu"], [role="menuitem"]';
 
+const CURSOR_POINTER = { cursor: 'pointer' } as const;
+
+interface RowActivateProps {
+  readonly onClick: (event: MouseEvent<HTMLElement>) => void;
+  readonly style: { readonly cursor: 'pointer' };
+}
+
 interface UseRowNavigationResult {
-  /** <tr> 에 그대로 펼친다: {...rowNavProps(detailPath)} */
-  readonly rowNavProps: (to: string) => {
-    readonly onClick: (event: MouseEvent<HTMLElement>) => void;
-    readonly style: { readonly cursor: 'pointer' };
-  };
+  /** <tr> 에 그대로 펼친다: {...rowNavProps(detailPath)} — 행 클릭 시 to 로 이동한다 */
+  readonly rowNavProps: (to: string) => RowActivateProps;
+  /**
+   * 경로가 아니라 콜백을 실행하는 변형: {...rowActivateProps(() => onEdit(item))}.
+   * 이동 대상을 페이지가 콜백으로 쥐고 있는 목록(선언적 CRUD 프레임워크의 onEdit 등)에서 쓴다.
+   * 인터랙티브 요소 가드는 rowNavProps 와 동일하다.
+   */
+  readonly rowActivateProps: (onActivate: () => void) => RowActivateProps;
 }
 
 export function useRowNavigation(): UseRowNavigationResult {
   const navigate = useNavigate();
 
-  const rowNavProps = useCallback(
-    (to: string) => ({
-      onClick: (event: MouseEvent<HTMLElement>) => {
-        // 텍스트를 드래그해 선택하던 중이면 이동하지 않는다 (셀 값 복사를 막지 않기 위해)
-        if (window.getSelection()?.toString() !== '') return;
+  // 행 클릭을 이동/실행으로 볼지 판정하고, 통과하면 run() 을 부른다 — 두 변형이 같은 가드를 공유한다.
+  const guardedClick = useCallback(
+    (run: () => void) => (event: MouseEvent<HTMLElement>) => {
+      // 텍스트를 드래그해 선택하던 중이면 이동하지 않는다 (셀 값 복사를 막지 않기 위해)
+      if (window.getSelection()?.toString() !== '') return;
 
-        const target = event.target as HTMLElement | null;
-        if (target?.closest(INTERACTIVE_SELECTOR) !== null) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest(INTERACTIVE_SELECTOR) !== null) return;
 
-        navigate(to);
-      },
-      style: { cursor: 'pointer' } as const,
-    }),
-    [navigate],
+      run();
+    },
+    [],
   );
 
-  return { rowNavProps };
+  const rowNavProps = useCallback(
+    (to: string) => ({ onClick: guardedClick(() => navigate(to)), style: CURSOR_POINTER }),
+    [guardedClick, navigate],
+  );
+
+  const rowActivateProps = useCallback(
+    (onActivate: () => void) => ({ onClick: guardedClick(onActivate), style: CURSOR_POINTER }),
+    [guardedClick],
+  );
+
+  return { rowNavProps, rowActivateProps };
 }

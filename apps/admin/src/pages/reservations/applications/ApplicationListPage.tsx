@@ -23,6 +23,7 @@ import {
   visuallyHiddenStyle,
 } from '../../../shared/ui';
 import { useCrudListQuery } from '../../../shared/crud';
+import { useRowNavigation } from '../../../shared/useRowNavigation';
 import { applicationAdapter } from './data-source';
 import {
   APPLICATION_FILTER_ALL,
@@ -89,6 +90,7 @@ const emptyCellStyle: CSSProperties = {
 
 export default function ApplicationListPage() {
   const navigate = useNavigate();
+  const { rowNavProps } = useRowNavigation();
   const [filter, setFilter] = useState<ApplicationStatusFilter>(APPLICATION_FILTER_ALL);
   const [keyword, setKeyword] = useState('');
 
@@ -199,7 +201,7 @@ export default function ApplicationListPage() {
             </tr>
           ) : (
             visible.map((item, index) => (
-              <tr key={item.id}>
+              <tr key={item.id} className="tds-ui-row" {...rowNavProps(`${LIST_PATH}/${item.id}`)}>
                 <SeqCell seq={index + 1} />
                 <td style={dateCellStyle}>{formatDateTime(item.submittedAt)}</td>
                 <td style={tdStyle}>{item.code}</td>

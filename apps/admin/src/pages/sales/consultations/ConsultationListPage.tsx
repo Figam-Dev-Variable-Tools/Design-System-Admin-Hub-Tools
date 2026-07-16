@@ -24,6 +24,7 @@ import {
   visuallyHiddenStyle,
 } from '../../../shared/ui';
 import { parseFilter, useCrudListQuery } from '../../../shared/crud';
+import { useRowNavigation } from '../../../shared/useRowNavigation';
 import { consultationAdapter } from './data-source';
 import {
   CONSULT_FILTER_ALL,
@@ -96,6 +97,7 @@ const emptyCellStyle: CSSProperties = {
 
 export default function ConsultationListPage() {
   const navigate = useNavigate();
+  const { rowNavProps } = useRowNavigation();
   const [type, setType] = useState<ConsultTypeFilter>(CONSULT_FILTER_ALL);
   const [pendingOnly, setPendingOnly] = useState(false);
   const [keyword, setKeyword] = useState('');
@@ -216,7 +218,7 @@ export default function ConsultationListPage() {
             </tr>
           ) : (
             visible.map((item, index) => (
-              <tr key={item.id}>
+              <tr key={item.id} className="tds-ui-row" {...rowNavProps(`${LIST_PATH}/${item.id}`)}>
                 <SeqCell seq={index + 1} />
                 <td style={dateCellStyle}>{formatDateTime(item.consultedAt)}</td>
                 <td style={tdStyle}>{item.accountName}</td>
