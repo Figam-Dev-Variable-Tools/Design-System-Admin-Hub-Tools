@@ -35,6 +35,11 @@ export { DateRangeField } from './molecules/DateRangeField';
 export type { DateRangeFieldProps, DateRangeFieldState } from './molecules/DateRangeField';
 export { errorIdOf, FormField, hintIdOf } from './molecules/FormField';
 export type { FormFieldProps, FormFieldState } from './molecules/FormField';
+export { ImageGalleryField } from './molecules/ImageGalleryField';
+export type { ImageGalleryFieldProps, ImageGalleryFieldState } from './molecules/ImageGalleryField';
+// ImageUploadField 묶음 — 계약 대상(ImageUploadField) + 함께 이동한 순수 유틸(imageFileError)
+export { ImageUploadField, imageFileError } from './molecules/ImageUploadField';
+export type { ImageUploadFieldProps, ImageUploadFieldState } from './molecules/ImageUploadField';
 export { LineAreaChart } from './molecules/LineAreaChart';
 export type { LineAreaChartProps, LineAreaChartState } from './molecules/LineAreaChart';
 export { ListRow } from './molecules/ListRow';

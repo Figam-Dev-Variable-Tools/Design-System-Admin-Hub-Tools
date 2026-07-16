@@ -78,13 +78,12 @@ export type { TimelineEvent } from './Timeline';
 /* FormField · errorIdOf · hintIdOf · TextareaField · SearchField 는 @tds/ui 의 것이다 (상단 재수출).
  * 예전에는 이 이름들이 shared/ui 안의 사본을 가리켰다. 그 사본들은 삭제됐다 (B2 승격). */
 
-export { ImageUploadField } from './ImageUploadField';
-
-export { ImageGalleryField } from './ImageGalleryField';
+/* ImageUploadField · ImageGalleryField 는 **@tds/ui 의 것**이다 (media 승격 · B5).
+ * 예전엔 shared/ui 안의 사본을 가리켰다 — 그 사본들(+ imageFile.ts)은 삭제됐다. imageFileError(순수 검증
+ * 유틸)는 @tds/ui 안에서 두 필드가 내부적으로만 쓰므로 앱 배럴에 재노출하지 않는다 (죽은 공개 표면 0). */
+export { ImageGalleryField, ImageUploadField } from '@tds/ui';
 
 /* ImageThumb 는 @tds/ui 의 것이다 (상단 재수출). */
-
-export { imageFileError } from './imageFile';
 
 /* DateRangeField 는 @tds/ui 의 것이다 (상단 재수출). */
 
@@ -120,7 +119,6 @@ export { useUnsavedChangesDialog } from './useUnsavedChangesDialog';
  * AlertTriangleIcon·InfoCircleIcon 은 유일 소비자였던 ConfirmDialog·Toast 가 @tds/ui 로 승격되며
  * 각자 인라인 글리프를 갖게 돼 여기서 삭제됐다 (죽은 코드 0). IconProps 는 파일 지역 타입으로 되돌렸다. */
 export {
-  CheckCircleIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   CloseIcon,

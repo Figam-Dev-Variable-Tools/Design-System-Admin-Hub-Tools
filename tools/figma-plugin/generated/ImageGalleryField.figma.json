@@ -1,0 +1,69 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/ImageGalleryField.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "ImageGalleryField",
+  "component": "ImageGalleryField",
+  "version": "1.0.0",
+  "variantProperties": {
+    "Required": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    },
+    "Disabled": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  },
+  "properties": [
+    {
+      "name": "Label",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Required",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Disabled",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Error",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Hint",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "dropzoneBorder": "color.border.default",
+    "dropzoneBorderActive": "color.border.focus",
+    "dropzoneBorderInvalid": "color.feedback.danger.border",
+    "dropzoneSurface": "color.surface.raised",
+    "dropzoneSurfaceActive": "color.surface.default",
+    "tileBorder": "color.border.default",
+    "tileSurface": "color.surface.raised",
+    "removeSurface": "color.surface.default",
+    "removeColor": "color.feedback.danger.text",
+    "iconColor": "color.action.primary.default",
+    "text": "color.text.default",
+    "textMuted": "color.text.muted",
+    "errorText": "color.feedback.danger.text",
+    "successText": "color.feedback.success.text",
+    "radius": "radius.md",
+    "gap": "space.3",
+    "focusRing": "color.border.focus",
+    "typography": "typography.label.md"
+  }
+}

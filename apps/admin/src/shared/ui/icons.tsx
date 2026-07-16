@@ -33,17 +33,7 @@ export function CloseIcon(props: IconProps) {
   );
 }
 
-/** 성공 — 원 안에 체크 (토스트 success · 확인 완료) */
-export function CheckCircleIcon(props: IconProps) {
-  return (
-    <svg {...BASE} {...props}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
-  );
-}
-
-/** 취소 — 원 안에 × (토스트 cancelled) */
+/** 취소 — 원 안에 × */
 export function XCircleIcon(props: IconProps) {
   return (
     <svg {...BASE} {...props}>
