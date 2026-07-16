@@ -20,15 +20,16 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { toDateString } from '../_shared/calendar';
+import { formatDate } from '../../../shared/format';
 import type { Reservation } from '../_shared/reservation';
 
 /**
  * 픽스처를 **오늘**에 고정한다 — 화면의 `anchor` 초기값이 오늘이고 주 뷰가 그 주를 그리므로,
  * 날짜를 상수로 박으면 그 주가 지난 순간 예약이 격자 밖으로 나가 테스트가 무의미해진다.
- * 페이지와 같은 헬퍼(`toDateString`)로 같은 로컬 기준의 날짜를 만든다.
+ * 페이지와 같은 헬퍼(`formatDate`)로 같은 기준의 날짜를 만든다 — 페이지의 '오늘'은 **서울의
+ * 오늘**이므로(ERP-09) 여기서 로컬 기준으로 만들면 KST 가 아닌 존에서 하루 어긋난다.
  */
-const TODAY = toDateString(new Date());
+const TODAY = formatDate(new Date());
 
 const FIXTURE: readonly Reservation[] = [
   {

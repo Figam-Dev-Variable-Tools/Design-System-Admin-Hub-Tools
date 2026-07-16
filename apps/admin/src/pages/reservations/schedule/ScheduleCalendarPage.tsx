@@ -21,7 +21,8 @@ import {
 import { useCrudListQuery } from '../../../shared/crud';
 import { reservationAdapter } from '../_shared/reservation-store';
 import { reservationsInSlot } from '../_shared/reservation';
-import { addDays, formatDayLabel, isToday, toDateString, weekDates } from '../_shared/calendar';
+import { addDays, formatDayLabel, isToday, weekDates } from '../_shared/calendar';
+import { formatDate } from '../../../shared/format';
 import { bookingStatusLabel, bookingStatusTone } from '../_shared/booking';
 import { resourceName } from '../_shared/resources';
 import type { Slot } from './schedule-data';
@@ -127,7 +128,9 @@ const panelInfoStyle: CSSProperties = {
 
 export default function ScheduleCalendarPage() {
   const navigate = useNavigate();
-  const today = toDateString(new Date());
+  // [ERP-09] '오늘'은 **서울의 오늘**이다 — toDateString(new Date()) 로 잡으면 보는 사람의 OS
+  // 타임존이 달력의 시작 칸을 정한다(뉴욕에서 열면 하루 전 주가 열린다). 기준은 shared/format 한 벌.
+  const today = formatDate(new Date());
   const [view, setView] = useState<CalendarView>('week');
   const [anchor, setAnchor] = useState(today);
   const [selected, setSelected] = useState<SelectedSlot | null>(null);
