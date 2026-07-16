@@ -9,30 +9,19 @@
 import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 
-import {
-  Alert,
-  controlStyle,
-  errorIdOf,
-  FormField,
-  hintIdOf,
-  SelectField,
-  TextareaField,
-} from '../../../shared/ui';
+import { Alert, controlStyle, errorIdOf, FormField, TextareaField } from '../../../shared/ui';
 import { useCrudForm, FormPageShell } from '../../../shared/crud';
 import { emailTemplateAdapter, EMAIL_TEMPLATE_RESOURCE } from './data-source';
 import { emailTemplateSchema } from './validation';
 import type { EmailTemplateFormValues } from './validation';
 import { VariableInsertBar } from '../_shared/VariableInsertBar';
+import { TemplateIdentityFields } from '../_shared/TemplateIdentityFields';
 import { useInitialFocus } from '../_shared/useInitialFocus';
 import {
   applyVariableSamples,
   detectAdWords,
   EMAIL_BODY_MAX,
   EMAIL_SUBJECT_MAX,
-  findTrigger,
-  NOTIFICATION_TRIGGERS,
-  TEMPLATE_NAME_MAX,
-  triggerCategoryLabel,
 } from '../_shared/notification';
 import type { EmailTemplate, EmailTemplateInput } from '../_shared/notification';
 
@@ -133,7 +122,6 @@ export default function EmailTemplateFormPage() {
   const body = watch('body');
 
   const adWords = useMemo(() => detectAdWords(`${subject}\n${body}`), [subject, body]);
-  const triggerInfo = findTrigger(trigger);
 
   const insertVariable = (token: string) =>
     setValue('body', `${body}${token}`, { shouldDirty: true, shouldValidate: true });
@@ -155,59 +143,19 @@ export default function EmailTemplateFormPage() {
     >
       {/* A11Y-13 — 폼 진입 시 첫 편집 필드 포커스. 검증 실패 시 첫 오류 필드 포커스는 react-hook-form 의
           shouldFocusError(기본 true)가 register 된 필드에 대해 처리한다. */}
-      <FormField
-        htmlFor="email-template-name"
-        label="템플릿명"
-        required
-        error={errors.name?.message}
-        hint="운영자만 보는 이름입니다. 수신자에게는 보이지 않습니다."
-      >
-        <input
-          id="email-template-name"
-          type="text"
-          className="tds-ui-input tds-ui-focusable"
-          style={controlStyle(errors.name !== undefined)}
-          maxLength={TEMPLATE_NAME_MAX}
-          placeholder="예: 주문 접수 안내"
-          disabled={disabled}
-          required
-          aria-invalid={errors.name !== undefined}
-          aria-describedby={
-            errors.name !== undefined
-              ? errorIdOf('email-template-name')
-              : hintIdOf('email-template-name')
-          }
-          {...nameField}
-          ref={(element) => {
-            nameRegisterRef(element);
-            nameFocusRef.current = element;
-          }}
-        />
-      </FormField>
-
-      <FormField
-        htmlFor="email-template-trigger"
-        label="이벤트"
-        required
-        hint={
-          triggerInfo === undefined
-            ? '이 문구를 발송할 이벤트를 고릅니다.'
-            : `${triggerCategoryLabel(triggerInfo.category)} · ${triggerInfo.description}`
-        }
-      >
-        <SelectField
-          id="email-template-trigger"
-          disabled={disabled}
-          aria-describedby={hintIdOf('email-template-trigger')}
-          {...register('trigger')}
-        >
-          {NOTIFICATION_TRIGGERS.map((option) => (
-            <option key={option.id} value={option.id}>
-              {`${triggerCategoryLabel(option.category)} · ${option.label}`}
-            </option>
-          ))}
-        </SelectField>
-      </FormField>
+      <TemplateIdentityFields
+        idPrefix="email-template"
+        nameField={nameField}
+        nameError={errors.name?.message}
+        nameRef={(element) => {
+          nameRegisterRef(element);
+          nameFocusRef.current = element;
+        }}
+        triggerField={register('trigger')}
+        trigger={trigger}
+        namePlaceholder="예: 주문 접수 안내"
+        disabled={disabled}
+      />
 
       {/* COMP-12 — 제목은 수신함에서 잘리는 자리라 실시간 글자수 카운터가 필수다.
           FormField 의 counter 슬롯이 'N/max' 를 그린다. */}

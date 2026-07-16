@@ -23,11 +23,73 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
+/* ── 템플릿 저장소 골격 ────────────────────────────────────────────────────────
+ *
+ * 이메일·SMS 템플릿은 필드만 다르고(제목 유무) 저장 방식이 같다: 가변 배열 + 일련번호 +
+ * 목록(트리거순 정렬)·단건(없으면 throw)·추가·수정·삭제. 두 벌을 복사하면 한쪽만 고치는 사고가 난다
+ * (A83 축3 중복) — 골격은 여기 한 벌, 타입별로 다른 것(정규화·필드)만 build/patch 로 주입한다.
+ * 모양은 공용 createCrudAdapter 의 spec(seed·build·patch)을 그대로 따른다 — 새 패턴을 만들지 않는다. */
+
+interface TemplateShape {
+  readonly id: string;
+  readonly name: string;
+  readonly trigger: TriggerId;
+}
+
+interface TemplateStoreSpec<T extends TemplateShape, Input> {
+  readonly seed: readonly T[];
+  /** 새 id 접두사 — 'ntf-email-' / 'ntf-sms-' */
+  readonly idPrefix: string;
+  readonly notFound: string;
+  /** Input + 배정된 id + 저장 시각 → 새 항목(필드 정규화는 여기서) */
+  readonly build: (input: Input, id: string, now: string) => T;
+  /** 기존 항목 + Input + 저장 시각 → 갱신본 */
+  readonly patch: (item: T, input: Input, now: string) => T;
+}
+
+interface TemplateStore<T extends TemplateShape, Input> {
+  /** 트리거 순서로 정렬해 돌려준다 — 운영자가 이벤트 흐름대로 읽는다 */
+  readonly list: () => readonly T[];
+  readonly getOne: (id: string) => T;
+  readonly add: (input: Input) => void;
+  readonly update: (id: string, input: Input) => void;
+  readonly remove: (id: string) => void;
+  /** id 로 찾기 — 없으면 undefined(규칙 화면이 끊어진 연결을 경고로 그린다) */
+  readonly find: (id: string) => T | undefined;
+}
+
+function createTemplateStore<T extends TemplateShape, Input>(
+  spec: TemplateStoreSpec<T, Input>,
+): TemplateStore<T, Input> {
+  let items: readonly T[] = spec.seed;
+  let seq = spec.seed.length;
+
+  return {
+    list: () => sortByTrigger(items),
+    getOne: (id) => {
+      const found = items.find((item) => item.id === id);
+      if (found === undefined) throw new Error(spec.notFound);
+      return found;
+    },
+    add: (input) => {
+      seq += 1;
+      items = [...items, spec.build(input, `${spec.idPrefix}${String(seq)}`, nowIso())];
+    },
+    update: (id, input) => {
+      items = items.map((item) => (item.id === id ? spec.patch(item, input, nowIso()) : item));
+    },
+    remove: (id) => {
+      items = items.filter((item) => item.id !== id);
+    },
+    find: (id) => items.find((item) => item.id === id),
+  };
+}
+
 /* ── 이메일 템플릿 ─────────────────────────────────────────────────────────────
  *
  * 전부 정보성(트랜잭션) 문구다 — (광고) 표기·수신거부 문구가 하나도 없는 것이 마케팅 픽스처와의 차이다. */
 
-let emailTemplates: readonly EmailTemplate[] = [
+const EMAIL_SEED: readonly EmailTemplate[] = [
   {
     id: 'ntf-email-1',
     name: '주문 접수 안내',
@@ -86,58 +148,40 @@ let emailTemplates: readonly EmailTemplate[] = [
   },
 ];
 
-let emailSeq = emailTemplates.length;
+const emailStore = createTemplateStore<EmailTemplate, EmailTemplateInput>({
+  seed: EMAIL_SEED,
+  idPrefix: 'ntf-email-',
+  notFound: '이메일 템플릿을 찾을 수 없습니다',
+  build: (input, id, now) => ({
+    id,
+    name: input.name.trim(),
+    trigger: input.trigger,
+    subject: input.subject.trim(),
+    body: input.body.trim(),
+    updatedAt: now,
+  }),
+  patch: (item, input, now) => ({
+    ...item,
+    name: input.name.trim(),
+    trigger: input.trigger,
+    subject: input.subject.trim(),
+    body: input.body.trim(),
+    updatedAt: now,
+  }),
+});
 
-export function listEmailTemplates(): readonly EmailTemplate[] {
-  return sortByTrigger(emailTemplates);
-}
-
-export function getEmailTemplate(id: string): EmailTemplate {
-  const found = emailTemplates.find((template) => template.id === id);
-  if (found === undefined) throw new Error('이메일 템플릿을 찾을 수 없습니다');
-  return found;
-}
-
-export function addEmailTemplate(input: EmailTemplateInput): void {
-  emailSeq += 1;
-  emailTemplates = [
-    ...emailTemplates,
-    {
-      id: `ntf-email-${String(emailSeq)}`,
-      name: input.name.trim(),
-      trigger: input.trigger,
-      subject: input.subject.trim(),
-      body: input.body.trim(),
-      updatedAt: nowIso(),
-    },
-  ];
-}
-
-export function updateEmailTemplate(id: string, input: EmailTemplateInput): void {
-  emailTemplates = emailTemplates.map((template) =>
-    template.id === id
-      ? {
-          ...template,
-          name: input.name.trim(),
-          trigger: input.trigger,
-          subject: input.subject.trim(),
-          body: input.body.trim(),
-          updatedAt: nowIso(),
-        }
-      : template,
-  );
-}
-
-export function removeEmailTemplate(id: string): void {
-  emailTemplates = emailTemplates.filter((template) => template.id !== id);
-}
+export const listEmailTemplates = emailStore.list;
+export const getEmailTemplate = emailStore.getOne;
+export const addEmailTemplate = emailStore.add;
+export const updateEmailTemplate = emailStore.update;
+export const removeEmailTemplate = emailStore.remove;
 
 /* ── SMS 템플릿 ────────────────────────────────────────────────────────────────
  *
  * 90byte 안팎으로 맞춘 정보성 문구. 'ntf-sms-3' 은 일부러 90byte 를 넘겨 LMS 로 승격되는 표본이다
  * (폼의 바이트 카운터·승격 안내가 실제로 걸리는지 눈으로 확인할 수 있게 둔다). */
 
-let smsTemplates: readonly SmsTemplate[] = [
+const SMS_SEED: readonly SmsTemplate[] = [
   {
     id: 'ntf-sms-1',
     name: '주문 접수 안내(SMS)',
@@ -175,49 +219,31 @@ let smsTemplates: readonly SmsTemplate[] = [
   },
 ];
 
-let smsSeq = smsTemplates.length;
+const smsStore = createTemplateStore<SmsTemplate, SmsTemplateInput>({
+  seed: SMS_SEED,
+  idPrefix: 'ntf-sms-',
+  notFound: 'SMS 템플릿을 찾을 수 없습니다',
+  build: (input, id, now) => ({
+    id,
+    name: input.name.trim(),
+    trigger: input.trigger,
+    body: input.body.trim(),
+    updatedAt: now,
+  }),
+  patch: (item, input, now) => ({
+    ...item,
+    name: input.name.trim(),
+    trigger: input.trigger,
+    body: input.body.trim(),
+    updatedAt: now,
+  }),
+});
 
-export function listSmsTemplates(): readonly SmsTemplate[] {
-  return sortByTrigger(smsTemplates);
-}
-
-export function getSmsTemplate(id: string): SmsTemplate {
-  const found = smsTemplates.find((template) => template.id === id);
-  if (found === undefined) throw new Error('SMS 템플릿을 찾을 수 없습니다');
-  return found;
-}
-
-export function addSmsTemplate(input: SmsTemplateInput): void {
-  smsSeq += 1;
-  smsTemplates = [
-    ...smsTemplates,
-    {
-      id: `ntf-sms-${String(smsSeq)}`,
-      name: input.name.trim(),
-      trigger: input.trigger,
-      body: input.body.trim(),
-      updatedAt: nowIso(),
-    },
-  ];
-}
-
-export function updateSmsTemplate(id: string, input: SmsTemplateInput): void {
-  smsTemplates = smsTemplates.map((template) =>
-    template.id === id
-      ? {
-          ...template,
-          name: input.name.trim(),
-          trigger: input.trigger,
-          body: input.body.trim(),
-          updatedAt: nowIso(),
-        }
-      : template,
-  );
-}
-
-export function removeSmsTemplate(id: string): void {
-  smsTemplates = smsTemplates.filter((template) => template.id !== id);
-}
+export const listSmsTemplates = smsStore.list;
+export const getSmsTemplate = smsStore.getOne;
+export const addSmsTemplate = smsStore.add;
+export const updateSmsTemplate = smsStore.update;
+export const removeSmsTemplate = smsStore.remove;
 
 /* ── 발송 규칙 ─────────────────────────────────────────────────────────────────
  *
@@ -341,7 +367,7 @@ export function templateOptionsFor(
   channel: NotificationChannel,
   trigger: TriggerId,
 ): readonly { readonly id: string; readonly name: string }[] {
-  const source = channel === 'email' ? listEmailTemplates() : listSmsTemplates();
+  const source = channel === 'email' ? emailStore.list() : smsStore.list();
   return source
     .filter((template) => template.trigger === trigger)
     .map((template) => ({ id: template.id, name: template.name }));
@@ -349,8 +375,8 @@ export function templateOptionsFor(
 
 /** 규칙 목록이 보여줄 템플릿명 — 삭제된 템플릿을 가리키면 빈 문자열(화면이 경고를 띄운다) */
 export function templateNameOf(channel: NotificationChannel, templateId: string): string {
-  const source = channel === 'email' ? emailTemplates : smsTemplates;
-  return source.find((template) => template.id === templateId)?.name ?? '';
+  const store = channel === 'email' ? emailStore : smsStore;
+  return store.find(templateId)?.name ?? '';
 }
 
 /** 이 템플릿을 쓰는 규칙 수 — 템플릿 삭제 전 경고에 쓴다(끊어진 규칙 예방) */

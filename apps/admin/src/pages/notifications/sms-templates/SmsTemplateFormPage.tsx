@@ -8,37 +8,24 @@
 import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 
-import {
-  Alert,
-  controlStyle,
-  errorIdOf,
-  FormField,
-  hintIdOf,
-  hintStyle,
-  SelectField,
-  StatusBadge,
-  TextareaField,
-} from '../../../shared/ui';
+import { Alert, FormField, hintStyle, StatusBadge, TextareaField } from '../../../shared/ui';
 import { formatNumber } from '../../../shared/format';
 import { useCrudForm, FormPageShell } from '../../../shared/crud';
 import { smsTemplateAdapter, SMS_TEMPLATE_RESOURCE } from './data-source';
 import { smsTemplateSchema } from './validation';
 import type { SmsTemplateFormValues } from './validation';
 import { VariableInsertBar } from '../_shared/VariableInsertBar';
+import { TemplateIdentityFields } from '../_shared/TemplateIdentityFields';
 import { useInitialFocus } from '../_shared/useInitialFocus';
 import {
   applyVariableSamples,
   byteLengthOf,
   classifySms,
   detectAdWords,
-  findTrigger,
-  NOTIFICATION_TRIGGERS,
   SMS_BODY_MAX,
   SMS_MAX_BYTES,
   smsByteLimit,
   smsKindLabel,
-  TEMPLATE_NAME_MAX,
-  triggerCategoryLabel,
 } from '../_shared/notification';
 import type { SmsTemplate, SmsTemplateInput } from '../_shared/notification';
 
@@ -120,7 +107,6 @@ export default function SmsTemplateFormPage() {
   const overLimit = bytes > limit;
 
   const adWords = useMemo(() => detectAdWords(body), [body]);
-  const triggerInfo = findTrigger(trigger);
 
   const insertVariable = (token: string) =>
     setValue('body', `${body}${token}`, { shouldDirty: true, shouldValidate: true });
@@ -142,59 +128,19 @@ export default function SmsTemplateFormPage() {
     >
       {/* A11Y-13 — 폼에 들어오면 첫 편집 필드에 포커스한다. 검증 실패 시 첫 오류 필드로의 포커스 이동은
           react-hook-form 의 shouldFocusError(기본 true)가 register 된 필드에 대해 처리한다. */}
-      <FormField
-        htmlFor="sms-template-name"
-        label="템플릿명"
-        required
-        error={errors.name?.message}
-        hint="운영자만 보는 이름입니다. 수신자에게는 보이지 않습니다."
-      >
-        <input
-          id="sms-template-name"
-          type="text"
-          className="tds-ui-input tds-ui-focusable"
-          style={controlStyle(errors.name !== undefined)}
-          maxLength={TEMPLATE_NAME_MAX}
-          placeholder="예: 주문 접수 안내(SMS)"
-          disabled={disabled}
-          required
-          aria-invalid={errors.name !== undefined}
-          aria-describedby={
-            errors.name !== undefined
-              ? errorIdOf('sms-template-name')
-              : hintIdOf('sms-template-name')
-          }
-          {...nameField}
-          ref={(element) => {
-            nameRegisterRef(element);
-            nameFocusRef.current = element;
-          }}
-        />
-      </FormField>
-
-      <FormField
-        htmlFor="sms-template-trigger"
-        label="이벤트"
-        required
-        hint={
-          triggerInfo === undefined
-            ? '이 문구를 발송할 이벤트를 고릅니다.'
-            : `${triggerCategoryLabel(triggerInfo.category)} · ${triggerInfo.description}`
-        }
-      >
-        <SelectField
-          id="sms-template-trigger"
-          disabled={disabled}
-          aria-describedby={hintIdOf('sms-template-trigger')}
-          {...register('trigger')}
-        >
-          {NOTIFICATION_TRIGGERS.map((option) => (
-            <option key={option.id} value={option.id}>
-              {`${triggerCategoryLabel(option.category)} · ${option.label}`}
-            </option>
-          ))}
-        </SelectField>
-      </FormField>
+      <TemplateIdentityFields
+        idPrefix="sms-template"
+        nameField={nameField}
+        nameError={errors.name?.message}
+        nameRef={(element) => {
+          nameRegisterRef(element);
+          nameFocusRef.current = element;
+        }}
+        triggerField={register('trigger')}
+        trigger={trigger}
+        namePlaceholder="예: 주문 접수 안내(SMS)"
+        disabled={disabled}
+      />
 
       <TextareaField
         label="본문"
