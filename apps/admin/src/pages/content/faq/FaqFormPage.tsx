@@ -264,7 +264,7 @@ export default function FaqFormPage() {
               >
                 <SelectField
                   id="faq-category"
-                  invalid={errors.categoryId !== undefined}
+                  isInvalid={errors.categoryId !== undefined}
                   disabled={disabled}
                   aria-invalid={errors.categoryId !== undefined}
                   {...register('categoryId')}

@@ -1,0 +1,72 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/TriStateCheckbox.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "TriStateCheckbox",
+  "component": "TriStateCheckbox",
+  "version": "1.0.0",
+  "variantProperties": {
+    "Checked": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    },
+    "Indeterminate": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    },
+    "Disabled": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  },
+  "properties": [
+    {
+      "name": "Checked",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Indeterminate",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Disabled",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Id",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "LabelledBy",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Label",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "DescribedBy",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "control": "color.action.primary.default",
+    "focusRing": "color.border.focus",
+    "size": "space.4",
+    "radius": "radius.sm"
+  }
+}

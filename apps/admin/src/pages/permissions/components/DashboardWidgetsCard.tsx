@@ -92,7 +92,8 @@ export function DashboardWidgetsCard({
   /** '전체 선택' 체크박스의 id — label 이 htmlFor 로 명시 연결한다 (a11y) */
   const selectAllControlId = useId();
 
-  const describedBy = disabled ? disabledReasonId : undefined;
+  // 빈 문자열이면 TriStateCheckbox 가 aria-describedby 를 부여하지 않는다 (계약 규약)
+  const describedBy = disabled ? (disabledReasonId ?? '') : '';
 
   const onCount = DASHBOARD_WIDGET_META.filter((meta) => widgets[meta.key]).length;
   const state =

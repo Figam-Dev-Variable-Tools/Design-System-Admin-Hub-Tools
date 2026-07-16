@@ -1,0 +1,60 @@
+/* SelectField (atom) — 네이티브 <select> + 커스텀 chevron. TextField 표면과 공유. 하드코딩 hex/px 0건. */
+
+.tds-select {
+  position: relative;
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+/* select 표면 — 입력(controlStyle)과 동일하되 네이티브 화살표를 지우고 chevron 만큼 오른쪽 여백을 넓힌다 */
+.tds-select__control {
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-inline-size: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-block: var(--tds-space-2);
+  padding-inline-start: var(--tds-space-3);
+  /* 커스텀 chevron(오른쪽 space-3 자리, 약 1.25em)이 글자와 겹치지 않게 오른쪽 여백을 넉넉히 준다 */
+  padding-inline-end: calc(var(--tds-space-6) + var(--tds-space-3));
+  border-style: solid;
+  border-width: var(--tds-border-width-thin);
+  border-color: var(--tds-color-border-default);
+  border-radius: var(--tds-radius-md);
+  background: var(--tds-color-surface-default);
+  color: var(--tds-color-text-default);
+  font-family: var(--tds-typography-body-md-font-family);
+  font-size: var(--tds-typography-label-md-font-size);
+  line-height: var(--tds-typography-body-md-line-height);
+  cursor: pointer;
+}
+
+/* error(isInvalid) — 입력의 controlStyle(invalid) 와 같은 붉은 테두리 (두께도 medium 으로) */
+.tds-select__control--invalid {
+  border-width: var(--tds-border-width-medium);
+  border-color: var(--tds-color-feedback-danger-border);
+}
+
+.tds-select__control:focus-visible {
+  outline: var(--tds-border-width-medium) solid var(--tds-color-border-focus);
+  outline-offset: var(--tds-space-1);
+}
+
+/* 커스텀 chevron 자리 — 오른쪽 여백(space-3) 안에서 세로 중앙. 클릭은 아래 select 로 통과시킨다 */
+.tds-select__chevron {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-end: var(--tds-space-3);
+  display: inline-flex;
+  align-items: center;
+  pointer-events: none;
+  color: var(--tds-color-text-muted);
+}
+
+.tds-select__chevron-glyph {
+  inline-size: 1.25em;
+  block-size: 1.25em;
+}

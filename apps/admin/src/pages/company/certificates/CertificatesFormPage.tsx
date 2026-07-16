@@ -120,7 +120,7 @@ export default function CertificatesFormPage() {
         <FormField htmlFor="cert-kind" label="구분" required error={errors.kind?.message}>
           <SelectField
             id="cert-kind"
-            invalid={errors.kind !== undefined}
+            isInvalid={errors.kind !== undefined}
             disabled={disabled}
             aria-invalid={errors.kind !== undefined}
             {...register('kind')}

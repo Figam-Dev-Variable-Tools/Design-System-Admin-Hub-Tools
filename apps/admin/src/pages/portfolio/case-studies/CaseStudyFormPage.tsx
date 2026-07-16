@@ -111,7 +111,7 @@ export default function CaseStudyFormPage() {
         <FormField htmlFor="case-industry" label="업종" required error={errors.industry?.message}>
           <SelectField
             id="case-industry"
-            invalid={errors.industry !== undefined}
+            isInvalid={errors.industry !== undefined}
             disabled={disabled}
             aria-invalid={errors.industry !== undefined}
             {...register('industry')}

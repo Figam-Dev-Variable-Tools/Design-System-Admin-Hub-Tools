@@ -257,7 +257,7 @@ export default function NewsletterFormPage() {
                 <SelectField
                   id="nl-sender"
                   disabled={disabled}
-                  invalid={errors.senderId !== undefined}
+                  isInvalid={errors.senderId !== undefined}
                   {...register('senderId')}
                 >
                   <option value="">발신자 선택</option>

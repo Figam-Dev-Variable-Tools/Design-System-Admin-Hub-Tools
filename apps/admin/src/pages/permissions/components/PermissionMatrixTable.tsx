@@ -131,7 +131,8 @@ const cellStyle: CSSProperties = {
 interface RowProps {
   readonly matrix: PermissionMatrix;
   readonly disabled: boolean;
-  readonly describedBy: string | undefined;
+  /** 비활성 사유 문구의 id — 없으면 빈 문자열('' → aria-describedby 미부여, TriStateCheckbox 규약) */
+  readonly describedBy: string;
   readonly onToggle: (resourceId: ResourceId, action: PermissionAction, enabled: boolean) => void;
 }
 
@@ -269,7 +270,8 @@ export function PermissionMatrixTable({
   onToggleColumn,
   onToggleAll,
 }: PermissionMatrixTableProps) {
-  const describedBy = disabled ? disabledReasonId : undefined;
+  // 빈 문자열이면 TriStateCheckbox 가 aria-describedby 를 부여하지 않는다 (계약 규약)
+  const describedBy = disabled ? (disabledReasonId ?? '') : '';
 
   return (
     <div className="tds-perm-matrix-wrap">

@@ -22,7 +22,17 @@ import './ui.css';
  *
  * 예전에는 이 두 이름이 shared/ui 안의 **사본**을 가리켰다. 그 사본들은 삭제됐다.
  */
-export { Alert, Button, HelpTip, ImageThumb, StatusBadge } from '@tds/ui';
+export {
+  Alert,
+  Button,
+  HelpTip,
+  ImageThumb,
+  SelectField,
+  StatusBadge,
+  ToggleSwitch,
+  TriStateCheckbox,
+  triStateProps,
+} from '@tds/ui';
 /** @tds/ui 의 StatusBadgeTone 을 앱이 쓰던 이름(StatusTone)으로 재노출한다 — 호출부 API 보존 */
 export type { StatusBadgeTone as StatusTone } from '@tds/ui';
 
@@ -51,7 +61,7 @@ export { TextareaField } from './TextareaField';
 
 export { SearchField } from './SearchField';
 
-export { SelectField } from './SelectField';
+/* SelectField 는 @tds/ui 의 것이다 (상단 재수출). */
 
 export { ImageUploadField } from './ImageUploadField';
 
@@ -80,7 +90,7 @@ export { SelectionBar } from './SelectionBar';
 
 export { useRowSelection } from './useRowSelection';
 
-export { ToggleSwitch } from './ToggleSwitch';
+/* ToggleSwitch 는 @tds/ui 의 것이다 (상단 재수출). */
 
 /* ── 표 행 드래그 재정렬 (FAQ·배너가 공유) ─────────────────────────────────── */
 export {
@@ -96,7 +106,7 @@ export type { ToastItem, ToastKind } from './Toast';
 
 export { ToastProvider, useToast } from './ToastProvider';
 
-export { TriStateCheckbox, triStateProps } from './TriStateCheckbox';
+/* TriStateCheckbox · triStateProps 는 @tds/ui 의 것이다 (상단 재수출). */
 
 export { useUnsavedChangesDialog } from './useUnsavedChangesDialog';
 
@@ -104,7 +114,6 @@ export { useUnsavedChangesDialog } from './useUnsavedChangesDialog';
 export {
   AlertTriangleIcon,
   CheckCircleIcon,
-  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   CloseIcon,

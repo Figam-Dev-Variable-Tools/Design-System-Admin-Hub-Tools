@@ -158,15 +158,6 @@ export function SearchIcon(props: IconProps) {
   );
 }
 
-/** 셀렉트 커스텀 chevron — 아래로 향한 갈매기. SelectField 가 네이티브 화살표를 지우고 이걸 얹는다 */
-export function ChevronDownIcon(props: IconProps) {
-  return (
-    <svg {...BASE} {...props}>
-      <path d="m6 9 6 6 6-6" />
-    </svg>
-  );
-}
-
 /** 페이지네이션 이전 */
 export function ChevronLeftIcon(props: IconProps) {
   return (

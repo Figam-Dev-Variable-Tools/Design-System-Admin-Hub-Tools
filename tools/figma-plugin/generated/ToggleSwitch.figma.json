@@ -1,0 +1,74 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/ToggleSwitch.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "ToggleSwitch",
+  "component": "ToggleSwitch",
+  "version": "1.0.0",
+  "variantProperties": {
+    "Checked": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    },
+    "Disabled": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    },
+    "Busy": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  },
+  "properties": [
+    {
+      "name": "Checked",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Label",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Disabled",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Busy",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "OnLabel",
+      "type": "TEXT",
+      "default": "ON"
+    },
+    {
+      "name": "OffLabel",
+      "type": "TEXT",
+      "default": "OFF"
+    }
+  ],
+  "tokens": {
+    "trackOn": "color.action.primary.default",
+    "trackOff": "color.border.default",
+    "knobBorder": "color.border.default",
+    "knobSurface": "color.surface.default",
+    "labelOn": "color.action.primary.default",
+    "labelOff": "color.text.muted",
+    "radius": "radius.full",
+    "focusRing": "color.border.focus",
+    "gap": "space.2",
+    "typography": "typography.label.sm",
+    "transitionDuration": "motion.duration.fast"
+  }
+}

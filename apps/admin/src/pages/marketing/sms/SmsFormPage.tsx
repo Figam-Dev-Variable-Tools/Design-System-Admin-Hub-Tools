@@ -280,7 +280,7 @@ export default function SmsFormPage() {
                 <SelectField
                   id="sms-sender"
                   disabled={disabled}
-                  invalid={errors.senderId !== undefined}
+                  isInvalid={errors.senderId !== undefined}
                   {...register('senderId')}
                 >
                   <option value="">발신번호 선택</option>

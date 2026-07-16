@@ -115,7 +115,7 @@ export default function PortfolioFormPage() {
         >
           <SelectField
             id="portfolio-category"
-            invalid={errors.categoryId !== undefined}
+            isInvalid={errors.categoryId !== undefined}
             disabled={disabled}
             aria-invalid={errors.categoryId !== undefined}
             {...register('categoryId')}

@@ -87,7 +87,7 @@ export default function EsgFormPage() {
         <FormField htmlFor="esg-category" label="분류" required error={errors.category?.message}>
           <SelectField
             id="esg-category"
-            invalid={errors.category !== undefined}
+            isInvalid={errors.category !== undefined}
             disabled={disabled}
             aria-invalid={errors.category !== undefined}
             {...register('category')}

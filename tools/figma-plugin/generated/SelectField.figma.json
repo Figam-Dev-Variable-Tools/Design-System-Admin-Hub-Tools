@@ -1,0 +1,39 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/SelectField.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "SelectField",
+  "component": "SelectField",
+  "version": "1.0.0",
+  "variantProperties": {
+    "Invalid": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  },
+  "properties": [
+    {
+      "name": "Invalid",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Children",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "surface": "color.surface.default",
+    "text": "color.text.default",
+    "border": "color.border.default",
+    "borderInvalid": "color.feedback.danger.border",
+    "chevron": "color.text.muted",
+    "focusRing": "color.border.focus",
+    "radius": "radius.md",
+    "paddingX": "space.3",
+    "paddingY": "space.2",
+    "typography": "typography.label.md"
+  }
+}

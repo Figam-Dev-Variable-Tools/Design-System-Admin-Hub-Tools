@@ -93,7 +93,7 @@ export default function HistoryFormPage() {
         <FormField htmlFor="history-month" label="월" required error={errors.month?.message}>
           <SelectField
             id="history-month"
-            invalid={errors.month !== undefined}
+            isInvalid={errors.month !== undefined}
             disabled={disabled}
             aria-invalid={errors.month !== undefined}
             {...register('month')}

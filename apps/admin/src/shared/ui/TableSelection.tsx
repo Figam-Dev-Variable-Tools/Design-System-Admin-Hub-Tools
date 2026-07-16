@@ -8,8 +8,9 @@
 // [도메인을 모른다] 회원인지 운영자인지 알지 못한다 — id 를 가진 행 목록과 라벨 문구만 받는다.
 import type { CSSProperties } from 'react';
 
+import { TriStateCheckbox } from '@tds/ui';
+
 import { formatNumber } from '../format';
-import { TriStateCheckbox } from './TriStateCheckbox';
 import { checkboxStyle, tdStyle, thStyle, visuallyHiddenStyle } from './styles';
 
 /** 이 페이지의 선택 상태 — 전체선택 체크박스가 가져야 할 두 플래그 (배럴에 내보내지 않는다) */
