@@ -2,12 +2,18 @@
 //
 // CRUD 프레임워크(useCrudList + CrudListShell) 위에 상태 필터 + 검색 + 합계금액 + 상태 배지 +
 // 승인 견적 인라인 '수주 전환' 액션 + 삭제팝업을 얹는다. 목록엔 이미지 열이 없다.
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Button, PlusCircleIcon, SearchField, SelectField, StatusBadge } from '../../../shared/ui';
-import { CrudListShell, parseFilter, useCrudList, useCrudRowUpdate } from '../../../shared/crud';
+import {
+  CrudListShell,
+  parseFilter,
+  useCrudList,
+  useCrudRowUpdate,
+  useListState,
+} from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { formatWon } from '../_shared/business';
 import { quoteAdapter } from './data-source';
@@ -15,6 +21,7 @@ import {
   canConvertToOrder,
   computeTotals,
   filterQuotes,
+  isInherited,
   QUOTE_FILTER_ALL,
   QUOTE_STATUS_OPTIONS,
   quoteStatusMeta,
@@ -26,10 +33,14 @@ import type { Quote, QuoteInput, QuoteStatusFilter } from './types';
 const RESOURCE = 'sales-quotes';
 const ENTITY_LABEL = '견적';
 const LIST_PATH = '/sales/quotes';
+const INQUIRY_PATH = '/sales/inquiries';
 const QUOTE_STATUS_FILTER_VALUES: readonly QuoteStatusFilter[] = [
   QUOTE_FILTER_ALL,
   ...QUOTE_STATUS_OPTIONS.map((option) => option.id),
 ];
+
+/** URL 파라미터 기본값 — 기본값과 같은 값은 URL 에서 지워진다 (IA-13) */
+const FILTER_DEFAULTS = { status: QUOTE_FILTER_ALL } as const;
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
@@ -65,8 +76,13 @@ const nameOf = (item: Quote) => item.quoteNo;
 
 export default function QuoteListPage() {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<QuoteStatusFilter>(QUOTE_FILTER_ALL);
-  const [keyword, setKeyword] = useState('');
+  // 조회 상태의 단일 원천은 URL 이다 (IA-13) — 선택 해제도 여기가 맡는다 (STATE-04).
+  const list = useListState({ filterDefaults: FILTER_DEFAULTS });
+  const filter: QuoteStatusFilter = parseFilter(
+    list.filters['status'] ?? QUOTE_FILTER_ALL,
+    QUOTE_STATUS_FILTER_VALUES,
+    QUOTE_FILTER_ALL,
+  );
 
   const controller = useCrudList<Quote, QuoteInput>({
     resource: RESOURCE,
@@ -74,16 +90,11 @@ export default function QuoteListPage() {
     entityLabel: ENTITY_LABEL,
     nameOf,
   });
-  const { clear } = controller;
   const convert = useCrudRowUpdate<Quote, QuoteInput>(RESOURCE, quoteAdapter);
 
-  useEffect(() => {
-    clear();
-  }, [filter, keyword, clear]);
-
   const visible = useMemo(
-    () => searchQuotes(filterQuotes(controller.items, filter), keyword),
-    [controller.items, filter, keyword],
+    () => searchQuotes(filterQuotes(controller.items, filter), list.keyword),
+    [controller.items, filter, list.keyword],
   );
 
   const columns: readonly CrudColumn<Quote>[] = [
@@ -93,6 +104,23 @@ export default function QuoteListPage() {
       render: (item) => <span style={monoStyle}>{item.quoteNo}</span>,
     },
     { header: '거래처', render: (item) => item.accountName },
+    {
+      // 원본 문의로 가는 역링크 — 문의 ↔ 견적은 양방향이다. 수동 등록 견적은 원본이 없다.
+      header: '원본 문의',
+      nowrap: true,
+      render: (item) =>
+        isInherited(item) ? (
+          <Link
+            to={`${INQUIRY_PATH}/${item.inquiryId}`}
+            className="tds-ui-link tds-ui-focusable"
+            aria-label={`${item.quoteNo} 원본 문의 ${item.inquiryNo}`}
+          >
+            {item.inquiryNo}
+          </Link>
+        ) : (
+          <span style={mutedStyle}>—</span>
+        ),
+    },
     {
       header: '합계금액',
       numeric: true,
@@ -123,7 +151,9 @@ export default function QuoteListPage() {
               convert.run(
                 item.id,
                 { ...toQuoteInput(item), status: 'ordered' },
-                { success: `'${item.quoteNo}' 을(를) 수주로 전환했습니다.` },
+                // [ERP-13] 조사 fallback 형('을(를)')을 출하하지 않는다 — 견적번호는 받침 유무가
+                // 값마다 달라 조사를 붙일 수 없다.
+                { success: `수주로 전환했습니다 — ${item.quoteNo}` },
               )
             }
           >
@@ -139,19 +169,16 @@ export default function QuoteListPage() {
     <div style={toolbarStyle}>
       <div style={filtersStyle}>
         <SearchField
-          value={keyword}
-          onChange={setKeyword}
+          value={list.searchInput}
+          onChange={list.setSearchInput}
           label="견적번호·거래처 검색"
           placeholder="견적번호 · 거래처 검색"
+          {...list.searchInputProps}
         />
         <span style={selectWrapStyle}>
           <SelectField
             value={filter}
-            onChange={(event) =>
-              setFilter(
-                parseFilter(event.target.value, QUOTE_STATUS_FILTER_VALUES, QUOTE_FILTER_ALL),
-              )
-            }
+            onChange={(event) => list.setFilter('status', event.target.value)}
             aria-label="상태로 거르기"
           >
             <option value={QUOTE_FILTER_ALL}>전체 상태</option>
@@ -178,10 +205,10 @@ export default function QuoteListPage() {
       columns={columns}
       nameOf={nameOf}
       empty={{
-        hasQuery: keyword !== '',
-        hasActiveFilters: filter !== QUOTE_FILTER_ALL,
-        onClearSearch: () => setKeyword(''),
-        onResetFilters: () => setFilter(QUOTE_FILTER_ALL),
+        hasQuery: list.hasQuery,
+        hasActiveFilters: list.hasActiveFilters,
+        onClearSearch: list.clearSearch,
+        onResetFilters: list.resetFilters,
       }}
       selectAllLabelId="quote-select-all"
       toolbar={toolbar}

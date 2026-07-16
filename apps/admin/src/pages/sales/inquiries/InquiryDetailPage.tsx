@@ -164,7 +164,8 @@ export default function InquiryDetailPage() {
         at: now,
         author: ADMIN_AUTHOR,
         kind: 'status',
-        text: `상태를 '${inquiryStatusLabel(status)}'(으)로 변경`,
+        // [ERP-13] 조사 fallback 형('(으)로')을 출하하지 않는다 — 조사가 필요 없는 문형으로 쓴다.
+        text: `상태 변경 — ${inquiryStatusLabel(status)}`,
       };
       timeline = appendEvent(timeline, statusEvent);
     }

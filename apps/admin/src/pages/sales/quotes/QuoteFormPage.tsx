@@ -96,6 +96,13 @@ const rowStyle: CSSProperties = {
   gap: 'var(--tds-space-4)',
 };
 
+// 공급받는자 4개 필드(거래처·담당자·대표자·사업자번호)는 한 줄에 밀어 넣으면 회사명이 잘린다
+// ('대성물산 주식회…'). 최소 폭을 넉넉히 줘서 좁아지면 2×2 로 접히게 한다.
+const partyRowStyle: CSSProperties = {
+  ...rowStyle,
+  gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 7), 1fr))',
+};
+
 const actionsStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'flex-end',
@@ -310,7 +317,7 @@ export default function QuoteFormPage() {
                 </FormField>
               </div>
 
-              <div style={rowStyle}>
+              <div style={partyRowStyle}>
                 <FormField
                   htmlFor="quote-account"
                   label="거래처(공급받는자)"
