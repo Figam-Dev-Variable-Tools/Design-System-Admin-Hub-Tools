@@ -8,7 +8,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { formatNumber } from '../format';
 import { Alert, Button, hintStyle, SelectionBar } from '../ui';
 import { CrudTable } from './CrudTable';
-import type { CrudColumn } from './CrudTable';
+import type { CrudColumn, EmptyContext } from './CrudTable';
 
 const columnStyle: CSSProperties = {
   display: 'flex',
@@ -33,7 +33,10 @@ const errorBodyStyle: CSSProperties = {
 };
 
 interface CrudListShellController<T extends { id: string }> {
-  readonly loading: boolean;
+  /** 최초 로드 — 스켈레톤의 유일한 조건 (STATE-01) */
+  readonly firstLoading: boolean;
+  /** 데이터가 있는 채로 재조회 중 — 표를 비우지 않고 요약만 알린다 (STATE-03) */
+  readonly refreshing: boolean;
   readonly error: Error | null;
   readonly refetch: () => void;
   readonly selectedIds: ReadonlySet<string>;
@@ -55,7 +58,8 @@ interface CrudListShellProps<T extends { id: string }> {
   readonly columns: readonly CrudColumn<T>[];
   readonly nameOf: (item: T) => string;
   readonly selectAllLabelId: string;
-  readonly emptyLabel: string;
+  /** 빈 상태의 맥락 — 검색/필터/진짜 비어있음을 구분한다 (STATE-05) */
+  readonly empty?: EmptyContext;
   /** 상단 툴바(등록 버튼·검색·필터 등) */
   readonly toolbar: ReactNode;
   readonly onEdit: (item: T) => void;
@@ -68,11 +72,11 @@ export function CrudListShell<T extends { id: string }>({
   columns,
   nameOf,
   selectAllLabelId,
-  emptyLabel,
+  empty,
   toolbar,
   onEdit,
 }: CrudListShellProps<T>) {
-  const { loading, error, selectedCount } = controller;
+  const { firstLoading, refreshing, error, selectedCount } = controller;
 
   return (
     <div style={columnStyle}>
@@ -81,8 +85,11 @@ export function CrudListShell<T extends { id: string }>({
       {error === null ? (
         <>
           <div style={summaryRowStyle}>
-            <p style={hintStyle}>
-              {loading ? '불러오는 중…' : `전체 ${formatNumber(visibleItems.length)}건`}
+            {/* 재조회 중에는 건수를 지우지 않는다 — 이전 값을 유지한 채 '새로고침 중' 만 덧붙인다.
+                예전에는 재조회도 '불러오는 중…' 으로 덮어 화면의 사실이 사라졌다 (STATE-01/03). */}
+            <p style={hintStyle} aria-busy={refreshing}>
+              {firstLoading ? '불러오는 중…' : `전체 ${formatNumber(visibleItems.length)}건`}
+              {refreshing && ' · 새로고침 중…'}
               {selectedCount > 0 && ` · ${formatNumber(selectedCount)}건 선택됨`}
             </p>
           </div>
@@ -99,7 +106,7 @@ export function CrudListShell<T extends { id: string }>({
 
           <CrudTable
             items={visibleItems}
-            loading={loading}
+            loading={firstLoading}
             entityLabel={entityLabel}
             columns={columns}
             nameOf={nameOf}
@@ -115,7 +122,7 @@ export function CrudListShell<T extends { id: string }>({
             onDelete={controller.requestDelete}
             deletingId={controller.deletingId}
             selectAllLabelId={selectAllLabelId}
-            emptyLabel={emptyLabel}
+            {...(empty !== undefined && { empty })}
           />
         </>
       ) : (

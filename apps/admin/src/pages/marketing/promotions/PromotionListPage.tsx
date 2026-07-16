@@ -160,7 +160,6 @@ export default function PromotionListPage() {
       columns={columns}
       nameOf={nameOf}
       selectAllLabelId="marketing-promotions-select-all"
-      emptyLabel="등록된 프로모션이 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

@@ -171,7 +171,6 @@ export default function NewsletterListPage() {
       columns={COLUMNS}
       nameOf={nameOf}
       selectAllLabelId="marketing-newsletters-select-all"
-      emptyLabel="등록된 뉴스레터 회차가 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

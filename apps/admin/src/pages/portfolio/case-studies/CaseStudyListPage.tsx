@@ -130,7 +130,6 @@ export default function CaseStudyListPage() {
       columns={columns}
       nameOf={nameOf}
       selectAllLabelId="case-study-select-all"
-      emptyLabel="등록된 성공 사례가 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

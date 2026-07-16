@@ -178,7 +178,6 @@ export default function QuoteListPage() {
       columns={columns}
       nameOf={nameOf}
       selectAllLabelId="quote-select-all"
-      emptyLabel="등록된 견적이 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

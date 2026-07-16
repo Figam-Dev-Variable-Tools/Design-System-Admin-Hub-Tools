@@ -120,7 +120,6 @@ export default function CertificatesListPage() {
       columns={columns}
       nameOf={nameOf}
       selectAllLabelId="cert-select-all"
-      emptyLabel="등록된 인증서/특허가 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

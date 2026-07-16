@@ -16,12 +16,19 @@
 // 이 구분 기준은 shared/ui/README.md 에 적혀 있다.
 //
 // [데이터] 화면은 data-source.ts 하고만 대화한다. 백엔드가 붙어도 이 파일은 바뀌지 않는다.
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+//
+// [조회 상태의 소유자 — F2에서 바뀐 것]
+// page·tier·group·keyword 와 선택은 예전에 이 파일의 useState 6개였다. 그 상태는 이제
+// shared/crud/useListState 가 **URL 쿼리스트링**으로 소유한다 (IA-13). 이 화면이 이미 옳게
+// 하던 두 가지(페이지 보정·조건 변경 시 선택 해제)도 그 훅으로 승격됐다 — 여기 있던 사본이
+// 정본이었지만, 사본인 한 다른 26개 목록은 그 혜택을 받지 못했다.
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 
 import './members.css';
 import { isAbort } from '../../shared/async';
+import { useListState } from '../../shared/crud';
 import { downloadCsv } from '../../shared/download';
 import { formatNumber } from '../../shared/format';
 import { Alert, Button, ConfirmDialog, hintStyle, Pagination, useToast } from '../../shared/ui';
@@ -41,9 +48,6 @@ import {
 } from './queries';
 import { GROUP_ALL, PAGE_SIZE } from './types';
 import type { Member, MemberTier } from './types';
-
-/** 검색어 디바운스 — 타이핑 한 글자마다 조회하지 않는다 */
-const SEARCH_DEBOUNCE_MS = 250;
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -105,19 +109,26 @@ const sidebarNoticeStyle: CSSProperties = {
   borderTopColor: 'var(--tds-color-border-default)',
 };
 
+/** URL 파라미터의 기본값 — 이 값과 같으면 URL 에서 지운다(공유 링크를 짧게) */
+const FILTER_DEFAULTS = { tier: 'all', group: GROUP_ALL } as const;
+
+/** URL 문자열 → MemberTier — 손으로 고친 ?tier=거짓말 이 조회를 깨지 않게 한다 */
+function isMemberTier(value: string): value is MemberTier {
+  return value === 'normal' || value === 'vip' || value === 'vvip';
+}
+
 export default function MembersPage() {
   const toast = useToast();
 
-  const [tier, setTier] = useState<MemberTier | 'all'>('all');
-  const [groupId, setGroupId] = useState<string>(GROUP_ALL);
-  const [keywordInput, setKeywordInput] = useState('');
-  const [keyword, setKeyword] = useState('');
-  const [page, setPage] = useState(1);
+  // page·tier·group·keyword·선택의 단일 원천 = URL (IA-13). 검색은 IME 안전 (COMP-10).
+  const list = useListState({ filterDefaults: FILTER_DEFAULTS });
+  const rawTier = list.filters['tier'] ?? 'all';
+  const tier: MemberTier | 'all' = isMemberTier(rawTier) ? rawTier : 'all';
+  const groupId = list.filters['group'] ?? GROUP_ALL;
+  const { keyword, page, selectedIds } = list;
 
   // 닫으면 세션 동안 다시 뜨지 않는다 (저장하지 않는다 — 새로고침하면 다시 보인다)
   const [bannerOpen, setBannerOpen] = useState(true);
-
-  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set());
 
   /** 알림 발송이 진행 중인 회원 — 행 메뉴 항목이 잠기고 라벨이 '발송 중…' 이 된다.
    *  행마다 동시에 보낼 수 있어 뮤테이션의 단일 isPending 으로는 표현되지 않는다 — 집합을 유지한다 */
@@ -140,26 +151,22 @@ export default function MembersPage() {
   const bulkNotifying = bulkNotify.isPending;
   const deleting = deleteMembers.isPending;
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setKeyword(keywordInput);
-    }, SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [keywordInput]);
-
-  // 조건이 바뀌면 1페이지부터 다시 — 3페이지를 보다 검색하면 빈 화면이 뜨는 걸 막는다
-  useEffect(() => {
-    setPage(1);
-  }, [tier, groupId, keyword]);
-
-  // 페이지/필터가 바뀌면 선택은 무의미해진다 (보이지 않는 행이 선택된 채로 남지 않게)
-  useEffect(() => {
-    setSelectedIds(new Set());
-  }, [tier, groupId, keyword, page]);
+  // [지워진 것들 — useListState 가 소유한다]
+  //  · 검색어 디바운스 → useDebouncedSearch (조합 중 커밋 금지가 추가됐다 — COMP-10)
+  //  · 조건 변경 시 page=1 → patchParams(resetPage)
+  //  · 조건 변경 시 선택 해제 → viewSignature effect (STATE-04-b)
 
   const query = useMemo(() => ({ tier, groupId, keyword, page }), [tier, groupId, keyword, page]);
-  // isFetching(= 재조회 중에도 true)을 로딩으로 쓴다 — useAsyncData 도 재조회 중 loading 이 true 였다
-  const { data, isFetching: loading, error, refetch } = useMembersQuery(query);
+  const { data, isFetching, error, refetch } = useMembersQuery(query);
+
+  /**
+   * [STATE-01] 스켈레톤은 **최초 로드에만**.
+   * 예전에는 `isFetching` 을 그대로 loading 으로 썼다 — 재조회 때도 true 라 이미 보고 있던
+   * 497명의 표가 스켈레톤으로 덮였다. useAsyncData 시절의 동작을 보존한 것이었지만,
+   * placeholderData(keepPrevious)를 켜 둔 이유를 화면이 스스로 무효화하고 있었다.
+   */
+  const firstLoading = isFetching && data === undefined;
+  const refreshing = isFetching && data !== undefined;
 
   // 그룹 목록은 필터/검색과 무관하다 — 캐시 키가 달라 목록 조회와 별개로 산다.
   // 실패하면 좌측 필터에 전용 재시도 경로가 열린다 (목록 조회와 별개의 요청이다)
@@ -172,30 +179,14 @@ export default function MembersPage() {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   // 다른 관리자가 회원을 지워 총 페이지가 줄면 현재 페이지가 범위를 벗어난다 —
-  // 빈 화면을 보여주는 대신 마지막 페이지로 보정하고 재조회한다
+  // 빈 화면을 보여주는 대신 마지막 페이지로 보정하고 재조회한다 (STATE-04-a · useListState 소유)
+  const { clampPage } = list;
   useEffect(() => {
     if (data === undefined) return;
-    const pages = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
-    if (page > pages) setPage(pages);
-  }, [data, page]);
+    clampPage(Math.ceil(data.total / PAGE_SIZE));
+  }, [data, clampPage]);
 
   const selectedMembers = members.filter((member) => selectedIds.has(member.id));
-
-  const toggleOne = useCallback((id: string, checked: boolean) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (checked) next.add(id);
-      else next.delete(id);
-      return next;
-    });
-  }, []);
-
-  const toggleAll = useCallback(
-    (checked: boolean) => {
-      setSelectedIds(checked ? new Set(members.map((member) => member.id)) : new Set());
-    },
-    [members],
-  );
 
   /** 내보내기 — 현재 필터/검색에 걸린 전체를 CSV 로 받아 a[download] 로 떨군다 */
   const onExport: () => void = () => {
@@ -316,7 +307,7 @@ export default function MembersPage() {
           }
 
           setPendingDelete(null);
-          setSelectedIds(new Set());
+          list.clearSelection();
           toast.success(
             targets.length === 1
               ? `${first.nickname} 회원을 삭제했습니다.`
@@ -348,13 +339,17 @@ export default function MembersPage() {
 
       <div style={layoutStyle}>
         <aside style={sidebarStyle}>
-          <TierFilter value={tier} counts={data?.counts ?? null} onChange={setTier} />
+          <TierFilter
+            value={tier}
+            counts={data?.counts ?? null}
+            onChange={(next) => list.setFilter('tier', next)}
+          />
 
           <GroupFilter
             value={groupId}
             groups={groups ?? []}
             counts={data?.groupCounts ?? null}
-            onChange={setGroupId}
+            onChange={(next) => list.setFilter('group', next)}
             onCreate={() => setCreatingGroup(true)}
             failed={groupsError !== null}
             onRetry={() => {
@@ -370,8 +365,9 @@ export default function MembersPage() {
 
         <div style={mainColumnStyle}>
           <MembersToolbar
-            keyword={keywordInput}
-            onKeywordChange={setKeywordInput}
+            keyword={list.searchInput}
+            onKeywordChange={list.setSearchInput}
+            searchInputProps={list.searchInputProps}
             onExport={onExport}
             exporting={exporting}
             selectedCount={selectedMembers.length}
@@ -383,24 +379,30 @@ export default function MembersPage() {
           {error === null ? (
             <>
               <div style={summaryRowStyle}>
-                <p style={hintStyle}>
-                  {loading ? '불러오는 중…' : `전체 ${formatNumber(total)}명`}
+                {/* 재조회 중에도 건수를 지우지 않는다 — 이전 사실을 유지한 채 덧붙인다 (STATE-01/03) */}
+                <p style={hintStyle} aria-busy={refreshing}>
+                  {firstLoading ? '불러오는 중…' : `전체 ${formatNumber(total)}명`}
                   {selectedIds.size > 0 && ` · ${formatNumber(selectedIds.size)}명 선택됨`}
                 </p>
               </div>
 
               <MembersTable
                 members={members}
-                loading={loading}
+                loading={firstLoading}
                 selectedIds={selectedIds}
-                onToggleOne={toggleOne}
-                onToggleAll={toggleAll}
+                onToggleOne={list.toggleOne}
+                onToggleAll={(checked) =>
+                  list.toggleAll(
+                    members.map((member) => member.id),
+                    checked,
+                  )
+                }
                 onDelete={(member) => openDelete([member])}
                 onNotify={onNotify}
                 notifyingIds={notifyingIds}
               />
 
-              <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+              <Pagination page={page} totalPages={totalPages} onChange={list.setPage} />
             </>
           ) : (
             <Alert tone="danger">

@@ -154,7 +154,6 @@ export default function ConsultationBookingListPage() {
       columns={columns}
       nameOf={nameOf}
       selectAllLabelId="reservation-consultations-select-all"
-      emptyLabel="등록된 상담 예약이 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

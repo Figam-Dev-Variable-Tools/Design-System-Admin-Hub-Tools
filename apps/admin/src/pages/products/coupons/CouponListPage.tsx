@@ -187,7 +187,6 @@ export default function CouponListPage() {
       columns={columns}
       nameOf={nameOf}
       selectAllLabelId="coupon-select-all"
-      emptyLabel="등록된 쿠폰이 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

@@ -56,7 +56,6 @@ export default function HistoryListPage() {
       columns={columns}
       nameOf={nameOf}
       selectAllLabelId="history-select-all"
-      emptyLabel="등록된 연혁이 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

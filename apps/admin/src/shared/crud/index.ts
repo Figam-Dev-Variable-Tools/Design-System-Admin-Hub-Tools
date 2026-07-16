@@ -44,9 +44,19 @@ export { DocumentFormShell } from './DocumentFormShell';
 // ── 목록 계층 ────────────────────────────────────────────────────────────────
 export { useCrudList } from './useCrudList';
 export { CrudListShell } from './CrudListShell';
-export type { CrudColumn } from './CrudTable';
+export type { CrudColumn, EmptyContext } from './CrudTable';
 // 목록에서 바로 한 행을 갱신(노출 토글 등)
 export { useCrudRowUpdate } from './useCrudRowUpdate';
+
+/**
+ * 조회 상태(page·filter·keyword·sort)의 단일 원천 = URL (IA-13) + 선택 해제/페이지 보정(STATE-04)
+ * + IME 안전 검색(COMP-10). 목록 화면은 useState 로 이 상태를 들지 않는다 — 들면 Back·새로고침·
+ * 링크 공유가 전부 깨진다.
+ */
+export { useListState } from './useListState';
+export type { ListState, ListStateConfig } from './useListState';
+/** 검색창 하나만 필요한 화면용 (URL 상태가 필요 없을 때) */
+export { useDebouncedSearch } from './useDebouncedSearch';
 
 // ── 폼 계층 ──────────────────────────────────────────────────────────────────
 export { useCrudForm } from './useCrudForm';

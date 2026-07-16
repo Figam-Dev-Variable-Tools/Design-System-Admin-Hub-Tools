@@ -157,7 +157,6 @@ export default function EmailListPage() {
       columns={COLUMNS}
       nameOf={nameOf}
       selectAllLabelId="marketing-email-select-all"
-      emptyLabel="등록된 이메일 발송이 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

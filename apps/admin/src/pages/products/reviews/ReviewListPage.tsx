@@ -182,7 +182,6 @@ export default function ReviewListPage() {
       columns={columns}
       nameOf={nameOf}
       selectAllLabelId="review-select-all"
-      emptyLabel="등록된 리뷰가 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}`)}
     />

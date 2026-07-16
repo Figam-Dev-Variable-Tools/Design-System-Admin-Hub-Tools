@@ -6,6 +6,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 
 import {
+  Empty,
   numericCellStyle,
   RowActions,
   RowSelectCell,
@@ -52,8 +53,29 @@ const emptyCellStyle: CSSProperties = {
   textAlign: 'center',
 };
 
+/**
+ * 빈 상태의 맥락 (STATE-05) — '왜 비었는가' 를 표가 알아야 무엇을 권할지 정할 수 있다.
+ *
+ * 예전에는 `emptyLabel: string` 하나였고, 26개 호출부가 전부 '등록된 X이(가) 없습니다' 를 하드코딩
+ * 했다. 그래서 **검색이 안 맞아서 비었을 때도** '아직 없으니 등록하세요' 라고 말했다 — 사용자는
+ * 지우면 될 검색어를 그대로 둔 채 등록 버튼을 찾는다. 조사(이/가)도 26곳에 손으로 박혀 있었다.
+ */
+export interface EmptyContext {
+  /** 검색어가 걸려 있는가 → '검색 지우기' */
+  readonly hasQuery?: boolean;
+  /** 필터가 걸려 있는가 → '필터 초기화' */
+  readonly hasActiveFilters?: boolean;
+  readonly onClearSearch?: () => void;
+  readonly onResetFilters?: () => void;
+  /** 정말 비었을 때만 보이는 생성 CTA */
+  readonly createAction?: ReactNode;
+  /** '{createVerb}된 {label}이(가) 없습니다' — 기본 '등록' */
+  readonly createVerb?: string;
+}
+
 interface CrudTableProps<T extends { id: string }> {
   readonly items: readonly T[];
+  /** **최초 로드만** — 재조회 중에는 false 여야 이전 행이 유지된다 (STATE-01) */
   readonly loading: boolean;
   readonly entityLabel: string;
   readonly columns: readonly CrudColumn<T>[];
@@ -66,7 +88,8 @@ interface CrudTableProps<T extends { id: string }> {
   readonly onDelete: (item: T) => void;
   readonly deletingId: string | null;
   readonly selectAllLabelId: string;
-  readonly emptyLabel: string;
+  /** 빈 상태의 맥락 — 없으면 '진짜 비어있음' 으로 그린다 */
+  readonly empty?: EmptyContext;
 }
 
 export function CrudTable<T extends { id: string }>({
@@ -82,7 +105,7 @@ export function CrudTable<T extends { id: string }>({
   onDelete,
   deletingId,
   selectAllLabelId,
-  emptyLabel,
+  empty = {},
 }: CrudTableProps<T>) {
   const { rowActivateProps } = useRowNavigation();
   const selection = tableSelectionState(items, selectedIds);
@@ -130,7 +153,18 @@ export function CrudTable<T extends { id: string }>({
         ) : items.length === 0 ? (
           <tr>
             <td colSpan={totalCols} style={emptyCellStyle}>
-              {emptyLabel}
+              {/* 조사(이/가)·3분기 copy·복구 액션은 전부 Empty 가 소유한다 — 호출부는 맥락만 준다 */}
+              <Empty
+                label={entityLabel}
+                createVerb={empty.createVerb ?? '등록'}
+                hasQuery={empty.hasQuery ?? false}
+                hasActiveFilters={empty.hasActiveFilters ?? false}
+                action={empty.createAction ?? null}
+                {...(empty.onClearSearch !== undefined && { onClearSearch: empty.onClearSearch })}
+                {...(empty.onResetFilters !== undefined && {
+                  onResetFilters: empty.onResetFilters,
+                })}
+              />
             </td>
           </tr>
         ) : (

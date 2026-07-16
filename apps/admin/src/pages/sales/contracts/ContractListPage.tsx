@@ -156,7 +156,6 @@ export default function ContractListPage() {
       columns={columns}
       nameOf={nameOf}
       selectAllLabelId="contract-select-all"
-      emptyLabel="등록된 계약이 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

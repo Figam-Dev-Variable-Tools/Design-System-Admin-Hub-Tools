@@ -6,7 +6,7 @@
 // '알림 발송' / '회원 삭제' 가 나타난다 — 선택이 아무 동작에도 연결되지 않는 상태를 없앤다.
 // 액션은 행 ⋯ 메뉴와 동일한 2종이며(요구사항), 삭제는 확인 다이얼로그를 거친다.
 import { useId } from 'react';
-import type { CSSProperties } from 'react';
+import type { CompositionEvent, CSSProperties, KeyboardEvent } from 'react';
 
 import {
   Button,
@@ -59,6 +59,15 @@ const searchInputStyle: CSSProperties = {
 interface MembersToolbarProps {
   readonly keyword: string;
   readonly onKeywordChange: (keyword: string) => void;
+  /**
+   * IME 조합 판정과 Enter 차단 (COMP-10) — useListState 가 만들어 준다.
+   * 이것이 없으면 '홍길동' 을 치는 도중 Enter 가 '홍길ㄷ' 으로 제출되고, 자모마다 조회가 나간다.
+   */
+  readonly searchInputProps: {
+    readonly onCompositionStart: (event: CompositionEvent<HTMLInputElement>) => void;
+    readonly onCompositionEnd: (event: CompositionEvent<HTMLInputElement>) => void;
+    readonly onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
+  };
   readonly onExport: () => void;
   readonly exporting: boolean;
   /** 선택된 행 수 — 1건 이상이면 일괄 액션이 나타난다 */
@@ -74,6 +83,7 @@ interface MembersToolbarProps {
 export function MembersToolbar({
   keyword,
   onKeywordChange,
+  searchInputProps,
   onExport,
   exporting,
   selectedCount,
@@ -101,6 +111,7 @@ export function MembersToolbar({
           placeholder="검색"
           value={keyword}
           onChange={(event) => onKeywordChange(event.target.value)}
+          {...searchInputProps}
         />
       </div>
 
