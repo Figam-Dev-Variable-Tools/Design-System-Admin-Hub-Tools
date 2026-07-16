@@ -139,6 +139,9 @@ export default function CompanyProfilePage() {
             placeholder="123-45-67890"
             disabled={disabled}
             aria-invalid={errors.businessNumber !== undefined}
+            aria-describedby={
+              errors.businessNumber !== undefined ? errorIdOf('profile-biznum') : undefined
+            }
             {...register('businessNumber')}
           />
         </FormField>
@@ -153,6 +156,7 @@ export default function CompanyProfilePage() {
             placeholder="예: 홍길동"
             disabled={disabled}
             aria-invalid={errors.ceoName !== undefined}
+            aria-describedby={errors.ceoName !== undefined ? errorIdOf('profile-ceo') : undefined}
             {...register('ceoName')}
           />
         </FormField>
@@ -168,6 +172,7 @@ export default function CompanyProfilePage() {
           placeholder="예: 02-0000-0000"
           disabled={disabled}
           aria-invalid={errors.contact !== undefined}
+          aria-describedby={errors.contact !== undefined ? errorIdOf('profile-contact') : undefined}
           {...register('contact')}
         />
       </FormField>
@@ -182,6 +187,7 @@ export default function CompanyProfilePage() {
           placeholder="예: 서울특별시 예시구 가상대로 123"
           disabled={disabled}
           aria-invalid={errors.address !== undefined}
+          aria-describedby={errors.address !== undefined ? errorIdOf('profile-address') : undefined}
           {...register('address')}
         />
       </FormField>

@@ -23,7 +23,17 @@ interface CrudListConfig<T extends { id: string }, Input> {
 
 interface CrudListController<T extends { id: string }> {
   readonly items: readonly T[];
-  readonly loading: boolean;
+  /**
+   * **최초 로드만** true (data === undefined) — 스켈레톤의 유일한 조건 (STATE-01).
+   *
+   * 예전 이름은 `loading` 이었고 값은 `isFetching` 이었다. 그래서 **재조회 때도 true** 가 되어
+   * 이미 화면에 있던 행이 스켈레톤으로 덮였다 — 표를 훑던 운영자 밑에서 데이터가 사라진다.
+   * 'refetch 중에는 이전 행을 유지한다' 가 react-query 를 도입한 이유 그 자체인데(ADR-0008 §3.2)
+   * 그 이득을 화면이 스스로 버리고 있었다.
+   */
+  readonly firstLoading: boolean;
+  /** 데이터가 있는 채로 백그라운드 재조회 중 — 가벼운 인디케이터용, 표를 비우지 않는다 (STATE-03) */
+  readonly refreshing: boolean;
   readonly error: Error | null;
   readonly refetch: () => void;
   readonly selectedIds: ReadonlySet<string>;
@@ -56,7 +66,10 @@ export function useCrudList<T extends { id: string }, Input>({
   const [bulkError, setBulkError] = useState<string | null>(null);
   const bulkControllerRef = useRef<AbortController | null>(null);
 
-  const { data, isFetching: loading, error, refetch } = useCrudListQuery(resource, adapter);
+  const { data, isFetching, error, refetch } = useCrudListQuery(resource, adapter);
+  // STATE-01 의 핵심 한 줄: 스켈레톤은 '데이터가 아직 **없을** 때' 만이다.
+  const firstLoading = isFetching && data === undefined;
+  const refreshing = isFetching && data !== undefined;
   const deleteItem = useCrudDelete(resource, adapter);
   const deleting = deleteItem.isPending;
   const bulkDelete = useCrudBulkDelete(resource, adapter);
@@ -166,7 +179,8 @@ export function useCrudList<T extends { id: string }, Input>({
 
   return {
     items,
-    loading,
+    firstLoading,
+    refreshing,
     error,
     refetch: () => void refetch(),
     selectedIds,

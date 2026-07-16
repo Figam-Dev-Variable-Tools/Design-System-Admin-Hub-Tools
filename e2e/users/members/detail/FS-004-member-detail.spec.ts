@@ -21,8 +21,12 @@ import type { Locator, Page } from '@playwright/test';
 import {
   clearFailureSwitch,
   idempotencyKeysIssued,
+  seedAuthenticated,
   spyIdempotencyKeys,
 } from '../../../support/app';
+
+// [인증 전제 — EXC-02] 셸 라우트는 세션이 없으면 /login 으로 보낸다. 인증의 축은 FS-001 소유다.
+test.beforeEach(seedAuthenticated);
 
 /** 픽스처 회원 1번 — 모든 회원의 초기 적립금은 10,000 이다 (shared/fixtures/members.ts) */
 const MEMBER = '/users/members/M-00001';

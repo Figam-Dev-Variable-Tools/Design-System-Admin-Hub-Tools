@@ -143,6 +143,9 @@ export default function ShippingPolicyPage() {
               placeholder="예: 3000"
               disabled={disabled}
               aria-invalid={errors.baseFee !== undefined}
+              aria-describedby={
+                errors.baseFee !== undefined ? errorIdOf('ship-base-fee') : undefined
+              }
               {...register('baseFee')}
             />
           </FormField>
@@ -165,6 +168,9 @@ export default function ShippingPolicyPage() {
               placeholder="예: 50000"
               disabled={disabled}
               aria-invalid={errors.freeThreshold !== undefined}
+              aria-describedby={
+                errors.freeThreshold !== undefined ? errorIdOf('ship-free-threshold') : undefined
+              }
               {...register('freeThreshold')}
             />
           </FormField>
@@ -187,6 +193,9 @@ export default function ShippingPolicyPage() {
             placeholder="예: 3000"
             disabled={disabled}
             aria-invalid={errors.jejuExtraFee !== undefined}
+            aria-describedby={
+              errors.jejuExtraFee !== undefined ? errorIdOf('ship-jeju') : undefined
+            }
             {...register('jejuExtraFee')}
           />
         </FormField>
@@ -206,6 +215,9 @@ export default function ShippingPolicyPage() {
             placeholder="예: 5000"
             disabled={disabled}
             aria-invalid={errors.islandExtraFee !== undefined}
+            aria-describedby={
+              errors.islandExtraFee !== undefined ? errorIdOf('ship-island') : undefined
+            }
             {...register('islandExtraFee')}
           />
         </FormField>
@@ -225,6 +237,9 @@ export default function ShippingPolicyPage() {
             placeholder="예: 3000"
             disabled={disabled}
             aria-invalid={errors.returnFee !== undefined}
+            aria-describedby={
+              errors.returnFee !== undefined ? errorIdOf('ship-return-fee') : undefined
+            }
             {...register('returnFee')}
           />
         </FormField>

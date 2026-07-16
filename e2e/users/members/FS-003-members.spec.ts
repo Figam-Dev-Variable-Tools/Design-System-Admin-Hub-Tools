@@ -11,7 +11,14 @@
 import { expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 
+import { seedAuthenticated } from '../../support/app';
+
 const LIST = '/users/members';
+
+// [인증 전제 — EXC-02] 셸 라우트는 이제 세션이 없으면 /login?returnUrl=… 으로 보낸다.
+// 이 파일이 검증하는 것은 **인증된 운영자가 보는 회원 목록**이므로 그 전제를 세워 준다.
+// (인증 자체의 축은 FS-001 이 소유한다 — 여기서 다시 검증하지 않는다.)
+test.beforeEach(seedAuthenticated);
 
 /**
  * 로딩 축을 관측할 때 쓰는 지연 (data-source.ts 의 `?delay=<ms>`).

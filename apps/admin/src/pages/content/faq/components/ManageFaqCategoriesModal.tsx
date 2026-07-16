@@ -18,6 +18,7 @@ import {
   buttonStyle,
   ConfirmDialog,
   controlStyle,
+  errorIdOf,
   errorTextStyle,
   fieldLabelStyle,
   fieldStyle,
@@ -297,6 +298,8 @@ export function ManageFaqCategoriesModal({
               style={controlStyle(invalid)}
               placeholder="예: 결제"
               aria-invalid={invalid}
+              // [A11Y-11] aria-invalid 는 **항상** 그 이유(에러 <p>)와 함께 나간다
+              aria-describedby={invalid ? errorIdOf('faq-category-name') : undefined}
               disabled={saving}
               name={nameField.name}
               ref={(element) => {
@@ -309,7 +312,7 @@ export function ManageFaqCategoriesModal({
           </div>
 
           {invalid && (
-            <p role="alert" style={errorTextStyle}>
+            <p id={errorIdOf('faq-category-name')} role="alert" style={errorTextStyle}>
               {shownError}
             </p>
           )}

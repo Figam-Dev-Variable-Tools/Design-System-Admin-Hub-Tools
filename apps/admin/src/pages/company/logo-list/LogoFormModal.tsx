@@ -16,6 +16,7 @@ import {
   FormField,
   ImageUploadField,
   Modal,
+  useModalDirtyGuard,
 } from '../../../shared/ui';
 import type { LogoAdapter } from './adapter';
 import { useCreateLogo, useUpdateLogo } from './queries';
@@ -57,7 +58,7 @@ export function LogoFormModal({
     watch,
     setValue,
     clearErrors,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<LogoFormValues>({
     resolver: zodResolver(logoSchema),
     defaultValues: {
@@ -70,6 +71,12 @@ export function LogoFormModal({
   const create = useCreateLogo(resource, adapter);
   const update = useUpdateLogo(resource, adapter);
   const saving = create.isPending || update.isPending;
+
+  /**
+   * [FEEDBACK-06] 입력이 있는 채로 닫으려 하면 확인을 세운다. requestClose 를 Modal.onClose 와
+   * 취소 버튼에 **둘 다** 넘겨 4경로(Esc·딤 클릭·×·취소)를 한 번에 덮는다.
+   */
+  const { requestClose, discardDialog } = useModalDirtyGuard(isDirty && !saving, onClose);
 
   const [serverError, setServerError] = useState<string | null>(null);
   const nameRef = useRef<HTMLInputElement | null>(null);
@@ -113,80 +120,86 @@ export function LogoFormModal({
   const nameInvalid = errors.name !== undefined;
 
   return (
-    <Modal
-      title={isEdit ? `${entityLabel} 수정` : `${entityLabel} 추가`}
-      onClose={onClose}
-      onSubmit={() => {
-        setServerError(null);
-        clearErrors();
-        void handleSubmit(onValid, () => nameRef.current?.focus())();
-      }}
-      initialFocusRef={nameRef}
-      footer={
-        <>
-          <Button variant="secondary" size="md" disabled={saving} onClick={onClose}>
-            취소
-          </Button>
-          <Button variant="primary" size="md" type="submit" disabled={saving}>
-            {saving ? '저장 중…' : isEdit ? '저장' : '추가'}
-          </Button>
-        </>
-      }
-    >
-      <div style={bodyStyle}>
-        {serverError !== null && <Alert tone="danger">{serverError}</Alert>}
+    <>
+      <Modal
+        title={isEdit ? `${entityLabel} 수정` : `${entityLabel} 추가`}
+        onClose={requestClose}
+        onSubmit={() => {
+          setServerError(null);
+          clearErrors();
+          void handleSubmit(onValid, () => nameRef.current?.focus())();
+        }}
+        initialFocusRef={nameRef}
+        footer={
+          <>
+            <Button variant="secondary" size="md" disabled={saving} onClick={requestClose}>
+              취소
+            </Button>
+            <Button variant="primary" size="md" type="submit" disabled={saving}>
+              {saving ? '저장 중…' : isEdit ? '저장' : '추가'}
+            </Button>
+          </>
+        }
+      >
+        <div style={bodyStyle}>
+          {serverError !== null && <Alert tone="danger">{serverError}</Alert>}
 
-        <FormField htmlFor="logo-name" label="이름" required error={errors.name?.message}>
-          <input
-            id="logo-name"
-            type="text"
-            className="tds-ui-input tds-ui-focusable"
-            style={controlStyle(nameInvalid)}
-            maxLength={NAME_MAX_LENGTH}
-            placeholder={`예: ${entityLabel} 이름`}
+          <FormField htmlFor="logo-name" label="이름" required error={errors.name?.message}>
+            <input
+              id="logo-name"
+              type="text"
+              className="tds-ui-input tds-ui-focusable"
+              style={controlStyle(nameInvalid)}
+              maxLength={NAME_MAX_LENGTH}
+              placeholder={`예: ${entityLabel} 이름`}
+              disabled={saving}
+              aria-invalid={nameInvalid}
+              aria-describedby={nameInvalid ? errorIdOf('logo-name') : undefined}
+              name={nameField.name}
+              ref={(element) => {
+                nameField.ref(element);
+                nameRef.current = element;
+              }}
+              onChange={nameField.onChange}
+              onBlur={nameField.onBlur}
+            />
+          </FormField>
+
+          <ImageUploadField
+            label="로고 이미지"
+            required
+            value={logoUrl}
+            onChange={(value) =>
+              setValue('logoUrl', value, { shouldValidate: false, shouldDirty: true })
+            }
             disabled={saving}
-            aria-invalid={nameInvalid}
-            aria-describedby={nameInvalid ? errorIdOf('logo-name') : undefined}
-            name={nameField.name}
-            ref={(element) => {
-              nameField.ref(element);
-              nameRef.current = element;
-            }}
-            onChange={nameField.onChange}
-            onBlur={nameField.onBlur}
+            error={errors.logoUrl?.message}
+            hint="이미지를 끌어다 놓거나 클릭해 업로드합니다."
           />
-        </FormField>
 
-        <ImageUploadField
-          label="로고 이미지"
-          required
-          value={logoUrl}
-          onChange={(value) =>
-            setValue('logoUrl', value, { shouldValidate: false, shouldDirty: true })
-          }
-          disabled={saving}
-          error={errors.logoUrl?.message}
-          hint="이미지를 끌어다 놓거나 클릭해 업로드합니다."
-        />
+          <FormField
+            htmlFor="logo-link"
+            label="링크 URL"
+            error={errors.linkUrl?.message}
+            hint="클릭 시 이동할 주소 (선택)"
+          >
+            <input
+              id="logo-link"
+              type="url"
+              className="tds-ui-input tds-ui-focusable"
+              style={controlStyle(errors.linkUrl !== undefined)}
+              placeholder="https://example.com"
+              disabled={saving}
+              aria-invalid={errors.linkUrl !== undefined}
+              aria-describedby={errors.linkUrl !== undefined ? errorIdOf('logo-link') : undefined}
+              {...register('linkUrl')}
+            />
+          </FormField>
+        </div>
+      </Modal>
 
-        <FormField
-          htmlFor="logo-link"
-          label="링크 URL"
-          error={errors.linkUrl?.message}
-          hint="클릭 시 이동할 주소 (선택)"
-        >
-          <input
-            id="logo-link"
-            type="url"
-            className="tds-ui-input tds-ui-focusable"
-            style={controlStyle(errors.linkUrl !== undefined)}
-            placeholder="https://example.com"
-            disabled={saving}
-            aria-invalid={errors.linkUrl !== undefined}
-            {...register('linkUrl')}
-          />
-        </FormField>
-      </div>
-    </Modal>
+      {/* 모달 밖에 둔다 — 안에 두면 모달의 포커스 트랩이 확인 다이얼로그를 가둔다 */}
+      {discardDialog}
+    </>
   );
 }

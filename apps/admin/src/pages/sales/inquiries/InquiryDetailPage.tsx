@@ -22,6 +22,7 @@ import {
   fieldLabelStyle,
   fieldStyle,
   FormField,
+  pageTitleStyle,
   SelectField,
   StatusBadge,
   TextareaField,
@@ -55,17 +56,6 @@ const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--tds-space-5)',
-};
-
-const titleStyle: CSSProperties = {
-  marginTop: 0,
-  marginBottom: 0,
-  marginLeft: 0,
-  marginRight: 0,
-  fontFamily: 'var(--tds-typography-title-lg-font-family)',
-  fontSize: 'var(--tds-typography-title-lg-font-size)',
-  fontWeight: 'var(--tds-typography-title-lg-font-weight)',
-  lineHeight: 'var(--tds-typography-title-lg-line-height)',
 };
 
 const backLinkStyle: CSSProperties = {
@@ -230,7 +220,7 @@ export default function InquiryDetailPage() {
       </button>
 
       <div>
-        <h1 style={titleStyle}>문의 처리</h1>
+        <h1 style={pageTitleStyle}>문의 처리</h1>
       </div>
 
       {inquiry === undefined ? (

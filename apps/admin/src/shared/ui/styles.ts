@@ -32,10 +32,51 @@ export const visuallyHiddenStyle: CSSProperties = {
   borderStyle: 'none',
 };
 
+/**
+ * 페이지 `<h1>` — 화면당 하나뿐인 지배적 제목 (TOKEN-05).
+ *
+ * [왜 title.xl(20/600) 인가]
+ * 예전 스케일은 title.lg(18px bold)에서 멈춰 page title·card title·body·KPI 가 16–18px 에 몰려
+ * 위계가 없었다. F1 이 display tier 를 열었으므로 이제 아래로 명확히 내려간다:
+ *   display.sm(24/600) KPI 수치  >  **title.xl(20/600) 페이지 제목**  >  title.lg(18/700) 카드 제목
+ *   >  body.md(16/400) 본문
+ * page `<h1>` 에 display.sm(24)을 쓰면 KPI 수치와 같은 급이 되어 대시보드에서 무엇이 지배적인지
+ * 다시 흐려진다 — 그래서 제목은 한 단 아래 title.xl 을 쓴다. 이 배치는 기존 토큰만으로 성립하므로
+ * F1 이 dead 로 지운 display.md(28)/font-size 28·32 를 되살리지 않는다 (소비자 없는 토큰 금지).
+ *
+ * [왜 공유하나] 이 객체는 24개 파일에 복붙돼 있었고, 그중 AppHeader·LoginPage·PlaceholderPage 는
+ * semantic 토큰을 건너뛰고 primitive(font-size-18)를 직접 읽어 title.lg 의 값을 손으로 재현했다 —
+ * 토큰을 바꿔도 따라오지 않는 사본이다. 페이지 제목의 정의는 여기 하나뿐이다 (TOKEN-10).
+ */
+export const pageTitleStyle: CSSProperties = {
+  marginTop: 0,
+  marginBottom: 0,
+  marginLeft: 0,
+  marginRight: 0,
+  color: 'var(--tds-color-text-default)',
+  fontFamily: 'var(--tds-typography-title-xl-font-family)',
+  fontSize: 'var(--tds-typography-title-xl-font-size)',
+  fontWeight: 'var(--tds-typography-title-xl-font-weight)',
+  lineHeight: 'var(--tds-typography-title-xl-line-height)',
+};
+
 export const mutedTextStyle: CSSProperties = {
   color: 'var(--tds-color-text-muted)',
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
+};
+
+/**
+ * Alert 안의 '문구 + 복구 버튼' 한 줄 — 조회 실패 배너의 공통 골격 (STATE-02).
+ *
+ * 좁은 폭에서 버튼이 문구를 밀어내지 않도록 wrap 한다. 같은 값이 CrudListShell·FormPageShell·
+ * MembersPage 와 preview 폼 10곳에 각각 선언돼 있었다 — 배너 간격을 조정하려면 13곳을 고쳐야 했다.
+ */
+export const alertActionRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 'var(--tds-space-3)',
+  flexWrap: 'wrap',
 };
 
 export const hintStyle: CSSProperties = {

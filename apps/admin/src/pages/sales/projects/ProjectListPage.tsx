@@ -178,8 +178,13 @@ export default function ProjectListPage() {
       visibleItems={visible}
       columns={columns}
       nameOf={nameOf}
+      empty={{
+        hasQuery: keyword !== '',
+        hasActiveFilters: filter !== PROJECT_FILTER_ALL,
+        onClearSearch: () => setKeyword(''),
+        onResetFilters: () => setFilter(PROJECT_FILTER_ALL),
+      }}
       selectAllLabelId="project-select-all"
-      emptyLabel="등록된 프로젝트가 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

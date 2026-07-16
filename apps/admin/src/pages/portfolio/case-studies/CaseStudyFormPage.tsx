@@ -31,50 +31,61 @@ const rowStyle: CSSProperties = {
 };
 
 export default function CaseStudyFormPage() {
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<CaseStudy, CaseStudyInput, CaseStudyFormValues>({
-      resource: RESOURCE,
-      adapter: caseStudyAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: caseStudySchema,
-      empty: {
-        title: '',
-        industry: 'manufacturing',
-        client: '',
-        challenge: '',
-        solution: '',
-        result: '',
-        date: '',
-        coverImageUrl: '',
-        imageUrls: [],
-        published: true,
-      },
-      toInput: (values) => ({
-        title: values.title.trim(),
-        industry: values.industry as CaseIndustry,
-        client: values.client.trim(),
-        challenge: values.challenge.trim(),
-        solution: values.solution.trim(),
-        result: values.result.trim(),
-        date: values.date.trim(),
-        coverImageUrl: values.coverImageUrl,
-        imageUrls: values.imageUrls,
-        published: values.published,
-      }),
-      toValues: (item) => ({
-        title: item.title,
-        industry: item.industry,
-        client: item.client,
-        challenge: item.challenge,
-        solution: item.solution,
-        result: item.result,
-        date: item.date,
-        coverImageUrl: item.coverImageUrl,
-        imageUrls: [...item.imageUrls],
-        published: item.published,
-      }),
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<CaseStudy, CaseStudyInput, CaseStudyFormValues>({
+    resource: RESOURCE,
+    adapter: caseStudyAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: caseStudySchema,
+    empty: {
+      title: '',
+      industry: 'manufacturing',
+      client: '',
+      challenge: '',
+      solution: '',
+      result: '',
+      date: '',
+      coverImageUrl: '',
+      imageUrls: [],
+      published: true,
+    },
+    toInput: (values) => ({
+      title: values.title.trim(),
+      industry: values.industry as CaseIndustry,
+      client: values.client.trim(),
+      challenge: values.challenge.trim(),
+      solution: values.solution.trim(),
+      result: values.result.trim(),
+      date: values.date.trim(),
+      coverImageUrl: values.coverImageUrl,
+      imageUrls: values.imageUrls,
+      published: values.published,
+    }),
+    toValues: (item) => ({
+      title: item.title,
+      industry: item.industry,
+      client: item.client,
+      challenge: item.challenge,
+      solution: item.solution,
+      result: item.result,
+      date: item.date,
+      coverImageUrl: item.coverImageUrl,
+      imageUrls: [...item.imageUrls],
+      published: item.published,
+    }),
+  });
 
   const {
     register,
@@ -100,7 +111,10 @@ export default function CaseStudyFormPage() {
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
-      loadFailed={loadFailed}
+      loadFailure={loadFailure}
+      onRetryLoad={retryLoad}
+      errorReference={errorReference}
+      conflict={conflict}
       serverError={serverError}
       saving={saving}
       isDirty={isDirty}
@@ -114,6 +128,9 @@ export default function CaseStudyFormPage() {
             isInvalid={errors.industry !== undefined}
             disabled={disabled}
             aria-invalid={errors.industry !== undefined}
+            aria-describedby={
+              errors.industry !== undefined ? errorIdOf('case-industry') : undefined
+            }
             {...register('industry')}
           >
             {CASE_INDUSTRY_OPTIONS.map((option) => (
@@ -132,6 +149,7 @@ export default function CaseStudyFormPage() {
             style={controlStyle(errors.date !== undefined)}
             disabled={disabled}
             aria-invalid={errors.date !== undefined}
+            aria-describedby={errors.date !== undefined ? errorIdOf('case-date') : undefined}
             {...register('date')}
           />
         </FormField>
@@ -162,6 +180,7 @@ export default function CaseStudyFormPage() {
           placeholder="예: 다온정밀"
           disabled={disabled}
           aria-invalid={errors.client !== undefined}
+          aria-describedby={errors.client !== undefined ? errorIdOf('case-client') : undefined}
           {...register('client')}
         />
       </FormField>

@@ -57,6 +57,22 @@ export function writeSession(session: AuthSession): void {
   }
 }
 
+/**
+ * 세션을 버린다 — 중간 만료(401) 경로의 유일한 정리 지점 (EXC-02).
+ *
+ * 401 을 받고도 저장된 세션이 남아 있으면, /login 으로 보낸 직후 RequireAuth 가 그 낡은 세션을
+ * '유효' 로 읽어 화면으로 되돌린다 — 무한 왕복이 된다. 그래서 리다이렉트 **전에** 지운다.
+ */
+export function clearSession(): void {
+  const storage = safeStorage();
+  if (!storage) return;
+  try {
+    storage.removeItem(SESSION_KEY);
+  } catch {
+    // 삭제 실패는 무시 — 저장소가 막힌 브라우저에선 애초에 세션이 영속되지 않았다.
+  }
+}
+
 /** 직전 로그인에서 저장된 이메일 (§5.2 체크박스 기본값 판정에 사용) */
 export function readRememberedEmail(): string | null {
   const storage = safeStorage();

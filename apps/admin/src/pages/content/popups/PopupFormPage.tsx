@@ -22,6 +22,7 @@ import {
   fieldLabelStyle,
   FormField,
   ImageUploadField,
+  pageTitleStyle,
   SelectField,
   useToast,
   useUnsavedChangesDialog,
@@ -39,17 +40,6 @@ const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--tds-space-5)',
-};
-
-const titleStyle: CSSProperties = {
-  marginTop: 0,
-  marginBottom: 0,
-  marginLeft: 0,
-  marginRight: 0,
-  fontFamily: 'var(--tds-typography-title-lg-font-family)',
-  fontSize: 'var(--tds-typography-title-lg-font-size)',
-  fontWeight: 'var(--tds-typography-title-lg-font-weight)',
-  lineHeight: 'var(--tds-typography-title-lg-line-height)',
 };
 
 const descriptionStyle: CSSProperties = {
@@ -240,7 +230,7 @@ export default function PopupFormPage() {
   return (
     <div style={pageStyle}>
       <div>
-        <h1 style={titleStyle}>{isEdit ? '팝업 수정' : '팝업 등록'}</h1>
+        <h1 style={pageTitleStyle}>{isEdit ? '팝업 수정' : '팝업 등록'}</h1>
         <p style={descriptionStyle}>
           별표(*) 항목은 필수입니다. 오른쪽 미리보기로 사용자에게 보일 모습을 확인하세요.
         </p>
@@ -297,6 +287,9 @@ export default function PopupFormPage() {
                   placeholder="https://example.com/event"
                   disabled={disabled}
                   aria-invalid={errors.linkUrl !== undefined}
+                  aria-describedby={
+                    errors.linkUrl !== undefined ? errorIdOf('popup-link') : undefined
+                  }
                   {...register('linkUrl')}
                 />
               </FormField>
@@ -327,6 +320,9 @@ export default function PopupFormPage() {
                     style={controlStyle(errors.priority !== undefined)}
                     disabled={disabled}
                     aria-invalid={errors.priority !== undefined}
+                    aria-describedby={
+                      errors.priority !== undefined ? errorIdOf('popup-priority') : undefined
+                    }
                     {...register('priority')}
                   />
                 </FormField>

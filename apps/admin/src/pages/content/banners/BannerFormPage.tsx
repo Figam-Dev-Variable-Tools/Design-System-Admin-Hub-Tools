@@ -20,6 +20,7 @@ import {
   fieldLabelStyle,
   FormField,
   ImageUploadField,
+  pageTitleStyle,
   SelectField,
   useToast,
   useUnsavedChangesDialog,
@@ -37,17 +38,6 @@ const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--tds-space-5)',
-};
-
-const titleStyle: CSSProperties = {
-  marginTop: 0,
-  marginBottom: 0,
-  marginLeft: 0,
-  marginRight: 0,
-  fontFamily: 'var(--tds-typography-title-lg-font-family)',
-  fontSize: 'var(--tds-typography-title-lg-font-size)',
-  fontWeight: 'var(--tds-typography-title-lg-font-weight)',
-  lineHeight: 'var(--tds-typography-title-lg-line-height)',
 };
 
 const descriptionStyle: CSSProperties = {
@@ -237,7 +227,7 @@ export default function BannerFormPage() {
   return (
     <div style={pageStyle}>
       <div>
-        <h1 style={titleStyle}>{isEdit ? '배너 수정' : '배너 등록'}</h1>
+        <h1 style={pageTitleStyle}>{isEdit ? '배너 수정' : '배너 등록'}</h1>
         <p style={descriptionStyle}>
           별표(*) 항목은 필수입니다. 오른쪽 미리보기로 사용자에게 보일 모습을 확인하세요.
         </p>
@@ -294,6 +284,9 @@ export default function BannerFormPage() {
                   placeholder="https://example.com/promo"
                   disabled={disabled}
                   aria-invalid={errors.linkUrl !== undefined}
+                  aria-describedby={
+                    errors.linkUrl !== undefined ? errorIdOf('banner-link') : undefined
+                  }
                   {...register('linkUrl')}
                 />
               </FormField>
@@ -324,6 +317,9 @@ export default function BannerFormPage() {
                     style={controlStyle(errors.order !== undefined)}
                     disabled={disabled}
                     aria-invalid={errors.order !== undefined}
+                    aria-describedby={
+                      errors.order !== undefined ? errorIdOf('banner-order') : undefined
+                    }
                     {...register('order')}
                   />
                 </FormField>

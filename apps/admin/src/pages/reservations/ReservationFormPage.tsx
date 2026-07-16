@@ -107,17 +107,28 @@ function toValues(reservation: Reservation): ReservationFormValues {
 
 export default function ReservationFormPage() {
   const { id } = useParams<{ id: string }>();
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<Reservation, ReservationInput, ReservationFormValues>({
-      resource: RESOURCE,
-      adapter: reservationAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: reservationSchema,
-      empty: EMPTY,
-      toInput,
-      toValues,
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<Reservation, ReservationInput, ReservationFormValues>({
+    resource: RESOURCE,
+    adapter: reservationAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: reservationSchema,
+    empty: EMPTY,
+    toInput,
+    toValues,
+  });
 
   const {
     register,
@@ -152,7 +163,10 @@ export default function ReservationFormPage() {
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
-      loadFailed={loadFailed}
+      loadFailure={loadFailure}
+      onRetryLoad={retryLoad}
+      errorReference={errorReference}
+      conflict={conflict}
       serverError={serverError}
       saving={saving}
       isDirty={isDirty}
@@ -217,6 +231,9 @@ export default function ReservationFormPage() {
             placeholder="예: 010-1234-5678"
             disabled={disabled}
             aria-invalid={errors.customerPhone !== undefined}
+            aria-describedby={
+              errors.customerPhone !== undefined ? errorIdOf('rsv-phone') : undefined
+            }
             {...register('customerPhone')}
           />
         </FormField>
@@ -230,6 +247,7 @@ export default function ReservationFormPage() {
           style={controlStyle(errors.date !== undefined)}
           disabled={disabled}
           aria-invalid={errors.date !== undefined}
+          aria-describedby={errors.date !== undefined ? errorIdOf('rsv-date') : undefined}
           {...register('date')}
         />
       </FormField>
@@ -244,6 +262,7 @@ export default function ReservationFormPage() {
             disabled={disabled}
             aria-label="시작 시각"
             aria-invalid={timeError !== undefined}
+            aria-describedby={timeError !== undefined ? errorIdOf('rsv-start') : undefined}
             {...register('startTime')}
           />
           <input
@@ -254,6 +273,7 @@ export default function ReservationFormPage() {
             disabled={disabled}
             aria-label="종료 시각"
             aria-invalid={timeError !== undefined}
+            aria-describedby={timeError !== undefined ? errorIdOf('rsv-start') : undefined}
             {...register('endTime')}
           />
         </div>
@@ -285,6 +305,7 @@ export default function ReservationFormPage() {
             style={controlStyle(errors.partySize !== undefined)}
             disabled={disabled}
             aria-invalid={errors.partySize !== undefined}
+            aria-describedby={errors.partySize !== undefined ? errorIdOf('rsv-party') : undefined}
             {...register('partySize')}
           />
         </FormField>
@@ -311,6 +332,7 @@ export default function ReservationFormPage() {
             style={controlStyle(errors.deposit !== undefined)}
             disabled={disabled}
             aria-invalid={errors.deposit !== undefined}
+            aria-describedby={errors.deposit !== undefined ? errorIdOf('rsv-deposit') : undefined}
             {...register('deposit')}
           />
         </FormField>

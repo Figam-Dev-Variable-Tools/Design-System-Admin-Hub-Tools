@@ -26,6 +26,7 @@ export {
   Alert,
   Button,
   DateRangeField,
+  Empty,
   errorIdOf,
   FormField,
   HelpTip,
@@ -116,6 +117,11 @@ export { ToastProvider, useToast } from './ToastProvider';
 /* TriStateCheckbox · triStateProps 는 @tds/ui 의 것이다 (상단 재수출). */
 
 export { useUnsavedChangesDialog } from './useUnsavedChangesDialog';
+/**
+ * 폼을 담은 **모달**의 이탈 가드 (FEEDBACK-06). 페이지 폼은 useUnsavedChangesDialog 를 쓴다 —
+ * 둘은 막는 경로가 다르다(모달: Esc·딤·×·취소 / 페이지: unload·링크·뒤로가기).
+ */
+export { useModalDirtyGuard } from './useModalDirtyGuard';
 
 /* ── 아이콘 (여러 페이지가 쓰는 것만) ──────────────────────────────────────
  * AlertTriangleIcon·InfoCircleIcon 은 유일 소비자였던 ConfirmDialog·Toast 가 @tds/ui 로 승격되며
@@ -136,6 +142,7 @@ export {
 
 /* ── 스타일 토큰 조합 ────────────────────────────────────────────────────── */
 export {
+  alertActionRowStyle,
   badgeStyle,
   buttonStyle,
   cardBodyStyle,
@@ -157,6 +164,7 @@ export {
   hintStyle,
   mutedTextStyle,
   numericCellStyle,
+  pageTitleStyle,
   tableStyle,
   tdStyle,
   thStyle,

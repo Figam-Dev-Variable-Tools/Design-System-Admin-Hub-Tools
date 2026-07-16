@@ -32,44 +32,55 @@ const rowStyle: CSSProperties = {
 };
 
 export default function PortfolioFormPage() {
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<PortfolioItem, PortfolioItemInput, PortfolioFormValues>({
-      resource: RESOURCE,
-      adapter: portfolioAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: portfolioSchema,
-      empty: {
-        title: '',
-        categoryId: '',
-        client: '',
-        summary: '',
-        date: '',
-        coverImageUrl: '',
-        imageUrls: [],
-        published: true,
-      },
-      toInput: (values) => ({
-        title: values.title.trim(),
-        categoryId: values.categoryId,
-        client: values.client.trim(),
-        summary: values.summary.trim(),
-        date: values.date.trim(),
-        coverImageUrl: values.coverImageUrl,
-        imageUrls: values.imageUrls,
-        published: values.published,
-      }),
-      toValues: (item) => ({
-        title: item.title,
-        categoryId: item.categoryId,
-        client: item.client,
-        summary: item.summary,
-        date: item.date,
-        coverImageUrl: item.coverImageUrl,
-        imageUrls: [...item.imageUrls],
-        published: item.published,
-      }),
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<PortfolioItem, PortfolioItemInput, PortfolioFormValues>({
+    resource: RESOURCE,
+    adapter: portfolioAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: portfolioSchema,
+    empty: {
+      title: '',
+      categoryId: '',
+      client: '',
+      summary: '',
+      date: '',
+      coverImageUrl: '',
+      imageUrls: [],
+      published: true,
+    },
+    toInput: (values) => ({
+      title: values.title.trim(),
+      categoryId: values.categoryId,
+      client: values.client.trim(),
+      summary: values.summary.trim(),
+      date: values.date.trim(),
+      coverImageUrl: values.coverImageUrl,
+      imageUrls: values.imageUrls,
+      published: values.published,
+    }),
+    toValues: (item) => ({
+      title: item.title,
+      categoryId: item.categoryId,
+      client: item.client,
+      summary: item.summary,
+      date: item.date,
+      coverImageUrl: item.coverImageUrl,
+      imageUrls: [...item.imageUrls],
+      published: item.published,
+    }),
+  });
 
   const {
     register,
@@ -99,7 +110,10 @@ export default function PortfolioFormPage() {
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
-      loadFailed={loadFailed}
+      loadFailure={loadFailure}
+      onRetryLoad={retryLoad}
+      errorReference={errorReference}
+      conflict={conflict}
       serverError={serverError}
       saving={saving}
       isDirty={isDirty}
@@ -118,6 +132,9 @@ export default function PortfolioFormPage() {
             isInvalid={errors.categoryId !== undefined}
             disabled={disabled}
             aria-invalid={errors.categoryId !== undefined}
+            aria-describedby={
+              errors.categoryId !== undefined ? errorIdOf('portfolio-category') : undefined
+            }
             {...register('categoryId')}
           >
             <option value="">분류 선택</option>
@@ -137,6 +154,7 @@ export default function PortfolioFormPage() {
             style={controlStyle(errors.date !== undefined)}
             disabled={disabled}
             aria-invalid={errors.date !== undefined}
+            aria-describedby={errors.date !== undefined ? errorIdOf('portfolio-date') : undefined}
             {...register('date')}
           />
         </FormField>
@@ -167,6 +185,7 @@ export default function PortfolioFormPage() {
           placeholder="예: 한빛개발"
           disabled={disabled}
           aria-invalid={errors.client !== undefined}
+          aria-describedby={errors.client !== undefined ? errorIdOf('portfolio-client') : undefined}
           {...register('client')}
         />
       </FormField>

@@ -124,8 +124,11 @@ export default function PortfolioListPage() {
       visibleItems={visible}
       columns={columns}
       nameOf={nameOf}
+      empty={{
+        hasActiveFilters: filter !== PORTFOLIO_FILTER_ALL,
+        onResetFilters: () => setFilter(PORTFOLIO_FILTER_ALL),
+      }}
       selectAllLabelId="portfolio-select-all"
-      emptyLabel="등록된 포트폴리오가 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

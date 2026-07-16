@@ -111,6 +111,25 @@ export async function seedSession(page: Page, session: SeedSession | string): Pr
   );
 }
 
+/**
+ * 셸 라우트 진입의 **인증 전제** — `test.beforeEach(seedAuthenticated)` 로 쓴다 (EXC-02).
+ *
+ * [왜 생겼나] 인증 가드가 붙기 전에는 세션 없이도 /dashboard·/users/members 가 그대로 렌더됐고,
+ * FS-002/003/004 는 그 사실에 기대어 세션을 심지 않았다. 이제 셸 라우트는 세션이 없으면
+ * /login?returnUrl=… 으로 보낸다 — 인증된 화면을 검증하는 스펙은 인증을 세워야 한다.
+ *
+ * 이 헬퍼는 **전제만** 만든다. 인증의 축(성공·실패·만료·오픈 리다이렉트)은 FS-001 이 소유하며,
+ * 세션 형식이 깨진 경우 등은 그쪽에서 seedSession 으로 직접 심는다.
+ */
+export async function seedAuthenticated({ page }: { readonly page: Page }): Promise<void> {
+  await seedSession(page, {
+    userId: 'U-0001',
+    email: 'admin@klipse.com',
+    role: 'system_admin',
+    issuedAt: Date.now(),
+  });
+}
+
 /** '이메일 저장' 으로 보관된 이메일 (FS-001-EL-015) */
 export async function seedRememberedEmail(page: Page, email: string): Promise<void> {
   await page.addInitScript(

@@ -11,6 +11,7 @@ import {
   Card,
   CardTitle,
   controlStyle,
+  errorIdOf,
   fieldLabelStyle,
   fieldStyle,
   FormField,
@@ -82,6 +83,7 @@ export function ProductPriceDiscountCard({
             placeholder="예: 129000"
             disabled={disabled}
             aria-invalid={errors.price !== undefined}
+            aria-describedby={errors.price !== undefined ? errorIdOf('product-price') : undefined}
             {...register('price')}
           />
         </FormField>
@@ -110,6 +112,9 @@ export function ProductPriceDiscountCard({
             placeholder={isPercent ? '예: 20' : '예: 10000'}
             disabled={disabled || discountType === 'none'}
             aria-invalid={errors.discountValue !== undefined}
+            aria-describedby={
+              errors.discountValue !== undefined ? errorIdOf('product-discount-value') : undefined
+            }
             {...register('discountValue')}
           />
         </FormField>
@@ -188,6 +193,9 @@ export function ProductShippingCard({ register, errors, disabled, feeType }: Shi
               placeholder="예: 3000"
               disabled={disabled}
               aria-invalid={errors.shipping?.fee !== undefined}
+              aria-describedby={
+                errors.shipping?.fee !== undefined ? errorIdOf('product-ship-fee') : undefined
+              }
               {...register('shipping.fee')}
             />
           </FormField>
@@ -209,6 +217,11 @@ export function ProductShippingCard({ register, errors, disabled, feeType }: Shi
                 placeholder="예: 50000"
                 disabled={disabled}
                 aria-invalid={errors.shipping?.freeThreshold !== undefined}
+                aria-describedby={
+                  errors.shipping?.freeThreshold !== undefined
+                    ? errorIdOf('product-ship-threshold')
+                    : undefined
+                }
                 {...register('shipping.freeThreshold')}
               />
             </FormField>

@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 import {
   Alert,
+  alertActionRowStyle,
   Button,
   Card,
   CardTitle,
@@ -16,11 +17,12 @@ import {
   fieldLabelStyle,
   fieldStyle,
   FormField,
+  pageTitleStyle,
   SelectField,
   ToggleSwitch,
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
-import { useCrudForm } from '../../../shared/crud';
+import { FormConflictDialog, FormServerError, useCrudForm } from '../../../shared/crud';
 import { downloadAdapter, DOWNLOAD_RESOURCE } from './data-source';
 import { downloadSchema } from './validation';
 import type { DownloadFormValues } from './validation';
@@ -38,17 +40,6 @@ const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--tds-space-5)',
-};
-
-const titleStyle: CSSProperties = {
-  marginTop: 0,
-  marginBottom: 0,
-  marginLeft: 0,
-  marginRight: 0,
-  fontFamily: 'var(--tds-typography-title-lg-font-family)',
-  fontSize: 'var(--tds-typography-title-lg-font-size)',
-  fontWeight: 'var(--tds-typography-title-lg-font-weight)',
-  lineHeight: 'var(--tds-typography-title-lg-line-height)',
 };
 
 const descriptionStyle: CSSProperties = {
@@ -132,17 +123,28 @@ function toValues(item: DownloadItem): DownloadFormValues {
 
 export default function DownloadFormPage() {
   const navigate = useNavigate();
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<DownloadItem, DownloadInput, DownloadFormValues>({
-      resource: DOWNLOAD_RESOURCE,
-      adapter: downloadAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: downloadSchema,
-      empty: EMPTY,
-      toInput,
-      toValues,
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<DownloadItem, DownloadInput, DownloadFormValues>({
+    resource: DOWNLOAD_RESOURCE,
+    adapter: downloadAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: downloadSchema,
+    empty: EMPTY,
+    toInput,
+    toValues,
+  });
 
   const {
     register,
@@ -157,14 +159,27 @@ export default function DownloadFormPage() {
   const fileSize = watch('fileSize');
   const visible = watch('visible');
 
-  if (isEdit && loadFailed) {
+  // [EXC-12] 404 와 서버 오류는 복구 수단이 다르다 — 이미 삭제된 항목에 '다시 시도'를 권하면
+  // 영원히 실패하는 버튼을 누르게 된다.
+  if (loadFailure !== null) {
     return (
       <div style={pageStyle}>
         <Alert tone="danger">
-          <span>자료를 불러오지 못했습니다. </span>
-          <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
-            목록으로
-          </Button>
+          <div style={alertActionRowStyle}>
+            <span>
+              {loadFailure === 'not-found'
+                ? '자료 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
+                : '자료 불러오지 못했습니다.'}
+            </span>
+            {loadFailure === 'error' && (
+              <Button variant="secondary" onClick={retryLoad}>
+                다시 시도
+              </Button>
+            )}
+            <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
+              목록으로
+            </Button>
+          </div>
         </Alert>
       </div>
     );
@@ -183,12 +198,12 @@ export default function DownloadFormPage() {
       </button>
 
       <div>
-        <h1 style={titleStyle}>{isEdit ? '자료 수정' : '자료 등록'}</h1>
+        <h1 style={pageTitleStyle}>{isEdit ? '자료 수정' : '자료 등록'}</h1>
         <p style={descriptionStyle}>별표(*) 항목은 필수입니다. 배포할 파일을 첨부하세요.</p>
       </div>
 
       <form onSubmit={submit} noValidate style={pageStyle}>
-        {serverError !== null && <Alert tone="danger">{serverError}</Alert>}
+        <FormServerError serverError={serverError} errorReference={errorReference} />
 
         <div style={layoutStyle}>
           <Card>
@@ -302,6 +317,8 @@ export default function DownloadFormPage() {
           </Button>
         </div>
       </form>
+
+      <FormConflictDialog conflict={conflict} />
 
       {unsavedDialog}
     </div>

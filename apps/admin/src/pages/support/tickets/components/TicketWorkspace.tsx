@@ -14,6 +14,7 @@ import {
   ddStyle,
   dlStyle,
   dtStyle,
+  errorIdOf,
   fieldLabelStyle,
   fieldStyle,
   FormField,
@@ -165,6 +166,9 @@ export function TicketWorkspace({
               placeholder="담당자 이름"
               disabled={saving}
               aria-invalid={assigneeRequiredError !== null}
+              aria-describedby={
+                assigneeRequiredError !== null ? errorIdOf('ticket-assignee') : undefined
+              }
               onChange={(event) => onAssigneeChange(event.target.value)}
             />
           </FormField>

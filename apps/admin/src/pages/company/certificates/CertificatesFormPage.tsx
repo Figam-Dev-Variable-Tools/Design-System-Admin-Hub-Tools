@@ -27,29 +27,40 @@ const rowStyle: CSSProperties = {
 };
 
 export default function CertificatesFormPage() {
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<CertItem, CertInput, CertFormValues>({
-      resource: 'certificates',
-      adapter: certificatesAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: certSchema,
-      empty: { name: '', issuer: '', issuedOn: '', kind: 'certificate', imageUrl: '' },
-      toInput: (values) => ({
-        name: values.name.trim(),
-        issuer: values.issuer.trim(),
-        issuedOn: values.issuedOn.trim(),
-        kind: values.kind as CertKind,
-        imageUrl: values.imageUrl.trim(),
-      }),
-      toValues: (item) => ({
-        name: item.name,
-        issuer: item.issuer,
-        issuedOn: item.issuedOn,
-        kind: item.kind,
-        imageUrl: item.imageUrl,
-      }),
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<CertItem, CertInput, CertFormValues>({
+    resource: 'certificates',
+    adapter: certificatesAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: certSchema,
+    empty: { name: '', issuer: '', issuedOn: '', kind: 'certificate', imageUrl: '' },
+    toInput: (values) => ({
+      name: values.name.trim(),
+      issuer: values.issuer.trim(),
+      issuedOn: values.issuedOn.trim(),
+      kind: values.kind as CertKind,
+      imageUrl: values.imageUrl.trim(),
+    }),
+    toValues: (item) => ({
+      name: item.name,
+      issuer: item.issuer,
+      issuedOn: item.issuedOn,
+      kind: item.kind,
+      imageUrl: item.imageUrl,
+    }),
+  });
 
   const {
     register,
@@ -68,7 +79,10 @@ export default function CertificatesFormPage() {
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
-      loadFailed={loadFailed}
+      loadFailure={loadFailure}
+      onRetryLoad={retryLoad}
+      errorReference={errorReference}
+      conflict={conflict}
       serverError={serverError}
       saving={saving}
       isDirty={isDirty}
@@ -101,6 +115,7 @@ export default function CertificatesFormPage() {
             placeholder="예: 예시인증원"
             disabled={disabled}
             aria-invalid={errors.issuer !== undefined}
+            aria-describedby={errors.issuer !== undefined ? errorIdOf('cert-issuer') : undefined}
             {...register('issuer')}
           />
         </FormField>
@@ -113,6 +128,7 @@ export default function CertificatesFormPage() {
             style={controlStyle(errors.issuedOn !== undefined)}
             disabled={disabled}
             aria-invalid={errors.issuedOn !== undefined}
+            aria-describedby={errors.issuedOn !== undefined ? errorIdOf('cert-date') : undefined}
             {...register('issuedOn')}
           />
         </FormField>
@@ -123,6 +139,7 @@ export default function CertificatesFormPage() {
             isInvalid={errors.kind !== undefined}
             disabled={disabled}
             aria-invalid={errors.kind !== undefined}
+            aria-describedby={errors.kind !== undefined ? errorIdOf('cert-kind') : undefined}
             {...register('kind')}
           >
             {CERT_KIND_OPTIONS.map((option) => (

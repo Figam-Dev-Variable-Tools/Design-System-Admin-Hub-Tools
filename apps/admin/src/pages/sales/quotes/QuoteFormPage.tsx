@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 import {
   Alert,
+  alertActionRowStyle,
   Button,
   Card,
   CardTitle,
@@ -15,11 +16,12 @@ import {
   DateRangeField,
   errorIdOf,
   FormField,
+  pageTitleStyle,
   SelectField,
   TextareaField,
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
-import { useCrudForm } from '../../../shared/crud';
+import { FormConflictDialog, FormServerError, useCrudForm } from '../../../shared/crud';
 import { formatBizNo } from '../_shared/business';
 import { quoteAdapter } from './data-source';
 import { quoteSchema } from './validation';
@@ -39,17 +41,6 @@ const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--tds-space-5)',
-};
-
-const titleStyle: CSSProperties = {
-  marginTop: 0,
-  marginBottom: 0,
-  marginLeft: 0,
-  marginRight: 0,
-  fontFamily: 'var(--tds-typography-title-lg-font-family)',
-  fontSize: 'var(--tds-typography-title-lg-font-size)',
-  fontWeight: 'var(--tds-typography-title-lg-font-weight)',
-  lineHeight: 'var(--tds-typography-title-lg-line-height)',
 };
 
 const descriptionStyle: CSSProperties = {
@@ -164,17 +155,28 @@ function toValues(quote: Quote): QuoteFormValues {
 
 export default function QuoteFormPage() {
   const navigate = useNavigate();
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<Quote, QuoteInput, QuoteFormValues>({
-      resource: RESOURCE,
-      adapter: quoteAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: quoteSchema,
-      empty: EMPTY,
-      toInput,
-      toValues,
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<Quote, QuoteInput, QuoteFormValues>({
+    resource: RESOURCE,
+    adapter: quoteAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: quoteSchema,
+    empty: EMPTY,
+    toInput,
+    toValues,
+  });
 
   const {
     register,
@@ -191,14 +193,27 @@ export default function QuoteFormPage() {
   const validUntil = watch('validUntil');
   const periodError = errors.issueDate?.message ?? errors.validUntil?.message;
 
-  if (isEdit && loadFailed) {
+  // [EXC-12] 404 와 서버 오류는 복구 수단이 다르다 — 이미 삭제된 항목에 '다시 시도'를 권하면
+  // 영원히 실패하는 버튼을 누르게 된다.
+  if (loadFailure !== null) {
     return (
       <div style={pageStyle}>
         <Alert tone="danger">
-          <span>견적을 불러오지 못했습니다. </span>
-          <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
-            목록으로
-          </Button>
+          <div style={alertActionRowStyle}>
+            <span>
+              {loadFailure === 'not-found'
+                ? '견적을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
+                : '견적을 불러오지 못했습니다.'}
+            </span>
+            {loadFailure === 'error' && (
+              <Button variant="secondary" onClick={retryLoad}>
+                다시 시도
+              </Button>
+            )}
+            <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
+              목록으로
+            </Button>
+          </div>
         </Alert>
       </div>
     );
@@ -217,7 +232,7 @@ export default function QuoteFormPage() {
       </button>
 
       <div>
-        <h1 style={titleStyle}>{isEdit ? '견적 수정' : '견적 등록'}</h1>
+        <h1 style={pageTitleStyle}>{isEdit ? '견적 수정' : '견적 등록'}</h1>
         <p style={descriptionStyle}>
           별표(*) 항목은 필수입니다. 오른쪽 미리보기로 실제 견적서 모습을 확인하세요. 견적번호는
           시스템이 저장 시 자동 부여하며 수정할 수 없습니다.
@@ -225,7 +240,7 @@ export default function QuoteFormPage() {
       </div>
 
       <form onSubmit={submit} noValidate style={pageStyle}>
-        {serverError !== null && <Alert tone="danger">{serverError}</Alert>}
+        <FormServerError serverError={serverError} errorReference={errorReference} />
 
         <div style={layoutStyle}>
           <div style={columnStyle}>
@@ -392,6 +407,8 @@ export default function QuoteFormPage() {
           </Button>
         </div>
       </form>
+
+      <FormConflictDialog conflict={conflict} />
 
       {unsavedDialog}
     </div>

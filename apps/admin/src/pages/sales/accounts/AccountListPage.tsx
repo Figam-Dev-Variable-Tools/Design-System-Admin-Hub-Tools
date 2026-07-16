@@ -190,8 +190,13 @@ export default function AccountListPage() {
       visibleItems={visible}
       columns={columns}
       nameOf={nameOf}
+      empty={{
+        hasQuery: keyword !== '',
+        hasActiveFilters: filter !== TRADE_FILTER_ALL,
+        onClearSearch: () => setKeyword(''),
+        onResetFilters: () => setFilter(TRADE_FILTER_ALL),
+      }}
       selectAllLabelId="account-select-all"
-      emptyLabel="등록된 거래처가 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

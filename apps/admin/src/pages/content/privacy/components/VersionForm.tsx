@@ -175,6 +175,9 @@ export function VersionForm({ editing, onSaved, onCancel }: VersionFormProps) {
                 style={controlStyle(errors.effectiveDate !== undefined)}
                 disabled={saving}
                 aria-invalid={errors.effectiveDate !== undefined}
+                aria-describedby={
+                  errors.effectiveDate !== undefined ? errorIdOf('privacy-effective') : undefined
+                }
                 {...register('effectiveDate')}
               />
             </FormField>

@@ -129,8 +129,11 @@ export default function CaseStudyListPage() {
       visibleItems={visible}
       columns={columns}
       nameOf={nameOf}
+      empty={{
+        hasActiveFilters: filter !== CASE_FILTER_ALL,
+        onResetFilters: () => setFilter(CASE_FILTER_ALL),
+      }}
       selectAllLabelId="case-study-select-all"
-      emptyLabel="등록된 성공 사례가 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

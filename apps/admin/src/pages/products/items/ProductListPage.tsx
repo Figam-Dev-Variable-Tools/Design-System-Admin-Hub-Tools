@@ -270,8 +270,11 @@ export default function ProductListPage() {
       visibleItems={visible}
       columns={columns}
       nameOf={nameOf}
+      empty={{
+        hasQuery: keyword !== '',
+        onClearSearch: () => setKeyword(''),
+      }}
       selectAllLabelId="product-select-all"
-      emptyLabel="등록된 상품이 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

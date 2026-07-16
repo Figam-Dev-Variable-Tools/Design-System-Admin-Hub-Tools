@@ -10,6 +10,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 
 import { wait } from '../async';
 import { settleAll } from '../bulk';
+import { HTTP_STATUS, HttpError } from '../errors/http-error';
 import { failIfRequested, LATENCY_MS } from './dev';
 
 export interface CrudAdapter<T extends { id: string }, Input> {
@@ -48,7 +49,11 @@ export function createCrudAdapter<T extends { id: string }, Input>(
       await wait(LATENCY_MS, signal);
       failIfRequested(spec.scope, 'detail');
       const found = items.find((item) => item.id === id);
-      if (found === undefined) throw new Error('항목을 찾을 수 없습니다');
+      // 404 와 500 은 복구 수단이 다르다 — '목록으로' vs '다시 시도' (EXC-12). status 를 실어
+      // 폼 셸이 그 둘을 구분할 수 있게 한다. 예전에는 generic Error 라 loadFailed 로 뭉개졌다.
+      if (found === undefined) {
+        throw new HttpError(HTTP_STATUS.notFound, '항목을 찾을 수 없습니다.');
+      }
       return found;
     },
     async create(input, signal) {
@@ -59,11 +64,25 @@ export function createCrudAdapter<T extends { id: string }, Input>(
     async update(id, input, signal) {
       await wait(LATENCY_MS, signal);
       failIfRequested(spec.scope, 'save');
+
+      // [EXC-04] 예전에는 map 이 **없는 id 를 조용히 지나치고 성공을 반환**했다. 그래서 다른
+      // 관리자가 방금 지운 항목을 편집하면 '저장했습니다' 토스트가 뜨고 목록으로 돌아가지만
+      // 저장된 것은 아무것도 없었다 — 유령 저장(ghost saved)이다. 없으면 409 로 알린다.
+      if (!items.some((item) => item.id === id)) {
+        throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 항목입니다.');
+      }
+
       items = order(items.map((item) => (item.id === id ? spec.patch(item, input) : item)));
     },
     async remove(id, signal) {
       await wait(LATENCY_MS, signal);
       failIfRequested(spec.scope, 'delete');
+
+      // 같은 이유로 filter 도 없는 id 를 조용히 통과시켰다 — 삭제되지 않았는데 삭제 성공이었다.
+      if (!items.some((item) => item.id === id)) {
+        throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 항목입니다.');
+      }
+
       items = items.filter((item) => item.id !== id);
     },
   };

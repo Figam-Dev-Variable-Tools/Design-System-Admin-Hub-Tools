@@ -77,17 +77,28 @@ function toValues(booking: ConsultBooking): ConsultBookingFormValues {
 
 export default function ConsultationBookingFormPage() {
   const { id } = useParams<{ id: string }>();
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<ConsultBooking, ConsultBookingInput, ConsultBookingFormValues>({
-      resource: RESOURCE,
-      adapter: consultBookingAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: consultBookingSchema,
-      empty: EMPTY,
-      toInput,
-      toValues,
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<ConsultBooking, ConsultBookingInput, ConsultBookingFormValues>({
+    resource: RESOURCE,
+    adapter: consultBookingAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: consultBookingSchema,
+    empty: EMPTY,
+    toInput,
+    toValues,
+  });
 
   const {
     register,
@@ -111,7 +122,10 @@ export default function ConsultationBookingFormPage() {
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
-      loadFailed={loadFailed}
+      loadFailure={loadFailure}
+      onRetryLoad={retryLoad}
+      errorReference={errorReference}
+      conflict={conflict}
       serverError={serverError}
       saving={saving}
       isDirty={isDirty}
@@ -155,6 +169,9 @@ export default function ConsultationBookingFormPage() {
             placeholder="예: 010-1234-5678"
             disabled={disabled}
             aria-invalid={errors.customerPhone !== undefined}
+            aria-describedby={
+              errors.customerPhone !== undefined ? errorIdOf('csb-phone') : undefined
+            }
             {...register('customerPhone')}
           />
         </FormField>
@@ -192,6 +209,7 @@ export default function ConsultationBookingFormPage() {
           placeholder="예: 인테리어 리모델링 상담"
           disabled={disabled}
           aria-invalid={errors.topic !== undefined}
+          aria-describedby={errors.topic !== undefined ? errorIdOf('csb-topic') : undefined}
           {...register('topic')}
         />
       </FormField>
@@ -210,6 +228,9 @@ export default function ConsultationBookingFormPage() {
             style={controlStyle(errors.preferredDate !== undefined)}
             disabled={disabled}
             aria-invalid={errors.preferredDate !== undefined}
+            aria-describedby={
+              errors.preferredDate !== undefined ? errorIdOf('csb-date') : undefined
+            }
             {...register('preferredDate')}
           />
         </FormField>
@@ -226,6 +247,9 @@ export default function ConsultationBookingFormPage() {
             style={controlStyle(errors.preferredTime !== undefined)}
             disabled={disabled}
             aria-invalid={errors.preferredTime !== undefined}
+            aria-describedby={
+              errors.preferredTime !== undefined ? errorIdOf('csb-time') : undefined
+            }
             {...register('preferredTime')}
           />
         </FormField>

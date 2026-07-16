@@ -23,6 +23,7 @@ import {
   errorIdOf,
   fieldLabelStyle,
   FormField,
+  pageTitleStyle,
   SelectField,
   TextareaField,
   useToast,
@@ -41,17 +42,6 @@ const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--tds-space-5)',
-};
-
-const titleStyle: CSSProperties = {
-  marginTop: 0,
-  marginBottom: 0,
-  marginLeft: 0,
-  marginRight: 0,
-  fontFamily: 'var(--tds-typography-title-lg-font-family)',
-  fontSize: 'var(--tds-typography-title-lg-font-size)',
-  fontWeight: 'var(--tds-typography-title-lg-font-weight)',
-  lineHeight: 'var(--tds-typography-title-lg-line-height)',
 };
 
 const descriptionStyle: CSSProperties = {
@@ -209,7 +199,7 @@ export default function NoticeFormPage() {
   return (
     <div style={pageStyle}>
       <div>
-        <h1 style={titleStyle}>{isEdit ? '공지 수정' : '공지 등록'}</h1>
+        <h1 style={pageTitleStyle}>{isEdit ? '공지 수정' : '공지 등록'}</h1>
         <p style={descriptionStyle}>
           별표(*) 항목은 필수입니다. 상태를 '예약'으로 두면 게시일 이후 자동으로 게시됩니다.
         </p>
@@ -274,6 +264,9 @@ export default function NoticeFormPage() {
                   style={controlStyle(errors.publishedAt !== undefined)}
                   disabled={disabled || !scheduled}
                   aria-invalid={errors.publishedAt !== undefined}
+                  aria-describedby={
+                    errors.publishedAt !== undefined ? errorIdOf('notice-published-at') : undefined
+                  }
                   {...publishedAtField}
                 />
               </FormField>

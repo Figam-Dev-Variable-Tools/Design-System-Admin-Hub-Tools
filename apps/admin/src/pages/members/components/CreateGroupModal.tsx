@@ -17,6 +17,7 @@ import {
   Button,
   ConfirmDialog,
   controlStyle,
+  errorIdOf,
   errorTextStyle,
   fieldLabelStyle,
   fieldStyle,
@@ -24,6 +25,7 @@ import {
   hintStyle,
   Modal,
   SelectField,
+  useModalDirtyGuard,
 } from '../../../shared/ui';
 import { zodResolver } from '../../../shared/form/zodResolver';
 import { useCreateGroup } from '../queries';
@@ -56,7 +58,7 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
     register,
     handleSubmit,
     getValues,
-    formState: { errors },
+    formState: { errors, isDirty },
     clearErrors,
   } = useForm<CreateGroupFormValues>({
     resolver: zodResolver(createGroupSchema),
@@ -80,6 +82,15 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
   // 모달을 Esc·딤 클릭·닫기(×)·취소로 닫으면 진행 중이던 생성 요청도 함께 취소한다 —
   // 화면을 떠난 요청의 결과가 뒤늦게 배너로 튀어나오지 않게 한다
   useEffect(() => () => controllerRef.current?.abort(), []);
+
+  /**
+   * [FEEDBACK-06] 입력이 있는 채로 닫으려 하면 확인을 세운다.
+   *
+   * 이 모달은 **생성** 방향은 이미 ConfirmDialog 로 막아 뒀지만('엔터를 눌렀더니 생겼다'가 되면
+   * 안 되므로) **폐기** 방향은 무방비였다 — 빗나간 딤 클릭 하나가 반쯤 채운 폼을 조용히 지웠다.
+   * requestClose 를 Modal.onClose 와 취소 버튼에 **둘 다** 넘겨 4경로를 한 번에 덮는다.
+   */
+  const { requestClose, discardDialog } = useModalDirtyGuard(isDirty && !saving, onClose);
 
   /** 폼 제출 = 검증까지. 실제 생성은 확인 다이얼로그를 거친다 */
   const onValid = (values: CreateGroupFormValues) => {
@@ -139,7 +150,8 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
     <>
       <Modal
         title="새 그룹 만들기"
-        onClose={onClose}
+        // Esc · 딤 클릭 · × 가 모두 이 한 곳으로 모인다 (FEEDBACK-06)
+        onClose={requestClose}
         onSubmit={() => {
           // 새 제출 시도 — 직전 서버 실패 문구를 걷어낸다
           setServerError(null);
@@ -149,7 +161,8 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
         initialFocusRef={nameRef}
         footer={
           <>
-            <Button variant="secondary" disabled={saving} onClick={onClose}>
+            {/* 네 번째 경로 — 취소 버튼도 같은 가드를 지난다 */}
+            <Button variant="secondary" disabled={saving} onClick={requestClose}>
               취소
             </Button>
             <Button variant="primary" type="submit" disabled={saving}>
@@ -170,6 +183,13 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
               style={controlStyle(shownError !== null && shownError !== undefined)}
               placeholder="예: 무료 배송 결제 그룹"
               aria-invalid={shownError !== null && shownError !== undefined}
+              // [A11Y-11] aria-invalid 는 **항상** 그 이유(에러 <p>)와 함께 나간다 — 없으면
+              // 스크린리더가 '잘못됨'만 알리고 '왜'를 말하지 못한다. 그리고 필수는 필수라고 말한다:
+              // zod 는 이 필드를 필수로 알지만 그 사실이 AT 에게 전달되던 경로가 없었다.
+              aria-describedby={
+                shownError !== null && shownError !== undefined ? errorIdOf(nameId) : undefined
+              }
+              aria-required
               // 요청 중에 값을 바꾸면 전송된 값과 화면 값이 어긋난다 — 응답까지 잠근다
               disabled={saving}
               name={nameField.name}
@@ -236,7 +256,7 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
           </div>
 
           {shownError !== null && shownError !== undefined && (
-            <p role="alert" style={errorTextStyle}>
+            <p id={errorIdOf(nameId)} role="alert" style={errorTextStyle}>
               {shownError}
             </p>
           )}
@@ -259,6 +279,9 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
           onCancel={cancelCreate}
         />
       )}
+
+      {/* 모달 **밖**에 둔다 — 안에 두면 모달의 포커스 트랩이 이 확인 다이얼로그를 가둔다 */}
+      {discardDialog}
     </>
   );
 }

@@ -160,6 +160,9 @@ export default function DirectionsPage() {
           placeholder="예: 예시타워 8층"
           disabled={disabled}
           aria-invalid={errors.addressDetail !== undefined}
+          aria-describedby={
+            errors.addressDetail !== undefined ? errorIdOf('dir-address-detail') : undefined
+          }
           {...register('addressDetail')}
         />
       </FormField>
@@ -181,6 +184,7 @@ export default function DirectionsPage() {
             placeholder="37.5000"
             disabled={disabled}
             aria-invalid={errors.latitude !== undefined}
+            aria-describedby={errors.latitude !== undefined ? errorIdOf('dir-lat') : undefined}
             {...register('latitude')}
           />
         </FormField>
@@ -201,6 +205,7 @@ export default function DirectionsPage() {
             placeholder="127.0300"
             disabled={disabled}
             aria-invalid={errors.longitude !== undefined}
+            aria-describedby={errors.longitude !== undefined ? errorIdOf('dir-lng') : undefined}
             {...register('longitude')}
           />
         </FormField>
@@ -232,6 +237,7 @@ export default function DirectionsPage() {
           placeholder="예: 지하철 2호선 예시역 3번 출구 도보 5분"
           disabled={disabled}
           aria-invalid={errors.transit !== undefined}
+          aria-describedby={errors.transit !== undefined ? errorIdOf('dir-transit') : undefined}
           {...register('transit')}
         />
       </FormField>

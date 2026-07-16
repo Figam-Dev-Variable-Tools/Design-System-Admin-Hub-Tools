@@ -72,17 +72,28 @@ function toValues(template: MessageTemplate): TemplateFormValues {
 }
 
 export default function TemplateFormPage() {
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<MessageTemplate, MessageTemplateInput, TemplateFormValues>({
-      resource: TEMPLATE_RESOURCE,
-      adapter: templateAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: templateSchema,
-      empty: EMPTY,
-      toInput,
-      toValues,
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<MessageTemplate, MessageTemplateInput, TemplateFormValues>({
+    resource: TEMPLATE_RESOURCE,
+    adapter: templateAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: templateSchema,
+    empty: EMPTY,
+    toInput,
+    toValues,
+  });
 
   const {
     register,
@@ -109,7 +120,10 @@ export default function TemplateFormPage() {
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
-      loadFailed={loadFailed}
+      loadFailure={loadFailure}
+      onRetryLoad={retryLoad}
+      errorReference={errorReference}
+      conflict={conflict}
       serverError={serverError}
       saving={saving}
       isDirty={isDirty}
@@ -159,6 +173,7 @@ export default function TemplateFormPage() {
             }
             disabled={disabled}
             aria-invalid={errors.title !== undefined}
+            aria-describedby={errors.title !== undefined ? errorIdOf('template-title') : undefined}
             {...register('title')}
           />
         </FormField>

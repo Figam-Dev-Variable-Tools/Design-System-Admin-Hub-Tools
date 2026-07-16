@@ -1,6 +1,16 @@
 # Prettier ignore — 소유: A81 (Lint & Format Engineer)
 # 원칙: **사람이 손으로 쓰지 않는 파일**과 **포맷이 곧 계약인 파일**은 포매터가 건드리지 않는다.
 
+# ── 에이전트 하네스 작업공간 — 사람이 쓰지 않는 파일이자 이 리포의 소스도 아니다
+# `.claude/worktrees/**` 는 병렬 에이전트가 만드는 **리포 전체의 임시 체크아웃**이다. 이미
+# `.git/info/exclude` 로 git 추적에서 빠져 있지만, Prettier 는 git 이 아니라 파일시스템을 걷기
+# 때문에 그 사본 안의 `.github/**`·`schema.d.ts`·`reports/**` 를 **루트 규칙이 안 걸리는 새 경로**
+# (`.claude/worktrees/agent-*/…`)로 다시 만나 반려한다. 그 결과 워크트리가 하나라도 살아 있으면
+# `format:check` 가 깨지고 pre-commit(verify:all)이 **아무도 커밋할 수 없게** 막는다.
+# 루트 규칙을 경로마다 복제하는 대신 하네스 작업공간을 통째로 스캔에서 뺀다 — 사본의 원본은
+# 어차피 이 리포가 이미 검사하고 있다.
+.claude/**
+
 # ── 생성물 (codegen·빌드 산출물) — 원천은 contracts/*.json · tokens/tokens.json 이다
 generated/**
 **/generated/**

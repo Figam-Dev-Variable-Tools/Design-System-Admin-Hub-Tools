@@ -15,6 +15,9 @@
 import type { ReactNode } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { RequireAuth } from './shared/auth/RequireAuth';
+import { ErrorBoundary } from './shared/errors/ErrorBoundary';
+import { RouteErrorScreen } from './shared/errors/ErrorScreens';
 import AppShell from './shared/layout/AppShell';
 import { collectNavRoutes } from './shared/layout/nav-config';
 import { queryClient } from './shared/query/queryClient';
@@ -299,28 +302,49 @@ export default function App() {
       {/* 결과 통지(성공/실패/취소 토스트)는 앱 전체가 하나의 큐를 쓴다 — 화면마다 배너 상태를 두지 않는다.
           라우트 밖에 있어야 화면을 이동해도 토스트가 살아남는다 (예: 회원 삭제 후 목록으로 돌아갈 때). */}
       <ToastProvider>
-        <Routes>
-          {/* 로그인 — 셸(사이드바) 밖의 단독 화면 */}
-          <Route path="/login" element={<LoginPage />} />
+        {/*
+          [루트 경계 — EXC-01] AppShell 안쪽 경계(<Outlet> 바깥)가 화면 예외를 잡고 셸을 살린다.
+          이 바깥 경계는 **셸 자체가 던지는 경우**(nav-config 파손 · AppHeader 예외)를 위한 최후
+          보루다. 여기까지 오면 사이드바는 못 살리지만 흰 화면 대신 복구 UI 가 남는다.
+          resetKey 를 주지 않는다 — 셸이 죽은 상태에선 라우트 이동으로 복구된다고 가정할 수 없다.
+        */}
+        <ErrorBoundary
+          fallback={({ reference, reset }) => (
+            <RouteErrorScreen reference={reference} onRetry={reset} />
+          )}
+        >
+          <Routes>
+            {/* 로그인 — 셸(사이드바) 밖의 단독 화면 */}
+            <Route path="/login" element={<LoginPage />} />
 
-          {/* 인증 후 화면 — AppShell(사이드바) 레이아웃 라우트 */}
-          <Route element={<AppShell />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            {/* 설정 배열(APP_ROUTES) 을 그대로 렌더한다 — 경로·element·순서의 단일 원천.
+            {/* 인증 후 화면 — AppShell(사이드바) 레이아웃 라우트.
+              [EXC-02] RequireAuth 가 셸보다 **바깥**이다: 세션이 없으면 셸도 그리지 않고
+              /login?returnUrl=<현재 경로> 로 보낸다. 안쪽에 두면 인증되지 않은 사용자에게
+              사이드바가 한 프레임 번쩍이고 그 사이 화면의 쿼리가 발사된다. */}
+            <Route
+              element={
+                <RequireAuth>
+                  <AppShell />
+                </RequireAuth>
+              }
+            >
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              {/* 설정 배열(APP_ROUTES) 을 그대로 렌더한다 — 경로·element·순서의 단일 원천.
                 준비 중 화면(pendingRoutes)은 아래에서 이어 붙인다. */}
-            {APP_ROUTES.map((route) => (
-              <Route key={route.path} path={route.path} element={route.element} />
-            ))}
+              {APP_ROUTES.map((route) => (
+                <Route key={route.path} path={route.path} element={route.element} />
+              ))}
 
-            {/* 사이드바 정의는 있으나 미구현 — 화면을 만들 때마다 위로 옮긴다 */}
-            {pendingRoutes.map((leaf) => (
-              <Route key={leaf.to} path={leaf.to} element={<PlaceholderPage />} />
-            ))}
-          </Route>
+              {/* 사이드바 정의는 있으나 미구현 — 화면을 만들 때마다 위로 옮긴다 */}
+              {pendingRoutes.map((leaf) => (
+                <Route key={leaf.to} path={leaf.to} element={<PlaceholderPage />} />
+              ))}
+            </Route>
 
-          {/* 정의되지 않은 경로 — 대시보드로 기본 리다이렉트 */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+            {/* 정의되지 않은 경로 — 대시보드로 기본 리다이렉트 */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </ErrorBoundary>
       </ToastProvider>
     </QueryClientProvider>
   );

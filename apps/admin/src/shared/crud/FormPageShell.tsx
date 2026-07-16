@@ -5,23 +5,23 @@
 import type { CSSProperties, FormEvent, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Alert, Button, Card, CardTitle, ChevronLeftIcon, useUnsavedChangesDialog } from '../ui';
+import {
+  Alert,
+  alertActionRowStyle,
+  Button,
+  Card,
+  CardTitle,
+  ChevronLeftIcon,
+  pageTitleStyle,
+  useUnsavedChangesDialog,
+} from '../ui';
+import { FormConflictDialog, FormServerError } from './FormFeedback';
+import type { ConflictState, LoadFailure } from './useCrudForm';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--tds-space-5)',
-};
-
-const titleStyle: CSSProperties = {
-  marginTop: 0,
-  marginBottom: 0,
-  marginLeft: 0,
-  marginRight: 0,
-  fontFamily: 'var(--tds-typography-title-lg-font-family)',
-  fontSize: 'var(--tds-typography-title-lg-font-size)',
-  fontWeight: 'var(--tds-typography-title-lg-font-weight)',
-  lineHeight: 'var(--tds-typography-title-lg-line-height)',
 };
 
 const descriptionStyle: CSSProperties = {
@@ -77,8 +77,13 @@ interface FormPageShellProps {
   readonly listPath: string;
   readonly isEdit: boolean;
   readonly loadingDetail: boolean;
-  readonly loadFailed: boolean;
+  /** 상세 조회 실패의 갈래 — 404 와 5xx 는 복구 수단이 다르다 (EXC-12) */
+  readonly loadFailure: LoadFailure | null;
+  readonly onRetryLoad?: () => void;
   readonly serverError: string | null;
+  readonly errorReference?: string | null;
+  /** 409/412 충돌 — 입력을 보존한 채 다이얼로그를 띄운다 (EXC-04) */
+  readonly conflict?: ConflictState | null;
   readonly saving: boolean;
   readonly isDirty: boolean;
   readonly unsavedMessage: string;
@@ -93,8 +98,11 @@ export function FormPageShell({
   listPath,
   isEdit,
   loadingDetail,
-  loadFailed,
+  loadFailure,
+  onRetryLoad,
   serverError,
+  errorReference = null,
+  conflict = null,
   saving,
   isDirty,
   unsavedMessage,
@@ -104,14 +112,31 @@ export function FormPageShell({
   const navigate = useNavigate();
   const unsavedDialog = useUnsavedChangesDialog(isDirty && !saving, { message: unsavedMessage });
 
-  if (loadFailed) {
+  if (loadFailure !== null) {
+    /**
+     * [EXC-12] 404 는 재시도를 권하지 않는다 — 재시도해도 영원히 없다. 이미 지워진 항목의
+     * 링크를 열었을 때 '다시 시도' 를 누르며 시간을 쓰게 만들지 않는다.
+     */
+    const notFound = loadFailure === 'not-found';
+
     return (
       <div style={pageStyle}>
         <Alert tone="danger">
-          <span>{entityLabel}을(를) 불러오지 못했습니다. </span>
-          <Button variant="secondary" onClick={() => navigate(listPath)}>
-            목록으로
-          </Button>
+          <div style={alertActionRowStyle}>
+            <span>
+              {notFound
+                ? `${entityLabel}을(를) 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.`
+                : `${entityLabel}을(를) 불러오지 못했습니다.`}
+            </span>
+            {!notFound && onRetryLoad !== undefined && (
+              <Button variant="secondary" onClick={onRetryLoad}>
+                다시 시도
+              </Button>
+            )}
+            <Button variant="secondary" onClick={() => navigate(listPath)}>
+              목록으로
+            </Button>
+          </div>
         </Alert>
       </div>
     );
@@ -130,7 +155,8 @@ export function FormPageShell({
       </button>
 
       <div>
-        <h1 style={titleStyle}>{isEdit ? `${entityLabel} 수정` : `${entityLabel} 등록`}</h1>
+        {/* TOKEN-05 — 페이지 제목은 공유 pageTitleStyle(title.xl) 하나에서 온다 */}
+        <h1 style={pageTitleStyle}>{isEdit ? `${entityLabel} 수정` : `${entityLabel} 등록`}</h1>
         <p style={descriptionStyle}>{description}</p>
       </div>
 
@@ -138,7 +164,7 @@ export function FormPageShell({
         <Card>
           <CardTitle>{cardTitle}</CardTitle>
 
-          {serverError !== null && <Alert tone="danger">{serverError}</Alert>}
+          <FormServerError serverError={serverError} errorReference={errorReference} />
 
           {loadingDetail ? (
             <div style={skeletonBodyStyle} aria-busy="true">
@@ -165,6 +191,8 @@ export function FormPageShell({
           </div>
         </Card>
       </form>
+
+      <FormConflictDialog conflict={conflict} />
 
       {unsavedDialog}
     </div>

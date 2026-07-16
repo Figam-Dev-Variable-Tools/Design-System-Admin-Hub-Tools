@@ -189,8 +189,11 @@ export default function DownloadListPage() {
         visibleItems={visibleItems}
         columns={columns}
         nameOf={(item) => item.title}
+        empty={{
+          hasQuery: keyword !== '',
+          onClearSearch: () => setKeyword(''),
+        }}
         selectAllLabelId={SELECT_ALL_LABEL_ID}
-        emptyLabel="등록된 자료가 없습니다."
         toolbar={toolbar}
         onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
       />

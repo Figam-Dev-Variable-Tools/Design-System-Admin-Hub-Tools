@@ -9,7 +9,15 @@ import { useForm } from 'react-hook-form';
 import { isAbort } from '../../../../shared/async';
 import { zodResolver } from '../../../../shared/form/zodResolver';
 import { useCrudCreate, useCrudUpdate } from '../../../../shared/crud';
-import { Alert, Button, controlStyle, errorIdOf, FormField, Modal } from '../../../../shared/ui';
+import {
+  Alert,
+  Button,
+  controlStyle,
+  errorIdOf,
+  FormField,
+  Modal,
+  useModalDirtyGuard,
+} from '../../../../shared/ui';
 import { CATEGORY_RESOURCE, portfolioCategoryAdapter } from '../data-source';
 import { CATEGORY_NAME_MAX } from '../types';
 import type { PortfolioCategoryUsage } from '../../_shared/store';
@@ -40,7 +48,7 @@ export function PortfolioCategoryFormModal({
     register,
     handleSubmit,
     clearErrors,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<PortfolioCategoryFormValues>({
     resolver: zodResolver(portfolioCategorySchema),
     defaultValues: { name: editing?.label ?? '' },
@@ -49,6 +57,12 @@ export function PortfolioCategoryFormModal({
   const create = useCrudCreate(CATEGORY_RESOURCE, portfolioCategoryAdapter);
   const update = useCrudUpdate(CATEGORY_RESOURCE, portfolioCategoryAdapter);
   const saving = create.isPending || update.isPending;
+
+  /**
+   * [FEEDBACK-06] 입력이 있는 채로 닫으려 하면 확인을 세운다. requestClose 를 Modal.onClose 와
+   * 취소 버튼에 **둘 다** 넘겨 4경로(Esc·딤 클릭·×·취소)를 한 번에 덮는다.
+   */
+  const { requestClose, discardDialog } = useModalDirtyGuard(isDirty && !saving, onClose);
 
   const [serverError, setServerError] = useState<string | null>(null);
   const nameRef = useRef<HTMLInputElement | null>(null);
@@ -84,55 +98,60 @@ export function PortfolioCategoryFormModal({
   const invalid = errors.name !== undefined;
 
   return (
-    <Modal
-      title={isEdit ? '카테고리 수정' : '카테고리 추가'}
-      onClose={onClose}
-      onSubmit={() => {
-        setServerError(null);
-        clearErrors();
-        void handleSubmit(onValid, () => nameRef.current?.focus())();
-      }}
-      initialFocusRef={nameRef}
-      footer={
-        <>
-          <Button variant="secondary" size="md" disabled={saving} onClick={onClose}>
-            취소
-          </Button>
-          <Button variant="primary" size="md" type="submit" disabled={saving}>
-            {saving ? '저장 중…' : isEdit ? '저장' : '추가'}
-          </Button>
-        </>
-      }
-    >
-      <div style={bodyStyle}>
-        {serverError !== null && <Alert tone="danger">{serverError}</Alert>}
+    <>
+      <Modal
+        title={isEdit ? '카테고리 수정' : '카테고리 추가'}
+        onClose={requestClose}
+        onSubmit={() => {
+          setServerError(null);
+          clearErrors();
+          void handleSubmit(onValid, () => nameRef.current?.focus())();
+        }}
+        initialFocusRef={nameRef}
+        footer={
+          <>
+            <Button variant="secondary" size="md" disabled={saving} onClick={requestClose}>
+              취소
+            </Button>
+            <Button variant="primary" size="md" type="submit" disabled={saving}>
+              {saving ? '저장 중…' : isEdit ? '저장' : '추가'}
+            </Button>
+          </>
+        }
+      >
+        <div style={bodyStyle}>
+          {serverError !== null && <Alert tone="danger">{serverError}</Alert>}
 
-        <FormField
-          htmlFor="portfolio-category-name"
-          label="카테고리 이름"
-          required
-          error={errors.name?.message}
-        >
-          <input
-            id="portfolio-category-name"
-            type="text"
-            className="tds-ui-input tds-ui-focusable"
-            style={controlStyle(invalid)}
-            maxLength={CATEGORY_NAME_MAX}
-            placeholder="예: 주거 공간"
-            disabled={saving}
-            aria-invalid={invalid}
-            aria-describedby={invalid ? errorIdOf('portfolio-category-name') : undefined}
-            name={nameField.name}
-            ref={(element) => {
-              nameField.ref(element);
-              nameRef.current = element;
-            }}
-            onChange={nameField.onChange}
-            onBlur={nameField.onBlur}
-          />
-        </FormField>
-      </div>
-    </Modal>
+          <FormField
+            htmlFor="portfolio-category-name"
+            label="카테고리 이름"
+            required
+            error={errors.name?.message}
+          >
+            <input
+              id="portfolio-category-name"
+              type="text"
+              className="tds-ui-input tds-ui-focusable"
+              style={controlStyle(invalid)}
+              maxLength={CATEGORY_NAME_MAX}
+              placeholder="예: 주거 공간"
+              disabled={saving}
+              aria-invalid={invalid}
+              aria-describedby={invalid ? errorIdOf('portfolio-category-name') : undefined}
+              name={nameField.name}
+              ref={(element) => {
+                nameField.ref(element);
+                nameRef.current = element;
+              }}
+              onChange={nameField.onChange}
+              onBlur={nameField.onBlur}
+            />
+          </FormField>
+        </div>
+      </Modal>
+
+      {/* 모달 밖에 둔다 — 안에 두면 모달의 포커스 트랩이 확인 다이얼로그를 가둔다 */}
+      {discardDialog}
+    </>
   );
 }

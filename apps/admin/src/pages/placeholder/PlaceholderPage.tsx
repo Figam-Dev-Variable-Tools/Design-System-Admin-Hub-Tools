@@ -7,6 +7,7 @@ import type { CSSProperties } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { collectNavRoutes } from '../../shared/layout/nav-config';
+import { pageTitleStyle } from '../../shared/ui';
 
 const wrapStyle: CSSProperties = {
   display: 'flex',
@@ -15,11 +16,8 @@ const wrapStyle: CSSProperties = {
   alignItems: 'flex-start',
 };
 
-const titleStyle: CSSProperties = {
-  margin: 0,
-  fontSize: 'var(--tds-primitive-typography-font-size-18)',
-  lineHeight: 'var(--tds-primitive-typography-line-height-tight)',
-};
+// [TOKEN-05] primitive 를 직접 읽어 제목 값을 손으로 재현하던 사본을 공유 토큰 소비로 바꾼다
+const titleStyle: CSSProperties = pageTitleStyle;
 
 const bodyStyle: CSSProperties = {
   margin: 0,

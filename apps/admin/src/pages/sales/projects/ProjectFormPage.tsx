@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatNumber } from '../../../shared/format';
 import {
   Alert,
+  alertActionRowStyle,
   Button,
   Card,
   CardTitle,
@@ -17,12 +18,13 @@ import {
   errorIdOf,
   fieldLabelStyle,
   FormField,
+  pageTitleStyle,
   SelectField,
   StatusBadge,
   TextareaField,
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
-import { useCrudForm } from '../../../shared/crud';
+import { FormConflictDialog, FormServerError, useCrudForm } from '../../../shared/crud';
 import { formatWon } from '../_shared/business';
 import { projectAdapter } from './data-source';
 import { projectSchema } from './validation';
@@ -49,17 +51,6 @@ const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--tds-space-5)',
-};
-
-const titleStyle: CSSProperties = {
-  marginTop: 0,
-  marginBottom: 0,
-  marginLeft: 0,
-  marginRight: 0,
-  fontFamily: 'var(--tds-typography-title-lg-font-family)',
-  fontSize: 'var(--tds-typography-title-lg-font-size)',
-  fontWeight: 'var(--tds-typography-title-lg-font-weight)',
-  lineHeight: 'var(--tds-typography-title-lg-line-height)',
 };
 
 const descriptionStyle: CSSProperties = {
@@ -199,17 +190,28 @@ function toValues(project: Project): ProjectFormValues {
 
 export default function ProjectFormPage() {
   const navigate = useNavigate();
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<Project, ProjectInput, ProjectFormValues>({
-      resource: RESOURCE,
-      adapter: projectAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: projectSchema,
-      empty: EMPTY,
-      toInput,
-      toValues,
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<Project, ProjectInput, ProjectFormValues>({
+    resource: RESOURCE,
+    adapter: projectAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: projectSchema,
+    empty: EMPTY,
+    toInput,
+    toValues,
+  });
 
   const {
     register,
@@ -235,14 +237,27 @@ export default function ProjectFormPage() {
     setValue('probability', String(defaultProbability(next)), { shouldDirty: true });
   };
 
-  if (isEdit && loadFailed) {
+  // [EXC-12] 404 와 서버 오류는 복구 수단이 다르다 — 이미 삭제된 항목에 '다시 시도'를 권하면
+  // 영원히 실패하는 버튼을 누르게 된다.
+  if (loadFailure !== null) {
     return (
       <div style={pageStyle}>
         <Alert tone="danger">
-          <span>프로젝트를 불러오지 못했습니다. </span>
-          <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
-            목록으로
-          </Button>
+          <div style={alertActionRowStyle}>
+            <span>
+              {loadFailure === 'not-found'
+                ? '프로젝트 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
+                : '프로젝트 불러오지 못했습니다.'}
+            </span>
+            {loadFailure === 'error' && (
+              <Button variant="secondary" onClick={retryLoad}>
+                다시 시도
+              </Button>
+            )}
+            <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
+              목록으로
+            </Button>
+          </div>
         </Alert>
       </div>
     );
@@ -261,14 +276,14 @@ export default function ProjectFormPage() {
       </button>
 
       <div>
-        <h1 style={titleStyle}>{isEdit ? '프로젝트 수정' : '프로젝트 등록'}</h1>
+        <h1 style={pageTitleStyle}>{isEdit ? '프로젝트 수정' : '프로젝트 등록'}</h1>
         <p style={descriptionStyle}>
           별표(*) 항목은 필수입니다. 단계를 바꾸면 확률이 기본값으로 채워집니다.
         </p>
       </div>
 
       <form onSubmit={submit} noValidate style={pageStyle}>
-        {serverError !== null && <Alert tone="danger">{serverError}</Alert>}
+        <FormServerError serverError={serverError} errorReference={errorReference} />
 
         <div style={layoutStyle}>
           <div style={columnStyle}>
@@ -312,6 +327,9 @@ export default function ProjectFormPage() {
                     placeholder="예: (주)한빛소프트웨어"
                     disabled={disabled}
                     aria-invalid={errors.accountName !== undefined}
+                    aria-describedby={
+                      errors.accountName !== undefined ? errorIdOf('project-account') : undefined
+                    }
                     {...register('accountName')}
                   />
                 </FormField>
@@ -510,6 +528,8 @@ export default function ProjectFormPage() {
           </Button>
         </div>
       </form>
+
+      <FormConflictDialog conflict={conflict} />
 
       {unsavedDialog}
     </div>

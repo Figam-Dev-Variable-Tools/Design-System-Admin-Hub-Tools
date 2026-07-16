@@ -87,17 +87,28 @@ function toValues(promotion: Promotion): PromotionFormValues {
 }
 
 export default function PromotionFormPage() {
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<Promotion, PromotionInput, PromotionFormValues>({
-      resource: RESOURCE,
-      adapter: promotionAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: promotionSchema,
-      empty: EMPTY,
-      toInput,
-      toValues,
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<Promotion, PromotionInput, PromotionFormValues>({
+    resource: RESOURCE,
+    adapter: promotionAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: promotionSchema,
+    empty: EMPTY,
+    toInput,
+    toValues,
+  });
 
   const {
     register,
@@ -121,7 +132,10 @@ export default function PromotionFormPage() {
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
-      loadFailed={loadFailed}
+      loadFailure={loadFailure}
+      onRetryLoad={retryLoad}
+      errorReference={errorReference}
+      conflict={conflict}
       serverError={serverError}
       saving={saving}
       isDirty={isDirty}
@@ -173,6 +187,7 @@ export default function PromotionFormPage() {
             placeholder="예: 전체 회원 · 신규 가입 회원"
             disabled={disabled}
             aria-invalid={errors.target !== undefined}
+            aria-describedby={errors.target !== undefined ? errorIdOf('promo-target') : undefined}
             {...register('target')}
           />
         </FormField>
@@ -203,6 +218,9 @@ export default function PromotionFormPage() {
             placeholder={discountType === 'rate' ? '예: 20' : '예: 5000'}
             disabled={disabled}
             aria-invalid={errors.discountValue !== undefined}
+            aria-describedby={
+              errors.discountValue !== undefined ? errorIdOf('promo-discount-value') : undefined
+            }
             {...register('discountValue')}
           />
         </FormField>
@@ -254,6 +272,9 @@ export default function PromotionFormPage() {
             placeholder="예: SUMMER20"
             disabled={disabled}
             aria-invalid={errors.couponCode !== undefined}
+            aria-describedby={
+              errors.couponCode !== undefined ? errorIdOf('promo-coupon') : undefined
+            }
             {...register('couponCode')}
           />
         </FormField>

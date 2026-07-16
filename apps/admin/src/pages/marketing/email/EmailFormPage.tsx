@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 
 import {
   Alert,
+  alertActionRowStyle,
   Button,
   Card,
   CardTitle,
@@ -19,12 +20,13 @@ import {
   fieldStyle,
   FormField,
   hintStyle,
+  pageTitleStyle,
   SelectField,
   ToggleSwitch,
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
 import { formatNumber } from '../../../shared/format';
-import { useCrudForm } from '../../../shared/crud';
+import { FormConflictDialog, FormServerError, useCrudForm } from '../../../shared/crud';
 import { emailAdapter } from './data-source';
 import { emailSchema } from './validation';
 import type { EmailFormValues } from './validation';
@@ -47,14 +49,6 @@ const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--tds-space-5)',
-};
-
-const titleStyle: CSSProperties = {
-  margin: 0,
-  fontFamily: 'var(--tds-typography-title-lg-font-family)',
-  fontSize: 'var(--tds-typography-title-lg-font-size)',
-  fontWeight: 'var(--tds-typography-title-lg-font-weight)',
-  lineHeight: 'var(--tds-typography-title-lg-line-height)',
 };
 
 const descriptionStyle: CSSProperties = {
@@ -159,17 +153,28 @@ export default function EmailFormPage() {
   const navigate = useNavigate();
   const [templatePick, setTemplatePick] = useState(NO_TEMPLATE);
 
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<EmailCampaign, EmailCampaignInput, EmailFormValues>({
-      resource: RESOURCE,
-      adapter: emailAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: emailSchema,
-      empty: EMPTY,
-      toInput,
-      toValues,
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<EmailCampaign, EmailCampaignInput, EmailFormValues>({
+    resource: RESOURCE,
+    adapter: emailAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: emailSchema,
+    empty: EMPTY,
+    toInput,
+    toValues,
+  });
 
   const {
     register,
@@ -205,14 +210,27 @@ export default function EmailFormPage() {
     }
   };
 
-  if (isEdit && loadFailed) {
+  // [EXC-12] 404 와 서버 오류는 복구 수단이 다르다 — 이미 삭제된 항목에 '다시 시도'를 권하면
+  // 영원히 실패하는 버튼을 누르게 된다.
+  if (loadFailure !== null) {
     return (
       <div style={pageStyle}>
         <Alert tone="danger">
-          <span>이메일 발송을 불러오지 못했습니다. </span>
-          <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
-            목록으로
-          </Button>
+          <div style={alertActionRowStyle}>
+            <span>
+              {loadFailure === 'not-found'
+                ? '이메일 발송을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
+                : '이메일 발송을 불러오지 못했습니다.'}
+            </span>
+            {loadFailure === 'error' && (
+              <Button variant="secondary" onClick={retryLoad}>
+                다시 시도
+              </Button>
+            )}
+            <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
+              목록으로
+            </Button>
+          </div>
         </Alert>
       </div>
     );
@@ -231,7 +249,7 @@ export default function EmailFormPage() {
       </button>
 
       <div>
-        <h1 style={titleStyle}>{isEdit ? '이메일 발송 수정' : '이메일 발송 등록'}</h1>
+        <h1 style={pageTitleStyle}>{isEdit ? '이메일 발송 수정' : '이메일 발송 등록'}</h1>
         <p style={descriptionStyle}>
           별표(*) 항목은 필수입니다. 저장은 발송 예약일 뿐이며 이 화면에서 메일이 즉시 전송되지
           않습니다.
@@ -239,7 +257,7 @@ export default function EmailFormPage() {
       </div>
 
       <form onSubmit={submit} noValidate style={pageStyle}>
-        {serverError !== null && <Alert tone="danger">{serverError}</Alert>}
+        <FormServerError serverError={serverError} errorReference={errorReference} />
 
         <div style={layoutStyle}>
           <div style={columnStyle}>
@@ -275,6 +293,9 @@ export default function EmailFormPage() {
                   placeholder="예: [스페이스플래닝] 7월의 새로운 소식"
                   disabled={disabled}
                   aria-invalid={errors.subject !== undefined}
+                  aria-describedby={
+                    errors.subject !== undefined ? errorIdOf('email-subject') : undefined
+                  }
                   {...register('subject')}
                 />
               </FormField>
@@ -366,6 +387,9 @@ export default function EmailFormPage() {
                       style={controlStyle(errors.scheduledAt !== undefined)}
                       disabled={disabled}
                       aria-invalid={errors.scheduledAt !== undefined}
+                      aria-describedby={
+                        errors.scheduledAt !== undefined ? errorIdOf('email-scheduled') : undefined
+                      }
                       {...register('scheduledAt')}
                     />
                   </FormField>
@@ -405,6 +429,8 @@ export default function EmailFormPage() {
           </Button>
         </div>
       </form>
+
+      <FormConflictDialog conflict={conflict} />
 
       {unsavedDialog}
     </div>

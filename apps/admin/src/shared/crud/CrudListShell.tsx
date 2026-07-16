@@ -6,9 +6,16 @@
 import type { CSSProperties, ReactNode } from 'react';
 
 import { formatNumber } from '../format';
-import { Alert, Button, hintStyle, SelectionBar } from '../ui';
+import {
+  Alert,
+  alertActionRowStyle,
+  Button,
+  hintStyle,
+  SelectionBar,
+  visuallyHiddenStyle,
+} from '../ui';
 import { CrudTable } from './CrudTable';
-import type { CrudColumn } from './CrudTable';
+import type { CrudColumn, EmptyContext } from './CrudTable';
 
 const columnStyle: CSSProperties = {
   display: 'flex',
@@ -24,16 +31,11 @@ const summaryRowStyle: CSSProperties = {
   gap: 'var(--tds-space-3)',
 };
 
-const errorBodyStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
-  flexWrap: 'wrap',
-};
-
 interface CrudListShellController<T extends { id: string }> {
-  readonly loading: boolean;
+  /** 최초 로드 — 스켈레톤의 유일한 조건 (STATE-01) */
+  readonly firstLoading: boolean;
+  /** 데이터가 있는 채로 재조회 중 — 표를 비우지 않고 요약만 알린다 (STATE-03) */
+  readonly refreshing: boolean;
   readonly error: Error | null;
   readonly refetch: () => void;
   readonly selectedIds: ReadonlySet<string>;
@@ -55,10 +57,28 @@ interface CrudListShellProps<T extends { id: string }> {
   readonly columns: readonly CrudColumn<T>[];
   readonly nameOf: (item: T) => string;
   readonly selectAllLabelId: string;
-  readonly emptyLabel: string;
+  /** 빈 상태의 맥락 — 검색/필터/진짜 비어있음을 구분한다 (STATE-05) */
+  readonly empty?: EmptyContext;
   /** 상단 툴바(등록 버튼·검색·필터 등) */
   readonly toolbar: ReactNode;
   readonly onEdit: (item: T) => void;
+}
+
+/**
+ * 스크린리더에 알릴 목록 상태 한 줄 (A11Y-16).
+ *
+ * 최초 로드 중에는 침묵한다 — 아직 알릴 사실이 없고, 로드가 끝나면 결과를 알린다.
+ */
+function announcementOf(
+  firstLoading: boolean,
+  error: Error | null,
+  entityLabel: string,
+  count: number,
+): string {
+  if (firstLoading) return '';
+  if (error !== null) return `${entityLabel} 목록을 불러오지 못했습니다.`;
+  if (count === 0) return `조건에 맞는 ${entityLabel} 결과가 없습니다.`;
+  return `${entityLabel} ${formatNumber(count)}건을 찾았습니다.`;
 }
 
 export function CrudListShell<T extends { id: string }>({
@@ -68,21 +88,36 @@ export function CrudListShell<T extends { id: string }>({
   columns,
   nameOf,
   selectAllLabelId,
-  emptyLabel,
+  empty,
   toolbar,
   onEdit,
 }: CrudListShellProps<T>) {
-  const { loading, error, selectedCount } = controller;
+  const { firstLoading, refreshing, error, selectedCount } = controller;
 
   return (
     <div style={columnStyle}>
+      {/*
+        [A11Y-16] **항상 마운트된** polite live region.
+
+        Empty 자신도 role="status" 를 갖지만, 그 노드는 **내용과 함께 생성**된다 — 그렇게 삽입된
+        live region 은 NVDA/JAWS 에서 신뢰성 있게 announce 되지 않는다(ToastProvider 가 지속
+        컨테이너를 두는 것과 정확히 같은 이유다 — A11Y-01). 그래서 지속 region 은 몰리큘이 아니라
+        **껍데기**가 소유하고, 여기에 텍스트만 주입한다. 필터·검색으로 0행이 되는 전환이 이 줄로 들린다.
+      */}
+      <div aria-live="polite" aria-atomic="true" style={visuallyHiddenStyle}>
+        {announcementOf(firstLoading, error, entityLabel, visibleItems.length)}
+      </div>
+
       {toolbar}
 
       {error === null ? (
         <>
           <div style={summaryRowStyle}>
-            <p style={hintStyle}>
-              {loading ? '불러오는 중…' : `전체 ${formatNumber(visibleItems.length)}건`}
+            {/* 재조회 중에는 건수를 지우지 않는다 — 이전 값을 유지한 채 '새로고침 중' 만 덧붙인다.
+                예전에는 재조회도 '불러오는 중…' 으로 덮어 화면의 사실이 사라졌다 (STATE-01/03). */}
+            <p style={hintStyle} aria-busy={refreshing}>
+              {firstLoading ? '불러오는 중…' : `전체 ${formatNumber(visibleItems.length)}건`}
+              {refreshing && ' · 새로고침 중…'}
               {selectedCount > 0 && ` · ${formatNumber(selectedCount)}건 선택됨`}
             </p>
           </div>
@@ -99,7 +134,7 @@ export function CrudListShell<T extends { id: string }>({
 
           <CrudTable
             items={visibleItems}
-            loading={loading}
+            loading={firstLoading}
             entityLabel={entityLabel}
             columns={columns}
             nameOf={nameOf}
@@ -115,12 +150,12 @@ export function CrudListShell<T extends { id: string }>({
             onDelete={controller.requestDelete}
             deletingId={controller.deletingId}
             selectAllLabelId={selectAllLabelId}
-            emptyLabel={emptyLabel}
+            {...(empty !== undefined && { empty })}
           />
         </>
       ) : (
         <Alert tone="danger">
-          <div style={errorBodyStyle}>
+          <div style={alertActionRowStyle}>
             <span>{entityLabel} 목록을 불러오지 못했습니다.</span>
             <Button variant="secondary" onClick={controller.refetch}>
               다시 시도

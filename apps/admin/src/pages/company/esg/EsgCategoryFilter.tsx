@@ -39,7 +39,12 @@ export function EsgCategoryFilter({ filter, counts, onChange }: EsgCategoryFilte
                   type="button"
                   className="tds-ui-listitem tds-ui-focusable"
                   style={filterItemStyle(active)}
-                  aria-current={active}
+                  // [A11Y-12] 좌측 필터의 선택 상태는 앱 전체가 aria-pressed 하나로 말한다.
+                  // 이 파일만 'current' 계열 속성을 써서 같은 토글이 화면마다 다르게 읽혔다:
+                  // boolean 은 'true' 로 직렬화돼 toggle 이 아니라 '현재 항목'으로 announce 된다.
+                  // 게다가 공유 hover 규칙 `.tds-ui-listitem[aria-pressed='false']` 이 이 버튼만
+                  // 비껴가 **미선택 항목에 hover 표시가 없던** 실제 시각 버그이기도 했다.
+                  aria-pressed={active}
                   onClick={() => onChange(option.id)}
                 >
                   <span>{option.label}</span>

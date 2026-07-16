@@ -44,13 +44,30 @@ export { DocumentFormShell } from './DocumentFormShell';
 // ── 목록 계층 ────────────────────────────────────────────────────────────────
 export { useCrudList } from './useCrudList';
 export { CrudListShell } from './CrudListShell';
-export type { CrudColumn } from './CrudTable';
+export type { CrudColumn, EmptyContext } from './CrudTable';
 // 목록에서 바로 한 행을 갱신(노출 토글 등)
 export { useCrudRowUpdate } from './useCrudRowUpdate';
 
+/**
+ * 조회 상태(page·filter·keyword·sort)의 단일 원천 = URL (IA-13) + 선택 해제/페이지 보정(STATE-04)
+ * + IME 안전 검색(COMP-10). 목록 화면은 useState 로 이 상태를 들지 않는다 — 들면 Back·새로고침·
+ * 링크 공유가 전부 깨진다.
+ */
+export { useListState } from './useListState';
+export type { ListState, ListStateConfig } from './useListState';
+/** 검색창 하나만 필요한 화면용 (URL 상태가 필요 없을 때) */
+export { useDebouncedSearch } from './useDebouncedSearch';
+
 // ── 폼 계층 ──────────────────────────────────────────────────────────────────
 export { useCrudForm } from './useCrudForm';
+export type { ConflictState, LoadFailure } from './useCrudForm';
 export { FormPageShell } from './FormPageShell';
+/**
+ * 폼 쓰기 실패의 두 표면 — FormPageShell 이 자동으로 렌더한다. **미리보기 2단 폼처럼 자기 골격을
+ * 손으로 만든 폼**만 직접 쓴다: 그 폼들도 409 충돌(EXC-04)과 오류 참조 코드(EXC-20) 계약을
+ * 동일하게 지켜야 한다 — 폼의 생김새에 따라 예외 처리가 갈리면 안 된다.
+ */
+export { FormConflictDialog, FormServerError } from './FormFeedback';
 
 // ── 공용 조각 (검증 · 필터 좁히기 · 개발용 실패/지연 재현) ──────────────────
 export { optionalHttpUrl, requiredImage, requiredText } from './validation';

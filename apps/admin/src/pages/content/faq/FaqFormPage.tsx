@@ -18,6 +18,7 @@ import {
   errorIdOf,
   fieldLabelStyle,
   FormField,
+  pageTitleStyle,
   SelectField,
   TextareaField,
   useToast,
@@ -41,17 +42,6 @@ const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--tds-space-5)',
-};
-
-const titleStyle: CSSProperties = {
-  marginTop: 0,
-  marginBottom: 0,
-  marginLeft: 0,
-  marginRight: 0,
-  fontFamily: 'var(--tds-typography-title-lg-font-family)',
-  fontSize: 'var(--tds-typography-title-lg-font-size)',
-  fontWeight: 'var(--tds-typography-title-lg-font-weight)',
-  lineHeight: 'var(--tds-typography-title-lg-line-height)',
 };
 
 const descriptionStyle: CSSProperties = {
@@ -220,7 +210,7 @@ export default function FaqFormPage() {
   return (
     <div style={pageStyle}>
       <div>
-        <h1 style={titleStyle}>{isEdit ? 'FAQ 수정' : 'FAQ 등록'}</h1>
+        <h1 style={pageTitleStyle}>{isEdit ? 'FAQ 수정' : 'FAQ 등록'}</h1>
         <p style={descriptionStyle}>
           별표(*) 항목은 필수입니다. 노출을 끄면 사용자 화면에서 숨겨집니다.
         </p>
@@ -267,6 +257,9 @@ export default function FaqFormPage() {
                   isInvalid={errors.categoryId !== undefined}
                   disabled={disabled}
                   aria-invalid={errors.categoryId !== undefined}
+                  aria-describedby={
+                    errors.categoryId !== undefined ? errorIdOf('faq-category') : undefined
+                  }
                   {...register('categoryId')}
                 >
                   <option value="">카테고리를 선택하세요</option>
@@ -293,6 +286,7 @@ export default function FaqFormPage() {
                   style={controlStyle(errors.order !== undefined)}
                   disabled={disabled}
                   aria-invalid={errors.order !== undefined}
+                  aria-describedby={errors.order !== undefined ? errorIdOf('faq-order') : undefined}
                   {...register('order')}
                 />
               </FormField>

@@ -8,6 +8,7 @@
 import type { CSSProperties } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { pageTitleStyle } from '../ui';
 import { TOP_BAR_HEIGHT } from './layout-metrics';
 import { findNavLabel } from './nav-config';
 
@@ -40,13 +41,17 @@ const eyebrowStyle: CSSProperties = {
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
 
+/**
+ * 화면 제목 — 앱에서 가장 많이 보이는 `<h1>` 이다 (TOKEN-05).
+ *
+ * 예전에는 semantic 을 건너뛰고 primitive(font-size-18 · font-weight-bold · line-height-tight)를
+ * 직접 읽어 **title.lg 의 값을 손으로 재현**했다. 토큰을 바꿔도 따라오지 않는 사본이었다.
+ * (게다가 `margin: 0` 단축과 `marginTop` 개별 속성을 한 객체에 섞어 병합이 깨질 수 있었다 —
+ *  styles.ts 헤더가 금지하는 바로 그 패턴이다. pageTitleStyle 은 margin 을 개별로만 쓴다.)
+ */
 const titleStyle: CSSProperties = {
-  margin: 0,
+  ...pageTitleStyle,
   marginTop: 'var(--tds-space-1)',
-  color: 'var(--tds-color-text-default)',
-  fontSize: 'var(--tds-primitive-typography-font-size-18)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
-  lineHeight: 'var(--tds-primitive-typography-line-height-tight)',
 };
 
 const metaStyle: CSSProperties = {

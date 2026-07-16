@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 
 import {
   Alert,
+  alertActionRowStyle,
   Button,
   Card,
   CardTitle,
@@ -21,12 +22,18 @@ import {
   FormField,
   ImageGalleryField,
   ImageUploadField,
+  pageTitleStyle,
   SelectField,
   TextareaField,
   ToggleSwitch,
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
-import { submitButtonLabel, useCrudForm } from '../../../shared/crud';
+import {
+  FormConflictDialog,
+  FormServerError,
+  submitButtonLabel,
+  useCrudForm,
+} from '../../../shared/crud';
 import { fetchProductCategoryOptions, productAdapter } from './data-source';
 import { productSchema } from './validation';
 import type { ProductFormValues } from './validation';
@@ -54,17 +61,6 @@ const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--tds-space-5)',
-};
-
-const titleStyle: CSSProperties = {
-  marginTop: 0,
-  marginBottom: 0,
-  marginLeft: 0,
-  marginRight: 0,
-  fontFamily: 'var(--tds-typography-title-lg-font-family)',
-  fontSize: 'var(--tds-typography-title-lg-font-size)',
-  fontWeight: 'var(--tds-typography-title-lg-font-weight)',
-  lineHeight: 'var(--tds-typography-title-lg-line-height)',
 };
 
 const descriptionStyle: CSSProperties = {
@@ -219,17 +215,28 @@ function toValues(product: Product): ProductFormValues {
 
 export default function ProductFormPage() {
   const navigate = useNavigate();
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<Product, ProductInput, ProductFormValues>({
-      resource: RESOURCE,
-      adapter: productAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: productSchema,
-      empty: EMPTY,
-      toInput,
-      toValues,
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<Product, ProductInput, ProductFormValues>({
+    resource: RESOURCE,
+    adapter: productAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: productSchema,
+    empty: EMPTY,
+    toInput,
+    toValues,
+  });
 
   const {
     register,
@@ -267,14 +274,27 @@ export default function ProductFormPage() {
   const imagesError = (errors.imageUrls as { message?: string } | undefined)?.message;
   const variantsError = (errors.variants as { message?: string } | undefined)?.message;
 
-  if (isEdit && loadFailed) {
+  // [EXC-12] 404 와 서버 오류는 복구 수단이 다르다 — 이미 삭제된 항목에 '다시 시도'를 권하면
+  // 영원히 실패하는 버튼을 누르게 된다.
+  if (loadFailure !== null) {
     return (
       <div style={pageStyle}>
         <Alert tone="danger">
-          <span>상품을 불러오지 못했습니다. </span>
-          <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
-            목록으로
-          </Button>
+          <div style={alertActionRowStyle}>
+            <span>
+              {loadFailure === 'not-found'
+                ? '상품을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
+                : '상품을 불러오지 못했습니다.'}
+            </span>
+            {loadFailure === 'error' && (
+              <Button variant="secondary" onClick={retryLoad}>
+                다시 시도
+              </Button>
+            )}
+            <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
+              목록으로
+            </Button>
+          </div>
         </Alert>
       </div>
     );
@@ -293,14 +313,14 @@ export default function ProductFormPage() {
       </button>
 
       <div>
-        <h1 style={titleStyle}>{isEdit ? '상품 수정' : '상품 등록'}</h1>
+        <h1 style={pageTitleStyle}>{isEdit ? '상품 수정' : '상품 등록'}</h1>
         <p style={descriptionStyle}>
           별표(*) 항목은 필수입니다. 오른쪽 미리보기로 고객에게 보일 상품 카드를 확인하세요.
         </p>
       </div>
 
       <form onSubmit={submit} noValidate style={pageStyle}>
-        {serverError !== null && <Alert tone="danger">{serverError}</Alert>}
+        <FormServerError serverError={serverError} errorReference={errorReference} />
 
         <div style={layoutStyle}>
           <div style={columnStyle}>
@@ -346,6 +366,9 @@ export default function ProductFormPage() {
                     placeholder="예: LMN-PAD-001"
                     disabled={disabled}
                     aria-invalid={errors.code !== undefined}
+                    aria-describedby={
+                      errors.code !== undefined ? errorIdOf('product-code') : undefined
+                    }
                     {...register('code')}
                   />
                 </FormField>
@@ -360,6 +383,9 @@ export default function ProductFormPage() {
                     placeholder="예: 루미엔"
                     disabled={disabled}
                     aria-invalid={errors.brand !== undefined}
+                    aria-describedby={
+                      errors.brand !== undefined ? errorIdOf('product-brand') : undefined
+                    }
                     {...register('brand')}
                   />
                 </FormField>
@@ -377,6 +403,9 @@ export default function ProductFormPage() {
                     isInvalid={errors.categoryId !== undefined}
                     disabled={disabled}
                     aria-invalid={errors.categoryId !== undefined}
+                    aria-describedby={
+                      errors.categoryId !== undefined ? errorIdOf('product-category') : undefined
+                    }
                     {...register('categoryId')}
                   >
                     <option value="">카테고리 선택</option>
@@ -556,6 +585,8 @@ export default function ProductFormPage() {
           </Button>
         </div>
       </form>
+
+      <FormConflictDialog conflict={conflict} />
 
       {unsavedDialog}
     </div>

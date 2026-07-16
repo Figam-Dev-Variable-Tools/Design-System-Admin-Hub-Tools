@@ -156,8 +156,13 @@ export default function EmailListPage() {
       visibleItems={visible}
       columns={COLUMNS}
       nameOf={nameOf}
+      empty={{
+        hasQuery: keyword !== '',
+        hasActiveFilters: filter !== EMAIL_FILTER_ALL,
+        onClearSearch: () => setKeyword(''),
+        onResetFilters: () => setFilter(EMAIL_FILTER_ALL),
+      }}
       selectAllLabelId="marketing-email-select-all"
-      emptyLabel="등록된 이메일 발송이 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

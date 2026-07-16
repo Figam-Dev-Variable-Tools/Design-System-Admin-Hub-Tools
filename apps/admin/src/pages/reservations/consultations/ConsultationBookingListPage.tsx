@@ -153,8 +153,13 @@ export default function ConsultationBookingListPage() {
       visibleItems={visible}
       columns={columns}
       nameOf={nameOf}
+      empty={{
+        hasQuery: keyword !== '',
+        hasActiveFilters: filter !== BOOKING_FILTER_ALL,
+        onClearSearch: () => setKeyword(''),
+        onResetFilters: () => setFilter(BOOKING_FILTER_ALL),
+      }}
       selectAllLabelId="reservation-consultations-select-all"
-      emptyLabel="등록된 상담 예약이 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

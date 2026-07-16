@@ -5,7 +5,10 @@
 //
 // [기본값은 전부 '명시'한다] react-query 의 기본값을 그대로 쓰지 않는다.
 // 기본값 하나하나가 이 앱의 동작(요청 횟수·실패 표시 시점·중복 지급 여부)을 바꾸기 때문이다.
-import { QueryClient } from '@tanstack/react-query';
+import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
+
+import { notifySessionExpired } from '../auth/session-expiry';
+import { isUnauthorized } from '../errors/http-error';
 
 /**
  * 신선도 유지 시간.
@@ -20,7 +23,25 @@ import { QueryClient } from '@tanstack/react-query';
  */
 const STALE_TIME_MS = 30_000;
 
+/**
+ * 401 인터셉터 — **앱 전체에서 한 곳** (EXC-02).
+ *
+ * 조회든 쓰기든 401 이면 세션이 죽은 것이고, 할 일은 언제나 같다: 재인증 경로로 보낸다.
+ * 그 판단을 화면마다 onError 에 복사하면 반드시 빠뜨리는 화면이 생긴다 — 캐시 계층이 모든
+ * 실패를 통과시키므로 여기 한 줄이 전수를 덮는다.
+ *
+ * 여기서 navigate 를 부르지 못하는 이유(React 밖)와 pub/sub 로 잇는 이유는
+ * shared/auth/session-expiry.ts 헤더에 있다.
+ * TODO(lib): Axios 도입 시 이 판정은 response interceptor 로 옮긴다 — 그때 이 두 캐시 훅은 사라진다.
+ */
+function handleQueryLayerError(cause: unknown): void {
+  if (isUnauthorized(cause)) notifySessionExpired();
+}
+
 export const queryClient = new QueryClient({
+  queryCache: new QueryCache({ onError: handleQueryLayerError }),
+  mutationCache: new MutationCache({ onError: handleQueryLayerError }),
+
   defaultOptions: {
     queries: {
       staleTime: STALE_TIME_MS,

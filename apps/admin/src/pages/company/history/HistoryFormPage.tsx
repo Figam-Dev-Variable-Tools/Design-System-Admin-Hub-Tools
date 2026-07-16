@@ -23,25 +23,36 @@ const rowStyle: CSSProperties = {
 const MONTHS = Array.from({ length: 12 }, (_, index) => index + 1);
 
 export default function HistoryFormPage() {
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<HistoryItem, HistoryInput, HistoryFormValues>({
-      resource: 'history',
-      adapter: historyAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: historySchema,
-      empty: { year: '', month: '', content: '' },
-      toInput: (values) => ({
-        year: Number(values.year.trim()),
-        month: Number(values.month.trim()),
-        content: values.content.trim(),
-      }),
-      toValues: (item) => ({
-        year: String(item.year),
-        month: String(item.month),
-        content: item.content,
-      }),
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<HistoryItem, HistoryInput, HistoryFormValues>({
+    resource: 'history',
+    adapter: historyAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: historySchema,
+    empty: { year: '', month: '', content: '' },
+    toInput: (values) => ({
+      year: Number(values.year.trim()),
+      month: Number(values.month.trim()),
+      content: values.content.trim(),
+    }),
+    toValues: (item) => ({
+      year: String(item.year),
+      month: String(item.month),
+      content: item.content,
+    }),
+  });
 
   const {
     register,
@@ -60,7 +71,10 @@ export default function HistoryFormPage() {
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
-      loadFailed={loadFailed}
+      loadFailure={loadFailure}
+      onRetryLoad={retryLoad}
+      errorReference={errorReference}
+      conflict={conflict}
       serverError={serverError}
       saving={saving}
       isDirty={isDirty}
@@ -96,6 +110,7 @@ export default function HistoryFormPage() {
             isInvalid={errors.month !== undefined}
             disabled={disabled}
             aria-invalid={errors.month !== undefined}
+            aria-describedby={errors.month !== undefined ? errorIdOf('history-month') : undefined}
             {...register('month')}
           >
             <option value="">선택</option>

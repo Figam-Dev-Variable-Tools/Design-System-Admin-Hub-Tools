@@ -20,6 +20,7 @@ import {
   dtStyle,
   fieldLabelStyle,
   FormField,
+  pageTitleStyle,
   SelectField,
   StatusBadge,
   TextareaField,
@@ -51,17 +52,6 @@ const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--tds-space-5)',
-};
-
-const titleStyle: CSSProperties = {
-  marginTop: 0,
-  marginBottom: 0,
-  marginLeft: 0,
-  marginRight: 0,
-  fontFamily: 'var(--tds-typography-title-lg-font-family)',
-  fontSize: 'var(--tds-typography-title-lg-font-size)',
-  fontWeight: 'var(--tds-typography-title-lg-font-weight)',
-  lineHeight: 'var(--tds-typography-title-lg-line-height)',
 };
 
 const backLinkStyle: CSSProperties = {
@@ -174,7 +164,7 @@ export default function ReturnDetailPage() {
       </button>
 
       <div>
-        <h1 style={titleStyle}>교환/반품 처리</h1>
+        <h1 style={pageTitleStyle}>교환/반품 처리</h1>
       </div>
 
       {request === undefined ? (

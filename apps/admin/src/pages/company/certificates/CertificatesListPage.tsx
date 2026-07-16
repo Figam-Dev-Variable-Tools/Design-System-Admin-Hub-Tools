@@ -119,8 +119,11 @@ export default function CertificatesListPage() {
       visibleItems={visible}
       columns={columns}
       nameOf={nameOf}
+      empty={{
+        hasActiveFilters: filter !== CERT_FILTER_ALL,
+        onResetFilters: () => setFilter(CERT_FILTER_ALL),
+      }}
       selectAllLabelId="cert-select-all"
-      emptyLabel="등록된 인증서/특허가 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

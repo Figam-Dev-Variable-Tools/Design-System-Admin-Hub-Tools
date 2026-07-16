@@ -166,8 +166,11 @@ export default function TemplateListPage() {
       visibleItems={visibleItems}
       columns={COLUMNS}
       nameOf={nameOf}
+      empty={{
+        hasQuery: keyword !== '',
+        onClearSearch: () => setKeyword(''),
+      }}
       selectAllLabelId="marketing-templates-select-all"
-      emptyLabel="등록된 발송 템플릿이 없습니다."
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
     />

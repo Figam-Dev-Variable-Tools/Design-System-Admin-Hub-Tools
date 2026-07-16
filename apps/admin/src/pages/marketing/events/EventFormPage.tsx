@@ -84,17 +84,28 @@ function toValues(event: MarketingEvent): EventFormValues {
 }
 
 export default function EventFormPage() {
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<MarketingEvent, MarketingEventInput, EventFormValues>({
-      resource: RESOURCE,
-      adapter: eventAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: eventSchema,
-      empty: EMPTY,
-      toInput,
-      toValues,
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<MarketingEvent, MarketingEventInput, EventFormValues>({
+    resource: RESOURCE,
+    adapter: eventAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: eventSchema,
+    empty: EMPTY,
+    toInput,
+    toValues,
+  });
 
   const {
     register,
@@ -118,7 +129,10 @@ export default function EventFormPage() {
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
-      loadFailed={loadFailed}
+      loadFailure={loadFailure}
+      onRetryLoad={retryLoad}
+      errorReference={errorReference}
+      conflict={conflict}
       serverError={serverError}
       saving={saving}
       isDirty={isDirty}
@@ -170,6 +184,7 @@ export default function EventFormPage() {
             placeholder="예: 전체 회원 · VIP 등급"
             disabled={disabled}
             aria-invalid={errors.target !== undefined}
+            aria-describedby={errors.target !== undefined ? errorIdOf('event-target') : undefined}
             {...register('target')}
           />
         </FormField>
@@ -200,6 +215,9 @@ export default function EventFormPage() {
               placeholder="예: 3,000 적립금 · 10% 할인쿠폰"
               disabled={disabled}
               aria-invalid={errors.benefitDetail !== undefined}
+              aria-describedby={
+                errors.benefitDetail !== undefined ? errorIdOf('event-benefit-detail') : undefined
+              }
               {...register('benefitDetail')}
             />
           </FormField>
@@ -235,6 +253,9 @@ export default function EventFormPage() {
             placeholder="예: 메인 상단 여름 배너"
             disabled={disabled}
             aria-invalid={errors.bannerLabel !== undefined}
+            aria-describedby={
+              errors.bannerLabel !== undefined ? errorIdOf('event-banner') : undefined
+            }
             {...register('bannerLabel')}
           />
         </FormField>

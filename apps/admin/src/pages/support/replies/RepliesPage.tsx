@@ -103,8 +103,11 @@ export default function RepliesPage() {
         visibleItems={visibleItems}
         columns={COLUMNS}
         nameOf={(template) => template.title}
+        empty={{
+          hasQuery: keyword !== '',
+          onClearSearch: () => setKeyword(''),
+        }}
         selectAllLabelId={SELECT_ALL_LABEL_ID}
-        emptyLabel="등록된 답변 템플릿이 없습니다."
         toolbar={toolbar}
         onEdit={(template) => navigate(`${LIST_PATH}/${template.id}/edit`)}
       />

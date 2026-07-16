@@ -33,29 +33,40 @@ const rowStyle: CSSProperties = {
 };
 
 export default function EsgFormPage() {
-  const { form, isEdit, saving, loadingDetail, loadFailed, serverError, submit, isDirty } =
-    useCrudForm<EsgItem, EsgInput, EsgFormValues>({
-      resource: 'esg',
-      adapter: esgAdapter,
-      entityLabel: ENTITY_LABEL,
-      listPath: LIST_PATH,
-      schema: esgSchema,
-      empty: { category: 'environment', title: '', summary: '', date: '', imageUrls: [] },
-      toInput: (values) => ({
-        category: values.category as EsgCategory,
-        title: values.title.trim(),
-        summary: values.summary.trim(),
-        date: values.date.trim(),
-        imageUrls: values.imageUrls,
-      }),
-      toValues: (item) => ({
-        category: item.category,
-        title: item.title,
-        summary: item.summary,
-        date: item.date,
-        imageUrls: [...item.imageUrls],
-      }),
-    });
+  const {
+    form,
+    isEdit,
+    saving,
+    loadingDetail,
+    loadFailure,
+    retryLoad,
+    serverError,
+    errorReference,
+    conflict,
+    submit,
+    isDirty,
+  } = useCrudForm<EsgItem, EsgInput, EsgFormValues>({
+    resource: 'esg',
+    adapter: esgAdapter,
+    entityLabel: ENTITY_LABEL,
+    listPath: LIST_PATH,
+    schema: esgSchema,
+    empty: { category: 'environment', title: '', summary: '', date: '', imageUrls: [] },
+    toInput: (values) => ({
+      category: values.category as EsgCategory,
+      title: values.title.trim(),
+      summary: values.summary.trim(),
+      date: values.date.trim(),
+      imageUrls: values.imageUrls,
+    }),
+    toValues: (item) => ({
+      category: item.category,
+      title: item.title,
+      summary: item.summary,
+      date: item.date,
+      imageUrls: [...item.imageUrls],
+    }),
+  });
 
   const {
     register,
@@ -76,7 +87,10 @@ export default function EsgFormPage() {
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
-      loadFailed={loadFailed}
+      loadFailure={loadFailure}
+      onRetryLoad={retryLoad}
+      errorReference={errorReference}
+      conflict={conflict}
       serverError={serverError}
       saving={saving}
       isDirty={isDirty}
@@ -90,6 +104,7 @@ export default function EsgFormPage() {
             isInvalid={errors.category !== undefined}
             disabled={disabled}
             aria-invalid={errors.category !== undefined}
+            aria-describedby={errors.category !== undefined ? errorIdOf('esg-category') : undefined}
             {...register('category')}
           >
             {ESG_CATEGORY_OPTIONS.map((option) => (
@@ -108,6 +123,7 @@ export default function EsgFormPage() {
             style={controlStyle(errors.date !== undefined)}
             disabled={disabled}
             aria-invalid={errors.date !== undefined}
+            aria-describedby={errors.date !== undefined ? errorIdOf('esg-date') : undefined}
             {...register('date')}
           />
         </FormField>
