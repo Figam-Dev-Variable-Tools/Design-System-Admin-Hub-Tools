@@ -17,7 +17,7 @@ import {
   toQuoteInput,
 } from './types';
 import type { Quote, QuoteInheritance, QuoteLineItem } from './types';
-import { quoteSchema } from './validation';
+import { EMPTY_QUOTE_FORM, quoteSchema } from './validation';
 import type { QuoteFormValues } from './validation';
 
 const items: readonly QuoteLineItem[] = [
@@ -160,22 +160,22 @@ describe('날짜 더하기(순수)', () => {
   });
 });
 
+/**
+ * 신규 등록 폼이 실제로 제출하는 값.
+ *
+ * **빈 폼(EMPTY_QUOTE_FORM)에서 출발해 사람이 채울 수 있는 칸만 채운다.** 값을 처음부터 다 적어 두면
+ * 실제 제출 경로를 타지 않는다 — quoteNo 는 폼에서 readOnly 라 사용자가 채울 방법이 없는데도, 테스트가
+ * 제 사본에 번호를 적어 넣는 바람에 "readOnly + required 라 등록이 영영 불가능" 한 교착을 놓쳤다.
+ */
 function valuesOf(overrides: Partial<QuoteFormValues> = {}): QuoteFormValues {
   return {
-    quoteNo: 'Q-20260710-001',
+    ...EMPTY_QUOTE_FORM,
     accountName: '(주)테스트',
     accountBizNo: '124-81-00998',
     accountCeo: '김대표',
-    contactName: '',
     issueDate: '2026-07-10',
     validUntil: '2026-08-09',
-    taxMode: 'standard',
     items: [{ id: 'a', name: '품목A', spec: '', quantity: 2, unitPrice: 1500 }],
-    status: 'draft',
-    note: '',
-    inquiryId: '',
-    inquiryNo: '',
-    inquiryBody: '',
     ...overrides,
   };
 }
@@ -208,5 +208,27 @@ describe('quoteSchema — 폼 검증', () => {
     expect(
       messageFor(valuesOf({ issueDate: '2026-08-09', validUntil: '2026-07-10' }), 'validUntil'),
     ).toContain('빠를');
+  });
+});
+
+describe('quoteSchema — 견적번호는 자동 채번이라 요구하지 않는다', () => {
+  // [교착 회귀] 폼의 견적번호는 readOnly 다(사용자가 채울 수단이 없다). 검증이 그 값을 요구하면
+  // 신규 등록은 영구 불가능해지고, 게다가 화면에 오류를 띄울 필드도 아니라 **조용히** 실패한다.
+  it('빈 견적번호로도 신규 등록이 통과한다 — 사용자가 채울 수 없는 값을 요구하지 않는다', () => {
+    expect(EMPTY_QUOTE_FORM.quoteNo).toBe('');
+    expect(quoteSchema.safeParse(valuesOf()).success).toBe(true);
+  });
+
+  it('견적번호 때문에 막히지 않는다 — 어떤 이슈도 quoteNo 를 가리키지 않는다', () => {
+    expect(messageFor(valuesOf(), 'quoteNo')).toBeUndefined();
+  });
+
+  it('수정 시 기존 번호를 실어 보내도 통과한다 (보존 경로)', () => {
+    expect(quoteSchema.safeParse(valuesOf({ quoteNo: 'Q-20260710-001' })).success).toBe(true);
+  });
+
+  // 빈 값이 검증을 통과하는 것만으로는 부족하다 — 저장소가 실제로 번호를 붙여 줘야 등록이 완결된다.
+  it('빈 견적번호는 데이터소스가 견적일+순번으로 채운다', () => {
+    expect(makeQuoteNo('2026-07-10', 4)).toBe('Q-20260710-004');
   });
 });
