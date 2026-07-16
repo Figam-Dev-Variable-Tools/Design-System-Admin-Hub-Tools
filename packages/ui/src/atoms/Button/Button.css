@@ -16,9 +16,9 @@
   cursor: pointer;
   transition:
     background-color var(--tds-component-button-transition-duration)
-      cubic-bezier(var(--tds-component-button-transition-easing)),
+      var(--tds-component-button-transition-easing),
     color var(--tds-component-button-transition-duration)
-      cubic-bezier(var(--tds-component-button-transition-easing));
+      var(--tds-component-button-transition-easing);
 }
 
 /* focus-visible — 키보드 포커스에만 링을 노출한다 (계약 a11y.focusVisible) */

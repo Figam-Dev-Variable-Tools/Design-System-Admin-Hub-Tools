@@ -24,8 +24,8 @@
   line-height: var(--tds-typography-label-md-line-height);
   cursor: pointer;
   transition:
-    background-color var(--tds-motion-duration-fast) cubic-bezier(var(--tds-motion-easing-standard)),
-    color var(--tds-motion-duration-fast) cubic-bezier(var(--tds-motion-easing-standard));
+    background-color var(--tds-motion-duration-fast) var(--tds-motion-easing-standard),
+    color var(--tds-motion-duration-fast) var(--tds-motion-easing-standard);
 }
 
 /* --- size (계약 enum: sm | md) --- */

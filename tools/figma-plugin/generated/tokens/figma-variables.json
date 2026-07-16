@@ -335,6 +335,22 @@
       }
     },
     {
+      "name": "primitive/color/overlay/light",
+      "type": "COLOR",
+      "values": {
+        "light": "#11182773",
+        "dark": "#11182773"
+      }
+    },
+    {
+      "name": "primitive/color/overlay/dark",
+      "type": "COLOR",
+      "values": {
+        "light": "#000000A6",
+        "dark": "#000000A6"
+      }
+    },
+    {
       "name": "primitive/space/1",
       "type": "FLOAT",
       "values": {
@@ -455,6 +471,38 @@
       }
     },
     {
+      "name": "primitive/typography/font-size/20",
+      "type": "FLOAT",
+      "values": {
+        "light": 20,
+        "dark": 20
+      }
+    },
+    {
+      "name": "primitive/typography/font-size/24",
+      "type": "FLOAT",
+      "values": {
+        "light": 24,
+        "dark": 24
+      }
+    },
+    {
+      "name": "primitive/typography/font-size/28",
+      "type": "FLOAT",
+      "values": {
+        "light": 28,
+        "dark": 28
+      }
+    },
+    {
+      "name": "primitive/typography/font-size/32",
+      "type": "FLOAT",
+      "values": {
+        "light": 32,
+        "dark": 32
+      }
+    },
+    {
       "name": "primitive/typography/font-weight/regular",
       "type": "FLOAT",
       "values": {
@@ -468,6 +516,14 @@
       "values": {
         "light": 500,
         "dark": 500
+      }
+    },
+    {
+      "name": "primitive/typography/font-weight/semibold",
+      "type": "FLOAT",
+      "values": {
+        "light": 600,
+        "dark": 600
       }
     },
     {
@@ -756,6 +812,18 @@
       "alias": {
         "light": "primitive/color/blue/600",
         "dark": "primitive/color/blue/400"
+      }
+    },
+    {
+      "name": "color/overlay",
+      "type": "COLOR",
+      "values": {
+        "light": "#11182773",
+        "dark": "#000000A6"
+      },
+      "alias": {
+        "light": "primitive/color/overlay/light",
+        "dark": "primitive/color/overlay/dark"
       }
     },
     {
@@ -1396,6 +1464,150 @@
     },
     {
       "name": "typography/title/lg/line-height",
+      "type": "FLOAT",
+      "values": {
+        "light": 1.2,
+        "dark": 1.2
+      },
+      "alias": {
+        "light": "primitive/typography/line-height/tight",
+        "dark": "primitive/typography/line-height/tight"
+      }
+    },
+    {
+      "name": "typography/title/xl/font-family",
+      "type": "STRING",
+      "values": {
+        "light": "Pretendard, -apple-system, Segoe UI, sans-serif",
+        "dark": "Pretendard, -apple-system, Segoe UI, sans-serif"
+      },
+      "alias": {
+        "light": "primitive/typography/font-family/sans",
+        "dark": "primitive/typography/font-family/sans"
+      }
+    },
+    {
+      "name": "typography/title/xl/font-size",
+      "type": "FLOAT",
+      "values": {
+        "light": 20,
+        "dark": 20
+      },
+      "alias": {
+        "light": "primitive/typography/font-size/20",
+        "dark": "primitive/typography/font-size/20"
+      }
+    },
+    {
+      "name": "typography/title/xl/font-weight",
+      "type": "FLOAT",
+      "values": {
+        "light": 600,
+        "dark": 600
+      },
+      "alias": {
+        "light": "primitive/typography/font-weight/semibold",
+        "dark": "primitive/typography/font-weight/semibold"
+      }
+    },
+    {
+      "name": "typography/title/xl/line-height",
+      "type": "FLOAT",
+      "values": {
+        "light": 1.2,
+        "dark": 1.2
+      },
+      "alias": {
+        "light": "primitive/typography/line-height/tight",
+        "dark": "primitive/typography/line-height/tight"
+      }
+    },
+    {
+      "name": "typography/display/sm/font-family",
+      "type": "STRING",
+      "values": {
+        "light": "Pretendard, -apple-system, Segoe UI, sans-serif",
+        "dark": "Pretendard, -apple-system, Segoe UI, sans-serif"
+      },
+      "alias": {
+        "light": "primitive/typography/font-family/sans",
+        "dark": "primitive/typography/font-family/sans"
+      }
+    },
+    {
+      "name": "typography/display/sm/font-size",
+      "type": "FLOAT",
+      "values": {
+        "light": 24,
+        "dark": 24
+      },
+      "alias": {
+        "light": "primitive/typography/font-size/24",
+        "dark": "primitive/typography/font-size/24"
+      }
+    },
+    {
+      "name": "typography/display/sm/font-weight",
+      "type": "FLOAT",
+      "values": {
+        "light": 600,
+        "dark": 600
+      },
+      "alias": {
+        "light": "primitive/typography/font-weight/semibold",
+        "dark": "primitive/typography/font-weight/semibold"
+      }
+    },
+    {
+      "name": "typography/display/sm/line-height",
+      "type": "FLOAT",
+      "values": {
+        "light": 1.2,
+        "dark": 1.2
+      },
+      "alias": {
+        "light": "primitive/typography/line-height/tight",
+        "dark": "primitive/typography/line-height/tight"
+      }
+    },
+    {
+      "name": "typography/display/md/font-family",
+      "type": "STRING",
+      "values": {
+        "light": "Pretendard, -apple-system, Segoe UI, sans-serif",
+        "dark": "Pretendard, -apple-system, Segoe UI, sans-serif"
+      },
+      "alias": {
+        "light": "primitive/typography/font-family/sans",
+        "dark": "primitive/typography/font-family/sans"
+      }
+    },
+    {
+      "name": "typography/display/md/font-size",
+      "type": "FLOAT",
+      "values": {
+        "light": 28,
+        "dark": 28
+      },
+      "alias": {
+        "light": "primitive/typography/font-size/28",
+        "dark": "primitive/typography/font-size/28"
+      }
+    },
+    {
+      "name": "typography/display/md/font-weight",
+      "type": "FLOAT",
+      "values": {
+        "light": 700,
+        "dark": 700
+      },
+      "alias": {
+        "light": "primitive/typography/font-weight/bold",
+        "dark": "primitive/typography/font-weight/bold"
+      }
+    },
+    {
+      "name": "typography/display/md/line-height",
       "type": "FLOAT",
       "values": {
         "light": 1.2,

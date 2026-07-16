@@ -17,8 +17,7 @@
   text-align: start;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color var(--tds-motion-duration-fast)
-    cubic-bezier(var(--tds-motion-easing-standard));
+  transition: background-color var(--tds-motion-duration-fast) var(--tds-motion-easing-standard);
 }
 
 .tds-listrow:hover {

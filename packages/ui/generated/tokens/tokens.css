@@ -43,6 +43,16 @@
   --tds-primitive-color-amber-600: #D97706;
   --tds-primitive-color-amber-700: #B45309;
   --tds-primitive-color-amber-800: #78350F;
+  --tds-primitive-color-overlay-light: #11182773;
+  --tds-primitive-color-overlay-dark: #000000A6;
+  --tds-primitive-shadow-raised: 0 1px 2px 0 rgba(17, 24, 39, 0.06), 0 1px 3px 0 rgba(17, 24, 39, 0.10);
+  --tds-primitive-shadow-overlay: 0 2px 4px -2px rgba(17, 24, 39, 0.06), 0 4px 8px -2px rgba(17, 24, 39, 0.10);
+  --tds-primitive-shadow-modal: 0 4px 8px -4px rgba(17, 24, 39, 0.10), 0 12px 24px -6px rgba(17, 24, 39, 0.16);
+  --tds-primitive-shadow-sticky: 0 2px 4px 0 rgba(17, 24, 39, 0.08);
+  --tds-primitive-shadow-dark-raised: 0 1px 2px 0 rgba(0, 0, 0, 0.30), 0 1px 3px 0 rgba(0, 0, 0, 0.40);
+  --tds-primitive-shadow-dark-overlay: 0 2px 4px -2px rgba(0, 0, 0, 0.40), 0 4px 8px -2px rgba(0, 0, 0, 0.50);
+  --tds-primitive-shadow-dark-modal: 0 4px 8px -4px rgba(0, 0, 0, 0.45), 0 12px 24px -6px rgba(0, 0, 0, 0.60);
+  --tds-primitive-shadow-dark-sticky: 0 2px 4px 0 rgba(0, 0, 0, 0.45);
   --tds-primitive-space-1: 4px;
   --tds-primitive-space-2: 8px;
   --tds-primitive-space-3: 12px;
@@ -58,8 +68,13 @@
   --tds-primitive-typography-font-size-14: 0.875rem;
   --tds-primitive-typography-font-size-16: 1rem;
   --tds-primitive-typography-font-size-18: 1.125rem;
+  --tds-primitive-typography-font-size-20: 1.25rem;
+  --tds-primitive-typography-font-size-24: 1.5rem;
+  --tds-primitive-typography-font-size-28: 1.75rem;
+  --tds-primitive-typography-font-size-32: 2rem;
   --tds-primitive-typography-font-weight-regular: 400;
   --tds-primitive-typography-font-weight-medium: 500;
+  --tds-primitive-typography-font-weight-semibold: 600;
   --tds-primitive-typography-font-weight-bold: 700;
   --tds-primitive-typography-line-height-tight: 1.2;
   --tds-primitive-typography-line-height-normal: 1.5;
@@ -72,9 +87,9 @@
   --tds-primitive-motion-duration-fast: 150ms;
   --tds-primitive-motion-duration-normal: 250ms;
   --tds-primitive-motion-duration-slow: 400ms;
-  --tds-primitive-motion-easing-standard: 0.4, 0, 0.2, 1;
-  --tds-primitive-motion-easing-decelerate: 0, 0, 0.2, 1;
-  --tds-primitive-motion-easing-accelerate: 0.4, 0, 1, 1;
+  --tds-primitive-motion-easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --tds-primitive-motion-easing-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --tds-primitive-motion-easing-accelerate: cubic-bezier(0.4, 0, 1, 1);
   --tds-color-action-primary-default: var(--tds-primitive-color-blue-600);
   --tds-color-action-primary-hover: var(--tds-primitive-color-blue-700);
   --tds-color-action-primary-active: var(--tds-primitive-color-blue-800);
@@ -89,6 +104,7 @@
   --tds-color-surface-disabled: var(--tds-primitive-color-gray-100);
   --tds-color-border-default: var(--tds-primitive-color-gray-300);
   --tds-color-border-focus: var(--tds-primitive-color-blue-600);
+  --tds-color-overlay: var(--tds-primitive-color-overlay-light);
   --tds-color-feedback-danger-surface: var(--tds-primitive-color-red-100);
   --tds-color-feedback-danger-border: var(--tds-primitive-color-red-600);
   --tds-color-feedback-danger-text: var(--tds-primitive-color-red-700);
@@ -123,6 +139,10 @@
   --tds-radius-md: var(--tds-primitive-radius-md);
   --tds-radius-lg: var(--tds-primitive-radius-lg);
   --tds-radius-full: var(--tds-primitive-radius-full);
+  --tds-shadow-raised: var(--tds-primitive-shadow-raised);
+  --tds-shadow-overlay: var(--tds-primitive-shadow-overlay);
+  --tds-shadow-modal: var(--tds-primitive-shadow-modal);
+  --tds-shadow-sticky: var(--tds-primitive-shadow-sticky);
   --tds-typography-body-md-font-family: var(--tds-primitive-typography-font-family-sans);
   --tds-typography-body-md-font-size: var(--tds-primitive-typography-font-size-16);
   --tds-typography-body-md-font-weight: var(--tds-primitive-typography-font-weight-regular);
@@ -143,6 +163,18 @@
   --tds-typography-title-lg-font-size: var(--tds-primitive-typography-font-size-18);
   --tds-typography-title-lg-font-weight: var(--tds-primitive-typography-font-weight-bold);
   --tds-typography-title-lg-line-height: var(--tds-primitive-typography-line-height-tight);
+  --tds-typography-title-xl-font-family: var(--tds-primitive-typography-font-family-sans);
+  --tds-typography-title-xl-font-size: var(--tds-primitive-typography-font-size-20);
+  --tds-typography-title-xl-font-weight: var(--tds-primitive-typography-font-weight-semibold);
+  --tds-typography-title-xl-line-height: var(--tds-primitive-typography-line-height-tight);
+  --tds-typography-display-sm-font-family: var(--tds-primitive-typography-font-family-sans);
+  --tds-typography-display-sm-font-size: var(--tds-primitive-typography-font-size-24);
+  --tds-typography-display-sm-font-weight: var(--tds-primitive-typography-font-weight-semibold);
+  --tds-typography-display-sm-line-height: var(--tds-primitive-typography-line-height-tight);
+  --tds-typography-display-md-font-family: var(--tds-primitive-typography-font-family-sans);
+  --tds-typography-display-md-font-size: var(--tds-primitive-typography-font-size-28);
+  --tds-typography-display-md-font-weight: var(--tds-primitive-typography-font-weight-bold);
+  --tds-typography-display-md-line-height: var(--tds-primitive-typography-line-height-tight);
   --tds-typography-caption-md-font-family: var(--tds-primitive-typography-font-family-sans);
   --tds-typography-caption-md-font-size: var(--tds-primitive-typography-font-size-12);
   --tds-typography-caption-md-font-weight: var(--tds-primitive-typography-font-weight-regular);
@@ -183,6 +215,7 @@
   --tds-color-surface-disabled: var(--tds-primitive-color-gray-800);
   --tds-color-border-default: var(--tds-primitive-color-gray-700);
   --tds-color-border-focus: var(--tds-primitive-color-blue-400);
+  --tds-color-overlay: var(--tds-primitive-color-overlay-dark);
   --tds-color-feedback-danger-surface: var(--tds-primitive-color-red-800);
   --tds-color-feedback-danger-border: var(--tds-primitive-color-red-400);
   --tds-color-feedback-danger-text: var(--tds-primitive-color-red-200);
@@ -201,4 +234,8 @@
   --tds-color-chart-series-2-fill: var(--tds-primitive-color-green-800);
   --tds-color-chart-axis: var(--tds-primitive-color-gray-700);
   --tds-color-chart-label: var(--tds-primitive-color-gray-400);
+  --tds-shadow-raised: var(--tds-primitive-shadow-dark-raised);
+  --tds-shadow-overlay: var(--tds-primitive-shadow-dark-overlay);
+  --tds-shadow-modal: var(--tds-primitive-shadow-dark-modal);
+  --tds-shadow-sticky: var(--tds-primitive-shadow-dark-sticky);
 }

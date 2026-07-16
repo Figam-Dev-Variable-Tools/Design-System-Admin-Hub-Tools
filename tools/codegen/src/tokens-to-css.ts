@@ -68,10 +68,13 @@ function tokenToCssDeclarations(
   const varName = cssVarName(tokenPath);
 
   if (Array.isArray(value)) {
-    // fontFamily 스택 · 다중 shadow
+    // fontFamily 스택 · 다중 shadow · cubicBezier 좌표
     const parts = value.map((item) =>
       isPlainObject(item) ? shadowToCss(item, type) : primitiveToCss(item, type),
     );
+    // cubicBezier 는 4개 좌표 배열이다 — 유효한 timing-function 이 되도록 cubic-bezier() 로 감싼다.
+    // (감싸지 않으면 consumer 가 bare 좌표를 받아 animation/transition shorthand 가 깨진다 — TOKEN-03)
+    if (type === 'cubicBezier') return [[varName, `cubic-bezier(${parts.join(', ')})`]];
     return [[varName, parts.join(', ')]];
   }
 

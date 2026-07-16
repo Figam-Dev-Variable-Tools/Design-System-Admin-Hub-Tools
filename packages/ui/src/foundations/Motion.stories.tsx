@@ -40,9 +40,9 @@ function pickDefault(entries: TokenEntry[], preferredSuffix: string): TokenEntry
   return entries.find((e) => e.path.endsWith(preferredSuffix)) ?? entries[0];
 }
 
-/** easing 토큰(쉼표 구분 좌표) → CSS timing function */
+/** easing 토큰 → CSS timing function. 토큰은 이미 cubic-bezier() 로 감싸 emit 되므로 var() 로 그대로 쓴다 (TOKEN-03) */
 const timingOf = (easing: TokenEntry | undefined): string =>
-  easing !== undefined ? `cubic-bezier(var(${easing.varName}))` : 'ease';
+  easing !== undefined ? `var(${easing.varName})` : 'ease';
 
 /** 재생 토글 + 트랙별 이동 박스 데모 */
 function MotionDemo() {
@@ -145,7 +145,7 @@ export const Demo: Story = {
   render: () => (
     <Section
       title="Motion Demo"
-      description="재생 버튼으로 트랙별 이동을 비교한다. duration 은 var() 로, easing 은 cubic-bezier(var()) 로 그대로 적용된다."
+      description="재생 버튼으로 트랙별 이동을 비교한다. duration·easing 모두 var() 로 그대로 적용된다 (easing 토큰이 이미 cubic-bezier() 로 감싸져 유효 timing-function 이다)."
     >
       <MotionDemo />
     </Section>

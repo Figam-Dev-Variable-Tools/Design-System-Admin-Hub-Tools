@@ -381,6 +381,9 @@ export function generateFigmaVariables(doc: Record<string, unknown>): GeneratedF
 
   const variables: FigmaVariableSpec[] = [];
   for (const token of table.flat.values()) {
+    // 그림자(elevation)는 Figma 에서 Variable 이 아니라 Effect Style 로 표현한다 —
+    // box-shadow 합성값은 Variable 스펙에 대응이 없으므로 Variables 생성에서 제외한다.
+    if (token.type === 'shadow') continue;
     variables.push(...tokenToVariableSpecs(table, token));
   }
 
