@@ -1,12 +1,19 @@
 # ==============================================================================
-# Deploy — main 머지 시 Storybook 정적 배포(GitHub Pages) + Admin 앱 빌드 아티팩트
+# Deploy — main 머지 시 게이트 재검증 + Admin 앱 빌드 아티팩트
 #
-# 원칙: **배포는 게이트 통과의 '결과'이지 별도 경로가 아니다.**
-#   - 배포 job 은 `needs:` 로 검증 job 에 매달려 있다. 게이트를 통과하지 않으면
-#     배포 스텝에 **도달할 수 없다**. "배포는 급하니 검사 생략"은 존재하지 않는 경로다.
+# 원칙: **배포/빌드는 게이트 통과의 '결과'이지 별도 경로가 아니다.**
+#   - 빌드 job 은 `needs:` 로 검증 job 에 매달려 있다. 게이트를 통과하지 않으면
+#     빌드 스텝에 **도달할 수 없다**. "빌드는 급하니 검사 생략"은 존재하지 않는 경로다.
 #   - 워크플로우 간에는 `needs:` 를 걸 수 없으므로, 이 워크플로우가 PR 게이트와
 #     **동일한 검사 집합**을 선행 job(`gates`, `a11y`)으로 다시 실행한다.
 #     (pr-gates.yml 의 `boundary` 는 PR base 대비 diff 검사라 push 트리거에서는 대상이 아니다)
+#
+# NOTE: Storybook GitHub Pages 배포 job(build-storybook·deploy-storybook)은 제거됨.
+#   저장소에 Pages 사이트가 활성화되어 있지 않아 `configure-pages` 가 사이트를 생성하려다
+#   기본 GITHUB_TOKEN 권한 부족으로 실패("Resource not accessible by integration")했다.
+#   Pages 재도입 시: Settings→Pages→Source='GitHub Actions' 로 사이트를 먼저 활성화한 뒤
+#   build-storybook / deploy-storybook job 을 복구할 것. `a11y` job 은 Storybook 을
+#   빌드해 axe 검사만 하므로(배포 아님) 그대로 유지한다.
 #
 # 게이트 override 는 A00만이 할 수 있고 ADR 기록 + 기술부채 티켓이 필수다.
 # 이 워크플로우에는 우회 경로(continue-on-error · if 스킵 · || true)가 **0건**이다.
@@ -18,7 +25,7 @@ on:
     branches: [main]
   workflow_dispatch: # 재배포 — 단, gates 를 다시 통과해야 한다 (우회 아님)
 
-# 최소 권한 (기본 read). Pages 배포 job 에서만 write 로 승격한다.
+# 최소 권한 (기본 read). 이 워크플로우의 job 은 read 만 필요하다.
 permissions:
   contents: read
 
@@ -75,56 +82,6 @@ jobs:
       - name: Storybook 정적 빌드
         run: pnpm sb:build
       - run: pnpm a11y
-
-  # ── Storybook 정적 빌드 → Pages 아티팩트 ─────────────────────────────────
-  build-storybook:
-    name: Storybook 빌드 (Pages 아티팩트)
-    needs: [gates, a11y] # 게이트 통과 없이는 여기 도달할 수 없다
-    runs-on: ubuntu-latest
-    # configure-pages 가 Pages 사이트를 조회/활성화하려면 이 job 에도 pages 권한이 필요하다.
-    # 이게 없으면 최상위 `contents: read` 만 물려받아 Pages API 접근이
-    # "Resource not accessible by integration" 으로 거부된다 (실제 발생).
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - name: 코드젠 (토큰/계약 → generated 산출물)
-        run: pnpm codegen
-      - uses: actions/configure-pages@v5
-        # enablement: Pages 가 아직 켜지지 않았으면 워크플로가 자동 활성화한다
-        # (Settings→Pages→Source 를 손으로 'GitHub Actions' 로 바꾸지 않아도 됨).
-        with:
-          enablement: true
-      - name: Storybook 정적 빌드
-        run: pnpm sb:build
-      - name: Pages 아티팩트 업로드
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: packages/ui/storybook-static
-
-  # ── GitHub Pages 배포 ────────────────────────────────────────────────────
-  deploy-storybook:
-    name: Storybook 배포 (GitHub Pages)
-    needs: build-storybook
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write # Pages 배포에 필요
-      id-token: write # OIDC — deploy-pages 가 요구
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Pages 배포
-        id: deployment
-        uses: actions/deploy-pages@v4
 
   # ── Admin 앱 빌드 아티팩트 ───────────────────────────────────────────────
   build-admin:
