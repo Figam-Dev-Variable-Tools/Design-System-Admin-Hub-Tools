@@ -8,8 +8,9 @@
 // 상태를 바꾸면 그 URL 이 되는가.
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { act, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { useDebouncedSearch } from '../../../shared/crud';
 import { useStatsParams } from './useStatsParams';
 import type { StatsParamsApi } from './useStatsParams';
 import type { SegmentOption } from './types';
@@ -215,5 +216,89 @@ describe('useStatsParams — URL 이 조회 조건의 원천이다 (IA-13)', () 
     expect(search).not.toContain('sort');
     // 시간대별을 보던 사람을 일자별로 튕기지 않는다
     expect(search).toContain('view=hourly');
+  });
+});
+
+/* ── 마운트 커밋이 page 를 지우지 않는다 (IA-13) ──────────────────────────────
+ *
+ * [무엇을 재현하나] StatsFilterBar 는 검색 입력의 유무와 무관하게 늘 useDebouncedSearch 를
+ * 건다(StatsFilterBar.tsx — 훅은 무조건, SearchField 만 조건부). 그 훅은 **마운트 직후에도**
+ * 한 번 커밋한다(현재 입력값 = URL 의 q). 그 커밋이 그대로 통과하면 update 가 page 를 지워
+ * `?page=3` 링크로 들어온 사용자가 250ms 뒤 1페이지로 튕긴다 — 통계 6화면 전부.
+ *
+ * F2 가 useListState 에서 같은 버그를 고친 방식이 정본이다: 값이 실제로 바뀔 때만 되돌린다. */
+
+/** StatsFilterBar 의 배선을 그대로 재현한다 (StatsFilterBar.tsx 의 그 한 줄) */
+function FilterBarHarness() {
+  const params = useStatsParams({
+    segments: SEGMENTS,
+    views: VIEWS,
+    metrics: METRICS,
+    defaultSort: null,
+  });
+  useDebouncedSearch({ initial: params.keyword, onCommit: params.setKeyword });
+  const location = useLocation();
+  api = params;
+  return <output data-testid="search">{location.search}</output>;
+}
+
+function renderBarAt(search: string) {
+  api = null;
+  return render(
+    <MemoryRouter initialEntries={[`/stats/visitors${search}`]}>
+      <FilterBarHarness />
+    </MemoryRouter>,
+  );
+}
+
+/** 디바운스(250ms)를 넘긴다 — 마운트 커밋이 터지는 시점 */
+async function afterDebounce(): Promise<void> {
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(300);
+  });
+}
+
+describe('디바운스 검색의 마운트 커밋 — ?page=N 이 살아남는다', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('검색어 없이 ?page=3 으로 들어와도 250ms 뒤 page 가 그대로다', async () => {
+    vi.useFakeTimers();
+    renderBarAt('?page=3');
+    expect(currentApi().page).toBe(3);
+
+    await afterDebounce();
+
+    expect(currentApi().page).toBe(3);
+    expect(searchText()).toContain('page=3');
+  });
+
+  it('검색어가 있는 채로 ?page=3 으로 들어와도 page 가 그대로다', async () => {
+    vi.useFakeTimers();
+    renderBarAt('?q=원피스&page=3');
+
+    await afterDebounce();
+
+    expect(currentApi().page).toBe(3);
+    expect(currentApi().keyword).toBe('원피스');
+  });
+
+  it('검색어가 **실제로 바뀌면** 1페이지로 되돌린다 — 가드가 과하지 않다', () => {
+    renderAt('?q=원피스&page=3');
+    act(() => {
+      currentApi().setKeyword('바지');
+    });
+    expect(currentApi().page).toBe(1);
+    expect(currentApi().keyword).toBe('바지');
+  });
+
+  it('검색어를 지우는 것도 조건 변경이다 — 1페이지로 되돌린다', () => {
+    renderAt('?q=원피스&page=3');
+    act(() => {
+      currentApi().setKeyword('');
+    });
+    expect(currentApi().page).toBe(1);
+    expect(searchText()).not.toContain('q=');
   });
 });

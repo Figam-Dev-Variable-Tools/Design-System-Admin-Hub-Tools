@@ -2,7 +2,6 @@
 //
 // 렌더에서 떼어낸 이유: 정렬 안정성·페이지 경계·범위 산술은 **눈으로 검증할 수 없다**.
 // 순수 함수로 두면 단위 테스트가 경계를 전수로 찌른다 (ERP-05 의 range math 요구).
-import { formatNumber } from '../../../shared/format';
 import type { SortState, StatsColumn } from './types';
 
 /**
@@ -56,14 +55,6 @@ export function pageSlice<T>(rows: readonly T[], page: number, pageSize: number)
   return rows.slice(start, start + pageSize);
 }
 
-/**
- * '전체 1,234건 중 26–50' — 한국 ERP 그리드가 기대하는 가시 범위 표기 (ERP-05).
- * 0건이면 범위가 없다.
- */
-export function rangeTextOf(total: number, page: number, pageSize: number): string {
-  if (total === 0) return '전체 0건';
-  const safePage = clampPage(page, total, pageSize);
-  const first = (safePage - 1) * pageSize + 1;
-  const last = Math.min(first + pageSize - 1, total);
-  return `전체 ${formatNumber(total)}건 중 ${formatNumber(first)}–${formatNumber(last)}`;
-}
+// [ERP-05] 범위 요약문('전체 1,234건 중 26–50')은 여기 있었다. DS Pagination 이 pageSize 를
+// 받으면 같은 것을 그리고(수식이 동치다) 경계 단언까지 갖고 있으므로, 사본을 지우고 그쪽을 쓴다
+// (packages/ui Pagination.rangeTextOf · StatsTable 이 total/pageSize 를 넘긴다).

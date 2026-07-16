@@ -34,6 +34,7 @@ export {
   ImageThumb,
   moveArrayItem,
   Pagination,
+  rangeTextOf,
   ReorderGripCell,
   ReorderGripHeaderCell,
   ReorderMoveButtons,

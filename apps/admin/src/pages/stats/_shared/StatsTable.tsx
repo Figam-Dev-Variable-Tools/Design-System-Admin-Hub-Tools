@@ -10,12 +10,9 @@
 // [STATE-01] loading 은 **최초 로드에서만** 스켈레톤이다. 재조회 중에는 이전 행을 그대로 둔다 —
 // 표를 훑는 중에 행이 사라지면 운영자가 자기 자리를 잃는다. 그 판정은 호출부(useStatsQuery)가
 // data===undefined 로 내리고, 여기는 받은 대로 그린다.
-import { useId } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import {
   Pagination,
-  SelectField,
-  mutedTextStyle,
   numericCellStyle,
   tableStyle,
   tdStyle,
@@ -23,7 +20,7 @@ import {
   visuallyHiddenStyle,
 } from '../../../shared/ui';
 
-import { pageSlice, rangeTextOf, sortRows, totalPagesOf } from './table';
+import { pageSlice, sortRows, totalPagesOf } from './table';
 import { PAGE_SIZE_OPTIONS } from './useStatsParams';
 import type { SortState, StatsColumn } from './types';
 
@@ -62,13 +59,6 @@ const footerStyle: CSSProperties = {
   flexWrap: 'wrap',
   gap: 'var(--tds-space-3)',
   marginBlockStart: 'var(--tds-space-4)',
-};
-
-const sizeWrapStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 'var(--tds-space-2)',
-  inlineSize: 'calc(var(--tds-space-6) * 7)',
 };
 
 const skeletonCellStyle: CSSProperties = { ...tdStyle, blockSize: 'var(--tds-space-5)' };
@@ -111,8 +101,6 @@ export function StatsTable<T>({
   loading,
   empty,
 }: StatsTableProps<T>) {
-  const sizeLabelId = useId();
-
   const sorted = sortRows(rows, columns, sort);
   const visible = pageSlice(sorted, page, pageSize);
   const totalPages = totalPagesOf(rows.length, pageSize);
@@ -200,36 +188,19 @@ export function StatsTable<T>({
 
       {loading || rows.length === 0 ? null : (
         <div style={footerStyle}>
-          <p style={{ ...mutedTextStyle, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
-            {rangeTextOf(rows.length, page, pageSize)}
-          </p>
-
-          <div style={sizeWrapStyle}>
-            {/* label 이 아니라 span 이다 — 연결은 aria-labelledby 가 한다. SelectField 는 자기 id 를
-                호출부에서 받지만 htmlFor 로 묶으면 라벨 클릭이 열리는 대신 포커스만 옮겨 붙는다 */}
-            <span id={sizeLabelId} style={{ ...mutedTextStyle, whiteSpace: 'nowrap' }}>
-              페이지당
-            </span>
-            <SelectField
-              aria-labelledby={sizeLabelId}
-              value={String(pageSize)}
-              onChange={(event) => {
-                onPageSizeChange(Number(event.target.value));
-              }}
-            >
-              {PAGE_SIZE_OPTIONS.map((size) => (
-                <option key={size} value={String(size)}>
-                  {String(size)}건
-                </option>
-              ))}
-            </SelectField>
-          </div>
-
+          {/* [ERP-05] 범위 요약·페이지당 개수는 **DS 가 그린다.** 여기 있던 자작 요약문과 크기
+              선택은 지웠다 — 같은 것을 두 벌 그리면 수식이 갈라진다(실제로 로그 쪽 사본은 clamp 가
+              없어 범위 밖 page 에서 '전체 3건 중 81–80' 같은 헛것을 그렸다). page 의 clamp 도
+              DS 가 한다 — 여기서 Math.min 을 다시 걸 필요가 없다. */}
           <Pagination
-            page={Math.min(page, totalPages)}
+            page={page}
             totalPages={totalPages}
+            total={rows.length}
+            pageSize={pageSize}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
             label={`${caption} 페이지`}
             onChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
           />
         </div>
       )}

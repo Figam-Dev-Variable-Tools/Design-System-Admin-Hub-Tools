@@ -25,7 +25,7 @@ import {
   shareOf,
   withUnitSuffix,
 } from './format';
-import { clampPage, pageSlice, rangeTextOf, sortRows, totalPagesOf } from './table';
+import { clampPage, pageSlice, sortRows, totalPagesOf } from './table';
 import type { StatsColumn } from './types';
 
 // [서울 고정·달력 산술 자체의 단언은 shared/format.test.ts 로 옮겨갔다 — ERP-09]
@@ -333,11 +333,7 @@ describe('table — 페이지 경계 (STATE-04 · ERP-05)', () => {
     expect(pageSlice(rows, 9, 3).map((row) => row.id)).toEqual(['6']);
   });
 
-  it('가시 범위 표기 (ERP-05)', () => {
-    expect(rangeTextOf(1234, 2, 25)).toBe('전체 1,234건 중 26–50');
-    expect(rangeTextOf(1234, 1, 25)).toBe('전체 1,234건 중 1–25');
-    // 마지막 페이지는 total 에서 끊긴다
-    expect(rangeTextOf(30, 2, 25)).toBe('전체 30건 중 26–30');
-    expect(rangeTextOf(0, 1, 25)).toBe('전체 0건');
-  });
+  // 가시 범위 표기(ERP-05)의 단언은 DS 로 옮겨졌다 — packages/ui Pagination.test.tsx 가
+  // 같은 경계(0건·마지막 페이지·범위 밖 page·자릿수)를 더 촘촘히 지킨다. 사본을 지웠으므로
+  // 여기서 같은 것을 두 번 단언하지 않는다.
 });

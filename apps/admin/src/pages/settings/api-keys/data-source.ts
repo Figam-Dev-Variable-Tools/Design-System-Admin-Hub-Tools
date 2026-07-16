@@ -78,20 +78,43 @@ export async function fetchApiKeys(signal: AbortSignal): Promise<readonly ApiKey
 }
 
 /**
+ * 발급 시도별 최초 응답 — 같은 멱등키의 재시도가 **재생**할 원본.
+ *
+ * [왜 Set 이 아니라 Map 인가] 공용 crud.ts 의 멱등 원장은 '이미 했다'는 사실만 기억하면 된다
+ * (create 가 void 라 재생할 응답이 없다). 발급은 다르다 — 평문은 **최초 응답에만** 존재하고
+ * 서버조차 그 뒤로는 모른다. 재시도에 새 평문을 지어 주면 운영자가 손에 쥔 평문과 실제로
+ * 저장된 키가 어긋난다. 그래서 응답 자체를 들고 있다가 그대로 돌려준다.
+ *
+ * [기록은 성공한 뒤에만] crud.ts 의 원장과 같은 규율이다 — 미리 기록하면 실패한 첫 시도가 키를
+ * 태워 재시도가 영원히 no-op 이 된다. failIfRequested 는 아래 기록 지점 전에 throw 한다.
+ */
+const issuedByKey = new Map<string, ApiKeyIssued>();
+
+/**
  * 발급 — 평문을 **이 응답에만** 싣는다.
  *
  * 백엔드가 붙으면: 서버가 키를 만들고 **해시만 저장**한 뒤 평문을 201 응답 1회에 실어 보낸다.
  * 그 뒤로는 서버도 평문을 모른다 — 그래서 '다시 보여주기' 엔드포인트는 존재할 수 없다.
+ *
+ * `idempotencyKey` 는 **제출 시도 단위**로 호출부가 만들어 넘긴다(members/data-source 선례).
+ * 여기서 만들면 재시도마다 새 키가 나와 보호가 통째로 사라진다.
  */
 // TODO(backend): POST /api/settings/api-keys
 //   요청: { name, scopes[] } · 응답 201: { key: {...}, plaintext } ← plaintext 는 이 응답이 처음이자 마지막
+//   헤더: Idempotency-Key: <idempotencyKey>  (UUID v4, 24h 보존)
+//     → 같은 키 + 같은 바디 = 최초 응답을 그대로 재생한다(유령 키 없음). 다른 바디면 409.
 //   422 → 이름 중복/스코프 없음
 export async function createApiKey(
   draft: ApiKeyDraft,
+  idempotencyKey: string,
   signal?: AbortSignal,
 ): Promise<ApiKeyIssued> {
   await wait(LATENCY_MS, signal);
   failIfRequested('api-keys', 'create');
+
+  // [EXC-08] 같은 시도의 재요청은 두 번 만들지 않는다 — 최초 응답을 재생한다.
+  const replayed = issuedByKey.get(idempotencyKey);
+  if (replayed !== undefined) return replayed;
 
   const plaintext = createDummyPlaintextKey(KEY_PREFIX);
   issueSeq += 1;
@@ -111,7 +134,10 @@ export async function createApiKey(
   // 목록에는 **평문 없이** 들어간다 — 목록이 평문을 아는 경로 자체를 만들지 않는다
   keys = [key, ...keys];
 
-  return { key, plaintext };
+  // 적용에 성공한 **뒤에** 기록한다 — 순서가 뒤바뀌면 실패한 시도가 키를 태운다
+  const issued: ApiKeyIssued = { key, plaintext };
+  issuedByKey.set(idempotencyKey, issued);
+  return issued;
 }
 
 /**

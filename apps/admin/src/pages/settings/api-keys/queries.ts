@@ -21,13 +21,21 @@ export function useApiKeysQuery(): UseQueryResult<readonly ApiKey[], Error> {
 
 interface CreateVars {
   readonly draft: ApiKeyDraft;
+  /**
+   * 제출 **시도** 단위 멱등키 — 호출부가 만들어 넘긴다.
+   *
+   * mutationFn 안에서 만들면 재시도마다 새 키가 나와 보호가 사라진다. 응답이 유실돼 운영자가
+   * '발급'을 다시 누를 때 **같은 키**가 실려야 서버가 최초 응답을 재생한다(유령 키 없음).
+   */
+  readonly idempotencyKey: string;
   readonly signal: AbortSignal;
 }
 
 export function useCreateApiKey(): UseMutationResult<ApiKeyIssued, Error, CreateVars> {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: ({ draft, signal }: CreateVars) => createApiKey(draft, signal),
+    mutationFn: ({ draft, idempotencyKey, signal }: CreateVars) =>
+      createApiKey(draft, idempotencyKey, signal),
     onSuccess: () => {
       // 목록만 다시 읽는다 — 평문은 여기서 끝이다(캐시에 남기지 않는다)
       void client.invalidateQueries({ queryKey: apiKeysKey });

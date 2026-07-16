@@ -46,7 +46,7 @@ export { LineAreaChart } from './molecules/LineAreaChart';
 export type { LineAreaChartProps, LineAreaChartState } from './molecules/LineAreaChart';
 export { ListRow } from './molecules/ListRow';
 export type { ListRowProps, ListRowState } from './molecules/ListRow';
-export { Pagination } from './molecules/Pagination';
+export { Pagination, rangeTextOf } from './molecules/Pagination';
 export type { PaginationProps, PaginationState } from './molecules/Pagination';
 export { PasswordField } from './molecules/PasswordField';
 export type { PasswordFieldProps, PasswordFieldState } from './molecules/PasswordField';

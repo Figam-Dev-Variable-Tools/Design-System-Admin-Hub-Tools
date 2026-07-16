@@ -210,8 +210,18 @@ export function useLogListState(
     [update],
   );
 
+  /**
+   * [값이 그대로면 아무것도 하지 않는다 — 이 가드가 없으면 `?page=N` 이 조용히 사라진다]
+   * LogListShell 이 거는 useDebouncedSearch 는 **마운트 직후에도** 한 번 커밋한다
+   * (현재 입력값 = URL 의 q). 그 커밋이 그대로 통과하면 resetPage 가 page 를 지워
+   * `?page=3` 링크로 들어온 사용자가 250ms 뒤 1페이지로 튕긴다 — 로그 4화면 전부.
+   *
+   * 검색어가 **실제로 바뀔 때만** 되돌린다 (useListState commitKeyword · 통계 setKeyword 와
+   * 같은 규칙).
+   */
   const setKeyword = useCallback(
     (value: string) => {
+      if (value === keyword) return;
       update(
         (next) => {
           if (value === '') next.delete(PARAM.keyword);
@@ -222,7 +232,7 @@ export function useLogListState(
         { replace: true },
       );
     },
-    [update],
+    [update, keyword],
   );
 
   const setPage = useCallback(

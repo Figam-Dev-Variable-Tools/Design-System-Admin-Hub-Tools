@@ -21,7 +21,11 @@ function isRealDate(value: string): boolean {
 
 export const quoteSchema = z
   .object({
-    quoteNo: requiredText('견적번호', 40),
+    // [자동 채번 값 — 요구하지 않는다] 견적번호는 사람이 정하지 않는다. 폼에서 readOnly 이고
+    // (QuoteFormPage '견적번호' 필드), 비어 있으면 데이터소스가 견적일+순번으로 부여한다
+    // (data-source nextQuote). 여기서 requiredText 로 요구하면 신규 등록이 **영구 불가능**해진다 —
+    // 사용자가 채울 수 없는 값을 검증이 요구해 제출이 언제나 실패한다. 아래 승계 값들과 같은 부류다.
+    quoteNo: z.string(),
     accountName: requiredText('거래처', 60),
     accountBizNo: z.string(),
     accountCeo: z.string(),
@@ -108,3 +112,26 @@ export const quoteSchema = z
   });
 
 export type QuoteFormValues = z.infer<typeof quoteSchema>;
+
+/**
+ * 빈 견적 폼 — 신규 등록(/sales/quotes/new)이 마운트하는 값의 **정본**.
+ *
+ * 페이지와 테스트가 이 한 벌을 공유한다. 테스트가 자기 사본에 값을 채워 넣으면 실제 제출 경로를
+ * 타지 않아, 사용자가 채울 수 없는 필드를 검증이 요구해도 초록불이 난다(quoteNo 교착의 전례).
+ */
+export const EMPTY_QUOTE_FORM: QuoteFormValues = {
+  quoteNo: '',
+  accountName: '',
+  accountBizNo: '',
+  accountCeo: '',
+  contactName: '',
+  issueDate: '',
+  validUntil: '',
+  taxMode: 'standard',
+  items: [],
+  status: 'draft',
+  note: '',
+  inquiryId: '',
+  inquiryNo: '',
+  inquiryBody: '',
+};

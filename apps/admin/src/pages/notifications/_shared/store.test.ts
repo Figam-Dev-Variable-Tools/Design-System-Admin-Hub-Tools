@@ -4,10 +4,13 @@
 // (폼 검증은 각 화면의 *.test.ts, 순수 규칙은 notification.test.ts).
 import { describe, expect, it } from 'vitest';
 
+import { HTTP_STATUS, isConflict } from '../../../shared/errors/http-error';
 import {
   listEmailTemplates,
   listRules,
   listSmsTemplates,
+  removeEmailTemplate,
+  removeSmsTemplate,
   rulesUsingTemplate,
   templateNameOf,
   templateOptionsFor,
@@ -55,5 +58,41 @@ describe('규칙 목록', () => {
     for (const rule of listRules()) {
       expect(templateNameOf(rule.channel, rule.templateId)).not.toBe('');
     }
+  });
+});
+
+/* ── 참조 무결성 ──────────────────────────────────────────────────────────────
+ *
+ * 막히는 삭제는 저장소를 바꾸지 않으므로(거르기 전에 던진다) 이 파일의 규율 — '쓰기는 순서
+ * 의존을 만든다' — 을 어기지 않는다. 실제로 지우는 마지막 한 건만 맨 뒤에 둔다. */
+
+describe('템플릿 삭제 — 쓰는 규칙이 있으면 막는다', () => {
+  it('인증번호 SMS 템플릿은 지워지지 않는다 — 지우면 로그인이 막힌다', () => {
+    // ntf-sms-4 = security.verification-code. 이 규칙이 끊어지면 인증번호가 나가지 않는다.
+    expect(rulesUsingTemplate('ntf-sms-4')).toBeGreaterThan(0);
+    expect(() => {
+      removeSmsTemplate('ntf-sms-4');
+    }).toThrow();
+    // 막았으면 남아 있어야 한다 — 던지고 나서 지웠다면 막은 것이 아니다
+    expect(listSmsTemplates().some((template) => template.id === 'ntf-sms-4')).toBe(true);
+  });
+
+  it('409 로 막는다 — 재시도가 아니라 규칙을 먼저 떼야 풀리는 실패다', () => {
+    try {
+      removeEmailTemplate('ntf-email-1');
+      expect.unreachable('쓰는 규칙이 있는데 삭제가 통과했다');
+    } catch (cause: unknown) {
+      expect(isConflict(cause)).toBe(true);
+      expect(cause).toMatchObject({ status: HTTP_STATUS.conflict });
+      // 몇 건이 쓰는지 · 무엇을 먼저 하면 되는지를 문장이 들고 있어야 안내가 된다
+      expect(String(cause)).toContain('발송 규칙');
+      expect(String(cause)).toContain('규칙에서 먼저 템플릿을 바꾸세요');
+    }
+  });
+
+  it('아무도 안 쓰는 템플릿은 그대로 지워진다 — 전부 막아 버리면 그건 고침이 아니다', () => {
+    expect(rulesUsingTemplate('ntf-sms-5')).toBe(0);
+    removeSmsTemplate('ntf-sms-5');
+    expect(listSmsTemplates().some((template) => template.id === 'ntf-sms-5')).toBe(false);
   });
 });

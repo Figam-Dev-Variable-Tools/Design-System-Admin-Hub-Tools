@@ -272,11 +272,23 @@ export function useStatsParams(config: StatsParamsConfig): StatsParamsApi {
     [update, metricIds],
   );
 
+  /**
+   * 검색어 커밋.
+   *
+   * [값이 그대로면 아무것도 하지 않는다 — 이 가드가 없으면 IA-13 이 조용히 깨진다]
+   * StatsFilterBar 는 검색 입력의 유무와 무관하게 늘 useDebouncedSearch 를 걸고, 그 훅은
+   * **마운트 직후에도** 한 번 커밋한다(현재 입력값 = URL 의 q). 그 커밋이 그대로 통과하면
+   * update 가 page 를 지워 `?page=3` 링크로 들어온 사용자가 250ms 뒤 1페이지로 튕긴다 —
+   * 검색창이 없는 화면까지 통계 6화면 전부가 그랬다.
+   *
+   * 검색어가 **실제로 바뀔 때만** page 를 되돌린다 (useListState commitKeyword 와 같은 규칙).
+   */
   const setKeyword = useCallback(
-    (keyword: string) => {
-      update({ q: keyword.trim() === '' ? null : keyword });
+    (next: string) => {
+      if (next === params.keyword) return;
+      update({ q: next.trim() === '' ? null : next });
     },
-    [update],
+    [update, params.keyword],
   );
 
   const setPage = useCallback(

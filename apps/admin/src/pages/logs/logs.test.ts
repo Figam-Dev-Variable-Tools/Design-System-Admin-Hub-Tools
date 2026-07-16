@@ -223,6 +223,15 @@ describe('masking — 민감한 값은 화면에 닿지 않는다', () => {
     expect(JSON.stringify(masked)).not.toContain('Str0ngPass');
   });
 
+  it('**중첩된 recipient 의 메일 주소**를 가린다 — 이 구멍이 실제로 뚫려 있었다', () => {
+    // 규칙이 자격증명만 겨냥한 동안, 발송 실패 페이로드의 수신자 주소가 원문 그대로 찍혔다.
+    // 'recipient' 에는 'mail' 이 없어 이메일 규칙에 걸리지 않았다.
+    const masked = maskPayload({ context: { recipient: 'user1099@example.com' } });
+    expect(JSON.stringify(masked)).not.toContain('user1099@example.com');
+    // 가리되 지우지 않는다 — 도메인은 남아 '어느 조직인가'라는 감사의 단서가 된다
+    expect(masked).toEqual({ context: { recipient: 'us●●●●●●@example.com' } });
+  });
+
   it('짧은 값은 뒤 4자도 남기지 않는다 (전부가 드러난다)', () => {
     expect(maskTail('1234')).toBe(REDACTED_LABEL);
   });
@@ -316,6 +325,19 @@ describe('픽스처 페이로드 — 화면에 그려지는 순간 가려진다'
     expect(shown).not.toContain('pg_live_88f21c9a77b40e13');
     // 커넥션 문자열 안에 박힌 DB 비밀번호 — 스택을 그대로 그리면 이것이 화면에 뜬다
     expect(shown).not.toContain('Str0ngPass');
+  });
+
+  it('오류 로그의 수신자 메일 주소가 사라진다 (EMAIL_BOUNCED)', () => {
+    // 픽스처가 정말 그 값을 품고 있는지 먼저 확인한다 — 아무것도 안 걸린 채로 초록불이 나면
+    // 이 테스트는 마스킹이 아니라 자기 자신을 검증한 것이 된다.
+    const withRecipient = ERROR_LOGS.filter((entry) =>
+      JSON.stringify(entry.payload).includes('user1099@example.com'),
+    );
+    expect(withRecipient.length).toBeGreaterThan(0);
+
+    for (const entry of withRecipient) {
+      expect(formatMaskedPayload(entry.payload)).not.toContain('user1099@example.com');
+    }
   });
 });
 

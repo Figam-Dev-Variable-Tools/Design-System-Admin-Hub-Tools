@@ -7,6 +7,7 @@
 // [왜 한 곳인가] 발송 규칙이 이메일/SMS 템플릿을 참조한다(규칙 화면은 템플릿명을 보여주고, 템플릿 삭제는
 // 그 템플릿을 쓰는 규칙을 깨뜨린다). 세 화면이 같은 상태를 읽으므로 픽스처와 저장소 API 를 이 잎 모듈
 // 한 곳에 모은다 (마케팅 _shared/store · 고객센터 _shared/store 와 같은 결).
+import { HTTP_STATUS, HttpError } from '../../../shared/errors/http-error';
 import { sortByTrigger, sortRules } from './notification';
 import type {
   EmailTemplate,
@@ -79,6 +80,25 @@ function createTemplateStore<T extends TemplateShape, Input>(
       items = items.map((item) => (item.id === id ? spec.patch(item, input, nowIso()) : item));
     },
     remove: (id) => {
+      /**
+       * [참조 무결성] 규칙이 쓰고 있는 템플릿은 지우지 않는다.
+       *
+       * 이 파일 머리말이 이미 그 위험을 적어 뒀다 — "템플릿 삭제는 그 템플릿을 쓰는 규칙을
+       * 깨뜨린다". 그런데 검사(rulesUsingTemplate)만 있고 부르는 곳이 없었다. 인증번호
+       * 템플릿(ntf-sms-4 · security.verification-code)을 지우면 그 규칙은 템플릿 없는 규칙이
+       * 되고 인증번호가 나가지 않는다 — **로그인이 막힌다.** 규칙 화면이 '템플릿 없음' 배지를
+       * 띄우긴 하지만 그건 다른 화면에서, 이미 망가진 뒤의 이야기다.
+       *
+       * 409 로 던진다: 이것은 '잠시 후 다시 시도'로 풀리는 실패가 아니라 **먼저 규칙을
+       * 떼어내야** 풀리는 실패다 (support/_shared/store removeCategory 선례와 같은 결).
+       */
+      const used = rulesUsingTemplate(id);
+      if (used > 0) {
+        throw new HttpError(
+          HTTP_STATUS.conflict,
+          `발송 규칙 ${String(used)}건이 이 템플릿을 쓰고 있어 삭제할 수 없습니다. 규칙에서 먼저 템플릿을 바꾸세요.`,
+        );
+      }
       items = items.filter((item) => item.id !== id);
     },
     find: (id) => items.find((item) => item.id === id),

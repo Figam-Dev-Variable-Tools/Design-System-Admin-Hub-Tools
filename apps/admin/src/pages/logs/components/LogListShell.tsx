@@ -25,7 +25,7 @@ import { isAbort } from '../../../shared/async';
 import { downloadCsv } from '../../../shared/download';
 import { formatDate, formatNumber, objectParticle } from '../../../shared/format';
 import { useRouteCan } from '../../../shared/permissions/RequirePermission';
-import { Alert, Button, hintStyle, Pagination, useToast } from '../../../shared/ui';
+import { Alert, Button, hintStyle, Pagination, rangeTextOf, useToast } from '../../../shared/ui';
 import { useDebouncedSearch } from '../../../shared/crud';
 import '../logs.css';
 import { useLogListState } from '../list-state';
@@ -240,7 +240,6 @@ export function LogListShell<E extends LogEntryBase>({
                     total={total}
                     page={state.page}
                     pageSize={state.pageSize}
-                    shown={entries.length}
                   />
                 </p>
                 {range !== null && !loading && highlight !== null && (
@@ -308,8 +307,18 @@ export function LogListShell<E extends LogEntryBase>({
  * 요약 줄 — '전체 1,234건 중 21–40' (ERP-05).
  *
  * 한국 ERP 그리드는 **지금 몇 번째를 보고 있는가**를 기대한다. 번호만 있는 페이지네이션은
- * '이 페이지가 몇 건인지'를 답하지 않는다. (DS Pagination 은 아직 범위를 그리지 않는다 —
- * 그 승격은 보고서에 남긴다. 그때까지 목록이 자기 요약을 갖는다.)
+ * '이 페이지가 몇 건인지'를 답하지 않는다.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * [산술은 DS 의 것을 쓴다 — 그리는 것만 여기서 한다]
+ *
+ * 이 자리는 범위 말고도 '조회 기간을 확인해 주세요.'·'불러오는 중…' 을 말해야 한다. DS
+ * Pagination 컴포넌트는 그 두 상태를 표현할 수 없으므로 통째로 얹지 못한다. 그렇다고 산술을
+ * 여기 한 벌 더 적으면 수식이 갈라진다 — **실제로 갈라져 있었다**: 이 사본은 clamp 가 없고
+ * `shown` 기반이라, page 가 범위를 벗어난 순간(동시 삭제 후 refetch 사이) '전체 3건 중 81–80'
+ * 같은 뒤집힌 범위를 그렸다. 그래서 계산은 DS 의 rangeTextOf 한 벌에 맡긴다 — 그쪽은 clamp 를
+ * 하고 경계 단언도 갖고 있다. (통계 표는 컴포넌트째로 얹을 수 있어 그렇게 했다.)
+ * ─────────────────────────────────────────────────────────────────────────────
  */
 function SummaryText({
   range,
@@ -317,20 +326,14 @@ function SummaryText({
   total,
   page,
   pageSize,
-  shown,
 }: {
   readonly range: DateRange | null;
   readonly loading: boolean;
   readonly total: number;
   readonly page: number;
   readonly pageSize: number;
-  readonly shown: number;
 }) {
   if (range === null) return <>조회 기간을 확인해 주세요.</>;
   if (loading && total === 0) return <>불러오는 중…</>;
-  if (total === 0) return <>전체 0건</>;
-
-  const first = (page - 1) * pageSize + 1;
-  const last = first + shown - 1;
-  return <>{`전체 ${formatNumber(total)}건 중 ${formatNumber(first)}–${formatNumber(last)}`}</>;
+  return <>{rangeTextOf(total, page, pageSize)}</>;
 }

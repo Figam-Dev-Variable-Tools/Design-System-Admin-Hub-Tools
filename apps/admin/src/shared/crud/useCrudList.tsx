@@ -7,6 +7,7 @@ import { useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { isAbort } from '../async';
+import { isConflict } from '../errors/http-error';
 import { formatNumber, objectParticle } from '../format';
 import { ConfirmDialog, useRowSelection, useToast } from '../ui';
 import { useCrudBulkDelete, useCrudDelete, useCrudListQuery } from './crud';
@@ -47,6 +48,23 @@ interface CrudListController<T extends { id: string }> {
   readonly requestBulkDelete: () => void;
   /** 단건/일괄 삭제 확인 다이얼로그 — 화면 어딘가에 그대로 렌더한다 */
   readonly dialogs: ReactNode;
+}
+
+/**
+ * 삭제 실패를 사람에게 옮긴다.
+ *
+ * [왜 409 만 다른가] 예전에는 무엇이 실패하든 '잠시 후 다시 시도해 주세요' 한 줄이었다. 그런데
+ * 409 는 **재시도하면 또 409 인** 실패다 — 참조가 남아 있어서(규칙이 쓰는 템플릿) 혹은 이미
+ * 남이 지워서 막힌 것이라, 시간이 푸는 문제가 아니다. 잘못된 복구 수단을 권하는 셈이고, 그건
+ * http-error.ts 머리말이 이 오류 타입을 만든 이유 그 자체다. 409 는 어댑터가 왜 막혔는지 이미
+ * 문장으로 들고 온다 — 그 문장을 그대로 보여 준다.
+ *
+ * 나머지(500·네트워크 등)는 실제로 시간이 풀 수 있으니 재시도를 권한다. 서버 원문을 그대로
+ * 노출하지 않는 것도 그대로 지킨다 (EXC-20).
+ */
+function deleteErrorMessage(cause: unknown): string {
+  if (isConflict(cause) && cause instanceof Error && cause.message !== '') return cause.message;
+  return '삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.';
 }
 
 export function useCrudList<T extends { id: string }, Input>({
@@ -109,7 +127,7 @@ export function useCrudList<T extends { id: string }, Input>({
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setDeleteError('삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setDeleteError(deleteErrorMessage(cause));
         },
       },
     );

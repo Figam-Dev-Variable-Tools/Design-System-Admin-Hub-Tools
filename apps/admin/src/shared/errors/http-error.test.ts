@@ -2,7 +2,7 @@
 //
 // 이 타입이 지키는 것은 하나다: **status 로 분기할 수 있어야 한다.** 예전처럼 모든 실패가 generic
 // Error 로 붕괴하면 409(충돌)와 500(장애)이 같은 배너를 받는다.
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
   createErrorReference,
@@ -88,7 +88,35 @@ describe('오류 참조 코드 (EXC-20)', () => {
   });
 
   it('발급된 코드는 서로 다르다 — 같은 코드는 로그 대조를 무의미하게 만든다', () => {
-    const codes = new Set(Array.from({ length: 50 }, () => createErrorReference()));
-    expect(codes.size).toBe(50);
+    // [확률에 기대지 않는다] 예전 구현은 같은 밀리초 안에서 36^3 공간을 추첨해, 50개를 뽑으면
+    // 2.6% 확률로 겹쳤다 — 이 테스트가 40번에 한 번 붉어졌다. 이제 같은 세션의 코드는 일련번호가
+    // 다르므로 겹칠 수 **없다**. 개수를 크게 잡아도 여전히 결정적이다.
+    const codes = new Set(Array.from({ length: 5_000 }, () => createErrorReference()));
+    expect(codes.size).toBe(5_000);
+  });
+
+  it('같은 밀리초에 몰아서 발급해도 겹치지 않는다 — 실패는 한꺼번에 터진다', () => {
+    // 장애는 한가롭게 오지 않는다 — 한 밀리초 안에 여러 요청이 함께 무너진다. 그 조건을
+    // **시계를 멈춰서** 만든다. 'Date.now() 가 안 변했겠지' 하고 재는 것은 그 자체가 타이밍에
+    // 기대는 일이라 간헐적으로 깨진다(실제로 깨졌다) — 시각이 상수면 남는 것은 구현뿐이다.
+    const frozen = vi.spyOn(Date, 'now').mockReturnValue(1_784_000_000_000);
+    try {
+      const codes = new Set(Array.from({ length: 200 }, () => createErrorReference()));
+      expect(codes.size).toBe(200);
+    } finally {
+      frozen.mockRestore();
+    }
+  });
+
+  it('시각을 품어 로그 라인과 대조할 수 있다', () => {
+    // 시계를 멈추고 잰다 — 안 그러면 stamp 를 읽은 뒤 코드를 만드는 사이에 밀리초가 넘어가
+    // 간헐적으로 깨진다(위 테스트가 정확히 그렇게 깨졌다).
+    const frozen = vi.spyOn(Date, 'now').mockReturnValue(1_784_000_000_000);
+    try {
+      const stamp = (1_784_000_000_000).toString(36).toUpperCase();
+      expect(createErrorReference().startsWith(`TDS-${stamp}-`)).toBe(true);
+    } finally {
+      frozen.mockRestore();
+    }
   });
 });

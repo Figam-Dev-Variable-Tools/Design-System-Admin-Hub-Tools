@@ -63,7 +63,14 @@ const KEY_RULES: readonly KeyRule[] = [
     pattern: /^card$|card[-_]?(no|number)|cvc|cvv|ssn|resident|jumin|주민|계좌|account[-_]?no/i,
     kind: 'tail',
   },
-  { pattern: /e[-_]?mail|이메일/i, kind: 'email' },
+  //
+  // [`recipient` 가 있는 이유 — `^card$` 와 같은 종류의 구멍]
+  // 규칙이 자격증명만 겨냥한 동안, 발송 실패 오류의 페이로드
+  // (`{ context: { recipient: 'user1099@example.com' } }` — errors/fixtures 의 EMAIL_BOUNCED)는
+  // 수신자 메일 주소를 **원문 그대로** 화면에 찍었다. 'recipient' 에는 'mail' 이 없어 아래 규칙에
+  // 걸리지 않는다. 마스킹은 키 이름으로만 판단하므로(walk 는 값의 생김새를 보지 않는다), 이메일을
+  // 담은 키는 이름마다 여기 적어 줘야 한다.
+  { pattern: /e[-_]?mail|이메일|recipient|수신자/i, kind: 'email' },
   { pattern: /phone|mobile|tel(ephone)?|휴대|전화/i, kind: 'phone' },
 ];
 

@@ -80,6 +80,20 @@ export default function ApiKeysPage() {
 
   const createControllerRef = useRef<AbortController | null>(null);
   const revokeControllerRef = useRef<AbortController | null>(null);
+
+  /**
+   * 진행 중인 발급의 멱등키 — 재시도가 같은 발급임을 서버에 알린다 (EXC-08).
+   *
+   * [createLock 으로는 부족하다] 그 잠금은 **동시** 이중 클릭만 막는다. 서버가 키를 만든 뒤
+   * 응답이 유실되면(타임아웃·네트워크 끊김) 화면은 실패로 보고, 모달은 열린 채 남고
+   * (아래 onError 의 'FEEDBACK-01 — 재클릭이 곧 재시도다'), 운영자는 '발급'을 다시 누른다.
+   * 그 순간 **두 번째 키가 만들어진다** — 게다가 첫 키의 평문은 영영 사라졌으니, 아무도 쓸 수
+   * 없고 누구 것인지도 모르는 활성 키가 목록에 남는다(유령 키).
+   *
+   * 성공해야 키를 버린다 — 실패에는 남겨 둬야 재클릭이 같은 발급으로 이어진다
+   * (members/components/PointsCard 의 idempotencyKeyRef 와 같은 규율).
+   */
+  const idempotencyKeyRef = useRef<string | null>(null);
   useEffect(
     () => () => {
       createControllerRef.current?.abort();
@@ -104,11 +118,16 @@ export default function ApiKeysPage() {
       const controller = new AbortController();
       createControllerRef.current = controller;
 
+      // 실패로 남은 키가 있으면 그것을 다시 쓴다 — 이 재클릭은 새 발급이 아니라 같은 발급이다
+      const idempotencyKey = idempotencyKeyRef.current ?? crypto.randomUUID();
+      idempotencyKeyRef.current = idempotencyKey;
+
       create.mutate(
-        { draft, signal: controller.signal },
+        { draft, idempotencyKey, signal: controller.signal },
         {
           onSuccess: (result) => {
             createLock.release();
+            idempotencyKeyRef.current = null; // 이 발급은 끝났다 — 다음 발급은 새 거래다
             if (controller.signal.aborted) return;
             // 폼 모달을 닫고 노출 모달을 연다 — 평문은 여기서만 산다
             setCreating(false);
@@ -117,6 +136,7 @@ export default function ApiKeysPage() {
           },
           onError: (cause: unknown) => {
             createLock.release();
+            // 키는 남겨 둔다 — 재시도가 같은 발급임을 서버가 알아야 유령 키가 생기지 않는다
             if (isAbort(cause) || controller.signal.aborted) return; // [EXC-09]
             // 모달을 닫지 않는다 — 입력을 지키고, 재클릭이 곧 재시도다 (FEEDBACK-01)
             setCreateError('키를 발급하지 못했습니다. 잠시 후 다시 시도해 주세요.');
@@ -132,6 +152,8 @@ export default function ApiKeysPage() {
     createControllerRef.current = null;
     create.reset();
     createLock.release();
+    // 모달을 접으면 그 발급 시도는 끝난다 — 다음에 여는 것은 다른 거래다
+    idempotencyKeyRef.current = null;
     setCreateError(null);
     setCreating(false);
   }, [create, createLock]);

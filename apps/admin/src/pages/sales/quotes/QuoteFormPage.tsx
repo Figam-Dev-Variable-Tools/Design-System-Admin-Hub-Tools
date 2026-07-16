@@ -28,7 +28,7 @@ import {
 import { FormConflictDialog, FormServerError, useCrudForm } from '../../../shared/crud';
 import { formatBizNo } from '../_shared/business';
 import { quoteAdapter } from './data-source';
-import { quoteSchema } from './validation';
+import { EMPTY_QUOTE_FORM, quoteSchema } from './validation';
 import type { QuoteFormValues } from './validation';
 import { QuoteLineItemsTable } from './components/QuoteLineItemsTable';
 import { QuotePreview } from './components/QuotePreview';
@@ -118,23 +118,6 @@ const systemValueStyle: CSSProperties = {
   cursor: 'default',
 };
 
-const EMPTY: QuoteFormValues = {
-  quoteNo: '',
-  accountName: '',
-  accountBizNo: '',
-  accountCeo: '',
-  contactName: '',
-  issueDate: '',
-  validUntil: '',
-  taxMode: 'standard',
-  items: [],
-  status: 'draft',
-  note: '',
-  inquiryId: '',
-  inquiryNo: '',
-  inquiryBody: '',
-};
-
 function toInput(values: QuoteFormValues): QuoteInput {
   return {
     quoteNo: values.quoteNo.trim(),
@@ -197,7 +180,7 @@ export default function QuoteFormPage() {
     entityLabel: ENTITY_LABEL,
     listPath: LIST_PATH,
     schema: quoteSchema,
-    empty: EMPTY,
+    empty: EMPTY_QUOTE_FORM,
     toInput,
     toValues,
   });

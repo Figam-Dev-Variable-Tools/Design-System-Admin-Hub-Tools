@@ -15,10 +15,42 @@ import { formatDate } from './format';
 /** CSV 선두의 UTF-8 BOM — 없으면 Excel 이 한글을 깨뜨린다 */
 const BOM = String.fromCodePoint(0xfeff);
 
-/** 구분자·따옴표·줄바꿈을 품은 셀은 큰따옴표로 감싸고 내부 따옴표는 이중화한다 (RFC 4180) */
+/**
+ * 엑셀이 **수식으로 해석하는** 선두 문자. RFC 4180 의 따옴표 감싸기는 이것을 막지 못한다 —
+ * 큰따옴표는 CSV 파서를 위한 것이고, 셀 값이 정해진 뒤 수식 판정은 그 다음에 일어난다.
+ */
+const FORMULA_LEAD = /^[=+\-@\t\r]/;
+
+/**
+ * 부호·천단위 구분·소수까지 포함한 **순수한 수**. 엑셀은 이런 값을 수식이 아니라 수로 읽으므로
+ * 무력화할 필요가 없다 — 오히려 무력화하면 숫자 열이 텍스트가 되어 집계가 깨진다.
+ * ('+5,000' · '-1,000' = formatSignedNumber(순증감) · '-5.2' = formatPercentValue)
+ */
+const PLAIN_NUMBER = /^[+-]?[\d,]*\.?\d+$/;
+
+/**
+ * CSV 수식 주입 방어 — 선두의 `=`/`+`/`-`/`@`/탭/CR 을 작은따옴표로 무력화한다.
+ *
+ * [왜 필요한가] 셀에는 **우리가 만들지 않은 문자열**이 들어간다(검색 키워드·닉네임·그룹 등
+ * 제3자 입력). `=cmd|'/C calc'!A0` 같은 값이 그대로 실리면, 운영자가 CSV 를 엑셀로 여는 순간
+ * 그 셀은 데이터가 아니라 **명령**이 된다. 내보내기는 읽기 동작이어야 한다.
+ *
+ * 순수한 수는 예외다(PLAIN_NUMBER) — 수식이 될 수 없고, 가리면 분석이 깨진다.
+ */
+function neutralizeFormula(value: string): string {
+  if (!FORMULA_LEAD.test(value)) return value;
+  if (PLAIN_NUMBER.test(value)) return value;
+  return `'${value}`;
+}
+
+/**
+ * 구분자·따옴표·줄바꿈을 품은 셀은 큰따옴표로 감싸고 내부 따옴표는 이중화한다 (RFC 4180).
+ * 수식 무력화가 **먼저**다 — 붙인 작은따옴표까지 따옴표 안에 들어가야 한다.
+ */
 function escapeCell(value: string): string {
-  if (!/["\r\n,]/.test(value)) return value;
-  return `"${value.replace(/"/g, '""')}"`;
+  const safe = neutralizeFormula(value);
+  if (!/["\r\n,]/.test(safe)) return safe;
+  return `"${safe.replace(/"/g, '""')}"`;
 }
 
 /**
