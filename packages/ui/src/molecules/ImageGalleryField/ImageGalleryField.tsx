@@ -3,6 +3,10 @@
 // 계약 dependencies: [] — ImageUploadField 와 검증(imageFileError)을 공유하고, FormField 의 id 헬퍼를 재사용한다.
 // 드래그드롭·object URL·검증·개수 상한을 손코딩으로 유지한다(react-dropzone 기각). 아이콘은 인라인 글리프.
 // 시각 값은 전부 semantic 토큰 CSS 변수 — 하드코딩 hex/px 0건. 드롭존 hover 는 CSS :hover 가 담당한다.
+//
+// [이 필드도 **업로드하지 않는다**] TODO(backend): POST /api/uploads — 파일을 보내고 응답 URL을
+// onChange 로 넘겨야 한다. 지금 나가는 값은 object URL(미리보기 핸들)이고 언마운트 시 revoke 된다.
+// 그대로 저장하면 폼을 떠나는 순간 깨진다. 전체 배경과 근거는 ImageUploadField 헤더에 적었다.
 import { useEffect, useId, useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent, SVGProps } from 'react';
 

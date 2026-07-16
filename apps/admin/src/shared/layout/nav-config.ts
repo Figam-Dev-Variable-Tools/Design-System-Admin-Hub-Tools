@@ -247,18 +247,53 @@ export function collectNavRoutes(): readonly NavLeaf[] {
 }
 
 /**
- * 현재 경로의 한국어 화면 명칭 — 헤더 제목에 쓴다.
- * 잎에서 정확히 못 찾으면 가지 라벨로 대체하고, 그것도 없으면 경로를 그대로 돌려준다.
+ * `to` 가 pathname 을 **세그먼트 경계에서** 감싸는가.
+ *
+ * 단순 startsWith 는 '/products' 가 '/products-archive' 를 삼킨다 — 남남인 두 화면이 같은 이름을
+ * 갖게 된다. 그래서 정확히 같거나, 뒤에 '/' 가 오는 경우만 인정한다.
+ */
+function covers(to: string, pathname: string): boolean {
+  return pathname === to || pathname.startsWith(`${to}/`);
+}
+
+/**
+ * 이 경로를 지배하는 **가장 구체적인 잎** — 어떤 잎에도 속하지 않으면 null.
+ *
+ * 라우트는 잎보다 많다: '/company/history' 는 잎이지만 '/company/history/new' 와
+ * '/company/history/12/edit' 는 잎이 아니다(사이드바에 없다). 그 서브라우트들이 '자기가 누구인지'
+ * 물으면 답할 자리가 여기다. 규칙은 하나다 — **자기를 감싸는 가장 긴 잎이 곧 자기다.**
+ *
+ * 이 규칙은 권한(permissions/route-resource.ts)이 이미 쓰고 있었다. 화면 제목이 같은 질문에
+ * 다른 규칙으로 답하고 있었기에 둘의 답이 갈렸다(아래 findNavLabel 참조) — 이제 한 곳이 답한다.
+ */
+export function findCoveringLeaf(pathname: string): NavLeaf | null {
+  let best: NavLeaf | null = null;
+
+  for (const leaf of collectNavRoutes()) {
+    if (!covers(leaf.to, pathname)) continue;
+    // 더 긴 잎이 더 구체적이다 — '/products/categories' 가 '/products' 를 이긴다
+    if (best === null || leaf.to.length > best.to.length) best = leaf;
+  }
+
+  return best;
+}
+
+/**
+ * 현재 경로의 한국어 화면 명칭 — 앱에서 가장 많이 보이는 `<h1>` 이자 라우트 이동 시
+ * 스크린리더가 읽는 이름이다 (AppHeader · RouteFocusAnnouncer).
+ *
+ * [IA-02 — 서브라우트 제목이 전부 틀렸던 이유]
+ * 예전에는 **정확히 일치하는 잎**만 찾고, 못 찾으면 **가지 라벨**로 떨어뜨렸다. 그래서 잎이 아닌
+ * 라우트 — 즉 모든 `/new` 와 `/:id/edit` 화면 — 이 자기 이름 대신 섹션 이름을 달았다:
+ *   '/company/history/new'  → '기업 관리'   (기대: '연혁')
+ *   '/products/9/edit'      → '상품 관리'   (기대: '상품 관리 > 상품' 의 '상품')
+ * 26개 화면 대부분이 해당됐다. h1 이 틀리면 스크린리더 사용자는 **어느 폼에 들어왔는지 모른다** —
+ * 모든 등록/수정 화면이 같은 이름으로 announce 됐다.
+ *
+ * 이제 '자기를 감싸는 가장 구체적인 잎' 을 쓴다(findCoveringLeaf). 등록/수정 같은 **행위**는
+ * 제목에 넣지 않는다: 그 문구는 nav 에 없고, 여기서 지어내면 레이아웃이 카피를 발명하게 된다.
+ * 화면이 등록인지 수정인지는 폼 자신이 말한다(FormPageShell 의 cardTitle · 제출 버튼).
  */
 export function findNavLabel(pathname: string): string {
-  const exact = collectNavRoutes().find((leaf) => leaf.to === pathname);
-  if (exact !== undefined) return exact.label;
-
-  for (const section of NAV_SECTIONS) {
-    for (const entry of section.entries) {
-      const item = entry.item;
-      if (item.kind === 'branch' && pathname.startsWith(item.basePath)) return item.label;
-    }
-  }
-  return pathname;
+  return findCoveringLeaf(pathname)?.label ?? pathname;
 }

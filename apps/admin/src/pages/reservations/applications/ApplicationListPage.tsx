@@ -94,12 +94,20 @@ export default function ApplicationListPage() {
   const [filter, setFilter] = useState<ApplicationStatusFilter>(APPLICATION_FILTER_ALL);
   const [keyword, setKeyword] = useState('');
 
-  const {
-    data,
-    isFetching: loading,
-    error,
-    refetch,
-  } = useCrudListQuery(RESOURCE, applicationAdapter);
+  const { data, isFetching, error, refetch } = useCrudListQuery(RESOURCE, applicationAdapter);
+
+  /**
+   * [STATE-01] 스켈레톤은 **최초 로드에만** 뜬다.
+   *
+   * 예전엔 `isFetching` 을 그대로 `loading` 이라 불러 표에 넘겼다. 그래서 invalidate 가 걸릴
+   * 때마다 **이미 채워져 있던 행이 스켈레톤으로 지워졌다** — 표를 훑던 운영자 밑에서 데이터가
+   * 사라진다. 'refetch 중에는 이전 행을 유지한다' 가 react-query 를 쓰는 이유 그 자체인데
+   * (ADR-0008 §3.2) 화면이 그 이득을 스스로 버리고 있었다.
+   * (정의는 공유 useCrudList 와 글자까지 같다 — 이 화면은 그 훅을 쓰지 않아 규칙만 같이 둔다.)
+   */
+  const firstLoading = isFetching && data === undefined;
+  /** 데이터가 있는 채로 백그라운드 재조회 중 — 가벼운 인디케이터용, 표를 비우지 않는다 (STATE-03) */
+  const refreshing = isFetching && data !== undefined;
 
   const visible = useMemo(
     () => searchApplications(filterApplications(data ?? [], filter), keyword),
@@ -153,9 +161,12 @@ export default function ApplicationListPage() {
         </span>
       </div>
 
-      <p style={hintStyle}>{loading ? '불러오는 중…' : `전체 ${formatNumber(visible.length)}건`}</p>
+      <p style={hintStyle} aria-busy={refreshing}>
+        {firstLoading ? '불러오는 중…' : `전체 ${formatNumber(visible.length)}건`}
+        {refreshing && ' · 새로고침 중…'}
+      </p>
 
-      <table style={tableStyle} aria-busy={loading}>
+      <table style={tableStyle} aria-busy={firstLoading}>
         <caption style={visuallyHiddenStyle}>
           신청서 목록 — 각 행에서 상세로 이동해 신청 내용을 확인하고 상태를 처리할 수 있습니다.
         </caption>
@@ -183,7 +194,7 @@ export default function ApplicationListPage() {
           </tr>
         </thead>
         <tbody>
-          {loading ? (
+          {firstLoading ? (
             Array.from({ length: 5 }, (_, index) => (
               <tr key={`skeleton-${String(index)}`}>
                 {Array.from({ length: COLUMN_COUNT + 1 }, (_, cell) => (

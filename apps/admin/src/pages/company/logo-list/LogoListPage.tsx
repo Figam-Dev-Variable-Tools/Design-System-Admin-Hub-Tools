@@ -100,8 +100,20 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
   const setActiveLogo = useSetLogoActive(resource, adapter);
   const [togglingIds, setTogglingIds] = useState<ReadonlySet<string>>(new Set());
 
-  const { data, isFetching: loading, error, refetch } = useLogosQuery(resource, adapter);
+  const { data, isFetching, error, refetch } = useLogosQuery(resource, adapter);
   const all = useMemo(() => data ?? [], [data]);
+
+  /**
+   * [STATE-01] 스켈레톤은 **최초 로드에만** 뜬다.
+   *
+   * 예전엔 `isFetching` 을 그대로 `loading` 이라 불러 표에 넘겼다. 이 화면은 노출 토글과 순서
+   * 이동이 일상이고 둘 다 invalidate 를 건다 — 그때마다 **이미 채워져 있던 행이 스켈레톤으로
+   * 지워졌다.** 로고를 한 칸 내리려던 운영자 밑에서 표가 통째로 사라진다.
+   * (정의는 공유 useCrudList 와 글자까지 같다 — 이 화면은 순서 이동 때문에 그 훅을 쓰지 않는다.)
+   */
+  const firstLoading = isFetching && data === undefined;
+  /** 데이터가 있는 채로 백그라운드 재조회 중 — 가벼운 인디케이터용, 표를 비우지 않는다 (STATE-03) */
+  const refreshing = isFetching && data !== undefined;
 
   useEffect(() => {
     const timer = setTimeout(() => setKeyword(keywordInput), SEARCH_DEBOUNCE_MS);
@@ -263,9 +275,10 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
       {error === null ? (
         <>
           <div style={summaryRowStyle}>
-            <p style={hintStyle}>
-              {loading ? '불러오는 중…' : `전체 ${formatNumber(total)}건`}
+            <p style={hintStyle} aria-busy={refreshing}>
+              {firstLoading ? '불러오는 중…' : `전체 ${formatNumber(total)}건`}
               {selectedCount > 0 && ` · ${formatNumber(selectedCount)}건 선택됨`}
+              {refreshing && ' · 새로고침 중…'}
             </p>
           </div>
 
@@ -277,7 +290,7 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
 
           <LogoListTable
             items={visible}
-            loading={loading}
+            loading={firstLoading}
             entityLabel={entityLabel}
             onEdit={(item) => setModal({ kind: 'edit', item })}
             onDelete={openDelete}
