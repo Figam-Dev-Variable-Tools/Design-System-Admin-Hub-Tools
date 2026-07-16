@@ -93,7 +93,7 @@ function readAxes(
 
 /* ── 상태 ────────────────────────────────────────────────────────────────── */
 
-export interface LogListState {
+interface LogListState {
   readonly period: PeriodId;
   readonly draft: CustomRangeDraft;
   readonly keyword: string;
@@ -103,7 +103,7 @@ export interface LogListState {
   readonly axes: Readonly<Record<string, string>>;
 }
 
-export interface LogListStateApi {
+interface LogListStateApi {
   readonly state: LogListState;
   readonly setPeriod: (period: PeriodId) => void;
   readonly setDraft: (draft: CustomRangeDraft) => void;

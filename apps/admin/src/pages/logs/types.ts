@@ -40,7 +40,7 @@ export type LogTone = 'neutral' | 'danger' | 'warning';
 /* ── 좌측 필터 축 ────────────────────────────────────────────────────────── */
 
 /** 필터 한 칸 — id 는 URL 쿼리에 그대로 실린다 (IA-13) */
-export interface LogFilterOption {
+interface LogFilterOption {
   readonly id: string;
   readonly label: string;
 }
@@ -103,7 +103,7 @@ export function isPeriodId(value: string): value is PeriodId {
 
 /* ── 정렬 (ERP-04) ───────────────────────────────────────────────────────── */
 
-export type SortDirection = 'asc' | 'desc';
+type SortDirection = 'asc' | 'desc';
 
 export interface SortState {
   /** 정렬 기준 컬럼의 id */
@@ -152,7 +152,7 @@ export interface LogColumn<E extends LogEntryBase> {
 
 /* ── 상세 (페이로드 뷰) ──────────────────────────────────────────────────── */
 
-export interface LogDetailField {
+interface LogDetailField {
   readonly label: string;
   readonly value: ReactNode;
 }
@@ -187,9 +187,12 @@ export type PageSize = (typeof PAGE_SIZE_OPTIONS)[number];
 
 export const DEFAULT_PAGE_SIZE: PageSize = 20;
 
-/** 렌더 캡 — PAGE_SIZE_OPTIONS 의 최대치와 같아야 한다 (ERP-15) */
-export const MAX_PAGE_SIZE: PageSize = 100;
-
+/**
+ * URL 의 size 값이 우리가 허용한 크기인가.
+ *
+ * **이 함수가 곧 렌더 캡이다** (ERP-15). 주소창에 `?size=5000` 을 쳐도 목록은 20줄로 떨어진다 —
+ * 캡을 별도 상수로 두면 목록과 상수가 따로 놀 수 있지만, 허용 목록 자체가 판정이면 어긋날 수 없다.
+ */
 export function isPageSize(value: number): value is PageSize {
   return PAGE_SIZE_OPTIONS.some((size) => size === value);
 }

@@ -15,7 +15,7 @@ import { ALL_FILTER } from '../types';
 
 export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
-export const HTTP_METHODS: readonly HttpMethod[] = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'];
+const HTTP_METHODS: readonly HttpMethod[] = ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'];
 
 /* ── 상태 코드 계열 ──────────────────────────────────────────────────────── */
 
@@ -23,9 +23,9 @@ export const HTTP_METHODS: readonly HttpMethod[] = ['GET', 'POST', 'PATCH', 'PUT
  * 상태 코드를 **낱개가 아니라 계열로** 나눈다.
  * 운영자가 묻는 것은 '404 가 몇 건인가'가 아니라 '깨진 게 있나(5xx)' · '누가 잘못 부르나(4xx)' 다.
  */
-export type StatusClass = '2xx' | '4xx' | '5xx';
+type StatusClass = '2xx' | '4xx' | '5xx';
 
-export const STATUS_CLASS_LABEL: Record<StatusClass, string> = {
+const STATUS_CLASS_LABEL: Record<StatusClass, string> = {
   '2xx': '성공 (2xx)',
   '4xx': '요청 오류 (4xx)',
   '5xx': '서버 오류 (5xx)',

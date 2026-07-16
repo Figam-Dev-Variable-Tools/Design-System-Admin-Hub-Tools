@@ -61,7 +61,7 @@ export interface ErrorLogEntry extends LogEntryBase {
 /* ── 좌측 필터 축 ────────────────────────────────────────────────────────── */
 
 /** 발생 위치 — 픽스처가 쓰는 목록과 같아야 한다 (축의 값은 fixtures 의 source 와 1:1) */
-export const ERROR_SOURCES = [
+const ERROR_SOURCES = [
   '결제 서비스',
   '주문 API',
   '알림 발송',

@@ -28,7 +28,7 @@ import type {
  * `valueOf` 는 그 항목이 **어느 칸에 속하는가**(optionId)를 돌려준다 — 판정과 집계가 한 함수에서 나온다.
  * (예: API 로그의 '상태' 축은 statusCode 200 → '2xx' 를 돌려준다.)
  */
-export interface AxisMatcher<E extends LogEntryBase> {
+interface AxisMatcher<E extends LogEntryBase> {
   readonly key: string;
   readonly valueOf: (entry: E) => string;
 }

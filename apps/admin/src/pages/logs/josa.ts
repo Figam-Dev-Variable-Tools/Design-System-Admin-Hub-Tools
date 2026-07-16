@@ -37,7 +37,7 @@ export function hasBatchim(word: string): boolean {
 }
 
 /** 목적격 — '로그를 불러오지 못했습니다' / '기록을 …' */
-export function objectParticle(word: string): string {
+function objectParticle(word: string): string {
   return hasBatchim(word) ? '을' : '를';
 }
 

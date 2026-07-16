@@ -35,11 +35,6 @@ const stackStyle: CSSProperties = {
   minWidth: 0,
 };
 
-/** 값이 없는 칸 — 지어내지 않고 '—' 로 비워 둔다 */
-export function EmDash() {
-  return <span style={mutedTextStyle}>—</span>;
-}
-
 interface OutcomeCellProps {
   readonly failed: boolean;
   readonly successLabel: string;
