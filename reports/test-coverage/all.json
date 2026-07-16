@@ -39,7 +39,7 @@
       "covered": 67,
       "total": 67,
       "gaps": 0,
-      "scanned": "계약 21종 · states 총 67칸 (직전 54칸)",
+      "scanned": "계약 21종 · states 총 67칸 (직전 67칸)",
       "status": "PASS",
       "gates": [
         "G5",
@@ -55,7 +55,7 @@
       "covered": 13,
       "total": 13,
       "gaps": 0,
-      "scanned": "계약 21종 · blockedWhen 총 13칸 (직전 10칸)",
+      "scanned": "계약 21종 · blockedWhen 총 13칸 (직전 13칸)",
       "status": "PASS",
       "gates": [
         "G5",
