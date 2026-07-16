@@ -1,0 +1,39 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/RowActions.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "RowActions",
+  "component": "RowActions",
+  "version": "1.0.0",
+  "variantProperties": {
+    "Disabled": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  },
+  "properties": [
+    {
+      "name": "Label",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Disabled",
+      "type": "BOOLEAN",
+      "default": false
+    }
+  ],
+  "tokens": {
+    "icon": "color.text.muted",
+    "iconDisabled": "color.text.disabled",
+    "hoverBackground": "color.surface.raised",
+    "hoverText": "color.text.default",
+    "dangerIcon": "color.feedback.danger.text",
+    "padding": "space.1",
+    "gap": "space.1",
+    "radius": "radius.md",
+    "focusRing": "color.border.focus",
+    "borderWidth": "border-width.thin"
+  }
+}

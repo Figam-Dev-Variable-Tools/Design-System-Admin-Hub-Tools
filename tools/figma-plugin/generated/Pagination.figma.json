@@ -1,0 +1,29 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/Pagination.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "Pagination",
+  "component": "Pagination",
+  "version": "1.0.0",
+  "variantProperties": {},
+  "properties": [
+    {
+      "name": "Label",
+      "type": "TEXT",
+      "default": "회원 목록 페이지"
+    }
+  ],
+  "tokens": {
+    "activeBackground": "color.action.primary.default",
+    "activeBorder": "color.action.primary.default",
+    "activeText": "color.text.on-primary",
+    "text": "color.text.default",
+    "textDisabled": "color.text.disabled",
+    "hoverBackground": "color.surface.raised",
+    "radius": "radius.md",
+    "size": "space.6",
+    "paddingX": "space.2",
+    "gap": "space.1",
+    "typography": "typography.label.md",
+    "focusRing": "color.border.focus",
+    "borderWidth": "border-width.thin"
+  }
+}

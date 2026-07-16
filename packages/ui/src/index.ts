@@ -39,10 +39,39 @@ export { LineAreaChart } from './molecules/LineAreaChart';
 export type { LineAreaChartProps, LineAreaChartState } from './molecules/LineAreaChart';
 export { ListRow } from './molecules/ListRow';
 export type { ListRowProps, ListRowState } from './molecules/ListRow';
+export { Pagination } from './molecules/Pagination';
+export type { PaginationProps, PaginationState } from './molecules/Pagination';
 export { PasswordField } from './molecules/PasswordField';
 export type { PasswordFieldProps, PasswordFieldState } from './molecules/PasswordField';
+export { RowActions } from './molecules/RowActions';
+export type { RowActionsProps, RowActionsState } from './molecules/RowActions';
 export { SearchField } from './molecules/SearchField';
 export type { SearchFieldProps, SearchFieldState } from './molecules/SearchField';
+export { SelectionBar } from './molecules/SelectionBar';
+export type { SelectionBarProps, SelectionBarState } from './molecules/SelectionBar';
+// TableSelection 묶음 — 계약 대상(RowSelectCell·SelectAllHeaderCell) + 함께 이동하는 표 조각/유틸
+export {
+  RowSelectCell,
+  SelectAllHeaderCell,
+  SeqCell,
+  SeqHeaderCell,
+  tableSelectionState,
+} from './molecules/TableSelection';
+export type {
+  RowSelectCellProps,
+  RowSelectCellState,
+  SelectAllHeaderCellProps,
+  SelectAllHeaderCellState,
+  TableSelectionState,
+} from './molecules/TableSelection';
+// TableReorder 묶음 — 계약 비대상 순수 훅/유틸 + 표 조각
+export {
+  moveArrayItem,
+  ReorderGripCell,
+  ReorderGripHeaderCell,
+  ReorderMoveButtons,
+  useReorderableRows,
+} from './molecules/TableReorder';
 export { SegmentedControl } from './molecules/SegmentedControl';
 export type {
   SegmentedControlProps,

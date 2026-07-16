@@ -1,19 +1,22 @@
-// 표 행 드래그 재정렬 (A41 소유 — apps/admin/src/shared/ui/**)
+// TableReorder — 표 행 드래그 재정렬 (molecule 묶음 · 계약 비대상 · 순수 훅/유틸 + 표 조각)
 //
-// [왜 공통인가] FAQ 목록이 '행을 드래그해 정렬 순서를 바꾼다'를 처음 구현했고(오너 피드백 ③),
-// 배너 목록이 같은 상호작용을 갖게 되며 **소비자가 둘**이 됐다. moveArrayItem · 드래그 핸들러 ·
-// grip/화살표 아이콘 · 이동 버튼이 두 페이지에 복사되면 히트 영역·색·순서 계산이 어긋난다
-// (shared/ui/README 규칙 1: 2곳 이상이 쓰면 공통 모듈). 그래서 여기로 승격한다.
+// FAQ·배너 목록이 '행을 드래그해 정렬 순서를 바꾼다'를 공유한다. moveArrayItem(순수 연산) · 드래그 상태 훅
+// (useReorderableRows) · grip/이동 버튼이 두 페이지에 복사되면 히트 영역·색·순서 계산이 어긋난다. 한 벌로 올린다.
+// 도메인을 모른다 — id 목록과 onReorder 콜백, 각 행의 접근성 라벨만 받는다.
 //
-// [도메인을 모른다] 무엇을 재정렬하는지 알지 못한다 — id 목록과 onReorder 콜백, 그리고 각 행의
-// 접근성 라벨 문구만 받는다. FAQ 인지 배너인지 알지 못한다.
+// [계약을 두지 않은 이유] 이 묶음의 실제 API 는 순수 훅 useReorderableRows(및 그 원자 연산 moveArrayItem)다 —
+// 훅/유틸은 계약 대상이 아니라 함께 이동하는 유틸이다(TriStateCheckbox 의 triStateProps 선례). 남는 표시 조각
+// (ReorderGripCell·ReorderGripHeaderCell·ReorderMoveButtons)은 이 훅의 표시 글루다. ReorderMoveButtons 의
+// onMove 는 (index, delta) 2-인자로, 계약 events 의 단일 payload 시그니처로 정확히 표현되지 않는다 —
+// 무리한 계약 대신 훅과 함께 이동하고 테스트로 동작을 고정한다.
 //
 // [마우스 + 키보드] 드래그는 마우스 전용이라, 각 행에 위/아래 이동 버튼(↑↓)을 함께 제공한다.
 // 드래그와 버튼 둘 다 결국 moveArrayItem 으로 귀결된다(같은 순수 연산).
+// 시각 값은 전부 semantic 토큰 CSS 변수 — 하드코딩 hex/px 0건.
 import { useState } from 'react';
 import type { CSSProperties, DragEvent } from 'react';
 
-import { buttonStyle, tdStyle, thStyle, visuallyHiddenStyle } from './styles';
+import './TableReorder.css';
 
 /**
  * 배열에서 한 항목을 from → to 로 옮긴 새 배열을 돌려준다(재정렬의 원자 연산).
@@ -33,8 +36,7 @@ export function moveArrayItem<T>(items: readonly T[], from: number, to: number):
 /* ── 재정렬 전용 아이콘 (이 모듈에서만 쓴다) ─────────────────────────────────── */
 
 const ICON_BASE = {
-  width: '1.25em',
-  height: '1.25em',
+  className: 'tds-reorder__glyph',
   viewBox: '0 0 24 24',
   fill: 'none',
   stroke: 'currentColor',
@@ -159,21 +161,11 @@ export function useReorderableRows(
 
 /* ── 재사용 셀·버튼 ──────────────────────────────────────────────────────────── */
 
-const gripHeadStyle: CSSProperties = { ...thStyle, width: 'var(--tds-space-6)' };
-
-const gripCellStyle: CSSProperties = {
-  ...tdStyle,
-  width: 'var(--tds-space-6)',
-  color: 'var(--tds-color-text-muted)',
-  cursor: 'grab',
-  textAlign: 'center',
-};
-
 /** 헤더의 grip 열 — 보이지 않는 라벨만 둔다 */
 export function ReorderGripHeaderCell() {
   return (
-    <th scope="col" style={gripHeadStyle}>
-      <span style={visuallyHiddenStyle}>정렬 손잡이</span>
+    <th scope="col" className="tds-reorder__griphead">
+      <span className="tds-reorder__sr">정렬 손잡이</span>
     </th>
   );
 }
@@ -181,7 +173,7 @@ export function ReorderGripHeaderCell() {
 /** 행의 grip 열 — 드래그 손잡이 아이콘 */
 export function ReorderGripCell() {
   return (
-    <td style={gripCellStyle} aria-hidden="true">
+    <td className="tds-reorder__gripcell" aria-hidden="true">
       <GripVerticalIcon />
     </td>
   );
@@ -210,8 +202,7 @@ export function ReorderMoveButtons({
     <>
       <button
         type="button"
-        className="tds-ui-btn-ghost tds-ui-focusable"
-        style={buttonStyle('ghost', locked || index === 0)}
+        className="tds-reorder__btn"
         aria-label={`${label} 위로 이동`}
         disabled={locked || index === 0}
         onClick={() => onMove(index, -1)}
@@ -220,8 +211,7 @@ export function ReorderMoveButtons({
       </button>
       <button
         type="button"
-        className="tds-ui-btn-ghost tds-ui-focusable"
-        style={buttonStyle('ghost', locked || index === count - 1)}
+        className="tds-reorder__btn"
         aria-label={`${label} 아래로 이동`}
         disabled={locked || index === count - 1}
         onClick={() => onMove(index, 1)}

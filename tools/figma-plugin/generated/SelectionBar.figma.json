@@ -1,0 +1,33 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/SelectionBar.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "SelectionBar",
+  "component": "SelectionBar",
+  "version": "1.0.0",
+  "variantProperties": {},
+  "properties": [
+    {
+      "name": "Noun",
+      "type": "TEXT",
+      "default": "건"
+    },
+    {
+      "name": "Children",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "background": "color.surface.raised",
+    "border": "color.border.default",
+    "radius": "radius.md",
+    "countText": "color.text.default",
+    "clearText": "color.text.muted",
+    "paddingX": "space.3",
+    "paddingY": "space.2",
+    "gap": "space.3",
+    "countTypography": "typography.label.md",
+    "clearTypography": "typography.label.sm",
+    "focusRing": "color.border.focus",
+    "borderWidth": "border-width.thin"
+  }
+}

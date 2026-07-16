@@ -11,16 +11,16 @@
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 
-import { RowActions } from './RowActions';
-import { StatusBadge } from '@tds/ui';
-import type { StatusBadgeTone as StatusTone } from '@tds/ui';
 import {
+  RowActions,
   RowSelectCell,
   SelectAllHeaderCell,
   SeqCell,
   SeqHeaderCell,
+  StatusBadge,
   tableSelectionState,
-} from './TableSelection';
+} from '@tds/ui';
+import type { StatusBadgeTone as StatusTone } from '@tds/ui';
 import { numericCellStyle, tableStyle, tdStyle, thStyle, visuallyHiddenStyle } from './styles';
 import { useRowNavigation } from '../useRowNavigation';
 

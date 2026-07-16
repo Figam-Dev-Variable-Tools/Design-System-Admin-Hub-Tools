@@ -1,0 +1,43 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/RowSelectCell.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "RowSelectCell",
+  "component": "RowSelectCell",
+  "version": "1.0.0",
+  "variantProperties": {
+    "Checked": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  },
+  "properties": [
+    {
+      "name": "Id",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Label",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Checked",
+      "type": "BOOLEAN",
+      "default": false
+    }
+  ],
+  "tokens": {
+    "control": "color.action.primary.default",
+    "cellText": "color.text.default",
+    "cellBorder": "color.border.default",
+    "cellPaddingX": "space.2",
+    "cellPaddingY": "space.3",
+    "controlSize": "space.4",
+    "cellWidth": "space.6",
+    "focusRing": "color.border.focus",
+    "borderWidth": "border-width.thin"
+  }
+}

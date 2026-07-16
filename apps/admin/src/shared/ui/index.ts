@@ -31,13 +31,26 @@ export {
   HelpTip,
   hintIdOf,
   ImageThumb,
+  moveArrayItem,
+  Pagination,
+  ReorderGripCell,
+  ReorderGripHeaderCell,
+  ReorderMoveButtons,
+  RowActions,
+  RowSelectCell,
   SearchField,
+  SelectAllHeaderCell,
   SelectField,
+  SelectionBar,
+  SeqCell,
+  SeqHeaderCell,
   StatusBadge,
+  tableSelectionState,
   TextareaField,
   ToggleSwitch,
   TriStateCheckbox,
   triStateProps,
+  useReorderableRows,
 } from '@tds/ui';
 /** @tds/ui 의 StatusBadgeTone 을 앱이 쓰던 이름(StatusTone)으로 재노출한다 — 호출부 API 보존 */
 export type { StatusBadgeTone as StatusTone } from '@tds/ui';
@@ -48,7 +61,7 @@ export { ConfirmDialog } from './ConfirmDialog';
 
 export { Modal } from './Modal';
 
-export { Pagination } from './Pagination';
+/* Pagination 은 @tds/ui 의 것이다 (상단 재수출). 예전엔 shared/ui 안의 사본을 가리켰다 — 그 사본은 삭제됐다 (B3 승격). */
 
 /* ── 콘텐츠 관리 공통 (공지·FAQ·팝업·배너·약관·개인정보 처리방침이 공유) ─────
  *
@@ -74,33 +87,24 @@ export { imageFileError } from './imageFile';
 
 /* DateRangeField 는 @tds/ui 의 것이다 (상단 재수출). */
 
-export { RowActions } from './RowActions';
+/* RowActions 는 @tds/ui 의 것이다 (상단 재수출). 예전엔 shared/ui 사본 — 삭제됨 (B3 승격). */
 
 export { VersionHistoryTable } from './VersionHistoryTable';
 export type { VersionRow } from './VersionHistoryTable';
 
-export {
-  RowSelectCell,
-  SelectAllHeaderCell,
-  SeqCell,
-  SeqHeaderCell,
-  tableSelectionState,
-} from './TableSelection';
+/* ── 표 행 선택 (회원·운영자·콘텐츠 목록이 공유) ───────────────────────────────
+ * RowSelectCell · SelectAllHeaderCell · SeqCell · SeqHeaderCell · tableSelectionState 는
+ * 전부 @tds/ui 의 것이다 (상단 재수출). 예전엔 shared/ui/TableSelection 사본 — 삭제됨 (B3 승격). */
 
-export { SelectionBar } from './SelectionBar';
+/* SelectionBar 는 @tds/ui 의 것이다 (상단 재수출). 예전엔 shared/ui 사본 — 삭제됨 (B3 승격). */
 
 export { useRowSelection } from './useRowSelection';
 
 /* ToggleSwitch 는 @tds/ui 의 것이다 (상단 재수출). */
 
-/* ── 표 행 드래그 재정렬 (FAQ·배너가 공유) ─────────────────────────────────── */
-export {
-  moveArrayItem,
-  ReorderGripCell,
-  ReorderGripHeaderCell,
-  ReorderMoveButtons,
-  useReorderableRows,
-} from './tableReorder';
+/* ── 표 행 드래그 재정렬 (FAQ·배너가 공유) ───────────────────────────────────
+ * moveArrayItem · useReorderableRows · ReorderGripCell · ReorderGripHeaderCell · ReorderMoveButtons 는
+ * 전부 @tds/ui 의 것이다 (상단 재수출). 예전엔 shared/ui/tableReorder 사본 — 삭제됨 (B3 승격). */
 
 export { Toast } from './Toast';
 export type { ToastItem, ToastKind } from './Toast';

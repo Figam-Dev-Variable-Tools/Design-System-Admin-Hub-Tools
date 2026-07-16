@@ -1,0 +1,76 @@
+{
+  "$schema": "https://tds.internal/schemas/component.v1.json",
+  "name": "Pagination",
+  "version": "1.0.0",
+  "level": "molecule",
+  "status": "beta",
+  "description": "페이지네이션 — 이전 / 번호 창 / 다음. 현재 페이지 주변 최대 5개 번호만 보여준다(전부 그리면 줄이 넘친다). 도메인을 모른다 — 회원·운영자·적립금 내역 어느 목록이든 page·totalPages·onChange 와 nav 접근성 label 만 받는다. 출처: apps/admin/src/shared/ui/Pagination.tsx (소비 9곳). totalPages ≤ 1 이면 아무것도 렌더하지 않는다(단일 페이지엔 페이지네이션이 없다).",
+  "owner": { "code": "A30", "design": "A14", "figma": "A51" },
+
+  "props": {
+    "page": {
+      "type": "number",
+      "required": true,
+      "description": "현재 페이지 (1-based). 번호 창이 이 값을 가운데 두려 민다"
+    },
+    "totalPages": {
+      "type": "number",
+      "required": true,
+      "description": "전체 페이지 수. 1 이하이면 컴포넌트가 렌더되지 않는다"
+    },
+    "label": {
+      "type": "string",
+      "default": "회원 목록 페이지",
+      "description": "nav 의 접근성 이름(aria-label). 회원 목록이 기본값 — 다른 목록이 재사용할 때만 바꾼다"
+    }
+  },
+
+  "events": {
+    "onChange": {
+      "payload": "number",
+      "description": "선택된 페이지 번호를 인자로 발화한다. 이전/다음/번호 버튼 모두 이 콜백으로 귀결된다"
+    }
+  },
+
+  "states": ["default", "hover", "focus-visible", "disabled"],
+
+  "tokens": {
+    "activeBackground": "color.action.primary.default",
+    "activeBorder": "color.action.primary.default",
+    "activeText": "color.text.on-primary",
+    "text": "color.text.default",
+    "textDisabled": "color.text.disabled",
+    "hoverBackground": "color.surface.raised",
+    "radius": "radius.md",
+    "size": "space.6",
+    "paddingX": "space.2",
+    "gap": "space.1",
+    "typography": "typography.label.md",
+    "focusRing": "color.border.focus",
+    "borderWidth": "border-width.thin"
+  },
+
+  "a11y": {
+    "role": "navigation",
+    "keyboard": ["Tab", "Enter", "Space"],
+    "focusVisible": true,
+    "aria": {
+      "aria-label": "nav 의 접근성 이름 — label prop",
+      "aria-current": "현재 페이지 번호 버튼에 aria-current=\"page\"",
+      "disabled": "첫 페이지에서 '이전', 마지막 페이지에서 '다음' 버튼은 native disabled"
+    },
+    "contrastMin": 4.5
+  },
+
+  "responsive": {
+    "breakpoints": ["sm", "md", "lg"],
+    "behavior": "fluid"
+  },
+
+  "compat": {
+    "breakingSince": null,
+    "deprecatedProps": []
+  },
+
+  "dependencies": []
+}

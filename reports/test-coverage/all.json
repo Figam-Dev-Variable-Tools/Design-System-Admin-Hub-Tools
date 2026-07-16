@@ -6,11 +6,11 @@
   "exitCode": 0,
   "blockedGates": [],
   "inputs": {
-    "contracts": 25,
+    "contracts": 30,
     "specs": 14,
-    "testFiles": 88,
-    "storyFiles": 35,
-    "testUnits": 913,
+    "testFiles": 94,
+    "storyFiles": 40,
+    "testUnits": 970,
     "assertionFreeUnits": 2
   },
   "summary": [
@@ -36,10 +36,10 @@
       "title": "계약 states 커버리지 (contracts/*.contract.json → states[])",
       "severity": "blocker",
       "threshold": "미커버 상태 0건 (전수)",
-      "covered": 79,
-      "total": 79,
+      "covered": 96,
+      "total": 96,
       "gaps": 0,
-      "scanned": "계약 25종 · states 총 79칸 (직전 79칸)",
+      "scanned": "계약 30종 · states 총 96칸 (직전 96칸)",
       "status": "PASS",
       "gates": [
         "G5",
@@ -52,10 +52,10 @@
       "title": "계약 events.blockedWhen 커버리지 (금지 동작의 비발생 단언)",
       "severity": "blocker",
       "threshold": "미커버 차단 조건 0건 (전수)",
-      "covered": 14,
-      "total": 14,
+      "covered": 16,
+      "total": 16,
       "gaps": 0,
-      "scanned": "계약 25종 · blockedWhen 총 14칸 (직전 14칸)",
+      "scanned": "계약 30종 · blockedWhen 총 16칸 (직전 16칸)",
       "status": "PASS",
       "gates": [
         "G5",
@@ -98,14 +98,14 @@
     {
       "name": "@tds/admin",
       "dir": "apps/admin",
-      "testUnits": 583,
+      "testUnits": 581,
       "assertionFreeUnits": 0,
       "status": "PASS"
     },
     {
       "name": "@tds/ui",
       "dir": "packages/ui",
-      "testUnits": 267,
+      "testUnits": 326,
       "assertionFreeUnits": 2,
       "status": "PASS"
     }

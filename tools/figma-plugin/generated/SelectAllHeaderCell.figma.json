@@ -1,0 +1,27 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/SelectAllHeaderCell.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "SelectAllHeaderCell",
+  "component": "SelectAllHeaderCell",
+  "version": "1.0.0",
+  "variantProperties": {},
+  "properties": [
+    {
+      "name": "Label",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "LabelId",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "headBackground": "color.surface.raised",
+    "headText": "color.text.muted",
+    "headBorder": "color.border.default",
+    "headPaddingX": "space.2",
+    "headPaddingY": "space.3",
+    "borderWidth": "border-width.thin"
+  }
+}
