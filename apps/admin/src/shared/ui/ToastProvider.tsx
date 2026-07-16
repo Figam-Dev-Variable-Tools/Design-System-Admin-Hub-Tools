@@ -55,6 +55,17 @@ interface ToastApi {
 const ToastContext = createContext<ToastApi | null>(null);
 
 /**
+ * 라이브 영역 1개 — 뷰포트 안에서 토스트를 세로로 쌓는다.
+ * 비어 있어도 DOM 에 남아야 하므로(A11Y-01) 높이 0 인 채 자리만 지킨다.
+ */
+const regionStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: 'var(--tds-space-2)',
+};
+
+/**
  * 하단 중앙 고정. 클릭은 통과시키고(pointerEvents:none) 토스트만 받는다 —
  * 빈 영역이 화면 아래쪽 버튼을 가로채면 안 된다.
  */
@@ -121,24 +132,42 @@ export function ToastProvider({ children }: { readonly children: ReactNode }) {
     [dismiss, push],
   );
 
+  // kind → 라이브 영역 분배 (A11Y-01). error 만 즉시(assertive), 나머지는 대기(polite).
+  const politeToasts = toasts.filter((toast) => toast.kind !== 'error');
+  const errorToasts = toasts.filter((toast) => toast.kind === 'error');
+
+  const renderToast = (toast: ToastItem) => (
+    <Toast
+      key={toast.id}
+      id={toast.id}
+      kind={toast.kind}
+      message={toast.message}
+      onDismiss={dismiss}
+      onRetry={toast.retry}
+    />
+  );
+
   return (
     <ToastContext.Provider value={api}>
       {children}
 
-      {/* 비어 있어도 DOM 에 남는 persistent live region (A11Y-01) — 컨테이너 자체가 role=status +
-          aria-live 를 가져야 동적으로 삽입되는 토스트를 스크린리더가 신뢰성 있게 읽는다. 동적으로
-          생성되는 Toast 의 aria-live 에만 의존하지 않는다. (error 토스트는 자체 role=alert 로 assertive 유지) */}
-      <div style={viewportStyle} role="status" aria-live="polite" aria-atomic="false">
-        {toasts.map((toast) => (
-          <Toast
-            key={toast.id}
-            id={toast.id}
-            kind={toast.kind}
-            message={toast.message}
-            onDismiss={dismiss}
-            onRetry={toast.retry}
-          />
-        ))}
+      {/* [A11Y-01] 라이브 영역 2개를 **토스트보다 먼저·항상** 마운트한다. 내용과 함께 생성된 라이브
+          영역은 NVDA/JAWS/VoiceOver 가 신뢰성 있게 읽지 않으므로, Toast 자신의 aria-live 에 의존하지
+          않는다 (1.1.0 에서 Toast 는 role/aria-live 를 갖지 않는다). kind 로 큐를 갈라 주입만 한다.
+
+          [assertive 영역에 role="alert" 를 쓰지 않는 이유]
+          role="alert" 는 ARIA 상 aria-live="assertive" + aria-atomic="true" 와 정확히 동치다. 그런데
+          이 영역은 **항상 존재**하므로 role 을 붙이면 앱 전역에서 getByRole('alert') 가 늘 이 빈 영역을
+          집어 인라인 Alert 배너와 구분되지 않는다(‘배너 없음’ 단언이 성립 불가). 그래서 동치인
+          aria-live="assertive" 로 영역을 만든다. aria-atomic="false" 는 스택 전체를 다시 읽지 않고
+          새로 들어온 토스트만 읽게 하므로 토스트 스택에는 role=alert 의 암묵 atomic=true 보다 정확하다. */}
+      <div style={viewportStyle}>
+        <div style={regionStyle} role="status" aria-live="polite" aria-atomic="false">
+          {politeToasts.map(renderToast)}
+        </div>
+        <div style={regionStyle} aria-live="assertive" aria-atomic="false">
+          {errorToasts.map(renderToast)}
+        </div>
       </div>
     </ToastContext.Provider>
   );

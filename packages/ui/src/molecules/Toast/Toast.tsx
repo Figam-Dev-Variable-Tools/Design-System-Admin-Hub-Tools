@@ -1,4 +1,4 @@
-// Toast — 결과 통지 1건 (molecule · contracts/Toast.contract.json@1.0.0)
+// Toast — 결과 통지 1건 (molecule · contracts/Toast.contract.json@1.1.0)
 //
 // 계약 dependencies: [] — 아이콘·버튼은 자체 인라인 글리프/버튼. 큐/위치/최대개수는 ToastProvider(앱) 소유.
 // 시각 값은 전부 semantic 토큰 CSS 변수 — 하드코딩 hex/px 0건. 출처 인라인 스타일(feedbackStyle)을 클래스로 옮긴 것.
@@ -7,7 +7,12 @@
 // [사라지는 것] success 4초 · cancelled 2초 · info 4초 · **error 는 자동으로 사라지지 않는다** —
 //   사용자가 닫거나 재시도할 때까지 남는다 (실패를 조용히 삼키지 않는다).
 //
-// [a11y] success/cancelled/info: role="status" + aria-live="polite" / error: role="alert" + aria-live="assertive".
+// [a11y — 1.1.0: 라이브 영역을 소유하지 않는다]
+//   토스트는 **동적으로 삽입되는 노드**다. 내용과 함께 생성된 라이브 영역은 NVDA/JAWS/VoiceOver 에서
+//   신뢰성 있게 announce 되지 않는다 — 그래서 role/aria-live 를 여기서 떼고, 토스트보다 **먼저·항상**
+//   존재하는 ToastProvider 의 지속 라이브 영역(polite/assertive 2개)이 통지를 소유한다 (A11Y-01).
+//   Toast 는 시각 표현(tone·아이콘)과 자동소멸·닫기/재시도 배선만 담당한다.
+//   kind 는 여전히 **어느 라이브 영역으로 갈지**를 정한다 — 그 분배는 ToastProvider 가 한다.
 //
 // [imperative props — 계약 밖 경계] id 는 onDismiss 인자(큐 키)라 Figma 대응이 없다.
 import { useEffect } from 'react';
@@ -89,17 +94,16 @@ interface KindSpec {
   readonly tone: Tone;
   /** null = 자동 소멸 없음 */
   readonly durationMs: number | null;
-  readonly live: 'status' | 'alert';
   readonly icon: ComponentType<GlyphProps>;
 }
 
 const TOAST_SPEC: Record<ToastKind, KindSpec> = {
-  success: { tone: 'success', durationMs: 4000, live: 'status', icon: CheckCircleGlyph },
+  success: { tone: 'success', durationMs: 4000, icon: CheckCircleGlyph },
   // 취소는 '눌렸다'는 확인일 뿐이다 — 성공보다 짧게 스친다
-  cancelled: { tone: 'info', durationMs: 2000, live: 'status', icon: XCircleGlyph },
+  cancelled: { tone: 'info', durationMs: 2000, icon: XCircleGlyph },
   // 실패는 남는다. 사용자가 닫거나 재시도해야 사라진다
-  error: { tone: 'danger', durationMs: null, live: 'alert', icon: AlertTriangleGlyph },
-  info: { tone: 'info', durationMs: 4000, live: 'status', icon: InfoCircleGlyph },
+  error: { tone: 'danger', durationMs: null, icon: AlertTriangleGlyph },
+  info: { tone: 'info', durationMs: 4000, icon: InfoCircleGlyph },
 };
 
 /** id — onDismiss 인자(큐 키). Figma 대응이 없는 명령형 경계 prop */
@@ -134,11 +138,8 @@ export function Toast({ id, kind = 'info', message, onDismiss, onRetry }: ToastC
   }, [durationMs, id, onDismiss]);
 
   return (
-    <div
-      className={`tds-toast tds-toast--${spec.tone}`}
-      role={spec.live}
-      aria-live={spec.live === 'alert' ? 'assertive' : 'polite'}
-    >
+    // role/aria-live 없음 — 통지는 ToastProvider 의 지속 라이브 영역이 소유한다 (A11Y-01)
+    <div className={`tds-toast tds-toast--${spec.tone}`}>
       <span className="tds-toast__icon">
         <Icon />
       </span>

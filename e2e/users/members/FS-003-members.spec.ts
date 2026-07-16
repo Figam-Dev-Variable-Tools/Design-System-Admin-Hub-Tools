@@ -149,7 +149,8 @@ test('FS-003-EL-011.12.2: 실패 — 알림 발송이 실패하면 조용히 삼
   await menu.getByRole('menuitem', { name: '알림 발송' }).click();
 
   // 실패가 아무 흔적 없이 사라지면 관리자는 발송된 줄 안다 — 그것이 과거의 결함이었다
-  const toast = page.getByRole('alert');
+  // 토스트는 role 을 갖지 않는다 (A11Y-01: 통지는 ToastProvider 의 지속 라이브 영역이 소유) — 시각 단위로 집는다
+  const toast = page.locator('.tds-toast');
   await expect(toast).toContainText('알림을 발송하지 못했습니다. 잠시 후 다시 시도해 주세요.');
   await expect(toast.getByRole('button', { name: '다시 시도' })).toBeVisible();
 });

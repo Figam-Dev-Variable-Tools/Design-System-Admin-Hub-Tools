@@ -1,4 +1,4 @@
-// AUTO-GENERATED from contracts/Toast.contract.json@1.0.0 — DO NOT EDIT (pnpm codegen)
+// AUTO-GENERATED from contracts/Toast.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
 
 /** Storybook argTypes — 계약에서 생성. Story 파일에서 spread 하여 사용한다. */
 export const ToastArgTypes = {

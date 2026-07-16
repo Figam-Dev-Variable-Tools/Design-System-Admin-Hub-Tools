@@ -26,7 +26,7 @@ export default meta;
 
 type Story = StoryObj<typeof Toast>;
 
-/** success — role="status" + aria-live="polite" · 4초 자동소멸 */
+/** success — polite 라이브 영역으로 간다(분배는 ToastProvider) · 4초 자동소멸 */
 export const Success: Story = {
   args: { kind: 'success', message: '회원 3명을 삭제했습니다.' },
 };
@@ -36,7 +36,7 @@ export const Cancelled: Story = {
   args: { kind: 'cancelled', message: '작업이 취소되었습니다' },
 };
 
-/** error — role="alert" + aria-live="assertive" · 자동소멸 없음 */
+/** error — assertive 라이브 영역으로 간다(분배는 ToastProvider) · 자동소멸 없음 */
 export const Error: Story = {
   args: { kind: 'error', message: '삭제에 실패했습니다.' },
 };
