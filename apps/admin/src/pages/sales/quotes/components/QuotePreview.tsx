@@ -172,6 +172,7 @@ interface QuotePreviewProps {
   readonly accountName: string;
   readonly accountBizNo: string;
   readonly accountCeo: string;
+  readonly contactName: string;
   readonly issueDate: string;
   readonly validUntil: string;
   readonly taxMode: QuoteTaxMode;
@@ -185,6 +186,7 @@ export function QuotePreview({
   accountName,
   accountBizNo,
   accountCeo,
+  contactName,
   issueDate,
   validUntil,
   taxMode,
@@ -217,6 +219,7 @@ export function QuotePreview({
             사업자 {accountBizNo.trim() === '' ? '—' : formatBizNo(accountBizNo)}
           </span>
           <span style={partyLineStyle}>대표 {dash(accountCeo)}</span>
+          <span style={partyLineStyle}>담당 {dash(contactName)}</span>
         </div>
         <div style={partyStyle}>
           <span style={partyLabelStyle}>공급자</span>

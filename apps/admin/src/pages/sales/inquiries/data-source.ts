@@ -2,8 +2,13 @@
 //
 // [백엔드 연동 지점] 프레임워크 createCrudAdapter 에 시드를 넣는다. 목록/상세는 fetchAll/fetchOne,
 // 답변·상태·담당 저장은 update 를 쓴다(문의 생성은 고객 채널이 만든다 — 관리자 생성 UI 없음).
+//
+// [문의 → 견적 발행] 상태를 '견적 발행'으로 바꾸면 견적이 자동 생성된다(H). 그 부수효과를 어댑터의
+// patch 안에 둔다 — 화면이 '문의 저장'과 '견적 생성'을 두 번 호출하면 하나만 성공하는 창이 생기고,
+// 그 창에서 새로고침하면 상태는 '견적 발행'인데 견적이 없는 문의가 남는다. 실 HTTP 는 없다.
 import { createCrudAdapter } from '../../../shared/crud';
-import { sortInquiries } from './types';
+import { issueQuoteFromInquiry } from '../quotes/data-source';
+import { appendEvent, hasIssuedQuote, requestsQuoteIssue, sortInquiries } from './types';
 import type { Inquiry, InquiryInput } from './types';
 
 const INQUIRY_SEED: readonly Inquiry[] = [
@@ -21,6 +26,7 @@ const INQUIRY_SEED: readonly Inquiry[] = [
     status: 'in_progress',
     receivedAt: '2026-07-14T09:20:00',
     body: '100석 기준 ERP 라이선스와 구축 일정에 대한 견적을 요청드립니다.',
+    quoteId: '',
     timeline: [
       {
         id: 'ev-1',
@@ -52,6 +58,7 @@ const INQUIRY_SEED: readonly Inquiry[] = [
     status: 'received',
     receivedAt: '2026-07-13T14:10:00',
     body: '내년도 유지보수 계약 갱신 조건을 알고 싶습니다.',
+    quoteId: '',
     timeline: [
       {
         id: 'ev-3',
@@ -76,6 +83,7 @@ const INQUIRY_SEED: readonly Inquiry[] = [
     status: 'answered',
     receivedAt: '2026-07-11T08:40:00',
     body: '지난 발주 건 납기가 지연되어 확인 부탁드립니다.',
+    quoteId: '',
     timeline: [
       {
         id: 'ev-4',
@@ -104,7 +112,47 @@ const INQUIRY_SEED: readonly Inquiry[] = [
 
 let seq = INQUIRY_SEED.length;
 
+const SYSTEM_AUTHOR = '시스템';
+
+/**
+ * '견적 발행' 전이의 부수효과 — 문의 갱신과 한 덩이로 견적을 만든다.
+ *   · 견적 발행이 아니면 아무것도 하지 않는다.
+ *   · **이미 발행된 문의면 다시 만들지 않는다**(quoteId 가 멱등 키다) — 상태를 오가도, 저장을 연타해도
+ *     견적은 하나다. 견적 저장소도 문의 id 로 한 번 더 교차 확인한다(이중 방어).
+ *   · 승계 필드는 buildQuoteFromInquiry(../quotes/types)가 단독으로 정한다.
+ */
+function issueQuoteIfRequested(item: Inquiry, input: InquiryInput): Inquiry {
+  const next: Inquiry = { ...item, ...input, id: item.id };
+  if (!requestsQuoteIssue(input.status) || hasIssuedQuote(item)) return next;
+
+  const quote = issueQuoteFromInquiry({
+    inquiryId: item.id,
+    inquiryNo: item.inquiryNo,
+    company: item.company,
+    customerName: item.customerName,
+    body: item.body,
+    // 발행일은 견적일이다 — 문의 접수일이 아니라 오늘이다.
+    issueDate: new Date().toISOString().slice(0, 10),
+  });
+
+  return {
+    ...next,
+    quoteId: quote.id,
+    timeline: appendEvent(next.timeline, {
+      id: `ev-${String(Date.now())}-q`,
+      at: new Date().toISOString(),
+      author: SYSTEM_AUTHOR,
+      kind: 'status',
+      // [ERP-13] 조사 fallback 형('을(를)')을 출하하지 않는다. 견적번호는 받침 유무가 값마다 달라
+      // 조사를 붙일 수 없다 — 조사가 필요 없는 문형으로 쓴다.
+      text: `견적 자동 생성 — ${quote.quoteNo}`,
+    }),
+  };
+}
+
 // TODO(backend): GET /api/sales/inquiries · GET/PUT /api/sales/inquiries/:id (답변·상태·담당 저장)
+//   · '견적 발행' 전이는 견적 생성을 동반한다 — 서버는 문의 갱신 + 견적 생성 + 양방향 링크를 한
+//     트랜잭션으로 처리하고, 이미 발행된 문의의 재발행은 기존 견적을 돌려준다(멱등).
 export const inquiryAdapter = createCrudAdapter<Inquiry, InquiryInput>({
   scope: 'sales-inquiries',
   seed: INQUIRY_SEED,
@@ -112,6 +160,6 @@ export const inquiryAdapter = createCrudAdapter<Inquiry, InquiryInput>({
     seq += 1;
     return { id: `inq-${String(seq)}`, ...input };
   },
-  patch: (item, input) => ({ ...item, ...input }),
+  patch: issueQuoteIfRequested,
   sort: sortInquiries,
 });

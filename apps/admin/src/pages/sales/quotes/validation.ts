@@ -25,11 +25,20 @@ export const quoteSchema = z
     accountName: requiredText('거래처', 60),
     accountBizNo: z.string(),
     accountCeo: z.string(),
+    contactName: z.string().check(
+      z.refine((value) => value.trim().length <= 40, {
+        error: '담당자는 40자를 넘을 수 없습니다.',
+      }),
+    ),
     issueDate: z.string(),
     validUntil: z.string(),
     taxMode: z.enum(['standard', 'zero_rated', 'exempt']),
     items: z.array(lineItemSchema),
     status: z.enum(['draft', 'sent', 'accepted', 'rejected', 'expired', 'ordered']),
+    // 승계 값 — 사람이 편집하지 않는다. 폼이 값을 잃지 않도록 스키마에 남긴다(수정 시 보존).
+    inquiryId: z.string(),
+    inquiryNo: z.string(),
+    inquiryBody: z.string(),
     note: z.string().check(
       z.refine((value) => value.trim().length <= 500, {
         error: '비고는 500자를 넘을 수 없습니다.',

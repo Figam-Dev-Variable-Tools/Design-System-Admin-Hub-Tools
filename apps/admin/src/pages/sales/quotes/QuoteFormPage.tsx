@@ -14,10 +14,14 @@ import {
   ChevronLeftIcon,
   controlStyle,
   DateRangeField,
+  ddStyle,
+  dlStyle,
+  dtStyle,
   errorIdOf,
   FormField,
   pageTitleStyle,
   SelectField,
+  StatusBadge,
   TextareaField,
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
@@ -28,12 +32,13 @@ import { quoteSchema } from './validation';
 import type { QuoteFormValues } from './validation';
 import { QuoteLineItemsTable } from './components/QuoteLineItemsTable';
 import { QuotePreview } from './components/QuotePreview';
-import { QUOTE_NOTE_MAX, QUOTE_STATUS_OPTIONS, TAX_MODE_OPTIONS } from './types';
+import { isInherited, QUOTE_NOTE_MAX, QUOTE_STATUS_OPTIONS, TAX_MODE_OPTIONS } from './types';
 import type { Quote, QuoteInput, QuoteLineItem } from './types';
 
 const RESOURCE = 'sales-quotes';
 const ENTITY_LABEL = '견적';
 const LIST_PATH = '/sales/quotes';
+const INQUIRY_PATH = '/sales/inquiries';
 const UNSAVED_MESSAGE =
   '견적에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
 
@@ -111,12 +116,16 @@ const EMPTY: QuoteFormValues = {
   accountName: '',
   accountBizNo: '',
   accountCeo: '',
+  contactName: '',
   issueDate: '',
   validUntil: '',
   taxMode: 'standard',
   items: [],
   status: 'draft',
   note: '',
+  inquiryId: '',
+  inquiryNo: '',
+  inquiryBody: '',
 };
 
 function toInput(values: QuoteFormValues): QuoteInput {
@@ -125,6 +134,7 @@ function toInput(values: QuoteFormValues): QuoteInput {
     accountName: values.accountName.trim(),
     accountBizNo: values.accountBizNo.trim() === '' ? '' : formatBizNo(values.accountBizNo),
     accountCeo: values.accountCeo.trim(),
+    contactName: values.contactName.trim(),
     issueDate: values.issueDate,
     validUntil: values.validUntil,
     taxMode: values.taxMode,
@@ -135,6 +145,9 @@ function toInput(values: QuoteFormValues): QuoteInput {
     })),
     status: values.status,
     note: values.note.trim(),
+    inquiryId: values.inquiryId,
+    inquiryNo: values.inquiryNo,
+    inquiryBody: values.inquiryBody,
   };
 }
 
@@ -144,12 +157,16 @@ function toValues(quote: Quote): QuoteFormValues {
     accountName: quote.accountName,
     accountBizNo: quote.accountBizNo,
     accountCeo: quote.accountCeo,
+    contactName: quote.contactName,
     issueDate: quote.issueDate,
     validUntil: quote.validUntil,
     taxMode: quote.taxMode,
     items: quote.items.map((item) => ({ ...item })),
     status: quote.status,
     note: quote.note,
+    inquiryId: quote.inquiryId,
+    inquiryNo: quote.inquiryNo,
+    inquiryBody: quote.inquiryBody,
   };
 }
 
@@ -192,6 +209,13 @@ export default function QuoteFormPage() {
   const issueDate = watch('issueDate');
   const validUntil = watch('validUntil');
   const periodError = errors.issueDate?.message ?? errors.validUntil?.message;
+
+  // [자동생성 값 잠금] 문의에서 발행된 견적은 승계 필드를 사람이 고치지 못한다 — 원본 문의와
+  // 어긋나면 어느 쪽이 진실인지 알 수 없기 때문이다. 견적번호와 같은 규칙을 그대로 확장한다.
+  const inquiryId = watch('inquiryId');
+  const inquiryNo = watch('inquiryNo');
+  const inquiryBody = watch('inquiryBody');
+  const inherited = isInherited({ inquiryId });
 
   // [EXC-12] 404 와 서버 오류는 복구 수단이 다르다 — 이미 삭제된 항목에 '다시 시도'를 권하면
   // 영원히 실패하는 버튼을 누르게 된다.
@@ -292,19 +316,48 @@ export default function QuoteFormPage() {
                   label="거래처(공급받는자)"
                   required
                   error={errors.accountName?.message}
+                  hint={inherited ? '문의에서 승계한 값입니다 (수정 불가)' : ''}
                 >
                   <input
                     id="quote-account"
                     type="text"
                     className="tds-ui-input tds-ui-focusable"
-                    style={controlStyle(errors.accountName !== undefined)}
+                    style={
+                      inherited ? systemValueStyle : controlStyle(errors.accountName !== undefined)
+                    }
                     placeholder="예: (주)한빛소프트웨어"
                     disabled={disabled}
+                    readOnly={inherited}
+                    aria-readonly={inherited || undefined}
                     aria-invalid={errors.accountName !== undefined}
                     aria-describedby={
                       errors.accountName !== undefined ? errorIdOf('quote-account') : undefined
                     }
                     {...register('accountName')}
+                  />
+                </FormField>
+                <FormField
+                  htmlFor="quote-contact"
+                  label="담당자"
+                  error={errors.contactName?.message}
+                  hint={inherited ? '문의에서 승계한 값입니다 (수정 불가)' : ''}
+                >
+                  <input
+                    id="quote-contact"
+                    type="text"
+                    className="tds-ui-input tds-ui-focusable"
+                    style={
+                      inherited ? systemValueStyle : controlStyle(errors.contactName !== undefined)
+                    }
+                    placeholder="예: 김담당"
+                    disabled={disabled}
+                    readOnly={inherited}
+                    aria-readonly={inherited || undefined}
+                    aria-invalid={errors.contactName !== undefined}
+                    aria-describedby={
+                      errors.contactName !== undefined ? errorIdOf('quote-contact') : undefined
+                    }
+                    {...register('contactName')}
                   />
                 </FormField>
                 <FormField htmlFor="quote-account-ceo" label="대표자">
@@ -360,6 +413,33 @@ export default function QuoteFormPage() {
               />
             </Card>
 
+            {inherited && (
+              <Card>
+                <CardTitle>
+                  원본 문의
+                  <StatusBadge tone="info" label="자동 승계" />
+                </CardTitle>
+                <p style={descriptionStyle}>
+                  이 견적은 문의 처리 상태를 &lsquo;견적 발행&rsquo;으로 바꿔 자동 생성되었습니다.
+                  거래처·담당자·문의내용은 원본 문의를 따르며 수정할 수 없습니다.
+                </p>
+                <dl style={dlStyle}>
+                  <dt style={dtStyle}>문의번호</dt>
+                  <dd style={ddStyle}>{inquiryNo}</dd>
+                  <dt style={dtStyle}>문의내용</dt>
+                  <dd style={ddStyle}>{inquiryBody}</dd>
+                </dl>
+                <span>
+                  <Button
+                    variant="secondary"
+                    onClick={() => navigate(`${INQUIRY_PATH}/${inquiryId}`)}
+                  >
+                    원본 문의 보기
+                  </Button>
+                </span>
+              </Card>
+            )}
+
             <Card>
               <CardTitle>비고</CardTitle>
               <TextareaField
@@ -382,6 +462,7 @@ export default function QuoteFormPage() {
               accountName={watch('accountName')}
               accountBizNo={watch('accountBizNo')}
               accountCeo={watch('accountCeo')}
+              contactName={watch('contactName')}
               issueDate={issueDate}
               validUntil={validUntil}
               taxMode={taxMode}

@@ -11,6 +11,7 @@ import { isAbort } from '../../../shared/async';
 import { formatDateTime } from '../../../shared/format';
 import {
   Alert,
+  alertActionRowStyle,
   Button,
   Card,
   CardTitle,
@@ -34,6 +35,7 @@ import { inquiryAdapter } from './data-source';
 import { InquiryTimeline } from './components/InquiryTimeline';
 import {
   appendEvent,
+  hasIssuedQuote,
   INQUIRY_REPLY_MAX,
   INQUIRY_STATUS_OPTIONS,
   inquiryChannelLabel,
@@ -42,12 +44,14 @@ import {
   inquiryStatusLabel,
   inquiryTypeLabel,
   isInquiryStatus,
+  requestsQuoteIssue,
   toInquiryInput,
 } from './types';
 import type { InquiryEvent, InquiryEventKind, InquiryStatus } from './types';
 
 const RESOURCE = 'sales-inquiries';
 const LIST_PATH = '/sales/inquiries';
+const QUOTE_PATH = '/sales/quotes';
 const ADMIN_AUTHOR = '관리자';
 const UNSAVED_MESSAGE =
   '처리 내용에 저장하지 않은 변경이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
@@ -144,6 +148,10 @@ export default function InquiryDetailPage() {
 
   const unsavedDialog = useUnsavedChangesDialog(dirty && !saving, { message: UNSAVED_MESSAGE });
 
+  const issued = inquiry !== undefined && hasIssuedQuote(inquiry);
+  // 이번 저장에서 견적이 실제로 생성되는가 — 이미 발행됐으면 상태를 다시 골라도 생성되지 않는다.
+  const issuesQuoteNow = inquiry !== undefined && requestsQuoteIssue(status) && !issued;
+
   const onSave = () => {
     if (inquiry === undefined || id === undefined) return;
     setServerError(null);
@@ -183,7 +191,12 @@ export default function InquiryDetailPage() {
         onSuccess: () => {
           if (controller.signal.aborted) return;
           setComposer('');
-          toast.success('문의 처리 내용을 저장했습니다.');
+          // 견적이 새로 발행됐는지는 저장 전 상태로 판단한다 — 이미 발행된 문의는 재저장해도 생성되지 않는다.
+          toast.success(
+            issuesQuoteNow
+              ? '문의 처리 내용을 저장하고 견적을 발행했습니다.'
+              : '문의 처리 내용을 저장했습니다.',
+          );
           void detailQuery.refetch();
         },
         onError: (cause: unknown) => {
@@ -273,7 +286,15 @@ export default function InquiryDetailPage() {
                   onChange={(event) => setAssignee(event.target.value)}
                 />
               </FormField>
-              <FormField htmlFor="inquiry-status" label="처리 상태">
+              <FormField
+                htmlFor="inquiry-status"
+                label="처리 상태"
+                hint={
+                  issued
+                    ? '이미 견적이 발행된 문의입니다 — 다시 발행되지 않습니다.'
+                    : '‘견적 발행’으로 바꾸면 견적이 자동 생성됩니다.'
+                }
+              >
                 <SelectField
                   id="inquiry-status"
                   value={status}
@@ -290,6 +311,28 @@ export default function InquiryDetailPage() {
                 </SelectField>
               </FormField>
             </div>
+
+            {/* [중복 발행 방지] 이미 발행된 문의는 재생성하지 않는다 — 왜 버튼이 다시 만들지 않는지
+                운영자에게 알리고, 대신 그 견적으로 가는 길을 준다(양방향 링크). */}
+            {issued && (
+              <Alert tone="info">
+                <div style={alertActionRowStyle}>
+                  <span>이미 이 문의로 견적이 발행되었습니다. 견적은 다시 생성되지 않습니다.</span>
+                  <Button
+                    variant="secondary"
+                    onClick={() => navigate(`${QUOTE_PATH}/${inquiry.quoteId}/edit`)}
+                  >
+                    발행된 견적 보기
+                  </Button>
+                </div>
+              </Alert>
+            )}
+
+            {issuesQuoteNow && (
+              <Alert tone="info">
+                저장하면 이 문의의 거래처·담당자·문의내용을 승계한 견적이 자동 생성됩니다.
+              </Alert>
+            )}
 
             <div style={fieldStyle}>
               <span style={fieldLabelStyle}>답변 · 메모 작성</span>
