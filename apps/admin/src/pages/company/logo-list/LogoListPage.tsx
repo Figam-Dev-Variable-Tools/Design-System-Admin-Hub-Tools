@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 
 import { isAbort } from '../../../shared/async';
-import { formatNumber } from '../../../shared/format';
+import { formatNumber, objectParticle } from '../../../shared/format';
 import {
   Alert,
   Button,
@@ -145,7 +145,9 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
       {
         onSuccess: () => {
           toast.success(
-            next ? `'${item.name}' 을(를) 노출합니다.` : `'${item.name}' 을(를) 숨깁니다.`,
+            next
+              ? `'${item.name}'${objectParticle(item.name)} 노출합니다.`
+              : `'${item.name}'${objectParticle(item.name)} 숨깁니다.`,
           );
         },
         onError: (cause: unknown) => {
@@ -191,7 +193,7 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
         onSuccess: () => {
           if (controller.signal.aborted) return;
           setPendingDelete(null);
-          toast.success(`'${target.name}' 을(를) 삭제했습니다.`);
+          toast.success(`'${target.name}'${objectParticle(target.name)} 삭제했습니다.`);
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
@@ -237,7 +239,11 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
 
   const onSaved = (name: string, isEdit: boolean) => {
     setModal({ kind: 'closed' });
-    toast.success(isEdit ? `'${name}' 을(를) 저장했습니다.` : `'${name}' 을(를) 추가했습니다.`);
+    toast.success(
+      isEdit
+        ? `'${name}'${objectParticle(name)} 저장했습니다.`
+        : `'${name}'${objectParticle(name)} 추가했습니다.`,
+    );
   };
 
   return (
@@ -322,7 +328,7 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
         <ConfirmDialog
           intent="delete"
           title={`${entityLabel} 삭제`}
-          message={`'${pendingDelete.name}' 을(를) 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.name}'${objectParticle(pendingDelete.name)} 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
           confirmLabel="삭제"
           busy={deleting}
           error={deleteError}

@@ -20,7 +20,6 @@ import { API_LOGS } from './api/fixtures';
 import * as errorSource from './errors/data-source';
 import { errorLogSpec } from './errors/data-source';
 import { ERROR_LOGS } from './errors/fixtures';
-import { hasBatchim, withObjectParticle } from './josa';
 import {
   formatMaskedPayload,
   maskEmail,
@@ -586,27 +585,5 @@ describe('toCsv — 내보내기', () => {
       { ...(entry ?? ADMIN_LOGS[0] ?? ({} as never)), targetLabel: '가, 나' },
     ]);
     expect(csv).toContain('"가, 나"');
-  });
-});
-
-/* ── 조사 (ERP-13) ───────────────────────────────────────────────────────── */
-
-describe('josa — 받침으로 조사를 고른다', () => {
-  it('받침 있는 말에는 "을"', () => {
-    expect(withObjectParticle('기록')).toBe('기록을');
-  });
-
-  it('받침 없는 말에는 "를"', () => {
-    expect(withObjectParticle('관리자 로그')).toBe('관리자 로그를');
-    expect(withObjectParticle('오류 로그')).toBe('오류 로그를');
-  });
-
-  it('한글이 아니면 받침 없음으로 본다 (API를 이 API을 보다 자연스럽다)', () => {
-    expect(hasBatchim('API')).toBe(false);
-    expect(withObjectParticle('API')).toBe('API를');
-  });
-
-  it('빈 문자열에도 죽지 않는다', () => {
-    expect(hasBatchim('')).toBe(false);
   });
 });

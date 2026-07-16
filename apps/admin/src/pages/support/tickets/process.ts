@@ -2,6 +2,7 @@
 //
 // 상세 화면의 저장 로직에서 순수 부분(변경 여부·담당 요건·타임라인 조립)을 떼어낸다. 컴포넌트는 상태와
 // 배선만 갖고, 규칙은 여기서 테스트 가능한 순수 함수로 둔다.
+import { directionParticle } from '../../../shared/format';
 import { appendEvent, statusRequiresAssignee, ticketStatusLabel } from '../_shared/domain';
 import type { Ticket, TicketEvent, TicketEventKind, TicketStatus } from '../_shared/domain';
 
@@ -46,7 +47,12 @@ export function buildTimeline(
   if (draft.status !== ticket.status) {
     timeline = appendEvent(
       timeline,
-      event(`ev-${seq}-s`, now, 'status', `상태를 '${ticketStatusLabel(draft.status)}'(으)로 변경`),
+      event(
+        `ev-${seq}-s`,
+        now,
+        'status',
+        `상태를 '${ticketStatusLabel(draft.status)}'${directionParticle(ticketStatusLabel(draft.status))} 변경`,
+      ),
     );
   }
   if (draft.composer.trim() !== '') {

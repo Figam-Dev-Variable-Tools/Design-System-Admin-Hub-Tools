@@ -23,12 +23,11 @@ import type { CSSProperties } from 'react';
 
 import { isAbort } from '../../../shared/async';
 import { downloadCsv } from '../../../shared/download';
-import { formatNumber } from '../../../shared/format';
+import { formatNumber, objectParticle } from '../../../shared/format';
 import { usePermissions } from '../../../shared/permissions/PermissionProvider';
 import { navPageResourceId } from '../../../shared/permissions/resources';
 import { Alert, Button, hintStyle, Pagination, useToast } from '../../../shared/ui';
 import '../logs.css';
-import { withObjectParticle } from '../josa';
 import { useLogListState, useSearchInput } from '../list-state';
 import { presetRange } from '../period';
 import { useLogExport, useLogQuery } from '../queries';
@@ -115,7 +114,7 @@ function AccessDenied({ label }: { readonly label: string }) {
       <div>
         <p style={deniedTitleStyle}>접근 권한이 없습니다.</p>
         <p style={deniedBodyStyle}>
-          {`${withObjectParticle(label)} 조회할 권한이 없습니다. 필요하다면 최상위 관리자에게 요청해 주세요.`}
+          {`${label}${objectParticle(label)} 조회할 권한이 없습니다. 필요하다면 최상위 관리자에게 요청해 주세요.`}
         </p>
       </div>
     </Alert>
@@ -311,7 +310,7 @@ export function LogListShell<E extends LogEntryBase>({
             // 조회 실패는 인라인이다 — 토스트로 띄우면 사라진 뒤 '기록이 없다'와 구분되지 않는다 (STATE-02)
             <Alert tone="danger">
               <div style={errorBodyStyle}>
-                <span>{`${withObjectParticle(spec.entityLabel)} 불러오지 못했습니다.`}</span>
+                <span>{`${spec.entityLabel}${objectParticle(spec.entityLabel)} 불러오지 못했습니다.`}</span>
                 <Button
                   variant="secondary"
                   onClick={() => {

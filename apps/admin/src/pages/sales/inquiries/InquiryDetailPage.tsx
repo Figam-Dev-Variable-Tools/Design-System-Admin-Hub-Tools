@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { isAbort } from '../../../shared/async';
-import { formatDateTime } from '../../../shared/format';
+import { directionParticle, formatDateTime } from '../../../shared/format';
 import {
   Alert,
   Button,
@@ -156,7 +156,7 @@ export default function InquiryDetailPage() {
         at: now,
         author: ADMIN_AUTHOR,
         kind: 'status',
-        text: `상태를 '${inquiryStatusLabel(status)}'(으)로 변경`,
+        text: `상태를 '${inquiryStatusLabel(status)}'${directionParticle(inquiryStatusLabel(status))} 변경`,
       };
       timeline = appendEvent(timeline, statusEvent);
     }

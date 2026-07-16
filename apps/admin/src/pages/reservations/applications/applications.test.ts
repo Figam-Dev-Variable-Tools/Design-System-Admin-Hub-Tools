@@ -88,6 +88,6 @@ describe('toTimelineEvents — 이력 환산(순수)', () => {
     expect(events.map((event) => event.badgeLabel)).toEqual(['접수', '검토중']);
     expect(events.map((event) => event.badgeTone)).toEqual(['neutral', 'info']);
     // 메모가 없으면 기본 문구, 있으면 메모 그대로
-    expect(events.map((event) => event.text)).toEqual(['접수', '검토중(으)로 변경']);
+    expect(events.map((event) => event.text)).toEqual(['접수', '검토중으로 변경']);
   });
 });

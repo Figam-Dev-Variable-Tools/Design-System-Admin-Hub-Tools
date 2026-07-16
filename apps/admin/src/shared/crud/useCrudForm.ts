@@ -10,6 +10,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import type { ZodMiniType } from 'zod/mini';
 
 import { isAbort } from '../async';
+import { objectParticle } from '../format';
 import {
   isConflict,
   isHttpError,
@@ -212,7 +213,8 @@ export function useCrudForm<T extends { id: string }, Input, Values extends Fiel
       if (controller.signal.aborted) return;
       // 성공했으니 이 거래는 끝났다 — 다음 제출은 새 키를 받는다
       idempotencyKeyRef.current = null;
-      toast.success(`${config.entityLabel}을(를) ${verb}했습니다.`);
+      // ERP-13 — '공지사항을 저장했습니다' / '카테고리를 저장했습니다'
+      toast.success(`${config.entityLabel}${objectParticle(config.entityLabel)} ${verb}했습니다.`);
       navigate(config.listPath, { replace: true });
     };
 

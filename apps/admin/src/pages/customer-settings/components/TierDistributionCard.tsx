@@ -18,7 +18,7 @@ import {
   thStyle,
   visuallyHiddenStyle,
 } from '../../../shared/ui';
-import { formatNumber, formatSignedNumber } from '../../../shared/format';
+import { directionParticle, formatNumber, formatSignedNumber } from '../../../shared/format';
 import { TIER_LABEL } from '../../../shared/domain/member';
 import type { Distribution } from '../distribution';
 import { TIER_ORDER } from '../types';
@@ -79,7 +79,7 @@ function movementSentences(distribution: Distribution): readonly string[] {
     const promoted = distribution.promotedInto[tier];
     if (promoted > 0) {
       sentences.push(
-        `저장하면 ${formatNumber(promoted)}명이 ${TIER_LABEL[tier]}(으)로 승급됩니다.`,
+        `저장하면 ${formatNumber(promoted)}명이 ${TIER_LABEL[tier]}${directionParticle(TIER_LABEL[tier])} 승급됩니다.`,
       );
     }
   }
@@ -87,7 +87,9 @@ function movementSentences(distribution: Distribution): readonly string[] {
   for (const tier of TIER_ORDER) {
     const demoted = distribution.demotedInto[tier];
     if (demoted > 0) {
-      sentences.push(`저장하면 ${formatNumber(demoted)}명이 ${TIER_LABEL[tier]}(으)로 강등됩니다.`);
+      sentences.push(
+        `저장하면 ${formatNumber(demoted)}명이 ${TIER_LABEL[tier]}${directionParticle(TIER_LABEL[tier])} 강등됩니다.`,
+      );
     }
   }
 

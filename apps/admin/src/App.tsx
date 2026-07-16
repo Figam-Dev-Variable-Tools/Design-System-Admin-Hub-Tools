@@ -111,6 +111,12 @@ import AdminLogPage from './pages/logs/admin/AdminLogPage';
 import MemberActivityPage from './pages/logs/member-activity/MemberActivityPage';
 import ApiLogPage from './pages/logs/api/ApiLogPage';
 import ErrorLogPage from './pages/logs/errors/ErrorLogPage';
+import RuleListPage from './pages/notifications/send/RuleListPage';
+import RuleFormPage from './pages/notifications/send/RuleFormPage';
+import EmailTemplateListPage from './pages/notifications/email-templates/EmailTemplateListPage';
+import EmailTemplateFormPage from './pages/notifications/email-templates/EmailTemplateFormPage';
+import SmsTemplateListPage from './pages/notifications/sms-templates/SmsTemplateListPage';
+import SmsTemplateFormPage from './pages/notifications/sms-templates/SmsTemplateFormPage';
 import ReservationListPage from './pages/reservations/ReservationListPage';
 import ReservationFormPage from './pages/reservations/ReservationFormPage';
 import ApplicationListPage from './pages/reservations/applications/ApplicationListPage';
@@ -276,6 +282,18 @@ const APP_ROUTES: readonly AppRoute[] = [
   { path: '/marketing/templates', element: <TemplateListPage />, implemented: true },
   { path: '/marketing/templates/new', element: <TemplateFormPage /> },
   { path: '/marketing/templates/:id/edit', element: <TemplateFormPage /> },
+
+  // 알림 관리 — 트랜잭션/시스템 알림(마케팅 캠페인과 역할이 다르다: 이벤트 트리거로 시스템이 자동 발송).
+  // 발송 규칙/이메일 템플릿/SMS 템플릿. 등록/수정은 하나의 폼이 :id 유무로 겸한다.
+  { path: '/notifications/send', element: <RuleListPage />, implemented: true },
+  { path: '/notifications/send/new', element: <RuleFormPage /> },
+  { path: '/notifications/send/:id/edit', element: <RuleFormPage /> },
+  { path: '/notifications/email-templates', element: <EmailTemplateListPage />, implemented: true },
+  { path: '/notifications/email-templates/new', element: <EmailTemplateFormPage /> },
+  { path: '/notifications/email-templates/:id/edit', element: <EmailTemplateFormPage /> },
+  { path: '/notifications/sms-templates', element: <SmsTemplateListPage />, implemented: true },
+  { path: '/notifications/sms-templates/new', element: <SmsTemplateFormPage /> },
+  { path: '/notifications/sms-templates/:id/edit', element: <SmsTemplateFormPage /> },
 
   // 예약/신청 — 예약/신청서/상담예약/일정. 정적 하위 경로 뒤에 '/reservations/:id/edit'(:id 최후).
   { path: '/reservations', element: <ReservationListPage />, implemented: true },

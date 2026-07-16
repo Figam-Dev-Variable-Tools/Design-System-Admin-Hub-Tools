@@ -5,6 +5,7 @@
 import type { CSSProperties, FormEvent, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { objectParticle } from '../format';
 import {
   Alert,
   alertActionRowStyle,
@@ -125,8 +126,8 @@ export function FormPageShell({
           <div style={alertActionRowStyle}>
             <span>
               {notFound
-                ? `${entityLabel}을(를) 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.`
-                : `${entityLabel}을(를) 불러오지 못했습니다.`}
+                ? `${entityLabel}${objectParticle(entityLabel)} 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.`
+                : `${entityLabel}${objectParticle(entityLabel)} 불러오지 못했습니다.`}
             </span>
             {!notFound && onRetryLoad !== undefined && (
               <Button variant="secondary" onClick={onRetryLoad}>

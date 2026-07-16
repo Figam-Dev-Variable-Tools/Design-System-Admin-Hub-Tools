@@ -30,6 +30,7 @@ import {
   TRADE_TYPE_OPTIONS,
 } from './types';
 import type { Account, AccountInput, TradeFilter } from './types';
+import { objectParticle } from '../../../shared/format';
 
 const RESOURCE = 'sales-accounts';
 const ENTITY_LABEL = '거래처';
@@ -137,7 +138,7 @@ export default function AccountListPage() {
               { ...toAccountInput(item), active: next },
               {
                 success: next
-                  ? `'${item.name}' 을(를) 거래중으로 바꿨습니다.`
+                  ? `'${item.name}'${objectParticle(item.name)} 거래중으로 바꿨습니다.`
                   : `'${item.name}' 거래를 중지했습니다.`,
               },
             )

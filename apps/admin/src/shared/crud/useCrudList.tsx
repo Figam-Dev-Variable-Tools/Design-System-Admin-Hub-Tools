@@ -7,7 +7,7 @@ import { useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { isAbort } from '../async';
-import { formatNumber } from '../format';
+import { formatNumber, objectParticle } from '../format';
 import { ConfirmDialog, useRowSelection, useToast } from '../ui';
 import { useCrudBulkDelete, useCrudDelete, useCrudListQuery } from './crud';
 import type { CrudAdapter } from './crud';
@@ -104,7 +104,8 @@ export function useCrudList<T extends { id: string }, Input>({
         onSuccess: () => {
           if (controller.signal.aborted) return;
           setPendingDelete(null);
-          toast.success(`'${nameOf(target)}' 을(를) 삭제했습니다.`);
+          // ERP-13 — 조사는 이름의 받침이 고른다 ('홍길동'을 / '카페'를)
+          toast.success(`'${nameOf(target)}'${objectParticle(nameOf(target))} 삭제했습니다.`);
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
@@ -154,7 +155,7 @@ export function useCrudList<T extends { id: string }, Input>({
         <ConfirmDialog
           intent="delete"
           title={`${entityLabel} 삭제`}
-          message={`'${nameOf(pendingDelete)}' 을(를) 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${nameOf(pendingDelete)}'${objectParticle(nameOf(pendingDelete))} 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
           confirmLabel="삭제"
           busy={deleting}
           error={deleteError}

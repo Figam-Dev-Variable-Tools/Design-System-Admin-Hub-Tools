@@ -22,6 +22,7 @@ import {
   toQuoteInput,
 } from './types';
 import type { Quote, QuoteInput, QuoteStatusFilter } from './types';
+import { objectParticle } from '../../../shared/format';
 
 const RESOURCE = 'sales-quotes';
 const ENTITY_LABEL = '견적';
@@ -123,7 +124,9 @@ export default function QuoteListPage() {
               convert.run(
                 item.id,
                 { ...toQuoteInput(item), status: 'ordered' },
-                { success: `'${item.quoteNo}' 을(를) 수주로 전환했습니다.` },
+                {
+                  success: `'${item.quoteNo}'${objectParticle(item.quoteNo)} 수주로 전환했습니다.`,
+                },
               )
             }
           >

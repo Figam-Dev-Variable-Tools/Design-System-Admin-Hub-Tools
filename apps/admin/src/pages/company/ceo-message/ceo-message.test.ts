@@ -28,7 +28,7 @@ describe('ceoMessageSchema — CEO 인사말 폼 검증', () => {
   });
 
   it('제목이 비면 막는다', () => {
-    expect(messageFor(valuesOf({ title: '   ' }), 'title')).toBe('제목을(를) 입력하세요.');
+    expect(messageFor(valuesOf({ title: '   ' }), 'title')).toBe('제목을 입력하세요.');
   });
 
   it('본문이 비면 막는다', () => {
