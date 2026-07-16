@@ -270,6 +270,10 @@ export default function ProductListPage() {
       visibleItems={visible}
       columns={columns}
       nameOf={nameOf}
+      empty={{
+        hasQuery: keyword !== '',
+        onClearSearch: () => setKeyword(''),
+      }}
       selectAllLabelId="product-select-all"
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}

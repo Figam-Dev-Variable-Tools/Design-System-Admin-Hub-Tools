@@ -103,6 +103,10 @@ export default function RepliesPage() {
         visibleItems={visibleItems}
         columns={COLUMNS}
         nameOf={(template) => template.title}
+        empty={{
+          hasQuery: keyword !== '',
+          onClearSearch: () => setKeyword(''),
+        }}
         selectAllLabelId={SELECT_ALL_LABEL_ID}
         toolbar={toolbar}
         onEdit={(template) => navigate(`${LIST_PATH}/${template.id}/edit`)}

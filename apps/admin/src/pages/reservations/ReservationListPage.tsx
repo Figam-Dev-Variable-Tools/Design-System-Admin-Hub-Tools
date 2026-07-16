@@ -166,6 +166,12 @@ export default function ReservationListPage() {
       visibleItems={visible}
       columns={columns}
       nameOf={nameOf}
+      empty={{
+        hasQuery: keyword !== '',
+        hasActiveFilters: filter !== BOOKING_FILTER_ALL,
+        onClearSearch: () => setKeyword(''),
+        onResetFilters: () => setFilter(BOOKING_FILTER_ALL),
+      }}
       selectAllLabelId="reservations-select-all"
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}

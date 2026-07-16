@@ -159,6 +159,12 @@ export default function PromotionListPage() {
       visibleItems={visible}
       columns={columns}
       nameOf={nameOf}
+      empty={{
+        hasQuery: keyword !== '',
+        hasActiveFilters: filter !== PROMOTION_FILTER_ALL,
+        onClearSearch: () => setKeyword(''),
+        onResetFilters: () => setFilter(PROMOTION_FILTER_ALL),
+      }}
       selectAllLabelId="marketing-promotions-select-all"
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}

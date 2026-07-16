@@ -101,6 +101,10 @@ export default function EsgListPage() {
         visibleItems={visible}
         columns={columns}
         nameOf={nameOf}
+        empty={{
+          hasActiveFilters: filter !== ESG_FILTER_ALL,
+          onResetFilters: () => setFilter(ESG_FILTER_ALL),
+        }}
         selectAllLabelId="esg-select-all"
         toolbar={toolbar}
         onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}

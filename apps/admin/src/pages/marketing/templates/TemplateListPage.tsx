@@ -166,6 +166,10 @@ export default function TemplateListPage() {
       visibleItems={visibleItems}
       columns={COLUMNS}
       nameOf={nameOf}
+      empty={{
+        hasQuery: keyword !== '',
+        onClearSearch: () => setKeyword(''),
+      }}
       selectAllLabelId="marketing-templates-select-all"
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}

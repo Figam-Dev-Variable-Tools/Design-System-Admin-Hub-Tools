@@ -155,6 +155,12 @@ export default function ContractListPage() {
       visibleItems={visible}
       columns={columns}
       nameOf={nameOf}
+      empty={{
+        hasQuery: keyword !== '',
+        hasActiveFilters: filter !== CONTRACT_FILTER_ALL,
+        onClearSearch: () => setKeyword(''),
+        onResetFilters: () => setFilter(CONTRACT_FILTER_ALL),
+      }}
       selectAllLabelId="contract-select-all"
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}

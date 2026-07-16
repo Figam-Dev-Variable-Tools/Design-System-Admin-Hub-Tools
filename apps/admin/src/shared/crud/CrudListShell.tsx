@@ -6,7 +6,14 @@
 import type { CSSProperties, ReactNode } from 'react';
 
 import { formatNumber } from '../format';
-import { Alert, Button, hintStyle, SelectionBar } from '../ui';
+import {
+  Alert,
+  alertActionRowStyle,
+  Button,
+  hintStyle,
+  SelectionBar,
+  visuallyHiddenStyle,
+} from '../ui';
 import { CrudTable } from './CrudTable';
 import type { CrudColumn, EmptyContext } from './CrudTable';
 
@@ -22,14 +29,6 @@ const summaryRowStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'space-between',
   gap: 'var(--tds-space-3)',
-};
-
-const errorBodyStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
-  flexWrap: 'wrap',
 };
 
 interface CrudListShellController<T extends { id: string }> {
@@ -65,6 +64,23 @@ interface CrudListShellProps<T extends { id: string }> {
   readonly onEdit: (item: T) => void;
 }
 
+/**
+ * 스크린리더에 알릴 목록 상태 한 줄 (A11Y-16).
+ *
+ * 최초 로드 중에는 침묵한다 — 아직 알릴 사실이 없고, 로드가 끝나면 결과를 알린다.
+ */
+function announcementOf(
+  firstLoading: boolean,
+  error: Error | null,
+  entityLabel: string,
+  count: number,
+): string {
+  if (firstLoading) return '';
+  if (error !== null) return `${entityLabel} 목록을 불러오지 못했습니다.`;
+  if (count === 0) return `조건에 맞는 ${entityLabel} 결과가 없습니다.`;
+  return `${entityLabel} ${formatNumber(count)}건을 찾았습니다.`;
+}
+
 export function CrudListShell<T extends { id: string }>({
   entityLabel,
   controller,
@@ -80,6 +96,18 @@ export function CrudListShell<T extends { id: string }>({
 
   return (
     <div style={columnStyle}>
+      {/*
+        [A11Y-16] **항상 마운트된** polite live region.
+
+        Empty 자신도 role="status" 를 갖지만, 그 노드는 **내용과 함께 생성**된다 — 그렇게 삽입된
+        live region 은 NVDA/JAWS 에서 신뢰성 있게 announce 되지 않는다(ToastProvider 가 지속
+        컨테이너를 두는 것과 정확히 같은 이유다 — A11Y-01). 그래서 지속 region 은 몰리큘이 아니라
+        **껍데기**가 소유하고, 여기에 텍스트만 주입한다. 필터·검색으로 0행이 되는 전환이 이 줄로 들린다.
+      */}
+      <div aria-live="polite" aria-atomic="true" style={visuallyHiddenStyle}>
+        {announcementOf(firstLoading, error, entityLabel, visibleItems.length)}
+      </div>
+
       {toolbar}
 
       {error === null ? (
@@ -127,7 +155,7 @@ export function CrudListShell<T extends { id: string }>({
         </>
       ) : (
         <Alert tone="danger">
-          <div style={errorBodyStyle}>
+          <div style={alertActionRowStyle}>
             <span>{entityLabel} 목록을 불러오지 못했습니다.</span>
             <Button variant="secondary" onClick={controller.refetch}>
               다시 시도

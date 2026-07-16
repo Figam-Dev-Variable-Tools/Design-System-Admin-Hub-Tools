@@ -158,6 +158,12 @@ export default function SmsListPage() {
       visibleItems={visible}
       columns={COLUMNS}
       nameOf={nameOf}
+      empty={{
+        hasQuery: keyword !== '',
+        hasActiveFilters: filter !== SMS_FILTER_ALL,
+        onClearSearch: () => setKeyword(''),
+        onResetFilters: () => setFilter(SMS_FILTER_ALL),
+      }}
       selectAllLabelId="marketing-sms-select-all"
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}

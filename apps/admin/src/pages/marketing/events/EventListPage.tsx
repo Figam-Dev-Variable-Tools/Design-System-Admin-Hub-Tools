@@ -157,6 +157,12 @@ export default function EventListPage() {
       visibleItems={visible}
       columns={columns}
       nameOf={nameOf}
+      empty={{
+        hasQuery: keyword !== '',
+        hasActiveFilters: filter !== EVENT_FILTER_ALL,
+        onClearSearch: () => setKeyword(''),
+        onResetFilters: () => setFilter(EVENT_FILTER_ALL),
+      }}
       selectAllLabelId="marketing-events-select-all"
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}

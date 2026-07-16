@@ -170,6 +170,12 @@ export default function NewsletterListPage() {
       visibleItems={visible}
       columns={COLUMNS}
       nameOf={nameOf}
+      empty={{
+        hasQuery: keyword !== '',
+        hasActiveFilters: filter !== NEWSLETTER_FILTER_ALL,
+        onClearSearch: () => setKeyword(''),
+        onResetFilters: () => setFilter(NEWSLETTER_FILTER_ALL),
+      }}
       selectAllLabelId="marketing-newsletters-select-all"
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
