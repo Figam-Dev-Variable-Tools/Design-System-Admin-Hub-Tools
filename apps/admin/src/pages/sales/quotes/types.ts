@@ -30,6 +30,8 @@ export interface Quote {
   /** 공급받는자 사업자등록번호(표기용) */
   readonly accountBizNo: string;
   readonly accountCeo: string;
+  /** 공급받는자 담당자 — 문의에서 발행하면 문의 고객명을 승계한다 */
+  readonly contactName: string;
   /** 견적일 'YYYY-MM-DD' */
   readonly issueDate: string;
   /** 유효기간(만료일) 'YYYY-MM-DD' */
@@ -38,9 +40,23 @@ export interface Quote {
   readonly items: readonly QuoteLineItem[];
   readonly status: QuoteStatus;
   readonly note: string;
+  /** 원본 문의 id — '' 면 수동 등록 견적. 값이 있으면 승계 필드가 잠긴다 */
+  readonly inquiryId: string;
+  /** 원본 문의번호(승계 스냅숏 — 표시·역링크용) */
+  readonly inquiryNo: string;
+  /** 승계된 문의내용(읽기 전용 — 견적 작성의 근거) */
+  readonly inquiryBody: string;
 }
 
 export type QuoteInput = Omit<Quote, 'id'>;
+
+/**
+ * 문의에서 자동 생성된 견적인가 — 승계 필드·견적번호를 잠그는 단일 판정.
+ * 사람이 고칠 수 있는 값과 시스템이 승계한 값을 화면마다 다시 정의하지 않게 한다.
+ */
+export function isInherited(quote: Pick<Quote, 'inquiryId'>): boolean {
+  return quote.inquiryId !== '';
+}
 
 export const QUOTE_ITEM_NAME_MAX = 60;
 export const QUOTE_MAX_ITEMS = 30;
@@ -173,12 +189,16 @@ export function toQuoteInput(quote: Quote): QuoteInput {
     accountName: quote.accountName,
     accountBizNo: quote.accountBizNo,
     accountCeo: quote.accountCeo,
+    contactName: quote.contactName,
     issueDate: quote.issueDate,
     validUntil: quote.validUntil,
     taxMode: quote.taxMode,
     items: quote.items,
     status: quote.status,
     note: quote.note,
+    inquiryId: quote.inquiryId,
+    inquiryNo: quote.inquiryNo,
+    inquiryBody: quote.inquiryBody,
   };
 }
 
@@ -186,4 +206,57 @@ export function toQuoteInput(quote: Quote): QuoteInput {
 export function makeQuoteNo(issueDate: string, seq: number): string {
   const compact = issueDate.replace(/\D/g, '');
   return `Q-${compact}-${String(seq).padStart(3, '0')}`;
+}
+
+/** 견적 기본 유효기간 — 발행일로부터 30일(국내 관례). 문의 발행 견적의 초기값. */
+export const QUOTE_VALID_DAYS = 30;
+
+/** 'YYYY-MM-DD' + 일수 → 'YYYY-MM-DD'. 유효기간 기본값 계산이 쓴다. */
+export function addDays(date: string, days: number): string {
+  const base = new Date(`${date}T00:00:00`);
+  if (Number.isNaN(base.getTime())) return date;
+  base.setDate(base.getDate() + days);
+  const year = String(base.getFullYear());
+  const month = String(base.getMonth() + 1).padStart(2, '0');
+  const day = String(base.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/** 문의 → 견적 승계 값(순수) — 어떤 필드가 문의에서 넘어오는지의 단일 정의 */
+export interface QuoteInheritance {
+  readonly inquiryId: string;
+  readonly inquiryNo: string;
+  /** 회사 → 거래처(공급받는자) */
+  readonly company: string;
+  /** 문의 고객명 → 담당자 */
+  readonly customerName: string;
+  /** 문의내용 */
+  readonly body: string;
+  /** 발행일 'YYYY-MM-DD' */
+  readonly issueDate: string;
+}
+
+/**
+ * 승계된 값으로 신규 견적 입력을 만든다(순수) — 문의에서 넘어오는 필드는 여기 한 곳에서만 정한다.
+ * 품목·과세유형·금액은 승계 대상이 아니다(문의는 그 정보를 갖지 않는다) — 운영자가 채운다.
+ * 상태는 '작성중'이다: 품목이 비어 있는 견적을 '발송'으로 두면 발송되지 않은 견적이 발송으로 보인다.
+ */
+export function buildQuoteFromInquiry(inheritance: QuoteInheritance): QuoteInput {
+  return {
+    // 견적번호는 데이터소스가 채번한다(빈 값 = 자동 부여) — 사람이 정하지 않는다.
+    quoteNo: '',
+    accountName: inheritance.company,
+    accountBizNo: '',
+    accountCeo: '',
+    contactName: inheritance.customerName,
+    issueDate: inheritance.issueDate,
+    validUntil: addDays(inheritance.issueDate, QUOTE_VALID_DAYS),
+    taxMode: 'standard',
+    items: [],
+    status: 'draft',
+    note: '',
+    inquiryId: inheritance.inquiryId,
+    inquiryNo: inheritance.inquiryNo,
+    inquiryBody: inheritance.body,
+  };
 }
