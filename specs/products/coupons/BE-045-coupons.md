@@ -35,7 +35,7 @@ date: 2026-07-17
 | 멱등키가 **폼 저장에는** 도달한다 | `useCrudForm.ts:118-123,211,228,235` → `crud.ts:288,310` → 원장 `crud.ts:62-72,114,121` |
 | 멱등키가 **토글·삭제에는** 도달하지 않는다 | `useCrudRowUpdate.ts:45` (`{ id, input, signal }` — 키 없음) · `crud.ts:330` (`adapter.remove(id, { signal })`) |
 | 유령 저장·409 는 공용 어댑터가 막는다 | `crud.ts:126-128`(update) · `crud.ts:139-141`(remove) |
-| `issuedCount` 가 폼 값으로 왕복한다 | `validation.ts:50-51` (`issuedCount: z.number()`) · `CouponFormPage.tsx:110,124,144` · `types.ts:125-139` (`toCouponInput` 이 복사) |
+| `issuedCount` 가 폼 값으로 왕복한다 | `validation.ts:44-45` (`issuedCount: z.number()`) · `CouponFormPage.tsx:110,124,144` · `types.ts:125-139` (`toCouponInput` 이 복사) |
 | 쿠폰 상태는 파생값이다 | `types.ts:95-106` (`couponStatus(coupon, today)`) — `Coupon` 에 status 필드가 없다 |
 | 발급 대상의 구체 지정 필드가 **타입에 없다** | `types.ts:14-36` (`target: CouponTarget` 뿐 — `targetIds`/`gradeIds` 류 0건) |
 | 코드 중복 검사가 클라이언트에 없다 | `validation.ts:32-40` (형식 3단만) · 어댑터에 유일성 검사 0건 |
@@ -245,7 +245,7 @@ date: 2026-07-17
 
 ### 7.2 `issuedCount` 를 요청에서 받지 않는다 — 서버가 소유한다 【보안 판정】
 
-**현재 클라이언트가 `issuedCount` 를 바디에 실어 보낸다**: 스키마가 그것을 폼 값으로 인정하고(`validation.ts:50-51` `issuedCount: z.number()`), `toValues` 가 항목에서 복사하고(`CouponFormPage.tsx:144`), `toInput` 이 그대로 되돌려 보내며(`:124`), **토글도 `toCouponInput(item)` 으로 전체를 실어 보낸다**(`CouponListPage.tsx:155` → `types.ts:136`). 등록 시 초기값은 0(`:110`).
+**현재 클라이언트가 `issuedCount` 를 바디에 실어 보낸다**: 스키마가 그것을 폼 값으로 인정하고(`validation.ts:44-45` `issuedCount: z.number()`), `toValues` 가 항목에서 복사하고(`CouponFormPage.tsx:144`), `toInput` 이 그대로 되돌려 보내며(`:124`), **토글도 `toCouponInput(item)` 으로 전체를 실어 보낸다**(`CouponListPage.tsx:155` → `types.ts:135`). 등록 시 초기값은 0(`:110`).
 
 **이것이 만드는 사고**:
 1. **소진율 조작.** `issuedCount` 는 목록의 소진율 표시(`usageRate` — `types.ts:90-93`)와 **발급 가능 여부 판정의 근거**다(`totalQuantity` 대비). 조작된 클라이언트가 `issuedCount: 0` 을 보내면 **소진된 쿠폰이 다시 무제한이 된다** — 1,000장짜리 쿠폰을 무한히 발급할 수 있다.
@@ -258,7 +258,7 @@ date: 2026-07-17
 
 | 안 | 형태 | 평가 |
 |---|---|---|
-| **A (권장)** | `CouponInput` 에서 `issuedCount` 를 **제거**한다. 스키마·`toValues`·`toInput`·`toCouponInput` 에서 함께 빠진다 | 위조가 구조적으로 불가능하다. **어댑터 시그니처는 그대로다**(`Input` 타입만 좁아진다). 화면 변경은 4곳(`validation.ts:50-51` · `CouponFormPage.tsx:110,124,144` · `types.ts:136`) |
+| **A (권장)** | `CouponInput` 에서 `issuedCount` 를 **제거**한다. 스키마·`toValues`·`toInput`·`toCouponInput` 에서 함께 빠진다 | 위조가 구조적으로 불가능하다. **어댑터 시그니처는 그대로다**(`Input` 타입만 좁아진다). 화면 변경은 4곳(`validation.ts:44-45` · `CouponFormPage.tsx:110,124,144` · `types.ts:135`) |
 | **B (차선)** | 필드를 유지하되 서버가 **무시** | 어댑터를 덜 흔든다. 그러나 '무시한다'는 계약은 구현이 한 줄 빠지면 조용히 깨진다 — 안 A 는 타입이 강제한다 |
 
 **추가 판정 — `totalQuantity` 검증**: 서버는 `totalQuantity > 0 && totalQuantity < issuedCount(저장된 값)` 이면 **422 `QUANTITY_BELOW_ISSUED`** 로 거절한다. 발급 수량을 이미 나간 수보다 작게 만드는 것은 데이터를 모순 상태로 만든다.
@@ -342,7 +342,7 @@ BE-026(1:1 문의)·BE-044(교환/반품)는 `operator` 에게 쓰기를 연다.
 
 | # | 내용 | 이관 |
 |---|---|---|
-| 1 | **`issuedCount` 를 요청 바디에서 제거(§7.2 안 A)** — `validation.ts:50-51` · `CouponFormPage.tsx:110,124,144` · `types.ts:136` 4곳. **금액 무결성의 핵심**. lost update 는 조작 없이도 토글 클릭 한 번으로 일어난다 | A63 · A11 (최우선) |
+| 1 | **`issuedCount` 를 요청 바디에서 제거(§7.2 안 A)** — `validation.ts:44-45` · `CouponFormPage.tsx:110,124,144` · `types.ts:135` 4곳. **금액 무결성의 핵심**. lost update 는 조작 없이도 토글 클릭 한 번으로 일어난다 | A63 · A11 (최우선) |
 | 2 | **발급 대상 확정(§7.1)** — `target` 이 유형만 있고 대상 필드가 없다. 세 해석 중 무엇도 코드에 근거가 없어 **'미정'** 으로 남겼다. 확정 전에 서버가 `targetIds` 를 발명하면 프론트에 채울 입력이 없어 항상 빈 배열이 온다 | **A01 (선행)** · A63 · A11 |
 | 3 | **코드 중복을 409 가 아니라 422 + `field: 'code'` 로 내려보낸다(§7.3)** — 409 로 내면 `isConflict` 가 먼저 잡아 '다른 사용자가 먼저 변경했습니다' 라는 **틀린 다이얼로그**를 연다. 422 로 내면 화면 코드 0줄로 `code` 필드 인라인 오류 + 포커스가 성립한다 | **A63 (계약 결정)** |
 | 4 | **발급 토글에 멱등키가 도달하지 않는다** — `useCrudRowUpdate.ts:45` 가 `{ id, input, signal }` 만 넘긴다. 폼 저장은 도달한다(`useCrudForm`). 같은 엔드포인트(EP-04)를 두 경로가 다른 보장으로 호출한다 | A11 · A63 |

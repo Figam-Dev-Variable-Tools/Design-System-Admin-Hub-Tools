@@ -25,7 +25,7 @@ date: 2026-07-17
 | 구현 경로 | `apps/admin/src/pages/reservations/applications/**` |
 | 대응 SCR | SCR-038 (미작성 — §7) |
 | 공통 컴포넌트 | `shared/ui/{Alert,Button,SearchField,SelectField,SeqCell,SeqHeaderCell,StatusBadge,Card,CardTitle,FormField,TextareaField,Timeline,ToastProvider,useUnsavedChangesDialog,ChevronLeftIcon}` · `shared/crud/{useCrudListQuery,useCrudUpdate,createCrudAdapter,**useListState**,**parseFilter**}` · `shared/useRowNavigation` · `shared/format`(`formatDateTime`·`formatNumber`·`directionParticle`) · `shared/async(isAbort)` |
-| 판정 기준일 | 2026-07-17 · `HEAD = 4b805ad` — **1.1 갱신**: F3b 가 `useListState`(URL 조회 상태 + IME 안전 검색)를 배선하고 `firstLoading` 파생을 넣었다 → §7 #3 닫힘 · NFR-038 의 STATE-01·COMP-10·IA-13 이 pass 로 뒤집혔다. 통합의 `findCoveringLeaf` 로 §7 #2 의 '브랜치 라벨' 절이 해소됐다(이중 h1 은 유지). **새 결함 1건 발견 — §7 #16**(종료 상태 안내의 하드코딩 조사) |
+| 판정 기준일 | 2026-07-17 · `HEAD = a5c2639` — **1.2 갱신**: 이번 기준 갱신으로 **뒤집힌 판정 없음**. 이 화면에는 PR #22(일정 격자 a11y)·#24(RichTextField)·#30(A11Y-11 DS층)이 건드린 표면이 **하나도 없다**(`RichTextField`·`ToggleSwitch`·`CalendarGrid`·`ImageUploadField` grep = 0건). PR #26 의 오버레이 모션은 미저장 가드 `ConfirmDialog` 에 상속되나 소유가 DS 라 NFR-038 의 MOTION-01/02 는 `종속` 그대로다(근거만 갱신). — **1.1 갱신(기록)**: F3b 가 `useListState`(URL 조회 상태 + IME 안전 검색)를 배선하고 `firstLoading` 파생을 넣었다 → §7 #3 닫힘 · NFR-038 의 STATE-01·COMP-10·IA-13 이 pass 로 뒤집혔다. 통합의 `findCoveringLeaf` 로 §7 #2 의 '브랜치 라벨' 절이 해소됐다(이중 h1 은 유지). **새 결함 1건 발견 — §7 #16**(종료 상태 안내의 하드코딩 조사) |
 
 > **생성·삭제가 없다.** 신청서는 고객이 제출한다 — 이 화면에 등록 버튼도, 삭제 경로도, 행 선택도, 일괄 작업도 없다(`ApplicationListPage.tsx` 전수 · `data-source.ts:3-4` 주석이 같은 판정). 처리는 **상태 전이 + 메모 저장(update)** 하나뿐이며 감사 성격상 삭제하지 않는다(`ApplicationDetailPage.tsx:4`).
 

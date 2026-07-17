@@ -28,15 +28,15 @@ date: 2026-07-17
 >
 > **엔드포인트 상속**: **BE-037 을 그대로 재사용한다.** 아래 §4 는 새 계약이 아니라 '이 화면이 BE-037 의 무엇을 어떤 조건으로 쓰는가'의 선언이다.
 
-### 1.1 재사용의 근거 (코드 대조 · `HEAD = 4b805ad` 기준 재확인)
+### 1.1 재사용의 근거 (코드 대조 · `HEAD = a5c2639` 기준 재확인)
 
-이 문서가 전용 엔드포인트를 정의하지 **않는** 이유는 추정이 아니라 코드다. **F3a·F3b·통합(PR #8·#11·#12·#14·#16) 이후 아래 다섯 사실을 전부 다시 확인했고 하나도 바뀌지 않았다** — 재사용 선언은 그대로 유효하다.
+이 문서가 전용 엔드포인트를 정의하지 **않는** 이유는 추정이 아니라 코드다. **PR #22·#24·#26·#28·#30·#32·#34 이후에도 아래 다섯 사실을 전부 다시 확인했고 하나도 바뀌지 않았다** — 재사용 선언은 그대로 유효하다.
 
 | 사실 | 근거 |
 |---|---|
-| **이 화면에 `// TODO(backend)` 심이 0건이다** | `schedule/ScheduleCalendarPage.tsx` · `schedule/components/CalendarGrid.tsx` · `schedule/schedule-data.ts` 전체에 백엔드 주석이 없다(`4b805ad` 재확인) |
-| 데이터를 예약 어댑터에서 읽는다 | `ScheduleCalendarPage.tsx:22` `import { reservationAdapter } from '../_shared/reservation-store'` · `:135` `useCrudListQuery(RESOURCE, reservationAdapter)` (`RESOURCE = 'reservations'` — `:30`) |
-| **예약 관리와 같은 쿼리 키를 공유한다** | `crud.ts:141` `listKey(resource) = [resource, 'list']` → 두 화면 다 `['reservations','list']`. 예약 관리에서 저장·삭제하면 **이 화면도 함께 무효화되어 갱신된다**(FS-040 §4.1) |
+| **이 화면에 `// TODO(backend)` 심이 0건이다** | `schedule/ScheduleCalendarPage.tsx` · `schedule/components/CalendarGrid.tsx` · `schedule/schedule-data.ts` 전체에 백엔드 주석이 없다(`a5c2639` 전수 재확인 — 심은 `_shared/reservation-store.ts:5` · `_shared/resources.ts:7` 이 갖는다) |
+| 데이터를 예약 어댑터에서 읽는다 | `ScheduleCalendarPage.tsx:22` `import { reservationAdapter } from '../_shared/reservation-store'` · `:137` `useCrudListQuery(RESOURCE, reservationAdapter)` (`RESOURCE = 'reservations'` — `:30`) |
+| **예약 관리와 같은 쿼리 키를 공유한다** | `crud.ts:244` `listKey(resource) = [resource, 'list']` → 두 화면 다 `['reservations','list']`. 예약 관리에서 저장·삭제하면 **이 화면도 함께 무효화되어 갱신된다**(FS-040 §4.1) |
 | 달력 계산이 전부 클라이언트 순수 함수다 | `_shared/calendar.ts`(날짜 산술·겹침) · `_shared/reservation.ts:135-149`(`reservationsInSlot`) · `schedule-data.ts:30-56`(슬롯 정의·셀 집계) — 전부 서버 왕복 없이 배열을 훑는다 |
 | 전용 데이터 소스 파일이 없다 | 섹션의 다른 화면들과 달리 `schedule/` 아래에 `data-source.ts` 가 없다(`applications/data-source.ts` · `consultations/data-source.ts` 와 대조) |
 
@@ -80,7 +80,7 @@ date: 2026-07-17
 | 페이징 | 없음 — 전량 |
 | 레이트리밋 | BE-037-EP-01 상속(분당 120회). **이 화면이 별도 카운터를 갖지 않는다** — 같은 쿼리 키를 공유하므로 예약 목록과 달력을 오가도 `staleTime` 30초 안에는 요청이 나가지 않는다 |
 
-**쿼리**: 없다. **달력이 어느 기간을 보든 같은 요청**이다 — 뷰 전환(일↔주)·기간 이동(이전/다음)이 **재조회를 유발하지 않고** 이미 받은 배열을 다시 그린다(`ScheduleCalendarPage.tsx:124` 의 `days` 는 `anchor` 에서만 파생된다).
+**쿼리**: 없다. **달력이 어느 기간을 보든 같은 요청**이다 — 뷰 전환(일↔주)·기간 이동(이전/다음)이 **재조회를 유발하지 않고** 이미 받은 배열을 다시 그린다(`ScheduleCalendarPage.tsx:159` 의 `days` 는 `view`·`anchor` 에서만 파생된다 — `useMemo(() => (view === 'day' ? [anchor] : weekDates(anchor)), [view, anchor])`).
 
 **응답 200** — `readonly Reservation[]`. **전량이어야 한다** — §7.2 · §7.3.
 
@@ -206,9 +206,15 @@ date: 2026-07-17
 
 즉 이 화면의 모델은 '**자원 하나에 예약 하나**'(배타 점유)다. 그런데 같은 도메인의 `ReservationResource.capacity` 는 '**동시 수용 인원**'이고(`resources.ts:17-18` 주석: '정원(동시 수용 인원)') 예약 폼이 그것으로 인원을 검증한다(BE-037-EP-02 의 `PARTY_SIZE_EXCEEDS_CAPACITY`). **`slotCapacity()` 는 그 `capacity` 값을 읽지 않고 배열 길이만 센다** — 같은 이름의 두 개념이 한 도메인에 있다.
 
+**정확히는 셋이다**(둘이 아니다): ① 달력 `capacity` = **자원 개수**(4 — `schedule-data.ts:39-41` · 자원 카탈로그 `resources.ts:30-33`, 단위 `건`) · ② 자원 `capacity` = **방별 정원**(room-a 12명 · room-b 4명 · room-c 2명 · seat-1 1명 — `resources.ts:18`, 렌더 `ReservationFormPage.tsx:302` `정원 N명`, 단위 `명`) · ③ `partySize` = **예약 인원**(`_shared/reservation.ts:26-27`, 폼 필드 `ReservationFormPage.tsx:307`, 단위 `명`). 달력의 '수용 M건'은 ① 이고 ②·③ 과 무관하다 — **단위 표기(`건`)는 최소한 그와 일관된다.**
+
+**근인 — 집계가 `resourceId` 를 전혀 보지 않는다.** `reservationsInSlot`(`_shared/reservation.ts:135-149`)은 `reservationsOnDate`(날짜 + `isActive` — `:127-129`) 위에 **시간 겹침만** 얹고 자원을 비교하지 않는다. `slotCell`(`schedule-data.ts:52-57`)이 그 건수를 그대로 `booked` 로 쓴다.
+
 관측되는 결과: **한 슬롯의 예약 4건이 전부 room-b(정원 4명)에 몰려 있어도 '마감'이고, room-a·room-c·seat-1 은 비어 있는데도 그렇다.** 반대로 room-b 에 예약 2건이 겹쳐 있으면(더블부킹) 셀은 '2/4' 로 **여유가 있는 것처럼** 보인다 — 예약 목록은 같은 두 건에 '중복' 배지를 단다(FS-037-EL-007.12). **같은 사실을 두 화면이 반대로 말한다.**
 
-`schedule.test.ts:51-63` 이 이 동작을 고정한다 — 같은 `resourceId` 로 capacity 건을 만들고 `full === true` 를 기대한다. **테스트가 있다는 것은 의도라는 뜻이 아니라 '현재 동작이 고정됐다'는 뜻이다.**
+**★ 그 불일치는 추론이 아니라 코드에 있다 — 같은 파일의 두 함수가 서로 반대다.** `findConflicts` 는 자원을 **명시적으로 비교한다**: `_shared/reservation.ts:78` `if (reservation.resourceId !== candidate.resourceId) return false;` — 즉 **더블부킹 판정은 '자원별'이다.** 그런데 바로 아래 `reservationsInSlot`(`:135-149`)은 그 비교를 하지 않는다 — **달력 집계는 '자원 무관'이다.** 같은 4건을 **폼은 room-b 중복예약 4건으로 잡고 달력은 서로 다른 자원 4개를 채운 것으로 취급한다.** 한 모듈 안에서 자원 배정이 한 번은 의미가 있고 한 번은 없다 — **두 모델이 공존하며 서로를 반증한다.**
+
+`schedule.test.ts:51-63` 이 이 동작을 고정한다 — 픽스처 `reservationOf` 의 `resourceId` 기본값이 `'room-b'`(`:16`)이고 `partySize` 기본값이 `2`(`:15`)라, 그 4건은 **전부 같은 방에 인원 8명**인데 테스트는 `full === true` 만 기대한다(`:62`). **테스트가 있다는 것은 의도라는 뜻이 아니라 '현재 동작이 고정됐다'는 뜻이다** — 이 테스트는 세 개념 중 어느 것이 옳은지에 대해 아무 말도 하지 않는다. 모델이 확정되면 **이 테스트가 먼저 바뀌어야 한다.**
 
 **판정**: **이것은 서버가 지금 결정할 수 있는 사안이 아니다** — 도메인 정책(BE-037 §7.8 #4)이 먼저다. 계약이 정하는 것은 다음 세 줄이다:
 
@@ -246,7 +252,7 @@ date: 2026-07-17
 | 7 | 범위 조회 도입 시 쿼리 키가 기간별로 쪼개져 예약 목록과의 자동 동기화가 깨진다 — 캐시 전략을 함께 설계해야 한다(§7.2) | A41 · A63 |
 
 ## 8. 자기 점검
-- [x] **`HEAD = 4b805ad` 기준으로 `schedule-data.ts` 에 `// TODO(backend)` 심이 없음을 재확인**했고, `ScheduleCalendarPage.tsx:135` 가 `reservationAdapter` 를 `useCrudListQuery` 로 읽어 **예약 엔드포인트를 재사용**한다는 사실을 코드로 확인해 §1.1 에 근거표로 남겼다. **엔드포인트 발명 0건 유지** — F3b 가 이 화면의 STATE-01 을 고쳤으나 그것은 렌더 계층의 변경이고 데이터 계약은 건드리지 않았다
+- [x] **`HEAD = a5c2639` 기준으로 `schedule-data.ts` 에 `// TODO(backend)` 심이 없음을 재확인**했고(`schedule/**` 전수 0건 — 심은 `_shared/reservation-store.ts:5` · `_shared/resources.ts:7` 이 갖는다), `ScheduleCalendarPage.tsx:137` 가 `reservationAdapter` 를 `useCrudListQuery` 로 읽어 **예약 엔드포인트를 재사용**한다는 사실을 코드로 확인해 §1.1 에 근거표로 남겼다. **엔드포인트 발명 0건 유지** — F3b 가 이 화면의 STATE-01 을 고쳤으나 그것은 렌더 계층의 변경이고 데이터 계약은 건드리지 않았다
 - [x] **전용 엔드포인트를 지어내지 않았다** — EP-01·EP-02 는 BE-037-EP-01·EP-06 의 **재사용 선언**이고, 범위 조회(EP-03)·슬롯 정의(EP-04)·가용량 집계(EP-05)는 **'심 없음(미정)'** 으로 표기하고 §7.2·§7.4·§7.5 에서 판정했다
 - [x] FS-040 §5 의 연동 지점이 전부 커버됐다 — 누락 0건
 - [x] §5 예외 9축 빈칸 0건, 모든 `N/A` 사유 있음 (2행 × 9열). **읽기 전용이라 409·422 가 원리적으로 성립하지 않음**을 명시했다
