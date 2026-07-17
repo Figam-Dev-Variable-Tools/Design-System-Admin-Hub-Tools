@@ -1,7 +1,6 @@
 # reports/ — 검증 리포트 루트 규격
 
-Layer 3 Verifier(및 A02 Boundary Enforcer)가 게이트 판정의 **입력값(evidence)** 으로 생성하는
-기계 판독용 리포트의 저장소다. 폴더 구조와 소유권은 `orchestration/registry/agents.json` 이 원천이다.
+Layer 3 Verifier 가 게이트 판정의 **입력값(evidence)** 으로 생성하는 기계 판독용 리포트의 저장소다.
 
 ## 폴더별 소유 에이전트
 
@@ -14,7 +13,6 @@ Layer 3 Verifier(및 A02 Boundary Enforcer)가 게이트 판정의 **입력값(e
 | `contract-test/` | **A74** Contract Test AI | `@tds/contract-test` (`pnpm contract-test`) | `<component>.json` | 4자 불일치 ≥ 1 → G5/G6/G7 |
 | `reuse/` | **A75** Component Reuse AI | `@tds/reuse-guard` (`pnpm reuse:check`) | `<component>.json` | 유사도 ≥ 85% → G0 신규 생성 차단 |
 | `naming/` | **A76** Naming Convention AI | `@tds/naming-guard` (`pnpm naming:check`) | `<date>.json` | 규칙 위반 → 커밋 차단 |
-| `boundary/` | **A02** Boundary Enforcer AI | `@tds/boundary` (`pnpm boundary:check`) | `<date>.json` | 소유권 위반 → PR 차단 |
 
 ## 파일명 규칙
 
@@ -29,6 +27,6 @@ Layer 3 Verifier(및 A02 Boundary Enforcer)가 게이트 판정의 **입력값(e
 2. **Reviewer는 evidence로 인용한다.** 각 게이트 Reviewer(A12~A61)는 Review Report(D5, `RR-G*-*`)에서
    이 리포트를 근거로 인용한다 — 예: A33은 `reports/a11y/`·`reports/contract-test/`, A56은 `reports/vrt/`.
    리포트 없는 차단·승인은 무효다 (Verifier 공통 규칙: "리포트 없는 차단 금지").
-3. **기준치의 원천은 레지스트리다.** 차단 임계값(0.1%, +2KB, 85%, 5% 등)은
-   `orchestration/registry/gates.json` 의 SLO·blockedBy 정의를 따르며, 도구가 임의로 바꿀 수 없다.
+3. **기준치는 도구가 임의로 바꾸지 않는다.** 차단 임계값(0.1%, +2KB, 85%, 5% 등)은
+   각 도구 소스의 헤더에 근거와 함께 명시되며, 변경은 ADR 을 요구한다.
 4. **쓰기 권한은 소유 에이전트에게만 있다** (P1 단일 소유권). 읽기는 전원 허용.

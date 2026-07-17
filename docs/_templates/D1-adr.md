@@ -1,6 +1,6 @@
 ---
 # ── D1 · ADR (Architecture Decision Record) 템플릿 ──────────────────────
-# 소유자: A01 (Architecture AI) · 경로 규칙: docs/adr/NNNN-<kebab-title>.md
+# 경로 규칙: docs/adr/NNNN-<kebab-title>.md
 # NNNN은 0001부터 시작하는 4자리 연번. title은 결정 내용을 한 줄로 요약한다.
 id: ADR-NNNN
 title: "<결정을 한 줄로 요약>"
@@ -14,7 +14,7 @@ relates: []               # 관련 ADR·설계 문서 경로 목록
 <!--
 [작성 지침]
 - ADR은 A01(Architecture AI)만 작성·수정한다 (owns: docs/adr/**). 다른 에이전트는
-  change_request(orchestration/schemas/change-request.v1.json)로 제안만 할 수 있다.
+  변경 요청로 제안만 할 수 있다.
 - 한 파일 = 한 결정 단위. 부트스트랩처럼 결정이 여러 개면 "결정 N" 하위 섹션으로
   나누되, 각 결정마다 결정/근거/대안을 모두 채운다.
 - status 전이: proposed → accepted → (후속 ADR로 대체될 때) superseded.

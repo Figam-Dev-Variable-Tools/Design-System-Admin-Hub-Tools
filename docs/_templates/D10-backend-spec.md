@@ -1,7 +1,6 @@
 ---
 # ── D10 · Backend Spec (백엔드 기능 명세) 템플릿 ───────────────────────────
-# 소유자: A63 (Backend Spec Writer) · 경로 규칙: specs/<라우트 경로>/BE-NNN-<slug>.md
-# 게이트: G9 (승인자 A64 Spec Reviewer) · 체크리스트: docs/_templates/checklists/G9.md
+# 경로 규칙: specs/<라우트 경로>/BE-NNN-<slug>.md
 id: BE-NNN
 title: "<대상 화면명> 백엔드 기능 명세"
 functionalSpec: FS-NNN        # 근거 기능 명세(D9) 역참조 — 번호를 FS와 동일하게 맞춘다
@@ -284,4 +283,3 @@ date: YYYY-MM-DD
 - [ ] 500 응답 문구에 내부 정보(스택·쿼리·경로)가 없다
 - [ ] **서버 코드·DB 스키마를 쓰지 않았다** (컨트롤러·테이블·인덱스 0건)
 - [ ] 모호어 0건 (`적절히`, `직관적으로`, `필요 시`, `알아서`)
-- [ ] review_request(D5) + handoff envelope 작성 후 `orchestration/tasks/` 에 기록 (P2)

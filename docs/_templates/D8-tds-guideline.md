@@ -1,7 +1,6 @@
 ---
 # ── D8 · TDS Guideline 템플릿 ───────────────────────────────────────────
-# 소유자: A60 (TDS Documentation AI) · 경로 규칙: docs/tds/{patterns|guidelines|components}/<주제>.md
-# 게이트: G8 (승인자 A61 Docs Reviewer) · 체크리스트: docs/_templates/checklists/G8.md
+# 경로 규칙: docs/tds/{patterns|guidelines|components}/<주제>.md
 doc: D8
 id: TDS-GL-NNN
 title: "<가이드라인 제목>"

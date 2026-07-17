@@ -1,12 +1,11 @@
 # Changelog
 
-이 파일은 A03 (Release Manager AI) 단독 소유다. 다른 에이전트의 직접 수정은 Boundary Enforcer가 차단한다.
 형식: [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/) · 버전: [SemVer](https://semver.org/lang/ko/)
 
 ## [Unreleased]
 
 ### Added
-- 조직 부트스트랩: 39 에이전트 레지스트리, G0~G8 게이트, 계약/핸드오프 스키마, codegen 파이프라인, 가드 도구, 스킬 카탈로그 (ADR-0001)
+- 부트스트랩: 계약 스키마, codegen 파이프라인, 가드 도구 (ADR-0001)
 - Phase 2: 페이지-모듈 파이프라인 정식 규정(docs/tds/guidelines/page-module-pipeline.md) + `reuse:scan` 루트 스크립트 — Admin 페이지 → 모듈 추출 → Storybook/Pages → Figma 동기화 → 검증 6단계
 - Storybook Foundations 카테고리 7종 (Colors · Font Colors · Typography · Spacing · Radius · Shadow · Motion) — `tokens.json` 단일 원천에서 동적 렌더, Figma Variables와 동일 원천
 - Storybook Pages 카테고리 3종 (로그인 · 대시보드 · 상품 등록) + 대응 Screen Spec SCR-001~003

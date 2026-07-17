@@ -1,21 +1,21 @@
 # ==============================================================================
-# Nightly Verification — org-design-v2 §11 자동화 파이프라인의 nightly 구간
+# Nightly Verification — nightly 검증 파이프라인
 #
-#  - vrt:   A70 Visual Regression (픽셀 비교, diff > 0.1% 시 실패)
+#  - vrt:  Visual Regression (픽셀 비교, diff > 0.1% 시 실패)
 #
 #           ⚠️ 지금 이 게이트가 비교하는 대상은 **Figma 가 아니다**.
 #           기준 이미지는 두 tier 로 탐색된다 (tools/vrt/src/index.ts):
 #             ① docs/figma/specs/**/exports/<storyId>.png — Figma export(정본) → **현재 0건 (비어 있음)**
-#             ② reports/vrt/baseline/<storyId>.png        — 자체 관리 baseline → 현재 501건
+#             ② reports/vrt/baseline/<storyId>.png  — 자체 관리 baseline → 현재 501건
 #           따라서 실제로 켜져 있는 것은 "코드 vs 코드의 과거" = **회귀 감지**이며,
 #           "코드 vs Figma" = **디자인 드리프트 감지가 아니다**.
-#           tier ① 은 이 저장소에 Figma 파일이 없어 채울 소스가 없다 (A51~A55 소유 경로).
+#           tier ① 은 이 저장소에 Figma 파일이 없어 채울 소스가 없다 .
 #           tier ① 이 채워지면 그 스토리는 자동으로 Figma export 를 정본으로 쓴다.
-#  - drift: A71 Design Drift 상시 감시 — 발견 시 리포트 기반 드리프트 제안 PR 생성(골격)
+#  - drift:  Design Drift 상시 감시 — 발견 시 리포트 기반 드리프트 제안 PR 생성(골격)
 #           + 미사용 토큰 리포트 아티팩트 업로드 (Architecture AI 큐 적재용)
 #
 # ── continue-on-error 감사 (ADR-0009) ──────────────────────────────────────
-#   vrt:   continue-on-error 유지 — **유일 허용 용례**. 리포트를 업로드한 뒤
+#   vrt:  continue-on-error 유지 — **유일 허용 용례**. 리포트를 업로드한 뒤
 #          `if: steps.vrt.outcome == 'failure'` → `exit 1` 로 실패를 반드시 **전파**한다.
 #          전파 스텝 없는 continue-on-error 는 게이트 무력화다.
 #   drift: continue-on-error **제거**. 기존 구현은 exit 2(드리프트 발견 = 차단 없음)와
@@ -35,7 +35,7 @@ permissions:
   contents: read
 
 jobs:
-  # A70 — 픽셀 비교. 현재 기준은 자체 baseline(tier ②) 이다 — Figma export(tier ①)는 0건. 위 주석 참조.
+  #픽셀 비교. 현재 기준은 자체 baseline(tier ②) 이다 — Figma export(tier ①)는 0건. 위 주석 참조.
   vrt:
     name: Visual Regression (Storybook ↔ committed baseline)
     runs-on: ubuntu-latest
@@ -73,7 +73,7 @@ jobs:
         if: steps.vrt.outcome == 'failure'
         run: exit 1
 
-  # A71 — 토큰/구조 이탈 감시. 차단 없음 — 발견 시 리포트 기반 드리프트 제안 PR (SLO: 수정 리드타임 ≤ 24h)
+  #토큰/구조 이탈 감시. 차단 없음 — 발견 시 리포트 기반 드리프트 제안 PR (SLO: 수정 리드타임 ≤ 24h)
   drift:
     name: Design Drift 감시 + 리포트 기반 제안 PR
     runs-on: ubuntu-latest
@@ -93,7 +93,7 @@ jobs:
       #
       # continue-on-error 를 쓰지 않는다. 종료 코드를 직접 분기해
       # "드리프트 발견(차단 없음)"과 "도구 실행 실패(차단)"를 구분한다 —
-      # 전자는 레지스트리가 명시적으로 '차단 없음'이라 규정한 유일한 검증기(A71)이기 때문이고,
+      # 전자는 명시적으로 '차단 없음'이라 규정한 유일한 검증기이기 때문이고,
       # 후자는 어떤 경우에도 삼켜서는 안 되는 실패이기 때문이다.
       - name: Drift 검사 (발견 시 exit 2 + reports/drift/에 리포트 기록)
         id: drift
@@ -126,13 +126,13 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           branch: fix/design-drift-auto
-          commit-message: 'chore(drift): 리포트 기반 드리프트 제안 (A71 Design Drift AI)'
+          commit-message: 'chore(drift): 리포트 기반 드리프트 제안'
           title: 'chore(drift): 리포트 기반 드리프트 제안 PR (nightly)'
           body: |
-            A71(Design Drift AI) nightly 실행에서 드리프트가 발견되어 자동 생성된 리포트 기반 드리프트 제안 PR입니다.
+            Design Drift nightly 실행에서 드리프트가 발견되어 자동 생성된 리포트 기반 드리프트 제안 PR입니다.
 
             - drift 도구는 코드를 직접 수정하지 않습니다 — 발견 시 exit 2로 종료하고 `reports/drift/`에 리포트(JSON/MD)만 기록하며, 이 PR에는 해당 리포트가 포함됩니다
-            - 실제 수정은 이 리포트를 근거로 담당 에이전트가 후속 수행합니다
+            - 실제 수정은 이 리포트를 근거로 담당자가 후속 수행합니다
             - 리포트: 이 워크플로우 실행의 `drift-and-unused-token-report` 아티팩트 참조
             - SLO: Drift 발견 → 수정 리드타임 ≤ 24h (gates.json `slo.driftFixLeadTime`)
             - 이 PR도 pr-gates.yml의 전체 게이트를 통과해야 병합된다
