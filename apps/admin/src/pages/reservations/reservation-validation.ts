@@ -54,15 +54,31 @@ export const reservationSchema = z
   .check((ctx) => {
     // 시간 — 형식 + 종료 > 시작.
     const { startTime, endTime } = ctx.value;
-    if (!TIME_RE.test(startTime) || !TIME_RE.test(endTime)) {
+
+    // [형식] 오류는 **틀린 그 칸에** 붙인다. 화면이 시작·종료를 각자의 FormField 로 그리므로
+    // (PR #30) 한쪽에 몰아 주면 멀쩡한 칸이 무효로 표시되고 정작 틀린 칸은 조용하다.
+    // 가장 흔한 입력이 '빈 종료 시각'이다 — '' 는 TIME_RE 를 통과하지 못한다.
+    const startMalformed = !TIME_RE.test(startTime);
+    const endMalformed = !TIME_RE.test(endTime);
+    if (startMalformed) {
       ctx.issues.push({
         code: 'custom',
         input: startTime,
         path: ['startTime'],
-        message: '시작·종료 시각을 HH:MM 형식으로 입력하세요.',
+        message: '시작 시각을 HH:MM 형식으로 입력하세요.',
       });
-      return;
     }
+    if (endMalformed) {
+      ctx.issues.push({
+        code: 'custom',
+        input: endTime,
+        path: ['endTime'],
+        message: '종료 시각을 HH:MM 형식으로 입력하세요.',
+      });
+    }
+    // 순서는 둘 다 형식이 옳아야 의미가 있다 — toMinutes 가 NaN 을 내면 비교가 조용히 거짓이 된다
+    if (startMalformed || endMalformed) return;
+
     if (toMinutes(endTime) <= toMinutes(startTime)) {
       ctx.issues.push({
         code: 'custom',

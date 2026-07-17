@@ -19,9 +19,14 @@
 // 시작/종료를 각자의 FormField 로 나누면 둘 다 사라진다 — 각자 라벨·오류 <p>·주입 대상을 갖는다.
 // 이 파일은 그 구조가 되돌아가는 것을 막는다.
 //
-// [왜 스키마가 아니라 화면을 태우나] 검증 규칙(reservation-validation)은 옳았다 — 시각 오류를
-// startTime/endTime 각각의 path 로 낸다. 망가진 것은 **화면이 그 오류를 어느 컨트롤에 붙였는가**다.
-// 스키마만 테스트하면 영원히 초록이다. 실제로 제출을 일으켜 DOM 을 봐야 잡힌다.
+// [왜 스키마가 아니라 화면을 태우나] 여기서 망가졌던 것은 **화면이 오류를 어느 컨트롤에
+// 붙였는가**다. 스키마만 테스트하면 영원히 초록이다. 실제로 제출을 일으켜 DOM 을 봐야 잡힌다.
+//
+// [이 주석이 한때 틀렸다 — 스키마도 옳지 않았다] 예전엔 "검증 규칙(reservation-validation)은
+// 옳았다 — 시각 오류를 startTime/endTime 각각의 path 로 낸다" 고 적혀 있었다. 그것은 **순서**
+// 분기에만 참이었다. **형식** 분기는 어느 쪽이 틀려도 path:['startTime'] 로만 냈다. 그런데 이
+// 파일의 테스트는 전부 형식이 옳은 값(14:00/13:00)만 넣어 그 분기를 한 번도 태우지 않았으므로,
+// 틀린 전제와 결함이 나란히 살아남았다. 이제 형식 분기(빈 종료 시각)도 여기서 태운다.
 // ─────────────────────────────────────────────────────────────────────────────
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -84,6 +89,49 @@ describe('ReservationFormPage — 이용 시간의 required 가 AT 에 닿는다
     expect(start).not.toBe(end);
     expect(start.type).toBe('time');
     expect(end.type).toBe('time');
+  });
+});
+
+describe('ReservationFormPage — 형식 오류도 틀린 그 칸에 붙는다', () => {
+  /**
+   * [왜 이 축이 비어 있었나] 위 두 테스트는 **둘 다 형식이 옳은** 값(14:00/13:00)을 넣어 순서
+   * 규칙만 태운다. 그래서 형식 분기는 한 번도 실행되지 않았고, 거기 있던 결함이 살아남았다:
+   * 형식 검사는 시작·종료 중 **어느 쪽이 틀려도** path:['startTime'] 로만 오류를 냈다.
+   *
+   * 비어 있는 종료 시각이 그 분기의 가장 흔한 입력이다 — '' 는 /^\d{2}:\d{2}$/ 를 통과하지 못한다.
+   * 즉 사용자가 종료 시각을 안 채우고 제출하면, 제대로 채운 **시작 시각**이 빨개지고 정작 비어 있는
+   * 종료 시각은 조용했다. (FS-037 은 이것을 '잔여(경미)' 로 적으며 `<input type="time">` 이 형식
+   * 위반을 대개 막는다고 했지만, 그 논거는 **오타**를 막을 뿐 **빈 값**은 막지 못한다.)
+   */
+  it('종료 시각만 비어 있으면 종료만 무효다 — 시작이 대신 빨개지지 않는다', async () => {
+    renderNewForm();
+    const { start, end } = timeInputs();
+
+    fillFieldsBeforeTime();
+    fireEvent.change(start, { target: { value: '14:00' } });
+    fireEvent.change(end, { target: { value: '' } });
+    fireEvent.click(screen.getByRole('button', { name: /등록|저장/ }));
+
+    await waitFor(() => {
+      expect(end.getAttribute('aria-invalid')).toBe('true');
+    });
+    // 제대로 채운 칸은 무효가 아니다 — 고치기 전에는 여기가 'true' 였다
+    expect(start.getAttribute('aria-invalid')).toBe('false');
+  });
+
+  it('시작 시각만 비어 있으면 시작만 무효다', async () => {
+    renderNewForm();
+    const { start, end } = timeInputs();
+
+    fillFieldsBeforeTime();
+    fireEvent.change(start, { target: { value: '' } });
+    fireEvent.change(end, { target: { value: '15:00' } });
+    fireEvent.click(screen.getByRole('button', { name: /등록|저장/ }));
+
+    await waitFor(() => {
+      expect(start.getAttribute('aria-invalid')).toBe('true');
+    });
+    expect(end.getAttribute('aria-invalid')).toBe('false');
   });
 });
 
