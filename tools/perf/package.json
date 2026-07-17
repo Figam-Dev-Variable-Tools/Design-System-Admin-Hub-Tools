@@ -8,7 +8,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "audit": "tsx src/index.ts"
+    "audit": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@size-limit/file": "^11.1.6",

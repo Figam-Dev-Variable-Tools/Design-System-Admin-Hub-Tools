@@ -40,15 +40,23 @@ Contract · Token の単一原点から **React · Storybook · Figma 四者 100
 
 ## クイックスタート
 
+> **ワンコマンド:** `pnpm i && pnpm dev` → **http://localhost:5173** (Admin アプリ、全ルート稼働)
+
 > 要件: **Node ≥ 20** · **pnpm 9.15**
 
 ```bash
-pnpm install
+pnpm install && pnpm dev  # ← 最上位のワンコマンド。Admin アプリを :5173 で起動し全ルートを配信
+
+# より詳しく:
+pnpm dev                  # Admin アプリ (:5173) — 全ページルート
+pnpm dev:all              # Admin (:5173) + Storybook (:6006) を同時起動
 pnpm codegen              # 契約/トークン → 型 · argTypes · figma.json · CSS を生成
 pnpm gate:precheck        # 契約 + 命名 + 四者一致 + カバレッジ + クリーンコード (レビュー依頼前に必須)
-pnpm dev:admin            # Admin アプリ
 pnpm sb                   # Storybook (:6006)
 ```
+
+> オーケストレーションは **Turborepo** が担う — `dev`·`build`·`lint`·`test`·`typecheck` をワークスペースの
+> 依存グラフとローカルキャッシュで実行する。新しいアプリ/パッケージはルートスクリプトを変えずに自動で取り込まれる。
 
 ---
 

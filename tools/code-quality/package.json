@@ -5,7 +5,8 @@
   "type": "module",
   "description": "클린코드 6축(페이지 간 결합·도메인 누수·중복 코드·순환 복잡도·죽은 코드·레이어 역방향) 기계 측정. blocker ≥ 1 → PR 차단(exit 1)",
   "scripts": {
-    "check": "tsx src/index.ts"
+    "check": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
     "node": ">=20"

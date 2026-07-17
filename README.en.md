@@ -40,15 +40,24 @@ List/detail/create/edit ship as one set, and every component that fills those sc
 
 ## Quick start
 
+> **One command:** `pnpm i && pnpm dev` → **http://localhost:5173** (Admin app, every route live)
+
 > Requirements: **Node ≥ 20** · **pnpm 9.15**
 
 ```bash
-pnpm install
+pnpm install && pnpm dev  # ← the top-level one command. Serves the Admin app on :5173 with every route
+
+# In more detail:
+pnpm dev                  # Admin app (:5173) — all page routes
+pnpm dev:all              # Admin (:5173) + Storybook (:6006) together
 pnpm codegen              # contracts/tokens → generate types · argTypes · figma.json · CSS
 pnpm gate:precheck        # contracts + naming + four-way agreement + coverage + clean code (required before requesting review)
-pnpm dev:admin            # Admin app
 pnpm sb                   # Storybook (:6006)
 ```
+
+> Orchestration is handled by **Turborepo** — it runs `dev`·`build`·`lint`·`test`·`typecheck` over the
+> workspace dependency graph with a local cache. Adding a new app/package is picked up automatically,
+> with no root-script changes.
 
 ---
 

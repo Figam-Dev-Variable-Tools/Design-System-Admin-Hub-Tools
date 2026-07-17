@@ -39,6 +39,9 @@ build/
 storybook-static/
 *.tsbuildinfo
 
+# Turborepo — 로컬 태스크 캐시. 원격 캐시는 쓰지 않는다(외부 서비스 미연결 원칙).
+.turbo/
+
 # test / coverage
 coverage/
 .nyc_output/

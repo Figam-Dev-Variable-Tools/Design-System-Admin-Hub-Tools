@@ -40,15 +40,23 @@
 
 ## 快速开始
 
+> **一条命令：** `pnpm i && pnpm dev` → **http://localhost:5173** (Admin 应用，全部路由可用)
+
 > 要求：**Node ≥ 20** · **pnpm 9.15**
 
 ```bash
-pnpm install
+pnpm install && pnpm dev  # ← 顶层一条命令。在 :5173 启动 Admin 应用并服务全部路由
+
+# 更详细：
+pnpm dev                  # Admin 应用 (:5173) — 全部页面路由
+pnpm dev:all              # Admin (:5173) + Storybook (:6006) 同时启动
 pnpm codegen              # 契约/Token → 生成类型 · argTypes · figma.json · CSS
 pnpm gate:precheck        # 契约 + 命名 + 四方一致 + 覆盖率 + 整洁代码 (提交评审前必做)
-pnpm dev:admin            # Admin 应用
 pnpm sb                   # Storybook (:6006)
 ```
+
+> 编排由 **Turborepo** 负责 —— 以工作区依赖图与本地缓存运行 `dev`·`build`·`lint`·`test`·`typecheck`。
+> 新增应用/包会被自动纳入，无需改动根脚本。
 
 ---
 

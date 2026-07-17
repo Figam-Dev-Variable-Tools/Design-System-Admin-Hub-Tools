@@ -6,7 +6,8 @@
   "description": "테스트 커버리지 가드 — 계약 states/events.blockedWhen · FS 예외 7축 · 테스트 존재를 대조한다. 커버리지는 라인 %가 아니다. 테스트 0건 → G5·G6 차단(exit 1). 측정 불가 → exit 2 (통과가 아니다)",
   "scripts": {
     "check": "tsx src/index.ts",
-    "selftest": "tsx src/selftest.ts"
+    "selftest": "tsx src/selftest.ts",
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
     "node": ">=20"

@@ -23,16 +23,19 @@
     "a11y": "pnpm --filter @tds/a11y run audit",
     "perf": "pnpm --filter @tds/perf run audit",
     "gate:precheck": "pnpm validate:contracts && pnpm naming:check && pnpm contract-test && pnpm coverage:check && pnpm quality:check",
-    "verify:all": "pnpm codegen:check && pnpm validate:contracts && pnpm contract-test && pnpm coverage:check && pnpm quality:check && pnpm naming:check && pnpm -r exec tsc --noEmit && pnpm lint && pnpm format:check && pnpm test && pnpm perf:gate",
+    "verify:all": "pnpm codegen:check && pnpm validate:contracts && pnpm contract-test && pnpm coverage:check && pnpm quality:check && pnpm naming:check && pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm perf:gate",
     "perf:gate": "pnpm --filter @tds/ui run build && pnpm perf",
     "a11y:gate": "pnpm sb:build && pnpm a11y",
     "verify:full": "pnpm verify:all && pnpm e2e && pnpm a11y:gate",
     "sb": "pnpm --filter @tds/ui run storybook",
     "sb:build": "pnpm --filter @tds/ui run build-storybook",
-    "dev:admin": "pnpm --filter @tds/admin run dev",
-    "build": "pnpm -r run build",
-    "test": "pnpm --filter \"./apps/*\" --filter \"./packages/*\" run test",
-    "lint": "pnpm -r run lint",
+    "dev": "turbo run dev",
+    "dev:all": "turbo run dev storybook",
+    "dev:admin": "turbo run dev --filter=@tds/admin",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test --filter=./apps/* --filter=./packages/*",
+    "lint": "turbo run lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "openapi:types": "openapi-typescript openapi/openapi.yaml -o apps/admin/src/shared/api/schema.d.ts",
@@ -41,6 +44,7 @@
   "devDependencies": {
     "husky": "^9.1.7",
     "openapi-typescript": "^7.13.0",
-    "prettier": "^3.9.5"
+    "prettier": "^3.9.5",
+    "turbo": "^2.10.5"
   }
 }

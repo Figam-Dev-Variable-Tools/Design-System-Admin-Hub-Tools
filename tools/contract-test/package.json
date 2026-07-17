@@ -5,7 +5,8 @@
   "type": "module",
   "description": "계약 테스트 — Contract ↔ React ↔ Storybook ↔ Figma ↔ Token 4자 일치 검증 도구 (불일치 1건 → G5/G6/G7 동시 차단)",
   "scripts": {
-    "test": "tsx src/index.ts"
+    "test": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
     "node": ">=20"
