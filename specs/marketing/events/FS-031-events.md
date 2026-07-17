@@ -26,7 +26,7 @@ date: 2026-07-17
 | 대응 SCR | SCR-031 (미작성 — §7 #1) |
 | 공통 컴포넌트 | `shared/crud/{CrudListShell,CrudTable,useCrudList,useCrudForm,FormPageShell,useListState,useDebouncedSearch,parseFilter,createCrudAdapter,requiredText}` · `shared/ui/{SearchField,SelectField,StatusBadge,Button,FormField,TextareaField,ToggleSwitch,SelectionBar,ConfirmDialog,RowActions,RowSelectCell,SeqCell,Empty,useRowSelection,useToast,useUnsavedChangesDialog}` · `@tds/ui DateRangeField` · `shared/useRowNavigation` · `shared/format.{formatDate,objectParticle}` · `shared/async.isAbort` · `shared/bulk.settleAll` |
 
-> **캠페인형 2종**: 이벤트(FS-031)와 프로모션(FS-032)은 `_shared/campaign.ts`(상태 enum·라벨·tone·기간→상태 파생·날짜 실재 검사)를 공유하고 **같은 골격**(목록 = `CrudListShell` + `useCrudList`, 폼 = `FormPageShell` + `useCrudForm`)을 쓴다. 이 문서가 그 골격의 정본이며, FS-032 는 필드 차이(할인·최소주문금액·쿠폰)만 기술하고 골격 동작은 이 문서를 참조한다.
+> **캠페인형 2종**: 이벤트(FS-031)와 프로모션(FS-032)은 `_shared/campaign.ts`(상태 enum·라벨·tone·기간→상태 파생)를 공유하고 **같은 골격**(목록 = `CrudListShell` + `useCrudList`, 폼 = `FormPageShell` + `useCrudForm`)을 쓴다. 이 문서가 그 골격의 정본이며, FS-032 는 필드 차이(할인·최소주문금액·쿠폰)만 기술하고 골격 동작은 이 문서를 참조한다.
 >
 > **이 화면에 없는 것**(지어내지 않기 위해 명시): 이미지 업로드 필드 · 페이지네이션 · 기간 범위 **필터**(폼의 기간 **입력**은 있다) · 정렬 가능 헤더 · 읽기 전용 상세 · 재정렬 · 인라인 토글. 목록에 이미지 열이 없다(`EventListPage.tsx:4` 주석이 명시).
 
@@ -75,7 +75,7 @@ date: 2026-07-17
 | FS-031-EL-015 | FS-031-SEC-07 | 저장 실패 배너 | 배너 | 저장이 예상외로 실패하면 카드 상단에 '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.' + **복사 가능한 참조 코드**를 보인다. 서버 원문·스택은 노출하지 않는다 | O | 비표시. 409/412·422 는 여기로 오지 않는다(각각 FS-031-EL-029 · 인라인 에러) |
 | FS-031-EL-016 | FS-031-SEC-06 | 이벤트명 입력 | 입력 | `FormField` '이벤트명'(필수·`*`), `maxLength=80`, placeholder '예: 여름맞이 리뷰 이벤트'. 위반 시 `aria-invalid` + `aria-describedby`→에러 `<p>`(role=alert). 빈값/공백만 '이벤트명을 입력하세요.' · 80자 초과 '이벤트명은 80자를 넘을 수 없습니다.'(조사는 `requiredText` 가 받침으로 고른다 — `shared/crud/validation.ts:22,25`) | O | 실시간 글자 수 카운터 **없음**(§7 #12). 저장 시 `trim()`. `FormField` 가 `required` 를 자식 `<input>` 의 `aria-required` 로 주입한다(`FormField.tsx:50-56,107`) |
 | FS-031-EL-017 | FS-031-SEC-06 | 이벤트 기간 | 입력 | `DateRangeField` '이벤트 기간'(필수). `<input type="date">` 2개를 '~' 로 잇고 각 칸에 시각 숨김 라벨('이벤트 기간 시작일'·'이벤트 기간 종료일'). 에러는 그룹 하나로 표시(`role="alert"`)하고 두 칸 모두 `aria-invalid`+`aria-describedby`. 화면은 `startAt` 에러 문구를 우선하고 없으면 `endAt` 문구를 쓴다 | O | **preset('오늘/최근 7일/…') 없음.** 검증 정본은 `eventSchema` |
-| FS-031-EL-017.1 | FS-031-SEC-06 | 기간 형식 검증 | 텍스트 | 시작·종료 중 하나라도 실재 날짜(YYYY-MM-DD)가 아니면 '이벤트 기간을 YYYY-MM-DD 형식으로 입력하세요.' 를 `startAt` 에 붙이고 **거기서 멈춘다**(역전 검사를 하지 않는다) | — | 비표시 규칙. `isRealDate` |
+| FS-031-EL-017.1 | FS-031-SEC-06 | 기간 형식 검증 | 텍스트 | 시작·종료 중 하나라도 실재 날짜(YYYY-MM-DD)가 아니면 '이벤트 기간을 YYYY-MM-DD 형식으로 입력하세요.' 를 `startAt` 에 붙이고 **거기서 멈춘다**(역전 검사를 하지 않는다) | — | 비표시 규칙. **PR #28 에서 정본이 바뀌었다** — `_shared/campaign.ts` 의 사본 `isRealDate` 가 삭제되고 `validation.ts:32` 가 공용 `isCalendarDate`(`shared/format.ts:244-249`)를 직접 쓴다. **동작이 실제로 달라졌다**: 구 사본은 `!Number.isNaN(new Date(…).getTime())` 만 봐서 **`2026-02-31` 을 통과시켰고**(Date 가 3월 3일로 굴린다) 이 문서가 적은 '실재 날짜' 를 지키지 못했다. 정본은 UTC 정오 앵커 왕복(`dayOfUtc(noon) === value`)으로 **`2026-02-31` 을 정확히 거부**한다 — 이제 코드가 이 칸의 서술과 일치한다. 회귀 `events.test.ts:91` |
 | FS-031-EL-017.2 | FS-031-SEC-06 | 기간 역전 검증 | 텍스트 | 둘 다 실재 날짜이고 `종료 < 시작` 이면 `endAt` 에 '종료일은 시작일보다 빠를 수 없습니다.'. **같은 날(종료 = 시작)은 통과**한다(하루짜리 이벤트) | — | 비표시 규칙. 위반이 조용한 빈 목록으로 새지 않는다 |
 | FS-031-EL-018 | FS-031-SEC-06 | 상태 select | 입력 | `FormField` '상태'(필수·`*`) + `SelectField`. 옵션 예정/진행/종료. 기본값 '예정' | O | 기간과 어긋나도 **폼은 막지 않는다** — 목록의 '기간상 XX' 힌트(FS-031-EL-007.8)로만 알린다(§7 #13) |
 | FS-031-EL-019 | FS-031-SEC-06 | 대상 입력 | 입력 | `FormField` '대상'(필수·`*`), placeholder '예: 전체 회원 · VIP 등급'. 빈값 '대상을 입력하세요.' · 60자 초과 '대상은 60자를 넘을 수 없습니다.' | O | `maxLength` 속성 없음 — 60자 상한은 제출 검증에서만 걸린다 |
@@ -125,7 +125,7 @@ date: 2026-07-17
 | FS-031-EL-015 | N/A — 오류 없으면 미렌더 | 재제출 시 기존 문구·참조 코드를 먼저 지운다 | 이것이 예상외 저장 실패 표현 | 유효성 위반은 각 필드 인라인 에러가 담당 — 이 배너로 오지 않는다 | §4.1 공통 규칙 적용 — **403 도 이 배너**(전용 문구 없음) | 409/412 는 여기가 아니라 FS-031-EL-029 | 1건만 표시 |
 | FS-031-EL-016 | 초기값 빈 문자열, placeholder 노출 | 저장 중·상세 로딩 중 비활성 | 저장 실패는 FS-031-EL-015 | 제출 시 검증. 빈값/공백만·80자 초과. `maxLength` 가 80자 입력을 이미 막는다 | §4.1 공통 규칙 적용 | 동일 이름 중복 검사 없음 — 서버 판정에 위임 | 80자 상한. **카운터 없음** |
 | FS-031-EL-017 | 초기값 두 칸 모두 빈 문자열 | 저장 중·상세 로딩 중 두 칸 비활성 | 저장 실패는 FS-031-EL-015 | FS-031-EL-017.1 → FS-031-EL-017.2 순으로 검증. 위반 시 두 칸 모두 `aria-invalid` + 그룹 에러 1건 | §4.1 공통 규칙 적용 | 편집 중 원격 변경은 반영되지 않는다 | N/A — 두 칸 고정 |
-| FS-031-EL-017.1 | 빈 문자열은 실재 날짜가 아니므로 이 규칙이 잡는다 | N/A — 순수 검증 | N/A — 서버 호출 없음 | 이것이 형식 검증. 위반 시 **역전 검사를 건너뛴다**(한 번에 한 문구) | §4.1 공통 규칙 적용 | N/A — 순수 함수 | N/A — 규칙 |
+| FS-031-EL-017.1 | 빈 문자열은 실재 날짜가 아니므로 이 규칙이 잡는다 | N/A — 순수 검증 | N/A — 서버 호출 없음 | 이것이 형식 검증. 위반 시 **역전 검사를 건너뛴다**(한 번에 한 문구). **PR #28 이 이 칸의 동작을 실제로 바꿨다** — 이제 **달력에 없는 날짜(`2026-02-31`·`2026-11-31`·윤년 아닌 해의 `02-29`)도 막는다**. 이전에는 형식만 맞으면 통과해 `2026-02-31` 이 저장됐다. 정본 `isCalendarDate`(`shared/format.ts:244-249`), 호출 `validation.ts:32`(시작·종료 2회). 회귀 `events.test.ts:91` '달력에 없는 날짜(2026-02-31)를 주면 막는다' | §4.1 공통 규칙 적용 | N/A — 순수 함수 | N/A — 규칙 |
 | FS-031-EL-017.2 | N/A — 두 값이 실재해야 성립 | N/A — 순수 검증 | N/A — 서버 호출 없음 | 이것이 범위 검증. `종료 < 시작` 만 막고 **같은 날은 통과**. 위반이 조용한 빈 목록으로 새지 않는다 | §4.1 공통 규칙 적용 | N/A — 순수 함수 | N/A — 규칙 |
 | FS-031-EL-018 | N/A — 기본값 '예정' | 저장 중·상세 로딩 중 비활성 | 저장 실패는 FS-031-EL-015 | N/A — 고정 선택지라 위반이 성립하지 않는다 | §4.1 공통 규칙 적용 | 다른 관리자가 상태를 바꿔도 편집 중에는 모른다 | 선택지 3개 고정 |
 | FS-031-EL-019 | 초기값 빈 문자열, placeholder 노출 | 저장 중·상세 로딩 중 비활성 | 저장 실패는 FS-031-EL-015 | 제출 시 검증. 빈값·60자 초과. **`maxLength` 속성이 없어** 60자 넘게 입력한 뒤 제출에서 처음 막힌다 | §4.1 공통 규칙 적용 | 충돌 검사 없음 | 60자 상한. 카운터 없음 |
@@ -181,7 +181,8 @@ date: 2026-07-17
 - [x] §4 예외 7축 빈칸 0건. 모든 `N/A` 에 사유
 - [x] `[서버]` = O 요소가 §5 에 전부 요약됐다
 - [x] 엔드포인트·HTTP 메서드·에러코드·DB 스키마를 쓰지 않았다 (BE-031 영역). §3·§4·§5 의 '404'·'409' 는 **어댑터가 실제로 던지는 값**이라 예외 동작을 설명하기 위해 남겼다
-- [x] **기간 검증을 코드로 재확인했다** — `validation.ts:40-47` 의 `end < start` 검사가 실재하고 `events.test.ts:74-78` 이 이를 고정한다. quality-bar COMP-11 이 우려한 '종료일<시작일 → silent empty' 는 **이 화면에 없다**
+- [x] **기간 검증을 코드로 재확인했다** — `validation.ts:41-48` 의 `end < start` 검사가 실재하고 `events.test.ts:74` '종료일이 시작일보다 빠르면 막는다' 가 이를 고정한다. quality-bar COMP-11 이 우려한 '종료일<시작일 → silent empty' 는 **이 화면에 없다**
+- [x] **`a5c2639` 재확인 — 날짜 실재 검사가 PR #28 에서 실제로 고쳐졌다.** 이 문서가 EL-017.1 에 '실재 날짜' 라고 적어 왔지만 **코드는 그것을 지키지 않고 있었다** — `_shared/campaign.ts` 의 사본 `isRealDate` 가 `!Number.isNaN(new Date(…).getTime())` 만 봐서 `2026-02-31` 을 통과시켰다(앱 전체 11벌 중 실재 검사를 빠뜨린 5벌 가운데 하나였다). 이제 `validation.ts:32` 가 정본 `isCalendarDate`(`shared/format.ts:244-249`)를 직접 쓰고 `events.test.ts:91` 이 `2026-02-31` 거부를 고정한다. **문서를 코드에 맞춘 것이 아니라 코드가 문서를 따라잡은 경우다** — 서술은 그대로 두고 근거만 갱신했다
 - [x] **2026-07-17 · `HEAD = 4b805ad`(F3a·F3b·통합 머지 후) 기준으로 전수 재검증했다.** F2(`3cd3078`) 판정을 재사용하지 않았다. 뒤집힌 것: **검색 디바운스·IME**(`EventListPage.tsx:84,149` → `useListState.ts:227-230` → `useDebouncedSearch.ts:84-131`) · **URL 조회 상태**(`useListState.ts:87-99`) · **리터럴 '을(를)' 0건**(`format.ts:306-311` 로 승격) · **파생 기준일 KST 고정**(`format.ts:63,76-85`) · **멱등키가 어댑터에 도달**(`crud.ts:41,47-48,114`) · **AppHeader 라벨이 '이벤트'**(`nav-config.ts:260-278`). 그대로인 것: 스켈레톤 최초 로드 한정(`useCrudList.tsx:71-72`), 404/500 분기(`useCrudForm.ts:144-149`), 빈 상태 3분기(`Empty.tsx:71-83`), 유령 저장 차단 409(`crud.ts:126-128`), h1 2개, 쓰기 권한 게이팅 부재, 페이지네이션 부재
 
 ## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)

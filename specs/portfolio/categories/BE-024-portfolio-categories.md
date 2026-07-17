@@ -20,7 +20,7 @@ date: 2026-07-17
 | 범위 | 카테고리 목록 조회(사용량 포함), 등록, 수정, 삭제(사용 중 차단) |
 | 범위 밖 | 포트폴리오 항목 CRUD(`/portfolio/items` — 별도 FS/BE). 고객 노출 렌더(§7.7 XSS 판정만). 카테고리 정렬 순서(화면에 개념 없음) |
 | 프론트 어댑터 | `apps/admin/src/pages/portfolio/categories/data-source.ts` (`createStoreAdapter` · scope `portfolio-categories`) |
-| 판정 기준일 | **2026-07-17 · HEAD = `4b805ad`** (F3a·F3b·통합 머지 후). 이전 판정은 F2(`3cd3078`) 기준이었다 — §7.3 · §6 · §7.9 가 그 사이 바뀐 프론트 사실을 반영해 갱신됐다 |
+| 판정 기준일 | **2026-07-17 · HEAD = `a5c2639`** (PR #22·#24·#26·#28·#30·#32·#34 머지 후). 직전 판정은 `4b805ad` 기준이었고 그때 §7.3 · §6 · §7.9 가 갱신됐다. **이번 기준 갱신으로 이 문서의 판정이 뒤집힌 것은 없다** — PR #26·#30·#32 는 DS·토큰 층 변경이라 이 문서가 다루는 엔드포인트·보안 계약에 닿지 않는다. ⚠ **다만 프론트 쪽에 회귀가 하나 생겼다** — PR #26 의 Modal exit 애니메이션이 일방향 latch 를 들여와 이 화면의 **FEEDBACK-06 이 pass → gap** 으로 뒤집혔다(NFR-024 §2 · §5 #3). 서버 계약과는 무관하다 |
 | 도메인 타입 | `apps/admin/src/pages/portfolio/categories/types.ts`(`PortfolioCategoryInput`) · `apps/admin/src/pages/portfolio/_shared/store.ts`(`PortfolioCategory` · `PortfolioCategoryUsage`) |
 | 검증 정본 | `apps/admin/src/pages/portfolio/categories/validation.ts` — `portfolioCategorySchema` (`requiredText('카테고리 이름', 40)`) |
 
