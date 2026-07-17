@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { formatNumber } from '../../../shared/format';
+import { formatDate, formatNumber } from '../../../shared/format';
 import {
   Alert,
   Button,
@@ -22,7 +22,6 @@ import { useCrudListQuery } from '../../../shared/crud';
 import { reservationAdapter } from '../_shared/reservation-store';
 import { reservationsInSlot } from '../_shared/reservation';
 import { addDays, formatDayLabel, isToday, weekDates } from '../_shared/calendar';
-import { formatDate } from '../../../shared/format';
 import { bookingStatusLabel, bookingStatusTone } from '../_shared/booking';
 import { resourceName } from '../_shared/resources';
 import type { Slot } from './schedule-data';
@@ -194,9 +193,15 @@ export default function ScheduleCalendarPage() {
   return (
     <div style={pageStyle}>
       <div style={controlsStyle}>
-        <div style={navGroupStyle}>
+        {/*
+          뷰 토글 — primary/secondary 는 **색만** 다르다 (shared/ui/styles.ts). 그래서 예전엔 지금 어느
+          뷰인지가 색으로만 표시됐고, AT 에는 아예 드러나지 않았다(두 버튼이 똑같이 '일'·'주' 버튼).
+          aria-pressed 로 눌린 상태를 사실로 말한다 — 색은 그 위에 얹는 두 번째 부호다 (WCAG 1.4.1).
+        */}
+        <div style={navGroupStyle} role="group" aria-label="달력 보기 범위">
           <Button
             variant={view === 'day' ? 'primary' : 'secondary'}
+            aria-pressed={view === 'day'}
             onClick={() => {
               setView('day');
               setSelected(null);
@@ -206,6 +211,7 @@ export default function ScheduleCalendarPage() {
           </Button>
           <Button
             variant={view === 'week' ? 'primary' : 'secondary'}
+            aria-pressed={view === 'week'}
             onClick={() => {
               setView('week');
               setSelected(null);
