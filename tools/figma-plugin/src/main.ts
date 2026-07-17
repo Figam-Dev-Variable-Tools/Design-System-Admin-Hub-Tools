@@ -55,7 +55,7 @@ interface ComponentFigmaSpec {
 
 type UiMessage =
   | { type: 'sync-tokens'; payload: TokensPayload }
-  | { type: 'sync-component'; payload: ComponentFigmaSpec }
+  | { type: 'sync-components'; payload: ComponentFigmaSpec[] }
   | { type: 'generate-tds-doc'; payload: TdsDocPayload }
   | { type: 'scan-detached' }
   | { type: 'close' };
@@ -343,6 +343,37 @@ async function syncComponent(spec: ComponentFigmaSpec): Promise<string[]> {
   return log;
 }
 
+/**
+ * 여러 계약을 한 번에 동기화한다 (UI 의 '전체' 선택).
+ * 하나가 실패해도 나머지를 계속 진행하고, 실패를 로그에 남긴 뒤 마지막에 집계한다 —
+ * 중간에 던져 버리면 '몇 개가 반영됐는지 모르는' 상태가 되어 조용한 부분 반영이 된다.
+ */
+async function syncComponents(specs: ComponentFigmaSpec[]): Promise<string[]> {
+  if (!Array.isArray(specs) || specs.length === 0) {
+    throw new Error('동기화할 계약이 없습니다 — 산출물을 적재하세요.');
+  }
+  const log: string[] = [];
+  let failed = 0;
+
+  for (const spec of specs) {
+    try {
+      const entryLog = await syncComponent(spec);
+      for (const line of entryLog) log.push(line);
+    } catch (error) {
+      failed += 1;
+      const message = error instanceof Error ? error.message : String(error);
+      const name = spec && typeof spec.name === 'string' ? spec.name : '(이름 불명)';
+      log.push(`[오류] ${name}: ${message}`);
+    }
+  }
+
+  log.push(`Component Set 동기화 완료 — 성공 ${specs.length - failed} · 실패 ${failed}`);
+  if (failed > 0) {
+    log.push('[경고] 실패한 계약은 반영되지 않았습니다 — 위 오류를 해결한 뒤 다시 실행하세요.');
+  }
+  return log;
+}
+
 // ---------------------------------------------------------------------------
 // (c) Detached 스타일 스캔 — Variable/Style 미바인딩 raw 값 리포트
 // ---------------------------------------------------------------------------
@@ -455,10 +486,10 @@ figma.ui.onmessage = async (msg: UiMessage) => {
         figma.notify('TDS Sync: Variables 동기화 완료');
         break;
       }
-      case 'sync-component': {
-        const log = await syncComponent(msg.payload);
-        figma.ui.postMessage({ type: 'sync-component-result', log });
-        figma.notify('TDS Sync: Component Set 동기화 완료');
+      case 'sync-components': {
+        const log = await syncComponents(msg.payload);
+        figma.ui.postMessage({ type: 'sync-components-result', log });
+        figma.notify(`TDS Sync: Component Set 동기화 완료 (${msg.payload.length}개)`);
         break;
       }
       case 'generate-tds-doc': {

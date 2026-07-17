@@ -2,8 +2,14 @@
 
 `tools/codegen`이 계약/토큰에서 자동 생성한다. 재생성: 리포 루트에서 `pnpm codegen`.
 
-산출물 (플러그인 UI가 업로드/붙여넣기로 소비하는 페이로드):
+산출물 (플러그인 UI가 업로드로 소비하는 페이로드):
 
+- `manifest.json` — **적재 대조표**. 계약 목록·수(`contractCount`)·파일명·체크섬과 토큰 페이로드 메타를
+  담는다 (`generate-figma-manifest`). 플러그인은 `networkAccess: none`이라 리포를 읽을 수 없으므로,
+  UI가 "무엇이 전량인가"를 아는 **유일한 수단**이다. UI는 업로드분을 이 목록과 대조해
+  누락(38개 중 37개만 고르는 사고)·스테일(오래된 산출물)을 검출하고 실행을 차단한다.
+  - `checksum` 은 정규화 JSON(키 정렬·공백 제거)의 FNV-1a 32비트 — 줄바꿈/들여쓰기 차이에 영향받지 않는다.
+    위변조 방지가 아니라 스테일 검출용이다. 알고리즘은 `src/ui.html` 의 동명 함수와 1:1로 유지할 것.
 - `<Name>.figma.json` — 계약(`contracts/<Name>.contract.json`)의 `figmaProperty` 매핑에서 생성.
   형식: `{ "name": "Button", "variantProperties": { "Variant": { "values": [...], "default": "..." } } }`
 - `tokens/figma-variables.json` — `tokens/tokens.json`(DTCG)에서 생성한 Variables 페이로드 (`generate-figma-variables`).
