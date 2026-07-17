@@ -50,6 +50,18 @@ export { Pagination, rangeTextOf } from './molecules/Pagination';
 export type { PaginationProps, PaginationState } from './molecules/Pagination';
 export { PasswordField } from './molecules/PasswordField';
 export type { PasswordFieldProps, PasswordFieldState } from './molecules/PasswordField';
+// RichTextField 묶음 — 계약 대상(RichTextField) + 함께 내보내는 순수 유틸
+// (sanitize/길이/마이그레이션). 호출부가 저장 지점에서 같은 허용목록을 쓰게 하려면
+// sanitizeRichText 가 컴포넌트와 같은 문에서 나와야 한다 — imageFileError 선례.
+export {
+  RichTextField,
+  ensureRichText,
+  isRichTextEmpty,
+  plainToRichText,
+  richTextLength,
+  sanitizeRichText,
+} from './molecules/RichTextField';
+export type { RichTextFieldProps, RichTextFieldState } from './molecules/RichTextField';
 export { RowActions } from './molecules/RowActions';
 export type { RowActionsProps, RowActionsState } from './molecules/RowActions';
 export { SearchField } from './molecules/SearchField';

@@ -1,0 +1,79 @@
+{
+  "$generated": "AUTO-GENERATED from contracts/RichTextField.contract.json — DO NOT EDIT (pnpm codegen)",
+  "name": "RichTextField",
+  "component": "RichTextField",
+  "version": "1.0.0",
+  "variantProperties": {
+    "Required": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    },
+    "Disabled": {
+      "values": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  },
+  "properties": [
+    {
+      "name": "Label",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Value",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Required",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Disabled",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "Error",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Hint",
+      "type": "TEXT",
+      "default": ""
+    },
+    {
+      "name": "Placeholder",
+      "type": "TEXT",
+      "default": ""
+    }
+  ],
+  "tokens": {
+    "surface": "color.surface.default",
+    "toolbarSurface": "color.surface.raised",
+    "text": "color.text.default",
+    "textMuted": "color.text.muted",
+    "border": "color.border.default",
+    "borderInvalid": "color.feedback.danger.border",
+    "focusRing": "color.border.focus",
+    "activeSurface": "color.action.primary.default",
+    "activeText": "color.text.on-primary",
+    "disabledSurface": "color.surface.disabled",
+    "disabledText": "color.text.disabled",
+    "radius": "radius.md",
+    "paddingX": "space.3",
+    "paddingY": "space.2",
+    "gap": "space.1",
+    "typography": "typography.body.md",
+    "labelTypography": "typography.label.md",
+    "minHeight": "space.6"
+  }
+}
