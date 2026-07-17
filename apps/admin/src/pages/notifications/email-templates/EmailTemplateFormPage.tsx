@@ -43,10 +43,10 @@ const previewSubjectStyle: CSSProperties = {
   marginLeft: 0,
   marginRight: 0,
   color: 'var(--tds-color-text-default)',
-  fontFamily: 'var(--tds-typography-title-sm-font-family)',
-  fontSize: 'var(--tds-typography-title-sm-font-size)',
-  fontWeight: 'var(--tds-typography-title-sm-font-weight)',
-  lineHeight: 'var(--tds-typography-title-sm-line-height)',
+  fontFamily: 'var(--tds-typography-title-md-font-family)',
+  fontSize: 'var(--tds-typography-title-md-font-size)',
+  fontWeight: 'var(--tds-typography-title-md-font-weight)',
+  lineHeight: 'var(--tds-typography-title-md-line-height)',
 };
 
 const previewBodyStyle: CSSProperties = {

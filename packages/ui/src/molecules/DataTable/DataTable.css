@@ -27,10 +27,12 @@
   border: 0;
 }
 
+/* thead 밑줄만 border.default 를 유지한다 — 머리와 몸통을 가르는 구조선이라
+   행 사이 divider(subtle)보다 한 단계 진해야 위계가 읽힌다 (ERP-02). */
 .tds-datatable__head {
   padding-block-start: var(--tds-space-2);
   padding-block-end: var(--tds-space-3);
-  padding-inline: var(--tds-space-2);
+  padding-inline: var(--tds-component-table-cell-padding-x);
   border-block-end-style: solid;
   border-block-end-width: var(--tds-border-width-thin);
   border-block-end-color: var(--tds-color-border-default);
@@ -40,11 +42,11 @@
 }
 
 .tds-datatable__cell {
-  padding-block: var(--tds-space-3);
-  padding-inline: var(--tds-space-2);
+  padding-block: var(--tds-component-table-cell-padding-y);
+  padding-inline: var(--tds-component-table-cell-padding-x);
   border-block-end-style: solid;
   border-block-end-width: var(--tds-border-width-thin);
-  border-block-end-color: var(--tds-color-border-default);
+  border-block-end-color: var(--tds-component-table-divider);
   color: var(--tds-color-text-default);
   font-weight: var(--tds-typography-body-md-font-weight);
   white-space: nowrap;

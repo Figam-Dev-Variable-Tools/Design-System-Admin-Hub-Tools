@@ -27,9 +27,9 @@ const frameStyle: CSSProperties = {
   paddingRight: 'var(--tds-space-3)',
   borderStyle: 'solid',
   borderWidth: 'var(--tds-border-width-thick)',
-  borderColor: 'var(--tds-color-border-strong)',
-  borderRadius: 'var(--tds-radius-lg)',
-  background: 'var(--tds-color-surface-sunken)',
+  borderColor: 'var(--tds-color-border-default)',
+  borderRadius: 'var(--tds-radius-xl)',
+  background: 'var(--tds-color-surface-raised)',
 };
 
 const senderStyle: CSSProperties = {
@@ -65,7 +65,7 @@ const imageStyle: CSSProperties = {
   height: 'calc(var(--tds-space-6) * 3)',
   marginBottom: 'var(--tds-space-2)',
   borderRadius: 'var(--tds-radius-sm)',
-  background: 'var(--tds-color-surface-sunken)',
+  background: 'var(--tds-color-surface-raised)',
   color: 'var(--tds-color-text-muted)',
   fontSize: 'var(--tds-typography-label-sm-font-size)',
 };
