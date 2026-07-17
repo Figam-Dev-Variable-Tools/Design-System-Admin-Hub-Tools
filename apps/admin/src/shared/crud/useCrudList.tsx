@@ -67,6 +67,50 @@ function deleteErrorMessage(cause: unknown): string {
   return '삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.';
 }
 
+/** 409 가 들고 온 사람이 읽을 수 있는 사유 — 없으면 null */
+function conflictReason(cause: unknown): string | null {
+  if (isConflict(cause) && cause instanceof Error && cause.message !== '') return cause.message;
+  return null;
+}
+
+/**
+ * 일괄 삭제 실패를 사람에게 옮긴다 — 단건(deleteErrorMessage)과 **같은 원칙**으로.
+ *
+ * [무엇이 틀렸었나] 예전에는 사유와 무관하게 한 줄이었다:
+ *   'N건 중 M건을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+ * 단건은 이미 409 를 갈라 놓고 있었는데 일괄만 그러지 못한 이유는 **건수(number)밖에 못 받아서**다.
+ * 그래서 '규칙 3건이 이 템플릿을 쓰고 있어 삭제할 수 없습니다' 를 어댑터가 이미 문장으로 만들어
+ * 던졌는데도, 화면은 그것을 버리고 재시도를 권했다 — 재시도하면 똑같이 409 인 실패에 대고.
+ * 잘못된 복구 수단을 권하는 것은 아무 말도 안 하는 것보다 나쁘다.
+ *
+ * [지금] 사유별로 다르게 말한다:
+ *   · 409 사유가 있으면 그 문장을 **그대로** 보여 준다 (같은 사유는 한 번만 — 10건이 같은 이유로
+ *     막혔을 때 같은 문장을 10줄 쌓는 것은 정보가 아니라 소음이다).
+ *   · 409 가 아닌 실패(500·네트워크)가 섞여 있을 때만 재시도를 권한다 — 그건 실제로 시간이 푼다.
+ *   · 둘 다 있으면 둘 다 말한다. 사용자는 한쪽만 고쳐서는 끝낼 수 없기 때문이다.
+ * 서버 원문을 그대로 노출하지 않는 규약(EXC-20)은 단건과 동일하게 409 문장에만 적용된다 —
+ * 그 문장은 어댑터가 사용자에게 보이려고 쓴 것이다.
+ */
+export function bulkDeleteErrorMessage(
+  total: number,
+  failures: readonly { reason: unknown }[],
+): string {
+  const head = `${formatNumber(total)}건 중 ${formatNumber(failures.length)}건을 삭제하지 못했습니다.`;
+
+  const reasons = [...new Set(failures.map((f) => conflictReason(f.reason)).filter(isPresent))];
+  const hasRetryable = failures.some((f) => conflictReason(f.reason) === null);
+
+  if (reasons.length === 0) return `${head} 잠시 후 다시 시도해 주세요.`;
+
+  const why = reasons.join(' ');
+  return hasRetryable ? `${head} ${why} 나머지는 잠시 후 다시 시도해 주세요.` : `${head} ${why}`;
+}
+
+/** null 을 걸러 내며 타입도 좁힌다 */
+function isPresent(value: string | null): value is string {
+  return value !== null;
+}
+
 export function useCrudList<T extends { id: string }, Input>({
   resource,
   adapter,
@@ -151,12 +195,10 @@ export function useCrudList<T extends { id: string }, Input>({
     bulkDelete.mutate(
       { ids, signal: controller.signal },
       {
-        onSuccess: (failed) => {
+        onSuccess: ({ failed, failures }) => {
           if (controller.signal.aborted) return;
           if (failed > 0) {
-            setBulkError(
-              `${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.`,
-            );
+            setBulkError(bulkDeleteErrorMessage(ids.length, failures));
             return;
           }
           setBulkOpen(false);

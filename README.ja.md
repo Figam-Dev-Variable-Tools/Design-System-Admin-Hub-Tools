@@ -34,7 +34,7 @@ Contract · Token の単一原点から **React · Storybook · Figma 四者 100
 | **ポートフォリオ** (Company) | ポートフォリオ · カテゴリ · 成功事例 |
 | **営業** (Company) | 取引先 · 契約 · 見積 · 問い合わせ · プロジェクト · 商談履歴 |
 
-一覧/詳細/登録/編集が一式で揃っており、画面を構成するコンポーネントはすべて `@tds/ui` ひとつから出てくる — atoms 12 · molecules 20 · organisms 5、契約 **37 種**。
+一覧/詳細/登録/編集が一式で揃っており、画面を構成するコンポーネントはすべて `@tds/ui` ひとつから出てくる — atoms 12 · molecules 21 · organisms 5、契約 **38 種**。
 
 ---
 
@@ -52,6 +52,26 @@ pnpm sb                   # Storybook (:6006)
 
 ---
 
+## 仕様
+
+画面は作る前に文書として固定される。`specs/` に **196 件** — 画面番号を軸に 3 種類が対をなし、文書は `specs/<セクション>/<下位>/` に画面ごとに置かれる（例: `specs/users/members/`）。
+
+| 文書 | 件数 | 何を固定するか |
+| --- | --- | --- |
+| **FS** 機能仕様書 | **70**（`FS-001`~`FS-070`） | 画面の要素を全数ナンバリングする（`FS-001-EL-008`）。§4 例外仕様は 要素 × **7 軸**（空状態 · ローディング · 失敗 · バリデーション · 権限なし · 競合 · 大量）を**空欄なしで**埋める |
+| **BE** バックエンド機能仕様書 | **70**（`BE-001`~`BE-070`） | エンドポイント · 共通エラーエンベロープ · 認証/権限モデル。§5 例外マトリクスは **9 軸**（400 検証 · 401 認証 · 403 vs 404 · 404 対象なし · 409 衝突 · 422 状態違反 · 429 過負荷 · 500 エラー · タイムアウト） |
+| **NFR** 非機能仕様書 | **56**（`NFR-015`~`NFR-070`） | `quality-bar.md` の **P0 30 件をその画面に全数判定**する。`適用` 軸（`直接` / `継承` / `N/A`）で表面の実在をまず選り分け、性能予算 · 可用性 · データ保存を加える |
+
+### 正本 — [`specs/quality-bar.md`](specs/quality-bar.md)
+
+9 次元（STATE · TOKEN · COMP · FEEDBACK · A11Y · MOTION · IA · ERP · EXC） · 要求 **100 件**、うち **P0 30 件は全量充足が必須**だ。すべてのバッチがこの文書を acceptance criteria とする。NFR は要求の文言を再記述せず **ID でのみ参照**する — 正本は一箇所にだけ存在する。
+
+### BE は「実装されたもの」ではなく「実装するもの」だ
+
+**バックエンドはまだない。** `BE-*` はバックエンド開発者が実装する仕様であり、コードに埋めた `// TODO(backend)` を根拠に書かれた。**根拠となる FS 要素のないエンドポイントは作らない** — すべてのエンドポイントが自らの根拠 FS 要素番号を引用し、根拠のないものは §1「範囲外」に理由とともに残す。`openapi/openapi.yaml` も同じ性格だ — 文書であってサーバーではない。
+
+---
+
 ## ゲート検査
 
 ### 検査が存在することと、検査が機能することは別だ
@@ -62,25 +82,25 @@ pnpm sb                   # Storybook (:6006)
 
 | 何が | どう嘘をついたか | 処理 |
 | --- | --- | --- |
-| `pnpm test` | `--passWithNoTests` → **テスト 0 件で青信号** | 除去（A77 が遮断） |
-| Storybook play function **62 件** | `expect` **0 個** · スパイ **0 個** → **失敗し得ない検査** | 断言を注入（A30） |
-| `bundle-size` CI job | dist なしで青信号 | job **除去**（[ADR-0009](docs/adr/0009-ci-and-code-quality-gates.md)） |
-| `tools/vrt` | 基準画像 0 件 → 「比較 0 件中 失敗 0 件 → **PASS**」 | `NOT_VERIFIED`（exit 2） |
+| `pnpm test` | `--passWithNoTests` → **テスト 0 件で青信号** | フラグを除去 — 現在テスト **152 件** |
+| Storybook play function **62 件** | `expect` **0 個** · スパイ **0 個** → **失敗し得ない検査** | 断言を注入 |
+| `bundle-size` CI job | dist なしで青信号 | 蘇生させず **除去** → 実際に測れるようになってから **復元**し `verify:all`(`perf:gate`) に編入（[ADR-0009](docs/adr/0009-ci-and-code-quality-gates.md)） |
+| `tools/vrt` | 基準画像 0 件 → 「比較 0 件中 失敗 0 件 → **PASS**」 | 前提がなければ `NOT_VERIFIED`（exit 2） — 基準画像 **501 件**を登録し、実際にピクセルを比較する |
 
 **空集合の上で真な命題は何も証明しない。** 測定不能は通過ではない — 前提がなければツールは青信号の代わりに `NOT_VERIFIED` を出す。
 
 ### コマンド
 
 ```bash
-pnpm validate:registry    # A02  エージェント 50 · ゲート 11 · SKILL 整合性
-pnpm boundary:check       # A02  所有権境界 (CODEOWNERS と同一ルール)
-pnpm contract-test        # A74  四者一致
-pnpm coverage:check       # A77  契約 states · blockedWhen · FS 例外軸 (行 % ではない)
-pnpm quality:check        # A83  クリーンコード 6 軸 (blocker 1 件 → PR 遮断)
-pnpm naming:check         # A76  命名規則
+pnpm validate:contracts   # 契約スキーマ検証
+pnpm boundary:check       # 所有権境界 (CODEOWNERS と同一ルール)
+pnpm contract-test        # 四者一致
+pnpm coverage:check       # 契約 states · blockedWhen · FS 例外軸 (行 % ではない)
+pnpm quality:check        # クリーンコード 6 軸 (blocker 1 件 → PR 遮断)
+pnpm naming:check         # 命名規則
 pnpm lint && pnpm format:check
 pnpm test                 # 断言のあるテストだけをテストとして数える
-pnpm verify:all           # 上記すべて + codegen 再現性 + tsc --noEmit
+pnpm verify:all           # 上記すべて + codegen 再現性 + tsc --noEmit + バンドル予算
 pnpm verify:full          # verify:all + E2E
 ```
 
@@ -88,38 +108,37 @@ pnpm verify:full          # verify:all + E2E
 
 ## リポジトリ構造
 
+プロダクト表面は以下のとおりだ — リポジトリのすべてのトップレベルディレクトリを列挙したものではない。
+
 ```
-├── orchestration/          A00  組織 SSOT — エージェント/ゲートレジストリ、ハンドオフスキーマ、タスク
-├── contracts/              A18  コンポーネント契約 37 種(SSOT) + スキーマ · review/(A19)
-├── tokens/                 A20  tokens.json (W3C DTCG, 3 階層) · review/(A21)
-├── packages/ui/            A30~A33  @tds/ui — atoms/molecules/organisms/templates · foundations/ · generated/(修正禁止)
-├── apps/admin/             A40~A41  React Admin アプリ (Mid / Senior 順次排他)
-├── specs/                  A62~A64  機能仕様 FS-* (要素別ナンバリング + 例外 7 軸) · BE-* (例外 9 軸) · quality-bar.md
-├── openapi/                A80  OpenAPI 3.1 スキーマ (ドキュメント — サーバーではない)
-├── e2e/                    A85  Playwright シナリオ (テスト名が FS 要素番号を引用)
+├── contracts/              コンポーネント契約 38 種(SSOT) + schemas/
+├── tokens/                 tokens.json (W3C DTCG, 3 階層)
+├── packages/ui/            @tds/ui — atoms/molecules/organisms/templates · foundations/ · generated/(修正禁止)
+├── apps/admin/             React Admin アプリ
+├── specs/                  画面仕様 196 件 — FS-*(要素の全数ナンバリング + 例外 7 軸) · BE-*(例外 9 軸) · NFR-*(P0 30 全数判定) · quality-bar.md
+├── openapi/                OpenAPI 3.1 スキーマ (ドキュメント — サーバーではない)
+├── e2e/                    Playwright シナリオ (テスト名が FS 要素番号を引用)
 ├── tools/
-│   ├── codegen/                 契約/トークン → 4 箇所への生成パイプライン
-│   ├── boundary/           A02  CODEOWNERS 生成 + 所有権/reads スコープ検査
-│   ├── contract-test/      A74  四者一致検証
-│   ├── test-coverage/      A77  契約 states · blockedWhen · FS 例外軸カバレッジ (行 % ではない)
-│   ├── code-quality/       A83  クリーンコード 6 軸 (結合·漏洩·重複·複雑度·デッドコード·レイヤー)
-│   ├── vrt/                A70  Visual Regression
-│   ├── drift/              A71  Design Drift 監視
-│   ├── a11y/               A72  アクセシビリティ監査
-│   ├── perf/               A73  パフォーマンス予算監査
-│   ├── reuse-guard/        A75  重複コンポーネント遮断
-│   ├── naming-guard/       A76  命名規則の強制
-│   └── figma-plugin/       A50  Contract/Token → Figma 自動生成
+│   ├── codegen/            契約/トークン → 4 箇所への生成パイプライン
+│   ├── boundary/           CODEOWNERS 生成 + 所有権/reads スコープ検査
+│   ├── contract-test/      四者一致検証
+│   ├── test-coverage/      契約 states · blockedWhen · FS 例外軸カバレッジ (行 % ではない)
+│   ├── code-quality/       クリーンコード 6 軸 (結合·漏洩·重複·複雑度·デッドコード·レイヤー)
+│   ├── vrt/                Visual Regression (基準画像 501 件)
+│   ├── drift/              Design Drift 監視
+│   ├── a11y/               アクセシビリティ監査
+│   ├── perf/               パフォーマンス予算監査
+│   ├── reuse-guard/        重複コンポーネント遮断
+│   ├── naming-guard/       命名規則の強制
+│   └── figma-plugin/       Contract/Token → Figma 自動生成
 ├── docs/
-│   ├── adr/                A01  アーキテクチャ決定記録 (0001~0010)
-│   ├── architecture/       A01  フロントエンド規約 (A40/A41/A30 必読) · 組織監査
-│   ├── plan/ design/            A10~A17
-│   ├── figma/              A51~A56  Figma スペックミラー + レビュー
-│   ├── tds/                A60~A61  デザインシステム文書
-│   ├── security/           A86  セキュリティレビュー (G6·G9 遮断)
-│   └── _templates/              標準文書 + ゲートチェックリスト
-├── reports/                Layer 3 検証成果物 (ゲート入力 — 機械生成、フォーマッター除外)
-└── skills/                 50 エージェント SKILL.md (+ _templates/)
+│   ├── adr/                アーキテクチャ決定記録 (0001~0010)
+│   ├── architecture/       フロントエンド規約 · 監査記録
+│   ├── plan/               計画文書
+│   ├── figma/              Figma スペックミラー + レビュー
+│   ├── tds/                デザインシステム文書
+│   └── _templates/         標準文書 + ゲートチェックリスト
+└── reports/                検証成果物 (ゲート入力 — 機械生成、フォーマッター除外)
 ```
 
 pnpm workspace: `packages/*` · `apps/*` · `tools/*` · `e2e`。
@@ -140,12 +159,19 @@ pnpm workspace: `packages/*` · `apps/*` · `tools/*` · `e2e`。
 | `zustand` | ^5.0 | クライアントグローバル状態 | ボイラープレートのない最小ストア — サーバー状態は Query が引き受けるので範囲が狭い |
 | `react-hook-form` | ^7.81 | フォーム状態 | 非制御ベース、大型フォームで再レンダー最小 |
 | `zod` | ^4.4 | スキーマ検証 | RHF resolver + ランタイム境界検証。型はスキーマから推論 |
+| `axios` | ^1.18 | HTTP クライアント（インスタンス + インターセプター） | 実際のネットワーク呼び出しは **0 件**だ — `adapter` 拡張点に fixture を挿し、**インターセプターに荷重をかけている**。スキャフォールドのまま置けば死んだコードになる。バックエンドが繋がる日に `adapter` の 1 行だけを消す |
 
 ### デザインシステム — `packages/ui`
 
-| ライブラリ | バージョン | 役割 |
+| ライブラリ | バージョン | 役割 | 選定理由 |
+| --- | --- | --- | --- |
+| `@radix-ui/react-dialog` | 1.1.19 | `Modal` · `ConfirmDialog` のフォーカストラップ · スクロールロック | 手書きのフォーカストラップが実在の欠陥 3 件を生んだ。ダイアログのアクセシビリティは自作する問題ではない |
+| `@tiptap/*`（`core` · `react` · `pm` · `starter-kit` · `extension-image`） | 3.28.0 | `RichTextField` のエディタコア | ProseMirror ベース — 文書モデルが DOM ではなくスキーマだ |
+| `dompurify` | 3.4.12 | エディタ HTML のサニタイズ | XSS 境界。自作しない |
+
+| ツール | バージョン | 役割 |
 | --- | --- | --- |
-| `storybook` · `@storybook/react-vite` | ^8.6 | コンポーネント文書 · 状態カタログ (G5 の証拠) |
+| `storybook` · `@storybook/react-vite` | ^8.6 | コンポーネント文書 · 状態カタログ (レビューゲートの証拠) |
 | `@storybook/addon-interactions` · `@storybook/test` | ^8.6 | play function — **断言があってはじめて検査として数える** |
 | `@storybook/addon-a11y` | ^8.6 | ストーリー単位のアクセシビリティ検査 |
 | `@storybook/addon-essentials` | ^8.6 | controls · viewport · docs |

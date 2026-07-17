@@ -201,12 +201,18 @@ test('MOTION-09: 미저장 가드가 닫기를 거부하면 모달이 등장 상
   await expect(discardPrompt(page)).toHaveCount(0);
 
   // 거부됐으니 퇴장은 되돌려져야 한다. 되돌리지 않으면 사용자에게는 이렇게 보였다:
-  // 딤·다이얼로그가 opacity 0 으로 사라지고 overlay 는 pointer-events:none — 화면엔 아무것도 없는데
+  // 딤·다이얼로그가 opacity 0 으로 사라지고 클릭도 먹지 않는다 — 화면엔 아무것도 없는데
   // 모달은 살아서 포커스를 붙들고 있다.
   const overlay = page.locator('.tds-modal__overlay');
+  const dialog = page.locator('.tds-modal__dialog');
   await expect(overlay).not.toHaveClass(/tds-modal__overlay--closing/);
-  await expect(page.locator('.tds-modal__dialog')).toHaveCSS('opacity', '1');
-  await expect(overlay).toHaveCSS('pointer-events', 'auto');
+  await expect(dialog).toHaveCSS('opacity', '1');
+  // [관측 지점이 overlay → dialog 로 옮겨졌다] '클릭을 받는가' 를 보는 자리가 바뀌었다.
+  // Radix(DismissableLayer)가 body 를 pointer-events:none 으로 덮고 **다이얼로그에만 inline 으로
+  // auto** 를 박는다. 그래서 우리 wrapper 인 .tds-modal__overlay 는 열려 있어도 none 을 상속한다 —
+  // 거기서는 이제 '갇힘'과 '정상'이 구분되지 않는다(둘 다 none). 사용자가 실제로 누르는 면이자
+  // 두 상태가 갈리는 곳은 다이얼로그다: 평시 auto(Radix) / 퇴장 중 none(Modal 이 직접 덮는다).
+  await expect(dialog).toHaveCSS('pointer-events', 'auto');
   // 입력은 그대로 살아 있다 — 이 가드의 존재 이유다
   await expect(page.locator('#support-category-label')).toHaveValue('갇힘 테스트');
 });

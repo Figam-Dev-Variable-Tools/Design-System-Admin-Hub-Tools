@@ -34,7 +34,7 @@
 | **作品集** (Company) | 作品集 · 分类 · 成功案例 |
 | **销售** (Company) | 客户 · 合同 · 报价 · 咨询 · 项目 · 洽谈历史 |
 
-列表/详情/新建/编辑成套配齐，填充画面的组件全部出自 `@tds/ui` 这一个来源 —— atoms 12 · molecules 20 · organisms 5，契约 **37 种**。
+列表/详情/新建/编辑成套配齐，填充画面的组件全部出自 `@tds/ui` 这一个来源 —— atoms 12 · molecules 21 · organisms 5，契约 **38 种**。
 
 ---
 
@@ -52,6 +52,26 @@ pnpm sb                   # Storybook (:6006)
 
 ---
 
+## 规格
+
+画面在动手做之前先以文档固定下来。`specs/` 中共 **196 件** —— 以画面编号为轴，三类文档成对存在，按画面放置于 `specs/<板块>/<子项>/`（例如 `specs/users/members/`）。
+
+| 文档 | 件数 | 固定了什么 |
+| --- | --- | --- |
+| **FS** 功能规格书 | **70**（`FS-001`~`FS-070`） | 对画面元素全量编号（`FS-001-EL-008`）。§4 异常规格把 元素 × **7 轴**（空状态 · 加载 · 失败 · 校验 · 无权限 · 竞争 · 批量）**不留空格地**填满 |
+| **BE** 后端功能规格书 | **70**（`BE-001`~`BE-070`） | 端点 · 通用错误信封 · 认证/权限模型。§5 异常矩阵覆盖 **9 轴**（400 校验 · 401 认证 · 403 vs 404 · 404 对象不存在 · 409 冲突 · 422 状态违规 · 429 过载 · 500 错误 · 超时） |
+| **NFR** 非功能规格书 | **56**（`NFR-015`~`NFR-070`） | 把 `quality-bar.md` 的 **P0 30 件对该画面全量裁定**。先用 `适用` 轴（`直接` / `继承` / `N/A`）筛出该表面是否真实存在，再补上性能预算 · 可用性 · 数据留存 |
+
+### 正本 —— [`specs/quality-bar.md`](specs/quality-bar.md)
+
+9 个维度（STATE · TOKEN · COMP · FEEDBACK · A11Y · MOTION · IA · ERP · EXC） · 需求 **100 件**，其中 **P0 30 件必须全量满足**。每个批次都以本文档作为 acceptance criteria。NFR 不复述需求文字，**只按 ID 引用** —— 正本只存在于一处。
+
+### BE 不是"已经实现的"，而是"将要实现的"
+
+**后端尚不存在。** `BE-*` 是给后端开发者实现的规格，依据是代码中埋下的 `// TODO(backend)` 接缝。**没有 FS 元素作依据的端点一律不造** —— 每个端点都引用作为自身依据的 FS 元素编号，没有依据的则连同理由留在 §1「范围之外」。`openapi/openapi.yaml` 也是同样的性质 —— 是文档，不是服务端。
+
+---
+
 ## 门禁检查
 
 ### 检查存在，不等于检查在起作用
@@ -62,25 +82,25 @@ pnpm sb                   # Storybook (:6006)
 
 | 什么 | 怎么撒的谎 | 处理 |
 | --- | --- | --- |
-| `pnpm test` | `--passWithNoTests` → **测试 0 件也亮绿灯** | 移除 (A77 阻断) |
-| Storybook play function **62 件** | `expect` **0 个** · spy **0 个** → **不可能失败的检查** | 注入断言 (A30) |
-| `bundle-size` CI job | 没有 dist 也亮绿灯 | **移除** job ([ADR-0009](docs/adr/0009-ci-and-code-quality-gates.md)) |
-| `tools/vrt` | 基准图 0 张 → 「0 次比较中 0 次失败 → **PASS**」 | `NOT_VERIFIED` (exit 2) |
+| `pnpm test` | `--passWithNoTests` → **测试 0 件也亮绿灯** | 移除该 flag —— 现有测试 **152 件** |
+| Storybook play function **62 件** | `expect` **0 个** · spy **0 个** → **不可能失败的检查** | 注入断言 |
+| `bundle-size` CI job | 没有 dist 也亮绿灯 | 不复活而是先**移除** → 等到真的能测量之后再**恢复**，并纳入 `verify:all`(`perf:gate`) ([ADR-0009](docs/adr/0009-ci-and-code-quality-gates.md)) |
+| `tools/vrt` | 基准图 0 张 → 「0 次比较中 0 次失败 → **PASS**」 | 前提缺失时 `NOT_VERIFIED` (exit 2) —— 已登记 **501 张**基准图，现在真的在比对像素 |
 
 **在空集上为真的命题什么也证明不了。** 无法测量不等于通过 —— 前提不存在时，工具给出的不是绿灯，而是 `NOT_VERIFIED`。
 
 ### 命令
 
 ```bash
-pnpm validate:registry    # A02  50 个智能体 · 11 个门禁 · SKILL 一致性
-pnpm boundary:check       # A02  所有权边界 (与 CODEOWNERS 同一规则)
-pnpm contract-test        # A74  四方一致
-pnpm coverage:check       # A77  契约 states · blockedWhen · FS 异常轴 (并非行覆盖率 %)
-pnpm quality:check        # A83  整洁代码 6 轴 (blocker 1 件 → 阻断 PR)
-pnpm naming:check         # A76  命名规则
+pnpm validate:contracts   # 契约 Schema 验证
+pnpm boundary:check       # 所有权边界 (与 CODEOWNERS 同一规则)
+pnpm contract-test        # 四方一致
+pnpm coverage:check       # 契约 states · blockedWhen · FS 异常轴 (并非行覆盖率 %)
+pnpm quality:check        # 整洁代码 6 轴 (blocker 1 件 → 阻断 PR)
+pnpm naming:check         # 命名规则
 pnpm lint && pnpm format:check
 pnpm test                 # 只有带断言的测试才算测试
-pnpm verify:all           # 以上全部 + codegen 可复现性 + tsc --noEmit
+pnpm verify:all           # 以上全部 + codegen 可复现性 + tsc --noEmit + 包体积预算
 pnpm verify:full          # verify:all + E2E
 ```
 
@@ -88,38 +108,37 @@ pnpm verify:full          # verify:all + E2E
 
 ## 仓库结构
 
+产品表面如下 —— 这不是仓库全部顶层目录的完整列举。
+
 ```
-├── orchestration/          A00  组织 SSOT — 智能体/门禁注册表、交接 Schema、任务
-├── contracts/              A18  组件契约 37 种(SSOT) + Schema · review/(A19)
-├── tokens/                 A20  tokens.json (W3C DTCG, 3 层) · review/(A21)
-├── packages/ui/            A30~A33  @tds/ui — atoms/molecules/organisms/templates · foundations/ · generated/(禁止修改)
-├── apps/admin/             A40~A41  React Admin 应用 (Mid / Senior 顺序互斥)
-├── specs/                  A62~A64  功能规格 FS-* (按元素编号 + 异常 7 轴) · BE-* (异常 9 轴) · quality-bar.md
-├── openapi/                A80  OpenAPI 3.1 Schema (文档 — 不是服务端)
-├── e2e/                    A85  Playwright 场景 (测试名引用 FS 元素编号)
+├── contracts/              组件契约 38 种(SSOT) + schemas/
+├── tokens/                 tokens.json (W3C DTCG, 3 层)
+├── packages/ui/            @tds/ui — atoms/molecules/organisms/templates · foundations/ · generated/(禁止修改)
+├── apps/admin/             React Admin 应用
+├── specs/                  画面规格 196 件 — FS-*(元素全量编号 + 异常 7 轴) · BE-*(异常 9 轴) · NFR-*(P0 30 全量裁定) · quality-bar.md
+├── openapi/                OpenAPI 3.1 Schema (文档 — 不是服务端)
+├── e2e/                    Playwright 场景 (测试名引用 FS 元素编号)
 ├── tools/
-│   ├── codegen/                 契约/Token → 四处生成流水线
-│   ├── boundary/           A02  生成 CODEOWNERS + 所有权/reads 作用域检查
-│   ├── contract-test/      A74  四方一致验证
-│   ├── test-coverage/      A77  契约 states · blockedWhen · FS 异常轴覆盖 (并非行覆盖率 %)
-│   ├── code-quality/       A83  整洁代码 6 轴 (耦合·泄漏·重复·复杂度·死代码·分层)
-│   ├── vrt/                A70  Visual Regression
-│   ├── drift/              A71  Design Drift 监控
-│   ├── a11y/               A72  无障碍审计
-│   ├── perf/               A73  性能预算审计
-│   ├── reuse-guard/        A75  阻断重复组件
-│   ├── naming-guard/       A76  强制命名规则
-│   └── figma-plugin/       A50  Contract/Token → Figma 自动生成
+│   ├── codegen/            契约/Token → 四处生成流水线
+│   ├── boundary/           生成 CODEOWNERS + 所有权/reads 作用域检查
+│   ├── contract-test/      四方一致验证
+│   ├── test-coverage/      契约 states · blockedWhen · FS 异常轴覆盖 (并非行覆盖率 %)
+│   ├── code-quality/       整洁代码 6 轴 (耦合·泄漏·重复·复杂度·死代码·分层)
+│   ├── vrt/                Visual Regression (基准图 501 张)
+│   ├── drift/              Design Drift 监控
+│   ├── a11y/               无障碍审计
+│   ├── perf/               性能预算审计
+│   ├── reuse-guard/        阻断重复组件
+│   ├── naming-guard/       强制命名规则
+│   └── figma-plugin/       Contract/Token → Figma 自动生成
 ├── docs/
-│   ├── adr/                A01  架构决策记录 (0001~0010)
-│   ├── architecture/       A01  前端规约 (A40/A41/A30 必读) · 组织审计
-│   ├── plan/ design/            A10~A17
-│   ├── figma/              A51~A56  Figma 规格镜像 + 检查
-│   ├── tds/                A60~A61  设计系统文档
-│   ├── security/           A86  安全审查 (G6·G9 阻断)
-│   └── _templates/              标准文档 + 门禁检查清单
-├── reports/                Layer 3 验证产物 (门禁输入 — 机器生成，排除格式化)
-└── skills/                 50 个智能体 SKILL.md (+ _templates/)
+│   ├── adr/                架构决策记录 (0001~0010)
+│   ├── architecture/       前端规约 · 审计记录
+│   ├── plan/               计划文档
+│   ├── figma/              Figma 规格镜像 + 检查
+│   ├── tds/                设计系统文档
+│   └── _templates/         标准文档 + 门禁检查清单
+└── reports/                验证产物 (门禁输入 — 机器生成，排除格式化)
 ```
 
 pnpm workspace：`packages/*` · `apps/*` · `tools/*` · `e2e`。
@@ -140,12 +159,19 @@ pnpm workspace：`packages/*` · `apps/*` · `tools/*` · `e2e`。
 | `zustand` | ^5.0 | 客户端全局状态 | 无样板代码的极小 store —— 服务端状态由 Query 接管，因此作用域很窄 |
 | `react-hook-form` | ^7.81 | 表单状态 | 基于非受控，大型表单下重渲染最少 |
 | `zod` | ^4.4 | Schema 验证 | RHF resolver + 运行时边界验证。类型从 Schema 推导 |
+| `axios` | ^1.18 | HTTP 客户端 (实例 + 拦截器) | 真实网络调用 **0 次** —— 把 fixture 插进 `adapter` 扩展点，让**拦截器真正承载负荷**。若留作脚手架就成了死代码。后端接上那天，只删掉 `adapter` 那一行 |
 
 ### 设计系统 —— `packages/ui`
 
-| 库 | 版本 | 职责 |
+| 库 | 版本 | 职责 | 选型理由 |
+| --- | --- | --- | --- |
+| `@radix-ui/react-dialog` | 1.1.19 | `Modal` · `ConfirmDialog` 的焦点陷阱 · 滚动锁 | 手写焦点陷阱产生过 3 个真实缺陷。对话框的无障碍不是该自己造的问题 |
+| `@tiptap/*`（`core` · `react` · `pm` · `starter-kit` · `extension-image`） | 3.28.0 | `RichTextField` 的编辑器内核 | 基于 ProseMirror —— 文档模型是 Schema 而非 DOM |
+| `dompurify` | 3.4.12 | 编辑器 HTML 消毒 | XSS 边界。不自己造 |
+
+| 工具 | 版本 | 职责 |
 | --- | --- | --- |
-| `storybook` · `@storybook/react-vite` | ^8.6 | 组件文档 · 状态目录 (G5 的证据) |
+| `storybook` · `@storybook/react-vite` | ^8.6 | 组件文档 · 状态目录 (评审门禁的证据) |
 | `@storybook/addon-interactions` · `@storybook/test` | ^8.6 | play function —— **有断言才算检查** |
 | `@storybook/addon-a11y` | ^8.6 | 故事粒度的无障碍检查 |
 | `@storybook/addon-essentials` | ^8.6 | controls · viewport · docs |

@@ -1,7 +1,7 @@
 [
   {
-    "name": "@tds/ui public entry (gzip)",
-    "path": "../../packages/ui/dist/index.js",
+    "name": "@tds/ui public entry + 자체 청크 전부 (gzip)",
+    "path": ["../../packages/ui/dist/*.js"],
     "limit": "128 KB",
     "gzip": true
   }

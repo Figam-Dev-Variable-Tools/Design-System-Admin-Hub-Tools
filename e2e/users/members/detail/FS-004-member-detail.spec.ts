@@ -64,6 +64,18 @@ function ui(page: Page) {
   };
 }
 
+/**
+ * 적립금 내역 행을 **AT 트리를 타지 않고** 센다.
+ *
+ * 모달이 열려 있으면 배경은 보조기술에서 격리되므로(aria-modal + 배경 aria-hidden) role 질의로는
+ * 배경 표가 보이지 않는다 — 그것은 모달이 제대로 동작한다는 뜻이지 표가 사라졌다는 뜻이 아니다.
+ * 모달 위에서 '배경의 행 수가 그대로인가' 를 볼 때만 이 DOM 질의를 쓴다.
+ */
+function historyRowsInDom(page: Page): Locator {
+  // 접근성 이름의 출처는 <caption> 이다 (PointsCard.tsx — 시각적으로 숨긴 caption)
+  return page.locator('table:has(caption:text-is("적립금 증감 내역")) tbody tr');
+}
+
 async function openActions(page: Page): Promise<Locator> {
   await ui(page).actions.click();
   return page.getByRole('menu');
@@ -159,7 +171,11 @@ test('FS-004-EL-007.8: 실패 — 내역 삭제가 실패하면 다이얼로그 
   const dialog = u.dialog;
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole('heading', { name: '적립금 내역 삭제' })).toBeVisible();
-  await expect(u.historyRows).toHaveCount(before);
+  // [role 이 아니라 DOM 으로 센다] 모달이 열려 있는 동안 배경은 보조기술에서 **격리된다**
+  // (aria-modal + 배경 aria-hidden — 모달의 정상 동작이다). 그래서 role 질의로는 배경 표가
+  // 잡히지 않는다. 여기서 보려는 것은 'AT 에 보이는가' 가 아니라 **행이 그대로 남아 있는가**
+  // (실패한 삭제가 화면을 건드리지 않았는가) 이므로 AT 트리를 타지 않는 DOM 질의로 센다.
+  await expect(historyRowsInDom(page)).toHaveCount(before);
 
   await dialog.getByRole('button', { name: '내역 삭제' }).click();
 
@@ -168,7 +184,8 @@ test('FS-004-EL-007.8: 실패 — 내역 삭제가 실패하면 다이얼로그 
     '적립금 내역을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.',
   );
   await expect(u.balance).toHaveText(INITIAL_BALANCE);
-  await expect(u.historyRows).toHaveCount(before);
+  // 실패라 다이얼로그가 그대로 열려 있다 → 배경은 여전히 AT 에서 격리된 상태다 (위와 같은 이유로 DOM 질의)
+  await expect(historyRowsInDom(page)).toHaveCount(before);
 });
 
 test('FS-004-EL-011 / FS-004-EL-004 / FS-004-EL-002 / FS-004-EL-001: 실패 — 상세 조회가 실패하면 카드 대신 배너를 띄우고 돌아가기 링크는 남는다', async ({

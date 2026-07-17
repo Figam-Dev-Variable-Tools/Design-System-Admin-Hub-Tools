@@ -32,7 +32,30 @@ const STALE_TIME_MS = 30_000;
  *
  * 여기서 navigate 를 부르지 못하는 이유(React 밖)와 pub/sub 로 잇는 이유는
  * shared/auth/session-expiry.ts 헤더에 있다.
- * TODO(lib): Axios 도입 시 이 판정은 response interceptor 로 옮긴다 — 그때 이 두 캐시 훅은 사라진다.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * [Axios 도입 후 — 여기가 401 **통지**의 정본이다. 옮기지 않았다]
+ *
+ * 옛 TODO(lib) 는 'Axios 를 넣으면 이 판정을 response interceptor 로 옮기고 이 두 캐시 훅은
+ * 사라진다'고 적어 두었다. Axios 는 들어왔지만(shared/api/client.ts) **옮기지 않았다.**
+ * 세어 보면 옮길 수 없기 때문이다:
+ *
+ *   · axios 인스턴스를 지나는 것  — shared/crud/crud.ts 의 두 어댑터 팩토리 경유분
+ *   · 지나지 않는 것             — `failIfRequested` 로 401 을 직접 던지는 데이터 소스 **15개**
+ *     (pages/members · pages/content/* · pages/stats · pages/settings · pages/support · pages/logs …)
+ *
+ * 통지를 인터셉터로 옮기면 그 15개의 401 은 **아무도 통지하지 않고**, crud 경유분만 두 곳에서
+ * 통지된다 — 전수도 못 덮고 이중화만 남는다. 반면 캐시 계층은 axios 경유든 아니든 **모든**
+ * query/mutation 실패가 수렴하는 자리라 지금도 전수를 덮는다.
+ *
+ * 그래서 분담을 못박는다:
+ *   · **status → HttpError 변환의 정본** = shared/api/client.ts 의 응답 인터셉터 (전송 관심사)
+ *   · **401 통지의 정본**                = 여기 (전수 수렴 지점)
+ * 인터셉터는 401 을 HttpError 로 만들어 줄 뿐 통지하지 않는다 — 통지하는 곳은 이 한 곳이다.
+ *
+ * TODO(lib): 15개 데이터 소스가 전부 fixtureRequest 를 지나게 되면 그때 통지를 인터셉터로 내리고
+ *   이 두 캐시 훅을 지운다. 그 전에 옮기면 401 처리에 구멍이 생긴다.
+ * ─────────────────────────────────────────────────────────────────────────────
  */
 function handleQueryLayerError(cause: unknown): void {
   if (isUnauthorized(cause)) notifySessionExpired();

@@ -5,13 +5,18 @@
 //
 // [백엔드 없음] createCrudAdapter 는 픽스처 배열을 mutable 로 들고 CRUD 를 흉내 낸다. 실제 연동 시
 // 각 화면의 data-source.ts 의 // TODO(backend) 엔드포인트로 어댑터 본문만 바꾼다.
+//
+// [전송은 shared/api/client.ts 를 지난다 — 실 HTTP 는 여전히 0건]
+// 지연·취소·실패재현·멱등키는 이제 이 파일이 직접 하지 않고 `fixtureRequest` 에 태운다. 그 안에서
+// axios 인스턴스의 요청/응답 인터셉터를 **실제로 통과**한 뒤, 네트워크 대신 픽스처 트랜스포트가
+// 해소한다(자세한 구조는 shared/api/client.ts 헤더). 아래 `resolve` 콜백이 픽스처 본체이고,
+// 그 인자로 오는 멱등키는 **요청 헤더에서 되읽은 값**이다 — 원장이 그 헤더를 소비한다(EXC-08).
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 
-import { wait } from '../async';
-import { settleAll } from '../bulk';
+import { fixtureRequest } from '../api/client';
+import { settleAllDetailed } from '../bulk';
 import { HTTP_STATUS, HttpError } from '../errors/http-error';
-import { failIfRequested, LATENCY_MS } from './dev';
 
 /**
  * 쓰기 1회의 실행 맥락 (EXC-08).
@@ -91,58 +96,78 @@ export function createCrudAdapter<T extends { id: string }, Input>(
   const ledger = createIdempotencyLedger();
 
   return {
-    async fetchAll(signal) {
-      await wait(LATENCY_MS, signal);
-      failIfRequested(spec.scope, 'list');
-      return order(items);
-    },
-    async fetchOne(id, signal) {
-      await wait(LATENCY_MS, signal);
-      failIfRequested(spec.scope, 'detail');
-      const found = items.find((item) => item.id === id);
-      // 404 와 500 은 복구 수단이 다르다 — '목록으로' vs '다시 시도' (EXC-12). status 를 실어
-      // 폼 셸이 그 둘을 구분할 수 있게 한다. 예전에는 generic Error 라 loadFailed 로 뭉개졌다.
-      if (found === undefined) {
-        throw new HttpError(HTTP_STATUS.notFound, '항목을 찾을 수 없습니다.');
-      }
-      return found;
-    },
-    async create(input, context) {
-      await wait(LATENCY_MS, context?.signal);
-      failIfRequested(spec.scope, 'save');
-      // [EXC-08] 같은 키의 재시도는 두 번 만들지 않는다 — 최초 응답을 재생한다
-      if (ledger.isReplay(context?.idempotencyKey)) return;
-      items = order([...items, spec.build(input, items)]);
-      ledger.record(context?.idempotencyKey);
-    },
-    async update(id, input, context) {
-      await wait(LATENCY_MS, context?.signal);
-      failIfRequested(spec.scope, 'save');
-      if (ledger.isReplay(context?.idempotencyKey)) return;
+    fetchAll: (signal) =>
+      fixtureRequest({ scope: spec.scope, op: 'list', signal, resolve: () => order(items) }),
 
-      // [EXC-04] 예전에는 map 이 **없는 id 를 조용히 지나치고 성공을 반환**했다. 그래서 다른
-      // 관리자가 방금 지운 항목을 편집하면 '저장했습니다' 토스트가 뜨고 목록으로 돌아가지만
-      // 저장된 것은 아무것도 없었다 — 유령 저장(ghost saved)이다. 없으면 409 로 알린다.
-      if (!items.some((item) => item.id === id)) {
-        throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 항목입니다.');
-      }
+    fetchOne: (id, signal) =>
+      fixtureRequest({
+        scope: spec.scope,
+        op: 'detail',
+        signal,
+        resolve: () => {
+          const found = items.find((item) => item.id === id);
+          // 404 와 500 은 복구 수단이 다르다 — '목록으로' vs '다시 시도' (EXC-12). status 를 실어
+          // 폼 셸이 그 둘을 구분할 수 있게 한다. 예전에는 generic Error 라 loadFailed 로 뭉개졌다.
+          if (found === undefined) {
+            throw new HttpError(HTTP_STATUS.notFound, '항목을 찾을 수 없습니다.');
+          }
+          return found;
+        },
+      }),
 
-      items = order(items.map((item) => (item.id === id ? spec.patch(item, input) : item)));
-      ledger.record(context?.idempotencyKey);
-    },
-    async remove(id, context) {
-      await wait(LATENCY_MS, context?.signal);
-      failIfRequested(spec.scope, 'delete');
-      if (ledger.isReplay(context?.idempotencyKey)) return;
+    create: (input, context) =>
+      fixtureRequest({
+        scope: spec.scope,
+        op: 'save',
+        signal: context?.signal,
+        idempotencyKey: context?.idempotencyKey,
+        resolve: (key) => {
+          // [EXC-08] 같은 키의 재시도는 두 번 만들지 않는다 — 최초 응답을 재생한다
+          if (ledger.isReplay(key)) return;
+          items = order([...items, spec.build(input, items)]);
+          ledger.record(key);
+        },
+      }),
 
-      // 같은 이유로 filter 도 없는 id 를 조용히 통과시켰다 — 삭제되지 않았는데 삭제 성공이었다.
-      if (!items.some((item) => item.id === id)) {
-        throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 항목입니다.');
-      }
+    update: (id, input, context) =>
+      fixtureRequest({
+        scope: spec.scope,
+        op: 'save',
+        signal: context?.signal,
+        idempotencyKey: context?.idempotencyKey,
+        resolve: (key) => {
+          if (ledger.isReplay(key)) return;
 
-      items = items.filter((item) => item.id !== id);
-      ledger.record(context?.idempotencyKey);
-    },
+          // [EXC-04] 예전에는 map 이 **없는 id 를 조용히 지나치고 성공을 반환**했다. 그래서 다른
+          // 관리자가 방금 지운 항목을 편집하면 '저장했습니다' 토스트가 뜨고 목록으로 돌아가지만
+          // 저장된 것은 아무것도 없었다 — 유령 저장(ghost saved)이다. 없으면 409 로 알린다.
+          if (!items.some((item) => item.id === id)) {
+            throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 항목입니다.');
+          }
+
+          items = order(items.map((item) => (item.id === id ? spec.patch(item, input) : item)));
+          ledger.record(key);
+        },
+      }),
+
+    remove: (id, context) =>
+      fixtureRequest({
+        scope: spec.scope,
+        op: 'delete',
+        signal: context?.signal,
+        idempotencyKey: context?.idempotencyKey,
+        resolve: (key) => {
+          if (ledger.isReplay(key)) return;
+
+          // 같은 이유로 filter 도 없는 id 를 조용히 통과시켰다 — 삭제되지 않았는데 삭제 성공이었다.
+          if (!items.some((item) => item.id === id)) {
+            throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 항목입니다.');
+          }
+
+          items = items.filter((item) => item.id !== id);
+          ledger.record(key);
+        },
+      }),
   };
 }
 
@@ -171,71 +196,90 @@ export function createStoreAdapter<T extends { id: string }, Input>(
   const exists = (id: string): boolean => spec.list().some((item) => item.id === id);
 
   return {
-    async fetchAll(signal) {
-      await wait(LATENCY_MS, signal);
-      failIfRequested(spec.scope, 'list');
-      return spec.list();
-    },
-    async fetchOne(id, signal) {
-      await wait(LATENCY_MS, signal);
-      failIfRequested(spec.scope, 'detail');
+    fetchAll: (signal) =>
+      fixtureRequest({ scope: spec.scope, op: 'list', signal, resolve: () => spec.list() }),
 
-      /**
-       * [EXC-12] 없는 id 는 **404 로** 알린다.
-       *
-       * store 의 getOne 류는 `throw new Error('상품을 찾을 수 없습니다')` 처럼 **status 없는
-       * generic Error** 를 던진다. useCrudForm 의 404 분기(isNotFound)는 status 를 보고
-       * 판정하므로, 그 generic Error 는 언제나 'error' 로 떨어졌다 — **404 분기가 영원히
-       * 발현되지 않았다.** 삭제된 :id 로 폼에 들어와도 '다시 시도'를 권했다(재시도해도 없다).
-       * 형제 팩토리 createCrudAdapter.fetchOne 이 같은 자리에서 이미 이렇게 한다.
-       */
-      if (!exists(id)) {
-        throw new HttpError(HTTP_STATUS.notFound, '항목을 찾을 수 없습니다.');
-      }
-      return spec.getOne(id);
-    },
-    async create(input, context) {
-      await wait(LATENCY_MS, context?.signal);
-      failIfRequested(spec.scope, 'save');
-      // [EXC-08] 같은 키의 재시도는 두 번 만들지 않는다 — 최초 응답을 재생한다
-      if (ledger.isReplay(context?.idempotencyKey)) return;
-      spec.add(input);
-      ledger.record(context?.idempotencyKey);
-    },
-    async update(id, input, context) {
-      await wait(LATENCY_MS, context?.signal);
-      failIfRequested(spec.scope, 'save');
-      if (ledger.isReplay(context?.idempotencyKey)) return;
+    fetchOne: (id, signal) =>
+      fixtureRequest({
+        scope: spec.scope,
+        op: 'detail',
+        signal,
+        resolve: () => {
+          /**
+           * [EXC-12] 없는 id 는 **404 로** 알린다.
+           *
+           * store 의 getOne 류는 `throw new Error('상품을 찾을 수 없습니다')` 처럼 **status 없는
+           * generic Error** 를 던진다. useCrudForm 의 404 분기(isNotFound)는 status 를 보고
+           * 판정하므로, 그 generic Error 는 언제나 'error' 로 떨어졌다 — **404 분기가 영원히
+           * 발현되지 않았다.** 삭제된 :id 로 폼에 들어와도 '다시 시도'를 권했다(재시도해도 없다).
+           * 형제 팩토리 createCrudAdapter.fetchOne 이 같은 자리에서 이미 이렇게 한다.
+           */
+          if (!exists(id)) {
+            throw new HttpError(HTTP_STATUS.notFound, '항목을 찾을 수 없습니다.');
+          }
+          return spec.getOne(id);
+        },
+      }),
 
-      /**
-       * [EXC-04] 형제 팩토리(createCrudAdapter)는 같은 자리에서 409 로 막는데 여기만 뚫려 있었다.
-       *
-       * store 의 update 는 `map` 이다 — **없는 id 를 조용히 지나치고 아무것도 바꾸지 않은 채
-       * 성공을 반환**했다. 그래서 다른 관리자가 방금 지운 상품을 편집하면 '저장했습니다' 토스트가
-       * 뜨고 목록으로 돌아가지만 저장된 것은 아무것도 없다 — 유령 저장(ghost saved)이다.
-       * 소비 화면들은 useCrudForm 의 409 충돌 다이얼로그를 이미 갖고 있다. 어댑터가 409 를
-       * 주기만 하면 화면 코드 0 줄로 복구 경로가 열린다.
-       */
-      if (!exists(id)) {
-        throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 항목입니다.');
-      }
+    create: (input, context) =>
+      fixtureRequest({
+        scope: spec.scope,
+        op: 'save',
+        signal: context?.signal,
+        idempotencyKey: context?.idempotencyKey,
+        resolve: (key) => {
+          // [EXC-08] 같은 키의 재시도는 두 번 만들지 않는다 — 최초 응답을 재생한다
+          if (ledger.isReplay(key)) return;
+          spec.add(input);
+          ledger.record(key);
+        },
+      }),
 
-      spec.update(id, input);
-      ledger.record(context?.idempotencyKey);
-    },
-    async remove(id, context) {
-      await wait(LATENCY_MS, context?.signal);
-      failIfRequested(spec.scope, 'delete');
-      if (ledger.isReplay(context?.idempotencyKey)) return;
+    update: (id, input, context) =>
+      fixtureRequest({
+        scope: spec.scope,
+        op: 'save',
+        signal: context?.signal,
+        idempotencyKey: context?.idempotencyKey,
+        resolve: (key) => {
+          if (ledger.isReplay(key)) return;
 
-      // 같은 이유로 store 의 filter 도 없는 id 를 조용히 통과시켰다 — 삭제되지 않았는데 삭제 성공.
-      if (!exists(id)) {
-        throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 항목입니다.');
-      }
+          /**
+           * [EXC-04] 형제 팩토리(createCrudAdapter)는 같은 자리에서 409 로 막는데 여기만 뚫려 있었다.
+           *
+           * store 의 update 는 `map` 이다 — **없는 id 를 조용히 지나치고 아무것도 바꾸지 않은 채
+           * 성공을 반환**했다. 그래서 다른 관리자가 방금 지운 상품을 편집하면 '저장했습니다' 토스트가
+           * 뜨고 목록으로 돌아가지만 저장된 것은 아무것도 없다 — 유령 저장(ghost saved)이다.
+           * 소비 화면들은 useCrudForm 의 409 충돌 다이얼로그를 이미 갖고 있다. 어댑터가 409 를
+           * 주기만 하면 화면 코드 0 줄로 복구 경로가 열린다.
+           */
+          if (!exists(id)) {
+            throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 항목입니다.');
+          }
 
-      spec.remove(id);
-      ledger.record(context?.idempotencyKey);
-    },
+          spec.update(id, input);
+          ledger.record(key);
+        },
+      }),
+
+    remove: (id, context) =>
+      fixtureRequest({
+        scope: spec.scope,
+        op: 'delete',
+        signal: context?.signal,
+        idempotencyKey: context?.idempotencyKey,
+        resolve: (key) => {
+          if (ledger.isReplay(key)) return;
+
+          // 같은 이유로 store 의 filter 도 없는 id 를 조용히 통과시켰다 — 삭제되지 않았는데 삭제 성공.
+          if (!exists(id)) {
+            throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 항목입니다.');
+          }
+
+          spec.remove(id);
+          ledger.record(key);
+        },
+      }),
   };
 }
 
@@ -339,7 +383,14 @@ interface BulkDeleteVars {
   readonly signal: AbortSignal;
 }
 
-/** 일괄 삭제 — 부분 실패도 건수(반환값)로 알린다 */
+/**
+ * 일괄 삭제 — 부분 실패를 **건수와 사유로** 알린다.
+ *
+ * 사유를 함께 주는 이유는 409 때문이다. 409 는 재시도가 푸는 실패가 아니라 참조를 먼저 떼어내야
+ * 풀리는 실패이고, 어댑터는 그 이유를 이미 문장으로 들고 온다. 건수만 반환하면 호출부는 그것을
+ * 구분할 수단 자체가 없어 잘못된 복구 수단을 권하게 된다 — deleteErrorMessage(단건)가 피하려고
+ * 만들어진 바로 그 함정이다.
+ */
 export function useCrudBulkDelete<T extends { id: string }, Input>(
   resource: string,
   adapter: CrudAdapter<T, Input>,
@@ -347,8 +398,8 @@ export function useCrudBulkDelete<T extends { id: string }, Input>(
   const client = useQueryClient();
   return useMutation({
     mutationFn: ({ ids, signal }: BulkDeleteVars) =>
-      settleAll(ids, (id) => adapter.remove(id, { signal })),
-    onSuccess: (failed, { signal }) => {
+      settleAllDetailed(ids, (id) => adapter.remove(id, { signal })),
+    onSuccess: ({ failed }, { signal }) => {
       if (signal.aborted) return;
       if (failed === 0) void client.invalidateQueries({ queryKey: listKey(resource) });
     },

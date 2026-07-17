@@ -16,21 +16,25 @@
 #   format-check        A81  Prettier (blockCondition: 포맷 불일치)
 #   code-quality        A83  클린코드 6축 (blockCondition: blocker >= 1건)
 #   a11y                A72  axe critical/serious (G5·G6)
+#   bundle-size         A73  gzip 번들 예산 (G6) — 2026-07-17 복원, 아래 참조
 #
 #   등록 확인: gh api repos/:owner/:repo/branches/main/protection
 #   preview 는 게이트가 아니라 게이트 통과의 *산출물*이므로 required 에 넣지 않는다.
 #
-# ── 비활성 게이트 (required 아님, 의도적으로 제거됨) ────────────────────────
-#   bundle-size (A73 / G6):
-#     `@tds/ui` 의 build 가 placeholder(`echo`) 라 dist 가 생기지 않고, `tools/perf` 는
-#     dist 부재 시 graceful skip(exit 0) 한다. 즉 이 job 은 **아무것도 재지 못하면서
-#     초록불만 켜는 공허 통과(vacuous pass)** 였다 (ADR-0006 지적).
-#     공허 통과를 '게이트 통과'로 보고하지 않기 위해 job 자체를 **제거**했다.
-#     승격 조건 (전부 충족 시 job 복원 + required 등록):
-#       1) `@tds/ui` 에 vite lib mode 빌드 도입 → packages/ui/dist 생성 (A30 · A80)
-#       2) `tools/perf` 가 dist 부재 시 graceful skip 이 아니라 **실패**하도록 수정 (A73)
-#          — 측정 불가는 통과가 아니다
-#     현재 상태는 ADR-0009 에 기술부채로 등재되어 있다.
+# ── bundle-size 복원 기록 (ADR-0009 기술부채 상환) ──────────────────────────
+#   ADR-0009 는 이 job 을 **공허 통과**로 지목해 제거하고 승격 조건 2개를 걸어 뒀다.
+#   둘 다 충족되어 복원한다:
+#     1) `@tds/ui` vite lib mode 빌드 도입 → packages/ui/dist 생성  ✅ packages/ui/vite.config.ts
+#     2) `tools/perf` 가 dist 부재 시 skip 이 아니라 **실패**          ✅ exit 1 (status: unmeasurable)
+#
+#   복원과 함께 **실제로 빨간불이 켜지는지 증명**했다 (통과만 본 가드는 믿지 않는다):
+#     · dist 삭제 후 실행           → exit 1 (측정 불가는 통과가 아니다)
+#     · 뚱뚱한 모듈 주입 후 빌드     → exit 1 (gzip 241.44KB > 예산 106KB)
+#     · 그 모듈을 React.lazy 뒤로 숨김 → exit 1 (전체 합 240.73KB). 같은 상황에서
+#       '진입 청크'만 재면 17.32KB 로 **통과**한다 — 그래서 예산 단위는 전체 합이다.
+#
+#   예산 단위 = `packages/ui/dist/*.js` gzip **합계** (entry + 자체 청크, 서드파티 external).
+#   상세 근거는 tools/perf/src/index.ts 헤더 참조.
 #
 # ── continue-on-error 정책 ─────────────────────────────────────────────────
 #   이 워크플로우에는 continue-on-error 가 **한 건도 없다.** 실패는 곧 차단이다.
@@ -217,6 +221,36 @@ jobs:
         run: pnpm sb:build
       - run: pnpm a11y
 
+  # A73 — gzip 번들 예산 (G6 blockedBy A73). ADR-0009 가 건 승격 조건 2개 충족 후 복원.
+  # 예산 = base 30KB + 2KB × 컴포넌트 수, 단위는 dist/*.js gzip 합계. 초과 → exit 1 → PR 차단.
+  # dist 가 없으면 skip 이 아니라 **실패**한다 — 측정 불가는 통과가 아니다.
+  bundle-size:
+    name: 번들 예산 검사 (size-limit · A73)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # @tds/ui 소스가 generated 토큰/타입에 의존하므로 codegen 선행 필수
+      - name: 코드젠 (토큰/계약 → generated 산출물)
+        run: pnpm codegen
+      - name: UI 라이브러리 빌드 (vite lib mode → packages/ui/dist)
+        run: pnpm --filter @tds/ui run build
+      - run: pnpm perf
+      # 리포트는 차단의 근거다 — 실패했을 때 특히 반드시 남긴다.
+      - name: 번들 예산 리포트 업로드
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-report
+          path: reports/perf/
+          if-no-files-found: warn
+          retention-days: 14
+
   # 프리뷰 — **게이트 전부 통과 후에만** 산출물을 만든다.
   # 깨진 코드의 프리뷰는 리뷰어(A17/A33/A42)를 오도한다. 그래서 needs 로 전 게이트에 매단다.
   # 게이트가 아니므로 required check 에 등록하지 않는다 (실패해도 '검증 실패'가 아니라 '산출물 실패').
@@ -233,6 +267,7 @@ jobs:
       - format-check
       - code-quality
       - a11y
+      - bundle-size
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

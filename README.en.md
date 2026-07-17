@@ -34,7 +34,7 @@ This repository is the result of building that repetition **once**, properly, an
 | **Portfolio** (Company) | Portfolio · Categories · Case studies |
 | **Sales** (Company) | Accounts · Contracts · Quotes · Inquiries · Projects · Consultation history |
 
-List/detail/create/edit ship as one set, and every component that fills those screens comes from exactly one place, `@tds/ui` — 12 atoms · 20 molecules · 5 organisms, **37 contracts**.
+List/detail/create/edit ship as one set, and every component that fills those screens comes from exactly one place, `@tds/ui` — 12 atoms · 21 molecules · 5 organisms, **38 contracts**.
 
 ---
 
@@ -52,6 +52,26 @@ pnpm sb                   # Storybook (:6006)
 
 ---
 
+## Specifications
+
+Screens are frozen as documents before they are built. `specs/` holds **196** of them — three kinds paired along a screen number, laid out per screen under `specs/<section>/<subsection>/` (e.g. `specs/users/members/`).
+
+| Document | Count | What it freezes |
+| --- | --- | --- |
+| **FS** feature specs | **70** (`FS-001`~`FS-070`) | Every screen element is numbered exhaustively (`FS-001-EL-008`). §4 fills element × **7 exception axes** (empty · loading · failure · validation · unauthorized · contention · bulk) **with no blanks** |
+| **BE** backend feature specs | **70** (`BE-001`~`BE-070`) | Endpoints · shared error envelope · auth/permission model. §5's exception matrix covers **9 axes** (400 validation · 401 auth · 403 vs 404 · 404 not-found · 409 conflict · 422 state violation · 429 overload · 500 error · timeout) |
+| **NFR** non-functional specs | **56** (`NFR-015`~`NFR-070`) | Adjudicates **all 30 P0 requirements** of `quality-bar.md` against that screen. An `applicability` axis (`direct` / `inherited` / `N/A`) screens for whether the surface exists at all, then adds performance budgets · resilience · data retention |
+
+### The canon — [`specs/quality-bar.md`](specs/quality-bar.md)
+
+9 dimensions (STATE · TOKEN · COMP · FEEDBACK · A11Y · MOTION · IA · ERP · EXC) · **100 requirements**, of which the **30 P0s are non-negotiable**. Every batch takes this document as its acceptance criteria. NFRs never restate a requirement's wording — they **reference it by ID only**, so the canon lives in exactly one place.
+
+### BE is not "what was built" — it's "what is to be built"
+
+**There is no backend yet.** `BE-*` are specs for a backend developer to implement, written from the `// TODO(backend)` seams planted in the code. **No endpoint is invented without an FS element behind it** — every endpoint cites the FS element number that justifies it, and anything without one is recorded in §1 "out of scope" with a reason. `openapi/openapi.yaml` has the same character: a document, not a server.
+
+---
+
 ## Gate checks
 
 ### A check that exists and a check that works are not the same thing.
@@ -62,25 +82,25 @@ Four **vacuous passes** found in practice — all of them were showing green, an
 
 | What | How it lied | Resolution |
 | --- | --- | --- |
-| `pnpm test` | `--passWithNoTests` → **green on 0 tests** | Removed (A77 blocks it) |
-| **62** Storybook play functions | **0** `expect` · **0** spies → **a check that cannot fail** | Assertions injected (A30) |
-| `bundle-size` CI job | Green with no dist | Job **removed** ([ADR-0009](docs/adr/0009-ci-and-code-quality-gates.md)) |
-| `tools/vrt` | 0 baseline images → "0 failures out of 0 comparisons → **PASS**" | `NOT_VERIFIED` (exit 2) |
+| `pnpm test` | `--passWithNoTests` → **green on 0 tests** | Flag removed — **152** tests today |
+| **62** Storybook play functions | **0** `expect` · **0** spies → **a check that cannot fail** | Assertions injected |
+| `bundle-size` CI job | Green with no dist | **Removed** rather than revived → **restored** once it could actually measure, and folded into `verify:all` (`perf:gate`) ([ADR-0009](docs/adr/0009-ci-and-code-quality-gates.md)) |
+| `tools/vrt` | 0 baseline images → "0 failures out of 0 comparisons → **PASS**" | `NOT_VERIFIED` (exit 2) when premises are missing — **501** baselines registered, so it now actually compares pixels |
 
 **A proposition that is true over the empty set proves nothing.** Not measurable is not a pass — without premises, the tool emits `NOT_VERIFIED` instead of green.
 
 ### Commands
 
 ```bash
-pnpm validate:registry    # A02  50 agents · 11 gates · SKILL consistency
-pnpm boundary:check       # A02  ownership boundaries (same rules as CODEOWNERS)
-pnpm contract-test        # A74  four-way agreement
-pnpm coverage:check       # A77  contract states · blockedWhen · FS exception axes (not line %)
-pnpm quality:check        # A83  6 clean-code axes (1 blocker → PR blocked)
-pnpm naming:check         # A76  naming rules
+pnpm validate:contracts   # contract schema validation
+pnpm boundary:check       # ownership boundaries (same rules as CODEOWNERS)
+pnpm contract-test        # four-way agreement
+pnpm coverage:check       # contract states · blockedWhen · FS exception axes (not line %)
+pnpm quality:check        # 6 clean-code axes (1 blocker → PR blocked)
+pnpm naming:check         # naming rules
 pnpm lint && pnpm format:check
 pnpm test                 # only tests with assertions count as tests
-pnpm verify:all           # all of the above + codegen reproducibility + tsc --noEmit
+pnpm verify:all           # all of the above + codegen reproducibility + tsc --noEmit + bundle budget
 pnpm verify:full          # verify:all + E2E
 ```
 
@@ -88,38 +108,37 @@ pnpm verify:full          # verify:all + E2E
 
 ## Repository structure
 
+The product surface is as follows — this is not an exhaustive listing of every top-level directory in the repository.
+
 ```
-├── orchestration/          A00  Organization SSOT — agent/gate registry, handoff schemas, tasks
-├── contracts/              A18  37 component contracts (SSOT) + schemas · review/(A19)
-├── tokens/                 A20  tokens.json (W3C DTCG, 3 tiers) · review/(A21)
-├── packages/ui/            A30~A33  @tds/ui — atoms/molecules/organisms/templates · foundations/ · generated/(do not edit)
-├── apps/admin/             A40~A41  React Admin app (Mid / Senior, sequential exclusive)
-├── specs/                  A62~A64  Feature specs FS-* (per-element numbering + 7 exception axes) · BE-* (9 exception axes) · quality-bar.md
-├── openapi/                A80  OpenAPI 3.1 schema (document — not a server)
-├── e2e/                    A85  Playwright scenarios (test names cite FS element numbers)
+├── contracts/              38 component contracts (SSOT) + schemas/
+├── tokens/                 tokens.json (W3C DTCG, 3 tiers)
+├── packages/ui/            @tds/ui — atoms/molecules/organisms/templates · foundations/ · generated/(do not edit)
+├── apps/admin/             React Admin app
+├── specs/                  196 screen specs — FS-*(exhaustive element numbering + 7 exception axes) · BE-*(9 exception axes) · NFR-*(all 30 P0s adjudicated) · quality-bar.md
+├── openapi/                OpenAPI 3.1 schema (document — not a server)
+├── e2e/                    Playwright scenarios (test names cite FS element numbers)
 ├── tools/
-│   ├── codegen/                 contracts/tokens → 4-target generation pipeline
-│   ├── boundary/           A02  CODEOWNERS generation + ownership/reads scope checks
-│   ├── contract-test/      A74  four-way agreement verification
-│   ├── test-coverage/      A77  contract states · blockedWhen · FS exception-axis coverage (not line %)
-│   ├── code-quality/       A83  6 clean-code axes (coupling·leakage·duplication·complexity·dead code·layering)
-│   ├── vrt/                A70  Visual Regression
-│   ├── drift/              A71  Design Drift watch
-│   ├── a11y/               A72  Accessibility audit
-│   ├── perf/               A73  Performance budget audit
-│   ├── reuse-guard/        A75  Duplicate component blocking
-│   ├── naming-guard/       A76  Naming rule enforcement
-│   └── figma-plugin/       A50  Contract/Token → Figma auto-generation
+│   ├── codegen/            contracts/tokens → 4-target generation pipeline
+│   ├── boundary/           CODEOWNERS generation + ownership/reads scope checks
+│   ├── contract-test/      four-way agreement verification
+│   ├── test-coverage/      contract states · blockedWhen · FS exception-axis coverage (not line %)
+│   ├── code-quality/       6 clean-code axes (coupling·leakage·duplication·complexity·dead code·layering)
+│   ├── vrt/                Visual Regression (501 baseline images)
+│   ├── drift/              Design Drift watch
+│   ├── a11y/               Accessibility audit
+│   ├── perf/               Performance budget audit
+│   ├── reuse-guard/        Duplicate component blocking
+│   ├── naming-guard/       Naming rule enforcement
+│   └── figma-plugin/       Contract/Token → Figma auto-generation
 ├── docs/
-│   ├── adr/                A01  Architecture Decision Records (0001~0010)
-│   ├── architecture/       A01  Frontend conventions (required reading for A40/A41/A30) · org audit
-│   ├── plan/ design/            A10~A17
-│   ├── figma/              A51~A56  Figma spec mirror + review
-│   ├── tds/                A60~A61  Design system docs
-│   ├── security/           A86  Security review (blocks G6·G9)
-│   └── _templates/              Standard docs + gate checklists
-├── reports/                Layer 3 verification artifacts (gate inputs — machine-generated, excluded from formatter)
-└── skills/                 50 agent SKILL.md files (+ _templates/)
+│   ├── adr/                Architecture Decision Records (0001~0010)
+│   ├── architecture/       Frontend conventions · audit records
+│   ├── plan/               Planning documents
+│   ├── figma/              Figma spec mirror + review
+│   ├── tds/                Design system docs
+│   └── _templates/         Standard docs + gate checklists
+└── reports/                Verification artifacts (gate inputs — machine-generated, excluded from formatter)
 ```
 
 pnpm workspace: `packages/*` · `apps/*` · `tools/*` · `e2e`.
@@ -140,12 +159,19 @@ There is one selection criterion — **don't build it yourself.** Problems with 
 | `zustand` | ^5.0 | Client global state | A minimal store with no boilerplate — its scope is narrow because Query owns server state |
 | `react-hook-form` | ^7.81 | Form state | Uncontrolled by default, minimal re-renders on large forms |
 | `zod` | ^4.4 | Schema validation | RHF resolver + runtime boundary validation. Types are inferred from the schema |
+| `axios` | ^1.18 | HTTP client (instance + interceptors) | Real network calls: **zero** — fixtures are plugged into the `adapter` extension point so the **interceptors carry load**. Left as scaffolding it would be dead code. The day a backend lands, one `adapter` line goes away |
 
 ### Design system — `packages/ui`
 
-| Library | Version | Role |
+| Library | Version | Role | Why |
+| --- | --- | --- | --- |
+| `@radix-ui/react-dialog` | 1.1.19 | Focus trap · scroll lock for `Modal` · `ConfirmDialog` | A hand-rolled focus trap produced 3 real defects. Dialog accessibility is not a build-it-yourself problem |
+| `@tiptap/*` (`core` · `react` · `pm` · `starter-kit` · `extension-image`) | 3.28.0 | Editor core for `RichTextField` | ProseMirror-based — the document model is a schema, not the DOM |
+| `dompurify` | 3.4.12 | Sanitizes editor HTML | An XSS boundary. Not something to build yourself |
+
+| Tool | Version | Role |
 | --- | --- | --- |
-| `storybook` · `@storybook/react-vite` | ^8.6 | Component docs · state catalog (the evidence for G5) |
+| `storybook` · `@storybook/react-vite` | ^8.6 | Component docs · state catalog (the evidence a review gate consumes) |
 | `@storybook/addon-interactions` · `@storybook/test` | ^8.6 | play function — **it counts as a check only if it asserts** |
 | `@storybook/addon-a11y` | ^8.6 | Per-story accessibility checks |
 | `@storybook/addon-essentials` | ^8.6 | controls · viewport · docs |

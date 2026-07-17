@@ -7,7 +7,7 @@
 //   onSubmit  주면 본문/푸터를 <form> 으로 감싸 submit 이 동작한다
 import { createRef } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { Modal } from './Modal';
 
@@ -18,9 +18,37 @@ const Footer = (
   </>
 );
 
-afterEach(() => {
-  document.body.style.overflow = '';
-});
+/**
+ * 배경 스크롤 잠금의 **관측 지점**.
+ *
+ * 잠금은 이제 Radix(react-remove-scroll)가 건다. 그것은 body 인라인 스타일을 만지지 않고
+ * `<style>` 주입 + `data-scroll-locked` **카운터**로 동작한다 — 그래서 예전처럼
+ * `document.body.style.overflow` 를 보면 잠겨 있어도 `''` 로 보인다(관측 지점이 옮겨간 것이지
+ * 잠금이 사라진 게 아니다. 실브라우저 검증은 e2e/quality-bar/FS-000-motion.spec.ts).
+ *
+ * 카운터라는 점이 중요하다: 우리가 openModalCount 로 직접 세던 '중첩 시 마지막 하나가 닫힐 때만
+ * 푼다' 는 성질을 라이브러리가 같은 방식으로 보장한다 — 아래 중첩 회귀 두 건이 그것을 고정한다.
+ */
+const scrollLockCount = (): string | null => document.body.getAttribute('data-scroll-locked');
+
+/**
+ * 폼 모달 위에 확인 다이얼로그가 겹치는 실제 구조 (LogoFormModal 의 `{discardDialog}` 와 같다).
+ * 확인 다이얼로그는 폼 모달 **밖**에 둔다 — 안에 두면 폼 모달의 포커스 트랩이 그것을 가둔다.
+ */
+function Nested({ confirming }: { readonly confirming: boolean }) {
+  return (
+    <>
+      <Modal title="폼 모달" footer={Footer} onClose={vi.fn()}>
+        <p>본문</p>
+      </Modal>
+      {confirming && (
+        <Modal title="확인 다이얼로그" footer={Footer} onClose={vi.fn()}>
+          <p>정말 나가시겠습니까?</p>
+        </Modal>
+      )}
+    </>
+  );
+}
 
 describe('Modal — 계약 a11y·라이프사이클', () => {
   it('Modal: open 상태 — role="dialog" + aria-modal + aria-labelledby 로 제목을 접근성 이름으로 연결한다', () => {
@@ -111,70 +139,78 @@ describe('Modal — 계약 a11y·라이프사이클', () => {
     expect(document.activeElement).toBe(confirmBtn);
   });
 
-  it('Modal: 열려 있는 동안 body 스크롤을 잠그고 닫히면 복원한다', () => {
+  it('Modal: 열려 있는 동안 배경 스크롤을 잠그고 닫히면 복원한다', () => {
     const { unmount } = render(
       <Modal title="제목" footer={Footer} onClose={vi.fn()}>
         <p>본문</p>
       </Modal>,
     );
-    expect(document.body.style.overflow).toBe('hidden');
+    expect(scrollLockCount()).toBe('1');
     unmount();
-    expect(document.body.style.overflow).toBe('');
+    // 잠금이 완전히 걷혔다 — 속성 자체가 사라진다
+    expect(scrollLockCount()).toBeNull();
   });
 
   /**
    * [회귀] 중첩 모달(폼 모달 위 ConfirmDialog)이 **함께** 닫힐 때 스크롤 잠금이 새면
-   * 모달이 전부 사라진 뒤에도 배경 스크롤이 영구히 죽는다.
-   * 모달마다 '열릴 때의 값'을 각자 복원하던 시절, 위쪽 모달이 저장해 둔 'hidden' 이
-   * 나중에 덮어써서 실제로 그렇게 됐다.
+   * 모달이 전부 사라진 뒤에도 배경 스크롤이 영구히 죽는다(실제로 출하됐던 회귀다 —
+   * 폼을 폐기하고 나면 새로고침할 때까지 스크롤이 죽었다).
+   *
+   * [왜 순차로 여는가] 실제 흐름이 그렇다: 폼 모달이 먼저 열려 있고, dirty 가드가
+   * **그 위에** 확인 다이얼로그를 세운다(LogoFormModal 의 `{discardDialog}` 참조).
+   * 둘을 같은 커밋에 동시 마운트하는 것은 앱에 존재하지 않는 상황이고, 그 인위적 상황에서는
+   * 두 다이얼로그가 서로를 aria-hidden 으로 가려 검증 자체가 성립하지 않는다.
    */
   it('Modal: 중첩된 모달이 함께 닫혀도 배경 스크롤 잠금이 남지 않는다', () => {
-    function Nested() {
-      return (
-        <>
-          <Modal title="폼 모달" footer={Footer} onClose={vi.fn()}>
-            <p>본문</p>
-          </Modal>
-          {/* 폼 모달 **밖**에 겹쳐 열리는 확인 다이얼로그와 같은 구조 */}
-          <Modal title="확인 다이얼로그" footer={Footer} onClose={vi.fn()}>
-            <p>정말 나가시겠습니까?</p>
-          </Modal>
-        </>
-      );
-    }
+    const { rerender, unmount } = render(<Nested confirming={false} />);
+    expect(scrollLockCount()).toBe('1');
 
-    const { unmount } = render(<Nested />);
-    expect(screen.getAllByRole('dialog')).toHaveLength(2);
-    expect(document.body.style.overflow).toBe('hidden');
+    // 폼 모달 위에 확인 다이얼로그가 겹친다 — 잠금은 **겹친 수만큼** 센다
+    rerender(<Nested confirming />);
+    expect(scrollLockCount()).toBe('2');
 
+    // 둘이 함께 사라진다
     unmount();
-    expect(document.body.style.overflow).toBe('');
+    expect(scrollLockCount()).toBeNull();
   });
 
   /** 위쪽 모달만 닫히면 아래 모달이 아직 열려 있으므로 잠금은 **유지**되어야 한다 */
   it('Modal: 중첩 중 위쪽 모달만 닫히면 배경 스크롤 잠금이 유지된다', () => {
-    function Nested({ confirming }: { readonly confirming: boolean }) {
-      return (
-        <>
-          <Modal title="폼 모달" footer={Footer} onClose={vi.fn()}>
-            <p>본문</p>
-          </Modal>
-          {confirming && (
-            <Modal title="확인 다이얼로그" footer={Footer} onClose={vi.fn()}>
-              <p>정말 나가시겠습니까?</p>
-            </Modal>
-          )}
-        </>
-      );
-    }
-
-    const { rerender } = render(<Nested confirming />);
-    expect(document.body.style.overflow).toBe('hidden');
+    const { rerender } = render(<Nested confirming={false} />);
+    rerender(<Nested confirming />);
+    expect(scrollLockCount()).toBe('2');
 
     // 확인 다이얼로그만 닫는다 — 폼 모달은 그대로 열려 있다
     rerender(<Nested confirming={false} />);
-    expect(screen.getAllByRole('dialog')).toHaveLength(1);
-    expect(document.body.style.overflow).toBe('hidden');
+    expect(scrollLockCount()).toBe('1');
+  });
+
+  /**
+   * [회귀 — 결함3/4] 배경이 격리된다.
+   * 손으로 짠 트랩 시절 배경은 inert 도 aria-hidden 도 아니었고(실앱 기준 배경에
+   * **포커스 가능 요소 51개**가 그대로 노출됐다), 리스너가 dialogRef 에만 붙어 있어
+   * 포커스가 일단 배경으로 나가면 **되돌아오지 못했다**.
+   */
+  it('Modal: 열려 있는 동안 배경이 보조기술에서 격리된다 (결함4)', () => {
+    const bg = document.createElement('button');
+    bg.textContent = '배경 버튼';
+    document.body.appendChild(bg);
+
+    const { unmount } = render(
+      <Modal title="제목" footer={Footer} onClose={vi.fn()}>
+        <p>본문</p>
+      </Modal>,
+    );
+
+    // 배경 버튼은 AT 트리에서 사라진다 — role 조회가 그것을 관측한다
+    expect(screen.queryByRole('button', { name: '배경 버튼' })).toBeNull();
+    // 다이얼로그 안의 것들은 그대로 보인다
+    expect(screen.getByRole('button', { name: '닫기' })).not.toBeNull();
+
+    // 닫히면 배경이 되돌아온다 — 격리가 새지 않는다
+    unmount();
+    expect(screen.queryByRole('button', { name: '배경 버튼' })).not.toBeNull();
+    bg.remove();
   });
 
   it('Modal: onSubmit 을 주면 <form> 으로 감싸고 submit 이 onSubmit 을 호출한다', () => {

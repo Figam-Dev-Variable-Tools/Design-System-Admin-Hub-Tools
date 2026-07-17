@@ -53,9 +53,19 @@ const REPO_ROOT = path.resolve(__dirname, '../../..');
  *   즉 전체 501건 중 129건이 0 이 아닌 diff 를 보였고 그중 60건만 차단됐다.
  *   Modal 도 --tds-component-button-radius 를 쓰지만(Modal.css) 다이얼로그가 뷰포트의 일부라
  *   모서리 몇 픽셀은 0.1% 에 못 미친다. **포털 스토리에서 작은 국소 변화는 이 게이트가 놓친다.**
- *   임계값은 gates.json 이 원천이므로 여기서 조정하지 않는다 — 한계를 명시만 한다.
+ *   임계값은 gates.json 이 원천이므로 여기서 조정하지 않는다.
+ *
+ *   다만 **한계를 주석에만 두지 않는다** — 주석은 잊히고 수치는 남는다. 이제 리포트의
+ *   `portalStories` 가 매 실행 '누가 사각지대에 있는지'를 기록한다(분모 921,600px 명시).
+ *   임계/분모의 소유는 A70·gates.json 이므로 바꾸지 않되, 소유자가 근거를 갖고 판단할
+ *   데이터는 만들어 둔다. 참고: 위 버튼 radius 사례 자체는 atoms-button 60건이 이미
+ *   차단하므로 게이트 전체로는 잡혔다 — 사각지대가 무는 것은 **포털 스토리에서만
+ *   드러나는 국소 변화**(예: 다이얼로그 자신의 모서리·여백)다.
  */
 const DIFF_THRESHOLD = 0.001;
+
+/** 포털 스토리의 diff 분모 — capture.ts 의 뷰포트(1280×720)와 같은 수여야 한다 */
+const VIEWPORT_PX = 1280 * 720;
 
 const STORYBOOK_STATIC = path.join(REPO_ROOT, 'packages', 'ui', 'storybook-static');
 const FIGMA_SPECS_DIR = path.join(REPO_ROOT, 'docs', 'figma', 'specs');
@@ -73,6 +83,12 @@ interface VrtResult {
   baseline: string | null;
   diffImage: string | null;
   note: string | null;
+  /**
+   * 뷰포트 스냅샷으로 잡힌 스토리(= 포털). diff 분모가 1280×720=921,600px 이라 작은 국소
+   * 변화가 요소 캡처 대비 크게 희석된다 — **이 스토리들의 0.1% 는 다른 스토리의 0.1% 와
+   * 같은 엄격도가 아니다.** 헤더 주석에만 있던 한계를 리포트에 데이터로 남긴다.
+   */
+  portal: boolean;
 }
 
 function rel(p: string): string {
@@ -173,6 +189,7 @@ async function main(): Promise<void> {
       baseline: null,
       diffImage: null,
       note: null,
+      portal: shot.portal === true,
     };
 
     if (!shot.file) {
@@ -256,6 +273,7 @@ async function main(): Promise<void> {
   const registered = results.filter((r) => r.status === 'baseline-registered');
   const captureErrors = results.filter((r) => r.status === 'capture-error');
   const compared = results.filter((r) => r.diffRatio !== null).length;
+  const portalStories = results.filter((r) => r.portal);
 
   // 픽셀을 한 장도 비교하지 못했다면 그것은 '실패 0건'이 아니라 '검증 0건'이다.
   // 기준 이미지가 전부 없는 지금 상태에서 이전 구현은 "PASS — 비교 0건 중 실패 0건"을 찍었다.
@@ -288,6 +306,21 @@ async function main(): Promise<void> {
     noBaselineCount: noBaseline.length,
     registeredBaselineCount: registered.length,
     captureErrorCount: captureErrors.length,
+    /**
+     * 포털(뷰포트 캡처) 스토리 — 이 게이트의 **알려진 감도 사각지대**를 데이터로 남긴다.
+     * 분모가 921,600px 이라 같은 크기의 변화가 요소 캡처(예: atoms-button 은 수만 px)
+     * 대비 수십~수백 배 희석된다. 임계값(0.1%)의 원천은 gates.json/A70 이므로 여기서
+     * 바꾸지 않는다 — 대신 **누가 그 사각지대에 있는지**를 매 실행 기록해 소유자가
+     * 근거를 갖고 판단할 수 있게 한다. 주석 속 한계는 잊히지만 리포트의 수치는 남는다.
+     */
+    portalStories: {
+      count: portalStories.length,
+      denominatorPx: VIEWPORT_PX,
+      note:
+        '뷰포트 캡처 — diff 분모가 921,600px 이라 작은 국소 변화가 희석된다. ' +
+        '이 목록의 0.1% 는 요소 캡처 스토리의 0.1% 와 같은 엄격도가 아니다.',
+      storyIds: portalStories.map((r) => r.storyId),
+    },
     failed,
     captureErrors,
     results,

@@ -41,7 +41,7 @@ function isReproducibleStatus(value: number): value is HttpStatus {
 }
 
 /** 사람이 읽는 문구 — 화면이 status 로 분기하므로 여기서는 최소한만 정한다 */
-const STATUS_MESSAGE: Readonly<Record<HttpStatus, string>> = {
+export const STATUS_MESSAGE: Readonly<Record<HttpStatus, string>> = {
   [HTTP_STATUS.badRequest]: '요청이 올바르지 않습니다.',
   [HTTP_STATUS.unauthorized]: '세션이 만료되었습니다.',
   [HTTP_STATUS.forbidden]: '권한이 없습니다.',
@@ -53,8 +53,17 @@ const STATUS_MESSAGE: Readonly<Record<HttpStatus, string>> = {
   [HTTP_STATUS.serverError]: '요청을 처리하지 못했습니다.',
 };
 
-/** `<op>:<code>` 목록에서 이 op 에 걸린 status 를 찾는다 */
-function requestedStatus(scope: string, op: string): HttpStatus | null {
+/**
+ * `<op>:<code>` 목록에서 이 op 에 걸린 status 를 찾는다.
+ *
+ * [왜 export 인가] 두 소비자가 있고 **필요한 형태가 다르다**:
+ *   · failIfRequested (아래)        — status 를 **throw** 한다. 어댑터가 직접 던지는 옛 경로.
+ *   · shared/api 의 픽스처 트랜스포트 — status 를 **응답으로 돌려준다**. 서버가 하는 일이 그것이고,
+ *     그래야 401→HttpError 변환을 response interceptor 가 **실제로** 수행한다. 트랜스포트가
+ *     HttpError 를 던져 놓고 인터셉터가 그것을 되받는 구조는 변환하는 시늉일 뿐이다.
+ * 판정 로직은 여기 한 벌이다 — 두 소비자가 같은 스위치를 본다.
+ */
+export function requestedStatus(scope: string, op: string): HttpStatus | null {
   const raw = new URLSearchParams(window.location.search).get(STATUS_PARAM);
   if (raw === null) return null;
 
@@ -83,11 +92,33 @@ export function failIfRequested(scope: string, op: string): void {
   if (status !== null) {
     throw new HttpError(status, STATUS_MESSAGE[status]);
   }
-
-  const flags = new URLSearchParams(window.location.search).get('fail');
-  if (flags === null) return;
-  const requested = flags.split(',').map((flag) => flag.trim());
-  if (requested.includes('all') || requested.includes(op) || requested.includes(`${scope}:${op}`)) {
-    throw new Error('요청을 처리하지 못했습니다.');
+  if (isFailRequested(scope, op)) {
+    throw new Error(GENERIC_FAILURE_MESSAGE);
   }
+}
+
+/**
+ * status 없는 generic 실패 문구.
+ *
+ * **HttpError 가 아니다** — 이 값은 `new Error()` 로만 나간다. status 를 붙이면 EXC-20 의 참조
+ * 코드(`referenceOf`)가 화면에 새로 나타난다. `?fail=` 은 기존 e2e 전량이 의존하는 계약이라
+ * 표시가 달라지면 안 된다. status 가 필요한 실패는 `?status=` 쪽이다.
+ */
+export const GENERIC_FAILURE_MESSAGE = '요청을 처리하지 못했습니다.';
+
+/**
+ * `?fail=` 로 이 op 이 지목됐는가.
+ *
+ * requestedStatus 와 같은 이유로 export 한다 — 픽스처 트랜스포트는 이것을 **응답이 아니라
+ * reject** 로 표현한다. status 없는 실패는 HTTP 응답이 아니라 **전송 계층 장애**(네트워크 단절)에
+ * 해당하고, 실제 axios 도 그 경우 응답 없이 reject 한다. 그래서 인터셉터의 status 매핑을 타지 않고
+ * generic Error 그대로 화면에 도달한다 — 지금 동작과 정확히 같다.
+ */
+export function isFailRequested(scope: string, op: string): boolean {
+  const flags = new URLSearchParams(window.location.search).get('fail');
+  if (flags === null) return false;
+  const requested = flags.split(',').map((flag) => flag.trim());
+  return (
+    requested.includes('all') || requested.includes(op) || requested.includes(`${scope}:${op}`)
+  );
 }

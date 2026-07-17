@@ -7,8 +7,17 @@
  *   (b) hardcoded-values : packages/ui/src 하드코딩 스캔 (contract-test와 동일 정규식,
  *       단 여기서는 severity "warning"으로 수집만 — 차단은 A74 관할)
  *   (c) unused-tokens : tokens.json 전체 토큰 대비 미참조 토큰 비율 계산
- *       (계약 tokens 블록 + DTCG alias + packages/ui/src var(--tds-*) 대조),
+ *       (계약 tokens 블록 + 계약 responsive.breakpoints + DTCG alias +
+ *        TOKEN_USAGE_ROOTS 의 var(--tds-*) 대조 — 정확/접두 일치),
  *       5% 초과 시 정리 요구 플래그 (G4 체크리스트 "미사용 토큰 누적 5% 초과 시 정리 요구")
+ *
+ *       ⚠ 이 수치는 **지우기 위한 근거**로 쓰인다. 오검출은 곧 "쓰는 토큰을 지워라"라는
+ *       지시가 된다. 그래서 사용처 판정은 세 채널을 모두 봐야 한다 — 하나라도 빠지면
+ *       그 채널로만 쓰이는 토큰이 통째로 '미사용'이 된다. 과거 세 채널이 다 새고 있었다:
+ *         · 스캔 루트가 packages/ui/src 뿐 → 앱 전용 토큰이 미사용으로 계수
+ *         · 정확 일치만 → composite 토큰(typography.*)이 영원히 미사용
+ *         · 계약의 responsive.breakpoints 미독해 → breakpoint.* 가 영원히 미사용
+ *           (breakpoint 는 CSS 스펙상 var() 로 쓸 수 없어 이 채널 말고는 구제 수단이 없다)
  *
  * 출력: reports/drift/<date>.json + reports/drift/<date>.md
  * 종료 코드: 0 = 드리프트 없음 / 2 = 드리프트 발견 (알림 레벨 — CI에서 자동 Fix PR 트리거용)
@@ -30,7 +39,29 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '../../..');
 
+/** 하드코딩 스캔 대상 — DS 컴포넌트 소스. (b) 검사 전용. */
 const UI_SRC = path.join(REPO_ROOT, 'packages', 'ui', 'src');
+
+/**
+ * **토큰 사용처** 스캔 루트 — (c) 미사용 토큰 검사 전용.
+ *
+ * 예전에는 UI_SRC 한 곳만 봤다. 그런데 토큰을 가장 많이 소비하는 곳은 **앱**이다
+ * (실측: apps/admin/src 216개 파일 vs packages/ui/src 101개 파일). 앱에서만 쓰는 토큰은
+ * 전부 '미사용'으로 계수됐고, 그 수치를 믿고 토큰을 지우면 **앱이 깨진다.**
+ * 지금 그 사고가 안 난 것은 규칙이 옳아서가 아니라 `radius.lg` 같은 것들이 우연히
+ * tokens.json 내부 alias 로 참조돼 있었기 때문이다 — 설계가 아니라 요행이다.
+ *
+ * 하드코딩 스캔(b)은 여기 합류시키지 않는다: 그 규칙은 'DS 컴포넌트가 토큰 대신 리터럴을
+ * 쓰지 않는가'를 보는 것이고, 소유(A71/A74)와 규칙 범위가 다르다. 범위를 넓히면 검사의
+ * 의미가 바뀐다 — 이 커밋이 고치는 것은 **오계수**이지 규칙이 아니다.
+ */
+const TOKEN_USAGE_ROOTS = [
+  UI_SRC,
+  path.join(REPO_ROOT, 'packages', 'ui', 'pages'),
+  path.join(REPO_ROOT, 'packages', 'ui', '.storybook'),
+  path.join(REPO_ROOT, 'apps', 'admin', 'src'),
+];
+
 const TOKENS_JSON = path.join(REPO_ROOT, 'tokens', 'tokens.json');
 const CONTRACTS_DIR = path.join(REPO_ROOT, 'contracts');
 const CODEGEN_PKG = path.join(REPO_ROOT, 'tools', 'codegen', 'package.json');
@@ -228,7 +259,10 @@ function checkUnusedTokens(): CheckResult & { analysis?: UnusedTokenAnalysis } {
   }
 
   const contractRefs = collectContractTokenRefs(CONTRACTS_DIR);
-  const cssVarUsage = collectCssVarUsage(walkFiles(UI_SRC, SCAN_EXTENSIONS));
+  const usageFiles = TOKEN_USAGE_ROOTS.filter((root) => fs.existsSync(root)).flatMap((root) =>
+    walkFiles(root, SCAN_EXTENSIONS),
+  );
+  const cssVarUsage = collectCssVarUsage(usageFiles);
   const analysis = analyzeUnusedTokens(tokensJson, contractRefs, cssVarUsage);
 
   const pct = (analysis.unusedRatio * 100).toFixed(1);
