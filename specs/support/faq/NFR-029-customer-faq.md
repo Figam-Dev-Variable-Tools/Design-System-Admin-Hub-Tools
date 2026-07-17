@@ -23,6 +23,7 @@ date: 2026-07-17
 | 이 문서의 역할 | quality-bar 의 **이 화면 적용본**. 각 요구가 이 화면에서 어떻게 충족되는가(코드 근거) / 무엇을 재현하면 판정되는가(측정 기준)만 기술한다 |
 | 함께 읽는 문서 | FS-029(요소·예외) · BE-029(엔드포인트·보안 판정) |
 | 갱신 규칙 | 이 화면의 코드가 바뀌면 §2 의 해당 행과 §5 를 함께 고친다. quality-bar 요구가 바뀌면 §2 전수를 재판정한다 |
+| 판정 기준일·근거 | **2026-07-17 · HEAD = `a5c2639`** (PR #22·#24·#26·#28·#30·#32·#34 머지 후). 직전 판정은 `4b805ad` 기준이었다. **E2E 미실행 — 판정 근거는 코드 대조다**(§6). **이번 기준 갱신으로 뒤집힌 판정**: **MOTION-03 의 gap 사유가 해소됐다** — `ToggleSwitch.css:79-84` 에 reduced-motion 게이트가 **실재하게 됐다**(§5 #14 를 해소로 갱신). **이 화면은 행마다 `ToggleSwitch` 2개를 소비해 그 gap 에 가장 조밀하게 노출돼 있었다.** 판정은 `종속` 유지라 **§2.1 건수는 바뀌지 않았다.** MOTION-02 는 근거 텍스트만 갱신했다(toast exit 이 CSS-only 로 완전 구현됐다) |
 
 ### 1.1 표기 규약
 
@@ -56,8 +57,8 @@ date: 2026-07-17
 | A11Y-11 | A11Y | N/A | **표면 없음** — 이 화면에 폼 컨트롤·검증이 없다. `aria-invalid` 를 세우는 요소가 0건이고(grep) `FormField`·zod 스키마를 쓰지 않는다. `ToggleSwitch` 는 `role="switch"` 로 상태를 전달하며 검증 대상이 아니다 | — | n-a |
 | A11Y-12 | A11Y | N/A | **표면 없음** — 좌측 필터 list item 이 없다(필터 자체가 없다). `aria-current`·`aria-pressed` 사용 0건 | — | n-a |
 | MOTION-01 | MOTION | N/A | **표면 없음** — Modal 을 렌더하지 않는다 | — | n-a |
-| MOTION-02 | MOTION | 상속 | toast exit 표면이 실재한다 — 이 화면의 모든 쓰기 결과가 토스트다(위 A11Y-01 근거와 동일) | ToastProvider/Toast 판정에 따른다 | 종속 |
-| MOTION-03 | MOTION | 상속 | reduced-motion 게이트 표면: `ToggleSwitch` 2개/행(`CustomerFaqTable.tsx:110`·`:119`) · 스켈레톤 pulse · Toast. **DS 현황: `packages/ui/src/atoms/ToggleSwitch/ToggleSwitch.css:56` 이 `transition: transform` 을 선언하고 그 파일에 `prefers-reduced-motion` 블록이 없다**(코드 확인) — quality-bar MOTION-03 이 지목한 바로 그 위반이 남아 있다. 이 화면은 소비자다 | DS ToggleSwitch.css 판정에 따른다. 재현: reduced-motion 활성 후 토글 클릭 → knob 이 여전히 이동 애니메이션 | 종속 |
+| MOTION-02 | MOTION | 상속 | toast exit 표면이 실재한다 — 이 화면의 모든 쓰기 결과가 토스트다(위 A11Y-01 근거와 동일). **⚠ 근거 갱신 — 완전 구현됐다.** `.tds-toast--exiting`(`Toast.css:32-37` — `tds-toast-out … forwards` + `pointer-events:none`) → keyframes `:121-131`(opacity 1→0, `translateY(0)→translateY(var(--tds-space-3))`), reduced-motion 게이트 `:136-141`. **요구가 명시한 'exit duration fast~normal + easing accelerate' 를 정확히 충족한다** — `component.overlay.exit-duration` = `{motion.duration.fast}`(150ms) · `exit-easing` = `{motion.easing.accelerate}`(`tokens/tokens.json:1298-1307`). **Motion 라이브러리는 여전히 미도입이나 그로부터 gap 을 추론하지 않는다** — 모션은 손으로 쓴 CSS keyframes 다 | ToastProvider/Toast 판정에 따른다 | 종속 |
+| MOTION-03 | MOTION | 상속 | reduced-motion 게이트 표면: `ToggleSwitch` 2개/행(`CustomerFaqTable.tsx:110`·`:120`) · 스켈레톤 pulse · Toast. **★ `a5c2639` 기준으로 DS 현황이 뒤집혔다.** 이전 기준의 '`ToggleSwitch.css:56` 이 `transition: transform` 을 선언하고 그 파일에 `prefers-reduced-motion` 블록이 없다' 는 **더 이상 사실이 아니다** — **`packages/ui/src/atoms/ToggleSwitch/ToggleSwitch.css:79-84` 가 `.tds-toggle__track`·`.tds-toggle__knob` 의 `transition` 을 `none` 으로 끈다**(`:32` background-color · `:56` transform **두 선언 모두 덮는다**). 근거 주석 `:76-78` — 손잡이 transform 은 **움직임**이라 vestibular 장애에 직접 영향을 주는 반면 상태(on/off)는 색·위치·`aria-checked` 로 이미 전달되므로 **정보 손실 0** 이고 즉시 최종 위치로 스냅한다. quality-bar MOTION-03 이 지목한 위반은 **해소됐다**. **이 화면은 행마다 2개를 소비해 노출이 가장 조밀했다.** 이 화면은 소비자다 | DS ToggleSwitch.css 판정에 따른다. 재현: reduced-motion 활성 후 토글 클릭 → **knob 이 스냅하면 충족**(현재 코드 기준 충족) | 종속 |
 | IA-01 | IA | 직접 | `App.tsx:245` 가 이 라우트를 `RequireAuth > AppShell` 레이아웃 라우트 아래에 둔다(`:326-328`). 화면은 자체 sidebar/header/outer frame 을 렌더하지 않는다 — 최상위가 `<div style={pageStyle}>` 세로 스택뿐(`:187`) | `/support/faq` 진입 → sidebar·AppHeader·단일 padded `<main>` 안에서 렌더. 이 화면이 그린 frame 0개 | pass |
 | IA-02 | IA | 직접 | **leaf 라우트라 모호성이 없다.** `/support/faq` 는 nav 잎으로 정확히 등재돼 있어(`nav-config.ts:169` `['자주 묻는 질문', '/support/faq']`) `findNavLabel` 의 exact 분기가 잡는다(`nav-config.ts:254-255`) → AppHeader 가 '자주 묻는 질문' 을 보인다. 화면이 **자체 in-content h1 을 두지 않아** title 소스가 하나뿐이다(모순 없음). 하위 라우트(`/new`·`/:id`)가 없어 branch-label 폴백(`:257-262`)에 걸릴 경로가 존재하지 않는다 | `/support/faq` 진입 → 가시 primary title = '자주 묻는 질문' 1개. 페이지 본문에 경쟁하는 h1 0개 | pass |
 | IA-04 | IA | 직접 | **부분 충족.** 결과 count 요약은 있고(`:200-204` '전체 N건 · 노출 M건') 표가 그 아래 온다. SelectionBar 는 bulk action 이 없어 해당 없음. **그러나 (a) 툴바 행이 없다** — 검색·필터·우상단 primary action 이 존재하지 않고 유일한 이동 경로는 info Alert 안의 링크(`:194`)다. **(b) 페이지네이션이 없고 상한도 없다** — `faqs` 전량을 그대로 렌더한다(`CustomerFaqTable.tsx:103`). 재정렬 의미상 전량 렌더가 합리적이나 **그 결정이 선언돼 있지 않고 상한도 없다**(BE-029 §7.3 미정) | 픽스처를 6건 → 200건으로 늘리면 200행이 한 번에 렌더되고 페이지네이션이 나타나지 않는다. 기대: page size 초과 가능한 list 는 Pagination 을 렌더하거나 '전량 렌더 + 상한 N건' 을 명시적 계약으로 선언 | **gap** |
@@ -153,12 +154,12 @@ date: 2026-07-17
 | 11 | MOTION-04 | P1 | 행 재정렬 FLIP motion 없음 | 이 화면 · DS | A41 · A40 |
 | 12 | ERP-13 | P1 | 토스트 조사 헬퍼 미적용(`'…' 를` 고정) | 이 화면 | A41 |
 | 13 | COMP-06 | P2 | 스켈레톤 행 수 `length: 5` 하드코딩 | 이 화면 | A41 |
-| 14 | MOTION-03 | 종속 | DS `ToggleSwitch.css:56` 에 reduced-motion off 부재 — 이 화면이 행당 2개 소비 | DS | A40 |
+| ~~14~~ | ~~MOTION-03~~ | ~~종속~~ | **해소됨(`a5c2639` · PR #26)** — `ToggleSwitch.css:79-84` 가 `.tds-toggle__track`·`.tds-toggle__knob` 의 transition 을 `none` 으로 끈다(`:32`·`:56` 두 선언 모두 덮음, 근거 주석 `:76-78`). 이 화면이 행당 2개를 소비해 노출이 가장 조밀했으나 더 이상 gap 이 아니다 | — | — |
 | 15 | — | — | **FS-029 §7 #1 / BE-029 §7.1 — `/support/faq` 와 `/content/faq` 의 FAQ 데이터가 완전히 분리돼 있다.** quality-bar 축이 아니라 정합 결함이라 §2 에 행이 없으나 **이 화면 최대의 문제**다 | 이 화면 · `/content/faq` · 백엔드 | A63 · A11 |
 
 ## 6. 측정 도구 · 재현 스위치
 
-> **E2E 미실행 — 이 문서의 판정 근거는 전부 `4b805ad`(2026-07-17) 코드 대조다.** 아래는 판정을 재현하려는 QA/구현자를 위한 스위치 목록이며, 각 값은 어댑터 코드에서 확인했다.
+> **E2E 미실행 — 이 문서의 판정 근거는 전부 `a5c2639`(2026-07-17) 코드 대조다.** 아래는 판정을 재현하려는 QA/구현자를 위한 스위치 목록이며, 각 값은 어댑터 코드에서 확인했다.
 
 | 스위치 | 이 화면에서 유효한 값 | 근거 |
 |---|---|---|
@@ -186,7 +187,7 @@ date: 2026-07-17
 - [x] 모든 `pass` 에 코드 근거(파일:라인)를 적었다
 - [x] 모든 `gap` 에 재현 가능한 측정 기준을 적었다
 - [x] §2.1 산수 검산 — 6 pass + 10 종속 + 12 n-a + 2 gap = **30** ✓
-- [x] **판정 기준일을 `2026-07-17 · HEAD = 4b805ad` 로 갱신하고 F3a·F3b·통합 이후 코드로 P0 30건을 전수 재확인했다.** 뒤집힌 P0 **1건**(STATE-01)을 pass 로 올리고 §2.1·§5 를 함께 갱신했다. **P1 1건도 pass 로 전환**(STATE-03). **ERP-13 은 여전히 gap 이다** — 조사 헬퍼가 `shared/format.ts:269+` 로 승격됐는데도 이 화면(`:134`·`:165`)이 조사를 리터럴 '를' 로 고정한다. 낙관적으로 pass 로 바꾸지 않았다
+- [x] **판정 기준일을 `2026-07-17 · HEAD = a5c2639` 로 갱신하고 PR #22·#24·#26·#28·#30·#32·#34 이후 코드로 P0 30건을 전수 재확인했다.** **이번 기준에서 뒤집힌 것은 판정 부호가 아니라 근거 1건이며 §2.1 건수는 불변이다** — **MOTION-03 의 DS gap 이 해소됐다**(`ToggleSwitch.css:79-84`, §5 #14 해소 표시). 이 화면은 행마다 토글 2개를 소비해 노출이 가장 조밀했다. MOTION-02 는 근거 텍스트만 갱신하고 **라이브러리 부재로부터 gap 을 추론하지 않았다**. 직전 기준(`4b805ad`)의 재확인 결과는 아래와 같이 유지된다: 뒤집힌 P0 **1건**(STATE-01)을 pass 로 올리고 §2.1·§5 를 함께 갱신했다. **P1 1건도 pass 로 전환**(STATE-03). **ERP-13 은 여전히 gap 이다** — 조사 헬퍼가 `shared/format.ts:269+` 로 승격됐는데도 이 화면(`:134`·`:165`)이 조사를 리터럴 '를' 로 고정한다. 낙관적으로 pass 로 바꾸지 않았다
 - [x] §3 은 **표면이 실재하는** P1·P2 만 골랐다
 - [x] `LATENCY_MS = 400` 이 개발용 지연이며 예산이 아님을 §4.1 에 명시했다
 - [x] §6 의 `?fail=` scope(`support-faq`)·op(`list`·`save`)를 **어댑터 코드에서 확인**했고, `?delay=` 가 이 화면에 없음을 명시했다

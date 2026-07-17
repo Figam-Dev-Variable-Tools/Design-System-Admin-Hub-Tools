@@ -23,8 +23,8 @@ date: 2026-07-17
 | 이 문서의 역할 | quality-bar 의 각 요구가 **이 화면에서 어떻게 충족되는가 / 무엇을 재현하면 판정되는가** 만 기록한다. 요구 문구는 ID 로만 참조한다 |
 | 함께 읽는 문서 | FS-028(요소·예외) · BE-028(계약·보안 판정) · `specs/quality-bar.md`(요구 정본) |
 | 갱신 규칙 | quality-bar 가 바뀌면 이 문서의 판정을 다시 매긴다. 이 문서가 quality-bar 를 바꾸지 않는다. gap 은 §5 를 거쳐 이관되며 FS-028 §7 · BE-028 §7.11 과 번호가 일치해야 한다 |
-| 판정 기준일 | **2026-07-17 · HEAD = `4b805ad`** (F3a·F3b·통합 머지 후). 이전 판정은 F2(`3cd3078`) 기준이었다 |
-| 판정 근거 | **E2E 미실행 — 판정 근거는 `4b805ad` 코드 대조다**(§6) |
+| 판정 기준일 | **2026-07-17 · HEAD = `a5c2639`** (PR #22·#24·#26·#28·#30·#32·#34 머지 후). 직전 판정은 `4b805ad` 기준이었다. **이번 기준 갱신으로 뒤집힌 판정 없음** — MOTION-01/02 의 근거 텍스트만 갱신했다 — 오버레이 모션이 **CSS-only 로 구현**됐고(`Modal.css:126-168` · `Toast.css:109-141`) 이전 기준의 '라이브러리 0건이라 gap 일 가능성' 추정은 틀렸다. **이 화면은 `useModalDirtyGuard` 소비가 0건이라 DS Modal 의 `closingRef` latch 결함에 노출되지 않는다**(FEEDBACK-06 판정 불변). **뒤집힌 P0 판정 없음 — §2.1 건수 불변.** |
+| 판정 근거 | **E2E 미실행 — 판정 근거는 `a5c2639` 코드 대조다**(§6) |
 
 > **이 화면의 성격**: 공용 CRUD 프레임워크(`useCrudList`+`CrudListShell`, `useCrudForm`+`FormPageShell`)를 거의 그대로 소비한다. 그래서 같은 고객센터 섹션의 FS-026(손조립)과 달리 **로딩 파생·삭제 다이얼로그·충돌 처리·중복 제출 방지·404 분기를 프레임워크에서 상속**해 P0 pass 가 많다. 남은 gap 은 **화면이 프레임워크에 넘기지 않은 것**(선택 해제·URL state·디바운스)과 **프레임워크 자체의 구멍**(`createStoreAdapter` 가드 부재)에 몰려 있다.
 
@@ -59,8 +59,8 @@ date: 2026-07-17
 | A11Y-02 | A11Y | 상속 | 이 화면의 dialog 표면 4종(단건 삭제·일괄 삭제·충돌·이탈 가드) 전부 DS `ConfirmDialog`/`Modal`. `aria-describedby`→message 배선은 DS 가 소유한다 — 이 화면은 `message` prop 만 넘긴다 | DS 판정에 종속. 이 화면에서는 삭제 다이얼로그 open 시 `'<제목>' 을(를) 삭제합니다…` 가 읽히는지만 확인 | **종속** |
 | A11Y-11 | A11Y | 직접 | **이 화면의 폼 컨트롤 3개를 전수 확인했다.** ① **제목 입력** — `ReplyFormPage.tsx:106-107` 이 `aria-invalid={errors.title !== undefined}` 와 `aria-describedby={errors.title !== undefined ? errorIdOf('template-title') : undefined}` 를 **짝으로** 세우고, 감싸는 `FormField htmlFor="template-title"`(`:97`)이 `<p id={errorIdOf('template-title')} role="alert">` 를 렌더한다(`packages/ui/.../FormField.tsx:72`) — id 일치. **required 는 `FormField required` 로 노출**(`:97`). ② **유형 태그 select** — 오류 상태가 없다(`z.string()` 이라 위반이 발생할 수 없다) → `aria-invalid` 를 세우지 않으므로 짝 요구가 발생하지 않는다. hint 는 `FormField` 가 `hintIdOf` 로 연결. ③ **본문 textarea** — `TextareaField` 가 `aria-invalid`/`aria-describedby` 를 내부에서 짝으로 배선한다(`packages/ui/.../TextareaField.tsx:62-63`). **짝 없는 `aria-invalid` 0건.** (본문의 `*` 마커 부재는 **COMP-04 사안**이지 이 요구가 아니다 — 이 요구의 required 절은 '`FormField required` 로 이관' 을 허용하고 제목이 그것을 만족한다) | `grep -n "aria-invalid" apps/admin/src/pages/support/replies -r` → 각 히트마다 같은 요소에 `aria-describedby` 가 있는지. RTL 로 제목을 비운 채 제출 → `input.getAttribute('aria-describedby') === screen.getByRole('alert').id` assert | **pass** |
 | A11Y-12 | A11Y | N/A | **표면이 없다.** 이 화면에 **좌측 필터 list item(토글 버튼)이 없다** — 툴바에 검색 입력 하나뿐이고 필터 축이 아예 없다(FS-028 §7 #24 가 그 부재를 다룬다). `aria-pressed`/`aria-current` 를 쓸 toggle 필터가 존재하지 않으며, 이 화면 전체에 `aria-current` 0건 | 유형 태그 필터가 토글 리스트로 도입되면 이 판정을 다시 매긴다 | **n-a** |
-| MOTION-01 | MOTION | 상속 | Modal 표면 4종(단건 삭제·일괄 삭제·충돌·이탈 가드) — 이 화면에서 가장 많이 열리는 overlay 다. enter/exit transition 은 DS `Modal` organism 이 소유한다 — 이 화면은 애니메이션을 선언하지 않는다 | DS Modal 판정에 종속. (참고: `packages/ui/src` 에 Motion/AnimatePresence 소비가 0건이라 소유 문서에서 gap 일 가능성이 높다 — **그 판정은 이 문서의 몫이 아니다**) | **종속** |
-| MOTION-02 | MOTION | 상속 | Toast 표면: 삭제·일괄 삭제·저장 성공. exit 애니메이션은 `ToastProvider`/`Toast` 가 소유한다 | DS Toast 판정에 종속 | **종속** |
+| MOTION-01 | MOTION | 상속 | Modal 표면 4종(단건 삭제·일괄 삭제·충돌·이탈 가드) — 이 화면에서 가장 많이 열리는 overlay 다. enter/exit 모션은 DS `Modal` organism 이 소유한다 — 이 화면은 애니메이션을 선언하지 않는다. **⚠ 근거 갱신 — 이전 기준의 추정을 지운다.** PR #26 이 오버레이 모션을 **구현했다. 단 라이브러리가 아니라 CSS-only 다**: backdrop fade(`Modal.css:20-21`→keyframes `:126-134`, exit `:30-33`→`:136-144`) + dialog scale 0.96→1(enter `:58-59`→`:146-156`, exit `:35-38`→`:158-168` `forwards`), reduced-motion 게이트 `:173-180`, `component.overlay` recipe `tokens/tokens.json:1286-1308`. **Motion/AnimatePresence 소비는 `packages/ui/src` 에 여전히 0건이나**(모션 라이브러리 자체가 미도입), 요구가 명시한 'exit 완료 후에만 unmount' 는 **네이티브 `onAnimationEnd`**(`Modal.tsx:216-218`)로 동등 달성됐다 — **'0건이라 gap 일 가능성이 높다'는 이전 추정은 틀렸다.** 라이브러리 부재를 gap 으로 볼지는 DS 문서의 몫이다. **⚠ 이 화면은 폼 modal 을 갖지 않아**(편집이 전용 라우트 폼) **DS Modal 의 `closingRef` latch 결함**(NFR-027 §2 FEEDBACK-06)**에 노출되지 않는다** — 위 4종은 입력 필드가 없는 확인 다이얼로그이고 `useModalDirtyGuard` 소비가 0건이다 | DS Modal 판정에 종속. 이 화면이 소비하는 4개 표면이 실재함만 확인 | **종속** |
+| MOTION-02 | MOTION | 상속 | Toast 표면: 삭제·일괄 삭제·저장 성공. exit 애니메이션은 `ToastProvider`/`Toast` 가 소유한다. **⚠ 근거 갱신 — 완전 구현됐다.** `.tds-toast--exiting`(`Toast.css:32-37` — `tds-toast-out … forwards` + `pointer-events:none`) → keyframes `:121-131`(opacity 1→0, `translateY(0)→translateY(var(--tds-space-3))`), reduced-motion 게이트 `:136-141`. **요구가 명시한 'exit duration fast~normal + easing accelerate' 를 정확히 충족한다** — `component.overlay.exit-duration` = `{motion.duration.fast}`(150ms) · `exit-easing` = `{motion.easing.accelerate}`(`tokens/tokens.json:1298-1307`) | DS Toast 판정에 종속 | **종속** |
 | MOTION-03 | MOTION | 상속 | reduced-motion 게이트가 걸릴 표면: 스켈레톤 펄스 · Toast · Modal 4종 · DS Button transition. **이 화면이 transform/transition 을 직접 선언하지 않는다**(grep 0건) — ToggleSwitch 는 이 화면에 없다 | 전역 motion config·`ui.css` 판정에 종속. 이 화면에서는 로컬 transition 선언이 0건임만 확인 | **종속** |
 | IA-01 | IA | 직접 | 세 라우트 모두 AppShell layout route 아래에 등록된다(`App.tsx:242-244` — `/support/replies` · `/new` · `/:id/edit`). **세 화면 모두 자체 outer frame/sidebar/top bar 를 도입하지 않는다** — 목록 최상위가 `<div style={columnStyle}>`(`RepliesPage.tsx:99`), 폼은 `FormPageShell` 의 `<div style={pageStyle}>` | 세 라우트 진입 시 사이드바·AppHeader 가 유지되고, 화면이 자체 nav/header 를 그리지 않는지 | **pass** |
 | IA-02 | IA | 직접 | **절반 해소 — 여전히 미충족(사유 전환).** ✔ **해소된 것 — 가지 라벨 폴백**: 통합이 `findCoveringLeaf`(`nav-config.ts:260-278`)를 도입했다 — '자기를 감싸는 **가장 긴 잎**'이 곧 자기다. `covers()` 는 **세그먼트 경계**에서만 매칭하고(`:255-257`), `:297-299` `findNavLabel = findCoveringLeaf(pathname)?.label ?? pathname` 이다. 따라서 `/support/replies/new` · `/:id/edit` 는 잎 `/support/replies`(`nav-config.ts:168`)에 덮여 **'문의 답변'** 을 반환한다 — **요구가 금지한 브랜치 라벨('고객센터')은 더 이상 나오지 않는다.** `nav-config.test.ts:16-40` 이 고정한다. ✘ **남은 것 둘**: ① **`<h1>` 이 2개다** — `AppHeader.tsx:101` 의 `<h1>문의 답변</h1>` 과 `FormPageShell.tsx:160` 의 `<h1>답변 템플릿 등록</h1>` 이 **동시에** 렌더된다 → 요구의 '**단일 title 메커니즘**' 미충족. 목록은 in-content `<h1>` 이 없어 title 소스가 화면 타입마다 갈린다. ② **행위가 AppHeader 제목에 없다** — `nav-config.ts:294-296` 주석이 '등록/수정 같은 **행위**는 제목에 넣지 않는다'를 의도로 명시한다. 요구의 acceptanceCheck 를 이 화면에 옮기면 **in-content h1 은 '답변 템플릿 등록'으로 그것을 만족하지만 AppHeader h1 은 '문의 답변'** 이고, **어느 쪽이 primary 인지 정의돼 있지 않다** | `/support/replies/new` 진입 → **AppHeader `<h1>` = '문의 답변'**(브랜치 폴백 해소). 그러나 `document.querySelectorAll('h1').length === 2` 이고 두 텍스트가 다르다 | **gap** |
@@ -84,7 +84,7 @@ date: 2026-07-17
 | `gap` | **5** | STATE-04 · IA-02 · IA-04 · EXC-03 · EXC-04 |
 | **합계** | **30** | 13 + 10 + 2 + 5 = **30** ✓ |
 
-> **`4b805ad` 재판정: P0 gap 이 7 → 5 로 줄었다.** 뒤집힌 2건은 전부 **F3b 의 공용 훅 롤아웃을 이 화면이 실제로 소비한 결과**다:
+> **직전 기준(`4b805ad`) 재판정: P0 gap 이 7 → 5 로 줄었다.** 뒤집힌 2건은 전부 **F3b 의 공용 훅 롤아웃을 이 화면이 실제로 소비한 결과**다:
 > · **COMP-10** — `RepliesPage.tsx:93-99` 이 `list.searchInputProps` 를 스프레드하고 `useListState` 가 내부에서 `useDebouncedSearch`(조합 판정 + 250ms)를 소비한다(`useListState.ts:227-230`). **이 화면은 검색이 유일한 조회 수단이라 특히 중요했다**(`RepliesPage.tsx:9` 주석).
 > · **IA-13** — `:76` `useListState()` 가 검색어를 URL(`?q=`)로 옮겼다.
 >
@@ -219,7 +219,7 @@ date: 2026-07-17
 
 ## 6. 측정 도구 · 재현 스위치
 
-> **E2E 미실행 — 이 문서의 모든 판정 근거는 `4b805ad`(2026-07-17) 코드 대조다.** 아래 스위치는 판정을 재현·검증할 때 쓰는 수단이며, 이 문서가 그것을 실행해 얻은 결과를 적은 것이 아니다.
+> **E2E 미실행 — 이 문서의 모든 판정 근거는 `a5c2639`(2026-07-17) 코드 대조다.** 아래 스위치는 판정을 재현·검증할 때 쓰는 수단이며, 이 문서가 그것을 실행해 얻은 결과를 적은 것이 아니다.
 
 **이 화면의 `?fail=` scope 와 op (코드 확인)**
 
@@ -262,7 +262,7 @@ date: 2026-07-17
 - [x] 모든 `gap` 에 재현 가능한 측정 기준을 댔다
 - [x] 모든 `N/A` 에 사유를 댔다(FEEDBACK-06 폼 modal 부재 — IA-06 의 의도된 선택 · A11Y-12 토글 필터 부재)
 - [x] §2.1 산수 검산 — 13 pass + 10 종속 + 2 n-a + 5 gap = **30** ✓
-- [x] **판정 기준일을 `2026-07-17 · HEAD = 4b805ad` 로 갱신하고 F3a·F3b·통합 이후 코드로 P0 30건을 전수 재확인했다.** 뒤집힌 P0 **2건**(COMP-10 · IA-13 — 둘 다 이 화면이 F3b 의 `useListState`/`useDebouncedSearch` 를 실제로 소비한 결과)을 pass 로 올리고 §2.1·§5 를 함께 갱신했다. **P1 2건도 pass 로 전환**(ERP-13 · EXC-12). **EXC-04 는 유령 저장/삭제만 닫히고 동시성 토큰이 남아 gap 을 유지했다** — 좁혀진 gap 을 pass 로 올리지 않았다. **STATE-04 는 여전히 gap 이고, F3b 가 선택 상태를 두 벌로 만들면서 사유가 더 분명해졌다**
+- [x] **판정 기준일을 `2026-07-17 · HEAD = a5c2639` 로 갱신하고 PR #22·#24·#26·#28·#30·#32·#34 이후 코드로 P0 30건을 전수 재확인했다. 이번 기준 갱신으로 뒤집힌 판정은 없다 — §2.1 건수 불변.** MOTION-01/02 는 **근거 텍스트만** 갱신했다(오버레이 모션이 CSS-only 로 구현됐다 — `Modal.css:126-168` · `Toast.css:109-141`; **'라이브러리 0건이라 gap 일 가능성' 추정을 삭제**했다). **이 화면은 `useModalDirtyGuard` 소비가 0건이라 DS Modal 의 `closingRef` latch 결함**(NFR-027 §2 FEEDBACK-06)**에 노출되지 않음을 확인**했다. **MOTION-03 의 `ToggleSwitch` 는 이 화면에 없다**(그 DS gap 자체도 `ToggleSwitch.css:79-84` 로 해소됐다). 아래는 직전 기준(`4b805ad`)의 재확인 결과이며 그대로 유효하다: 뒤집힌 P0 **2건**(COMP-10 · IA-13 — 둘 다 이 화면이 F3b 의 `useListState`/`useDebouncedSearch` 를 실제로 소비한 결과)을 pass 로 올리고 §2.1·§5 를 함께 갱신했다. **P1 2건도 pass 로 전환**(ERP-13 · EXC-12). **EXC-04 는 유령 저장/삭제만 닫히고 동시성 토큰이 남아 gap 을 유지했다** — 좁혀진 gap 을 pass 로 올리지 않았다. **STATE-04 는 여전히 gap 이고, F3b 가 선택 상태를 두 벌로 만들면서 사유가 더 분명해졌다**
 - [x] `상속` 항목은 **이 화면에 그 표면이 실재하는 것만** 적고, 어느 표면이 계약을 상속하는지 못 박았다
 - [x] §3 은 표면이 실재하는 P1·P2 만 선별했다 — 없는 표면(재정렬·업로드·날짜범위·금액·CSV·좌측 필터)은 적지 않았고, 표면이 없는 것(A11Y-05·IA-11·ERP-01)은 `n-a` 로 사유를 댔다
 - [x] §4.1 에 **`LATENCY_MS = 400` 이 개발용 지연이며 예산이 아님**을 명시했다
