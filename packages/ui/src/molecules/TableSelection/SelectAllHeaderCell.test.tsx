@@ -33,7 +33,7 @@ describe('SelectAllHeaderCell — 계약 states[] (TriStateCheckbox 조립)', ()
     );
     const box = screen.getByRole('checkbox', { name: '이 페이지의 회원 전체 선택' });
     // off/on 에는 aria-checked 를 내지 않는다 — native checked 가 정본이다 (Checkbox 와 같은 규약).
-    // 네이티브 체크박스에서 aria-checked 는 "mixed" 일 때만 허용된다 (axe aria-conditional-attr · ADR-0011).
+    // 네이티브 체크박스에서 aria-checked 는 "mixed" 일 때만 허용된다 (axe aria-conditional-attr · ADR-0012).
     expect(box.getAttribute('aria-checked')).toBeNull();
     expect((box as HTMLInputElement).checked).toBe(false);
     expect(box.getAttribute('aria-labelledby')).toBe('sa');

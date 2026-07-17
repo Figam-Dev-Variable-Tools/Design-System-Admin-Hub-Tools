@@ -1,7 +1,6 @@
 ---
 # ── D3 · Design Spec (디자인 스펙) 템플릿 ───────────────────────────────
-# 소유자: A13 (UX Designer, §3·§5) / A14 (UI Designer, §2·§4) · 경로 규칙: docs/design/DS-NNN.md
-# 게이트: G2 (승인자 A17 Design Reviewer) · 체크리스트: docs/_templates/checklists/G2.md
+# 경로 규칙: docs/design/DS-NNN.md
 id: DS-NNN
 title: "<컴포넌트/화면명> 디자인 스펙"
 owner: [A13, A14]

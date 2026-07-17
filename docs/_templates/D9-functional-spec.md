@@ -1,7 +1,6 @@
 ---
 # ── D9 · Functional Spec (기능 명세서) 템플릿 ──────────────────────────────
-# 소유자: A62 (Functional Spec Writer) · 경로 규칙: specs/<라우트 경로>/FS-NNN-<slug>.md
-# 게이트: G9 (승인자 A64 Spec Reviewer) · 체크리스트: docs/_templates/checklists/G9.md
+# 경로 규칙: specs/<라우트 경로>/FS-NNN-<slug>.md
 id: FS-NNN
 title: "<화면명>"
 screen: SCR-NNN               # 대응 화면정의서(D2) 역참조 — 번호를 SCR과 동일하게 맞춘다
@@ -170,4 +169,3 @@ date: YYYY-MM-DD
 - [ ] §3의 `[서버]` = O 요소가 §5에 **전부** 요약됐다 (누락 0건 — A63의 입력)
 - [ ] 엔드포인트·에러코드·DB 스키마를 쓰지 않았다 (A63의 영역)
 - [ ] frontmatter의 `confirmedAt` 이 실제 화면 컨펌 일자다
-- [ ] review_request(D5) + handoff envelope 작성 후 `orchestration/tasks/` 에 기록 (P2)

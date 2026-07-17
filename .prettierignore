@@ -1,13 +1,13 @@
-# Prettier ignore — 소유: A81 (Lint & Format Engineer)
+# Prettier ignore
 # 원칙: **사람이 손으로 쓰지 않는 파일**과 **포맷이 곧 계약인 파일**은 포매터가 건드리지 않는다.
 
-# ── 에이전트 하네스 작업공간 — 사람이 쓰지 않는 파일이자 이 리포의 소스도 아니다
-# `.claude/worktrees/**` 는 병렬 에이전트가 만드는 **리포 전체의 임시 체크아웃**이다. 이미
-# `.git/info/exclude` 로 git 추적에서 빠져 있지만, Prettier 는 git 이 아니라 파일시스템을 걷기
-# 때문에 그 사본 안의 `.github/**`·`schema.d.ts`·`reports/**` 를 **루트 규칙이 안 걸리는 새 경로**
-# (`.claude/worktrees/agent-*/…`)로 다시 만나 반려한다. 그 결과 워크트리가 하나라도 살아 있으면
+# ── 로컬 도구 작업공간 — 이 리포의 소스가 아니다
+# `.claude/**` 는 로컬 도구가 만드는 **리포 전체의 임시 체크아웃**을 담는다. git 추적에서는
+# 빠져 있지만, Prettier 는 git 이 아니라 파일시스템을 걷기 때문에 그 사본 안의
+# `.github/**`·`schema.d.ts`·`reports/**` 를 **루트 규칙이 안 걸리는 새 경로**
+# (`.claude/…`)로 다시 만나 반려한다. 그 결과 사본이 하나라도 살아 있으면
 # `format:check` 가 깨지고 pre-commit(verify:all)이 **아무도 커밋할 수 없게** 막는다.
-# 루트 규칙을 경로마다 복제하는 대신 하네스 작업공간을 통째로 스캔에서 뺀다 — 사본의 원본은
+# 루트 규칙을 경로마다 복제하는 대신 이 작업공간을 통째로 스캔에서 뺀다 — 사본의 원본은
 # 어차피 이 리포가 이미 검사하고 있다.
 .claude/**
 
@@ -27,9 +27,8 @@ node_modules/**
 # 위 원칙("사람이 손으로 쓰지 않는 파일은 포매터가 건드리지 않는다")에 정확히 해당한다.
 # 근거: 도구는 `JSON.stringify(report, null, 2)` 로 쓰는데 Prettier 는 짧은 배열을 한 줄로 접는다
 #   (["G5","G6"] vs 3줄). 그래서 `pnpm format:check` 가 **도구가 방금 쓴 리포트를 반려**한다 —
-#   이미 reports/code-quality/2026-07-14.json(A83)이 그 상태였다. 포매터를 통과시키려고
+#   이미 reports/code-quality/2026-07-14.json 이 그 상태였다. 포매터를 통과시키려고
 #   도구의 출력 포맷을 Prettier 에 맞추는 것은 꼬리가 개를 흔드는 일이다.
-# 추가: A77 (Test Coverage Guard). A81 부재 중 A00/A01 판정 4로 대리 반영 — A81 복귀 시 추인 요망.
 reports/**
 
 # ── 검증 도구의 골든 픽스처 — **파서의 입력 텍스트**이지 컴파일 대상이 아니다
@@ -40,20 +39,19 @@ reports/**
 # openapi-typescript 생성물 (pnpm openapi:types) — 손으로 고치지 않는다
 apps/admin/src/shared/api/schema.d.ts
 
-# ── lockfile — 유일한 쓰기 경로는 `pnpm install` 이다 (A80)
+# ── lockfile — 유일한 쓰기 경로는 `pnpm install` 이다
 pnpm-lock.yaml
 
-# ── CI 워크플로 — A82(CI/CD Engineer) 소유다. A81 은 남의 소유 경로를 포맷하지 않는다.
-# A82 가 워크플로에 포매터를 물릴 준비가 되면 이 두 줄을 지우고 opt-in 한다 (handoff 발행됨).
+# ── CI 워크플로 — 포매터 대상에서 제외한다.
+# 워크플로에 포매터를 물릴 준비가 되면 이 줄을 지우고 opt-in 한다.
 .github/**
 
 # ── Markdown 은 포매터 대상에서 제외한다
 # 근거: 이 리포의 .md 는 '코드에 붙은 주석'이 아니라 **산출물 그 자체**다
-#   (specs/FS·BE 명세, docs/adr, contracts 문서, CHANGELOG — 소유자는 A01/A62/A63 등).
+#   (specs/FS·BE 명세, docs/adr, contracts 문서, CHANGELOG).
 #   Prettier 의 표 재정렬·줄바꿈 규칙이 명세의 표를 통째로 다시 쓰면
-#   ① 소유자가 아닌 A81 이 남의 산출물을 바꾸게 되고
-#   ② 게이트 리뷰가 봐야 할 diff 가 서식 노이즈에 묻힌다.
-# 필요해지면 소유자 합의 후 별도 ADR 로 도입한다.
+#   리뷰가 봐야 할 diff 가 서식 노이즈에 묻힌다.
+# 필요해지면 별도 ADR 로 도입한다.
 *.md
 *.mdx
 

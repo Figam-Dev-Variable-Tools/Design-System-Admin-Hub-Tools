@@ -40,7 +40,7 @@ describe('sanitizeRichText — 허용목록 (저장 지점·렌더 지점 공용
     expect(clean).not.toContain('alert');
   });
 
-  /* ── alt 규범화 (axe image-alt · critical · ADR-0011) ─────────────────────────
+  /* ── alt 규범화 (axe image-alt · critical · ADR-0012) ─────────────────────────
    * alt 가 **아예 없는** img 를 스크린리더는 파일명/URL 로 읽는다 — `<img src="x">` 는 "x".
    * rel 강제와 같은 훅에서 alt="" 를 넣어 장식으로 뺀다. 저자가 쓴 alt 는 건드리지 않는다. */
 
@@ -212,7 +212,7 @@ describe('RichTextField — 계약 states · FormField 배선', () => {
     expect(await screen.findByRole('button', { name: '이미지' })).toBeTruthy();
   });
 
-  /* ── 접근성 이름 (axe aria-input-field-name · serious · ADR-0011) ──────────────
+  /* ── 접근성 이름 (axe aria-input-field-name · serious · ADR-0012) ──────────────
    * 편집기는 div[role="textbox"] 라 FormField 의 `<label for>` 가 **닿지 않는다** —
    * `<label for>` 는 labelable element(input/select/textarea)에만 적용된다.
    * 이름은 label 의 id 를 aria-labelledby 로 가리켜야만 생긴다. 이게 없던 동안

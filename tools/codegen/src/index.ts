@@ -27,6 +27,7 @@ import { reportValidation, runValidation } from './validate-contract';
 import { generateTypes } from './generate-types';
 import { generateArgTypes } from './generate-argtypes';
 import { generateFigma } from './generate-figma';
+import { FigmaContractOutput, generateFigmaManifest } from './generate-figma-manifest';
 import { generateFigmaVariables } from './generate-figma-variables';
 import { generateDocs } from './generate-docs';
 import { generateTokenOutputs } from './tokens-to-css';
@@ -42,6 +43,7 @@ const OUTPUT_PATTERNS: OutputPattern[] = [
   { dir: GENERATED_TYPES_DIR, pattern: /\.types\.ts$/ },
   { dir: GENERATED_ARGTYPES_DIR, pattern: /\.argtypes\.ts$/ },
   { dir: FIGMA_GENERATED_DIR, pattern: /\.figma\.json$/ },
+  { dir: FIGMA_GENERATED_DIR, pattern: /^manifest\.json$/ },
   { dir: FIGMA_TOKENS_GENERATED_DIR, pattern: /^figma-variables\.json$/ },
   { dir: DOCS_COMPONENTS_DIR, pattern: /\.api\.md$/ },
   { dir: GENERATED_TOKENS_DIR, pattern: /^tokens\.(css|ts)$/ },
@@ -71,21 +73,31 @@ function main(): void {
   // --- 2) 생성 계획 수립 --------------------------------------------------------
   const expected: GeneratedFile[] = [];
 
+  // Figma 매니페스트는 계약/토큰 산출물의 이름·체크섬을 동봉하므로 그 결과를 모아 둔다
+  const figmaOutputs: FigmaContractOutput[] = [];
+
   for (const { contract } of validation.contracts) {
     expected.push(generateTypes(contract));
     expected.push(generateArgTypes(contract));
-    expected.push(generateFigma(contract));
+    const figmaFile = generateFigma(contract);
+    figmaOutputs.push({ contract, file: figmaFile });
+    expected.push(figmaFile);
     expected.push(generateDocs(contract));
   }
 
   const tokensDoc = loadTokensDocument();
   const tokensAvailable = tokensDoc !== null;
+  let figmaVariablesFile: GeneratedFile | null = null;
   if (tokensAvailable) {
     expected.push(...generateTokenOutputs(tokensDoc));
-    expected.push(generateFigmaVariables(tokensDoc));
+    figmaVariablesFile = generateFigmaVariables(tokensDoc);
+    expected.push(figmaVariablesFile);
   } else {
     console.warn('[codegen] tokens/tokens.json 이 아직 없습니다 — 토큰 생성 단계를 건너뜁니다.');
   }
+
+  // 플러그인 UI 가 "무엇이 전량인가"를 아는 유일한 수단 — 항상 마지막에 조립한다
+  expected.push(generateFigmaManifest(figmaOutputs, figmaVariablesFile));
 
   // --- 3) 고아 파일 검출 (계약이 삭제된 뒤 남은 생성물) -----------------------------------
   const expectedPaths = new Set(expected.map((f) => f.filePath));

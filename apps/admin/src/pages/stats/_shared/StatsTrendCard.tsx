@@ -15,13 +15,18 @@
 //   다계열이 필요해지면 지금은 그냥 series 에 더 넣으면 된다 — 막던 것은 사라졌다.
 //
 // [그리는 순서] 현재를 area(면적)로 먼저 깔고 비교를 line 으로 위에 얹는다. 반대로 하면
-// 나중에 그리는 면적이 비교선을 덮는다 (LineAreaChart 는 배열 순서대로 그린다).
+// 나중에 그리는 면적이 비교선을 덮는다 (StatsTrendChart 가 그 순서를 소유한다).
+//
+// [차트 엔진] 통계는 Recharts 를 쓴다 (오너 확정 스택 · ADR-0011). DS 의 LineAreaChart 가
+// 아니라 StatsTrendChart 인 이유는 그 파일 헤더에 있다 — 요약하면 LineAreaChart 는 **lazy 가
+// 아닌 대시보드**도 쓰기 때문에, 거기에 Recharts 를 넣으면 진입 청크가 108% 커진다.
 import type { CSSProperties } from 'react';
-import { LineAreaChart, SegmentedControl, StatsCard } from '@tds/ui';
+import { SegmentedControl, StatsCard } from '@tds/ui';
 
 import { formatMetric } from './format';
 import { formatPeriodLabel } from './period';
 import type { StatsPeriod } from './period';
+import { StatsTrendChart } from './StatsTrendChart';
 import type { StatsTrend } from './types';
 
 const emptyStyle: CSSProperties = {
@@ -87,16 +92,10 @@ export function StatsTrendCard({
   return (
     <StatsCard title={title} action={action} loading={loading} error={error}>
       {hasData ? (
-        <LineAreaChart
+        <StatsTrendChart
           labels={active.labels}
-          series={
-            active.compare === null
-              ? [{ id: 'current', label: '현재 기간', kind: 'area', values: active.current }]
-              : [
-                  { id: 'current', label: '현재 기간', kind: 'area', values: active.current },
-                  { id: 'compare', label: '비교 기간', kind: 'line', values: active.compare },
-                ]
-          }
+          current={active.current}
+          compare={active.compare}
           ariaLabel={ariaLabelOf(active, period, comparePeriod)}
         />
       ) : (

@@ -1,7 +1,7 @@
 # ==============================================================================
-# Release — 태그 v* 푸시 트리거 (org-design-v2 §11: release tag 구간, G8 지원)
+# Release — 태그 v* 푸시 트리거
 #
-#  1. CHANGELOG.md에 해당 버전 섹션 존재 검증 (A03 소유)
+#  1. CHANGELOG.md에 해당 버전 섹션 존재 검증
 #  2. MAJOR 버전(vX.0.0)이면 docs/migration/ 가이드 존재 검증 (D7: vX-to-vY.md)
 #  3. 통과 시 GitHub Release 생성 골격 (릴리스 노트 = CHANGELOG 해당 섹션)
 # ==============================================================================
@@ -37,7 +37,7 @@ jobs:
         run: |
           VERSION="${{ steps.meta.outputs.version }}"
           if ! grep -q "^## \[${VERSION}\]" CHANGELOG.md; then
-            echo "::error file=CHANGELOG.md::'## [${VERSION}]' 섹션이 없습니다. A03(Release Manager)이 CHANGELOG를 갱신해야 릴리스할 수 있습니다."
+            echo "::error file=CHANGELOG.md::'## [${VERSION}]' 섹션이 없습니다. CHANGELOG를 갱신해야 릴리스할 수 있습니다."
             exit 1
           fi
           echo "CHANGELOG OK: ## [${VERSION}] 섹션 존재"
@@ -51,7 +51,7 @@ jobs:
               echo "Migration Guide OK:"
               ls docs/migration/*"-to-v${MAJOR}"*.md
             else
-              echo "::error::MAJOR 릴리스 v${VERSION}인데 docs/migration/*-to-v${MAJOR}*.md 가이드가 없습니다 (D7). A03이 작성해야 합니다."
+              echo "::error::MAJOR 릴리스 v${VERSION}인데 docs/migration/*-to-v${MAJOR}*.md 가이드가 없습니다 (D7). 가이드를 작성해야 합니다."
               exit 1
             fi
           else

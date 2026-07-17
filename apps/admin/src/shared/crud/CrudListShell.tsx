@@ -15,7 +15,7 @@ import {
   visuallyHiddenStyle,
 } from '../ui';
 import { CrudTable } from './CrudTable';
-import type { CrudColumn, EmptyContext } from './CrudTable';
+import type { CrudColumn, CrudSort, EmptyContext } from './CrudTable';
 
 /* 목록 페이지의 section gap — space.5(20px). 제목 · 필터 · 표 · 페이지네이션이
    각각 다른 덩어리로 읽히게 띄운다 (TOKEN-08). */
@@ -64,6 +64,12 @@ interface CrudListShellProps<T extends { id: string }> {
   /** 상단 툴바(등록 버튼·검색·필터 등) */
   readonly toolbar: ReactNode;
   readonly onEdit: (item: T) => void;
+  /**
+   * 현재 정렬 — 주지 않으면 visibleItems 가 온 순서 그대로다 (어댑터의 정본 순서).
+   * 단일 원천은 URL 이다: 화면이 useListState 의 sort/setSort 를 그대로 흘려보낸다 (IA-13).
+   */
+  readonly sort?: CrudSort | null;
+  readonly onToggleSort?: (key: string) => void;
 }
 
 /**
@@ -93,6 +99,8 @@ export function CrudListShell<T extends { id: string }>({
   empty,
   toolbar,
   onEdit,
+  sort = null,
+  onToggleSort,
 }: CrudListShellProps<T>) {
   const { firstLoading, refreshing, error, selectedCount } = controller;
 
@@ -153,6 +161,8 @@ export function CrudListShell<T extends { id: string }>({
             deletingId={controller.deletingId}
             selectAllLabelId={selectAllLabelId}
             {...(empty !== undefined && { empty })}
+            sort={sort}
+            {...(onToggleSort !== undefined && { onToggleSort })}
           />
         </>
       ) : (

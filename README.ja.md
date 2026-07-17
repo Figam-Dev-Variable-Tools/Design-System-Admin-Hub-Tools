@@ -45,7 +45,7 @@ Contract · Token の単一原点から **React · Storybook · Figma 四者 100
 ```bash
 pnpm install
 pnpm codegen              # 契約/トークン → 型 · argTypes · figma.json · CSS を生成
-pnpm gate:precheck        # 契約 + 所有権 + 命名 + 四者一致 (レビュー依頼前に必須)
+pnpm gate:precheck        # 契約 + 命名 + 四者一致 + カバレッジ + クリーンコード (レビュー依頼前に必須)
 pnpm dev:admin            # Admin アプリ
 pnpm sb                   # Storybook (:6006)
 ```
@@ -93,7 +93,6 @@ pnpm sb                   # Storybook (:6006)
 
 ```bash
 pnpm validate:contracts   # 契約スキーマ検証
-pnpm boundary:check       # 所有権境界 (CODEOWNERS と同一ルール)
 pnpm contract-test        # 四者一致
 pnpm coverage:check       # 契約 states · blockedWhen · FS 例外軸 (行 % ではない)
 pnpm quality:check        # クリーンコード 6 軸 (blocker 1 件 → PR 遮断)
@@ -120,7 +119,6 @@ pnpm verify:full          # verify:all + E2E
 ├── e2e/                    Playwright シナリオ (テスト名が FS 要素番号を引用)
 ├── tools/
 │   ├── codegen/            契約/トークン → 4 箇所への生成パイプライン
-│   ├── boundary/           CODEOWNERS 生成 + 所有権/reads スコープ検査
 │   ├── contract-test/      四者一致検証
 │   ├── test-coverage/      契約 states · blockedWhen · FS 例外軸カバレッジ (行 % ではない)
 │   ├── code-quality/       クリーンコード 6 軸 (結合·漏洩·重複·複雑度·デッドコード·レイヤー)
@@ -133,11 +131,11 @@ pnpm verify:full          # verify:all + E2E
 │   └── figma-plugin/       Contract/Token → Figma 自動生成
 ├── docs/
 │   ├── adr/                アーキテクチャ決定記録 (0001~0010)
-│   ├── architecture/       フロントエンド規約 · 監査記録
+│   ├── architecture/       フロントエンド規約
 │   ├── plan/               計画文書
 │   ├── figma/              Figma スペックミラー + レビュー
 │   ├── tds/                デザインシステム文書
-│   └── _templates/         標準文書 + ゲートチェックリスト
+│   └── _templates/         標準文書テンプレート
 └── reports/                検証成果物 (ゲート入力 — 機械生成、フォーマッター除外)
 ```
 

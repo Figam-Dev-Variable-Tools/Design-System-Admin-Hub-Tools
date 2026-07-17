@@ -34,7 +34,7 @@ pnpm a11y        # 감사만 — storybook-static 이 이미 있어야 한다
 | 1 | **critical/serious 위반 1건 이상** → G5/G6 차단 (A33/A42 + A00에 escalation) |
 | 2 | **NOT_VERIFIED** — 검사 자체가 불가능했다 (storybook-static 부재 · playwright 미설치 · 스토리 검사 실패) |
 
-**exit 2 는 통과가 아니다.** 측정 불가를 초록불로 바꾸지 않는다 (ADR-0011).
+**exit 2 는 통과가 아니다.** 측정 불가를 초록불로 바꾸지 않는다 (ADR-0012).
 
 ## 검사 범위 — `body` (포털 포함)
 

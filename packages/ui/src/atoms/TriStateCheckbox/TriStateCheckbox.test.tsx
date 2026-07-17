@@ -4,7 +4,7 @@
 //   events.onChange     blockedWhen: ["disabled"]
 //
 // 계약 a11y: indeterminate 는 DOM 프로퍼티(ref) · aria-checked 는 **mixed 일 때만** 낸다
-//   (네이티브 체크박스에서 on/off 는 native checked 가 정본 — axe aria-conditional-attr · ADR-0011)
+//   (네이티브 체크박스에서 on/off 는 native checked 가 정본 — axe aria-conditional-attr · ADR-0012)
 //   · 빈 aria 는 부여하지 않음.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -57,7 +57,7 @@ describe('TriStateCheckbox — 계약 states[]', () => {
     expect(box.getAttribute('aria-checked')).toBe('mixed');
   });
 
-  /* ── aria-checked 는 DOM 을 따라간다 (axe aria-conditional-attr · ADR-0011) ────────
+  /* ── aria-checked 는 DOM 을 따라간다 (axe aria-conditional-attr · ADR-0012) ────────
    * 아래 두 갈래는 a11y 게이트가 실제로 돌기 시작한 첫 실행에서 잡힌 **실측 결함**이다.
    * 예전 식(`indeterminate && !checked ? 'mixed' : checked`)은 두 경우 모두 DOM 과 모순이었다. */
 

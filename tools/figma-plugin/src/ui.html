@@ -4,121 +4,559 @@
     <meta charset="utf-8" />
     <title>TDS Sync</title>
     <style>
-      /* 플러그인 UI 전용 최소 스타일 — 디자인 시스템 런타임이 아니므로 토큰 규칙 비대상 */
+      /* -----------------------------------------------------------------
+       * 디자인 토큰 — 빌드 시 packages/ui/generated/tokens/tokens.css 를
+       * build.mjs 가 여기에 인라인한다 (플러그인 UI 는 앱 CSS 를 못 가져오는
+       * 별도 문서라, 토큰을 동봉하는 것이 유일한 경로다).
+       * :root = light, [data-theme='dark'] = dark — 테마 전환은 하단 syncTheme().
+       * 아래 규칙에서 hex/px 리터럴을 쓰지 말 것 — 전부 var(--tds-*) 에서 온다.
+       * ----------------------------------------------------------------- */
+      /* @tds-tokens-inject */
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
       body {
         margin: 0;
-        padding: 12px;
-        font-family: Inter, system-ui, sans-serif;
-        font-size: 12px;
-        color: var(--figma-color-text, #333333);
-        background: var(--figma-color-bg, #ffffff);
+        padding: var(--tds-space-4);
+        font-family: var(--tds-typography-body-md-font-family);
+        font-size: var(--tds-typography-caption-md-font-size);
+        line-height: var(--tds-typography-body-md-line-height);
+        color: var(--tds-color-text-default);
+        background: var(--tds-color-surface-default);
+      }
+
+      /* 포커스 링 — 저장소 공통 기준(border-focus, 2px 두께 토큰) */
+      :focus-visible {
+        outline: var(--tds-border-width-medium) solid var(--tds-color-border-focus);
+        outline-offset: var(--tds-border-width-medium);
+        border-radius: var(--tds-radius-sm);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: var(--tds-border-width-thin);
+        height: var(--tds-border-width-thin);
+        padding: 0;
+        margin: calc(var(--tds-border-width-thin) * -1);
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      /* --- 헤더 ------------------------------------------------------- */
+      header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--tds-space-2);
+        margin-bottom: var(--tds-space-3);
       }
       h1 {
-        font-size: 14px;
-        margin: 0 0 4px;
+        font-size: var(--tds-typography-title-lg-font-size);
+        font-weight: var(--tds-typography-title-lg-font-weight);
+        line-height: var(--tds-typography-title-lg-line-height);
+        margin: 0;
       }
-      .hint {
-        margin: 0 0 12px;
-        color: var(--figma-color-text-secondary, #666666);
+      .subtitle {
+        margin: 0;
+        color: var(--tds-color-text-muted);
       }
-      .field {
+
+      h2 {
+        font-size: var(--tds-typography-label-sm-font-size);
+        font-weight: var(--tds-typography-label-sm-font-weight);
+        line-height: var(--tds-typography-label-sm-line-height);
+        text-transform: uppercase;
+        letter-spacing: var(--tds-border-width-thin);
+        color: var(--tds-color-text-muted);
+        margin: 0 0 var(--tds-space-2);
+      }
+
+      section {
+        margin-bottom: var(--tds-space-5);
+      }
+
+      /* --- 1단계: 적재 드롭존 -------------------------------------------- */
+      .dropzone {
         display: block;
-        margin-bottom: 10px;
+        padding: var(--tds-space-5) var(--tds-space-4);
+        text-align: center;
+        border: var(--tds-border-width-medium) dashed var(--tds-color-border-default);
+        border-radius: var(--tds-radius-lg);
+        background: var(--tds-color-surface-raised);
+        cursor: pointer;
+        transition:
+          border-color var(--tds-motion-duration-fast) var(--tds-motion-easing-standard),
+          background var(--tds-motion-duration-fast) var(--tds-motion-easing-standard);
       }
-      .field span {
+      .dropzone:hover,
+      .dropzone.is-dragover {
+        border-color: var(--tds-color-border-focus);
+        background: var(--tds-color-feedback-info-surface);
+      }
+      /* 파일 input 은 시각적으로 숨기되 label 로 노출 — 키보드/스크린리더 접근 유지 */
+      .dropzone input[type='file'] {
+        position: absolute;
+        width: var(--tds-border-width-thin);
+        height: var(--tds-border-width-thin);
+        opacity: 0;
+      }
+      .dropzone-title {
         display: block;
-        margin-bottom: 4px;
-        font-weight: 600;
+        font-size: var(--tds-typography-label-md-font-size);
+        font-weight: var(--tds-typography-label-md-font-weight);
       }
-      textarea,
-      input[type='file'] {
-        width: 100%;
-        box-sizing: border-box;
-        font: inherit;
+      .dropzone-hint {
+        display: block;
+        margin-top: var(--tds-space-1);
+        color: var(--tds-color-text-muted);
       }
-      textarea {
-        resize: vertical;
-      }
-      .actions {
+      .load-alt {
         display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        margin-bottom: 10px;
+        gap: var(--tds-space-2);
+        margin-top: var(--tds-space-2);
       }
-      button {
+
+      /* --- 적재 리포트 ---------------------------------------------------- */
+      .report {
+        margin-top: var(--tds-space-3);
+        border: var(--tds-border-width-thin) solid var(--tds-color-border-subtle);
+        border-radius: var(--tds-radius-md);
+        overflow: hidden;
+      }
+      .row {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--tds-space-2);
+        padding: var(--tds-space-2) var(--tds-space-3);
+        border-bottom: var(--tds-border-width-thin) solid var(--tds-color-border-subtle);
+      }
+      .row:last-child {
+        border-bottom: 0;
+      }
+      .row-label {
+        flex: 0 0 auto;
+        width: var(--tds-space-10);
+        color: var(--tds-color-text-muted);
+      }
+      .row-value {
+        flex: 1 1 auto;
+        word-break: break-word;
+      }
+      .row-detail {
+        display: block;
+        margin-top: var(--tds-space-1);
+        color: var(--tds-color-text-muted);
+      }
+
+      /* 상태 점 — 색만으로 뜻을 전달하지 않는다(형태 기호 + sr-only 텍스트 병기) */
+      .dot {
+        flex: 0 0 auto;
+        width: var(--tds-space-4);
+        text-align: center;
+        font-weight: var(--tds-typography-label-sm-font-weight);
+      }
+      .is-ok .dot {
+        color: var(--tds-color-feedback-success-text);
+      }
+      .is-error .dot {
+        color: var(--tds-color-feedback-danger-text);
+      }
+      .is-warn .dot {
+        color: var(--tds-color-feedback-warning-text);
+      }
+      .is-idle .dot {
+        color: var(--tds-color-text-disabled);
+      }
+      .is-error .row-value strong {
+        color: var(--tds-color-feedback-danger-text);
+      }
+
+      /* --- 액션 카드 ------------------------------------------------------ */
+      .card {
+        border: var(--tds-border-width-thin) solid var(--tds-color-border-subtle);
+        border-radius: var(--tds-component-card-radius);
+        padding: var(--tds-space-3);
+        margin-bottom: var(--tds-space-3);
+        background: var(--tds-color-surface-default);
+      }
+      .card-title {
+        font-size: var(--tds-typography-label-md-font-size);
+        font-weight: var(--tds-typography-title-md-font-weight);
+        margin: 0 0 var(--tds-space-1);
+      }
+      .card-meta {
+        margin: 0 0 var(--tds-space-2);
+        color: var(--tds-color-text-muted);
+      }
+      .card-meta b {
+        color: var(--tds-color-text-default);
+        font-weight: var(--tds-typography-label-md-font-weight);
+      }
+      .card.is-destructive {
+        border-color: var(--tds-color-feedback-warning-border);
+        background: var(--tds-color-feedback-warning-surface);
+      }
+      .card.is-destructive .card-title,
+      .card.is-destructive .warn-text {
+        color: var(--tds-color-feedback-warning-text);
+      }
+      .warn-text {
+        margin: 0 0 var(--tds-space-2);
+      }
+
+      .blocked {
+        margin: 0 0 var(--tds-space-2);
+        padding: var(--tds-space-2);
+        border-left: var(--tds-border-width-thick) solid var(--tds-color-feedback-danger-border);
+        border-radius: var(--tds-radius-sm);
+        background: var(--tds-color-feedback-danger-surface);
+        color: var(--tds-color-feedback-danger-text);
+      }
+      .blocked[hidden] {
+        display: none;
+      }
+
+      /* --- 폼 컨트롤 ------------------------------------------------------ */
+      label.control {
+        display: block;
+        margin-bottom: var(--tds-space-2);
+      }
+      label.control > span {
+        display: block;
+        margin-bottom: var(--tds-space-1);
+        color: var(--tds-color-text-muted);
+      }
+      select {
+        width: 100%;
         font: inherit;
-        padding: 6px 10px;
-        border: 1px solid var(--figma-color-border, #cccccc);
-        border-radius: 4px;
-        background: var(--figma-color-bg-secondary, #f5f5f5);
+        font-family: var(--tds-typography-body-md-font-family);
+        padding: var(--tds-space-1) var(--tds-space-2);
+        color: var(--tds-color-text-default);
+        background: var(--tds-color-surface-default);
+        border: var(--tds-border-width-thin) solid var(--tds-color-border-default);
+        border-radius: var(--tds-radius-sm);
+      }
+      .confirm {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--tds-space-2);
+        margin-bottom: var(--tds-space-2);
         cursor: pointer;
       }
-      button:hover {
-        background: var(--figma-color-bg-hover, #ececec);
+      .confirm input {
+        margin: 0;
+        flex: 0 0 auto;
+        accent-color: var(--tds-color-action-primary-default);
       }
+
+      button {
+        font-family: var(
+          --tds-component-button-typography,
+          var(--tds-typography-label-md-font-family)
+        );
+        font-size: var(--tds-typography-label-md-font-size);
+        font-weight: var(--tds-typography-label-md-font-weight);
+        padding: var(--tds-component-button-padding-y) var(--tds-component-button-padding-x);
+        border: var(--tds-border-width-thin) solid transparent;
+        border-radius: var(--tds-component-button-radius);
+        background: var(--tds-component-button-background);
+        color: var(--tds-component-button-text);
+        cursor: pointer;
+        transition: background var(--tds-component-button-transition-duration)
+          var(--tds-component-button-transition-easing);
+      }
+      button:hover:not(:disabled) {
+        background: var(--tds-component-button-background-hover);
+      }
+      button:active:not(:disabled) {
+        background: var(--tds-component-button-background-active);
+      }
+      button:disabled {
+        background: var(--tds-component-button-background-disabled);
+        color: var(--tds-color-text-disabled);
+        cursor: not-allowed;
+      }
+      button.secondary {
+        background: var(--tds-color-surface-raised);
+        color: var(--tds-color-text-default);
+        border-color: var(--tds-color-border-default);
+      }
+      button.secondary:hover:not(:disabled) {
+        background: var(--tds-color-surface-skeleton);
+      }
+      button.secondary:disabled {
+        background: var(--tds-color-surface-disabled);
+        color: var(--tds-color-text-disabled);
+      }
+
+      /* --- 진행 표시 ------------------------------------------------------ */
+      .progress {
+        display: flex;
+        align-items: center;
+        gap: var(--tds-space-2);
+        margin-bottom: var(--tds-space-2);
+        color: var(--tds-color-text-muted);
+      }
+      .progress[hidden] {
+        display: none;
+      }
+      .spinner {
+        width: var(--tds-space-3);
+        height: var(--tds-space-3);
+        flex: 0 0 auto;
+        border: var(--tds-border-width-medium) solid var(--tds-color-border-subtle);
+        border-top-color: var(--tds-color-action-primary-default);
+        border-radius: var(--tds-radius-full);
+        animation: spin var(--tds-motion-duration-slow) linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      /* 모션 최소화 선호 시 회전 정지 — 텍스트가 진행을 대신 알린다 */
+      @media (prefers-reduced-motion: reduce) {
+        .spinner {
+          animation: none;
+        }
+        .dropzone,
+        button {
+          transition: none;
+        }
+      }
+
+      /* --- 로그 ---------------------------------------------------------- */
       #log {
         margin: 0;
-        padding: 8px;
-        height: 220px;
+        padding: var(--tds-space-2);
+        height: calc(var(--tds-space-10) * 2.5);
         overflow: auto;
         white-space: pre-wrap;
-        border: 1px solid var(--figma-color-border, #cccccc);
-        border-radius: 4px;
-        background: var(--figma-color-bg-secondary, #fafafa);
+        word-break: break-word;
+        font-family: var(--tds-primitive-typography-font-family-mono);
+        font-size: var(--tds-typography-caption-md-font-size);
+        color: var(--tds-color-text-muted);
+        border: var(--tds-border-width-thin) solid var(--tds-color-border-subtle);
+        border-radius: var(--tds-radius-md);
+        background: var(--tds-color-surface-raised);
       }
     </style>
   </head>
   <body>
-    <h1>TDS Sync</h1>
-    <p class="hint">
-      tools/figma-plugin/generated/ 의 codegen 산출물(JSON)을 업로드하거나 붙여넣은 뒤
-      실행하세요.<br />
-      토큰: generated/tokens/figma-variables.json · 컴포넌트: generated/&lt;Name&gt;.figma.json<br />
-      실행 순서: pnpm codegen → 토큰 → Variables 동기화 → TDS 문서 생성 (규격:
-      docs/figma/specs/tds-doc-style.md)
-    </p>
+    <header>
+      <h1>TDS Sync</h1>
+      <p class="subtitle">contracts · tokens → Figma</p>
+    </header>
 
-    <label class="field">
-      <span>파일 업로드</span>
-      <input id="file" type="file" accept=".json,application/json" />
-    </label>
+    <!-- ===== 1단계: 산출물 적재 ===================================== -->
+    <section aria-labelledby="load-heading">
+      <h2 id="load-heading">1 · 산출물 적재</h2>
 
-    <label class="field">
-      <span>또는 JSON 붙여넣기 (붙여넣기가 있으면 파일보다 우선)</span>
-      <textarea
-        id="paste"
-        rows="6"
-        placeholder='{"collection":"TDS Tokens","modes":["light","dark"],"variables":[...]}'
-      ></textarea>
-    </label>
+      <label class="dropzone" id="dropzone" for="files">
+        <span class="dropzone-title">generated 폴더를 통째로 선택하거나 끌어다 놓으세요</span>
+        <span class="dropzone-hint">
+          tools/figma-plugin/generated/ — manifest.json 이 함께 있어야 누락 검사가 동작합니다
+        </span>
+        <input id="files" type="file" accept=".json,application/json" multiple />
+      </label>
 
-    <div class="actions">
-      <button id="btn-tokens" type="button">토큰 → Variables 동기화</button>
-      <button id="btn-component" type="button">계약 → Variant Property 동기화</button>
-      <button id="btn-scan" type="button">Detached 스타일 스캔</button>
-    </div>
+      <div class="load-alt">
+        <!-- webkitdirectory 는 폴더 단위 선택 — 파일을 하나씩 고르다 빠뜨리는 경로를 없앤다 -->
+        <button id="btn-pick-folder" class="secondary" type="button">폴더 선택…</button>
+        <button id="btn-reset" class="secondary" type="button">비우기</button>
+      </div>
+      <input
+        id="folder"
+        class="sr-only"
+        type="file"
+        webkitdirectory
+        directory
+        multiple
+        tabindex="-1"
+        aria-hidden="true"
+      />
 
-    <label class="field">
-      <span
-        >TDS 문서 생성 — 다중 파일 선택 (figma-variables.json + &lt;Name&gt;.figma.json + pages
-        메타)</span
-      >
-      <input id="doc-files" type="file" accept=".json,application/json" multiple />
-    </label>
+      <!-- 적재 결과: 이중 live 영역 중 '상태' 쪽 -->
+      <div class="report" id="report" role="status" aria-live="polite" aria-atomic="true">
+        <div class="row is-idle" id="row-manifest">
+          <span class="dot" aria-hidden="true">–</span>
+          <span class="row-label">매니페스트</span>
+          <span class="row-value" id="val-manifest">아직 적재되지 않음</span>
+        </div>
+        <div class="row is-idle" id="row-tokens">
+          <span class="dot" aria-hidden="true">–</span>
+          <span class="row-label">토큰</span>
+          <span class="row-value" id="val-tokens">아직 적재되지 않음</span>
+        </div>
+        <div class="row is-idle" id="row-contracts">
+          <span class="dot" aria-hidden="true">–</span>
+          <span class="row-label">계약</span>
+          <span class="row-value" id="val-contracts">아직 적재되지 않음</span>
+        </div>
+        <div class="row is-idle" id="row-pages">
+          <span class="dot" aria-hidden="true">–</span>
+          <span class="row-label">페이지 메타</span>
+          <span class="row-value" id="val-pages">없음 (선택 입력)</span>
+        </div>
+      </div>
+    </section>
 
-    <div class="actions">
-      <button id="btn-doc" type="button">TDS 문서 생성</button>
-    </div>
+    <!-- ===== 2단계: 실행 ============================================ -->
+    <section aria-labelledby="run-heading">
+      <h2 id="run-heading">2 · 실행</h2>
 
-    <pre id="log">대기 중…</pre>
+      <div class="progress" id="progress" hidden>
+        <span class="spinner" aria-hidden="true"></span>
+        <span id="progress-text">실행 중…</span>
+      </div>
+
+      <!-- (a) 토큰 → Variables -->
+      <div class="card">
+        <p class="card-title">토큰 → Variables 동기화</p>
+        <p class="card-meta">
+          요구: <b>figma-variables.json</b> · 바뀌는 것: <b>'TDS Tokens' 컬렉션</b>의 Variable
+          생성/갱신 (light·dark 2모드). 기존 Variable 은 삭제하지 않고 경고만 남깁니다.<br />
+          TDS 문서 생성의 <b>선행 조건</b>입니다.
+        </p>
+        <p class="blocked" id="block-tokens" hidden></p>
+        <button id="btn-tokens" type="button" disabled aria-describedby="block-tokens">
+          Variables 동기화
+        </button>
+      </div>
+
+      <!-- (b) 계약 → Variant Property -->
+      <div class="card">
+        <p class="card-title">계약 → Variant Property 동기화</p>
+        <p class="card-meta">
+          요구: <b>&lt;Name&gt;.figma.json</b> · 바뀌는 것: 현재 페이지에 <b>Component Set</b> 생성,
+          또는 기존 Set 에 Variant 추가. 계약에 없는 값은 <b>삭제하지 않고</b> 경고합니다.
+        </p>
+        <label class="control" for="component-select">
+          <span>동기화 대상</span>
+          <select id="component-select" disabled>
+            <option value="">— 산출물을 먼저 적재하세요 —</option>
+          </select>
+        </label>
+        <p class="blocked" id="block-component" hidden></p>
+        <button id="btn-component" type="button" disabled aria-describedby="block-component">
+          Component Set 동기화
+        </button>
+      </div>
+
+      <!-- (c) TDS 문서 생성 — 파괴적 -->
+      <div class="card is-destructive">
+        <p class="card-title">TDS 문서 생성</p>
+        <p class="card-meta">
+          요구: <b>토큰 + 계약 전량</b> + (선택) 페이지 메타 · 규격:
+          <b>docs/figma/specs/tds-doc-style.md</b><br />
+          선행: 위 <b>Variables 동기화</b>가 끝나 있어야 문서의 색·치수가 바인딩됩니다.
+        </p>
+        <p class="warn-text">
+          <strong>파괴적 작업:</strong> 📕 Cover · 🎨 Foundations-Colors · Aa Typography · 📐
+          Spacing·Radius·Shadow · 🧩 Components · 📄 Pages 페이지를
+          <b>내용을 비우고 재생성</b>합니다. 이 페이지들 위의 수동 작업물은 사라집니다.
+        </p>
+        <label class="confirm" for="doc-confirm">
+          <input id="doc-confirm" type="checkbox" />
+          <span>위 6개 문서 페이지가 지워지고 다시 생성되는 것을 이해했습니다.</span>
+        </label>
+        <p class="blocked" id="block-doc" hidden></p>
+        <button id="btn-doc" type="button" disabled aria-describedby="block-doc">
+          TDS 문서 생성
+        </button>
+      </div>
+
+      <!-- (d) Detached 스캔 — 읽기 전용 -->
+      <div class="card">
+        <p class="card-title">Detached 스타일 스캔</p>
+        <p class="card-meta">
+          요구: <b>없음</b> · 바뀌는 것: <b>없음 — 읽기 전용</b>입니다. 현재 파일에서 Variable/Style
+          에 바인딩되지 않은 raw 값을 리포트합니다 (G7 기준: 위반 0건).
+        </p>
+        <button id="btn-scan" class="secondary" type="button">스캔 실행</button>
+      </div>
+    </section>
+
+    <!-- ===== 로그 =================================================== -->
+    <section aria-labelledby="log-heading">
+      <h2 id="log-heading">실행 로그</h2>
+      <pre id="log" role="log" aria-live="polite" aria-labelledby="log-heading" tabindex="0">
+대기 중 — 산출물을 적재하세요.</pre>
+    </section>
 
     <script>
-      // UI 스레드 — 파일/붙여넣기로 페이로드를 만들고 main 스레드에 postMessage로 전달한다.
-      var fileInput = document.getElementById('file');
-      var pasteArea = document.getElementById('paste');
-      var logEl = document.getElementById('log');
-      var uploaded = null;
-      var uploadedName = '';
+      // =====================================================================
+      // TDS Sync — UI 스레드
+      //
+      // 이 UI 의 핵심 책임은 '조용한 누락(silent omission)' 차단이다.
+      // 플러그인은 networkAccess:none 이라 리포를 읽을 수 없으므로, codegen 이
+      // 함께 내는 generated/manifest.json(계약 목록·수·체크섬)을 기대치로 삼아
+      // 업로드된 파일과 대조한다. 대조에 실패하면 실행 버튼을 잠근다.
+      //   매니페스트 없음 / 계약 누락 / 체크섬 불일치(스테일) → 차단
+      //   분류 불가 · 매니페스트에 없는 파일                  → 경고(진행 허용)
+      // =====================================================================
+      'use strict';
+
+      // --- 해시: tools/codegen/src/generate-figma-manifest.ts 와 동일 알고리즘 ------
+      // 플러그인 UI 는 번들과 분리된 별도 문서라 import 가 불가능해 재구현한다.
+      // 한쪽을 바꾸면 반드시 다른 쪽도 바꿀 것. (검증: 38개 산출물 전량 왕복 일치)
+      function canonicalJson(value) {
+        if (value === null || typeof value !== 'object') {
+          var s = JSON.stringify(value);
+          return s === undefined ? 'null' : s;
+        }
+        if (Array.isArray(value)) return '[' + value.map(canonicalJson).join(',') + ']';
+        return (
+          '{' +
+          Object.keys(value)
+            .sort()
+            .map(function (key) {
+              return JSON.stringify(key) + ':' + canonicalJson(value[key]);
+            })
+            .join(',') +
+          '}'
+        );
+      }
+
+      function fnv1a(input) {
+        var hash = 0x811c9dc5;
+        for (var i = 0; i < input.length; i += 1) {
+          hash ^= input.charCodeAt(i);
+          hash = Math.imul(hash, 0x01000193);
+        }
+        return (hash >>> 0).toString(16).padStart(8, '0');
+      }
+
+      function checksumOf(json) {
+        return fnv1a(canonicalJson(json));
+      }
+
+      /** codegen 이 쓰는 매니페스트 스키마 버전 — 불일치는 곧 산출물/플러그인 세대 차이 */
+      var SUPPORTED_MANIFEST_VERSION = 1;
+      var ALL = '__all__';
+
+      // --- 적재 상태 --------------------------------------------------------
+      var state = {
+        manifest: null,
+        manifestError: '',
+        tokens: null, // { json, checksum, name }
+        contracts: {}, // name → { json, checksum, fileName }
+        pages: null,
+        unknown: [], // 분류 불가 파일명
+        loading: false,
+        busy: false,
+      };
+
+      var $ = function (id) {
+        return document.getElementById(id);
+      };
+      var logEl = $('log');
 
       function log(line) {
         logEl.textContent += '\n' + line;
@@ -129,201 +567,575 @@
         parent.postMessage({ pluginMessage: message }, '*');
       }
 
-      fileInput.addEventListener('change', function () {
-        var file = fileInput.files && fileInput.files[0];
-        if (!file) return;
-        var reader = new FileReader();
-        reader.onload = function () {
-          try {
-            uploaded = JSON.parse(String(reader.result));
-            uploadedName = file.name;
-            log('파일 로드: ' + file.name);
-          } catch (e) {
-            uploaded = null;
-            log('[오류] JSON 파싱 실패 (' + file.name + '): ' + e.message);
-          }
-        };
-        reader.readAsText(file);
-      });
-
-      function currentPayload() {
-        var text = pasteArea.value.trim();
-        if (text) {
-          try {
-            return JSON.parse(text);
-          } catch (e) {
-            log('[오류] 붙여넣기 JSON 파싱 실패: ' + e.message);
-            return null;
-          }
-        }
-        if (uploaded) {
-          log('업로드 파일 사용: ' + uploadedName);
-          return uploaded;
-        }
-        log('[오류] 페이로드 없음 — 파일을 업로드하거나 JSON을 붙여넣으세요.');
-        return null;
-      }
-
-      document.getElementById('btn-tokens').addEventListener('click', function () {
-        var payload = currentPayload();
-        if (!payload) return;
-        if (!payload.collection || !Array.isArray(payload.variables)) {
-          log(
-            '[오류] 토큰 페이로드 아님 — {collection, modes, variables[]} 형식 필요 (generated/tokens/figma-variables.json)',
-          );
-          return;
-        }
-        log('Variables 동기화 요청…');
-        send({ type: 'sync-tokens', payload: payload });
-      });
-
-      document.getElementById('btn-component').addEventListener('click', function () {
-        var payload = currentPayload();
-        if (!payload) return;
-        if (!payload.name || !payload.variantProperties) {
-          log(
-            '[오류] 컴포넌트 페이로드 아님 — {name, variantProperties} 형식 필요 (generated/<Name>.figma.json)',
-          );
-          return;
-        }
-        log('Component Set 동기화 요청: ' + payload.name);
-        send({ type: 'sync-component', payload: payload });
-      });
-
-      document.getElementById('btn-scan').addEventListener('click', function () {
-        log('Detached 스타일 스캔 요청…');
-        send({ type: 'scan-detached' });
-      });
-
-      // --- TDS 문서 생성 — 다중 파일을 분류해 combined 페이로드 조립 ---------------
-      // 페이로드 규격/분류 규칙: docs/figma/specs/tds-doc-style.md §11
-      var docFilesInput = document.getElementById('doc-files');
-      var docFiles = []; // { name, json }
-
-      docFilesInput.addEventListener('change', function () {
-        docFiles = [];
-        var files = docFilesInput.files ? Array.prototype.slice.call(docFilesInput.files) : [];
-        files.forEach(function (file) {
-          var reader = new FileReader();
-          reader.onload = function () {
-            try {
-              docFiles.push({ name: file.name, json: JSON.parse(String(reader.result)) });
-              log('문서 입력 로드: ' + file.name);
-            } catch (e) {
-              log('[오류] JSON 파싱 실패 (' + file.name + '): ' + e.message);
-            }
-          };
-          reader.readAsText(file);
-        });
-      });
-
-      function classifyDocJson(json) {
-        if (!json) return null;
-        if (json.tokens && json.tokens.variables) return 'combined';
-        if (json.collection && Array.isArray(json.variables)) return 'tokens';
-        if (Array.isArray(json.properties) && (json.component || json.name)) return 'component';
-        if (json.name && json.variantProperties) return 'component';
+      // --- 파일 분류 --------------------------------------------------------
+      // 형식으로만 판별한다 — 파일명은 신뢰하지 않는다(오퍼레이터가 이름을 바꿔도 동작).
+      function classify(json) {
+        if (!json || typeof json !== 'object') return null;
+        if (typeof json.manifestVersion === 'number' && Array.isArray(json.contracts))
+          return 'manifest';
+        if (typeof json.collection === 'string' && Array.isArray(json.variables)) return 'tokens';
+        if (typeof json.name === 'string' && json.variantProperties) return 'contract';
         if (Array.isArray(json.pages)) return 'pages';
         if (
           Array.isArray(json) &&
           json.length > 0 &&
           json.every(function (p) {
-            return p && p.id;
+            return p && typeof p.id === 'string';
           })
         )
           return 'pages';
         return null;
       }
 
-      document.getElementById('btn-doc').addEventListener('click', function () {
-        // 1) 붙여넣기 combined 페이로드({tokens, components?, pages?, meta?})가 있으면 그대로 전송
-        var text = pasteArea.value.trim();
-        var pasted = null;
-        if (text) {
-          try {
-            pasted = JSON.parse(text);
-          } catch (e) {
-            log('[오류] 붙여넣기 JSON 파싱 실패: ' + e.message);
-            return;
-          }
-        }
-        if (pasted && classifyDocJson(pasted) === 'combined') {
-          log('TDS 문서 생성 요청 (붙여넣기 combined 페이로드)…');
-          send({ type: 'generate-tds-doc', payload: pasted });
+      function readFileText(file) {
+        return new Promise(function (resolve, reject) {
+          var reader = new FileReader();
+          reader.onload = function () {
+            resolve(String(reader.result));
+          };
+          reader.onerror = function () {
+            reject(new Error('읽기 실패'));
+          };
+          reader.readAsText(file);
+        });
+      }
+
+      /**
+       * 파일 목록을 적재한다. JSON 이 아닌 파일은 조용히 건너뛰지 않고 경고로 남긴다.
+       * 폴더 선택 시 tokens/ 하위까지 재귀로 들어오므로 경로가 아니라 내용으로 분류한다.
+       */
+      async function loadFiles(fileList) {
+        var files = Array.prototype.slice.call(fileList).filter(function (f) {
+          return /\.json$/i.test(f.name);
+        });
+        if (files.length === 0) {
+          log('[오류] JSON 파일이 없습니다 — generated/ 폴더를 선택하세요.');
           return;
         }
 
-        // 2) 다중 파일(+붙여넣기/단일 업로드 보조)을 분류해 조립
-        var candidates = docFiles.slice();
-        if (pasted) candidates.push({ name: '(붙여넣기)', json: pasted });
-        if (uploaded) candidates.push({ name: uploadedName, json: uploaded });
+        state.loading = true;
+        setProgress(true, '파일 ' + files.length + '개 읽는 중…');
+        log('— 적재 시작: 파일 ' + files.length + '개');
 
-        var tokens = null;
-        var components = [];
-        var pages = null;
-        candidates.forEach(function (entry) {
-          var kind = classifyDocJson(entry.json);
-          if (kind === 'tokens') {
-            if (tokens) log('[경고] tokens 페이로드 중복 — 무시: ' + entry.name);
-            else tokens = entry.json;
-          } else if (kind === 'component') {
-            components.push(entry.json);
+        for (var i = 0; i < files.length; i += 1) {
+          var file = files[i];
+          var json;
+          try {
+            json = JSON.parse(await readFileText(file));
+          } catch (e) {
+            // 파싱 실패를 삼키지 않는다 — 누락과 구분되지 않으면 조용한 오동기화가 된다
+            state.unknown.push(file.name + ' (JSON 파싱 실패)');
+            log('[오류] JSON 파싱 실패: ' + file.name + ' — ' + e.message);
+            continue;
+          }
+
+          var kind = classify(json);
+          if (kind === 'manifest') {
+            if (state.manifest) log('[경고] 매니페스트 중복 — 무시: ' + file.name);
+            else state.manifest = json;
+          } else if (kind === 'tokens') {
+            if (state.tokens) log('[경고] 토큰 페이로드 중복 — 무시: ' + file.name);
+            else state.tokens = { json: json, checksum: checksumOf(json), name: file.name };
+          } else if (kind === 'contract') {
+            if (state.contracts[json.name]) log('[경고] 계약 중복 — 무시: ' + file.name);
+            else
+              state.contracts[json.name] = {
+                json: json,
+                checksum: checksumOf(json),
+                fileName: file.name,
+              };
           } else if (kind === 'pages') {
-            if (pages) log('[경고] pages 메타 중복 — 무시: ' + entry.name);
-            else pages = Array.isArray(entry.json) ? entry.json : entry.json.pages;
-          } else if (kind === 'combined') {
-            log('[경고] combined 페이로드는 붙여넣기로만 사용 — 무시: ' + entry.name);
+            if (state.pages) log('[경고] 페이지 메타 중복 — 무시: ' + file.name);
+            else state.pages = Array.isArray(json) ? json : json.pages;
           } else {
-            log('[경고] 분류 불가 JSON 무시: ' + entry.name);
+            state.unknown.push(file.name);
+          }
+        }
+
+        state.loading = false;
+        setProgress(false);
+        if (state.unknown.length > 0)
+          log(
+            '[경고] 분류 불가 파일 ' +
+              state.unknown.length +
+              '개 (무시됨): ' +
+              nameList(state.unknown, 5),
+          );
+        log(
+          '— 적재 완료: 계약 ' +
+            Object.keys(state.contracts).length +
+            '개 · 토큰 ' +
+            (state.tokens ? '있음' : '없음') +
+            ' · 매니페스트 ' +
+            (state.manifest ? '있음' : '없음'),
+        );
+        render();
+      }
+
+      // --- 매니페스트 대조 --------------------------------------------------
+      /**
+       * 기대치(manifest) ↔ 실제 적재분을 대조한 결과.
+       * 이 함수가 이 UI 의 존재 이유다 — 여기서 막지 못하면 조용히 틀린 동기화가 나간다.
+       */
+      function reconcile() {
+        var m = state.manifest;
+        var loaded = Object.keys(state.contracts);
+
+        if (!m) {
+          return {
+            hasManifest: false,
+            versionOk: false,
+            expected: 0,
+            present: [],
+            missing: [],
+            stale: [],
+            extra: loaded,
+            tokensState: state.tokens ? 'unverified' : 'absent',
+          };
+        }
+
+        var versionOk = m.manifestVersion === SUPPORTED_MANIFEST_VERSION;
+        var present = [];
+        var missing = [];
+        var stale = [];
+        var expectedNames = {};
+
+        m.contracts.forEach(function (entry) {
+          expectedNames[entry.name] = true;
+          var got = state.contracts[entry.name];
+          if (!got) {
+            missing.push(entry.name);
+          } else if (got.checksum !== entry.checksum) {
+            // 파일은 있지만 매니페스트가 기대하는 내용이 아니다 = 오래된 산출물
+            stale.push(entry.name);
+          } else {
+            present.push(entry.name);
           }
         });
 
-        if (!tokens) {
-          log(
-            '[오류] tokens 페이로드 없음 — generated/tokens/figma-variables.json을 포함해 선택하세요.',
+        var extra = loaded.filter(function (name) {
+          return !expectedNames[name];
+        });
+
+        var tokensState;
+        if (!state.tokens) tokensState = 'absent';
+        else if (!m.tokens) tokensState = 'unverified';
+        else if (state.tokens.checksum !== m.tokens.checksum) tokensState = 'stale';
+        else tokensState = 'ok';
+
+        return {
+          hasManifest: true,
+          versionOk: versionOk,
+          expected: m.contractCount,
+          present: present,
+          missing: missing,
+          stale: stale,
+          extra: extra,
+          tokensState: tokensState,
+        };
+      }
+
+      // --- 렌더 -------------------------------------------------------------
+      function setRow(id, status, html, detail) {
+        var row = $('row-' + id);
+        row.className = 'row is-' + status;
+        var symbol = { ok: '✓', error: '✕', warn: '!', idle: '–' }[status];
+        var srText = { ok: '정상', error: '오류', warn: '경고', idle: '대기' }[status];
+        row.querySelector('.dot').textContent = symbol;
+        var value = $('val-' + id);
+        value.innerHTML = '<span class="sr-only">' + srText + ': </span>' + html;
+        if (detail) value.innerHTML += '<span class="row-detail">' + detail + '</span>';
+      }
+
+      function nameList(names, limit) {
+        var shown = names.slice(0, limit).join(', ');
+        return names.length > limit ? shown + ' 외 ' + (names.length - limit) + '개' : shown;
+      }
+
+      function setProgress(on, text) {
+        state.busy = on;
+        $('progress').hidden = !on;
+        if (text) $('progress-text').textContent = text;
+      }
+
+      function setBlock(id, reason) {
+        var el = $('block-' + id);
+        if (reason) {
+          el.textContent = reason;
+          el.hidden = false;
+        } else {
+          el.textContent = '';
+          el.hidden = true;
+        }
+        return !reason;
+      }
+
+      function render() {
+        var r = reconcile();
+
+        // 매니페스트 행
+        if (!r.hasManifest) {
+          setRow(
+            'manifest',
+            'error',
+            '<strong>없음</strong> — 누락 검사 불가',
+            'generated/manifest.json 을 포함해 다시 선택하세요. 없으면 리포 루트에서 pnpm codegen.',
           );
+        } else if (!r.versionOk) {
+          setRow(
+            'manifest',
+            'error',
+            '<strong>버전 불일치</strong> (v' + state.manifest.manifestVersion + ')',
+            '이 플러그인은 v' +
+              SUPPORTED_MANIFEST_VERSION +
+              ' 을 지원합니다 — 플러그인을 다시 빌드하세요.',
+          );
+        } else {
+          setRow(
+            'manifest',
+            'ok',
+            'v' + state.manifest.manifestVersion + ' · 계약 ' + r.expected + '개 기대',
+          );
+        }
+
+        // 토큰 행
+        if (r.tokensState === 'absent') {
+          setRow(
+            'tokens',
+            'error',
+            '<strong>없음</strong>',
+            'generated/tokens/figma-variables.json 필요',
+          );
+        } else if (r.tokensState === 'stale') {
+          setRow(
+            'tokens',
+            'error',
+            '<strong>스테일</strong> — 매니페스트와 불일치',
+            'figma-variables.json 이 오래된 산출물입니다. pnpm codegen 후 다시 적재하세요.',
+          );
+        } else if (r.tokensState === 'unverified') {
+          setRow(
+            'tokens',
+            'warn',
+            state.tokens.json.collection + ' · 변수 ' + state.tokens.json.variables.length + '개',
+            '매니페스트가 없어 무결성 미검증',
+          );
+        } else {
+          setRow(
+            'tokens',
+            'ok',
+            state.manifest.tokens.collection +
+              ' · 변수 ' +
+              state.manifest.tokens.variableCount +
+              '개',
+            '모드: ' + state.manifest.tokens.modes.join(' · '),
+          );
+        }
+
+        // 계약 행 — 이 UI 가 막으려는 바로 그 지점
+        var loadedCount = Object.keys(state.contracts).length;
+        var extraDetail =
+          r.extra.length > 0
+            ? '매니페스트에 없는 계약 ' + r.extra.length + '개: ' + nameList(r.extra, 3)
+            : '';
+
+        if (!r.hasManifest) {
+          setRow(
+            'contracts',
+            'warn',
+            loadedCount + '개 적재됨',
+            '기대치를 알 수 없어 누락 여부를 판정할 수 없습니다.',
+          );
+        } else {
+          var detail = [];
+          if (r.missing.length > 0)
+            detail.push('누락 ' + r.missing.length + '개: ' + nameList(r.missing, 5));
+          if (r.stale.length > 0)
+            detail.push('스테일 ' + r.stale.length + '개: ' + nameList(r.stale, 5));
+          if (extraDetail) detail.push(extraDetail);
+
+          var incomplete = r.missing.length > 0 || r.stale.length > 0;
+          setRow(
+            'contracts',
+            incomplete ? 'error' : r.extra.length > 0 ? 'warn' : 'ok',
+            incomplete
+              ? '<strong>' + r.present.length + ' / ' + r.expected + '</strong>'
+              : r.present.length + ' / ' + r.expected + ' — 전량 일치',
+            detail.join('<br />'),
+          );
+        }
+
+        // 페이지 메타 행 (선택 입력이므로 없어도 오류 아님)
+        if (state.pages)
+          setRow(
+            'pages',
+            'ok',
+            state.pages.length + '개',
+            nameList(
+              state.pages.map(function (p) {
+                return p.id;
+              }),
+              4,
+            ),
+          );
+        else
+          setRow(
+            'pages',
+            'idle',
+            '없음 (선택 입력)',
+            '없으면 📄 Pages 페이지는 생성되지 않습니다.',
+          );
+
+        renderComponentSelect(r);
+        renderActions(r);
+      }
+
+      function renderComponentSelect(r) {
+        var select = $('component-select');
+        var previous = select.value;
+        var names = Object.keys(state.contracts).sort();
+        select.innerHTML = '';
+
+        if (names.length === 0) {
+          select.innerHTML = '<option value="">— 산출물을 먼저 적재하세요 —</option>';
+          select.disabled = true;
           return;
         }
+        select.disabled = false;
+
+        var all = document.createElement('option');
+        all.value = ALL;
+        all.textContent = '전체 (' + names.length + '개)';
+        select.appendChild(all);
+
+        names.forEach(function (name) {
+          var option = document.createElement('option');
+          option.value = name;
+          var entry = state.contracts[name];
+          var props = Object.keys(entry.json.variantProperties).length;
+          option.textContent = name + ' — Variant Property ' + props + '개';
+          select.appendChild(option);
+        });
+
+        select.value =
+          previous && select.querySelector('option[value="' + previous + '"]') ? previous : ALL;
+      }
+
+      /** 액션별 실행 가능 여부 — 막을 때는 '왜'와 '어떻게 푸는지'를 함께 준다 */
+      function renderActions(r) {
+        var manifestReason = !r.hasManifest
+          ? '매니페스트가 없어 무결성을 검증할 수 없습니다 — generated/manifest.json 을 포함해 적재하세요.'
+          : !r.versionOk
+            ? '매니페스트 버전이 이 플러그인과 다릅니다 — pnpm build 로 플러그인을 다시 빌드하세요.'
+            : '';
+
+        // (a) 토큰
+        var tokensReason =
+          manifestReason ||
+          (r.tokensState === 'absent'
+            ? 'figma-variables.json 이 적재되지 않았습니다.'
+            : r.tokensState === 'stale'
+              ? 'figma-variables.json 이 매니페스트와 불일치합니다(스테일) — pnpm codegen 후 다시 적재하세요.'
+              : '');
+        $('btn-tokens').disabled = !setBlock('tokens', tokensReason) || state.busy;
+
+        // (b) 계약 — 전체를 고르면 전량이 갖춰졌을 때만 허용한다.
+        //     '전체'라고 말해 놓고 일부만 보내는 것이 곧 조용한 누락이다.
+        var selected = $('component-select').value;
+        var componentReason = manifestReason;
+        if (!componentReason) {
+          if (Object.keys(state.contracts).length === 0)
+            componentReason = '계약이 적재되지 않았습니다.';
+          else if (selected === ALL && (r.missing.length > 0 || r.stale.length > 0))
+            componentReason =
+              '전체 동기화는 계약 ' +
+              r.expected +
+              '개가 모두 있어야 합니다 — 현재 ' +
+              r.present.length +
+              '개. 개별 컴포넌트를 고르거나 generated/ 폴더를 통째로 적재하세요.';
+          else if (selected !== ALL && r.stale.indexOf(selected) !== -1)
+            componentReason = selected + ' 가 매니페스트와 불일치합니다(스테일).';
+        }
+        $('btn-component').disabled = !setBlock('component', componentReason) || state.busy;
+
+        // (c) TDS 문서 — 전량 + 토큰 + 명시적 확인
+        var docReason = manifestReason;
+        if (!docReason) {
+          if (r.tokensState === 'absent') docReason = 'figma-variables.json 이 필요합니다.';
+          else if (r.tokensState === 'stale') docReason = 'figma-variables.json 이 스테일입니다.';
+          else if (r.missing.length > 0)
+            docReason =
+              '계약 ' +
+              r.missing.length +
+              '개 누락 (' +
+              nameList(r.missing, 3) +
+              ') — 문서는 계약 ' +
+              r.expected +
+              '개 전량을 요구합니다.';
+          else if (r.stale.length > 0)
+            docReason = '계약 ' + r.stale.length + '개가 스테일 (' + nameList(r.stale, 3) + ').';
+        }
+        var docReady = setBlock('doc', docReason);
+        $('doc-confirm').disabled = !docReady;
+        $('btn-doc').disabled = !docReady || !$('doc-confirm').checked || state.busy;
+
+        $('btn-scan').disabled = state.busy;
+      }
+
+      // --- 적재 입력 -------------------------------------------------------
+      var dropzone = $('dropzone');
+
+      $('files').addEventListener('change', function (event) {
+        if (event.target.files.length) loadFiles(event.target.files);
+      });
+      $('folder').addEventListener('change', function (event) {
+        if (event.target.files.length) loadFiles(event.target.files);
+      });
+      $('btn-pick-folder').addEventListener('click', function () {
+        $('folder').click();
+      });
+
+      $('btn-reset').addEventListener('click', function () {
+        state.manifest = null;
+        state.tokens = null;
+        state.contracts = {};
+        state.pages = null;
+        state.unknown = [];
+        $('files').value = '';
+        $('folder').value = '';
+        $('doc-confirm').checked = false;
+        log('— 적재 내용을 비웠습니다.');
+        render();
+      });
+
+      ['dragenter', 'dragover'].forEach(function (type) {
+        dropzone.addEventListener(type, function (e) {
+          e.preventDefault();
+          dropzone.classList.add('is-dragover');
+        });
+      });
+      ['dragleave', 'drop'].forEach(function (type) {
+        dropzone.addEventListener(type, function (e) {
+          e.preventDefault();
+          dropzone.classList.remove('is-dragover');
+        });
+      });
+      dropzone.addEventListener('drop', function (e) {
+        if (e.dataTransfer && e.dataTransfer.files.length) loadFiles(e.dataTransfer.files);
+      });
+
+      $('component-select').addEventListener('change', function () {
+        render();
+      });
+      $('doc-confirm').addEventListener('change', function () {
+        render();
+      });
+
+      // --- 실행 -------------------------------------------------------------
+      $('btn-tokens').addEventListener('click', function () {
+        setProgress(true, 'Variables 동기화 중…');
+        render();
+        log('▶ Variables 동기화 — 변수 ' + state.tokens.json.variables.length + '개');
+        send({ type: 'sync-tokens', payload: state.tokens.json });
+      });
+
+      $('btn-component').addEventListener('click', function () {
+        var selected = $('component-select').value;
+        var specs =
+          selected === ALL
+            ? Object.keys(state.contracts)
+                .sort()
+                .map(function (name) {
+                  return state.contracts[name].json;
+                })
+            : [state.contracts[selected].json];
+        setProgress(true, 'Component Set 동기화 중 (' + specs.length + '개)…');
+        render();
+        log('▶ Component Set 동기화 — ' + specs.length + '개');
+        send({ type: 'sync-components', payload: specs });
+      });
+
+      $('btn-doc').addEventListener('click', function () {
+        var components = Object.keys(state.contracts)
+          .sort()
+          .map(function (name) {
+            return state.contracts[name].json;
+          });
         var payload = {
-          tokens: tokens,
+          tokens: state.tokens.json,
           components: components,
           meta: { generatedAt: new Date().toISOString().slice(0, 10) },
         };
-        if (pages) payload.pages = pages;
+        if (state.pages) payload.pages = state.pages;
+        setProgress(true, 'TDS 문서 생성 중…');
+        render();
         log(
-          'TDS 문서 생성 요청 — tokens 1 · components ' +
+          '▶ TDS 문서 생성 — 계약 ' +
             components.length +
-            (pages ? ' · pages ' + pages.length : '') +
-            '…',
+            '개 · 변수 ' +
+            state.tokens.json.variables.length +
+            '개' +
+            (state.pages ? ' · 페이지 ' + state.pages.length + '개' : ''),
         );
         send({ type: 'generate-tds-doc', payload: payload });
       });
 
+      $('btn-scan').addEventListener('click', function () {
+        setProgress(true, 'Detached 스타일 스캔 중…');
+        render();
+        log('▶ Detached 스타일 스캔');
+        send({ type: 'scan-detached' });
+      });
+
+      // --- main 스레드 응답 --------------------------------------------------
       window.onmessage = function (event) {
         var msg = event.data && event.data.pluginMessage;
         if (!msg) return;
+
+        setProgress(false);
+        render();
+
         if (msg.type === 'error') {
           log('[오류] ' + msg.message);
           return;
         }
-        if (Array.isArray(msg.log)) {
-          msg.log.forEach(function (line) {
-            log(line);
-          });
-        }
+        if (Array.isArray(msg.log)) msg.log.forEach(log);
+
         if (msg.type === 'scan-result' && Array.isArray(msg.report)) {
           msg.report.slice(0, 100).forEach(function (r) {
             log(' - [' + r.page + '] ' + r.node + ' (' + r.nodeType + '): ' + r.issue);
           });
-          if (msg.report.length > 100) {
+          if (msg.report.length > 100)
             log(
               ' … 이하 ' +
                 (msg.report.length - 100) +
                 '건 생략 — 전체는 G7 리포트 파이프라인(reports/)에서 처리',
             );
-          }
         }
       };
+
+      // --- 테마 -------------------------------------------------------------
+      // 토큰 CSS 는 [data-theme='dark'] 로 다크를 정의한다. Figma 는 themeColors:true 일 때
+      // <html> 에 'figma-dark' 클래스를 붙인다 — 그것을 data-theme 로 옮겨 준다.
+      // 브라우저에서 dist/ui.html 을 직접 열어 볼 때(육안 검증)는 OS 설정을 따른다.
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+      function syncTheme() {
+        var root = document.documentElement;
+        var inFigma =
+          root.classList.contains('figma-dark') || root.classList.contains('figma-light');
+        var dark = inFigma ? root.classList.contains('figma-dark') : prefersDark.matches;
+        root.setAttribute('data-theme', dark ? 'dark' : 'light');
+      }
+
+      syncTheme();
+      new MutationObserver(syncTheme).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class'],
+      });
+      prefersDark.addEventListener('change', syncTheme);
+
+      render();
     </script>
   </body>
 </html>

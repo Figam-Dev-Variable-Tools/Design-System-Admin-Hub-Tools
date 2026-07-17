@@ -11,7 +11,7 @@
  *            1 = critical/serious 위반 1건 이상 (agents.json A72 blockCondition — G5/G6 차단 입력)
  *            2 = NOT_VERIFIED — 검사 자체가 불가능했다
  *
- * **측정 불가는 통과가 아니다** (ADR-0009 · ADR-0010 · ADR-0011).
+ * **측정 불가는 통과가 아니다** (ADR-0009 · ADR-0010 · ADR-0012).
  *   이 도구는 2026-07 이전까지 `skip()` 으로 exit 0 을 냈다. 그 결과 리포트에는
  *   `status: "skipped"` 와 함께 `axe: { critical: 0, serious: 0, moderate: 0, minor: 0 }` 가
  *   찍혔다 — **0건 검사하고 "위반 0건"을 기록**한 것이다. 그 초록불은 CI 의 `a11y` job 을

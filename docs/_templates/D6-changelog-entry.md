@@ -1,7 +1,6 @@
 ---
 # ── D6 · Changelog Entry 템플릿 ─────────────────────────────────────────
-# 소유자: A03 (Release Manager) · 대상 파일: CHANGELOG.md (이 템플릿은 단위 항목 형식)
-# 게이트: G8 · 체크리스트: docs/_templates/checklists/G8.md
+# 대상 파일: CHANGELOG.md (이 템플릿은 단위 항목 형식)
 doc: D6
 owner: A03
 gate: G8
