@@ -597,7 +597,7 @@ gate: G{n}
 | pre-commit | Naming Guard, 하드코딩 Lint | 커밋 차단 |
 | PR open | Boundary Enforcer (CODEOWNERS 위반) | PR 차단 |
 | PR open | Contract Test AI (4자 일치) | PR 차단 |
-| PR open | axe-core, Storybook test-runner | Reviewer에 리포트 |
+| PR open | axe-core (Playwright 로 storybook-static 전 스토리 순회 — ADR-0011) | critical/serious ≥ 1 시 차단 + Reviewer에 리포트 |
 | PR open | Bundle size diff (size-limit) | Budget 초과 시 차단 |
 | PR merge → main | Storybook 배포, Figma Plugin Sync | Drift AI 알림 |
 | nightly | Visual Regression (Storybook ↔ Figma) | Drift 리포트 + 자동 Fix PR |

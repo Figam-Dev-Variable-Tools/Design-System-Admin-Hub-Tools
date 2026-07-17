@@ -22,7 +22,7 @@ function renderInTable(ui: ReactElement) {
 }
 
 describe('SelectAllHeaderCell — 계약 states[] (TriStateCheckbox 조립)', () => {
-  it('SelectAllHeaderCell: default(off) — 숨긴 라벨로 접근 이름, aria-checked=false', () => {
+  it('SelectAllHeaderCell: default(off) — 숨긴 라벨로 접근 이름, aria-checked 는 내지 않는다', () => {
     renderInTable(
       <SelectAllHeaderCell
         label="이 페이지의 회원 전체 선택"
@@ -32,11 +32,14 @@ describe('SelectAllHeaderCell — 계약 states[] (TriStateCheckbox 조립)', ()
       />,
     );
     const box = screen.getByRole('checkbox', { name: '이 페이지의 회원 전체 선택' });
-    expect(box.getAttribute('aria-checked')).toBe('false');
+    // off/on 에는 aria-checked 를 내지 않는다 — native checked 가 정본이다 (Checkbox 와 같은 규약).
+    // 네이티브 체크박스에서 aria-checked 는 "mixed" 일 때만 허용된다 (axe aria-conditional-attr · ADR-0011).
+    expect(box.getAttribute('aria-checked')).toBeNull();
+    expect((box as HTMLInputElement).checked).toBe(false);
     expect(box.getAttribute('aria-labelledby')).toBe('sa');
   });
 
-  it('SelectAllHeaderCell: checked(all) — aria-checked=true', () => {
+  it('SelectAllHeaderCell: checked(all) — native checked, aria-checked 는 내지 않는다', () => {
     renderInTable(
       <SelectAllHeaderCell
         label="전체 선택"
@@ -45,9 +48,9 @@ describe('SelectAllHeaderCell — 계약 states[] (TriStateCheckbox 조립)', ()
         onToggleAll={vi.fn()}
       />,
     );
-    expect(screen.getByRole('checkbox', { name: '전체 선택' }).getAttribute('aria-checked')).toBe(
-      'true',
-    );
+    const box = screen.getByRole('checkbox', { name: '전체 선택' }) as HTMLInputElement;
+    expect(box.checked).toBe(true);
+    expect(box.getAttribute('aria-checked')).toBeNull();
   });
 
   it('SelectAllHeaderCell: indeterminate(some) — aria-checked="mixed"', () => {

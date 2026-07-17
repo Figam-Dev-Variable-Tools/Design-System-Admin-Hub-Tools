@@ -32,8 +32,17 @@ escalates-to: A00
 → 계약 a11y 블록이 없으면 **검증 불능**으로 기록하고 A18에 change_request — a11y 블록 없는 계약은 검증 기준 자체가 없는 것이므로 pass 처리 금지.
 
 ## 실행 (Trigger)
-- **pr** (PR open): `pnpm a11y` — 변경 스코프의 Story/화면에 axe-core 실행 (설계서 §11: PR open → axe-core, Storybook test-runner).
-- **nightly**: `pnpm a11y` — 전체 Story + 앱 주요 화면 전수 감사 + 수동 시나리오 회귀.
+- **pr** (PR open): `pnpm a11y:gate` — `sb:build` 선행 + 전 Story 에 axe-core 실행 (설계서 §11: PR open → axe-core).
+  `pnpm a11y` 만 부르면 `storybook-static` 이 없을 때 **exit 2 (NOT_VERIFIED)** 로 실패한다 — 의도된 동작이다(ADR-0011).
+- **nightly**: `pnpm a11y:gate` — 전체 Story 전수 감사 + 수동 시나리오 회귀.
+
+> **exit 2 는 통과가 아니다.** 이 도구는 2026-07 이전까지 전제가 없으면 exit 0(skip)을 냈고,
+> 리포트에 `status:"skipped"` 와 `axe.critical:0` 을 나란히 적어 **0건 검사하고 "위반 0건"** 을 기록했다.
+> 그 초록불이 G5/G6 의 증거로 쓰였다. 지금은 검사 불가 → exit 2, 스토리 1건이라도 검사 실패 → exit 2 다 (ADR-0011).
+>
+> **알려진 부채**: `tools/a11y/known-violations.json` 에 (storyId, ruleId) 로 열거된 항목만 차단에서 빠진다.
+> 규칙 단위 비활성화는 금지다. 초록불이 떠도 등재된 부채가 남아 있으면 도구가 그 수를 함께 출력한다 —
+> **"새 위반 0" 이지 "위반 0" 이 아니다.** 등재 항목이 더 이상 재현되지 않으면 게이트가 실패한다(stale).
 
 ## 절차
 1. `pnpm a11y` 실행 — 2단 검사:

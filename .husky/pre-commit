@@ -13,5 +13,15 @@
 #   --no-verify 로 우회하기 시작하고, 우회되는 훅은 없는 훅이다. E2E 는 push 시점의
 #   CI(.github/workflows/pr-gates.yml)와 deploy 가 잡는다. 커밋=verify:all, CI=verify:full.
 #
+# [왜 a11y 도 여기 없나 — 위와 정확히 같은 이유]
+#   `pnpm a11y:gate` = sb:build + 스토리 501건에 axe 실행 = **실측 3분 05초**
+#   (idle 머신, 2026-07-17. 다른 작업과 겹치면 훨씬 길어진다).
+#   위 문단은 **50초**짜리 E2E 를 그 이유로 뺐다 — 3분은 그 기준을 이미 넘는다.
+#   매 커밋에 3분을 더 물리면 --no-verify 우회는 예외가 아니라 습관이 되고,
+#   그 순간 이 게이트는 다시 '없는 게이트' 가 된다.
+#   (이 도구는 방금 '있지만 아무것도 검사하지 않는' 상태에서 복원됐다 — ADR-0011.
+#    우회당해서 안 도는 것과 skip 으로 안 도는 것은 결과가 같다.)
+#   a11y 는 verify:full 과 CI 의 a11y job 이 잡는다. 커밋=verify:all, CI=verify:full.
+#
 # 훅이 느리다고 --no-verify 로 넘기지 마라 — 그건 이 파일이 막으려는 바로 그 실패다.
 pnpm verify:all
