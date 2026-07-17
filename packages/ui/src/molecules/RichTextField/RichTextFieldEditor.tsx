@@ -37,6 +37,11 @@ export interface RichTextFieldEditorProps {
   readonly required: boolean;
   readonly disabled: boolean;
   readonly describedBy?: string | undefined;
+  /**
+   * <label> 의 id — contenteditable 은 `<label for>` 가 닿지 않는 ARIA 위젯이라
+   * 이것을 aria-labelledby 로 직접 물어야 접근성 이름이 생긴다 (FormField.labelIdOf).
+   */
+  readonly labelledBy?: string | undefined;
   readonly placeholder?: string | undefined;
   /** 편집 결과 HTML — **sanitize 전**이다. 껍데기가 걸러서 계약의 onChange 로 내보낸다 */
   readonly onChange?: ((payload: string) => void) | undefined;
@@ -83,6 +88,7 @@ export function RichTextFieldEditor({
   required,
   disabled,
   describedBy,
+  labelledBy,
   placeholder,
   onChange,
 }: RichTextFieldEditorProps) {
@@ -119,6 +125,8 @@ export function RichTextFieldEditor({
         class: 'tds-richtext__content',
         role: 'textbox',
         'aria-multiline': 'true',
+        // `<label for>` 는 이 div 에 닿지 않는다 — 이름은 aria-labelledby 로만 생긴다.
+        ...(labelledBy !== undefined ? { 'aria-labelledby': labelledBy } : {}),
         ...(required ? { 'aria-required': 'true' } : {}),
         ...(invalid ? { 'aria-invalid': 'true' } : {}),
         ...(describedBy !== undefined ? { 'aria-describedby': describedBy } : {}),

@@ -35,7 +35,7 @@ export { DateRangeField } from './molecules/DateRangeField';
 export type { DateRangeFieldProps, DateRangeFieldState } from './molecules/DateRangeField';
 export { Empty } from './molecules/Empty';
 export type { EmptyProps, EmptyState } from './molecules/Empty';
-export { errorIdOf, FormField, hintIdOf } from './molecules/FormField';
+export { errorIdOf, FormField, hintIdOf, labelIdOf } from './molecules/FormField';
 export type { FormFieldProps, FormFieldState } from './molecules/FormField';
 export { ImageGalleryField } from './molecules/ImageGalleryField';
 export type { ImageGalleryFieldProps, ImageGalleryFieldState } from './molecules/ImageGalleryField';

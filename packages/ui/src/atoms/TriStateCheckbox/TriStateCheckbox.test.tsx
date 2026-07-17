@@ -3,7 +3,9 @@
 //   states[]            default · focus-visible · disabled · checked · indeterminate
 //   events.onChange     blockedWhen: ["disabled"]
 //
-// 계약 a11y: indeterminate 는 DOM 프로퍼티(ref) · aria-checked="mixed" · 빈 aria 는 부여하지 않음.
+// 계약 a11y: indeterminate 는 DOM 프로퍼티(ref) · aria-checked 는 **mixed 일 때만** 낸다
+//   (네이티브 체크박스에서 on/off 는 native checked 가 정본 — axe aria-conditional-attr · ADR-0012)
+//   · 빈 aria 는 부여하지 않음.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -20,7 +22,7 @@ function ruleBody(css: string, selector: string): string | null {
 }
 
 describe('TriStateCheckbox — 계약 states[]', () => {
-  it('TriStateCheckbox: default 상태(off) — 미체크 활성 체크박스, aria-checked=false', () => {
+  it('TriStateCheckbox: default 상태(off) — 미체크 활성 체크박스, aria-checked 는 내지 않는다', () => {
     render(
       <TriStateCheckbox
         checked={false}
@@ -33,15 +35,17 @@ describe('TriStateCheckbox — 계약 states[]', () => {
 
     expect(box.checked).toBe(false);
     expect(box.disabled).toBe(false);
-    expect(box.getAttribute('aria-checked')).toBe('false');
+    // off 에는 aria-checked 를 내지 않는다 — native checked 가 정본이다.
+    // (네이티브 체크박스에서 aria-checked 는 "mixed" 일 때만 허용된다 — axe aria-conditional-attr)
+    expect(box.getAttribute('aria-checked')).toBeNull();
   });
 
-  it('TriStateCheckbox: checked 상태(on) — native checked, aria-checked=true', () => {
+  it('TriStateCheckbox: checked 상태(on) — native checked, aria-checked 는 내지 않는다', () => {
     render(<TriStateCheckbox checked indeterminate={false} label="전체 선택" onChange={vi.fn()} />);
     const box = screen.getByRole('checkbox', { name: '전체 선택' }) as HTMLInputElement;
 
     expect(box.checked).toBe(true);
-    expect(box.getAttribute('aria-checked')).toBe('true');
+    expect(box.getAttribute('aria-checked')).toBeNull();
   });
 
   it('TriStateCheckbox: indeterminate 상태(mixed) — DOM 프로퍼티가 켜지고 aria-checked="mixed" 로 노출된다', () => {
@@ -51,6 +55,38 @@ describe('TriStateCheckbox — 계약 states[]', () => {
     // indeterminate 는 HTML 속성이 아니라 DOM 프로퍼티 — ref 로 설정된다
     expect(box.indeterminate).toBe(true);
     expect(box.getAttribute('aria-checked')).toBe('mixed');
+  });
+
+  /* ── aria-checked 는 DOM 을 따라간다 (axe aria-conditional-attr · ADR-0012) ────────
+   * 아래 두 갈래는 a11y 게이트가 실제로 돌기 시작한 첫 실행에서 잡힌 **실측 결함**이다.
+   * 예전 식(`indeterminate && !checked ? 'mixed' : checked`)은 두 경우 모두 DOM 과 모순이었다. */
+
+  it('TriStateCheckbox: on + mixed — DOM 이 indeterminate 이면 aria 도 mixed 다 (전체 선택으로 읽히지 않는다)', () => {
+    render(<TriStateCheckbox checked indeterminate label="전체 선택" onChange={vi.fn()} />);
+    const box = screen.getByRole('checkbox', { name: '전체 선택' }) as HTMLInputElement;
+
+    // indeterminate 는 화면에서 checked 를 이긴다 — aria 가 'true' 를 내면 스크린리더에만
+    // '전체 선택' 으로 읽혀 화면과 어긋난다.
+    expect(box.indeterminate).toBe(true);
+    expect(box.getAttribute('aria-checked')).toBe('mixed');
+  });
+
+  it('TriStateCheckbox: mixed + disabled — indeterminate 표시를 끄면 aria-checked="mixed" 도 사라진다', () => {
+    render(
+      <TriStateCheckbox
+        checked={false}
+        indeterminate
+        disabled
+        label="전체 선택"
+        onChange={vi.fn()}
+      />,
+    );
+    const box = screen.getByRole('checkbox', { name: '전체 선택' }) as HTMLInputElement;
+
+    // disabled 면 표시를 끈다(계약) — 그런데 aria-checked="mixed" 만 남으면
+    // **존재하지 않는 부분 선택**을 알리게 된다.
+    expect(box.indeterminate).toBe(false);
+    expect(box.getAttribute('aria-checked')).toBeNull();
   });
 
   it('TriStateCheckbox: focus-visible 상태 — 키보드 포커스를 받고 :focus-visible 규칙이 포커스 링을 그린다', async () => {

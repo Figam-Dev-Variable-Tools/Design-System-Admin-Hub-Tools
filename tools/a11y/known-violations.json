@@ -1,0 +1,55 @@
+{
+  "$comment": [
+    "알려진 a11y 부채 — **차단 임계를 낮추는 장치가 아니다** (ADR-0012).",
+    "여기 등재된 (storyId, ruleId) 조합만 차단에서 빠진다. 등재되지 않은 위반은 전부 차단한다.",
+    "리포트에는 known 으로 그대로 실린다 — 숨기는 것이 아니라 '알고 있고 기한이 있다' 는 표시다.",
+    "",
+    "규율 1 — 목록은 썩지 않는다: 등재해 둔 위반이 더 이상 나오지 않으면 게이트가 **실패**한다.",
+    "  (stale entry). 고쳐놓고 목록을 안 지우면 다음 위반이 그 자리에 조용히 숨을 수 있기 때문이다.",
+    "규율 2 — 규칙(rule) 단위 비활성화는 금지다. 반드시 스토리 단위로 열거한다.",
+    "  'color-contrast 를 끈다' 가 아니라 '이 5건이 지금 이렇다' 를 적는다.",
+    "규율 3 — 모든 항목은 measured(실측)와 owner, 그리고 왜 이 배치에서 못 고치는지를 적는다."
+  ],
+  "violations": [
+    {
+      "storyId": "foundations-font-colors--specimen",
+      "ruleId": "color-contrast",
+      "measured": "#6B7280 (text.muted) on #111827 (surface.default, dark) = 3.66:1 — 요구 4.5:1",
+      "reason": "토큰 자체의 결함이다. 다크 테마의 text.muted 대비가 부족하다. 고치려면 tokens/tokens.json 의 색 값을 바꿔야 하는데, 그것은 (a) 이 배치의 소유 경계 밖이고(토큰 소유자), (b) 501건 VRT 기준 이미지를 광범위하게 무효화한다. 실제 앱에도 존재하는 진짜 결함이므로 끄지 않고 등재한다.",
+      "owner": "토큰 소유자 (tokens/tokens.json) + A70(VRT 기준 이미지 갱신)",
+      "addedAt": "2026-07-17"
+    },
+    {
+      "storyId": "atoms-alert--with-block-children",
+      "ruleId": "color-contrast",
+      "measured": "#2563EB (ghost button label) on #FEE2E2 (alert danger surface) = 4.23:1 — 요구 4.5:1",
+      "reason": "토큰 조합의 결함이다. ghost 버튼(primary 파랑)이 danger Alert 배경 위에 놓이면 대비가 4.5:1 에 미세하게 못 미친다. 라이트 테마이며 **실제 앱에서도 재현된다**. 고치려면 primary 색 또는 danger surface 토큰을 조정해야 하고 역시 토큰 소유권 + VRT 기준 이미지 문제다.",
+      "owner": "토큰 소유자 (tokens/tokens.json) + A70(VRT 기준 이미지 갱신)",
+      "addedAt": "2026-07-17"
+    },
+    {
+      "storyId": "atoms-card--dark-theme",
+      "ruleId": "color-contrast",
+      "measured": "color: rgb(0,0,0) (상속된 검정) on #111827 (card surface, dark) — 실측 computed style",
+      "reason": "**Storybook 전용 결함**이다. darkFrame 데코레이터가 data-theme=\"dark\" 와 background 는 주지만 color 는 주지 않아, 텍스트가 html(light)에서 검정을 상속한 채 다크 배경 위에 그려진다. 실제 앱은 app.css 의 `body { color: var(--tds-color-text-default) }` 가 덮으므로 재현되지 않는다. 고치려면 스토리 데코레이터(또는 Card 가 background 와 함께 color 도 선언)를 바꿔야 하는데 둘 다 다크 스토리의 픽셀을 바꿔 VRT 기준 이미지를 무효화한다. **거짓 양성이 아니다** — 지금 Storybook 의 다크 스토리는 실제로 읽기 어렵게 그려지고 있으며, 그 상태가 기준 이미지로 굳어 있다.",
+      "owner": "A30(packages/ui 스토리) + A70(VRT 기준 이미지 갱신)",
+      "addedAt": "2026-07-17"
+    },
+    {
+      "storyId": "molecules-imagegalleryfield--dark-theme",
+      "ruleId": "color-contrast",
+      "measured": "label·counter — darkFrame 아래 상속된 검정 텍스트 (atoms-card--dark-theme 와 같은 원인)",
+      "reason": "atoms-card--dark-theme 와 동일한 Storybook 전용 원인(darkFrame 이 color 를 주지 않는다). 같은 수정으로 함께 해소된다.",
+      "owner": "A30(packages/ui 스토리) + A70(VRT 기준 이미지 갱신)",
+      "addedAt": "2026-07-17"
+    },
+    {
+      "storyId": "molecules-imageuploadfield--dark-theme",
+      "ruleId": "color-contrast",
+      "measured": "label·success·remove 버튼 — darkFrame 아래 상속된 검정 텍스트 (atoms-card--dark-theme 와 같은 원인)",
+      "reason": "atoms-card--dark-theme 와 동일한 Storybook 전용 원인(darkFrame 이 color 를 주지 않는다). 같은 수정으로 함께 해소된다.",
+      "owner": "A30(packages/ui 스토리) + A70(VRT 기준 이미지 갱신)",
+      "addedAt": "2026-07-17"
+    }
+  ]
+}

@@ -66,6 +66,20 @@ export function errorIdOf(htmlFor: string): string {
 }
 
 /**
+ * <label> 의 id — **네이티브가 아닌 컨트롤**이 aria-labelledby 로 물린다 (계약 a11y).
+ *
+ * 왜 필요한가: `<label for>` 는 **labelable element**(input/select/textarea 등)에만 닿는다.
+ * `div[role="textbox"]` 같은 ARIA 위젯(RichTextField 의 contenteditable)에는 아무 효과가 없어
+ * **접근성 이름이 비어버린다** — 스크린리더는 그 편집기를 "편집, 비어 있음" 으로만 읽는다.
+ * 그런 컨트롤은 이 id 를 aria-labelledby 로 직접 가리켜야 한다.
+ * (axe `aria-input-field-name`(serious) 이 실측으로 RichTextField 스토리 13건에서 잡아냈다 —
+ *  a11y 게이트가 실제로 돌기 시작한 첫 실행에서 드러난 결함이다.)
+ */
+export function labelIdOf(htmlFor: string): string {
+  return `${htmlFor}-label`;
+}
+
+/**
  * 계약의 옵셔널 문자열 prop 을 경계에서 undefined 허용으로 넓힌 컴포넌트 props.
  * (exactOptionalPropertyTypes 하에서 호출부의 string|undefined 를 그대로 받기 위함 — 값은 '' 로 정규화)
  */
@@ -91,7 +105,7 @@ export function FormField({
     <div className="tds-formfield">
       <div className="tds-formfield__row">
         <span className="tds-formfield__labelgroup">
-          <label htmlFor={htmlFor} className="tds-formfield__label">
+          <label id={labelIdOf(htmlFor)} htmlFor={htmlFor} className="tds-formfield__label">
             {label}
             {required && (
               <span className="tds-formfield__required" aria-hidden="true">

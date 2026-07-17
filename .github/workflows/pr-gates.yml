@@ -168,9 +168,10 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-  #Storybook test-runner + axe (critical/serious ≥ 1 → G5/G6 차단)
+  # Playwright + axe (critical/serious ≥ 1 → G5/G6 차단). storybook-static 이 없으면
+  # skip 이 아니라 **실패**한다 (exit 2 NOT_VERIFIED) — 검사 불가는 통과가 아니다.
   a11y:
-    name: 접근성 감사 (Storybook test-runner + axe)
+    name: 접근성 감사 (Playwright + axe)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -180,14 +181,30 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Playwright 브라우저 설치 (test-runner 실행 환경)
+      - name: Playwright 브라우저 설치 (감사 실행 환경)
         run: pnpm --filter @tds/a11y exec playwright install --with-deps chromium
       # .storybook/preview.ts 가 generated/tokens/tokens.css 를 import 하므로 codegen 선행 필수
       - name: 코드젠 (토큰/계약 → generated 산출물)
         run: pnpm codegen
       - name: Storybook 정적 빌드
         run: pnpm sb:build
-      - run: pnpm a11y
+      - name: 접근성 감사 실행
+        id: a11y
+        run: pnpm a11y
+        continue-on-error: true # 리포트 업로드 후 실패를 전파한다 (아래 전파 스텝 필수)
+      # 리포트는 리뷰의 evidence 다 — 실패했을 때야말로 필요하다.
+      - name: a11y 리포트 업로드
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-report
+          path: reports/a11y/
+          if-no-files-found: warn
+          retention-days: 14
+      # exit 1(위반) 과 exit 2(NOT_VERIFIED) 둘 다 여기서 job 을 빨간불로 만든다.
+      - name: a11y 실패 전파 (critical/serious ≥ 1 → G5/G6 차단 · NOT_VERIFIED 포함)
+        if: steps.a11y.outcome == 'failure'
+        run: exit 1
 
   #gzip 번들 예산 (G6 blockedBy ). ADR-0009 가 건 승격 조건 2개 충족 후 복원.
   # 예산 = base 30KB + 2KB × 컴포넌트 수, 단위는 dist/*.js gzip 합계. 초과 → exit 1 → PR 차단.

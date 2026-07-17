@@ -63,7 +63,7 @@ jobs:
 
   # ── 접근성 감사  — Storybook 빌드가 필요해 별도 job ──────────────────
   a11y:
-    name: 접근성 감사 (Storybook test-runner + axe)
+    name: 접근성 감사 (Playwright + axe)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -73,7 +73,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Playwright 브라우저 설치 (test-runner 실행 환경)
+      - name: Playwright 브라우저 설치 (감사 실행 환경)
         run: pnpm --filter @tds/a11y exec playwright install --with-deps chromium
       - name: 코드젠 (토큰/계약 → generated 산출물)
         run: pnpm codegen

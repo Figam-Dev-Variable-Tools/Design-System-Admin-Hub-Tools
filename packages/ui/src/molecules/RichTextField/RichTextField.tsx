@@ -23,7 +23,7 @@
 import purify from 'dompurify';
 import { lazy, Suspense, useId, useMemo } from 'react';
 
-import { errorIdOf, FormField, hintIdOf } from '../FormField';
+import { errorIdOf, FormField, hintIdOf, labelIdOf } from '../FormField';
 import type { RichTextFieldProps } from '../../../generated/types/RichTextField.types';
 import './RichTextField.css';
 
@@ -83,6 +83,20 @@ const RICH_TEXT_URI_REGEXP = /^(?:https?:|mailto:|tel:|blob:|[^a-z]|[a-z+.-]+(?:
 purify.addHook('afterSanitizeAttributes', (node) => {
   if (node.nodeName === 'A' && node.hasAttribute('target')) {
     node.setAttribute('rel', 'noopener noreferrer');
+  }
+  // [alt 없는 img 는 장식으로 표시한다 — rel 훅과 같은 자리, 같은 이유]
+  //
+  // alt 속성이 **아예 없는** img 를 스크린리더는 파일명/URL 로 읽는다 — 저장 값의
+  // `<img src="x">` 는 "x" 라고 읽힌다. 정보가 아니라 소음이고, axe 는 이것을
+  // `image-alt`(**critical**) 로 잡는다 (실측: richtextfield--sanitizes-stored-value 1건).
+  // alt="" 를 넣으면 접근성 트리에서 장식으로 빠져 아무것도 읽지 않는다 — 잘못된 이름을
+  // 읽어주는 것보다 정직하다.
+  //
+  // 저자가 쓴 alt 는 건드리지 않는다 (alt 는 허용목록에 있어 그대로 살아남는다) — 여기서
+  // 채우는 것은 **속성이 없는** 경우뿐이다. 에디터가 삽입 시 alt 를 묻게 하는 것은 별개 과제이고,
+  // 그때도 이 훅은 '과거 값·붙여넣은 HTML' 의 마지막 방어선으로 남는다 (rel 훅과 같은 논리).
+  if (node.nodeName === 'IMG' && !node.hasAttribute('alt')) {
+    node.setAttribute('alt', '');
   }
 });
 
@@ -227,6 +241,9 @@ export function RichTextField({
           required={required}
           disabled={disabled}
           describedBy={describedBy}
+          // FormField 의 <label for={id}> 는 이 contenteditable 에 닿지 않는다 —
+          // 이름은 label 의 id 를 aria-labelledby 로 가리켜야만 생긴다.
+          labelledBy={labelIdOf(id)}
           placeholder={placeholder}
           onChange={(html) => {
             // 계약 events.onChange.blockedWhen — disabled 에서는 발화 금지

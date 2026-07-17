@@ -40,6 +40,20 @@ describe('sanitizeRichText — 허용목록 (저장 지점·렌더 지점 공용
     expect(clean).not.toContain('alert');
   });
 
+  /* ── alt 규범화 (axe image-alt · critical · ADR-0012) ─────────────────────────
+   * alt 가 **아예 없는** img 를 스크린리더는 파일명/URL 로 읽는다 — `<img src="x">` 는 "x".
+   * rel 강제와 같은 훅에서 alt="" 를 넣어 장식으로 뺀다. 저자가 쓴 alt 는 건드리지 않는다. */
+
+  it('sanitizeRichText: alt 없는 img 에 alt="" 를 넣어 장식으로 표시한다', () => {
+    const clean = sanitizeRichText('<img src="x" onerror="alert(1)">');
+    expect(clean).toContain('alt=""');
+  });
+
+  it('sanitizeRichText: 저자가 쓴 alt 는 보존한다', () => {
+    const clean = sanitizeRichText('<img src="https://x.test/a.png" alt="제품 상세 컷">');
+    expect(clean).toContain('alt="제품 상세 컷"');
+  });
+
   it('sanitizeRichText: javascript: 스킴 링크를 막는다', () => {
     const clean = sanitizeRichText('<a href="javascript:alert(1)">클릭</a>');
     expect(clean).not.toContain('javascript:');
@@ -196,6 +210,18 @@ describe('RichTextField — 계약 states · FormField 배선', () => {
     expect(await screen.findByRole('button', { name: '굵게' })).toBeTruthy();
     expect(await screen.findByRole('button', { name: '링크' })).toBeTruthy();
     expect(await screen.findByRole('button', { name: '이미지' })).toBeTruthy();
+  });
+
+  /* ── 접근성 이름 (axe aria-input-field-name · serious · ADR-0012) ──────────────
+   * 편집기는 div[role="textbox"] 라 FormField 의 `<label for>` 가 **닿지 않는다** —
+   * `<label for>` 는 labelable element(input/select/textarea)에만 적용된다.
+   * 이름은 label 의 id 를 aria-labelledby 로 가리켜야만 생긴다. 이게 없던 동안
+   * 스크린리더는 편집기를 "편집, 비어 있음" 으로만 읽었다 (스토리 13건에서 실측). */
+
+  it('RichTextField: 편집기가 label 로부터 접근성 이름을 얻는다 (role=textbox 는 label for 가 닿지 않는다)', async () => {
+    render(<RichTextField label="상세설명" value="<p>본문</p>" maxLength={2000} />);
+    // 이름으로 찾아진다는 것 자체가 aria-labelledby 가 걸렸다는 증거다.
+    expect(await screen.findByRole('textbox', { name: '상세설명' })).toBeTruthy();
   });
 
   it('RichTextField: error — 오류 메시지를 role=alert 로 알린다', () => {
