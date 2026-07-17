@@ -23,6 +23,32 @@ export interface CapturedStory {
   file?: string;
   /** 캡처 실패 사유 */
   error?: string;
+  /**
+   * 포털 스토리(뷰포트 스냅샷으로 잡힌 스토리)인가.
+   * 뷰포트 캡처는 diff 분모가 921,600px 이라 작은 국소 변화가 희석된다 — 판정부가
+   * 그 사실을 알아야 분모를 바로잡을 수 있다.
+   */
+  portal?: boolean;
+}
+
+/** 레이아웃 정착 대기 — 렌더 **완료를 확인한 뒤**의 여유분이다 (경합 대기가 아니다) */
+const RENDER_SETTLE_MS = 150;
+
+/**
+ * 스토리 렌더가 **끝날 때까지** 기다린다.
+ *
+ * Storybook 은 스토리를 다 그리면 body 에 `sb-show-main` 을 붙인다 — 렌더 완료의 **1차 신호**다.
+ * 이것을 기다리면 '아직 안 그려졌다' 상태에서 측정하는 일이 없어진다.
+ * 실측으로 모든 갈래에서 신뢰할 수 있음을 확인했다 — 포털 스토리(organisms-modal--*),
+ * 아무것도 렌더하지 않는 스토리(atoms-badge--hidden-when-zero) 포함.
+ *
+ * 시간이 다하면 throw 한다 → 호출부가 capture-error 로 기록한다. **못 찍은 것을 찍은 척하지 않는다.**
+ */
+async function waitForStoryRendered(page: import('playwright').Page): Promise<void> {
+  await page.waitForFunction(() => document.body.classList.contains('sb-show-main'), undefined, {
+    timeout: 10_000,
+    polling: 50,
+  });
 }
 
 const MIME: Record<string, string> = {
@@ -148,21 +174,37 @@ export async function captureStories(
         );
         const root = page.locator('#storybook-root');
         await root.waitFor({ state: 'attached', timeout: 10_000 });
-        await page.waitForTimeout(300); // 렌더 안정화 대기
 
-        // #storybook-root 가 비어 있으면(박스 크기 0) 포털 스토리다 — Modal·ConfirmDialog 는
-        // createPortal 로 document.body 에 붙으므로 root 밑에 아무것도 없다.
-        // 이때 root.screenshot() 은 "not visible" 로 타임아웃나고, 예전 구현은 그것을
-        // capture-error 로 넘긴 뒤 **집계에서 제외**해서 21건이 조용히 사라졌다.
-        // (Modal 7건 · ConfirmDialog 13건 · SelectionBar 1건 — 하필 시각적으로 가장 중요한 오버레이들)
-        // 포털은 뷰포트 안에 있으므로 뷰포트 스냅샷으로 잡는다.
+        // [렌더 완료를 **기다린다** — 300ms 를 세고 넘겨짚지 않는다]
+        //
+        // 예전에는 `waitForTimeout(300)` 뒤에 곧바로 boundingBox() 를 봤다. 그 300ms 는 **경합**이다.
+        // 스토리가 아직 마운트되지 않았으면 root 는 비고 박스는 null 인데, 아래 분기는 그것을
+        // 포털로 **오인해 뷰포트를 찍는다.** 그러면 요소 크기 기준 이미지와 크기가 어긋나 diff 100%
+        // 로 터진다 — 코드는 멀쩡한데 게이트가 빨간불을 켠다. 흔들리는 게이트는 곧 무시되는 게이트다.
+        //
+        // 실측(이 저장소, route 인터셉트가 붙은 상태):
+        //   · atoms-card--slot-minimal 이 300ms 시점에 innerHTML=0B → 뷰포트 폴백 → 크기 불일치
+        //   · 이 머신에서 10건이 그렇게 흔들렸다 (전부 코드 변경 0인 상태에서)
+        // 시간을 세는 대신 렌더 완료 **상태**를 기다리면 이 10건이 전부 사라진다.
+        await waitForStoryRendered(page);
+        await page.waitForTimeout(RENDER_SETTLE_MS); // 레이아웃 정착 (경합이 아닌 정착 대기)
+
+        // 박스 유무로 갈라 온 기존 판정은 그대로 둔다 — 실측으로 옳음을 확인했다:
+        //   · organisms-modal--default   : 박스 1280x0  → 뷰포트 (포털)
+        //   · atoms-badge--hidden-when-zero: 박스 32x32 → 요소 (아무것도 렌더 안 해도 박스는 있다)
+        // 즉 고장난 것은 이 분기가 아니라 **분기 전에 기다리지 않은 것**이었다.
+        //
+        // Modal·ConfirmDialog 는 createPortal 로 document.body 에 붙어 root 밑이 비므로 root 를
+        // 찍을 수 없다. 포털은 뷰포트 안에 있으니 뷰포트 스냅샷으로 잡는다. (이 폴백은 필요하다 —
+        // 예전엔 이 21건이 capture-error 로 집계에서 조용히 빠졌다: Modal 7 · ConfirmDialog 13 · SelectionBar 1)
         const rootBox = await root.boundingBox();
-        if (rootBox && rootBox.width > 0 && rootBox.height > 0) {
+        const useRoot = rootBox !== null && rootBox.width > 0 && rootBox.height > 0;
+        if (useRoot) {
           await root.screenshot({ path: file });
         } else {
           await page.screenshot({ path: file });
         }
-        results.push({ storyId: story.id, file });
+        results.push({ storyId: story.id, file, portal: !useRoot });
       } catch (err) {
         results.push({
           storyId: story.id,
