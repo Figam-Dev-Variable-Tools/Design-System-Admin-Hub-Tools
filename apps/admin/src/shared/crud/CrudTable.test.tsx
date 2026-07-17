@@ -77,6 +77,79 @@ describe('CrudTable — 행 클릭 이동 + 인터랙티브 가드', () => {
 });
 
 /**
+ * 정렬 (@tanstack/react-table 행 모델) — **opt-in 이다.**
+ *
+ * 여기서 지키는 불변식은 두 가지다:
+ *   1) sortValue 를 주지 않은 열은 도입 전과 **완전히 동일**하다 — 헤더는 버튼이 아니고
+ *      aria-sort 도 없다. 25개 화면이 전부 이 경우다.
+ *   2) sortValue 를 준 열만 정렬 헤더가 되고, 정렬 상태는 th 의 aria-sort 로 알린다
+ *      (StatsTable·LogTable 과 같은 규약 — ERP-04).
+ */
+describe('CrudTable — 정렬은 opt-in 이다', () => {
+  const SORTABLE: readonly CrudColumn<Row>[] = [
+    { header: '이름', render: (row) => row.name, sortValue: (row) => row.name },
+  ];
+
+  /**
+   * 그 컬럼의 aria-sort 값.
+   *
+   * [jest-dom 매처를 쓰지 않는 이유] `toHaveAttribute` 는 이 앱의 tsc 설정에서 타입이 잡히지
+   * 않는다 — vitest.setup.ts 의 전역 확장이 tsc 의 시야 밖이다. 설정은 이 배치의 소유가
+   * 아니므로 표준 단언으로 쓴다 (LogTable.test.tsx 와 같은 규약).
+   */
+  function sortOf(name: string | RegExp): string | null {
+    return screen.getByRole('columnheader', { name }).getAttribute('aria-sort');
+  }
+
+  it('sortValue 가 없으면 헤더는 버튼이 아니고 aria-sort 도 없다 — 기존 25개 화면의 렌더가 바뀌지 않는다', () => {
+    renderTable();
+    expect(sortOf('이름')).toBeNull();
+    expect(screen.queryByRole('button', { name: /이름/ })).toBeNull();
+  });
+
+  it('sortValue 를 준 열은 정렬 헤더가 되고, 누르면 그 열 키로 onToggleSort 를 부른다', async () => {
+    const user = userEvent.setup();
+    const onToggleSort = vi.fn();
+    renderTable({ columns: SORTABLE, onToggleSort });
+    await user.click(screen.getByRole('button', { name: /이름/ }));
+    expect(onToggleSort).toHaveBeenCalledWith('이름');
+  });
+
+  it('정렬 상태는 th 의 aria-sort 로 알리고, 행 순서가 실제로 그 기준을 따른다', () => {
+    renderTable({
+      columns: SORTABLE,
+      onToggleSort: vi.fn(),
+      sort: { key: '이름', direction: 'asc' },
+    });
+    expect(sortOf(/이름/)).toBe('ascending');
+    // '둘째 항목' < '첫 항목' (ko) — 정렬이 items 순서를 실제로 뒤집는다
+    const cells = screen.getAllByRole('cell').map((cell) => cell.textContent);
+    expect(cells.indexOf('둘째 항목')).toBeLessThan(cells.indexOf('첫 항목'));
+  });
+
+  it('내림차순이면 aria-sort 가 descending 이고 순서도 뒤집힌다', () => {
+    renderTable({
+      columns: SORTABLE,
+      onToggleSort: vi.fn(),
+      sort: { key: '이름', direction: 'desc' },
+    });
+    expect(sortOf(/이름/)).toBe('descending');
+    const cells = screen.getAllByRole('cell').map((cell) => cell.textContent);
+    expect(cells.indexOf('첫 항목')).toBeLessThan(cells.indexOf('둘째 항목'));
+  });
+
+  it('순번은 정렬과 무관하게 화면상 위치를 센다 — 정렬해도 위에서부터 1, 2 다', () => {
+    renderTable({
+      columns: SORTABLE,
+      onToggleSort: vi.fn(),
+      sort: { key: '이름', direction: 'desc' },
+    });
+    const cells = screen.getAllByRole('cell').map((cell) => cell.textContent);
+    expect(cells.indexOf('1')).toBeLessThan(cells.indexOf('2'));
+  });
+});
+
+/**
  * STATE-01 — 네 상태 중 **정확히 하나**만 그린다.
  * 상태 혼동은 admin 의 대표 버그다: 로드 중 empty 가 번쩍이거나 error 를 '항목 없음' 으로 그리면
  * 운영자가 오판한다.
