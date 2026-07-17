@@ -10,8 +10,9 @@
 //        아니라 목적(메시지)까지 announce 된다 — aria-labelledby 만으로는 제목만 읽힌다 (A11Y-02).
 //
 // [모달 위에 모달] ConfirmDialog 가 폼 모달 위에 겹칠 수 있다(예: 그룹 만들기 → 생성 확인).
-// 둘 다 body 로 portal 되며, 나중에 열린 쪽이 위에 온다. Esc 는 stopPropagation 으로
-// 위쪽 모달만 닫고, body overflow 는 각자 열릴 때의 값을 복원하므로 중첩이 깨지지 않는다.
+// 둘 다 body 로 portal 되며, 나중에 열린 쪽이 위에 온다. Esc 는 stopPropagation 으로 위쪽 모달만 닫는다.
+// body overflow 는 **모달마다 각자 복원하지 않는다** — 열린 수를 세어 마지막 하나가 닫힐 때
+// 첫 잠금 이전 값으로 되돌린다 (lockBodyScroll 참조. 각자 복원하면 중첩이 깨졌다).
 //
 // [imperative props — 계약 밖 컴포넌트 경계] onClose·onSubmit·initialFocusRef 는 명령형 배선이라
 // Figma 대응이 없다. 계약(제목·아이콘·본문·푸터)에 얹어 컴포넌트 경계에서 받는다 (Card 네이티브 패스스루와 동일 원리).
@@ -23,6 +24,11 @@
 //   대신 Modal 이 이미 소유한 **onClose 의 호출 시점**을 늦춘다: Esc·딤·닫기(×) →
 //   퇴장 애니메이션 재생 → 끝나면 그때 onClose() → 부모가 언마운트.
 //   결과적으로 "exit 완료 후에만 DOM 제거"가 성립하며, 호출부 13곳과 계약을 **한 줄도 바꾸지 않는다**.
+//
+//   [MOTION-09 — 퇴장은 되돌릴 수 있다] onClose() 는 '닫아 달라는 요청'이지 '닫혔다'가 아니다.
+//   부모는 거부할 수 있다(미저장 이탈 가드가 폐기 확인을 세우고 언마운트하지 않는 경우).
+//   거부되면 Modal 은 퇴장 상태에서 **빠져나와 등장 상태로 복귀**한다 — finishClose() 참조.
+//   되돌리지 않으면 모달이 opacity:0 인 채 남아 영구히 닫히지 않는다(실제로 출하됐던 회귀다).
 //
 //   [범위 — 정확히 말한다] 퇴장을 타는 것은 **Modal 이 소유한 닫기 경로**뿐이다: Esc · 딤 클릭 · 닫기(×).
 //   푸터 버튼(ConfirmDialog 의 '취소', 폼 모달의 '확인')은 조립하는 쪽이 만든 버튼이라 onClose 가 아니라
@@ -41,6 +47,38 @@ const FOCUSABLE =
 
 /** 퇴장 애니메이션의 keyframes 이름 — 이 애니메이션의 animationend 만 '닫힘 완료'로 친다 */
 const DIALOG_EXIT_ANIMATION = 'tds-modal-dialog-out';
+
+/**
+ * 배경 스크롤 잠금 — **열린 모달 수를 세어** 마지막 하나가 닫힐 때만 되돌린다.
+ *
+ * [왜 각자 복원하면 안 되나 — 중첩이 실제로 깨져 있었다]
+ * 모달마다 '열릴 때의 값'을 각자 저장했다 되돌리면, 중첩된 둘이 **함께** 언마운트될 때
+ * 복원 순서가 결과를 뒤집는다: 폼 모달은 ''(열기 전)을 적어 두고 그 위의 ConfirmDialog 는
+ * 이미 잠긴 'hidden' 을 적어 둔다 → cleanup 이 트리 순서로 돌아 나중에 도는 ConfirmDialog 가
+ * **'hidden' 을 도로 써 넣는다**. 모달은 전부 사라졌는데 배경 스크롤만 영구히 잠긴 채 남는다
+ * (폼을 폐기하고 나면 페이지를 새로고침할 때까지 스크롤이 죽었다).
+ * 잠금은 개별 모달이 아니라 **'모달이 하나라도 열려 있는가'** 의 성질이므로 여기서 한 곳에 센다.
+ */
+let openModalCount = 0;
+/** 첫 모달이 열리기 **전**의 값 — 마지막 모달이 닫힐 때 이것으로 되돌린다 */
+let overflowBeforeLock = '';
+
+function lockBodyScroll(): () => void {
+  if (openModalCount === 0) {
+    overflowBeforeLock = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+  }
+  openModalCount += 1;
+
+  let released = false;
+  return () => {
+    // StrictMode 의 이중 호출 등으로 카운트가 음수가 되지 않게 한 번만 센다
+    if (released) return;
+    released = true;
+    openModalCount -= 1;
+    if (openModalCount === 0) document.body.style.overflow = overflowBeforeLock;
+  };
+}
 
 /**
  * 퇴장 애니메이션이 실제로 도는가 — computed style 로 **관측**한다 (추측하지 않는다).
@@ -125,11 +163,32 @@ export function Modal({
     setClosing(true);
   }, []);
 
+  /**
+   * 퇴장이 끝났다 — 이제 부모에게 알린다. 부모가 **거부하면 퇴장을 되돌린다** (MOTION-09).
+   *
+   * [왜 거부를 감지할 수 있나 — 언마운트가 곧 수락이다]
+   * 호출부는 전부 `{열림 && <Modal/>}` 이라 Modal 에는 `open` prop 이 없다. 그래서 '닫혔다' 의
+   * 유일한 관측 가능한 신호는 **부모가 우리를 언마운트했는가** 뿐이다. onClose() 직후 리셋을
+   * 같은 배치에 넣으면 두 경우가 저절로 갈린다:
+   *   · 수락 → 부모가 언마운트 → 이 setState 는 버려진다 (되돌아오는 깜빡임이 없다)
+   *   · 거부 → 우리는 살아 있다 → closing 이 풀려 **등장 상태로 복귀**한다
+   *
+   * [왜 필요한가 — 출하된 회귀] 예전에는 `closingRef` 가 리셋되지 않아, dirty 가드처럼 닫기를
+   * 거부하는 부모를 만나면 모달이 `opacity:0` + `pointer-events:none` 인 채 영구히 남았다.
+   * 그 뒤 Esc·딤·× 는 전부 위 조기 반환에 걸려 **다시는 닫을 수 없었고**, 화면에서 사라진
+   * 모달 안에 포커스와 입력이 갇혔다. 닫기 거부는 정상적인 흐름이지 끝 상태가 아니다.
+   */
+  const finishClose = useCallback(() => {
+    onClose();
+    closingRef.current = false;
+    setClosing(false);
+  }, [onClose]);
+
   // 퇴장 애니메이션이 없으면(reduced-motion·jsdom) 기다릴 것이 없다 — 즉시 닫는다
   useEffect(() => {
     if (!closing) return;
-    if (!willAnimate(dialogRef.current)) onClose();
-  }, [closing, onClose]);
+    if (!willAnimate(dialogRef.current)) finishClose();
+  }, [closing, finishClose]);
 
   const focusables = useCallback(
     (): readonly HTMLElement[] =>
@@ -146,11 +205,10 @@ export function Modal({
     if (first !== null) first.focus();
     else dialogRef.current?.focus();
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const unlockBodyScroll = lockBodyScroll();
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      unlockBodyScroll();
       const restore = restoreRef.current;
       if (restore instanceof HTMLElement) restore.focus();
     };
@@ -212,9 +270,10 @@ export function Modal({
         tabIndex={-1}
         className="tds-modal__dialog"
         // 퇴장 애니메이션이 끝난 **그때** 부모에게 닫힘을 알린다 → 부모가 언마운트 (MOTION-01).
-        // 등장 애니메이션의 animationend 와 섞이지 않도록 keyframes 이름으로 정확히 가른다.
+        // 등장 애니메이션의 animationend 와 섞이지 않도록 keyframes 이름으로 정확히 가른다
+        // (이 핸들러는 버블링을 타므로 본문 자식의 애니메이션도 여기로 올라온다).
         onAnimationEnd={(event) => {
-          if (event.animationName === DIALOG_EXIT_ANIMATION) onClose();
+          if (event.animationName === DIALOG_EXIT_ANIMATION) finishClose();
         }}
       >
         <div className="tds-modal__header">

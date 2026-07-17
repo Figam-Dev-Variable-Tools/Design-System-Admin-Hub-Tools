@@ -122,6 +122,61 @@ describe('Modal — 계약 a11y·라이프사이클', () => {
     expect(document.body.style.overflow).toBe('');
   });
 
+  /**
+   * [회귀] 중첩 모달(폼 모달 위 ConfirmDialog)이 **함께** 닫힐 때 스크롤 잠금이 새면
+   * 모달이 전부 사라진 뒤에도 배경 스크롤이 영구히 죽는다.
+   * 모달마다 '열릴 때의 값'을 각자 복원하던 시절, 위쪽 모달이 저장해 둔 'hidden' 이
+   * 나중에 덮어써서 실제로 그렇게 됐다.
+   */
+  it('Modal: 중첩된 모달이 함께 닫혀도 배경 스크롤 잠금이 남지 않는다', () => {
+    function Nested() {
+      return (
+        <>
+          <Modal title="폼 모달" footer={Footer} onClose={vi.fn()}>
+            <p>본문</p>
+          </Modal>
+          {/* 폼 모달 **밖**에 겹쳐 열리는 확인 다이얼로그와 같은 구조 */}
+          <Modal title="확인 다이얼로그" footer={Footer} onClose={vi.fn()}>
+            <p>정말 나가시겠습니까?</p>
+          </Modal>
+        </>
+      );
+    }
+
+    const { unmount } = render(<Nested />);
+    expect(screen.getAllByRole('dialog')).toHaveLength(2);
+    expect(document.body.style.overflow).toBe('hidden');
+
+    unmount();
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  /** 위쪽 모달만 닫히면 아래 모달이 아직 열려 있으므로 잠금은 **유지**되어야 한다 */
+  it('Modal: 중첩 중 위쪽 모달만 닫히면 배경 스크롤 잠금이 유지된다', () => {
+    function Nested({ confirming }: { readonly confirming: boolean }) {
+      return (
+        <>
+          <Modal title="폼 모달" footer={Footer} onClose={vi.fn()}>
+            <p>본문</p>
+          </Modal>
+          {confirming && (
+            <Modal title="확인 다이얼로그" footer={Footer} onClose={vi.fn()}>
+              <p>정말 나가시겠습니까?</p>
+            </Modal>
+          )}
+        </>
+      );
+    }
+
+    const { rerender } = render(<Nested confirming />);
+    expect(document.body.style.overflow).toBe('hidden');
+
+    // 확인 다이얼로그만 닫는다 — 폼 모달은 그대로 열려 있다
+    rerender(<Nested confirming={false} />);
+    expect(screen.getAllByRole('dialog')).toHaveLength(1);
+    expect(document.body.style.overflow).toBe('hidden');
+  });
+
   it('Modal: onSubmit 을 주면 <form> 으로 감싸고 submit 이 onSubmit 을 호출한다', () => {
     const onSubmit = vi.fn();
     render(
