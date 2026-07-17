@@ -1,6 +1,6 @@
 // FS-000 모션 — quality-bar MOTION 축 E2E (e2e/**)
 //
-// 명세: specs/quality-bar.md §MOTION (MOTION-01/02/03/08)
+// 명세: specs/quality-bar.md §MOTION (MOTION-01/02/03/08/09)
 // 구현: packages/ui/src/organisms/Modal · molecules/Toast · atoms/ToggleSwitch
 //
 // [왜 FS-000 인가] FS-001~004 는 화면(기능) 명세를 미러링한다. MOTION 은 특정 화면이 아니라
@@ -31,6 +31,8 @@ import { seedAuthenticated } from '../support/app';
 const MEMBERS = '/users/members';
 /** ToggleSwitch 가 있는 화면 (LogoListTable 의 노출 토글) */
 const LOGOS = '/company/partners';
+/** 미저장 이탈 가드가 붙은 폼 모달이 있는 화면 (문의 유형 등록/수정) */
+const SUPPORT_CATEGORIES = '/support/categories';
 
 test.beforeEach(seedAuthenticated);
 
@@ -115,6 +117,23 @@ async function raiseErrorToast(page: Page): Promise<void> {
   await expect(page.locator('.tds-toast')).toContainText('알림을 발송하지 못했습니다.');
 }
 
+/** 미저장 이탈 가드가 붙은 폼 모달을 열고 입력을 채워 dirty 로 만든다 (문의 유형 추가) */
+async function openDirtyFormModal(page: Page): Promise<void> {
+  await page
+    .getByRole('button', { name: /유형 추가/ })
+    .first()
+    .click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.locator('#support-category-label').fill('갇힘 테스트');
+}
+
+/** 폐기 확인 다이얼로그 (미저장 이탈 가드가 세운 것) */
+function discardPrompt(page: Page) {
+  return page.locator('[role="dialog"]', {
+    has: page.getByText('저장하지 않은 변경 사항이 있습니다'),
+  });
+}
+
 /* ── MOTION-01 — Modal enter/exit ─────────────────────────────────────────── */
 
 test('MOTION-01: 모달은 딤 fade + 다이얼로그 scale 로 등장하고, 퇴장 애니메이션이 끝난 뒤에 DOM 에서 사라진다', async ({
@@ -158,6 +177,75 @@ test('MOTION-01: Esc 와 딤 클릭도 같은 퇴장 경로를 거친다', async
   await page.locator('.tds-modal__backdrop').click({ position: { x: 5, y: 5 } });
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(await startedWithPrefix(page, 'tds-modal-')).toContain('tds-modal-backdrop-out');
+});
+
+/* ── MOTION-09 — 퇴장은 되돌릴 수 있다 (닫기 거부) ────────────────────────── */
+
+/**
+ * [왜 e2e 인가] 이 회귀는 **진짜 CSS 가 있어야** 최종 증상(화면에서 사라짐 + 클릭 불가)이 나온다.
+ * jsdom 에는 keyframes 도 pointer-events 도 없다 — 단위 테스트는 latch 논리까지만 볼 수 있다.
+ * 여기서는 사용자가 실제로 보는 것(opacity·pointer-events)을 관측한다.
+ */
+test('MOTION-09: 미저장 가드가 닫기를 거부하면 모달이 등장 상태로 되돌아온다 (퇴장한 채 갇히지 않는다)', async ({
+  page,
+}) => {
+  await page.goto(SUPPORT_CATEGORIES);
+  await openDirtyFormModal(page);
+
+  // Esc → 가드가 거부하고 폐기 확인을 세운다 (부모는 언마운트하지 않는다)
+  await page.keyboard.press('Escape');
+  await expect(discardPrompt(page)).toBeVisible();
+
+  // '취소' = 이 모달에 머무른다
+  await discardPrompt(page).getByRole('button', { name: '취소' }).click();
+  await expect(discardPrompt(page)).toHaveCount(0);
+
+  // 거부됐으니 퇴장은 되돌려져야 한다. 되돌리지 않으면 사용자에게는 이렇게 보였다:
+  // 딤·다이얼로그가 opacity 0 으로 사라지고 overlay 는 pointer-events:none — 화면엔 아무것도 없는데
+  // 모달은 살아서 포커스를 붙들고 있다.
+  const overlay = page.locator('.tds-modal__overlay');
+  await expect(overlay).not.toHaveClass(/tds-modal__overlay--closing/);
+  await expect(page.locator('.tds-modal__dialog')).toHaveCSS('opacity', '1');
+  await expect(overlay).toHaveCSS('pointer-events', 'auto');
+  // 입력은 그대로 살아 있다 — 이 가드의 존재 이유다
+  await expect(page.locator('#support-category-label')).toHaveValue('갇힘 테스트');
+});
+
+test('MOTION-09: 닫기가 거부돼도 Modal 소유 경로(Esc·×·딤)가 계속 살아 있다', async ({ page }) => {
+  await page.goto(SUPPORT_CATEGORIES);
+  await openDirtyFormModal(page);
+
+  const dialog = page.getByRole('dialog').first();
+
+  // 세 제스처를 차례로 — 매번 거부(머무르기)한 뒤 **다음 제스처가 여전히 먹어야 한다**.
+  // latch 가 남으면 첫 거부 이후 전부 조기 반환되어 아무 반응이 없었다.
+  for (const fire of [
+    async () => {
+      await dialog.click({ position: { x: 10, y: 10 } });
+      await page.keyboard.press('Escape');
+    },
+    async () => {
+      await dialog.getByRole('button', { name: '닫기' }).click();
+    },
+    async () => {
+      await page
+        .locator('.tds-modal__backdrop')
+        .first()
+        .click({ position: { x: 5, y: 5 } });
+    },
+  ]) {
+    await fire();
+    await expect(discardPrompt(page)).toBeVisible();
+    await discardPrompt(page).getByRole('button', { name: '취소' }).click();
+    await expect(discardPrompt(page)).toHaveCount(0);
+  }
+
+  // 그리고 마지막엔 진짜로 닫힌다 — 거부가 닫기 능력을 영구히 태우지 않았다
+  await dialog.getByRole('button', { name: '닫기' }).click();
+  await discardPrompt(page).getByRole('button', { name: '나가기' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  // 배경 스크롤 잠금도 함께 풀린다 (갇힌 모달은 이것도 영구히 붙들고 있었다)
+  expect(await page.evaluate(() => document.body.style.overflow)).toBe('');
 });
 
 /* ── MOTION-02 — Toast exit ───────────────────────────────────────────────── */

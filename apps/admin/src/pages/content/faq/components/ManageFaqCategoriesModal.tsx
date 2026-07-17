@@ -25,6 +25,7 @@ import {
   hintStyle,
   Modal,
   TrashIcon,
+  useModalDirtyGuard,
 } from '../../../../shared/ui';
 import { useCreateFaqCategory, useDeleteFaqCategory, useFaqCategoryUsageQuery } from '../queries';
 import type { FaqCategoryUsage } from '../types';
@@ -116,7 +117,7 @@ export function ManageFaqCategoriesModal({
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isDirty },
     clearErrors,
   } = useForm<FaqCategoryFormValues>({
     resolver: zodResolver(faqCategorySchema),
@@ -134,6 +135,14 @@ export function ManageFaqCategoriesModal({
   const remove = useDeleteFaqCategory();
   const saving = create.isPending;
   const deleting = remove.isPending;
+
+  /**
+   * [FEEDBACK-06] 입력이 있는 채로 닫으려 하면 확인을 세운다 — 다른 폼 모달 8개와 같은 가드다.
+   * 이 모달만 빠져 있었다: 목록·삭제가 주인공이라 '새 카테고리' 입력이 폼으로 보이지 않았지만
+   * 사용자 입장에선 다를 게 없다 — 반쯤 친 이름이 빗나간 딤 클릭 하나로 조용히 사라졌다.
+   * requestClose 를 Modal.onClose(=Esc·딤·×)와 푸터 '닫기' 에 **둘 다** 넘겨 4경로를 덮는다.
+   */
+  const { requestClose, discardDialog } = useModalDirtyGuard(isDirty && !saving, onClose);
 
   const nameRef = useRef<HTMLInputElement | null>(null);
   const createControllerRef = useRef<AbortController | null>(null);
@@ -228,7 +237,7 @@ export function ManageFaqCategoriesModal({
     <>
       <Modal
         title="FAQ 카테고리 관리"
-        onClose={onClose}
+        onClose={requestClose}
         onSubmit={() => {
           setServerError(null);
           clearErrors();
@@ -237,7 +246,7 @@ export function ManageFaqCategoriesModal({
         initialFocusRef={nameRef}
         footer={
           <>
-            <Button variant="secondary" size="md" onClick={onClose}>
+            <Button variant="secondary" size="md" onClick={requestClose}>
               닫기
             </Button>
             <Button variant="primary" size="md" type="submit" disabled={saving}>
@@ -348,6 +357,9 @@ export function ManageFaqCategoriesModal({
           onCancel={cancelDelete}
         />
       )}
+
+      {/* 모달 밖에 둔다 — 안에 두면 모달의 포커스 트랩이 확인 다이얼로그를 가둔다 */}
+      {discardDialog}
     </>
   );
 }
