@@ -1,4 +1,4 @@
-// ContractFormPage — 계약 등록/수정 (라우트: /sales/contracts/new · /:id/edit) · A41 소유
+// ContractFormPage — 계약 등록/수정 (라우트: /sales/contracts/new · /:id/edit)
 //
 // 데이터 배선은 공용 CRUD 프레임워크(useCrudForm)를 재사용하고, 화면은 입력 카드(계약정보·금액·기간·
 // 갱신·서명·조항·첨부) + 우측 계약서 요약 미리보기 2단으로 구성한다. 검증의 정본은 ./validation.

@@ -4,8 +4,8 @@ title: "연혁 관리 비기능 명세"
 functionalSpec: FS-017
 backendSpec: BE-017
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -100,7 +100,7 @@ date: 2026-07-17
 | A11Y-05 | P1 | 월 select 가 `SelectField`(`SelectField.tsx:57`)로 `aria-invalid` 를 AT 에 전달하고, 호출부가 `aria-describedby` 를 넘긴다(`HistoryFormPage.tsx:113`) | 월 미선택 제출 → `<select aria-invalid="true" aria-describedby="history-month-error">` | pass |
 | A11Y-06 | P1 | `AppShell.tsx:429` `<SkipToMain />` 이 셸의 첫 focusable, `474` `<main id="tds-main" tabIndex={-1}>` | `/company/history` 에서 첫 Tab → skip link, 활성화 → main 포커스 | pass |
 | A11Y-07 | P1 | `AppShell.tsx:324-340` `RouteFocusAnnouncer` 가 pathname 변경 시 main 포커스 + polite live region 에 `findNavLabel(pathname)` 주입 | 목록 → 등록 이동 시 포커스가 main 으로. **다만 announce 되는 이름이 IA-02 와 같은 이유로 '기업 관리' 다** | pass(문구는 IA-02 gap 에 종속) |
-| A11Y-08 | P1 | `CrudTable.tsx:172` 가 `rowActivateProps` 로 행 클릭 이동을 붙이지만 **행 안에 같은 목적지로 가는 focusable 링크가 없다** — 연도·월·내용 셀은 전부 plain text(`HistoryListPage.tsx:36-40`). `useRowNavigation.ts:9-11` 이 스스로 '마우스 전용이며 접근 가능한 경로가 이미 존재한다는 전제 위에서만 쓴다' 고 못 박았는데 그 전제가 이 화면에서 성립하지 않는다. 키보드 사용자는 행 액션의 연필 버튼으로만 도달한다 | 행을 Tab → 체크박스 → 연필 → 휴지통 순. 이름 링크 없음 | gap(연필 버튼이 등가 경로라는 해석이면 완화 — A11 판단 필요) |
+| A11Y-08 | P1 | `CrudTable.tsx:172` 가 `rowActivateProps` 로 행 클릭 이동을 붙이지만 **행 안에 같은 목적지로 가는 focusable 링크가 없다** — 연도·월·내용 셀은 전부 plain text(`HistoryListPage.tsx:36-40`). `useRowNavigation.ts:9-11` 이 스스로 '마우스 전용이며 접근 가능한 경로가 이미 존재한다는 전제 위에서만 쓴다' 고 못 박았는데 그 전제가 이 화면에서 성립하지 않는다. 키보드 사용자는 행 액션의 연필 버튼으로만 도달한다 | 행을 Tab → 체크박스 → 연필 → 휴지통 순. 이름 링크 없음 | gap(연필 버튼이 등가 경로라는 해석이면 완화 — UI 기획 판단 필요) |
 | A11Y-13 | P1 | 제출 검증 실패 시 첫 invalid 필드로 포커스는 성립한다 — `useCrudForm.ts:253` 이 `handleSubmit(onValid, onInvalid)` 를 쓰고 RHF `shouldFocusError` 기본값이 동작한다. **폼 진입 시 첫 필드 자동 포커스는 없다** — `HistoryFormPage.tsx` 에 `setFocus`/autoFocus 0건 | 빈 폼 제출 → activeElement = 연도 입력 (통과). `/new` 진입 직후 activeElement = body (반증) | 부분 gap |
 | A11Y-16 | P1 | 이 화면이 새로 만든 인터랙티브 표면은 없다 — 전부 DS/공용 프레임워크 소비 | — | 종속 |
 | MOTION-04 | P1 | `CrudTable.tsx:171-201` 행이 add/remove 시 snap in/out 한다(FLIP 없음). **Motion 라이브러리는 여전히 없고**(package.json 19개 · import · lockfile 전부 0건) 행 재배치는 CSS keyframes 로 표현하기 어려운 축이라 Modal/Toast 가 간 CSS-only 경로를 그대로 쓸 수 없다 — MOTION-01/02 와 뿌리가 갈렸다 | 행 삭제 → 나머지 행이 즉시 점프 | gap |
@@ -163,34 +163,34 @@ date: 2026-07-17
 | 삭제 | **하드 삭제 · undo 없음**(`crud.ts:86`). 확인 다이얼로그가 유일한 방어(FEEDBACK-05 P2 는 confirm 만으로 충족) |
 | 미저장 입력 | 3경로 이탈 가드로 보호(FEEDBACK-04). **단 세션 만료 redirect 는 programmatic navigate 라 가드가 발화하지 않아 입력이 유실된다**(EXC-19) |
 | 감사 로그 | 누가 언제 연혁을 바꿨는지 기록이 없다 — `HistoryItem` 에 `updatedAt`·`updatedBy` 부재. **BE-017 §7.4 의 `version` 도입 시 함께 정한다** |
-| 연혁의 성격 | 회사 공식 연혁은 **고객 대상 공개 기록**이다. 하드 삭제 + 감사 부재 + undo 부재의 조합은 오조작 복구 수단이 백업뿐임을 뜻한다 — A63 판단 필요 |
+| 연혁의 성격 | 회사 공식 연혁은 **고객 대상 공개 기록**이다. 하드 삭제 + 감사 부재 + undo 부재의 조합은 오조작 복구 수단이 백업뿐임을 뜻한다 — 백엔드 명세 판단 필요 |
 
 ## 5. 미충족(gap) 요약 → 이관
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | **A11Y-11** | **P0** | **직전 gap 사유(required 미노출)는 F3a 가 닫았다** — `FormField.withAriaRequired`(`FormField.tsx:50-56`, 주입 지점 `:107`)가 연도 `<input>`·월 `SelectField` 에 `aria-required` 를 런타임 주입하고, `TextareaField.tsx:64-65` 가 내용 `<textarea>` 에 직접 낸다. `aria-invalid`↔`describedby` 짝도 성립. **남은 것은 이번 갱신에서 새로 확인한 hint 미연결** — 연도 FormField 가 `hint={'2018 ~ 2100'}`(`HistoryFormPage.tsx:90`)를 갖고도 valid 일 때 `aria-describedby` 가 `undefined` 라(`:102`) AT 에 닿지 않는다. `required` 와 달리 이 절에는 자동 주입이 없다(배선이 호출부 책임 — `FormField.tsx:10-11`). **NFR-015 `profile-biznum` · NFR-018 4필드와 같은 결함** — 함께 고칠 것 | 이 화면 + 손수 배선 폼 전반(NFR-015 · NFR-018) | A11 change_request |
+| 1 | **A11Y-11** | **P0** | **직전 gap 사유(required 미노출)는 F3a 가 닫았다** — `FormField.withAriaRequired`(`FormField.tsx:50-56`, 주입 지점 `:107`)가 연도 `<input>`·월 `SelectField` 에 `aria-required` 를 런타임 주입하고, `TextareaField.tsx:64-65` 가 내용 `<textarea>` 에 직접 낸다. `aria-invalid`↔`describedby` 짝도 성립. **남은 것은 이번 갱신에서 새로 확인한 hint 미연결** — 연도 FormField 가 `hint={'2018 ~ 2100'}`(`HistoryFormPage.tsx:90`)를 갖고도 valid 일 때 `aria-describedby` 가 `undefined` 라(`:102`) AT 에 닿지 않는다. `required` 와 달리 이 절에는 자동 주입이 없다(배선이 호출부 책임 — `FormField.tsx:10-11`). **NFR-015 `profile-biznum` · NFR-018 4필드와 같은 결함** — 함께 고칠 것 | 이 화면 + 손수 배선 폼 전반(NFR-015 · NFR-018) | UI 기획 쪽 변경 요청 |
 | 2 | **MOTION-01** | **P0** | **사유 전면 교체(PR #26).** '리포에 Motion 라이브러리 자체가 없어 enter/exit 가 없다' 는 **낡았다** — backdrop fade + dialog scale 이 CSS-only 로 구현됐고(`Modal.css:20-21,30-38,58-59`, keyframes `:126-168`), `onAnimationEnd`(`Modal.tsx:216-218`)가 AnimatePresence 없이 'exit 완료 후 unmount' 를 달성한다. **남은 것은 경로 한 종류** — `ConfirmDialog` 의 **footer 버튼(취소 `ConfirmDialog.tsx:145` · 확인 `:153`)이 `Modal` 을 거치지 않고 호출부 콜백 직행**이라 즉시 언마운트된다(`Modal.tsx:27-31` 이 이 한계를 명시). 이 화면의 다이얼로그 4종이 전부 ConfirmDialog 라 **주 닫힘 경로가 정확히 미커버 구간**이다. `Modal.tsx:30-31` 이 제안하는 설계(`requestClose` 를 context 로 내려 ConfirmDialog 가 흡수)가 최소 수정이다 | DS(`Modal`·`ConfirmDialog`) — 화면 수정으로 닫히지 않는다 | DS 소유자 |
 | 3 | ~~**MOTION-02**~~ | ~~P0~~ | **해소됨(PR #26) — 이관 취소.** Toast exit 가 CSS-only 로 완전 구현됐다 — `Toast.css:32-37`(`tds-toast-out … forwards`) · keyframes `:121-131` · reduced-motion 게이트 `:136-141`. `ToastProvider.tsx:99-100` 의 `filter` 는 여전히 최종 제거지만, `Toast.tsx:186-187` 이 `onAnimationEnd` 로 **그 호출을 퇴장 애니메이션 뒤로 미룬다**. `component.overlay` recipe 소비로 exit = fast(150ms)/accelerate — 요구 문구를 정확히 충족 | — | — |
-| 4 | **IA-02** | **P0** | 하위 라우트 제목이 가지 라벨 '기업 관리' 로 폴백(`nav-config.ts:260`)하고 본문 h1 과 **둘이 공존**한다. 목록은 본문 h1 이 없어 원천이 화면마다 다르다 | 앱 전역(`AppHeader`·`findNavLabel`) | A40 / A11 |
-| 5 | **IA-04** | **P0** | Pagination 부재 — `CrudListShell` 이 전 행을 렌더한다. 연혁은 단조 증가 데이터 | 공용(`CrudListShell`) → 형제 화면 동일 | A11 / A41 |
-| 6 | **EXC-03** | **P0** | write-action 게이팅 미배선 — 등록·수정·삭제 버튼이 권한 무관하게 렌더. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | **기업 관리 섹션 전체**(앱 전역 아님) | A11 change_request |
-| 7 | ERP-08 | P1 | **`formatNumber(year)` → '2,018년'**(`HistoryListPage.tsx:25,37`). 접근 이름·확인 문구·토스트로 전파 | **이 화면 고유** | A11 change_request (A41) |
-| 8 | EXC-10 | P1 | 일괄 삭제 부분 실패 시 무효화 누락(`crud.ts:239`) + 재시도가 성공분을 재삭제해 실패 건수 증가 | 공용(`crud.ts`·`bulk.ts`) | A11 / A41 / A63 |
-| 9 | STATE-05 | P1 | 빈 상태에 생성 CTA 없음 — `empty` prop 미전달 | 이 화면 + 공용 껍데기 | A11 |
+| 4 | **IA-02** | **P0** | 하위 라우트 제목이 가지 라벨 '기업 관리' 로 폴백(`nav-config.ts:260`)하고 본문 h1 과 **둘이 공존**한다. 목록은 본문 h1 이 없어 원천이 화면마다 다르다 | 앱 전역(`AppHeader`·`findNavLabel`) | 프론트 구현 / UI 기획 |
+| 5 | **IA-04** | **P0** | Pagination 부재 — `CrudListShell` 이 전 행을 렌더한다. 연혁은 단조 증가 데이터 | 공용(`CrudListShell`) → 형제 화면 동일 | UI 기획 / 프론트 리팩터 |
+| 6 | **EXC-03** | **P0** | write-action 게이팅 미배선 — 등록·수정·삭제 버튼이 권한 무관하게 렌더. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | **기업 관리 섹션 전체**(앱 전역 아님) | UI 기획 쪽 변경 요청 |
+| 7 | ERP-08 | P1 | **`formatNumber(year)` → '2,018년'**(`HistoryListPage.tsx:25,37`). 접근 이름·확인 문구·토스트로 전파 | **이 화면 고유** | UI 기획 쪽 변경 요청 (프론트 리팩터) |
+| 8 | EXC-10 | P1 | 일괄 삭제 부분 실패 시 무효화 누락(`crud.ts:239`) + 재시도가 성공분을 재삭제해 실패 건수 증가 | 공용(`crud.ts`·`bulk.ts`) | UI 기획 / 프론트 리팩터 / 백엔드 명세 |
+| 9 | STATE-05 | P1 | 빈 상태에 생성 CTA 없음 — `empty` prop 미전달 | 이 화면 + 공용 껍데기 | UI 기획 |
 | 10 | A11Y-03 | P1 | ConfirmDialog 초기 포커스가 Cancel 이 아니라 닫기(×) | DS(`ConfirmDialog`) | DS 소유자 |
-| 11 | A11Y-08 | P1 | 행 클릭 이동의 키보드 등가 링크 부재 | 공용(`CrudTable`) | A11 |
-| 12 | A11Y-13 | P1 | 폼 진입 시 첫 필드 자동 포커스 없음(error 포커스는 성립) | 공용(`useCrudForm`) | A41 |
-| 13 | IA-03 | P1 | breadcrumb 부재 | 앱 전역 | A40 / A11 |
-| 14 | IA-14 · ERP-15 | P1 | 반응형 미선언 · 대형 리스트 계약 부재 | 앱 전역 | A11 / A40 |
-| 15 | ~~ERP-13~~ · ERP-06 | P1 | **ERP-13 해소됨(통합) — 이관 취소.** **해소됨(통합) — 이관 취소.** 조사 헬퍼가 `shared/format.ts:269+` 로 승격돼 `requiredText`(`shared/crud/validation.ts:17,21,24`) · `useCrudForm.ts:222` · `useCrudList.tsx:108,158` 이 전부 그것을 소비한다. `pages/company/` 의 사용자 대상 조사 리터럴 **0건**. **남은 것은 ERP-06 하나**: `SelectField` 인 월에 '입력하세요' 문구가 붙는다(`requiredText` 가 동사를 '입력' 으로 고정 — `shared/crud/validation.ts:17`) | 이 화면 + `requiredText` 동사 축 | A11 |
-| 16 | EXC-05 · EXC-11 | P1 | client timeout · offline 감지 부재 | 앱 전역 | A40 / A11 |
-| 17 | EXC-06 | P1 | 403·429 전용 surface 없음 — 일반 실패 배너로 수렴 | 공용 | A11 / A63 |
-| 18 | EXC-18 | P1 | Shift-range · 대량 confirm · progress · cancel 부재 | 공용 | A11 |
+| 11 | A11Y-08 | P1 | 행 클릭 이동의 키보드 등가 링크 부재 | 공용(`CrudTable`) | UI 기획 |
+| 12 | A11Y-13 | P1 | 폼 진입 시 첫 필드 자동 포커스 없음(error 포커스는 성립) | 공용(`useCrudForm`) | 프론트 리팩터 |
+| 13 | IA-03 | P1 | breadcrumb 부재 | 앱 전역 | 프론트 구현 / UI 기획 |
+| 14 | IA-14 · ERP-15 | P1 | 반응형 미선언 · 대형 리스트 계약 부재 | 앱 전역 | UI 기획 / 프론트 구현 |
+| 15 | ~~ERP-13~~ · ERP-06 | P1 | **ERP-13 해소됨(통합) — 이관 취소.** **해소됨(통합) — 이관 취소.** 조사 헬퍼가 `shared/format.ts:269+` 로 승격돼 `requiredText`(`shared/crud/validation.ts:17,21,24`) · `useCrudForm.ts:222` · `useCrudList.tsx:108,158` 이 전부 그것을 소비한다. `pages/company/` 의 사용자 대상 조사 리터럴 **0건**. **남은 것은 ERP-06 하나**: `SelectField` 인 월에 '입력하세요' 문구가 붙는다(`requiredText` 가 동사를 '입력' 으로 고정 — `shared/crud/validation.ts:17`) | 이 화면 + `requiredText` 동사 축 | UI 기획 |
+| 16 | EXC-05 · EXC-11 | P1 | client timeout · offline 감지 부재 | 앱 전역 | 프론트 구현 / UI 기획 |
+| 17 | EXC-06 | P1 | 403·429 전용 surface 없음 — 일반 실패 배너로 수렴 | 공용 | UI 기획 / 백엔드 명세 |
+| 18 | EXC-18 | P1 | Shift-range · 대량 confirm · progress · cancel 부재 | 공용 | UI 기획 |
 | 19 | MOTION-04 | P1 | 행 FLIP 부재 — Motion 라이브러리가 여전히 없고 행 재배치는 CSS keyframes 로 대체하기 어렵다. **MOTION-08(easing recipe)은 해소됨 — 이관 취소**(`component.overlay` 실재 · Modal/Toast 가 소비 — `tokens/tokens.json:1286-1308`) | DS · 앱 전역 | DS 소유자 |
-| 20 | COMP-06 · COMP-09 | P2 | skeleton `length: 5` 하드코딩 · 내용 셀 truncation 없음 | 공용(`CrudTable`) | A41 |
-| 21 | — | — | **동시 편집 last-write-wins** — `version`/`ETag` 부재(EXC-04 acceptanceCheck 는 통과하나 잔여 위험) | 계약 | A63 (BE-017 §7.4) |
-| 22 | EXC-19 | P1 | 세션 만료 redirect 시 dirty 폼 draft 유실 | 앱 전역 | A40 / A11 |
+| 20 | COMP-06 · COMP-09 | P2 | skeleton `length: 5` 하드코딩 · 내용 셀 truncation 없음 | 공용(`CrudTable`) | 프론트 리팩터 |
+| 21 | — | — | **동시 편집 last-write-wins** — `version`/`ETag` 부재(EXC-04 acceptanceCheck 는 통과하나 잔여 위험) | 계약 | 백엔드 명세 (BE-017 §7.4) |
+| 22 | EXC-19 | P1 | 세션 만료 redirect 시 dirty 폼 draft 유실 | 앱 전역 | 프론트 구현 / UI 기획 |
 
 ## 6. 측정 도구 · 재현 스위치
 

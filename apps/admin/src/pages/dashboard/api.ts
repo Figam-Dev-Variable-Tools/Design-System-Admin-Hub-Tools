@@ -1,4 +1,4 @@
-// 대시보드 로컬 mock API (A40 소유 — apps/admin/src/pages/dashboard/**)
+// 대시보드 로컬 mock API
 //
 // 백엔드 연동 전까지 화면을 실제 데이터 흐름(로딩 → 성공/에러)으로 굴리기 위한 mock 이다.
 // 실제 API 가 붙으면 fetchTabData 의 내부만 교체하면 되고 화면 코드는 그대로다.

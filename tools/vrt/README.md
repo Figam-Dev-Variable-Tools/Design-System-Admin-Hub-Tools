@@ -1,7 +1,7 @@
 # @tds/vrt — Visual Regression 파이프라인
 
-> 소유: **A70 Visual Regression AI** (`orchestration/registry/agents.json`)
-> 차단 조건: **Storybook ↔ Figma pixel diff > 0.1% → G7 차단** (`orchestration/registry/gates.json`)
+> 담당: 비주얼 회귀
+> 차단 조건: **Storybook ↔ Figma pixel diff > 0.1% → G7 차단**
 
 Storybook 스토리 스크린샷과 Figma export 기준 이미지를 픽셀 단위로 비교해
 G7(Figma 동기화) 게이트의 차단 입력을 생성한다. SLO: `storybookFigmaVisualDiff ≤ 0.1%`.
@@ -22,7 +22,7 @@ pnpm --filter @tds/vrt run test -- --update-baseline   # 기준 이미지 최초
 2. 내장 정적 서버 + Playwright(chromium)로 각 스토리의 `#storybook-root` 캡처
    (뷰포트 1280×720, `reducedMotion: reduce`, 중간물은 `reports/vrt/tmp/<date>/` — gitignore 대상)
 3. 기준 이미지 탐색 (우선순위 순):
-   - **1순위** `docs/figma/specs/**/exports/<storyId>.png` — Figma export가 정본 (A51~A55 산출)
+   - **1순위** `docs/figma/specs/**/exports/<storyId>.png` — Figma export가 정본 (Figma 담당들 산출)
    - **2순위** `reports/vrt/baseline/<storyId>.png` — 자체 관리 baseline
 4. pixelmatch로 diff 비율 계산 → **0.1% 초과** 스토리를 실패 목록에 수집
 5. `reports/vrt/<date>-summary.json` + 실패 건별 diff PNG(`reports/vrt/diff/<date>/<storyId>.png`) 기록
@@ -34,7 +34,7 @@ pnpm --filter @tds/vrt run test -- --update-baseline   # 기준 이미지 최초
 기준 이미지가 전혀 없는 스토리는 기본 실행에서 `no-baseline`(경고, 실패 아님)으로 기록된다.
 `--update-baseline` 을 붙이면 해당 스토리의 현재 스크린샷을 `reports/vrt/baseline/` 에 등록한다.
 
-- `docs/figma/specs/**` 는 A51~A55 소유 경로이므로 **이 도구는 절대 그 경로에 쓰지 않는다** (P1 단일 소유권).
+- `docs/figma/specs/**` 는 Figma 담당들 소유 경로이므로 **이 도구는 절대 그 경로에 쓰지 않는다** (P1 단일 소유권).
 - Figma export가 나중에 도착하면 그것이 자동으로 1순위 정본이 된다 (local baseline은 fallback).
 
 ## Graceful skip
@@ -53,8 +53,8 @@ pnpm --filter @tds/vrt run test -- --update-baseline   # 기준 이미지 최초
 | 코드 | 의미 |
 |---|---|
 | 0 | 통과 · 또는 graceful skip |
-| 1 | diff > 0.1% 스토리 존재 → **G7 차단** (A56 Figma Reviewer + A00에 escalation) |
+| 1 | diff > 0.1% 스토리 존재 → **G7 차단** (Figma 리뷰 + 오케스트레이터에 escalation) |
 
 ## 출력 규격
 
-`reports/vrt/README.md` 참조. 리포트는 기계 생성 전용이며 A56(Figma Reviewer)이 RR-G7 검수의 evidence로 인용한다.
+`reports/vrt/README.md` 참조. 리포트는 기계 생성 전용이며 Figma 리뷰가 RR-G7 검수의 evidence로 인용한다.

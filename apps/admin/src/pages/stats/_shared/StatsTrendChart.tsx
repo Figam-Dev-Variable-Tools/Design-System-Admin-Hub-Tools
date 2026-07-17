@@ -1,4 +1,4 @@
-// 통계 추이 차트 — 현재 기간(면적) + 비교 기간(선) (A40 소유 — apps/admin/src/pages/stats/**)
+// 통계 추이 차트 — 현재 기간(면적) + 비교 기간(선)
 //
 // [왜 DS 의 LineAreaChart 가 아니라 여기인가 — 오너 확정 스택 'Recharts(통계)']
 //   LineAreaChart 는 **대시보드도 쓴다**(dashboard/components/StatsSection). 그리고 DashboardPage 는

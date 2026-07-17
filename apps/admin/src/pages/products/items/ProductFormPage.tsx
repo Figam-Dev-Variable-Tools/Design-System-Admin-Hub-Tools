@@ -1,4 +1,4 @@
-// ProductFormPage — 상품 등록/수정 (라우트: /products/new · /products/:id/edit) · A41 소유
+// ProductFormPage — 상품 등록/수정 (라우트: /products/new · /products/:id/edit)
 //
 // [프레임워크 재사용 + 엔터프라이즈 레이아웃] 데이터 배선은 공용 CRUD 프레임워크(useCrudForm)를 그대로
 // 쓰고, 화면은 섹션 카드(기본정보·가격·옵션/SKU·배송·이미지·상세설명) + 우측 실시간 상품 카드 미리보기로

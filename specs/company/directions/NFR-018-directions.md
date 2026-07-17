@@ -4,8 +4,8 @@ title: "오시는 길 비기능 명세"
 functionalSpec: FS-018
 backendSpec: BE-018
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -163,22 +163,22 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | **A11Y-11** | **P0** | **잔여 범위가 절반으로 좁아졌다.** 직전 판정의 '필수 3필드에 `required`/`aria-required` 가 없다 — 스크린리더에 필수 여부가 닿는 경로 0개' 는 F3a 가 닫았다: `FormField.withAriaRequired`(`FormField.tsx:50-56`, 주입 지점 `:107`)가 주소·위도·경도 `<input>` 에 `aria-required` 를 런타임 주입한다. **남은 것은 hint 미연결(4필드)** — `addressDetail`·`latitude`·`longitude`·`transit` 이 hint 를 갖고도 valid 일 때 `aria-describedby` 가 `undefined` 라 '예: 37.5000' 같은 형식 안내가 AT 에 전달되지 않는다. **`required` 와 달리 이 절에는 자동 주입이 없다** — `FormField` 가 id 만 노출하고 배선을 호출부에 맡기는 계약이 그대로다(`FormField.tsx:10-11`). 직전 판정이 제안한 'FormField 자동 배선 승격' 은 **required 축에서만 실현됐다.** **NFR-015 `profile-biznum` · NFR-017 `history-year` 와 같은 결함** — 함께 고칠 것 | 손수 배선 폼 전반(NFR-015 · NFR-017 · 이 화면) + `FormField` 계약 | A40 (`FormField` 의 hint 자동 배선 승격 검토 — required 선례가 생겼다) · A41 |
-| 2 | **EXC-03** | **P0** | 쓰기 권한 게이팅 없음 — 저장 권한 없는 역할도 저장 버튼을 보고 누른다. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | **기업 관리 섹션 전체**(앱 전역 아님) | A11 change_request |
-| 3 | **EXC-04** | **P0** | 낙관적 동시성 제어 전무 — 토큰(`If-Match`/`version`) 없음 + `DocumentFormShell` 에 `conflict` prop 없음. 마지막 쓰기 승리, 앞선 변경이 통지 없이 소실 | **단일 문서 폼 4종**(`DocumentFormShell` 소비자) + 데이터 계약 | A40 (`DocumentFormShell`) · A63 (BE-018 §7.4) |
-| 4 | **EXC-08** | **P0** | 동기 제출 잠금·멱등키 없음 — 응답 전 Enter 연타 = 요청 2건. `useCrudForm` 이 갖춘 방어를 단일 문서 폼이 상속하지 못한다 | **단일 문서 폼 4종**(`document.ts`/`DocumentFormShell`) | A40 |
-| 5 | A11Y-13 | P1 | 폼 진입 첫 필드 포커스 없음 · `onInvalid` 미명시 | 이 화면 | A41 |
-| 6 | COMP-12 | P2 | 길이 제한 4필드에 실시간 카운터 없음. 좌표는 `maxLength` 조차 없음 | 이 화면 | A41 |
+| 1 | **A11Y-11** | **P0** | **잔여 범위가 절반으로 좁아졌다.** 직전 판정의 '필수 3필드에 `required`/`aria-required` 가 없다 — 스크린리더에 필수 여부가 닿는 경로 0개' 는 F3a 가 닫았다: `FormField.withAriaRequired`(`FormField.tsx:50-56`, 주입 지점 `:107`)가 주소·위도·경도 `<input>` 에 `aria-required` 를 런타임 주입한다. **남은 것은 hint 미연결(4필드)** — `addressDetail`·`latitude`·`longitude`·`transit` 이 hint 를 갖고도 valid 일 때 `aria-describedby` 가 `undefined` 라 '예: 37.5000' 같은 형식 안내가 AT 에 전달되지 않는다. **`required` 와 달리 이 절에는 자동 주입이 없다** — `FormField` 가 id 만 노출하고 배선을 호출부에 맡기는 계약이 그대로다(`FormField.tsx:10-11`). 직전 판정이 제안한 'FormField 자동 배선 승격' 은 **required 축에서만 실현됐다.** **NFR-015 `profile-biznum` · NFR-017 `history-year` 와 같은 결함** — 함께 고칠 것 | 손수 배선 폼 전반(NFR-015 · NFR-017 · 이 화면) + `FormField` 계약 | 프론트 구현 (`FormField` 의 hint 자동 배선 승격 검토 — required 선례가 생겼다) · 프론트 리팩터 |
+| 2 | **EXC-03** | **P0** | 쓰기 권한 게이팅 없음 — 저장 권한 없는 역할도 저장 버튼을 보고 누른다. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | **기업 관리 섹션 전체**(앱 전역 아님) | UI 기획 쪽 변경 요청 |
+| 3 | **EXC-04** | **P0** | 낙관적 동시성 제어 전무 — 토큰(`If-Match`/`version`) 없음 + `DocumentFormShell` 에 `conflict` prop 없음. 마지막 쓰기 승리, 앞선 변경이 통지 없이 소실 | **단일 문서 폼 4종**(`DocumentFormShell` 소비자) + 데이터 계약 | 프론트 구현 (`DocumentFormShell`) · 백엔드 명세 (BE-018 §7.4) |
+| 4 | **EXC-08** | **P0** | 동기 제출 잠금·멱등키 없음 — 응답 전 Enter 연타 = 요청 2건. `useCrudForm` 이 갖춘 방어를 단일 문서 폼이 상속하지 못한다 | **단일 문서 폼 4종**(`document.ts`/`DocumentFormShell`) | 프론트 구현 |
+| 5 | A11Y-13 | P1 | 폼 진입 첫 필드 포커스 없음 · `onInvalid` 미명시 | 이 화면 | 프론트 리팩터 |
+| 6 | COMP-12 | P2 | 길이 제한 4필드에 실시간 카운터 없음. 좌표는 `maxLength` 조차 없음 | 이 화면 | 프론트 리팩터 |
 | ~~7~~ | ~~ERP-13 / ERP-06~~ | P1 | **해소됨(통합) — 이관 취소.** 조사 헬퍼가 `shared/format.ts:269+` 로 승격돼 `requiredText`(`shared/crud/validation.ts:17,21,24`) · `useCrudForm.ts:222` · `useCrudList.tsx:108,158` 이 전부 그것을 소비한다. `pages/company/` 의 사용자 대상 조사 리터럴 **0건** — '주소를 입력하세요.' · '위도는 -90 ~ 90 범위여야 합니다.' 로 옳게 갈린다 | — | **이관 취소** |
-| 8 | EXC-06 / EXC-07 / EXC-12 | P1 | status 별 UX 분기 없음 — 403/404/409/422/429/500 이 한 문구로 붕괴. `error.fields` → 인라인 에러 매핑 없음 | **단일 문서 폼 4종**(`DocumentFormShell` 이 `loadFailed` boolean 하나만 받는 구조) | A40 · A11 |
-| 9 | EXC-20 | P1 | 5xx 오류 참조 코드 미표시(`FormFeedback.tsx` 의 `errorReference` 를 `DocumentFormShell` 이 쓰지 않음) | 단일 문서 폼 4종 | A40 |
-| 10 | EXC-05 | P1 | client timeout 없음(`AbortSignal.timeout` 앱 전체 0건) | **앱 전역** | A40 · A63 |
-| 11 | EXC-11 | P1 | offline 감지 없음(`navigator.onLine` 앱 전체 0건) | **앱 전역** | A40 |
-| 12 | EXC-19 | P1 | 세션 만료 시 dirty 폼 draft 손실 · 만료 임박 연장 프롬프트 없음 | **앱 전역** | A40 · A11 |
-| 13 | STATE-03 | P1 | 재조회 인디케이터 없음(`DocumentFormShell` 에 `refreshing` 표면 부재) | 단일 문서 폼 4종 | A40 |
-| 14 | IA-08 | P1 | footer 에 secondary '취소' 없음 — 목록형 폼(`FormPageShell`)과 구성이 갈린다 | 단일 문서 폼 4종 | A11 |
-| 15 | IA-14 | P1 | 768/375px 반응형·최소 지원 폭 미선언(AppShell) | **앱 전역** | A40 · A11 |
-| 16 | — | — | **지도 임베드 미구현**(FS-018 §7 #1 · BE-018 §7.5) — quality-bar 축이 아니라 기능 결손 | 이 화면 | A11 · A01 |
+| 8 | EXC-06 / EXC-07 / EXC-12 | P1 | status 별 UX 분기 없음 — 403/404/409/422/429/500 이 한 문구로 붕괴. `error.fields` → 인라인 에러 매핑 없음 | **단일 문서 폼 4종**(`DocumentFormShell` 이 `loadFailed` boolean 하나만 받는 구조) | 프론트 구현 · UI 기획 |
+| 9 | EXC-20 | P1 | 5xx 오류 참조 코드 미표시(`FormFeedback.tsx` 의 `errorReference` 를 `DocumentFormShell` 이 쓰지 않음) | 단일 문서 폼 4종 | 프론트 구현 |
+| 10 | EXC-05 | P1 | client timeout 없음(`AbortSignal.timeout` 앱 전체 0건) | **앱 전역** | 프론트 구현 · 백엔드 명세 |
+| 11 | EXC-11 | P1 | offline 감지 없음(`navigator.onLine` 앱 전체 0건) | **앱 전역** | 프론트 구현 |
+| 12 | EXC-19 | P1 | 세션 만료 시 dirty 폼 draft 손실 · 만료 임박 연장 프롬프트 없음 | **앱 전역** | 프론트 구현 · UI 기획 |
+| 13 | STATE-03 | P1 | 재조회 인디케이터 없음(`DocumentFormShell` 에 `refreshing` 표면 부재) | 단일 문서 폼 4종 | 프론트 구현 |
+| 14 | IA-08 | P1 | footer 에 secondary '취소' 없음 — 목록형 폼(`FormPageShell`)과 구성이 갈린다 | 단일 문서 폼 4종 | UI 기획 |
+| 15 | IA-14 | P1 | 768/375px 반응형·최소 지원 폭 미선언(AppShell) | **앱 전역** | 프론트 구현 · UI 기획 |
+| 16 | — | — | **지도 임베드 미구현**(FS-018 §7 #1 · BE-018 §7.5) — quality-bar 축이 아니라 기능 결손 | 이 화면 | UI 기획 · 아키텍처 |
 
 ## 6. 측정 도구 · 재현 스위치
 

@@ -1,4 +1,4 @@
-// NewsletterFormPage — 뉴스레터 등록/수정 (라우트: /marketing/newsletters/new · /:id/edit) · A41 소유
+// NewsletterFormPage — 뉴스레터 등록/수정 (라우트: /marketing/newsletters/new · /:id/edit)
 //
 // 공용 CRUD 프레임워크(useCrudForm) + 입력 카드(발송정보·구독자·본문·예약) + 우측 이메일 미리보기 2단.
 // 구독형이라 수신거부 링크는 항상 포함한다. 검증 정본은 ./validation. **발송 버튼은 실제 전송이 아니다.**

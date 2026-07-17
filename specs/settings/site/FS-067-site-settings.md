@@ -3,8 +3,8 @@ id: FS-067
 title: "사이트 설정"
 screen: SCR-067               # ⚠ 시스템 설정 SCR 미작성 — §7 미결 사항 참조
 route: /settings/site
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -162,7 +162,7 @@ date: 2026-07-17
 | FS-067-EL-015 / EL-020 / EL-022 / EL-022.2 / EL-024 | 사이트 설정 저장 | W | `{ value, expectedRevision, force? }` | `siteSettingsStore.save(input, signal)` (`_shared/store.ts:114-134`) | `useSaveSettings`. **`expectedRevision` 불일치 → `SettingsConflictError`(최신 문서 동봉)**. `force: true` 면 토큰 검사를 건너뛴다 |
 | FS-067-EL-024.3 | 최신 내용 재조회 | R | 위와 동일 | `refetch()` (react-query) | 충돌 해소 경로 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `siteSettingsStore` 는 `createRevisionedStore('site', DEFAULT_SITE_SETTINGS, { updatedBy: '박관리', updatedAt: '2026-07-09T02:14:00.000Z' })`(`data-source.ts:33-37`)로 만든 **브라우저 안 mutable 클로저 1건**에 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('site', op)`)를 얹은 것이다 — 실제 네트워크 0건. `revision` 은 `rev-<seq>` 단조 증가 문자열(`store.ts:86-91`)이고, 저장 주체는 **하드코딩 `CURRENT_ADMIN = '김운영'`**(`store.ts:84`)이다. 새로고침하면 시드로 돌아간다. 연동 심은 `data-source.ts:28-32` 의 `// TODO(backend): GET /api/settings/site · PUT /api/settings/site` 하나이며 **요청 헤더(`If-Match: <revision>`)·바디·응답(200/409·412/422)까지 명시돼 있다** — BE-067 §4 는 이 심을 그대로 계약으로 옮긴 것이며 발명한 엔드포인트가 없다. 위 표는 백엔드 연결 후 의도된 동작이다. |
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드는 없다. `siteSettingsStore` 는 `createRevisionedStore('site', DEFAULT_SITE_SETTINGS, { updatedBy: '박관리', updatedAt: '2026-07-09T02:14:00.000Z' })`(`data-source.ts:33-37`)로 만든 **브라우저 안 mutable 클로저 1건**에 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('site', op)`)를 얹은 것이다 — 실제 네트워크 0건. `revision` 은 `rev-<seq>` 단조 증가 문자열(`store.ts:86-91`)이고, 저장 주체는 **하드코딩 `CURRENT_ADMIN = '김운영'`**(`store.ts:84`)이다. 새로고침하면 시드로 돌아간다. 연동 심은 `data-source.ts:28-32` 의 `// TODO(backend): GET /api/settings/site · PUT /api/settings/site` 하나이며 **요청 헤더(`If-Match: <revision>`)·바디·응답(200/409·412/422)까지 명시돼 있다** — BE-067 §4 는 이 심을 그대로 계약으로 옮긴 것이며 발명한 엔드포인트가 없다. 위 표는 백엔드 연결 후 의도된 동작이다. |
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -175,22 +175,22 @@ date: 2026-07-17
 - [x] 낙관적 동시성이 **'존재 여부'가 아니라 revision 토큰 기반**임을 `store.ts:124` 로 확인하고 EL-024 에 명시했다
 - [x] §7 의 미결 항목이 BE-067 §7.6 · NFR-067 §5 와 일치한다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 (시스템 설정 SCR 미작성) | A11 / A01 |
-| 2 | 조회 실패(EL-018)·저장 실패(EL-020)가 **status 를 구분하지 않는다** — 401/403/404/500 이 한 문구다. `createRevisionedStore` 가 `HttpError`(status 보유)가 아니라 일반 `Error`/`SettingsConflictError` 만 던져 화면이 분기할 근거가 없다(quality-bar EXC-06 · EXC-12 P1) | A11 · A63 |
-| 3 | **검증 실패 시 첫 오류 필드로 포커스가 가지 않는다** — `handleSubmit(onValid)` 에 `onInvalid` 가 없다. `useCrudForm` 의 `setFocus` 경로를 상속하지 못했다(quality-bar A11Y-13 P1) | A11 change_request |
-| 4 | 저장에 **멱등키가 없다** — 동기 잠금(EL-022.1)은 연타를 막지만, 응답 유실 후 재시도는 새 요청이 된다. `expectedRevision` 덕에 **중복 적용이 아니라 409** 가 되므로 데이터는 안전하나, 사용자는 영문 모를 충돌 다이얼로그를 본다. 앱에 선례가 있다(`pages/members/components/PointsCard.tsx:103,162-173`)(quality-bar EXC-08 P0) | A11 · A63 (BE-067 §7.4) |
-| 5 | **저장 실패 배너가 충돌 다이얼로그와 중복 표시된다** — `serverError={saveError !== null && pending === null ? … }`(`SiteSettingsPage.tsx:264`)가 `conflict === null` 을 검사하지 않는다. **언어(`LanguagesPage.tsx:283`)·OAuth(`OAuthPage.tsx:247`)는 검사한다** — 이 화면만 빠졌다. 덮어쓰기가 실패하면 같은 문구가 다이얼로그와 그 뒤 카드에 동시에 뜬다 | A11 change_request |
-| 6 | **`timezone` 이 저장될 뿐 적용되지 않는다** — 이 앱의 날짜 렌더(`shared/format`)는 브라우저 로컬/UTC 정오 앵커를 쓰고 이 값을 읽지 않는다. 화면은 그 사실을 **알리지 않는다**(언어 화면은 같은 상황을 info 배너로 밝힌다 — FS-068-EL-010). 운영자는 UTC 를 골라 두고 화면이 UTC 로 바뀌길 기다리게 된다 | A11 change_request · A01 (도메인 경계) |
-| 7 | 데이터 도착 시 `reset(data.value)` 하는 효과(EL-026)가 **편집 중 재조회에서도 돈다** — 저장 후 재조회는 정상이나, 그 밖의 재조회(수동 refetch·캐시 무효화)가 오면 입력이 덮인다 | A11 change_request |
-| 8 | 스켈레톤 행 수가 하드코딩 `[0, 1, 2, 3]`(`SettingsFormShell.tsx:154`) — 실제 필드 수(9)와 무관하다(quality-bar COMP-06 P2) | A11 change_request |
-| 9 | 이탈·취소 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장이 화면에 안 보일 수 있다 | A63 (BE-067) |
-| 10 | 읽기 전용 역할에게 저장 **버튼**은 없지만 `<form onSubmit>` 은 남아 있다 — 텍스트 입력에서 Enter 를 누르면 제출이 발화한다. 필드가 전부 `disabled` 라 실현되지 않으나(`disabled` 입력은 Enter 제출을 만들지 않는다) **방어가 구조가 아니라 우연**이다 | A11 change_request |
-| 11 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다(가드 미발화)(quality-bar EXC-05 · EXC-11 · EXC-19 P1) | A11 · A40 |
-| 12 | `SiteSettingsPage.tsx:15` 주석이 권한 게이트를 **`_shared/access.tsx`** 로 지목하나 **그 파일은 존재하지 않는다** — 실제 게이트는 `shared/permissions/RequirePermission` 이다(`:32`). 낡은 주석 | A11 change_request |
-| 13 | 기본 URL(EL-005)·대표 이메일(EL-006)·전화번호(EL-007)에 `maxLength` 가 없다 — 사이트명·설명·안내 문구와 달리 입력 길이 상한이 없고 스키마도 길이를 보지 않는다 | A11 change_request |
+| 1 | 대응 SCR 문서 부재 (시스템 설정 SCR 미작성) | UI 기획 / 아키텍처 |
+| 2 | 조회 실패(EL-018)·저장 실패(EL-020)가 **status 를 구분하지 않는다** — 401/403/404/500 이 한 문구다. `createRevisionedStore` 가 `HttpError`(status 보유)가 아니라 일반 `Error`/`SettingsConflictError` 만 던져 화면이 분기할 근거가 없다(quality-bar EXC-06 · EXC-12 P1) | UI 기획 · 백엔드 명세 |
+| 3 | **검증 실패 시 첫 오류 필드로 포커스가 가지 않는다** — `handleSubmit(onValid)` 에 `onInvalid` 가 없다. `useCrudForm` 의 `setFocus` 경로를 상속하지 못했다(quality-bar A11Y-13 P1) | UI 기획 쪽 변경 요청 |
+| 4 | 저장에 **멱등키가 없다** — 동기 잠금(EL-022.1)은 연타를 막지만, 응답 유실 후 재시도는 새 요청이 된다. `expectedRevision` 덕에 **중복 적용이 아니라 409** 가 되므로 데이터는 안전하나, 사용자는 영문 모를 충돌 다이얼로그를 본다. 앱에 선례가 있다(`pages/members/components/PointsCard.tsx:103,162-173`)(quality-bar EXC-08 P0) | UI 기획 · 백엔드 명세 (BE-067 §7.4) |
+| 5 | **저장 실패 배너가 충돌 다이얼로그와 중복 표시된다** — `serverError={saveError !== null && pending === null ? … }`(`SiteSettingsPage.tsx:264`)가 `conflict === null` 을 검사하지 않는다. **언어(`LanguagesPage.tsx:283`)·OAuth(`OAuthPage.tsx:247`)는 검사한다** — 이 화면만 빠졌다. 덮어쓰기가 실패하면 같은 문구가 다이얼로그와 그 뒤 카드에 동시에 뜬다 | UI 기획 쪽 변경 요청 |
+| 6 | **`timezone` 이 저장될 뿐 적용되지 않는다** — 이 앱의 날짜 렌더(`shared/format`)는 브라우저 로컬/UTC 정오 앵커를 쓰고 이 값을 읽지 않는다. 화면은 그 사실을 **알리지 않는다**(언어 화면은 같은 상황을 info 배너로 밝힌다 — FS-068-EL-010). 운영자는 UTC 를 골라 두고 화면이 UTC 로 바뀌길 기다리게 된다 | UI 기획 쪽 변경 요청 · 아키텍처 (도메인 경계) |
+| 7 | 데이터 도착 시 `reset(data.value)` 하는 효과(EL-026)가 **편집 중 재조회에서도 돈다** — 저장 후 재조회는 정상이나, 그 밖의 재조회(수동 refetch·캐시 무효화)가 오면 입력이 덮인다 | UI 기획 쪽 변경 요청 |
+| 8 | 스켈레톤 행 수가 하드코딩 `[0, 1, 2, 3]`(`SettingsFormShell.tsx:154`) — 실제 필드 수(9)와 무관하다(quality-bar COMP-06 P2) | UI 기획 쪽 변경 요청 |
+| 9 | 이탈·취소 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장이 화면에 안 보일 수 있다 | 백엔드 명세 (BE-067) |
+| 10 | 읽기 전용 역할에게 저장 **버튼**은 없지만 `<form onSubmit>` 은 남아 있다 — 텍스트 입력에서 Enter 를 누르면 제출이 발화한다. 필드가 전부 `disabled` 라 실현되지 않으나(`disabled` 입력은 Enter 제출을 만들지 않는다) **방어가 구조가 아니라 우연**이다 | UI 기획 쪽 변경 요청 |
+| 11 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다(가드 미발화)(quality-bar EXC-05 · EXC-11 · EXC-19 P1) | UI 기획 · 프론트 구현 |
+| 12 | `SiteSettingsPage.tsx:15` 주석이 권한 게이트를 **`_shared/access.tsx`** 로 지목하나 **그 파일은 존재하지 않는다** — 실제 게이트는 `shared/permissions/RequirePermission` 이다(`:32`). 낡은 주석 | UI 기획 쪽 변경 요청 |
+| 13 | 기본 URL(EL-005)·대표 이메일(EL-006)·전화번호(EL-007)에 `maxLength` 가 없다 — 사이트명·설명·안내 문구와 달리 입력 길이 상한이 없고 스키마도 길이를 보지 않는다 | UI 기획 쪽 변경 요청 |
 </content>
 </invoke>

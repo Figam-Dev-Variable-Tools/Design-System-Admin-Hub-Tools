@@ -1,4 +1,4 @@
-// 연혁 화면의 동작 회귀 테스트 (A41) — 정렬(순수) + 폼 검증
+// 연혁 화면의 동작 회귀 테스트 — 정렬(순수) + 폼 검증
 import { describe, expect, it } from 'vitest';
 
 import { sortHistory } from './types';

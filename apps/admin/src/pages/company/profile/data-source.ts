@@ -1,4 +1,4 @@
-// 회사 정보 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/company/profile/**)
+// 회사 정보 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] store 의 fetch/save 본문이 프론트 ↔ 백엔드 계약이다. 지금은 픽스처를 돌려준다.
 // 백엔드가 붙으면 아래 두 // TODO(backend) 자리를 실제 HTTP 로 바꾸고 화면 코드는 그대로 둔다.

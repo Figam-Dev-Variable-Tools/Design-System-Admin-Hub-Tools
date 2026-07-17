@@ -1,4 +1,4 @@
-// 약관 관리 화면의 동작 회귀 테스트 (A41)
+// 약관 관리 화면의 동작 회귀 테스트
 import { describe, expect, it } from 'vitest';
 
 import { fetchTermsVersion, sortVersions, TERMS_TYPES } from './data-source';

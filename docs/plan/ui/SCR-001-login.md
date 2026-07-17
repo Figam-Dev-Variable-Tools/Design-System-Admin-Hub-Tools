@@ -1,23 +1,23 @@
 ---
 # ── D2 · Screen Spec (화면정의서) ────────────────────────────────────────
-# 소유자: A11 (UI Planner) · 게이트: G1 (승인자 A12) · 체크리스트: docs/_templates/checklists/G1.md
+# 담당: UI 기획 · 게이트: G1 (승인자: 기획 리뷰) · 체크리스트: docs/_templates/checklists/G1.md
 id: SCR-001
 title: "로그인"
-owner: A11
-reviewer: A12
+owner: UI 기획
+reviewer: 기획 리뷰
 gate: G1
 status: draft             # draft | in_review | approved
 date: 2026-07-14
-userFlow: docs/plan/ux/flows/FLOW-001-admin-hub.md   # 미작성 — A10(UX Planner) 산출물 대기. 작성 완료 전 G1 진입 불가
-reuseReport: reports/reuse/2026-07-14-login-components.json   # 미생성 — G0에서 A75(Reuse Guard) 조회(pnpm reuse:check) 후 첨부. 첨부 전 G1 진입 불가
+userFlow: docs/plan/ux/flows/FLOW-001-admin-hub.md   # 미작성 — UX 기획 산출물 대기. 작성 완료 전 G1 진입 불가
+reuseReport: reports/reuse/2026-07-14-login-components.json   # 미생성 — G0에서 재사용 가드 조회(pnpm reuse:check) 후 첨부. 첨부 전 G1 진입 불가
 ---
 
 <!--
 [문서 상태 주의]
-- 본 문서는 draft다. frontmatter의 userFlow(A10 산출물)와 reuseReport(A75 판정)가
+- 본 문서는 draft다. frontmatter의 userFlow(UX 기획 산출물)와 reuseReport(재사용 가드 판정)가
   아직 생성되지 않았으므로, 두 선행 산출물이 채워지기 전에는 in_review로 전환하지 않는다.
-- §4의 "신규(잠정)" 분류는 A75 판정으로 확정되기 전까지 잠정 표기다. 판정 결과
-  유사도 ≥ 85%가 나오면 해당 행은 EXTEND로 강제 전환된다 (설계서 §3 A75).
+- §4의 "신규(잠정)" 분류는 재사용 가드 판정으로 확정되기 전까지 잠정 표기다. 판정 결과
+  유사도 ≥ 85%가 나오면 해당 행은 EXTEND로 강제 전환된다 (재사용 가드 정책).
 -->
 
 # SCR-001. 로그인
@@ -37,8 +37,8 @@ reuseReport: reports/reuse/2026-07-14-login-components.json   # 미생성 — G0
 
 ## 2. User Flow 매핑
 
-> 선행 산출물 미비: `docs/plan/ux/flows/FLOW-001-admin-hub.md`는 A10(UX Planner) 소유이며 아직 작성 전이다.
-> 아래 노드 ID는 A10에게 발행한 작성 요청 기준의 예정 ID다. A10 산출물 확정 후 본 표를 대조·확정해야 G1 항목 1을 통과한다.
+> 선행 산출물 미비: `docs/plan/ux/flows/FLOW-001-admin-hub.md`는 UX 기획 담당이며 아직 작성 전이다.
+> 아래 노드 ID는 UX 기획에 발행한 작성 요청 기준의 예정 ID다. UX 기획 산출물 확정 후 본 표를 대조·확정해야 G1 항목 1을 통과한다.
 
 | 화면/영역 | User Flow 노드 ID | 진입 경로 | 이탈 경로 |
 |---|---|---|---|
@@ -59,15 +59,15 @@ reuseReport: reports/reuse/2026-07-14-login-components.json   # 미생성 — G0
 
 ## 4. 필요 컴포넌트
 
-> 분류 규칙: "신규(잠정)"는 A75(Reuse Guard) 판정 전 잠정 표기다. G0에서 `pnpm reuse:check` 실행 →
+> 분류 규칙: "신규(잠정)"는 재사용 가드 판정 전 잠정 표기다. G0에서 `pnpm reuse:check` 실행 →
 > 판정 리포트(frontmatter reuseReport 경로)를 첨부해야 확정되며, 미첨부 상태로는 G1에 진입하지 않는다.
 
 | 컴포넌트 | 분류 (기존/EXTEND/신규) | Reuse 판정 (유사도 %) | 근거 (evidence 경로) | 계약 (contracts/) |
 |---|---|---|---|---|
-| TextField (이메일 입력 + 비밀번호 입력. 비밀번호 모드에서 표시/숨김 토글 버튼 내장 — §5.3 규칙 4) | 신규(잠정) | 미판정 — G0에서 A75 조회 필요 | 미생성 — reports/reuse/2026-07-14-login-components.json 생성 후 기입 | 없음 — G3 계약 작성 전 |
-| Checkbox ('이메일 저장') | 신규(잠정) | 미판정 — G0에서 A75 조회 필요 | 미생성 — reports/reuse/2026-07-14-login-components.json 생성 후 기입 | 없음 — G3 계약 작성 전 |
-| Alert (로그인 실패 · 계정 잠금 · 서버 오류 안내) | 신규(잠정) | 미판정 — G0에서 A75 조회 필요 | 미생성 — reports/reuse/2026-07-14-login-components.json 생성 후 기입 | 없음 — G3 계약 작성 전 |
-| Button (제출 버튼 — variant: primary, loading/disabled 상태 사용) | 기존 | REUSE — 기존 계약 재사용(신규 요청 아님, A75 조회 대상 아님) | contracts/Button.contract.json (version 1.0.0, status beta) | contracts/Button.contract.json@1.0.0 |
+| TextField (이메일 입력 + 비밀번호 입력. 비밀번호 모드에서 표시/숨김 토글 버튼 내장 — §5.3 규칙 4) | 신규(잠정) | 미판정 — G0에서 재사용 가드 조회 필요 | 미생성 — reports/reuse/2026-07-14-login-components.json 생성 후 기입 | 없음 — G3 계약 작성 전 |
+| Checkbox ('이메일 저장') | 신규(잠정) | 미판정 — G0에서 재사용 가드 조회 필요 | 미생성 — reports/reuse/2026-07-14-login-components.json 생성 후 기입 | 없음 — G3 계약 작성 전 |
+| Alert (로그인 실패 · 계정 잠금 · 서버 오류 안내) | 신규(잠정) | 미판정 — G0에서 재사용 가드 조회 필요 | 미생성 — reports/reuse/2026-07-14-login-components.json 생성 후 기입 | 없음 — G3 계약 작성 전 |
+| Button (제출 버튼 — variant: primary, loading/disabled 상태 사용) | 기존 | REUSE — 기존 계약 재사용(신규 요청 아님, 재사용 가드 조회 대상 아님) | contracts/Button.contract.json (version 1.0.0, status beta) | contracts/Button.contract.json@1.0.0 |
 
 ## 5. 비즈니스 규칙
 
@@ -107,6 +107,6 @@ reuseReport: reports/reuse/2026-07-14-login-components.json   # 미생성 — G0
 ## 6. 자기 점검 (제출 전 확인)
 
 - [x] §3 매트릭스 24셀 전부 채움 (N/A는 사유 포함)
-- [ ] §4 모든 행에 Reuse 판정 evidence 존재 — **미완**: 신규(잠정) 3건은 G0 A75 조회 리포트 생성 후 기입 (Button은 기존 계약으로 완료)
+- [ ] §4 모든 행에 Reuse 판정 evidence 존재 — **미완**: 신규(잠정) 3건은 G0 재사용 가드 조회 리포트 생성 후 기입 (Button은 기존 계약으로 완료)
 - [x] 모호 문구 0건 (`적절히`, `직관적으로`, `알아서`, `유연하게`, `자연스럽게`)
-- [ ] handoff envelope 작성 후 orchestration/tasks/에 기록 (P2) — **미완**: userFlow·reuseReport 선행 산출물 확보 후 review_request 발행
+- [ ] 작업 전달 문서 작성 후 기록 (P2) — **미완**: userFlow·reuseReport 선행 산출물 확보 후 리뷰 요청 발행

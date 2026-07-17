@@ -14,7 +14,7 @@
  *     제자리 덮어쓴다. 실행 시각은 콘솔과 gitignore 되는 `reports/test-coverage/tmp/` 에만 남긴다.
  *
  * **`NOT_VERIFIED` 와 `PASS` 를 구분해 표기한다.** 이 둘을 같은 초록불로 적는 순간 리포트는 거짓말이 된다.
- * 위반 0건이어도 pass 리포트를 남긴다 (A33/A42가 G5·G6 evidence 로 인용한다).
+ * 위반 0건이어도 pass 리포트를 남긴다 (스토리북 리뷰/코드 리뷰가 G5·G6 evidence 로 인용한다).
  * 리포트는 150행 이내 (ADR-0010 T4) — 초과분은 요약 + JSON 경로로 넘긴다.
  */
 import fs from 'node:fs';
@@ -67,7 +67,7 @@ export interface ScopeRow {
 
 export interface Report {
   tool: '@tds/test-coverage';
-  agent: 'A77';
+  agent: 'test-coverage-guard';
   scope: string;
   // 주의: `date` · `generatedAt` 등 벽시계 필드는 **의도적으로 없다** (파일 상단 주석 참조).
   //       실행 시각이 필요하면 콘솔 또는 gitignore 되는 tmp/ 런로그를 본다.
@@ -107,7 +107,7 @@ export interface Report {
   assertionFree: AssertionFreeUnit[];
   /** 도구가 자기 한계를 스스로 신고하는 자리 — 공허 통과 경로를 숨기지 않는다 */
   selfAudit: string[];
-  /** SKILL ↔ 레지스트리 불일치 — 도구가 임의 해소하지 않고 A01에 올린다 */
+  /** SKILL ↔ 레지스트리 불일치 — 도구가 임의 해소하지 않고 아키텍처에 올린다 */
   discrepancies: string[];
 }
 
@@ -143,7 +143,7 @@ export function buildReport(args: {
 
   return {
     tool: '@tds/test-coverage',
-    agent: 'A77',
+    agent: 'test-coverage-guard',
     scope: args.scope,
     status,
     exitCode,
@@ -186,7 +186,9 @@ export function renderMarkdown(report: Report): string {
 
   L.push(`# Test Coverage 리포트 — ${r.scope}`);
   L.push('');
-  L.push('> 생성: `@tds/test-coverage` (A77 Test Coverage Guard) — 기계 생성 전용, 수기 편집 금지');
+  L.push(
+    '> 생성: `@tds/test-coverage` (테스트 커버리지 Test Coverage Guard) — 기계 생성 전용, 수기 편집 금지',
+  );
   L.push(
     '> 커밋되는 기준선이다 — **커버리지가 실제로 바뀔 때만 바뀐다.** 실행 시각은 여기 없다(콘솔/tmp 참조).',
   );
@@ -297,7 +299,7 @@ export function renderMarkdown(report: Report): string {
   }
 
   if (r.discrepancies.length > 0) {
-    L.push('## SKILL ↔ 레지스트리 불일치 (A01 판정 요청 — 도구가 임의 해소하지 않는다)');
+    L.push('## SKILL ↔ 레지스트리 불일치 (아키텍처 판정 요청 — 도구가 임의 해소하지 않는다)');
     L.push('');
     for (const d of r.discrepancies) L.push(`- ${d}`);
     L.push('');
@@ -306,7 +308,7 @@ export function renderMarkdown(report: Report): string {
   L.push('## 자기 감사 — 이 도구가 공허 통과할 수 있는 경로');
   L.push('');
   L.push(
-    '검증기를 검증하는 자가 없다는 것이 이 조직의 반복 패턴이다. A77은 자기 한계를 스스로 신고한다.',
+    '검증기를 검증하는 자가 없다는 것이 이 조직의 반복 패턴이다. 테스트 커버리지은 자기 한계를 스스로 신고한다.',
   );
   L.push('');
   for (const s of r.selfAudit) L.push(`- ${s}`);
@@ -314,12 +316,16 @@ export function renderMarkdown(report: Report): string {
 
   L.push('## 조치 주체');
   L.push('');
-  L.push('- A77은 **측정만** 한다 — 테스트를 대신 쓰지 않는다. 없다는 사실을 증명할 뿐이다.');
   L.push(
-    '  - `packages/ui/src/**/*.test.*` · `*.stories.tsx` play → **A30** / `apps/*/src/**/*.test.*` → **A40** / `e2e/**` → **A85**',
+    '- 테스트 커버리지은 **측정만** 한다 — 테스트를 대신 쓰지 않는다. 없다는 사실을 증명할 뿐이다.',
   );
-  L.push('- 하한 조정 요청은 **A01(ADR)**. 미달이 많다고 하한을 내리지 않는다.');
-  L.push('- 계약 `states` 공백 → **A18** 경유 A19 / FS 예외 표 공백 → **A62** 경유 A64.');
+  L.push(
+    '  - `packages/ui/src/**/*.test.*` · `*.stories.tsx` play → **컴포넌트 엔지니어** / `apps/*/src/**/*.test.*` → **프론트 구현** / `e2e/**` → **E2E 테스트**',
+  );
+  L.push('- 하한 조정 요청은 **아키텍처(ADR)**. 미달이 많다고 하한을 내리지 않는다.');
+  L.push(
+    '- 계약 `states` 공백 → **계약 엔지니어** 경유 계약 리뷰 / FS 예외 표 공백 → **기능 명세** 경유 명세 리뷰.',
+  );
   L.push('');
   return L.join('\n');
 }

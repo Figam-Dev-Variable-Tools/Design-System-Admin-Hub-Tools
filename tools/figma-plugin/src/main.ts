@@ -1,6 +1,6 @@
 /**
  * TDS Sync — Figma 플러그인 메인 스레드
- * 소유: A50 Figma Plugin Engineer (tools/figma-plugin/**), 게이트 G7, 검수: A56 Figma Reviewer
+ * 소유: Figma 플러그인 Figma Plugin Engineer (tools/figma-plugin/**), 게이트 G7, 검수: Figma 리뷰 Figma Reviewer
  *
  * 역할: codegen 산출물(generated/<Name>.figma.json, generated/tokens/figma-variables.json)을
  * UI(iframe)로부터 postMessage로 받아 Figma 파일에 반영한다.
@@ -11,7 +11,7 @@
  *      규격: docs/figma/specs/tds-doc-style.md — Storybook과 동일한 tokens.json 원천)
  *
  * 원칙(P2 계약 우선): 이 플러그인은 계약에 없는 것을 만들지 않는다.
- * 계약에 없는 기존 값을 발견해도 삭제하지 않고 경고만 남긴다 — 파괴적 변경 판단은 G7 검수(A56)의 몫.
+ * 계약에 없는 기존 값을 발견해도 삭제하지 않고 경고만 남긴다 — 파괴적 변경 판단은 G7 검수(Figma 리뷰)의 몫.
  */
 
 import { generateTdsDoc, type TdsDocPayload } from './tds-doc';
@@ -244,7 +244,7 @@ function createComponentSet(spec: ComponentFigmaSpec, log: string[]): void {
   );
   if (combos.length > 200) {
     throw new Error(
-      `variant 조합 ${combos.length}개 — 200개 초과는 계약 분리가 필요하다 (A18에 change_request 발행)`,
+      `variant 조합 ${combos.length}개 — 200개 초과는 계약 분리가 필요하다 (계약 엔지니어에 변경 요청 발행)`,
     );
   }
   const components = combos.map((combo) => {
@@ -255,7 +255,7 @@ function createComponentSet(spec: ComponentFigmaSpec, log: string[]): void {
   const set = figma.combineAsVariants(components, figma.currentPage);
   set.name = spec.name;
   log.push(
-    `Component Set 생성: ${spec.name} — variant ${combos.length}개 (프레임 내용/레이아웃 채움은 A51/A53 담당)`,
+    `Component Set 생성: ${spec.name} — variant ${combos.length}개 (프레임 내용/레이아웃 채움은 Figma 컴포넌트/Figma UI 담당)`,
   );
 }
 

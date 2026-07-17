@@ -1,4 +1,4 @@
-// EmailFormPage — 이메일 발송 등록/수정 (라우트: /marketing/email/new · /:id/edit) · A41 소유
+// EmailFormPage — 이메일 발송 등록/수정 (라우트: /marketing/email/new · /:id/edit)
 //
 // SMS 발송과 형제 구조다: 공용 CRUD 프레임워크(useCrudForm) + 입력 카드(발송정보·수신자·본문·예약) +
 // 우측 이메일 미리보기 2단. 이메일용 규칙(제목·(광고) 표기·수신거부 링크)을 적용한다. 검증 정본은

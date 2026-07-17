@@ -1,4 +1,4 @@
-// 예약 일정(달력) 슬롯 집계 테스트 (A41) — 슬롯 정의·자원 점유·마감·중복(순수)
+// 예약 일정(달력) 슬롯 집계 테스트 — 슬롯 정의·자원 점유·마감·중복(순수)
 import { describe, expect, it } from 'vitest';
 
 import { DAY_SLOTS, occupiedResourceCount, slotCell, slotResourceCapacity } from './schedule-data';

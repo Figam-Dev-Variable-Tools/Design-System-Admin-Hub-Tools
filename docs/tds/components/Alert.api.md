@@ -7,7 +7,7 @@
 
 피드백 메시지 — 인라인 안내/에러 배너. 출처: apps/admin/src/pages/login/components/Alert.tsx · apps/admin/src/shared/ui/Alert.tsx. 색상만으로 의미를 전달하지 않도록(WCAG 1.4.1) tone 별 아이콘을 함께 렌더한다. tabIndex=-1 이라 바깥에서 프로그래매틱 포커스를 옮길 수 있다(제출 실패 시 에러로 포커스 이동).
 
-[루트 요소는 블록 컨테이너(<div>) 다 — <p> 가 아니다] children 은 node 슬롯이고 실호출부가 블록 자식을 넘긴다 (MemberDetailPage: <div> + 재시도/목록 <Button> 2개). <p> 안의 <div> 는 브라우저가 <p> 를 자동으로 닫아 레이아웃이 붕괴한다. 현행 구현(Alert.tsx:52)이 <p> 를 쓰고 있다 — 정정 대상(A30). role/aria-live/tabIndex 는 그대로 유지한다.
+[루트 요소는 블록 컨테이너(<div>) 다 — <p> 가 아니다] children 은 node 슬롯이고 실호출부가 블록 자식을 넘긴다 (MemberDetailPage: <div> + 재시도/목록 <Button> 2개). <p> 안의 <div> 는 브라우저가 <p> 를 자동으로 닫아 레이아웃이 붕괴한다. 현행 구현(Alert.tsx:52)이 <p> 를 쓰고 있다 — 정정 대상. role/aria-live/tabIndex 는 그대로 유지한다.
 
 [ref] 배너 포커스 이동용 ref 는 계약 prop 이 아니라 forwardRef 로 노출한다 (TextField 와 동일 판정).
 
@@ -18,7 +18,7 @@
 | 버전 | `1.1.0` |
 | 레벨 | `atom` |
 | 상태 | `beta` |
-| 소유 | code `A30` · design `A14` · figma `A51` |
+| 소유 | code `component-eng` · design `ui-design` · figma `figma-eng` |
 
 ## Props
 
@@ -39,7 +39,7 @@
 `default`
 
 > Story 커버리지는 enum prop 값 곱 × boolean prop 당 2 조합 100%가 요구됩니다 (`combinationMatrix` 참조).
-> states 는 이 행렬에 포함되지 않습니다 — state 커버리지는 A77(축2)이 **단언을 가진 테스트**로 따로 강제합니다.
+> states 는 이 행렬에 포함되지 않습니다 — state 커버리지는 커버리지 축2(contract-states)가 **단언을 가진 테스트**로 따로 강제합니다.
 
 ## A11y
 

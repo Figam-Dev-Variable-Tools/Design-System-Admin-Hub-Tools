@@ -1,4 +1,4 @@
-// 세션 만료 통지 (A41 소유 — apps/admin/src/shared/auth/**)
+// 세션 만료 통지
 //
 // [왜 pub/sub 인가 — 이 파일이 있는 진짜 이유]
 // 401 을 가장 먼저 보는 곳은 **queryClient(shared/query/queryClient.ts)** 다. 그런데 queryClient 는

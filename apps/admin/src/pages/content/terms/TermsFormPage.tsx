@@ -1,4 +1,4 @@
-// TermsFormPage — 약관 버전 등록/수정 (라우트: /content/terms/new?type= · /content/terms/:id/edit) · A41 소유
+// TermsFormPage — 약관 버전 등록/수정 (라우트: /content/terms/new?type= · /content/terms/:id/edit)
 //
 // [별도 폼 페이지 — 오너 피드백 ⑦/⑥] 목록의 인라인 폼을 없애고 별도 라우트로 옮겼다.
 //   등록은 ?type= 로 약관 종류를 받고, 수정은 :id 로 기존 버전을 불러온다. 폼 본문은 기존 VersionForm 재사용.

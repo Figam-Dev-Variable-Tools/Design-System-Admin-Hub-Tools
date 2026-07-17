@@ -1,4 +1,4 @@
-// ConsultationListPage — 상담 이력 목록 (라우트: /sales/consultations) · A41 소유
+// ConsultationListPage — 상담 이력 목록 (라우트: /sales/consultations)
 //
 // 상담 이력은 감사 성격이라 읽기 위주다(생성/수정/삭제 없음). 유형 필터 + 후속조치 대기 필터 + 검색 +
 // 행 → 상세. 데이터는 프레임워크 useCrudListQuery(읽기)로 배선한다. 목록엔 이미지 열이 없다.

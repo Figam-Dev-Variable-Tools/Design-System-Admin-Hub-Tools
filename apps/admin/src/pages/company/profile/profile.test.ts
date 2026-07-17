@@ -1,4 +1,4 @@
-// 회사 정보 화면의 폼 검증 회귀 테스트 (A41)
+// 회사 정보 화면의 폼 검증 회귀 테스트
 import { describe, expect, it } from 'vitest';
 
 import { companyProfileSchema } from './validation';

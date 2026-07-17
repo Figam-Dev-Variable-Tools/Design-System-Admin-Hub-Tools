@@ -1,4 +1,4 @@
-// 예약 상태 흐름 규칙 테스트 (A41) — 전이·라벨·톤·타입가드(순수)
+// 예약 상태 흐름 규칙 테스트 — 전이·라벨·톤·타입가드(순수)
 import { describe, expect, it } from 'vitest';
 
 import {

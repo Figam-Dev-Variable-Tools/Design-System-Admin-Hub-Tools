@@ -9,7 +9,7 @@
  * severity 는 **major** 다 — 이유는 thresholds.ts 의 TOOL_FIXTURES 주석 참조.
  * (SKILL 표는 blocker 라 적었으나 레지스트리 blockCondition 은 이 축을 열거하지 않는다.
  *  SKILL 자신이 "하한의 원천은 레지스트리" 라고 명령하므로 레지스트리를 따르고,
- *  불일치는 리포트에 남겨 A01의 판정을 받는다. 도구가 blocker 를 발명하지 않는다.)
+ *  불일치는 리포트에 남겨 아키텍처의 판정을 받는다. 도구가 blocker 를 발명하지 않는다.)
  */
 import { exists, walkFiles } from '../lib/fsutil.ts';
 import type { TestUnit } from '../lib/tests.ts';

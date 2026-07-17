@@ -1,4 +1,4 @@
-// LoginForm — 로그인 폼 조립 (A41 소유 — apps/admin/src/pages/login/**)
+// LoginForm — 로그인 폼 조립
 //
 // 순수 프레젠테이션에 가깝게 유지한다: 상태·API 호출·유효성·타임아웃·리다이렉트는 전부 LoginPage 가
 // 소유하고, 여기서는 값과 콜백만 받아 **@tds/ui 의 TextField/PasswordField/Checkbox/Alert/Button** 을

@@ -1,4 +1,4 @@
-// DownloadListPage — 자료실 목록 (라우트: /support/downloads) · A41 소유
+// DownloadListPage — 자료실 목록 (라우트: /support/downloads)
 //
 // 목록 + 등록/수정(폼) + 삭제·일괄 삭제. 데이터·선택·삭제 배선은 공용 CRUD 프레임워크
 // (useCrudList + CrudListShell). 목록엔 이미지 열을 넣지 않는다 — 파일은 상세/폼 업로드로만 다룬다.

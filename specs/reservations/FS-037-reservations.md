@@ -3,8 +3,8 @@ id: FS-037
 title: "예약 관리 (목록·등록/수정)"
 screen: SCR-037               # ⚠ 예약/신청 SCR(D2) 미작성 — §7 미결 사항 참조
 route: /reservations
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -185,7 +185,7 @@ date: 2026-07-17
 | FS-037-EL-007.8 / EL-022 / EL-023 | 자원 카탈로그 | R | 자원 id·이름·유형·정원 | `listResources()` · `findResource(id)` · `resourceCapacity(id)` | ⚠ **동기 함수**다 — 조회가 아니다 |
 | FS-037-EL-007.9 / EL-024 | 담당자 카탈로그 | R | 담당자 id·이름·역할 | `listStaff()` · `staffName(id)` | ⚠ **동기 함수**다 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드가 없다. `reservationAdapter` 는 `createCrudAdapter` 가 브라우저 안 mutable 배열(`RESERVATION_SEED`)을 CRUD 로 흉내 낸 것이다 — 새로고침하면 초기화된다. 연동 지점은 `_shared/reservation-store.ts:5` 의 `// TODO(backend): GET/POST /api/reservations · GET/PUT/DELETE /api/reservations/:id` 와 `_shared/resources.ts:7` 의 `// TODO(backend): GET /api/reservations/resources · GET /api/reservations/staff` 두 줄이다. 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드가 없다. `reservationAdapter` 는 `createCrudAdapter` 가 브라우저 안 mutable 배열(`RESERVATION_SEED`)을 CRUD 로 흉내 낸 것이다 — 새로고침하면 초기화된다. 연동 지점은 `_shared/reservation-store.ts:5` 의 `// TODO(backend): GET/POST /api/reservations · GET/PUT/DELETE /api/reservations/:id` 와 `_shared/resources.ts:7` 의 `// TODO(backend): GET /api/reservations/resources · GET /api/reservations/staff` 두 줄이다. 위 표는 백엔드 연결 후 의도된 동작이다.
 >
 > **⚠ 자원·담당자 카탈로그는 어댑터 교체만으로 연결되지 않는다.** `listResources()`/`listStaff()` 는 동기 함수이고, `ReservationFormPage.tsx:41-42` 가 **모듈 스코프**에서(컴포넌트 밖, 앱 시작 시 한 번) 호출하며, `reservation-validation.ts:77,108` 이 **zod 스키마의 check 콜백 안에서** `findResource`/`resourceCapacity` 를 동기 호출한다. 비동기 조회로 바꾸려면 호출부 세 곳의 구조를 바꿔야 한다 — BE-037 §6.1 · §7.3 참조.
 
@@ -199,22 +199,22 @@ date: 2026-07-17
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-037 영역) — §4 의 '409/412'·'422' 는 프론트가 분기하는 **관측 사실**로만 언급하고 계약은 BE-037 이 정한다
 - [x] 화면에 없는 요소를 지어내지 않았다 — 페이지네이션·기간 필터·엑셀 내보내기·전화번호 마스킹은 **부재**로 §7 에 기록했다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **상태 전이 규칙이 예약 폼에 강제되지 않는다.** `_shared/booking.ts` 가 `canTransition`/`nextStatuses`/`statusChoices` 를 정의하고 `booking.test.ts` 가 그 동작을 고정하는데, `ReservationFormPage.tsx:40` 은 `FORM_STATUSES` 로 5개 상태를 하드코딩해 그린다 — '방문완료'→'요청' 되돌리기가 폼에서 막히지 않는다. 상담 예약 폼(`ConsultationBookingFormPage.tsx:114`)은 같은 파일의 `statusChoices` 를 쓴다 — **같은 도메인 규칙이 두 화면에서 다르게 강제된다** | A11 change_request · A63 (BE-037 §7.2) |
-| 2 | **페이지네이션이 없다.** 예약은 무한 증가하는 트랜잭션 데이터인데 목록이 전량을 렌더한다. 파생 문제: 순번이 페이지 오프셋을 못 쓴다 · 전체선택이 보이는 전량을 한 번에 선택한다 · 더블부킹 배지 판정이 행마다 전량을 훑어 O(n²) 이다 · 일괄 삭제에 건수 상한·진행률·취소가 없다 | A11 change_request |
+| 1 | **상태 전이 규칙이 예약 폼에 강제되지 않는다.** `_shared/booking.ts` 가 `canTransition`/`nextStatuses`/`statusChoices` 를 정의하고 `booking.test.ts` 가 그 동작을 고정하는데, `ReservationFormPage.tsx:40` 은 `FORM_STATUSES` 로 5개 상태를 하드코딩해 그린다 — '방문완료'→'요청' 되돌리기가 폼에서 막히지 않는다. 상담 예약 폼(`ConsultationBookingFormPage.tsx:114`)은 같은 파일의 `statusChoices` 를 쓴다 — **같은 도메인 규칙이 두 화면에서 다르게 강제된다** | UI 기획 쪽 변경 요청 · 백엔드 명세 (BE-037 §7.2) |
+| 2 | **페이지네이션이 없다.** 예약은 무한 증가하는 트랜잭션 데이터인데 목록이 전량을 렌더한다. 파생 문제: 순번이 페이지 오프셋을 못 쓴다 · 전체선택이 보이는 전량을 한 번에 선택한다 · 더블부킹 배지 판정이 행마다 전량을 훑어 O(n²) 이다 · 일괄 삭제에 건수 상한·진행률·취소가 없다 | UI 기획 쪽 변경 요청 |
 | ~~3~~ | ~~**검색에 IME 조합 처리·디바운스가 없다.**~~ → **해소됨(F3b · `HEAD = 4b805ad`).** 이 화면이 `useListState` 를 소비하고(`ReservationListPage.tsx:83`) **그 훅이 내부에서 `useDebouncedSearch` 를 배선한다**(`useListState.ts:24,227-230`). 입력창이 `{...list.searchInputProps}`(`:156`)로 `onCompositionStart`/`onCompositionEnd`/조합 중 Enter 차단을 받고, 커밋된 `keyword` 만 조회에 들어간다 — 자모 단계는 `list.searchInput` 에만 머문다. **검색이 서버 쿼리로 바뀌어도 자모마다 요청이 나가지 않는다** | **닫힘** — NFR-037 §2 COMP-10 = pass |
-| 4 | **하위 라우트의 화면 제목이 둘이다.** `FormPageShell.tsx:160` 이 '예약 등록'을 `<h1>` 으로 그리고 `AppHeader.tsx:101` 도 `<h1>` 을 그린다 — **한 문서에 `<h1>` 이 둘이다.** ⚠ **1.0 의 '그중 하나는 틀린 제목'은 이제 사실이 아니다** — 통합이 `findNavLabel` 을 `findCoveringLeaf`(`nav-config.ts:269-279,297-299`) 위에 얹어 **가지 라벨 폴백을 없앴다**: `/reservations/new` 의 AppHeader 제목은 이제 '예약/신청 관리'가 아니라 **'예약'** 이다. **남은 결함은 이중 h1 하나**이며, 부수적으로 '등록/수정' 행위가 AppHeader 제목에 반영되지 않는다(`nav-config.ts:293-295` — nav 에 없는 문구를 레이아웃이 지어내지 않는다는 **의도**) | A40 · A11 |
-| 5 | **자원·담당자 카탈로그가 동기 모듈 상수다.** `// TODO(backend): GET /api/reservations/resources` 심이 있지만 `listResources()` 는 동기이고 `ReservationFormPage.tsx:41` 이 모듈 스코프에서, `reservation-validation.ts:77,108` 이 zod check 안에서 호출한다 — **어댑터 본문 교체만으로 연결되지 않고 호출부 재구조화가 필요하다** | A63 (BE-037 §7.3) · A11 |
-| 6 | 연락처가 자유 텍스트다 — 형식 검증·마스킹·붙여넣기 정규화가 없다(길이 20자 상한만). 픽스처는 마스킹된 표기(`010-1234-**56`)를 담지만 입력은 어떤 문자열이든 통과한다 | A11 change_request |
-| 7 | **날짜·시각 판정이 전부 브라우저 로컬 타임존 기준이다.** `_shared/calendar.ts` 의 `parseDate`(`:27-31`)/`toDateString`(`:45-47`)/`isToday`(`:87-89`)/`isPastDateTime`(`:95-101`)이 `new Date(y,m,d)` 와 `getFullYear`/`getMonth`/`getDate` 를 쓴다. 표시 타임존 정책이 없어 다른 TZ 의 관리자에게 '과거 일시' 경고와 '오늘' 판정이 달라진다. ⚠ **`4b805ad` 재확인 — 이 항목의 무게가 커졌다**: F3b 가 앱 전역의 TZ 사본 셋(`logs/time.ts` · `stats/_shared/period.ts` · `login-history/period.ts`)을 **`shared/format.ts:33-45` 의 UTC 정오 앵커** 한 벌로 수렴시켰다(`shared/format.test.ts:90,117` 가 고정). **`_shared/calendar.ts` 만 합류하지 않아 예약 섹션이 앱에서 사실상 마지막 browser-local 잔여지다** — 해소 비용은 낮고 근거는 이미 정본에 적혀 있다 | A63 (BE-037) · A11 |
-| 8 | **동시 수정을 감지하지 못한다.** 낙관적 동시성 토큰(If-Match/ETag/version)이 앱 코드에 없다 — `Reservation`(`_shared/reservation.ts:13-39`)에 `version`/`updatedAt` 이 없고 `WriteContext`(`crud.ts:30-42`)는 `signal`·`idempotencyKey` 만 싣는다. 어댑터는 대상이 **사라졌을 때만** 409 를 내므로(`crud.ts:126-128`) 유령 저장은 막히지만, **둘 다 존재하는 동시 수정은 마지막 쓰기가 조용히 이긴다** — 전체 치환(`{...item, ...input}` — `reservation-store.ts:125`)이라 다른 관리자가 방금 바꾼 필드까지 되돌린다. **`4b805ad` 재확인: 이 판정은 그대로다** — F3b 가 409 게이트와 멱등키 배관을 넣었으나 **그것은 '존재 여부'와 '재시도 중복 방지'이지 버전 토큰이 아니다** | A63 (BE-037 §7.3) · A11 |
-| 9 | **쓰기 권한 게이팅이 없다.** `shared/permissions/RequirePermission.tsx:45-52` 가 `useRouteWritePermissions`(canCreate/canUpdate/canRemove/canExport)를 노출하는데 **이 화면이 소비하지 않는다** — 조회 전용 역할에게도 '예약 등록'(`ReservationListPage.tsx:173`)·행 수정/삭제·일괄 삭제가 그대로 보이고 눌린다. ⚠ **1.0 의 '(그리고 `pages/**` 전체)가 소비하지 않는다'는 이제 틀렸다** — F3b 이후 소비처가 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`). **`pages/reservations/**` 에서만 grep 이 0** 이다. 즉 '프레임워크가 없다'가 아니라 **'이 섹션이 롤아웃에서 빠졌다'** — 선례가 7개 있으므로 배선 비용이 낮다 | A11 change_request · A63 |
-| 10 | 예약번호(`RSV-YYYYMMDD-NNN`)를 클라이언트 어댑터가 '같은 날 건수 + 1' 로 만든다 — 동시 생성 시 같은 번호가 나올 수 있고, 삭제 후 재생성 시 번호가 재사용된다. 서버 배정으로 옮겨야 한다 | A63 (BE-037 §7.6) |
-| 11 | 일괄 삭제의 부분 실패가 **건수만** 알린다 — 어느 예약이 실패했는지 알 수 없고 재시도가 전원을 재실행한다(성공분 재요청) | A11 change_request |
-| 12 | 자원 배정 `<select>` 에 오류가 있어도 `aria-invalid` 가 붙지 않는다(`FormField` 는 오류 `<p>` 를 그리지만 `aria-invalid`/`aria-describedby` 배선은 호출부 책임 — F3a 의 `withAriaRequired` 는 `aria-required` **하나만** 주입한다). 다른 필드는 전부 짝이 맞다 | A11 change_request |
-| 13 | **담당자 겹침을 검사하지 않는다.** 더블부킹 판정은 자원(`resourceId`)만 본다 — 같은 담당자를 같은 시각의 두 예약에 배정해도 경고가 없다 | A11 change_request · A63 (BE-037 §7.1) |
-| 14 | 프론트 타임아웃 상한 없음 · 오프라인 감지 없음 · 세션 만료 시 입력 중인 폼 내용 보존 없음 | A11 · A40 · A63 |
+| 4 | **하위 라우트의 화면 제목이 둘이다.** `FormPageShell.tsx:160` 이 '예약 등록'을 `<h1>` 으로 그리고 `AppHeader.tsx:101` 도 `<h1>` 을 그린다 — **한 문서에 `<h1>` 이 둘이다.** ⚠ **1.0 의 '그중 하나는 틀린 제목'은 이제 사실이 아니다** — 통합이 `findNavLabel` 을 `findCoveringLeaf`(`nav-config.ts:269-279,297-299`) 위에 얹어 **가지 라벨 폴백을 없앴다**: `/reservations/new` 의 AppHeader 제목은 이제 '예약/신청 관리'가 아니라 **'예약'** 이다. **남은 결함은 이중 h1 하나**이며, 부수적으로 '등록/수정' 행위가 AppHeader 제목에 반영되지 않는다(`nav-config.ts:293-295` — nav 에 없는 문구를 레이아웃이 지어내지 않는다는 **의도**) | 프론트 구현 · UI 기획 |
+| 5 | **자원·담당자 카탈로그가 동기 모듈 상수다.** `// TODO(backend): GET /api/reservations/resources` 심이 있지만 `listResources()` 는 동기이고 `ReservationFormPage.tsx:41` 이 모듈 스코프에서, `reservation-validation.ts:77,108` 이 zod check 안에서 호출한다 — **어댑터 본문 교체만으로 연결되지 않고 호출부 재구조화가 필요하다** | 백엔드 명세 (BE-037 §7.3) · UI 기획 |
+| 6 | 연락처가 자유 텍스트다 — 형식 검증·마스킹·붙여넣기 정규화가 없다(길이 20자 상한만). 픽스처는 마스킹된 표기(`010-1234-**56`)를 담지만 입력은 어떤 문자열이든 통과한다 | UI 기획 쪽 변경 요청 |
+| 7 | **날짜·시각 판정이 전부 브라우저 로컬 타임존 기준이다.** `_shared/calendar.ts` 의 `parseDate`(`:27-31`)/`toDateString`(`:45-47`)/`isToday`(`:87-89`)/`isPastDateTime`(`:95-101`)이 `new Date(y,m,d)` 와 `getFullYear`/`getMonth`/`getDate` 를 쓴다. 표시 타임존 정책이 없어 다른 TZ 의 관리자에게 '과거 일시' 경고와 '오늘' 판정이 달라진다. ⚠ **`4b805ad` 재확인 — 이 항목의 무게가 커졌다**: F3b 가 앱 전역의 TZ 사본 셋(`logs/time.ts` · `stats/_shared/period.ts` · `login-history/period.ts`)을 **`shared/format.ts:33-45` 의 UTC 정오 앵커** 한 벌로 수렴시켰다(`shared/format.test.ts:90,117` 가 고정). **`_shared/calendar.ts` 만 합류하지 않아 예약 섹션이 앱에서 사실상 마지막 browser-local 잔여지다** — 해소 비용은 낮고 근거는 이미 정본에 적혀 있다 | 백엔드 명세 (BE-037) · UI 기획 |
+| 8 | **동시 수정을 감지하지 못한다.** 낙관적 동시성 토큰(If-Match/ETag/version)이 앱 코드에 없다 — `Reservation`(`_shared/reservation.ts:13-39`)에 `version`/`updatedAt` 이 없고 `WriteContext`(`crud.ts:30-42`)는 `signal`·`idempotencyKey` 만 싣는다. 어댑터는 대상이 **사라졌을 때만** 409 를 내므로(`crud.ts:126-128`) 유령 저장은 막히지만, **둘 다 존재하는 동시 수정은 마지막 쓰기가 조용히 이긴다** — 전체 치환(`{...item, ...input}` — `reservation-store.ts:125`)이라 다른 관리자가 방금 바꾼 필드까지 되돌린다. **`4b805ad` 재확인: 이 판정은 그대로다** — F3b 가 409 게이트와 멱등키 배관을 넣었으나 **그것은 '존재 여부'와 '재시도 중복 방지'이지 버전 토큰이 아니다** | 백엔드 명세 (BE-037 §7.3) · UI 기획 |
+| 9 | **쓰기 권한 게이팅이 없다.** `shared/permissions/RequirePermission.tsx:45-52` 가 `useRouteWritePermissions`(canCreate/canUpdate/canRemove/canExport)를 노출하는데 **이 화면이 소비하지 않는다** — 조회 전용 역할에게도 '예약 등록'(`ReservationListPage.tsx:173`)·행 수정/삭제·일괄 삭제가 그대로 보이고 눌린다. ⚠ **1.0 의 '(그리고 `pages/**` 전체)가 소비하지 않는다'는 이제 틀렸다** — F3b 이후 소비처가 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`). **`pages/reservations/**` 에서만 grep 이 0** 이다. 즉 '프레임워크가 없다'가 아니라 **'이 섹션이 롤아웃에서 빠졌다'** — 선례가 7개 있으므로 배선 비용이 낮다 | UI 기획 쪽 변경 요청 · 백엔드 명세 |
+| 10 | 예약번호(`RSV-YYYYMMDD-NNN`)를 클라이언트 어댑터가 '같은 날 건수 + 1' 로 만든다 — 동시 생성 시 같은 번호가 나올 수 있고, 삭제 후 재생성 시 번호가 재사용된다. 서버 배정으로 옮겨야 한다 | 백엔드 명세 (BE-037 §7.6) |
+| 11 | 일괄 삭제의 부분 실패가 **건수만** 알린다 — 어느 예약이 실패했는지 알 수 없고 재시도가 전원을 재실행한다(성공분 재요청) | UI 기획 쪽 변경 요청 |
+| 12 | 자원 배정 `<select>` 에 오류가 있어도 `aria-invalid` 가 붙지 않는다(`FormField` 는 오류 `<p>` 를 그리지만 `aria-invalid`/`aria-describedby` 배선은 호출부 책임 — F3a 의 `withAriaRequired` 는 `aria-required` **하나만** 주입한다). 다른 필드는 전부 짝이 맞다 | UI 기획 쪽 변경 요청 |
+| 13 | **담당자 겹침을 검사하지 않는다.** 더블부킹 판정은 자원(`resourceId`)만 본다 — 같은 담당자를 같은 시각의 두 예약에 배정해도 경고가 없다 | UI 기획 쪽 변경 요청 · 백엔드 명세 (BE-037 §7.1) |
+| 14 | 프론트 타임아웃 상한 없음 · 오프라인 감지 없음 · 세션 만료 시 입력 중인 폼 내용 보존 없음 | UI 기획 · 프론트 구현 · 백엔드 명세 |
 | ~~15~~ | **(해소됨 — 기록)** 구 기준(`4b805ad`)은 '이용 시간' 필드의 필수 여부가 AT 에 닿지 않는다고 적고 해소 방향을 **미정**으로 남겼다(① 각자의 `FormField` 로 쪼개기 ② 호출부가 `aria-required` 직접 주기). **PR #30 이 ①을 채택했다** — `ReservationFormPage.tsx:265,277` 이 `시작 시각`·`종료 시각` 두 `FormField` 를 세웠고, 자식이 네이티브 `<input type="time">` 이라 `withAriaRequired`(`FormField.tsx:50-56`)가 주입한다 → **required 7/7 이 AT 에 닿는다.** ②가 기각된 근거는 코드에 있다(`:256-258`: 래퍼에 `aria-required` 를 얹는 것은 '거짓 시맨틱이므로 답이 아니다 — 라벨을 컨트롤마다 하나씩 두는 것이 답이다'). **선례는 상담 예약 폼(FS-039)** 이며 주석이 그것을 명시한다(`:261-262`). 부수 효과로 오류 id 공유도 해소됐다. 회귀 고정 `ReservationFormPage.a11y.test.tsx:73,74,81,90,91,112`. ~~**잔여(경미·신규)**: 형식 오류가 종료만 틀려도 `path: ['startTime']` 로 붙는다~~ → **해소됨**: 시작·종료를 각각 검사해 틀린 칸에 각각 붙인다(`reservation-validation.ts:54-80`). '경미'라는 판단은 `<input type="time">` 이 **오타**를 막는다는 근거였는데, 그 근거는 **빈 값**을 덮지 못했다 — 종료 시각을 비운 채 제출하는 흔한 경로에서 제대로 채운 시작 시각이 무효로 표시됐다 — §3 FS-037-EL-021 | — |

@@ -1,4 +1,4 @@
-// 오시는 길 화면 전용 타입 (A41 소유 — apps/admin/src/pages/company/directions/**)
+// 오시는 길 화면 전용 타입
 
 /** 오시는 길 — 단일 문서(회사당 1건) */
 export interface Directions {

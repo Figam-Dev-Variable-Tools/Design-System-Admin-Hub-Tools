@@ -1,4 +1,4 @@
-// 고객노출 FAQ 큐레이션 규칙 회귀 테스트 (A41) — 정렬·재정렬·노출 집계(순수)
+// 고객노출 FAQ 큐레이션 규칙 회귀 테스트 — 정렬·재정렬·노출 집계(순수)
 import { describe, expect, it } from 'vitest';
 
 import { applyFaqOrder, countVisible, sortCustomerFaqs, visibilityLabel } from './types';

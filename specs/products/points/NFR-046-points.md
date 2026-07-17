@@ -4,8 +4,8 @@ title: "적립금 정책 비기능 명세"
 functionalSpec: FS-046
 backendSpec: BE-046
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -185,19 +185,19 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | EXC-04 · (§4.3) | P0 | **낙관적 동시성 전무** — `If-Match`/`ETag` 없음 · `save` 가 `doc = input` 한 줄이라 항상 성공 · 충돌 해소 UI 없음. 두 관리자가 동시에 고치면 **조용히 유실**된다. **`DocumentStore` 인터페이스가 바뀌어야 하고 단일 문서형 6화면이 함께 영향받는다** — 어댑터 본문만으로 끝나지 않는다 | **`shared/crud/document` 전역** | **A63 · A11 (최우선 · 횡단 — BE-046 §7.4 · FS-046 §7 #16)** |
-| 2 | EXC-03 | P0 | **쓰기 게이팅 미배선** — `useRouteWritePermissions` 미소비. 7필드 편집 + '저장'이 무조건 렌더된다. **같은 단일 문서형 `settings/site`·`settings/languages`·`settings/oauth` 3화면은 배선했고 이 화면과 `products/shipping` 만 빠졌다**(grep 확인). BE-046 §7.6 이 `operator` 를 조회 전용으로 판정하므로 실사용에서 즉시 드러난다 | 이 화면 (+ `products/shipping` 동반) | A11 change_request (FS-046 §7 #2) |
-| 3 | EXC-08 | P0 | `submitLockRef`·멱등키 없음 — `useCrudForm` 미사용. **멱등키는 `SaveVars`(`document.ts:48-51`)에 자리 자체가 없다.** 버튼이 `type="submit"` 이라 RHF 비동기 검증 틈이 실재한다. **완화**: 전체 치환이라 최종 상태가 같다 — 진짜 위험은 #1 이다 | 이 화면 + `shared/crud/document` | A11 · A63 (FS-046 §7 #11) |
-| 4 | (§4.3) | — | **정책 변경 감사 이벤트 없음** — 누가·언제·무엇에서 무엇으로 바꿨는지 기록되지 않고 되돌릴 수 없다. **금액 규칙이다.** 관리자 로그 계약(BE-060 계열)과 함께 봐야 한다 — 이 화면에 그 심이 없다 | BE 계약 | **A63 (BE-046 §7.5 — 관리자 로그 연동)** |
-| 5 | (§4.3) · EXC-07 | P1 | **상한·교차 검증 0건** — `signupBonus` 1조원 통과 · `minUseAmount % useUnit` 미검사 · `maxUseRate: 0` 통과 · **현 픽스처가 이미 `signupBonus < minUseAmount` 모순**이다. **서버가 유일한 방어선인데** 그 422 를 필드로 되돌릴 경로가 없다(`useCrudForm` 미사용) | 이 화면 + BE 계약 | **A01(값 확정 · 선행)** · A63 (BE-046 §7.3) · A11 (FS-046 §7 #5·#15) |
-| 6 | (§4.3) | — | **이 정책을 읽는 코드가 앱에 0건** — 소비처·시점·소급 범위 전부 미정. **'기본 적립률'이 `DEFAULT_POINTS` 와 연결돼 있지 않아 hint 가 거짓**이다(`_shared/store.ts:169` 하드코딩). `DEFAULT_SHIPPING` 도 같은 문제라 **배송 정책과 한 배치로** | **A01 (선행)** · A63 (BE-046 §7.1·§7.2) · A11 (FS-046 §7 #1·#4) |
-| 7 | EXC-06 · EXC-20 · COMP-01 · COMP-06 · A11Y-11(잔여) | P1 · P2 | **`DocumentFormShell` 소유 결함 묶음**: status 로 전혀 분기하지 않음(403 에 '잠시 후 다시 시도'를 권한다) · 참조 코드 슬롯 없음 · `loading` prop 대신 손으로 쓴 '저장 중…' · 스켈레톤 4줄 고정(필드는 7개) · 조회 실패 문구가 도메인 없는 '내용'. **`hint` 가 `hintIdOf` 로 연결되지 않는 잔여**(`:50,65`)는 화면 소유. **단일 문서형 6화면이 함께 영향받는다** | **`shared/crud/DocumentFormShell` 전역** | A11 (셸 배치 — FS-046 §7 #7·#8·#9·#10·#14) |
-| 8 | ERP-14 · COMP-12 | P1 · P2 | 금액 필드(`signupBonus`)에 masked input 없음 — **붙여넣은 '3,000' 이 거절된다**. 7개 입력에 `maxLength` 가 하나도 없어 자릿수 상한이 아예 없다 | 이 화면 + 공유 field adapter | A11 change_request |
-| 9 | (IA-02 — **pass**) | — | **미결이 아니라 선례로 기록한다.** 이 화면은 담당 4화면 중 **유일하게 IA-02 를 통과한다** — `DocumentFormShell` 이 in-content `<h1>` 을 그리지 않고 `CardTitle`(`<h2>`)만 쓰기 때문이다. **형제 폼/상세 화면(FS-044·045·047 + 앱 전역 26개)이 이 형태를 따르면 IA-02 가 해소된다.** A40 이 h1 모델을 정할 때 이 화면을 참조점으로 쓸 수 있다 | (기록) | **A40 참고** |
-| 10 | A11Y-13(잔여) | P1 | 폼 진입 시 첫 필드 자동 포커스 없음. `onInvalid` 를 명시하지 않아 RHF 기본값에 의존한다(`useCrudForm.ts:240-245` 가 그것을 계약으로 고정한 이유와 대조) | 이 화면 | A11 change_request |
-| 11 | EXC-05 · EXC-11 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 | **앱 전역** | A40 · A11 (FS-046 §7 #17) |
-| 12 | (FS-046 §7 #6·#13) | — | 유효기간에 '무기한'을 표현할 값이 없다(0 이 막혀 있는데 쿠폰의 `totalQuantity: 0` = 무제한과 관용이 갈린다). 문서 도착 시 `reset(data)` 가 편집 중 재조회에서도 돈다 | 이 화면 | A01(관용 확정) · A11 |
-| 13 | (BE-046 §7.7) | — | 폼이 숫자를 문자열로 드는데 **계약은 `number` 다** — 변환이 어댑터 본문에 살아야 한다. 서버 기본값을 프론트 `DEFAULT_POINTS_POLICY` 와 맞춰야 한다 | 이 화면 + BE 계약 | A63 · A11 |
+| 1 | EXC-04 · (§4.3) | P0 | **낙관적 동시성 전무** — `If-Match`/`ETag` 없음 · `save` 가 `doc = input` 한 줄이라 항상 성공 · 충돌 해소 UI 없음. 두 관리자가 동시에 고치면 **조용히 유실**된다. **`DocumentStore` 인터페이스가 바뀌어야 하고 단일 문서형 6화면이 함께 영향받는다** — 어댑터 본문만으로 끝나지 않는다 | **`shared/crud/document` 전역** | **백엔드 명세 · UI 기획 (최우선 · 횡단 — BE-046 §7.4 · FS-046 §7 #16)** |
+| 2 | EXC-03 | P0 | **쓰기 게이팅 미배선** — `useRouteWritePermissions` 미소비. 7필드 편집 + '저장'이 무조건 렌더된다. **같은 단일 문서형 `settings/site`·`settings/languages`·`settings/oauth` 3화면은 배선했고 이 화면과 `products/shipping` 만 빠졌다**(grep 확인). BE-046 §7.6 이 `operator` 를 조회 전용으로 판정하므로 실사용에서 즉시 드러난다 | 이 화면 (+ `products/shipping` 동반) | UI 기획 쪽 변경 요청 (FS-046 §7 #2) |
+| 3 | EXC-08 | P0 | `submitLockRef`·멱등키 없음 — `useCrudForm` 미사용. **멱등키는 `SaveVars`(`document.ts:48-51`)에 자리 자체가 없다.** 버튼이 `type="submit"` 이라 RHF 비동기 검증 틈이 실재한다. **완화**: 전체 치환이라 최종 상태가 같다 — 진짜 위험은 #1 이다 | 이 화면 + `shared/crud/document` | UI 기획 · 백엔드 명세 (FS-046 §7 #11) |
+| 4 | (§4.3) | — | **정책 변경 감사 이벤트 없음** — 누가·언제·무엇에서 무엇으로 바꿨는지 기록되지 않고 되돌릴 수 없다. **금액 규칙이다.** 관리자 로그 계약(BE-060 계열)과 함께 봐야 한다 — 이 화면에 그 심이 없다 | BE 계약 | **백엔드 명세 (BE-046 §7.5 — 관리자 로그 연동)** |
+| 5 | (§4.3) · EXC-07 | P1 | **상한·교차 검증 0건** — `signupBonus` 1조원 통과 · `minUseAmount % useUnit` 미검사 · `maxUseRate: 0` 통과 · **현 픽스처가 이미 `signupBonus < minUseAmount` 모순**이다. **서버가 유일한 방어선인데** 그 422 를 필드로 되돌릴 경로가 없다(`useCrudForm` 미사용) | 이 화면 + BE 계약 | **아키텍처(값 확정 · 선행)** · 백엔드 명세 (BE-046 §7.3) · UI 기획 (FS-046 §7 #5·#15) |
+| 6 | (§4.3) | — | **이 정책을 읽는 코드가 앱에 0건** — 소비처·시점·소급 범위 전부 미정. **'기본 적립률'이 `DEFAULT_POINTS` 와 연결돼 있지 않아 hint 가 거짓**이다(`_shared/store.ts:169` 하드코딩). `DEFAULT_SHIPPING` 도 같은 문제라 **배송 정책과 한 배치로** | **아키텍처 (선행)** · 백엔드 명세 (BE-046 §7.1·§7.2) · UI 기획 (FS-046 §7 #1·#4) |
+| 7 | EXC-06 · EXC-20 · COMP-01 · COMP-06 · A11Y-11(잔여) | P1 · P2 | **`DocumentFormShell` 소유 결함 묶음**: status 로 전혀 분기하지 않음(403 에 '잠시 후 다시 시도'를 권한다) · 참조 코드 슬롯 없음 · `loading` prop 대신 손으로 쓴 '저장 중…' · 스켈레톤 4줄 고정(필드는 7개) · 조회 실패 문구가 도메인 없는 '내용'. **`hint` 가 `hintIdOf` 로 연결되지 않는 잔여**(`:50,65`)는 화면 소유. **단일 문서형 6화면이 함께 영향받는다** | **`shared/crud/DocumentFormShell` 전역** | UI 기획 (셸 배치 — FS-046 §7 #7·#8·#9·#10·#14) |
+| 8 | ERP-14 · COMP-12 | P1 · P2 | 금액 필드(`signupBonus`)에 masked input 없음 — **붙여넣은 '3,000' 이 거절된다**. 7개 입력에 `maxLength` 가 하나도 없어 자릿수 상한이 아예 없다 | 이 화면 + 공유 field adapter | UI 기획 쪽 변경 요청 |
+| 9 | (IA-02 — **pass**) | — | **미결이 아니라 선례로 기록한다.** 이 화면은 담당 4화면 중 **유일하게 IA-02 를 통과한다** — `DocumentFormShell` 이 in-content `<h1>` 을 그리지 않고 `CardTitle`(`<h2>`)만 쓰기 때문이다. **형제 폼/상세 화면(FS-044·045·047 + 앱 전역 26개)이 이 형태를 따르면 IA-02 가 해소된다.** 프론트 구현 이 h1 모델을 정할 때 이 화면을 참조점으로 쓸 수 있다 | (기록) | **프론트 구현 참고** |
+| 10 | A11Y-13(잔여) | P1 | 폼 진입 시 첫 필드 자동 포커스 없음. `onInvalid` 를 명시하지 않아 RHF 기본값에 의존한다(`useCrudForm.ts:240-245` 가 그것을 계약으로 고정한 이유와 대조) | 이 화면 | UI 기획 쪽 변경 요청 |
+| 11 | EXC-05 · EXC-11 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 | **앱 전역** | 프론트 구현 · UI 기획 (FS-046 §7 #17) |
+| 12 | (FS-046 §7 #6·#13) | — | 유효기간에 '무기한'을 표현할 값이 없다(0 이 막혀 있는데 쿠폰의 `totalQuantity: 0` = 무제한과 관용이 갈린다). 문서 도착 시 `reset(data)` 가 편집 중 재조회에서도 돈다 | 이 화면 | 아키텍처(관용 확정) · UI 기획 |
+| 13 | (BE-046 §7.7) | — | 폼이 숫자를 문자열로 드는데 **계약은 `number` 다** — 변환이 어댑터 본문에 살아야 한다. 서버 기본값을 프론트 `DEFAULT_POINTS_POLICY` 와 맞춰야 한다 | 이 화면 + BE 계약 | 백엔드 명세 · UI 기획 |
 
 ## 6. 측정 도구 · 재현 스위치
 

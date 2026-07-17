@@ -1,4 +1,4 @@
-// PromotionListPage — 프로모션 목록 (라우트: /marketing/promotions) · A41 소유
+// PromotionListPage — 프로모션 목록 (라우트: /marketing/promotions)
 //
 // CRUD 프레임워크(useCrudList + CrudListShell) 위에 상태 필터 + 검색 + 기간·대상·할인·상태 배지 + 삭제팝업.
 // 지정 상태가 기간과 어긋나면 '기간상 XX' 힌트 배지로 알린다. 목록엔 이미지 열이 없다.

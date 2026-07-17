@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "TDS 디자인 시스템 UI 패키지 — Storybook 기반. 소유: A30(src) · A31(*.mdx) · A32(pages), 검수: A33(G5)",
+  "description": "TDS 디자인 시스템 UI 패키지 — Storybook 기반. 담당: 컴포넌트 엔지니어(src) · 스토리북 문서(*.mdx) · 스토리북 페이지(pages), 검수: 스토리북 리뷰(G5)",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {

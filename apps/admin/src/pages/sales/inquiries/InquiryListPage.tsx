@@ -1,4 +1,4 @@
-// InquiryListPage — 문의 목록 (라우트: /sales/inquiries) · A41 소유
+// InquiryListPage — 문의 목록 (라우트: /sales/inquiries)
 //
 // 문의는 고객 채널이 만들고 관리자는 처리·답변만 한다. 그래서 CrudListShell(삭제·일괄) 대신 읽기 전용
 // 표를 쓴다: 유형·채널·상태 필터 + 검색 + 행 → 상세(타임라인·답변). 데이터는 useCrudListQuery(읽기).

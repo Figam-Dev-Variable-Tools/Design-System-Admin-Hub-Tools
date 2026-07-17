@@ -1,4 +1,4 @@
-// 팝업 관리 화면의 동작 회귀 테스트 (A41)
+// 팝업 관리 화면의 동작 회귀 테스트
 import { describe, expect, it } from 'vitest';
 
 import { applyQuery, nextPriority, POPUPS, setEnabledById } from './data-source';

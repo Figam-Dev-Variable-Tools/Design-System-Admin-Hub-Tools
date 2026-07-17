@@ -4,8 +4,8 @@ title: "프로모션 비기능 명세"
 functionalSpec: FS-032
 backendSpec: BE-032
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -185,35 +185,35 @@ date: 2026-07-17
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
 | 1 | ~~COMP-10~~ | ~~P0~~ | **해소 (F3b)** — `PromotionListPage.tsx:80,145-151` 이 `useListState` 를 통해 `useDebouncedSearch`(`useListState.ts:227-230`)를 소비한다. 조합 중 커밋 금지·250ms 디바운스·Enter 차단 전부 붙었다 | — | **닫힘** |
-| 2 | IA-02 | **P0** | 하위 라우트가 브랜치 라벨('마케팅 관리')로 폴백 + h1 2개 | 앱 전역(`AppHeader`·`findNavLabel`) | A11 change_request |
-| 3 | IA-04 | **P0** | Pagination 부재 — 전량 렌더 | 앱 전역(`CrudListShell`) | A11 change_request |
+| 2 | IA-02 | **P0** | 하위 라우트가 브랜치 라벨('마케팅 관리')로 폴백 + h1 2개 | 앱 전역(`AppHeader`·`findNavLabel`) | UI 기획 쪽 변경 요청 |
+| 3 | IA-04 | **P0** | Pagination 부재 — 전량 렌더 | 앱 전역(`CrudListShell`) | UI 기획 쪽 변경 요청 |
 | 4 | ~~IA-13~~ | ~~P0~~ | **해소 (F3b)** — `PromotionListPage.tsx:80` 이 `useListState` 를 소비해 `?phase=`·`?q=` 를 URL 이 소유한다(`useListState.ts:87-99,125`). F5·Back·링크 공유로 복원된다 | — | **닫힘** |
-| 5 | EXC-03 | **P0** | 쓰기 컨트롤 권한 게이팅 없음 — `useRouteWritePermissions` 소비자 0건. **할인 정의는 금전 권한이라 무게가 크다** | 앱 전역 | A11 change_request |
-| 6 | EXC-04 | **P0** | 낙관적 동시성 토큰 부재 — '먼저 수정' 미감지(last-write-wins). **할인율이 조용히 덮인다 = 금전 손실. 이벤트보다 우선순위 높음** | 이 화면 + 서버 계약 | A63 (**BE-032 §7.5**) · A41(`types.ts`·어댑터) |
-| 7 | **A11Y-11** | **P0** | **`promo-min-order` 입력이 `aria-invalid`·`aria-describedby` 를 배선하지 않는다**(`PromotionFormPage.tsx:233-242`) — 같은 폼의 다른 5필드는 전부 지킨다. 위반 시 붉은 테두리만 남는 **색상 단독 표기**(WCAG 1.4.1). hint 도 미연결 | **이 화면 단독** — 3줄 수정으로 해소 | A11 change_request (**BE-032 §7.13**) |
-| 8 | COMP-01 | P1 | 공용 폼 셸의 '목록으로' 가 DS Button 아님 + 수기 '저장 중…' | 앱 전역(`FormPageShell`) | A11 change_request |
-| 9 | COMP-12 | P2 | 프로모션명·대상에 카운터 없음. 대상은 `maxLength` 속성도 없음 | 이 화면 | A11 change_request |
-| 10 | IA-03 | P1 | breadcrumb 부재 | 앱 전역 | A11 change_request |
-| 11 | IA-14 | P1 | 반응형 계약 미선언 — 할인 3필드 그리드가 좁은 폭에서 취약 | 앱 전역 | A11 change_request |
-| 12 | ERP-01 | P1 | status→tone 이 마케팅 섹션 스코프 — 앱 전역 단일 레지스트리 아님 | 앱 전역 | A11 change_request |
-| 13 | ERP-04 | P1 | sortable header 부재 — 할인액·할인율 정렬 불가 | 앱 전역(`CrudTable`) | A11 change_request |
-| 14 | ERP-06 | P1 | microcopy 표준 문서 부재 | 앱 전역 | A11 change_request |
-| 15 | **ERP-07** | P2 | **할인 컬럼의 '원' 이 숫자에 붙어 우측 정렬 자릿수가 어긋난다**(`types.ts:47-49` `discountLabel`) | 이 화면 | A11 change_request |
-| 16 | **ERP-08** | P2 | **정률 표기가 raw `String(value)`** — 정액만 `formatNumber` 경유(`types.ts:48`). 현재 오출력은 없으나 규약 이탈 | 이 화면 | A11 change_request |
+| 5 | EXC-03 | **P0** | 쓰기 컨트롤 권한 게이팅 없음 — `useRouteWritePermissions` 소비자 0건. **할인 정의는 금전 권한이라 무게가 크다** | 앱 전역 | UI 기획 쪽 변경 요청 |
+| 6 | EXC-04 | **P0** | 낙관적 동시성 토큰 부재 — '먼저 수정' 미감지(last-write-wins). **할인율이 조용히 덮인다 = 금전 손실. 이벤트보다 우선순위 높음** | 이 화면 + 서버 계약 | 백엔드 명세 (**BE-032 §7.5**) · 프론트 리팩터(`types.ts`·어댑터) |
+| 7 | **A11Y-11** | **P0** | **`promo-min-order` 입력이 `aria-invalid`·`aria-describedby` 를 배선하지 않는다**(`PromotionFormPage.tsx:233-242`) — 같은 폼의 다른 5필드는 전부 지킨다. 위반 시 붉은 테두리만 남는 **색상 단독 표기**(WCAG 1.4.1). hint 도 미연결 | **이 화면 단독** — 3줄 수정으로 해소 | UI 기획 쪽 변경 요청 (**BE-032 §7.13**) |
+| 8 | COMP-01 | P1 | 공용 폼 셸의 '목록으로' 가 DS Button 아님 + 수기 '저장 중…' | 앱 전역(`FormPageShell`) | UI 기획 쪽 변경 요청 |
+| 9 | COMP-12 | P2 | 프로모션명·대상에 카운터 없음. 대상은 `maxLength` 속성도 없음 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 10 | IA-03 | P1 | breadcrumb 부재 | 앱 전역 | UI 기획 쪽 변경 요청 |
+| 11 | IA-14 | P1 | 반응형 계약 미선언 — 할인 3필드 그리드가 좁은 폭에서 취약 | 앱 전역 | UI 기획 쪽 변경 요청 |
+| 12 | ERP-01 | P1 | status→tone 이 마케팅 섹션 스코프 — 앱 전역 단일 레지스트리 아님 | 앱 전역 | UI 기획 쪽 변경 요청 |
+| 13 | ERP-04 | P1 | sortable header 부재 — 할인액·할인율 정렬 불가 | 앱 전역(`CrudTable`) | UI 기획 쪽 변경 요청 |
+| 14 | ERP-06 | P1 | microcopy 표준 문서 부재 | 앱 전역 | UI 기획 쪽 변경 요청 |
+| 15 | **ERP-07** | P2 | **할인 컬럼의 '원' 이 숫자에 붙어 우측 정렬 자릿수가 어긋난다**(`types.ts:47-49` `discountLabel`) | 이 화면 | UI 기획 쪽 변경 요청 |
+| 16 | **ERP-08** | P2 | **정률 표기가 raw `String(value)`** — 정액만 `formatNumber` 경유(`types.ts:48`). 현재 오출력은 없으나 규약 이탈 | 이 화면 | UI 기획 쪽 변경 요청 |
 | 17 | ~~**ERP-09**~~ | ~~P2~~ | **해소 (F3b)** — `formatDate`(`format.ts:161-165`)가 KST 고정 Intl 포매터(`:63,76-85,102-124`)를 쓴다. `derivePhase` 기준일이 보는 사람의 OS 타임존과 무관해졌다 | — | **닫힘** |
 | 18 | ~~**ERP-13**~~ | ~~P1~~ | **해소 (통합)** — 조사 헬퍼가 `shared/format.ts:306(objectParticle)·311(topicParticle)` 로 승격되고 `useCrudForm.ts:222`·`useCrudList.tsx:108,158`·`FormPageShell.tsx:129-130`·`crud/validation.ts:22,25` 가 소비한다. 리터럴 '을(를)' **0건** | — | **닫힘** |
-| 19 | **ERP-14** | P1 | **금액 입력에 마스킹·paste normalize 없음** — `digitsToNumber` 의 콤마 제거가 검증(`/^\d+$/`)에 막혀 **죽은 코드**다. 붙여넣은 '1,234,000' 이 normalize 되지 않고 거절된다. 실시간 천단위 구분도 없다 | 이 화면 + `shared/format`(마스킹 primitive) | A11 change_request |
-| 20 | ERP-15 | P1 | 대형 list 렌더 계약 부재 | 앱 전역 | A11 change_request |
-| 21 | EXC-05 | P1 | 클라이언트 타임아웃 상한 부재 | 앱 전역 | A11 · A63 (**BE-032 §2** 서버 상한 5초) |
-| 22 | EXC-06 | P1 | 403·429·400 전용 surface 부재 | 이 화면 + 공용 셸 | A11 (**BE-032 §7.9 · §7.12**) |
-| 23 | EXC-10 | P1 | 일괄 삭제가 실패 id 미반환 | 앱 전역 + 서버 계약 | A11 · A63 (**BE-032 §7.5**) |
-| 24 | EXC-11 | P1 | 오프라인 감지 부재 | 앱 전역 | A11 change_request |
-| 25 | EXC-18 | P1 | Shift-range·임계값 confirm·progress/cancel 부재 | 앱 전역 | A11 change_request |
-| 26 | EXC-19 | P1 | 세션 만료 시 dirty 초안 소실 | 앱 전역 | A11 · A63 |
-| 27 | EXC-20 | P1 | 조회·삭제 실패 배너에 참조 코드 미표시 | 앱 전역 | A11 (**BE-032 §7.11**) |
-| 28 | A11Y-13 | P1 | 폼 진입 시 첫 필드 자동 포커스 없음 | 앱 전역(`FormPageShell`) | A11 change_request |
-| 29 | COMP-07 | P2 | `SeqCell seq={index + 1}` — **IA-04(#3) 해소 시 즉시 위반** | 앱 전역(`CrudTable`) | A11 (#3 과 함께) |
-| 30 | (BE) | — | **서버 측 할인 범위 검증 부재** — 현재 `promotionSchema` 만이 음수·0·100% 초과를 막는다. 어댑터 우회 호출은 무방비. quality-bar 축이 아니라 **BE-032 §7.3 의 보안 판정**이며, 프론트 gap 이 아니라 **서버 계약 미구현**이다 | 서버 | A63 (**BE-032 §7.3 · 최우선**) |
+| 19 | **ERP-14** | P1 | **금액 입력에 마스킹·paste normalize 없음** — `digitsToNumber` 의 콤마 제거가 검증(`/^\d+$/`)에 막혀 **죽은 코드**다. 붙여넣은 '1,234,000' 이 normalize 되지 않고 거절된다. 실시간 천단위 구분도 없다 | 이 화면 + `shared/format`(마스킹 primitive) | UI 기획 쪽 변경 요청 |
+| 20 | ERP-15 | P1 | 대형 list 렌더 계약 부재 | 앱 전역 | UI 기획 쪽 변경 요청 |
+| 21 | EXC-05 | P1 | 클라이언트 타임아웃 상한 부재 | 앱 전역 | UI 기획 · 백엔드 명세 (**BE-032 §2** 서버 상한 5초) |
+| 22 | EXC-06 | P1 | 403·429·400 전용 surface 부재 | 이 화면 + 공용 셸 | UI 기획 (**BE-032 §7.9 · §7.12**) |
+| 23 | EXC-10 | P1 | 일괄 삭제가 실패 id 미반환 | 앱 전역 + 서버 계약 | UI 기획 · 백엔드 명세 (**BE-032 §7.5**) |
+| 24 | EXC-11 | P1 | 오프라인 감지 부재 | 앱 전역 | UI 기획 쪽 변경 요청 |
+| 25 | EXC-18 | P1 | Shift-range·임계값 confirm·progress/cancel 부재 | 앱 전역 | UI 기획 쪽 변경 요청 |
+| 26 | EXC-19 | P1 | 세션 만료 시 dirty 초안 소실 | 앱 전역 | UI 기획 · 백엔드 명세 |
+| 27 | EXC-20 | P1 | 조회·삭제 실패 배너에 참조 코드 미표시 | 앱 전역 | UI 기획 (**BE-032 §7.11**) |
+| 28 | A11Y-13 | P1 | 폼 진입 시 첫 필드 자동 포커스 없음 | 앱 전역(`FormPageShell`) | UI 기획 쪽 변경 요청 |
+| 29 | COMP-07 | P2 | `SeqCell seq={index + 1}` — **IA-04(#3) 해소 시 즉시 위반** | 앱 전역(`CrudTable`) | UI 기획 (#3 과 함께) |
+| 30 | (BE) | — | **서버 측 할인 범위 검증 부재** — 현재 `promotionSchema` 만이 음수·0·100% 초과를 막는다. 어댑터 우회 호출은 무방비. quality-bar 축이 아니라 **BE-032 §7.3 의 보안 판정**이며, 프론트 gap 이 아니라 **서버 계약 미구현**이다 | 서버 | 백엔드 명세 (**BE-032 §7.3 · 최우선**) |
 
 > **BE-032 §7 로 가는 것**: #6(§7.5 version/If-Match) · #7(§7.13 A11Y) · #17(이관 #17 TZ) · #21(§2 타임아웃) · #22(§7.9 · §7.12) · #23(§7.5 일괄) · #27(§7.11 traceId) · #30(§7.3 할인 범위).
 >

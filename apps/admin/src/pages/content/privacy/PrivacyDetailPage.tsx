@@ -1,4 +1,4 @@
-// PrivacyDetailPage — 처리방침 버전 상세(전문) 조회 (라우트: /content/privacy/:id) · A41 소유
+// PrivacyDetailPage — 처리방침 버전 상세(전문) 조회 (라우트: /content/privacy/:id)
 //
 // [오너 피드백 ⑦] 목록에서 문서 전문을 dump 하지 않는다 — 버전 행을 눌러 여기서 전문을 본다.
 import { useRef, useState } from 'react';

@@ -4,8 +4,8 @@ title: "상담 예약 관리 비기능 명세"
 functionalSpec: FS-039
 backendSpec: BE-039
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.1
@@ -212,11 +212,11 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | STATE-04 | P0 | 단건 삭제 성공 경로에 `clear()` 가 없어(`useCrudList.tsx:104-108`) 삭제된 행의 선택이 남는다 — 유령 건수. **일괄 삭제 경로(`:144`)에는 있다**. F2 가 이 훅을 고쳤으나 이 경로는 그대로 | **공용 `useCrudList` — 10개 소비 화면 공통**. 한 줄이면 전부 닫힌다 | A11 (FS-039 §7 #18) |
-| 2 | FEEDBACK-02 | P0 | 비가역 종료 전이(취소·노쇼·상담완료)에 ConfirmDialog 게이트 없음. **삭제 축은 충족** | 이 화면 | A11 (FS-039 §7 #2) |
-| 3 | IA-02 | P0 | **폼 화면에 `<h1>` 이 둘이다**(AppHeader `:101` + `FormPageShell.tsx:160`). ⚠ **1.0 의 '상단이 브랜치 라벨 「예약/신청 관리」' 는 이제 틀렸다** — `findCoveringLeaf`(`nav-config.ts:269-279,297-299`)가 '상담 예약'을 정확히 준다. **남은 것은 이중 h1 하나** | 앱 전역(**`findNavLabel` 이 아니라 `FormPageShell`**) | A40 · A11 (FS-039 §7 #3) |
-| 4 | IA-04 | P0 | Pagination 없음 — 전량 렌더. **템플릿의 다른 축은 `CrudListShell` 덕에 전부 충족** | 이 화면 + 계약(BE-039 §7.8 #9) | A11 · A63 |
-| 5 | EXC-03 | P0 | 쓰기 권한 게이팅 없음 — 등록·수정·삭제·일괄 삭제 컨트롤이 권한 무관 렌더 | 이 화면 (read 가드는 상속으로 충족) | A11 (FS-039 §7 #9 · BE-039 §7.8 #6) |
+| 1 | STATE-04 | P0 | 단건 삭제 성공 경로에 `clear()` 가 없어(`useCrudList.tsx:104-108`) 삭제된 행의 선택이 남는다 — 유령 건수. **일괄 삭제 경로(`:144`)에는 있다**. F2 가 이 훅을 고쳤으나 이 경로는 그대로 | **공용 `useCrudList` — 10개 소비 화면 공통**. 한 줄이면 전부 닫힌다 | UI 기획 (FS-039 §7 #18) |
+| 2 | FEEDBACK-02 | P0 | 비가역 종료 전이(취소·노쇼·상담완료)에 ConfirmDialog 게이트 없음. **삭제 축은 충족** | 이 화면 | UI 기획 (FS-039 §7 #2) |
+| 3 | IA-02 | P0 | **폼 화면에 `<h1>` 이 둘이다**(AppHeader `:101` + `FormPageShell.tsx:160`). ⚠ **1.0 의 '상단이 브랜치 라벨 「예약/신청 관리」' 는 이제 틀렸다** — `findCoveringLeaf`(`nav-config.ts:269-279,297-299`)가 '상담 예약'을 정확히 준다. **남은 것은 이중 h1 하나** | 앱 전역(**`findNavLabel` 이 아니라 `FormPageShell`**) | 프론트 구현 · UI 기획 (FS-039 §7 #3) |
+| 4 | IA-04 | P0 | Pagination 없음 — 전량 렌더. **템플릿의 다른 축은 `CrudListShell` 덕에 전부 충족** | 이 화면 + 계약(BE-039 §7.8 #9) | UI 기획 · 백엔드 명세 |
+| 5 | EXC-03 | P0 | 쓰기 권한 게이팅 없음 — 등록·수정·삭제·일괄 삭제 컨트롤이 권한 무관 렌더 | 이 화면 (read 가드는 상속으로 충족) | UI 기획 (FS-039 §7 #9 · BE-039 §7.8 #6) |
 | ~~—~~ | ~~COMP-10~~ | ~~P0~~ | **해소됨(F3b).** `useListState`(`ConsultationBookingListPage.tsx:78`)가 `useDebouncedSearch` 를 배선하고 입력창이 `{...list.searchInputProps}`(`:143`)로 IME 가드·조합 중 Enter 차단을 받는다 | — | **닫힘** |
 | ~~—~~ | ~~A11Y-11~~ | ~~P0~~ | **해소됨(F3a) — 이 화면 코드 0줄 변경.** 1.0 이 제시한 두 선택지('DS `FormField` 또는 호출부 6곳') 중 **DS 쪽이 선택됐다**: `FormField.tsx:50-56` `withAriaRequired` 가 `required` 를 자식 컨트롤의 `aria-required` 로 런타임 주입한다. **이 폼의 required 7필드가 전부 `input`/`SelectField` 라 7/7 주입된다.** ⚠ **같은 수정을 받고도 NFR-037(예약 폼)은 gap 이다** — '이용 시간'이 래퍼 `<div>` 자식이라 제외된다. 이 폼은 희망 날짜/시각을 각자의 `FormField` 로 나눠 그 함정을 피했다 | — | **닫힘** |
 | ~~—~~ | ~~IA-13~~ | ~~P0~~ | **해소됨(F3b).** 필터·키워드의 단일 원천이 URL 이다(`ConsultationBookingListPage.tsx:45,78-84,148`). **1.0 이 지목한 핵심 루프(목록→폼→Back)가 실제로 복구됐다** — `useListState` 가 `{ replace: true }` 로 목록 URL 을 늘 최신으로 유지하므로 Back 이 그 조건에 착지한다 | — | **닫힘** |
@@ -224,29 +224,29 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 9 | — | — | **시간 겹침(더블부킹) 판정 부재** — quality-bar 의 어느 요구에도 걸리지 않지만 **이 화면의 가장 큰 도메인 결손**이다. 소요시간이 정의되지 않아 겹침 구간을 만들 수 없다(FS-039-EL-035) | 도메인 결정 선행 | **A01 → A63(BE-039 §7.3) · A41** (FS-039 §7 #1) |
-| 10 | STATE-05 | P1 | 3분기는 충족하나 `createAction` 미전달 — 진짜 0건일 때 create CTA 없음 | 이 화면 | A11 (FS-039 §7 #14) |
-| 11 | COMP-01 | P1 | DS `<Button>` 은 쓰나 진행 상태를 `loading` prop 이 아니라 손으로 쓴 '저장 중…' 으로 표현 | 공용 `FormPageShell` | A11 |
-| 12 | COMP-06 | P2 | `CrudTable.tsx:144` `length: 5` 하드코딩(셀 수는 정확히 파생) | 공용 `CrudTable` | A11 (FS-039 §7 #11) |
-| 13 | COMP-07 | P2 | `CrudTable.tsx:179` `seq={index+1}` — **Pagination 부재로 현재 재현 불가능한 잠복 결함**. #6 을 닫을 때 함께 | 공용 `CrudTable` | A11 (FS-039 §7 #11) |
-| 14 | COMP-09 | P2 | 주제·고객명 truncation 없음 | 이 화면 | A11 |
-| 15 | COMP-12 | P2 | 카운터 없음(`FormField.counter` 미전달). over-limit 차단은 충족 | 이 화면 | A11 (FS-039 §7 #16) |
-| 16 | A11Y-13 | P1 | 폼 진입 시 첫 필드 포커스 없음. **검증 실패 포커스는 충족** | 공용 `useCrudForm` | A11 |
-| 17 | ERP-01 | P1 | 섹션 공용 맵(`_shared/booking.ts`)은 있으나 앱 전역 레지스트리가 없다 | 앱 전역 | A11 |
-| 18 | ERP-02 · ERP-04 · ERP-15 | P1 | density variant · sortable header · 대형 list 계약(10컬럼 가로 scroll) 없음 | 공용 `CrudTable` | A11 |
-| 19 | ERP-06 · ERP-08 | P1/P2 | '전체 N건' 의 N 이 필터 후 건수. 희망일시가 `shared/format` 미경유 원문 연결 | 이 화면 + 공용 셸 | A11 (FS-039 §7 #10 · #12) |
-| 20 | ERP-12 | P1 | 엑셀 export 없음 | 앱 전역 | A11 |
+| 9 | — | — | **시간 겹침(더블부킹) 판정 부재** — quality-bar 의 어느 요구에도 걸리지 않지만 **이 화면의 가장 큰 도메인 결손**이다. 소요시간이 정의되지 않아 겹침 구간을 만들 수 없다(FS-039-EL-035) | 도메인 결정 선행 | **아키텍처 → 백엔드 명세(BE-039 §7.3) · 프론트 리팩터** (FS-039 §7 #1) |
+| 10 | STATE-05 | P1 | 3분기는 충족하나 `createAction` 미전달 — 진짜 0건일 때 create CTA 없음 | 이 화면 | UI 기획 (FS-039 §7 #14) |
+| 11 | COMP-01 | P1 | DS `<Button>` 은 쓰나 진행 상태를 `loading` prop 이 아니라 손으로 쓴 '저장 중…' 으로 표현 | 공용 `FormPageShell` | UI 기획 |
+| 12 | COMP-06 | P2 | `CrudTable.tsx:144` `length: 5` 하드코딩(셀 수는 정확히 파생) | 공용 `CrudTable` | UI 기획 (FS-039 §7 #11) |
+| 13 | COMP-07 | P2 | `CrudTable.tsx:179` `seq={index+1}` — **Pagination 부재로 현재 재현 불가능한 잠복 결함**. #6 을 닫을 때 함께 | 공용 `CrudTable` | UI 기획 (FS-039 §7 #11) |
+| 14 | COMP-09 | P2 | 주제·고객명 truncation 없음 | 이 화면 | UI 기획 |
+| 15 | COMP-12 | P2 | 카운터 없음(`FormField.counter` 미전달). over-limit 차단은 충족 | 이 화면 | UI 기획 (FS-039 §7 #16) |
+| 16 | A11Y-13 | P1 | 폼 진입 시 첫 필드 포커스 없음. **검증 실패 포커스는 충족** | 공용 `useCrudForm` | UI 기획 |
+| 17 | ERP-01 | P1 | 섹션 공용 맵(`_shared/booking.ts`)은 있으나 앱 전역 레지스트리가 없다 | 앱 전역 | UI 기획 |
+| 18 | ERP-02 · ERP-04 · ERP-15 | P1 | density variant · sortable header · 대형 list 계약(10컬럼 가로 scroll) 없음 | 공용 `CrudTable` | UI 기획 |
+| 19 | ERP-06 · ERP-08 | P1/P2 | '전체 N건' 의 N 이 필터 후 건수. 희망일시가 `shared/format` 미경유 원문 연결 | 이 화면 + 공용 셸 | UI 기획 (FS-039 §7 #10 · #12) |
+| 20 | ERP-12 | P1 | 엑셀 export 없음 | 앱 전역 | UI 기획 |
 | ~~—~~ | ~~ERP-13~~ | ~~P1~~ | **해소됨(통합) — 이 화면 코드 0줄 변경.** 조사 헬퍼가 `shared/format.ts:306,311,321` 로 승격됐고(이전엔 3곳 사본) `useCrudList.tsx:108,158` · `useCrudForm.ts:222` · `CrudTable.tsx:59-72` 가 소비한다. **앱 전역에서 사용자 대상 `을(를)` 리터럴 0건.** (`@tds/ui` 의 `Empty` 만 자기 사본을 갖는다 — 레이어 경계 상 **의도된 자족**) | — | **닫힘** |
-| 22 | ERP-14 | P1 | 연락처 masked/validated input 없음 — 상담사가 실제로 거는 번호다 | 이 화면 + 앱 전역 primitive | A11 (FS-039 §7 #6) |
-| 23 | EXC-05 · EXC-11 · EXC-19 | P1 | client timeout · offline 감지 · 세션 만료 draft 보존 없음 | 앱 전역 | A11 · A40 (FS-039 §7 #21) |
-| 24 | EXC-06 | P1 | 403·429 가 일반 배너로 뭉개진다. **409·422·404·5xx 분기는 충족** | 공용 `useCrudForm` | A11 (BE-039 §7.8) |
-| 25 | EXC-10 | P1 | 실패 id 미반환 — 'retry failed only' 불가, 전량 재실행 | 공용 `useCrudList` | A11 (FS-039 §7 #15) |
-| 26 | EXC-18 | P1 | 선택 scope 문구·실제 불일치('이 페이지의' vs 보이는 전부) · Shift-range 없음 · 건수 상한·progress·cancel 없음 | 공용 `useCrudList`/`CrudTable` | A11 (FS-039 §7 #15) |
-| 27 | COMP-11 · ERP-05 | — | **기능 부재** — 희망일 기간 필터가 없다(요구는 N/A). '이번 주 상담' 이 triage 의 기본 동작이라 기능 요청으로 남긴다. Pagination range/size selector 도 #6 에 종속 | 이 화면 | A11 change_request (FS-039 §7 #20) |
-| 28 | — | — | 담당자 마스터가 모듈 상수라 서버 변경을 모른다(TOCTOU). `staffId` 검증이 `z.string()` 이라 없는 담당자도 통과하고, 표시 폴백이 '미배정' 이라 고아 배정이 보이지 않는다 | 이 화면 + 계약 | A41 · A63 (FS-039 §7 #7 · #13 · BE-039 §7.7) |
-| 29 | — | — | 상담예약번호 채번이 클라이언트이고 **삭제 후 재사용된다**. 상태 전이 감사 기록이 없다(누가 '노쇼' 로 바꿨는지 남지 않는다) | 계약 | A63 (FS-039 §7 #17 · BE-039 §7.4) |
-| 30 | — | — | 희망 날짜가 과거를 막지 않는다(달력 실재만 검사). 영업시간·슬롯 단위 미강제 | 이 화면 + 정책 | A01 · A11 (FS-039 §7 #8) |
-| 31 | — | — | 개인정보 보존·파기 정책 미정. 연락처 마스킹 정책이 **입력(원문)과 픽스처(마스킹) 사이에서 비대칭** | 정책 | A01 · A63 (FS-039 §7 #22 · BE-039 §7.2) |
+| 22 | ERP-14 | P1 | 연락처 masked/validated input 없음 — 상담사가 실제로 거는 번호다 | 이 화면 + 앱 전역 primitive | UI 기획 (FS-039 §7 #6) |
+| 23 | EXC-05 · EXC-11 · EXC-19 | P1 | client timeout · offline 감지 · 세션 만료 draft 보존 없음 | 앱 전역 | UI 기획 · 프론트 구현 (FS-039 §7 #21) |
+| 24 | EXC-06 | P1 | 403·429 가 일반 배너로 뭉개진다. **409·422·404·5xx 분기는 충족** | 공용 `useCrudForm` | UI 기획 (BE-039 §7.8) |
+| 25 | EXC-10 | P1 | 실패 id 미반환 — 'retry failed only' 불가, 전량 재실행 | 공용 `useCrudList` | UI 기획 (FS-039 §7 #15) |
+| 26 | EXC-18 | P1 | 선택 scope 문구·실제 불일치('이 페이지의' vs 보이는 전부) · Shift-range 없음 · 건수 상한·progress·cancel 없음 | 공용 `useCrudList`/`CrudTable` | UI 기획 (FS-039 §7 #15) |
+| 27 | COMP-11 · ERP-05 | — | **기능 부재** — 희망일 기간 필터가 없다(요구는 N/A). '이번 주 상담' 이 triage 의 기본 동작이라 기능 요청으로 남긴다. Pagination range/size selector 도 #6 에 종속 | 이 화면 | UI 기획 쪽 변경 요청 (FS-039 §7 #20) |
+| 28 | — | — | 담당자 마스터가 모듈 상수라 서버 변경을 모른다(TOCTOU). `staffId` 검증이 `z.string()` 이라 없는 담당자도 통과하고, 표시 폴백이 '미배정' 이라 고아 배정이 보이지 않는다 | 이 화면 + 계약 | 프론트 리팩터 · 백엔드 명세 (FS-039 §7 #7 · #13 · BE-039 §7.7) |
+| 29 | — | — | 상담예약번호 채번이 클라이언트이고 **삭제 후 재사용된다**. 상태 전이 감사 기록이 없다(누가 '노쇼' 로 바꿨는지 남지 않는다) | 계약 | 백엔드 명세 (FS-039 §7 #17 · BE-039 §7.4) |
+| 30 | — | — | 희망 날짜가 과거를 막지 않는다(달력 실재만 검사). 영업시간·슬롯 단위 미강제 | 이 화면 + 정책 | 아키텍처 · UI 기획 (FS-039 §7 #8) |
+| 31 | — | — | 개인정보 보존·파기 정책 미정. 연락처 마스킹 정책이 **입력(원문)과 픽스처(마스킹) 사이에서 비대칭** | 정책 | 아키텍처 · 백엔드 명세 (FS-039 §7 #22 · BE-039 §7.2) |
 
 ## 6. 측정 도구 · 재현 스위치
 

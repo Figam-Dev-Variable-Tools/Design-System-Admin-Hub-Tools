@@ -1,4 +1,4 @@
-// FAQ 화면의 동작 회귀 테스트 (A41)
+// FAQ 화면의 동작 회귀 테스트
 //
 // 목록 동작=필터 규칙(applyQuery), 폼 동작=검증 규칙(faqSchema·faqCategorySchema).
 import { describe, expect, it } from 'vitest';

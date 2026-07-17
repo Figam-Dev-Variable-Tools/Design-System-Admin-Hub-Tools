@@ -1,4 +1,4 @@
-// ApplicationDetailPage — 신청서 상세·처리 (라우트: /reservations/applications/:id) · A41 소유
+// ApplicationDetailPage — 신청서 상세·처리 (라우트: /reservations/applications/:id)
 //
 // 신청 내용(커스텀 폼 필드) + 처리 상태 전이(허용 전이만) + 처리 메모 + 처리 이력 타임라인.
 // 저장은 프레임워크 저수준 훅(useCrudUpdate). 상태가 바뀌면 이력에 한 칸을 남긴다. 삭제는 없다(감사 성격).

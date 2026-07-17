@@ -1,5 +1,5 @@
 /**
- * @tds/code-quality — 클린코드 6축 측정 진입점 (A83 Clean Code Inspector)
+ * @tds/code-quality — 클린코드 6축 측정 진입점 (클린코드 점검 Clean Code Inspector)
  *
  * 실행:
  *   pnpm quality:check                          # 전체 스캔 (PR 게이트)
@@ -12,7 +12,7 @@
  *   2 — 실행 오류 / **측정 대상 부재** (측정 불가는 통과가 아니다 — 공허 통과 금지)
  *
  * 판정 원칙: 6축의 수치 위반만이 판정 사유다. "읽기 좋다/나쁘다"는 판정하지 않는다.
- * A83은 측정만 하고 코드를 고치지 않는다 (수정은 소유자 A40/A41/A30의 일 — P1 단일 소유권).
+ * 클린코드 점검은 측정만 하고 코드를 고치지 않는다 (수정은 소유자 프론트 구현/프론트 리팩터/컴포넌트 엔지니어의 일 — P1 단일 소유권).
  */
 import { checkComplexity } from './axes/complexity.ts';
 import { checkDeadCode } from './axes/dead-code.ts';

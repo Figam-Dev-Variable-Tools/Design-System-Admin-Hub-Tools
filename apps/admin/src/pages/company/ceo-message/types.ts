@@ -1,4 +1,4 @@
-// CEO 인사말 화면 전용 타입 (A41 소유 — apps/admin/src/pages/company/ceo-message/**)
+// CEO 인사말 화면 전용 타입
 
 /** CEO 인사말 — 단일 문서(회사당 1건) */
 export interface CeoMessage {

@@ -1,4 +1,4 @@
-// 인증 라우트 가드 + 세션 만료 감시 (A41 소유 — apps/admin/src/shared/auth/**)
+// 인증 라우트 가드 + 세션 만료 감시
 //
 // [EXC-02] 예전에는 세션 없이 /users/members 를 deep-link 해도 화면이 **그대로 렌더**됐다.
 // LoginPage 는 `reason=session_expired` 를 읽을 준비가 돼 있었지만 그 값을 붙여 주는 곳이 없어

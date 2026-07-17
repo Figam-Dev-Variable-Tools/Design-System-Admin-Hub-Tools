@@ -1,4 +1,4 @@
-// ConsultationDetailPage — 상담 이력 상세 (라우트: /sales/consultations/:id) · A41 소유
+// ConsultationDetailPage — 상담 이력 상세 (라우트: /sales/consultations/:id)
 //
 // 읽기 전용 상세 — 상담 정보 + 상담 내용 + 후속조치. 감사 이력이라 수정/삭제 없이 조회만 한다.
 import type { CSSProperties } from 'react';

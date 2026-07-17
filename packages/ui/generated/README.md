@@ -10,4 +10,4 @@
 - `types/<Name>.types.ts` — 계약에서 생성된 React Props 타입 (수동 타입 선언 금지, G6 체크리스트).
 - `argtypes/<Name>.argtypes.ts` — Storybook argTypes.
 
-이 폴더를 손으로 고치면 Contract Test AI(A74)의 4자 일치 검증이 실패해 G5/G6/G7이 동시에 차단된다.
+이 폴더를 손으로 고치면 contract-test 의 4자 일치 검증이 실패해 G5/G6/G7이 동시에 차단된다.

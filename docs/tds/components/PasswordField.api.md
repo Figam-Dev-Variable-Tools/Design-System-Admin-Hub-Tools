@@ -16,7 +16,7 @@
 | 버전 | `1.1.0` |
 | 레벨 | `molecule` |
 | 상태 | `beta` |
-| 소유 | code `A30` · design `A14` · figma `A51` |
+| 소유 | code `component-eng` · design `ui-design` · figma `figma-eng` |
 | 의존 컴포넌트 | `TextField` |
 
 ## Props
@@ -39,7 +39,7 @@
 | 이름 | Payload | 발화 차단 상태 | 설명 |
 |---|---|---|---|
 | `onChange` | `ChangeEvent<HTMLInputElement>` | `disabled` | 입력값 변경 |
-| `onBlur` | `FocusEvent<HTMLInputElement>` | `disabled` | 포커스 이탈 — 폼 검증 트리거 지점. disabled 에서는 발화 금지 (자식 TextField 의 가드로 실제 차단된다 — CR-2026-0715-003 실측). 계약이 현실보다 약했던 부분의 정정이며, 이 보장을 고정하는 테스트는 A30 이 채운다 |
+| `onBlur` | `FocusEvent<HTMLInputElement>` | `disabled` | 포커스 이탈 — 폼 검증 트리거 지점. disabled 에서는 발화 금지 (자식 TextField 의 가드로 실제 차단된다 — 실측 확인됨). 계약이 현실보다 약했던 부분의 정정이며, 이 보장을 고정하는 테스트로 고정한다 |
 | `onToggleReveal` | `MouseEvent` | `disabled` | 표시/숨김 토글 버튼 클릭. disabled 에서는 발화 금지 — Storybook Play Function이 전수 검증 |
 
 ## States
@@ -47,7 +47,7 @@
 `default` · `hover` · `focus-visible` · `disabled` · `error`
 
 > Story 커버리지는 enum prop 값 곱 × boolean prop 당 2 조합 100%가 요구됩니다 (`combinationMatrix` 참조).
-> states 는 이 행렬에 포함되지 않습니다 — state 커버리지는 A77(축2)이 **단언을 가진 테스트**로 따로 강제합니다.
+> states 는 이 행렬에 포함되지 않습니다 — state 커버리지는 커버리지 축2(contract-states)가 **단언을 가진 테스트**로 따로 강제합니다.
 
 ## A11y
 

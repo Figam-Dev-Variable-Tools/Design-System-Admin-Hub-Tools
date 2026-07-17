@@ -1,4 +1,4 @@
-// CouponFormPage — 쿠폰 등록/수정 (라우트: /products/coupons/new · /:id/edit) · A41 소유
+// CouponFormPage — 쿠폰 등록/수정 (라우트: /products/coupons/new · /:id/edit)
 //
 // 데이터 배선은 공용 CRUD 프레임워크(useCrudForm)를 재사용하고, 화면은 입력 카드 + 우측 실시간
 // 쿠폰 카드 미리보기 2단으로 구성한다. 검증의 정본은 ./validation 의 zod 스키마다.

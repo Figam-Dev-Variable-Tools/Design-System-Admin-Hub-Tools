@@ -3,8 +3,8 @@ id: FS-029
 title: "고객노출 FAQ 큐레이션"
 screen: SCR-029               # ⚠ 고객센터 SCR(D2) 미작성 — §7 미결 사항 참조
 route: /support/faq
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -123,7 +123,7 @@ date: 2026-07-17
 | FS-029-EL-003.8 | BEST 고정 토글 | W | FAQ id · 고정 여부 | `setCustomerFaqPinned(id, pinned)` | 낙관적 업데이트 + 롤백. **`signal` 인자를 받지 않는다** |
 | FS-029-EL-001.1 | (없음 — 라우팅) | — | — | — | 콘텐츠 관리 FAQ 로의 이동은 서버를 호출하지 않는다 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드가 없다. `data-source.ts` 가 모듈 스코프 mutable 배열(`faqs`, 시드 id `cfaq-1`…`cfaq-6`)을 들고 네 함수가 그것을 갱신한다 — **실제 네트워크 0건**. `wait(LATENCY_MS)` 로 400ms 지연을, `failIfRequested('support-faq', op)` 로 실패를 재현한다. `// TODO(backend)` 주석(`data-source.ts:63`)이 유일한 연동 지점이며 **`GET /api/support/faq` · `PUT /api/support/faq/order` · `PATCH /api/support/faq/:id` 세 개뿐이다 — POST·DELETE 심이 없다**(§1.1 범위와 일치). ⚠ **이 픽스처는 `/content/faq` 의 픽스처(`FAQ-*`)와 완전히 분리돼 있다** — §7 #1.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드가 없다. `data-source.ts` 가 모듈 스코프 mutable 배열(`faqs`, 시드 id `cfaq-1`…`cfaq-6`)을 들고 네 함수가 그것을 갱신한다 — **실제 네트워크 0건**. `wait(LATENCY_MS)` 로 400ms 지연을, `failIfRequested('support-faq', op)` 로 실패를 재현한다. `// TODO(backend)` 주석(`data-source.ts:63`)이 유일한 연동 지점이며 **`GET /api/support/faq` · `PUT /api/support/faq/order` · `PATCH /api/support/faq/:id` 세 개뿐이다 — POST·DELETE 심이 없다**(§1.1 범위와 일치). ⚠ **이 픽스처는 `/content/faq` 의 픽스처(`FAQ-*`)와 완전히 분리돼 있다** — §7 #1.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -137,17 +137,17 @@ date: 2026-07-17
 - [x] 발견한 결함(픽스처 분리 · 실패 시 안내 배너 동반 소실 · 토글 토스트의 조사 리터럴 고정)을 §7 로 올렸다
 - [x] **2026-07-17 · HEAD = `4b805ad`(F3a·F3b·통합 머지 후) 코드로 재검증했다** — F2(`3cd3078`) 기준의 **STATE-01 재조회 스켈레톤**은 해소되어 갱신했다(`CustomerFaqPage.tsx:72,74` 가 `firstLoading`/`refreshing` 을 파생한다). 남은 것만 적었다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **【중대】 이 화면과 `/content/faq` 가 같은 FAQ 를 보지 않는다.** UI 는 '발행된 FAQ 를 큐레이션한다'고 말하지만(FS-029-EL-001), 두 화면의 데이터가 완전히 분리돼 있다 — 이 화면은 `cfaq-1`…`cfaq-6` 픽스처를, `/content/faq` 는 `FAQ-*` 픽스처를 쓴다. 콘텐츠 관리에서 FAQ 를 등록해도 이 화면에 나타나지 않고, 여기서 숨겨도 그쪽 `visible` 과 무관하다. **두 화면이 같은 FAQ 를 봐야 하는가**를 확정하고 백엔드가 정본을 통일해야 한다 | A63 (BE-029) · A11 |
-| 2 | 조회 실패 시 FS-029-EL-006 이 **화면 전체**를 대체해 위임 안내 배너(FS-029-EL-001)까지 사라진다 — 조회가 실패해도 '작성은 콘텐츠 관리에서' 라는 안내는 유효하다 | A11 change_request |
-| 3 | 페이지네이션이 없어 **발행 FAQ 전량**을 한 화면에 렌더한다. 재정렬 의미상 전량 렌더가 합리적이나 상한이 선언돼 있지 않다 — 목록 길이 상한 또는 명시적 '전량 렌더' 결정이 필요 | A11 · A63 (BE-029) |
-| 4 | **BEST 고정 수 상한이 없다** — 전 건을 BEST 로 고정할 수 있고 그러면 고객센터 상단 강조가 무의미해진다. 상한(예: 5건)과 초과 시 동작이 미정 | A11 · A63 (BE-029) |
-| 5 | 여러 관리자가 동시에 재정렬·토글하면 마지막 저장이 이긴다(충돌 감지 없음). `CustomerFaq` 에 `updatedAt`/version 필드가 없다 | A63 (BE-029) |
-| 6 | 조회 실패 배너가 404·403·500 을 구분하지 않는다 — 권한 부족과 서버 장애가 같은 문구 | A11 change_request |
-| 7 | 토글 어댑터(`setCustomerFaqVisible`·`setCustomerFaqPinned`)가 `signal` 을 받지 않아 화면 이탈·언마운트 시 취소 경로가 없다. 재정렬만 abort 된다 | A40 · A11 |
-| 8 | 대응 SCR 문서 부재 (고객센터 섹션 D2 미작성) | A11 / A01 |
-| 9 | 빈 상태(FS-029-EL-005)에 복구 CTA 가 없다 — '노출할 FAQ 가 없습니다' 를 본 관리자가 다음에 할 일(콘텐츠 관리에서 FAQ 발행)로 가는 경로가 배너에만 있다 | A11 change_request |
-| 10 | **토글 토스트가 조사(助詞)를 리터럴로 고정한다** — `CustomerFaqPage.tsx:134` `` `'${faq.question}' 를 노출합니다.` `` / `` `'${faq.question}' 를 숨겼습니다.` `` · `:165` `` `'${faq.question}' 를 BEST 로 고정했습니다.` ``. 질문이 받침으로 끝나면 '**을**' 이어야 한다. **통합이 조사 헬퍼를 `shared/format.ts:269+`(`objectParticle`)로 승격했고 같은 앱의 `portfolio/items/PortfolioListPage.tsx:91-92` 가 같은 토글 토스트를 그것으로 옳게 낸다** — 헬퍼도 선례도 있는데 이 화면이 소비하지 않는다. 같은 섹션의 `support/downloads/DownloadListPage.tsx:118` 이 같은 패턴을 복제한다. (리터럴 '을(를)' 형은 쓰지 않아 앱 전역 grep = 0 은 만족한다 — 이 gap 은 '명사를 interpolate 하는 templated copy 를 헬퍼로 라우팅한다'는 절의 위반이다) (quality-bar ERP-13 P1) | A11 change_request |
+| 1 | **【중대】 이 화면과 `/content/faq` 가 같은 FAQ 를 보지 않는다.** UI 는 '발행된 FAQ 를 큐레이션한다'고 말하지만(FS-029-EL-001), 두 화면의 데이터가 완전히 분리돼 있다 — 이 화면은 `cfaq-1`…`cfaq-6` 픽스처를, `/content/faq` 는 `FAQ-*` 픽스처를 쓴다. 콘텐츠 관리에서 FAQ 를 등록해도 이 화면에 나타나지 않고, 여기서 숨겨도 그쪽 `visible` 과 무관하다. **두 화면이 같은 FAQ 를 봐야 하는가**를 확정하고 백엔드가 정본을 통일해야 한다 | 백엔드 명세 (BE-029) · UI 기획 |
+| 2 | 조회 실패 시 FS-029-EL-006 이 **화면 전체**를 대체해 위임 안내 배너(FS-029-EL-001)까지 사라진다 — 조회가 실패해도 '작성은 콘텐츠 관리에서' 라는 안내는 유효하다 | UI 기획 쪽 변경 요청 |
+| 3 | 페이지네이션이 없어 **발행 FAQ 전량**을 한 화면에 렌더한다. 재정렬 의미상 전량 렌더가 합리적이나 상한이 선언돼 있지 않다 — 목록 길이 상한 또는 명시적 '전량 렌더' 결정이 필요 | UI 기획 · 백엔드 명세 (BE-029) |
+| 4 | **BEST 고정 수 상한이 없다** — 전 건을 BEST 로 고정할 수 있고 그러면 고객센터 상단 강조가 무의미해진다. 상한(예: 5건)과 초과 시 동작이 미정 | UI 기획 · 백엔드 명세 (BE-029) |
+| 5 | 여러 관리자가 동시에 재정렬·토글하면 마지막 저장이 이긴다(충돌 감지 없음). `CustomerFaq` 에 `updatedAt`/version 필드가 없다 | 백엔드 명세 (BE-029) |
+| 6 | 조회 실패 배너가 404·403·500 을 구분하지 않는다 — 권한 부족과 서버 장애가 같은 문구 | UI 기획 쪽 변경 요청 |
+| 7 | 토글 어댑터(`setCustomerFaqVisible`·`setCustomerFaqPinned`)가 `signal` 을 받지 않아 화면 이탈·언마운트 시 취소 경로가 없다. 재정렬만 abort 된다 | 프론트 구현 · UI 기획 |
+| 8 | 대응 SCR 문서 부재 (고객센터 섹션 D2 미작성) | UI 기획 / 아키텍처 |
+| 9 | 빈 상태(FS-029-EL-005)에 복구 CTA 가 없다 — '노출할 FAQ 가 없습니다' 를 본 관리자가 다음에 할 일(콘텐츠 관리에서 FAQ 발행)로 가는 경로가 배너에만 있다 | UI 기획 쪽 변경 요청 |
+| 10 | **토글 토스트가 조사(助詞)를 리터럴로 고정한다** — `CustomerFaqPage.tsx:134` `` `'${faq.question}' 를 노출합니다.` `` / `` `'${faq.question}' 를 숨겼습니다.` `` · `:165` `` `'${faq.question}' 를 BEST 로 고정했습니다.` ``. 질문이 받침으로 끝나면 '**을**' 이어야 한다. **통합이 조사 헬퍼를 `shared/format.ts:269+`(`objectParticle`)로 승격했고 같은 앱의 `portfolio/items/PortfolioListPage.tsx:91-92` 가 같은 토글 토스트를 그것으로 옳게 낸다** — 헬퍼도 선례도 있는데 이 화면이 소비하지 않는다. 같은 섹션의 `support/downloads/DownloadListPage.tsx:118` 이 같은 패턴을 복제한다. (리터럴 '을(를)' 형은 쓰지 않아 앱 전역 grep = 0 은 만족한다 — 이 gap 은 '명사를 interpolate 하는 templated copy 를 헬퍼로 라우팅한다'는 절의 위반이다) (quality-bar ERP-13 P1) | UI 기획 쪽 변경 요청 |

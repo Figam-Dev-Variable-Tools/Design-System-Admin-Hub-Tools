@@ -27,7 +27,7 @@ export interface Violation {
   related?: { file: string; line: number }[];
 }
 
-/** 규칙에 정의되지 않은 의심 사례 — 차단하지 않는다. A01에 규칙 제정 요청용 */
+/** 규칙에 정의되지 않은 의심 사례 — 차단하지 않는다. 아키텍처에 규칙 제정 요청용 */
 export interface UndefinedCase {
   file: string;
   line: number;
@@ -43,7 +43,7 @@ export interface AxisResult {
 
 export interface Report {
   tool: '@tds/code-quality';
-  agent: 'A83';
+  agent: 'clean-code-inspector';
   date: string;
   generatedAt: string;
   status: 'pass' | 'warn' | 'fail';
@@ -78,7 +78,7 @@ export function buildReport(
 
   return {
     tool: '@tds/code-quality',
-    agent: 'A83',
+    agent: 'clean-code-inspector',
     date,
     generatedAt: new Date().toISOString(),
     status,
@@ -113,7 +113,9 @@ export function renderMarkdown(report: Report): string {
   const L: string[] = [];
   L.push(`# Code Quality 리포트 — ${report.date}`);
   L.push('');
-  L.push('> 생성: `@tds/code-quality` (A83 Clean Code Inspector) — 기계 생성 전용, 수기 편집 금지');
+  L.push(
+    '> 생성: `@tds/code-quality` (클린코드 점검 Clean Code Inspector) — 기계 생성 전용, 수기 편집 금지',
+  );
   L.push('> 판정은 **6축의 수치 위반**으로만 한다. "읽기 좋다/나쁘다"는 판정 사유가 아니다.');
   L.push('');
   L.push(
@@ -137,7 +139,7 @@ export function renderMarkdown(report: Report): string {
     L.push('## 위반 상세');
     L.push('');
     L.push(
-      '위반 0건 — 6축 전부 임계값 이내. (A42 Code Reviewer 는 G6 검수에서 이 리포트를 evidence 로 인용한다.)',
+      '위반 0건 — 6축 전부 임계값 이내. (코드 리뷰 Code Reviewer 는 G6 검수에서 이 리포트를 evidence 로 인용한다.)',
     );
     L.push('');
   } else {
@@ -167,7 +169,7 @@ export function renderMarkdown(report: Report): string {
   if (report.undefined.length > 0) {
     L.push('## UNDEFINED — 규칙 미정의 (차단하지 않음)');
     L.push('');
-    L.push('규칙에 없는 문제는 차단하지 않는다. A01에 규칙 제정(ADR)을 요청한다.');
+    L.push('규칙에 없는 문제는 차단하지 않는다. 아키텍처에 규칙 제정(ADR)을 요청한다.');
     L.push('');
     for (const u of report.undefined) {
       L.push(`- \`${u.file}:${u.line}\` — ${u.note}`);
@@ -178,11 +180,13 @@ export function renderMarkdown(report: Report): string {
   L.push('## 조치 주체');
   L.push('');
   L.push(
-    '- A83은 **측정만** 한다 — 위반 코드를 수정하지 않는다. 수정은 소유자의 일이다 (P1 단일 소유권).',
+    '- 클린코드 점검은 **측정만** 한다 — 위반 코드를 수정하지 않는다. 수정은 소유자의 일이다 (P1 단일 소유권).',
   );
-  L.push('  - `apps/**` → A40/A41 · `packages/**` → A30/A31/A32');
   L.push(
-    '- 임계값에 이의가 있으면 A01에 **ADR**을 요청한다. 임계값은 도구가 임의로 바꾸지 않는다.',
+    '  - `apps/**` → 프론트 구현/프론트 리팩터 · `packages/**` → 컴포넌트 엔지니어/스토리북 문서/스토리북 페이지',
+  );
+  L.push(
+    '- 임계값에 이의가 있으면 아키텍처에 **ADR**을 요청한다. 임계값은 도구가 임의로 바꾸지 않는다.',
   );
   L.push('');
   return L.join('\n');

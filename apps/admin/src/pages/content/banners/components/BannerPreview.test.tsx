@@ -1,4 +1,4 @@
-// BannerPreview 실시간 반영 단언 (A41, 오너 피드백 ⑤)
+// BannerPreview 실시간 반영 단언 (오너 피드백 ⑤)
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 

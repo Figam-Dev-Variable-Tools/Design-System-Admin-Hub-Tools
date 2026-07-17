@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "TDS Admin Hub — @tds/ui를 소비하는 관리자 앱. 소유: A40/A41(순차 배타), 검수: A42(G6)",
+  "description": "TDS Admin Hub — @tds/ui를 소비하는 관리자 앱.",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

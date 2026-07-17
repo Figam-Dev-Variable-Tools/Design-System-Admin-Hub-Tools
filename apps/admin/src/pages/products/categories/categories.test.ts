@@ -1,4 +1,4 @@
-// 상품 카테고리 동작 회귀 테스트 (A41) — 사용량 문구 + 좌측 필터(순수) + 폼 검증
+// 상품 카테고리 동작 회귀 테스트 — 사용량 문구 + 좌측 필터(순수) + 폼 검증
 import { describe, expect, it } from 'vitest';
 
 import { countCategoriesByUsage, filterCategoriesByUsage, usageLabel } from './types';

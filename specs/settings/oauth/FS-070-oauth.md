@@ -3,8 +3,8 @@ id: FS-070
 title: "OAuth 설정"
 screen: SCR-070               # ⚠ 시스템 설정 SCR 미작성 — §7 미결 사항 참조
 route: /settings/oauth
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -178,7 +178,7 @@ date: 2026-07-17
 | FS-070-EL-010 | **연결 테스트** | W | `provider` | **없음 — 버튼이 비활성이다** | **심은 있다**(`OAuthProviderCard.tsx:228-231` `// TODO(backend): POST /api/settings/oauth/:provider/test`)**나 어댑터가 없다.** '서버가 제공자에게 실제로 토큰 교환을 시도하고 결과를 돌려준다. **프론트가 흉내 낼 수 없다**(시크릿은 서버에만 있고 CORS 도 막힌다). 백엔드가 붙으면 이 버튼이 활성화되고 결과는 인라인 배너로 표시한다' — **연동 시 화면 코드가 함께 바뀐다**(§7 #19) |
 | FS-070-EL-004 / EL-005 | 제공자 후보 목록 | — | — | **없음 — `OAUTH_PROVIDERS`·`OAUTH_PROVIDER_META` 코드 상수**(`validation.ts:14,25-37`) | **서버를 거치지 않는다.** 3종(google·kakao·naver)이 빌드 시점에 고정되며 새 제공자를 추가하려면 코드를 고쳐야 한다. **의도된 부재** — 제공자마다 인증 흐름·SDK 가 달라 데이터로 추가할 수 없다(BE-070 §7.7) |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `oauthSettingsStore` 는 `createRevisionedStore('oauth', DEFAULT_OAUTH_SETTINGS, { updatedBy: '김운영', updatedAt: '2026-07-02T08:05:00.000Z' })`(`data-source.ts:53-57`)로 만든 **브라우저 안 mutable 클로저 1건**에 400ms 지연(`LATENCY_MS`)과 실패 스위치(`failIfRequested('oauth', op)`)를 얹은 것이다 — 실제 네트워크 0건. **저장소가 평문 시크릿을 갖지 않는다** — `hasSecret` 불리언만 안다(`:3-5`). 픽스처는 **세 제공자 모두 꺼져 있고 자격증명이 없다**(`:19-46`) — `:15-17` 이 이유를 밝힌다: '켜져 있는 척하면 "왜 로그인이 안 되지" 로 돌아온다 — 백엔드가 없으니 실제로 동작하지 않는다'. Redirect URI 픽스처는 `https://example.com/auth/<provider>/callback`. 저장 주체는 하드코딩 `CURRENT_ADMIN = '김운영'`(`_shared/store.ts:84`). 새로고침하면 시드로 돌아간다. 연동 심 2건: `data-source.ts:48-52`(`GET`/`PUT` + `If-Match` + **secret 유지 규칙** + 200/409·412/422) · `OAuthProviderCard.tsx:228-231`(`POST /api/settings/oauth/:provider/test` — **어댑터 없음**). BE-070 §4 는 이 심들을 그대로 계약으로 옮긴 것이며 **발명한 엔드포인트가 없다.** 위 표는 백엔드 연결 후 의도된 동작이다. |
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드는 없다. `oauthSettingsStore` 는 `createRevisionedStore('oauth', DEFAULT_OAUTH_SETTINGS, { updatedBy: '김운영', updatedAt: '2026-07-02T08:05:00.000Z' })`(`data-source.ts:53-57`)로 만든 **브라우저 안 mutable 클로저 1건**에 400ms 지연(`LATENCY_MS`)과 실패 스위치(`failIfRequested('oauth', op)`)를 얹은 것이다 — 실제 네트워크 0건. **저장소가 평문 시크릿을 갖지 않는다** — `hasSecret` 불리언만 안다(`:3-5`). 픽스처는 **세 제공자 모두 꺼져 있고 자격증명이 없다**(`:19-46`) — `:15-17` 이 이유를 밝힌다: '켜져 있는 척하면 "왜 로그인이 안 되지" 로 돌아온다 — 백엔드가 없으니 실제로 동작하지 않는다'. Redirect URI 픽스처는 `https://example.com/auth/<provider>/callback`. 저장 주체는 하드코딩 `CURRENT_ADMIN = '김운영'`(`_shared/store.ts:84`). 새로고침하면 시드로 돌아간다. 연동 심 2건: `data-source.ts:48-52`(`GET`/`PUT` + `If-Match` + **secret 유지 규칙** + 200/409·412/422) · `OAuthProviderCard.tsx:228-231`(`POST /api/settings/oauth/:provider/test` — **어댑터 없음**). BE-070 §4 는 이 심들을 그대로 계약으로 옮긴 것이며 **발명한 엔드포인트가 없다.** 위 표는 백엔드 연결 후 의도된 동작이다. |
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -193,28 +193,28 @@ date: 2026-07-17
 - [x] **시크릿이 폼에 채워지지 않음**(`validation.ts:3-11`)과 **저장이 평문을 지움**(`normalizeAfterSave` + 테스트 3건)을 §1.1 · EL-020.2 · §4.1 에 고정했다
 - [x] §7 의 미결 항목이 BE-070 §7.9 · NFR-070 §5 와 일치한다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 (시스템 설정 SCR 미작성) | A11 / A01 |
+| 1 | 대응 SCR 문서 부재 (시스템 설정 SCR 미작성) | UI 기획 / 아키텍처 |
 | 2 | ~~**Client Secret 의 `aria-required` 가 주입되지 않는다**~~ — **PR #30 에서 해소됐다(기록으로만 남긴다).** 자식이 삼항 양쪽 모두 `<span style={secretRowStyle}>` 래퍼(`OAuthProviderCard.tsx:168`·`:176`)라 `FormField.tsx:36-41` `isRequirableChild` 가 거부하는 사실은 **그대로**이나, 이전 배치가 제시한 해법('입력 분기의 `<input>` 에 직접 준다')이 **그대로 채택됐다**: `secretRequired`(`:113`) · `secretRequiredProps = secretRequired ? { 'aria-required': true } : {}`(`:114`) → `<input type="password">` 에 spread(`:186`). **`false` 면 속성 자체를 생략한다**(`aria-invalid` 를 짝지어 다루는 방식과 같다). 근거 주석 `:103-112` 가 '래퍼에 얹으면 거짓 시맨틱이라 FormField 가 의도적으로 거부한다 → **호출부가 진짜 컨트롤에 준다**'를 못박았다. 컴포넌트 테스트 4건 신설(`OAuthProviderCard.test.tsx:61-88`) | **해소 — 재작업 없음** |
-| 3 | **마스킹 분기에 `FormField htmlFor` 가 가리킬 컨트롤이 없다** — `showMasked` 면 자식이 `<span>` 뿐이라(`:168-174`) `<label for="oauth-<p>-secret">` 이 **존재하지 않는 id 를 가리킨다.** 라벨 클릭이 아무 데도 포커스하지 않고, AT 가 라벨을 컨트롤과 연결하지 못한다. **#2 와 뿌리(래퍼)는 같으나 별개 증상이며 #2 가 해소된 뒤에도 남아 있다** — PR #30 은 required 축만 고쳤고, 이 증상은 required 가 false 인 분기(`:110` 이 논증)에서 나므로 그 수정으로 닿지 않는다 | A11 change_request |
-| 4 | **연결 테스트 비활성 사유가 버튼과 연결되지 않는다** — `<p style={hintStyle}>연결 테스트는 백엔드 연동 후 제공됩니다.</p>`(`:235`)가 형제 노드일 뿐 `aria-describedby` 가 없다. **시각 사용자만 왜 비활성인지 안다.** 언어 화면의 잠금 사유(FS-068 §7 #4)·API Key 의 스코프 오류(FS-069 §7 #3)와 같은 계열 — **섹션 전체에 반복되는 패턴** | A11 change_request |
-| 5 | **검증 실패 시 첫 오류 필드로 포커스가 가지 않는다** — `handleSubmit(onValid)`(`:261`)에 `onInvalid` 가 없다. **이 화면에서 특히 아프다**: 제공자 3 × 필드 3 = 최대 9개 오류가 한 번에 뜰 수 있는데 어디를 고쳐야 하는지 포커스가 알려주지 않는다(quality-bar A11Y-13 P1). 설정 폼 3화면 공통 | A11 change_request |
-| 6 | **'변경' 버튼(EL-008.3)을 눌러도 dirty 가 되지 않는다** — `changingSecrets` 는 폼 밖 `useState`(`:105`)라 RHF `isDirty` 에 잡히지 않는다. **입력칸이 열렸는데 저장 버튼이 비활성**이고 상태 문구는 '변경 사항이 없습니다.'라 말한다. 시크릿을 입력하면 dirty 가 되므로 실질 피해는 작으나 **'변경'을 눌러 놓고 이탈하면 가드도 안 뜬다** | A11 change_request |
-| 7 | 저장에 **멱등키가 없다** — 동기 잠금(EL-020.1)은 연타를 막지만 응답 유실 후 재시도는 새 요청이 된다. `expectedRevision` 덕에 중복 적용이 아니라 **409** 가 되나 사용자는 영문 모를 충돌 다이얼로그를 본다. 선례: `members/components/PointsCard.tsx:103,162-173`(quality-bar EXC-08 P0) | A11 · A63 (BE-070 §7.5) |
-| 8 | 데이터 도착 시 `reset(data.value)` + `setChangingSecrets([])` 하는 효과(EL-023)가 **편집 중 재조회에서도 돈다** — **입력하던 평문 시크릿이 사라지고** 변경 중 UI 가 마스킹으로 되돌아간다. 설정 4화면 공통이나 **이 화면은 잃는 것이 시크릿이라 더 아프다**(다시 발급받아 와야 할 수도 있다) | A11 change_request |
-| 9 | **마스킹 표기가 API Key 화면과 다르다** — 이 화면은 `••••••••••••`(last4 없음 — `_shared/secret.ts:36-37` '식별이 이름으로 충분하다'), API Key 는 `sk_test_••••0001`. **둘 다 근거가 있어 결함은 아니나** 한 섹션 안에서 시크릿 표기가 두 가지다. 운영자가 '왜 여긴 뒷자리가 없지?'라 물을 수 있다 | A01 (도메인 경계) · A11 |
-| 10 | **카드 안에 카드가 있다** — `SettingsFormShell` 의 `<Card>`(`:145`) 안에 `OAuthProviderCard` 의 `<Card>`(`:108`) 3개. shadow·padding 이 중첩돼 시각적 위계가 흐려질 수 있다. 다른 3화면은 단층이다 | A11 change_request(경미) · A41(DS 판정) |
-| 11 | **Redirect URI(EL-009)·Client ID(EL-007) 에 길이 상한이 갈린다** — Client ID·Secret 은 `maxLength=200` 인데 **Redirect URI 는 `maxLength` 가 없고 스키마도 길이를 보지 않는다.** 사이트 설정의 `baseUrl` 도 같은 문제다(FS-067 §7 #13) | A11 change_request |
-| 12 | **URL 검증 방식이 섹션 안에서 갈렸다** — 이 화면은 **URL 파서**(`new URL()` — `validation.ts:60-65`), 사이트 설정은 **정규식**(`HTTPS_URL_RE` — `site/validation.ts:25`). **파서 쪽이 옳다**(정규식은 `https://evil@real.example.com` 류 authority 트릭을 거르지 못한다 — BE-067 §7.6 #4). `redirectUriError` 를 `_shared` 로 승격해 양쪽이 쓰는 것이 옳다 | A11 change_request |
-| 13 | **충돌 표시(EL-021.1)가 내게 없는 제공자를 건너뛴다** — `if (ours === undefined) return false`(`:210`). 상대가 제공자를 추가했으면 그 사실을 짚지 못한다. **현재는 제공자가 코드 상수 3종이라 실현되지 않으나** 제공자가 데이터로 바뀌면 발현된다 | A11 change_request(잠재) |
-| 14 | **Client ID·Secret 에 카운터가 없다** — `maxLength=200` 인데 `FormField counter` 를 주지 않는다. `_shared/fields.tsx:34` 가 '길이 제한이 있는 필드는 반드시 준다 (COMP-12)'를 계약으로 못박는데 **이 화면은 `TextInputField` 를 쓰지 않고 직접 조립해 그 계약을 상속하지 못했다**(quality-bar COMP-12 P1) | A11 change_request |
-| 15 | 조회 실패(EL-016)·저장 실패(EL-018)가 **status 를 구분하지 않는다** — 401/403/404/500 이 한 문구다. `createRevisionedStore` 가 `HttpError`(status 보유)를 던지지 않아 화면이 분기할 근거가 없다(quality-bar EXC-06 · EXC-12 P1) | A11 · A63 |
-| 16 | 이탈·취소 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장이 화면에 안 보일 수 있다 | A63 (BE-070) |
-| 17 | 서버 422 의 `error.fields` 를 RHF `setError` 로 꽂는 경로가 없다(EL-027 은 **로컬** 오류만 전달) — `useCrudForm` 미사용. **이 화면에서 특히 아깝다**: 서버가 `providers[1].redirectUri` 처럼 정확한 경로를 아는데 화면이 버린다(quality-bar EXC-07 P1) | A11 |
-| 18 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료가 입력한 평문 시크릿을 버린다(**안전 방향이나 재입력 부담**)(quality-bar EXC-05 · EXC-11 · EXC-19 P1) | A11 · A40 |
-| 19 | **연결 테스트(EL-010)는 심만 있고 어댑터가 없다** — 연동 시 **어댑터 신설 + 화면 배선**(로딩·성공/실패 인라인 배너·재시도)이 **신규 요구사항으로 발생**한다. `OAuthProviderCard.tsx:217` 이 그 계획을 적어 뒀다. **어댑터 본문만 바꾸면 되는 다른 연동과 다르다** — 연동 산정에 반드시 포함할 것 | **A11 · A63 (연동 산정)** |
-| 20 | **제공자가 코드 상수 3종이라 화면에서 추가할 수 없다**(§5) — 의도된 부재(제공자마다 인증 흐름·SDK 가 다르다)이나 **명시된 근거가 코드에 없다**. Apple·GitHub 등을 추가하려면 코드를 고쳐야 한다는 사실이 문서에만 있다 | A01 (도메인 경계) |
+| 3 | **마스킹 분기에 `FormField htmlFor` 가 가리킬 컨트롤이 없다** — `showMasked` 면 자식이 `<span>` 뿐이라(`:168-174`) `<label for="oauth-<p>-secret">` 이 **존재하지 않는 id 를 가리킨다.** 라벨 클릭이 아무 데도 포커스하지 않고, AT 가 라벨을 컨트롤과 연결하지 못한다. **#2 와 뿌리(래퍼)는 같으나 별개 증상이며 #2 가 해소된 뒤에도 남아 있다** — PR #30 은 required 축만 고쳤고, 이 증상은 required 가 false 인 분기(`:110` 이 논증)에서 나므로 그 수정으로 닿지 않는다 | UI 기획 쪽 변경 요청 |
+| 4 | **연결 테스트 비활성 사유가 버튼과 연결되지 않는다** — `<p style={hintStyle}>연결 테스트는 백엔드 연동 후 제공됩니다.</p>`(`:235`)가 형제 노드일 뿐 `aria-describedby` 가 없다. **시각 사용자만 왜 비활성인지 안다.** 언어 화면의 잠금 사유(FS-068 §7 #4)·API Key 의 스코프 오류(FS-069 §7 #3)와 같은 계열 — **섹션 전체에 반복되는 패턴** | UI 기획 쪽 변경 요청 |
+| 5 | **검증 실패 시 첫 오류 필드로 포커스가 가지 않는다** — `handleSubmit(onValid)`(`:261`)에 `onInvalid` 가 없다. **이 화면에서 특히 아프다**: 제공자 3 × 필드 3 = 최대 9개 오류가 한 번에 뜰 수 있는데 어디를 고쳐야 하는지 포커스가 알려주지 않는다(quality-bar A11Y-13 P1). 설정 폼 3화면 공통 | UI 기획 쪽 변경 요청 |
+| 6 | **'변경' 버튼(EL-008.3)을 눌러도 dirty 가 되지 않는다** — `changingSecrets` 는 폼 밖 `useState`(`:105`)라 RHF `isDirty` 에 잡히지 않는다. **입력칸이 열렸는데 저장 버튼이 비활성**이고 상태 문구는 '변경 사항이 없습니다.'라 말한다. 시크릿을 입력하면 dirty 가 되므로 실질 피해는 작으나 **'변경'을 눌러 놓고 이탈하면 가드도 안 뜬다** | UI 기획 쪽 변경 요청 |
+| 7 | 저장에 **멱등키가 없다** — 동기 잠금(EL-020.1)은 연타를 막지만 응답 유실 후 재시도는 새 요청이 된다. `expectedRevision` 덕에 중복 적용이 아니라 **409** 가 되나 사용자는 영문 모를 충돌 다이얼로그를 본다. 선례: `members/components/PointsCard.tsx:103,162-173`(quality-bar EXC-08 P0) | UI 기획 · 백엔드 명세 (BE-070 §7.5) |
+| 8 | 데이터 도착 시 `reset(data.value)` + `setChangingSecrets([])` 하는 효과(EL-023)가 **편집 중 재조회에서도 돈다** — **입력하던 평문 시크릿이 사라지고** 변경 중 UI 가 마스킹으로 되돌아간다. 설정 4화면 공통이나 **이 화면은 잃는 것이 시크릿이라 더 아프다**(다시 발급받아 와야 할 수도 있다) | UI 기획 쪽 변경 요청 |
+| 9 | **마스킹 표기가 API Key 화면과 다르다** — 이 화면은 `••••••••••••`(last4 없음 — `_shared/secret.ts:36-37` '식별이 이름으로 충분하다'), API Key 는 `sk_test_••••0001`. **둘 다 근거가 있어 결함은 아니나** 한 섹션 안에서 시크릿 표기가 두 가지다. 운영자가 '왜 여긴 뒷자리가 없지?'라 물을 수 있다 | 아키텍처 (도메인 경계) · UI 기획 |
+| 10 | **카드 안에 카드가 있다** — `SettingsFormShell` 의 `<Card>`(`:145`) 안에 `OAuthProviderCard` 의 `<Card>`(`:108`) 3개. shadow·padding 이 중첩돼 시각적 위계가 흐려질 수 있다. 다른 3화면은 단층이다 | UI 기획 쪽 변경 요청(경미) · 프론트 리팩터(DS 판정) |
+| 11 | **Redirect URI(EL-009)·Client ID(EL-007) 에 길이 상한이 갈린다** — Client ID·Secret 은 `maxLength=200` 인데 **Redirect URI 는 `maxLength` 가 없고 스키마도 길이를 보지 않는다.** 사이트 설정의 `baseUrl` 도 같은 문제다(FS-067 §7 #13) | UI 기획 쪽 변경 요청 |
+| 12 | **URL 검증 방식이 섹션 안에서 갈렸다** — 이 화면은 **URL 파서**(`new URL()` — `validation.ts:60-65`), 사이트 설정은 **정규식**(`HTTPS_URL_RE` — `site/validation.ts:25`). **파서 쪽이 옳다**(정규식은 `https://evil@real.example.com` 류 authority 트릭을 거르지 못한다 — BE-067 §7.6 #4). `redirectUriError` 를 `_shared` 로 승격해 양쪽이 쓰는 것이 옳다 | UI 기획 쪽 변경 요청 |
+| 13 | **충돌 표시(EL-021.1)가 내게 없는 제공자를 건너뛴다** — `if (ours === undefined) return false`(`:210`). 상대가 제공자를 추가했으면 그 사실을 짚지 못한다. **현재는 제공자가 코드 상수 3종이라 실현되지 않으나** 제공자가 데이터로 바뀌면 발현된다 | UI 기획 쪽 변경 요청(잠재) |
+| 14 | **Client ID·Secret 에 카운터가 없다** — `maxLength=200` 인데 `FormField counter` 를 주지 않는다. `_shared/fields.tsx:34` 가 '길이 제한이 있는 필드는 반드시 준다 (COMP-12)'를 계약으로 못박는데 **이 화면은 `TextInputField` 를 쓰지 않고 직접 조립해 그 계약을 상속하지 못했다**(quality-bar COMP-12 P1) | UI 기획 쪽 변경 요청 |
+| 15 | 조회 실패(EL-016)·저장 실패(EL-018)가 **status 를 구분하지 않는다** — 401/403/404/500 이 한 문구다. `createRevisionedStore` 가 `HttpError`(status 보유)를 던지지 않아 화면이 분기할 근거가 없다(quality-bar EXC-06 · EXC-12 P1) | UI 기획 · 백엔드 명세 |
+| 16 | 이탈·취소 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장이 화면에 안 보일 수 있다 | 백엔드 명세 (BE-070) |
+| 17 | 서버 422 의 `error.fields` 를 RHF `setError` 로 꽂는 경로가 없다(EL-027 은 **로컬** 오류만 전달) — `useCrudForm` 미사용. **이 화면에서 특히 아깝다**: 서버가 `providers[1].redirectUri` 처럼 정확한 경로를 아는데 화면이 버린다(quality-bar EXC-07 P1) | UI 기획 |
+| 18 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료가 입력한 평문 시크릿을 버린다(**안전 방향이나 재입력 부담**)(quality-bar EXC-05 · EXC-11 · EXC-19 P1) | UI 기획 · 프론트 구현 |
+| 19 | **연결 테스트(EL-010)는 심만 있고 어댑터가 없다** — 연동 시 **어댑터 신설 + 화면 배선**(로딩·성공/실패 인라인 배너·재시도)이 **신규 요구사항으로 발생**한다. `OAuthProviderCard.tsx:217` 이 그 계획을 적어 뒀다. **어댑터 본문만 바꾸면 되는 다른 연동과 다르다** — 연동 산정에 반드시 포함할 것 | **UI 기획 · 백엔드 명세 (연동 산정)** |
+| 20 | **제공자가 코드 상수 3종이라 화면에서 추가할 수 없다**(§5) — 의도된 부재(제공자마다 인증 흐름·SDK 가 다르다)이나 **명시된 근거가 코드에 없다**. Apple·GitHub 등을 추가하려면 코드를 고쳐야 한다는 사실이 문서에만 있다 | 아키텍처 (도메인 경계) |
 </content>

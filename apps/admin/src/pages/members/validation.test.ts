@@ -1,4 +1,4 @@
-// 회원 화면 폼 검증 규칙 회귀 테스트 (A41)
+// 회원 화면 폼 검증 규칙 회귀 테스트
 //
 // 이 규칙들은 모달 안의 손코딩 검증기(CreateGroupModal 의 submit() if 문 ·
 // PasswordChangeModal 의 validate())에서 **zod 스키마로 옮겨졌다.**

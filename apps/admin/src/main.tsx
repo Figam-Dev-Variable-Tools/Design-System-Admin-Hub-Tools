@@ -1,4 +1,4 @@
-// TDS Admin Hub 엔트리 (A40 소유 — apps/admin/src/**)
+// TDS Admin Hub 엔트리
 //
 // [토큰 CSS 선행 조건] '@tds/ui/tokens.css'는 tokens/tokens.json에서 자동 생성되는
 // @tds/ui의 공개 서브패스 export다 (packages/ui/generated/tokens/tokens.css → exports "./tokens.css").

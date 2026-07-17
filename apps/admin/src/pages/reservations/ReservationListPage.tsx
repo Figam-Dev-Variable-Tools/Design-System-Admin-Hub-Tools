@@ -1,4 +1,4 @@
-// ReservationListPage — 예약 목록 (라우트: /reservations) · A41 소유
+// ReservationListPage — 예약 목록 (라우트: /reservations)
 //
 // CRUD 프레임워크(useCrudList + CrudListShell) 위에 상태 필터 + 검색 + 일시·인원·자원·담당·예약금·상태
 // 배지 + 삭제팝업. 같은 자원에 시간이 겹치는 유효 예약은 '중복(더블부킹)' 배지로 한눈에 알린다.

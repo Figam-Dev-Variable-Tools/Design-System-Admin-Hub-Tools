@@ -1,4 +1,4 @@
-// DashboardPage — 대시보드 (라우트: /dashboard) · A41 소유
+// DashboardPage — 대시보드 (라우트: /dashboard)
 //
 // 구성: 업무 탭(상품/문의/영업) → 오늘의 할일 → 리스트 카드 2종 → 통계(방문자 차트 · 기간별 분석)
 //

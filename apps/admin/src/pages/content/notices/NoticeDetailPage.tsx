@@ -1,4 +1,4 @@
-// NoticeDetailPage — 공지 상세 조회 (라우트: /content/notices/:id) · A41 소유
+// NoticeDetailPage — 공지 상세 조회 (라우트: /content/notices/:id)
 //
 // 읽기 전용 뷰 + 상단 액션(수정 → 폼 / 삭제 → 확인 다이얼로그).
 // 배치·패턴은 회원 상세(MemberDetailPage)를 따른다.

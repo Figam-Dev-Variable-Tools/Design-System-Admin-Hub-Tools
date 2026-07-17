@@ -1,4 +1,4 @@
-// TemplateListPage — 발송 템플릿 목록 (라우트: /marketing/templates) · A41 소유
+// TemplateListPage — 발송 템플릿 목록 (라우트: /marketing/templates)
 //
 // 채널(SMS/이메일/알림톡) 필터 + 검색 + 채널/승인상태 배지. 데이터·선택·삭제 배선은 공용 CRUD
 // 프레임워크(useCrudList + CrudListShell). 알림톡만 승인상태 배지가 의미를 갖는다(발송 화면이 승인

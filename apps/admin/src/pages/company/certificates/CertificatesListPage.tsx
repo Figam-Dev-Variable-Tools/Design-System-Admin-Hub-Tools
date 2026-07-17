@@ -1,4 +1,4 @@
-// CertificatesListPage — 인증서/특허 목록 (라우트: /company/certificates) · A41 소유
+// CertificatesListPage — 인증서/특허 목록 (라우트: /company/certificates)
 //
 // 목록 + 등록/수정 폼(별도 라우트) + 삭제팝업. 구분(인증서/특허) 필터. 공용 목록 키트를 쓴다.
 import { useEffect, useMemo, useState } from 'react';

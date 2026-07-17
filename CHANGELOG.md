@@ -19,7 +19,7 @@
 - codegen 생성물 헤더에 계약 세대(`@<semver>`) 미표기 → contract-test의 Contract↔React 축이 세대 판별 불가로 FAIL하던 문제
 - Button 계약이 component 계층을 건너뛰고 semantic 토큰을 직접 참조 — `component.button.*` 13개 토큰이 죽어 있었다. 3계층(component → semantic → primitive) 참조로 교정 (미사용 토큰 42.4% → 27.1%)
 - SCR 문서 경로 참조 규약 통일 (`SCR-NNN-<slug>.md`)
-- 루트 `README.md` 소유자 공백 → A01 귀속
+- 루트 `README.md` 소유자 공백 → 아키텍처 귀속
 
 ### Changed
 - 네이밍 규칙: `foundations`를 문서 전용 카테고리로 규정, `_` 접두 비공개 모듈 허용 (ADR-0002)

@@ -1,4 +1,4 @@
-// 일괄 쓰기 집계(settleAll · settleAllDetailed) 단언 (A41)
+// 일괄 쓰기 집계(settleAll · settleAllDetailed) 단언
 //
 // 콘텐츠 목록 6종의 일괄 삭제/ON·OFF 가 공유하는 규약: 부분 실패도 건수로 알리고, 취소는 실패가 아니다.
 // settleAllDetailed 는 여기에 **사유**를 더한다 — 409 를 재시도로 오안내하지 않으려면 사유가 필요하다.

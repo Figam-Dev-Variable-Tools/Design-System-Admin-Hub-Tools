@@ -1,4 +1,4 @@
-// 신청서 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/reservations/**)
+// 신청서 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 신청은 고객 채널(웹 폼)이 만든다 — 이 화면엔 생성 UI 가 없다. 관리자는 상태 전이 +
 // 메모로 처리(update)만 한다. build/patch 는 프레임워크 계약상 두되 화면은 fetchAll/fetchOne/update 만 쓴다.

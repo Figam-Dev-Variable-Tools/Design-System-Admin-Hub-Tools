@@ -1,1 +1,1 @@
-{ "name": "Widget", "states": ["default"], "_note": "골든 픽스처 입력 — A77 selftest 축5의 정답지" }
+{ "name": "Widget", "states": ["default"], "_note": "골든 픽스처 입력 — 테스트 커버리지 selftest 축5의 정답지" }

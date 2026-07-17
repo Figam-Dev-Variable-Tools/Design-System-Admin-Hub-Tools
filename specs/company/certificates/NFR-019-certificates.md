@@ -4,8 +4,8 @@ title: "인증서/특허 관리 비기능 명세"
 functionalSpec: FS-019
 backendSpec: BE-019
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -103,7 +103,7 @@ date: 2026-07-17
 | A11Y-05 | P1 | 구분 select 와 목록 필터 select 가 `SelectField`(`SelectField.tsx:57`)로 `aria-invalid` 를 AT 에 전달하고, 폼 호출부가 `aria-describedby` 를 넘긴다(`CertificatesFormPage.tsx:142`). 필터 select 는 `aria-label="구분 필터"`(`CertificatesListPage.tsx:93`) | 구분 위반 제출 → `<select aria-invalid="true" aria-describedby="cert-kind-error">` | pass |
 | A11Y-06 | P1 | `AppShell.tsx:429` `<SkipToMain />` 이 셸의 첫 focusable, `474` `<main id="tds-main" tabIndex={-1}>` | 첫 Tab → skip link, 활성화 → main 포커스 | pass |
 | A11Y-07 | P1 | `AppShell.tsx:324-340` `RouteFocusAnnouncer` 가 pathname 변경 시 main 포커스 + polite live region 주입 | 목록 → 등록 이동 시 포커스가 main 으로. **announce 되는 이름이 IA-02 와 같은 이유로 '기업 관리'** | pass(문구는 IA-02 gap 에 종속) |
-| A11Y-08 | P1 | `CrudTable.tsx:172` 가 `rowActivateProps` 로 행 클릭 이동을 붙이지만 **행 안에 같은 목적지로 가는 focusable 링크가 없다** — 명칭·발급기관·발급일 셀이 plain text, 이미지 셀은 `<img>`/placeholder(`CertificatesListPage.tsx:74-85`). `useRowNavigation.ts:9-11` 이 스스로 '접근 가능한 경로가 이미 존재한다는 전제 위에서만 쓴다' 고 못 박았는데 그 전제가 성립하지 않는다 | 행을 Tab → 체크박스 → 연필 → 휴지통. 명칭 링크 없음 | gap(연필 버튼이 등가 경로라는 해석이면 완화 — A11 판단 필요) |
+| A11Y-08 | P1 | `CrudTable.tsx:172` 가 `rowActivateProps` 로 행 클릭 이동을 붙이지만 **행 안에 같은 목적지로 가는 focusable 링크가 없다** — 명칭·발급기관·발급일 셀이 plain text, 이미지 셀은 `<img>`/placeholder(`CertificatesListPage.tsx:74-85`). `useRowNavigation.ts:9-11` 이 스스로 '접근 가능한 경로가 이미 존재한다는 전제 위에서만 쓴다' 고 못 박았는데 그 전제가 성립하지 않는다 | 행을 Tab → 체크박스 → 연필 → 휴지통. 명칭 링크 없음 | gap(연필 버튼이 등가 경로라는 해석이면 완화 — UI 기획 판단 필요) |
 | A11Y-13 | P1 | 제출 검증 실패 시 첫 invalid 필드 포커스는 성립 — `useCrudForm.ts:253` `handleSubmit(onValid, onInvalid)` + RHF `shouldFocusError`. **폼 진입 시 첫 필드 자동 포커스는 없다** — `CertificatesFormPage.tsx` 에 `setFocus`/autoFocus 0건 | 빈 폼 제출 → activeElement = 명칭 입력 (통과). `/new` 진입 직후 activeElement = body (반증) | 부분 gap |
 | A11Y-14 | P2 | `ImageUploadField.tsx:279` 의 '업로드 완료 — 아래에서 이미지를 교체하거나 제거할 수 있습니다.' 가 **plain `<span>`** 이다 — 그 컴포넌트 전체에 `role="status"`/`aria-live` grep = **0건**이라 announce 되지 않는다. 로드 실패 문구(`:116`)도 마찬가지. **PR #30 이 이 몰리큘의 A11Y-11(required) 축은 닫았으나 이 축은 손대지 않았다** — 상태 변화 announce 는 별개 요구다 | 유효 이미지 선택 → 스크린리더가 완료를 알리지 않음. `grep -n 'aria-live\|role="status"' packages/ui/src/molecules/ImageUploadField/ImageUploadField.tsx` → 0건 | gap |
 | A11Y-16 | P1 | 이 화면이 새로 만든 인터랙티브 표면은 없다 — 전부 DS/공용 프레임워크 소비 | — | 종속 |
@@ -113,7 +113,7 @@ date: 2026-07-17
 | IA-07 | P1 | `FormPageShell.tsx:147-155` '목록으로' + `ChevronLeftIcon` + 좌상단 — 표준 일치 | 폼 back-link 문구·아이콘·위치 일치 | pass |
 | IA-08 | P1 | `FormPageShell.tsx:179-191` 카드 **안** 우측에 취소(secondary) → 저장(primary) | in-card footer 우측 | pass |
 | IA-14 | P1 | 반응형 미선언 — 사이드바 폭 고정(`AppShell.tsx:83`), `CrudTable` 에 가로 scroll 컨테이너 없음. **이 화면은 컬럼이 8개(선택·순번·이미지·명칭·발급기관·발급일·구분·액션)라 형제 화면보다 넓다** | 768/375px 에서 사이드바 collapse 없음, 8컬럼 표 overflow | gap(앱 전역, 이 화면에서 더 심함) |
-| ERP-01 | P1 | 구분 → tone 매핑이 **이 화면 로컬**이다 — `types.ts:40-42` `certKindTone` 이 patent→success, certificate→info 를 직접 정한다. 공유 status→tone 레지스트리가 없다. 다만 `kind` 는 lifecycle status 가 아니라 분류라 ERP-01 의 대상('대기/승인/반려…')과 결이 다르다 | `certKindTone` 이 per-page helper | 부분 gap(대상 여부는 A11 판단) |
+| ERP-01 | P1 | 구분 → tone 매핑이 **이 화면 로컬**이다 — `types.ts:40-42` `certKindTone` 이 patent→success, certificate→info 를 직접 정한다. 공유 status→tone 레지스트리가 없다. 다만 `kind` 는 lifecycle status 가 아니라 분류라 ERP-01 의 대상('대기/승인/반려…')과 결이 다르다 | `certKindTone` 이 per-page helper | 부분 gap(대상 여부는 UI 기획 판단) |
 | ERP-06 · ERP-13 | P1 | 리터럴 조사 출하 — `useCrudForm.ts:222` '인증서/특허를 등록했습니다.', `useCrudList.tsx:108,158` `'<명칭>'을(/를) 삭제합니다.`, `shared/crud/validation.ts:14` '명칭을 입력하세요.'. `Empty.tsx:17-27` 만 josa 를 계산한다. **엔티티 라벨 '인증서/특허' 는 슬래시를 포함해 josa 계산에도 어색하다** | 사용자 대상 문자열 `'을(를)'` grep > 0 | gap |
 | **ERP-08** | P2 | **발급일이 공유 formatter 를 거치지 않는다** — `CertificatesListPage.tsx:78` 이 `render: (item) => item.issuedOn` 으로 저장 문자열('2023-04-12')을 그대로 렌더한다. `shared/format` 의 날짜 헬퍼를 쓰지 않아 앱의 ko-KR 표기 규칙 밖에 있다. (형제 화면 연혁은 반대로 `formatNumber` 를 연도에 **잘못** 적용했다 — 같은 뿌리의 반대 증상) | 발급일 셀이 'YYYY-MM-DD' raw. 셀에 raw toString/문자열 통과 | gap |
 | ERP-15 | P1 | 필터된 전 행 렌더(IA-04). virtualization·page-size cap 없음. **행마다 이미지 요청이 붙는다** | 인증서 1,000건 → 1,000행 + 1,000 이미지 요청 | gap |
@@ -178,34 +178,34 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | **EXC-15** | P1(**실질 최우선**) | **이미지가 저장되지 않는다** — `ImageUploadField.tsx:178-181` 이 `blob:` URL 을 폼 값에 넣고 파일을 전송하지 않으며, `138-143` 이 언마운트 시 스스로 revoke 한다. 업로드 심 부재(BE-019 EP-06). progress/cancel 도 없다. **P0 30건 중 어느 것도 이 결함을 잡지 못한다** | DS(`ImageUploadField`) + 계약 + 이 화면 | **A63 · A11 · DS 소유자** |
+| 1 | **EXC-15** | P1(**실질 최우선**) | **이미지가 저장되지 않는다** — `ImageUploadField.tsx:178-181` 이 `blob:` URL 을 폼 값에 넣고 파일을 전송하지 않으며, `138-143` 이 언마운트 시 스스로 revoke 한다. 업로드 심 부재(BE-019 EP-06). progress/cancel 도 없다. **P0 30건 중 어느 것도 이 결함을 잡지 못한다** | DS(`ImageUploadField`) + 계약 + 이 화면 | **백엔드 명세 · UI 기획 · DS 소유자** |
 | 2 | ~~**A11Y-11**~~ | ~~P0~~ | **해소됨(PR #30) — 이관 취소.** 폼 컨트롤 4종의 required 는 F3a 의 `FormField.withAriaRequired`(`FormField.tsx:50-56`, 주입 지점 `:107`)가, 마지막 남은 `ImageUploadField`(`CertificatesFormPage.tsx:156`)는 PR #30 의 **접근성 이름 꼬리표**가 닫았다 — `requiredNameSuffix`(`ImageUploadField.tsx:55`, 적용 `:250`, export `index.ts:2`). **직전 이관 사유였던 '`aria-required` 0건' 은 결함이 아니라 의도였다**(`ImageUploadField.tsx:44-54` — `aria-required` 는 `role=button` 미지원 속성이라 얹으면 axe `aria-allowed-attr` 위반이고, 진짜 `<input type="file">` 은 `aria-hidden`+`tabIndex=-1` 이라 AT 가 못 본다). 회귀 방어선 `ImageUploadField.test.tsx:102-120`. **NFR-020·NFR-021 도 같은 수정으로 함께 닫혔다** | — | — |
 | 3 | **MOTION-01** | **P0** | **사유 전면 교체(PR #26).** '리포에 Motion 라이브러리가 없어 enter/exit 가 없다' 는 **낡았다** — backdrop fade + dialog scale 이 CSS-only 로 구현됐고(`Modal.css:20-21,30-38,58-59`, keyframes `:126-168`), `onAnimationEnd`(`Modal.tsx:216-218`)가 AnimatePresence 없이 'exit 완료 후 unmount' 를 달성한다. **남은 것은 경로 한 종류** — `ConfirmDialog` 의 **footer 버튼(취소 `ConfirmDialog.tsx:145` · 확인 `:153`)이 `Modal` 을 거치지 않고 호출부 콜백 직행**이라 즉시 언마운트된다(`Modal.tsx:27-31` 이 이 한계를 명시). 이 화면의 다이얼로그 4종이 전부 ConfirmDialog 라 **주 닫힘 경로가 정확히 미커버 구간**이다. `Modal.tsx:30-31` 이 제안하는 설계(`requestClose` 를 context 로 내려 ConfirmDialog 가 흡수)가 최소 수정이다 | DS(`Modal`·`ConfirmDialog`) — 화면 수정으로 닫히지 않는다 | DS 소유자 |
 | 4 | ~~**MOTION-02**~~ | ~~P0~~ | **해소됨(PR #26) — 이관 취소.** Toast exit 가 CSS-only 로 완전 구현됐다 — `Toast.css:32-37`(`tds-toast-out … forwards`) · keyframes `:121-131` · reduced-motion 게이트 `:136-141`. `ToastProvider.tsx:99-100` 의 `filter` 는 여전히 최종 제거지만, `Toast.tsx:186-187` 이 `onAnimationEnd` 로 **그 호출을 퇴장 애니메이션 뒤로 미룬다**. `component.overlay` recipe 소비로 exit = fast(150ms)/accelerate — 요구 문구를 정확히 충족 | — | — |
-| 5 | **IA-02** | **P0** | 하위 라우트 제목이 가지 라벨 '기업 관리' 로 폴백(`nav-config.ts:260`)하고 본문 h1 과 **둘이 공존**한다 | 앱 전역(`AppHeader`·`findNavLabel`) | A40 / A11 |
-| 6 | **IA-04** | **P0** | Pagination 부재 — `CrudListShell` 이 필터된 전 행 + 전 썸네일을 렌더한다 | 공용(`CrudListShell`) → 형제 화면 동일 | A11 / A41 |
-| 7 | **IA-13** | **P0** | **구분 필터가 URL 에 없다** — `CertificatesListPage.tsx:51` `useState`. F5·Back·링크 공유로 '전체'로 초기화된다. `useListState` 미소비. **형제 화면(연혁) 대비 이 화면 고유의 P0 gap** | **이 화면 고유** | A11 / A41 |
-| 8 | **EXC-03** | **P0** | write-action 게이팅 미배선. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | **기업 관리 섹션 전체**(앱 전역 아님) | A11 change_request |
-| 9 | EXC-10 | P1 | 일괄 삭제 부분 실패 시 무효화 누락(`crud.ts:239`) + 재시도가 성공분을 재삭제해 실패 건수 증가 | 공용(`crud.ts`·`bulk.ts`) | A11 / A41 / A63 |
-| 10 | ERP-08 | P2 | 발급일이 `shared/format` 을 거치지 않고 raw 문자열 렌더(`CertificatesListPage.tsx:78`) | 이 화면 | A11 |
-| 11 | STATE-05 | P1 | 필터 0건 분기는 정상. **진짜 빈 상태에 생성 CTA 없음** | 이 화면 + 공용 껍데기 | A11 |
+| 5 | **IA-02** | **P0** | 하위 라우트 제목이 가지 라벨 '기업 관리' 로 폴백(`nav-config.ts:260`)하고 본문 h1 과 **둘이 공존**한다 | 앱 전역(`AppHeader`·`findNavLabel`) | 프론트 구현 / UI 기획 |
+| 6 | **IA-04** | **P0** | Pagination 부재 — `CrudListShell` 이 필터된 전 행 + 전 썸네일을 렌더한다 | 공용(`CrudListShell`) → 형제 화면 동일 | UI 기획 / 프론트 리팩터 |
+| 7 | **IA-13** | **P0** | **구분 필터가 URL 에 없다** — `CertificatesListPage.tsx:51` `useState`. F5·Back·링크 공유로 '전체'로 초기화된다. `useListState` 미소비. **형제 화면(연혁) 대비 이 화면 고유의 P0 gap** | **이 화면 고유** | UI 기획 / 프론트 리팩터 |
+| 8 | **EXC-03** | **P0** | write-action 게이팅 미배선. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | **기업 관리 섹션 전체**(앱 전역 아님) | UI 기획 쪽 변경 요청 |
+| 9 | EXC-10 | P1 | 일괄 삭제 부분 실패 시 무효화 누락(`crud.ts:239`) + 재시도가 성공분을 재삭제해 실패 건수 증가 | 공용(`crud.ts`·`bulk.ts`) | UI 기획 / 프론트 리팩터 / 백엔드 명세 |
+| 10 | ERP-08 | P2 | 발급일이 `shared/format` 을 거치지 않고 raw 문자열 렌더(`CertificatesListPage.tsx:78`) | 이 화면 | UI 기획 |
+| 11 | STATE-05 | P1 | 필터 0건 분기는 정상. **진짜 빈 상태에 생성 CTA 없음** | 이 화면 + 공용 껍데기 | UI 기획 |
 | 12 | A11Y-03 | P1 | ConfirmDialog 초기 포커스가 Cancel 이 아니라 닫기(×) | DS(`ConfirmDialog`) | DS 소유자 |
-| 13 | A11Y-08 | P1 | 행 클릭 이동의 키보드 등가 링크 부재 | 공용(`CrudTable`) | A11 |
-| 14 | A11Y-13 | P1 | 폼 진입 시 첫 필드 자동 포커스 없음 | 공용(`useCrudForm`) | A41 |
+| 13 | A11Y-08 | P1 | 행 클릭 이동의 키보드 등가 링크 부재 | 공용(`CrudTable`) | UI 기획 |
+| 14 | A11Y-13 | P1 | 폼 진입 시 첫 필드 자동 포커스 없음 | 공용(`useCrudForm`) | 프론트 리팩터 |
 | 15 | A11Y-14 | P2 | `ImageUploadField` '업로드 완료'·로드 실패가 live region 밖 | DS(`ImageUploadField`) | DS 소유자 |
-| 16 | COMP-12 | P2 | 명칭·발급기관에 글자수 카운터 없음 | 이 화면 | A11 |
-| 17 | IA-03 | P1 | breadcrumb 부재 | 앱 전역 | A40 / A11 |
-| 18 | IA-14 · ERP-15 | P1 | 반응형 미선언 · 대형 리스트 계약 부재. **8컬럼 + 썸네일이라 형제 화면보다 심각** | 앱 전역 | A11 / A40 |
-| 19 | ~~ERP-13~~ · ERP-06 | P1 | **ERP-13 해소됨(통합) — 이관 취소.** **해소됨(통합) — 이관 취소.** 조사 헬퍼가 `shared/format.ts:269+` 로 승격돼 `requiredText`(`shared/crud/validation.ts:17,21,24`) · `useCrudForm.ts:222` · `useCrudList.tsx:108,158` 이 전부 그것을 소비한다. `pages/company/` 의 사용자 대상 조사 리터럴 **0건**. **남은 것은 ERP-06 의 라벨 축 하나**: 엔티티 라벨이 `'인증서/특허'` 라 조사 파생이 슬래시 뒤 '특허'(받침 없음)를 보고 `를` 를 고른다 — 문법은 맞지만 '인증서/특허를 저장했습니다.' 는 라벨 자체가 어색하다(조사 헬퍼가 아니라 라벨 설계 문제) | 이 화면(라벨) | A11 |
-| 20 | ERP-01 | P1 | `certKindTone` 이 per-page helper — 공유 레지스트리 부재(대상 여부는 A11 판단) | 이 화면 | A11 |
-| 21 | EXC-05 · EXC-11 | P1 | client timeout · offline 감지 부재. **업로드 도입 시 timeout 이 특히 필요** | 앱 전역 | A40 / A11 |
-| 22 | EXC-06 | P1 | 403·429 전용 surface 없음 | 공용 | A11 / A63 |
-| 23 | EXC-18 | P1 | Shift-range · 대량 confirm · progress · cancel 부재 | 공용 | A11 |
+| 16 | COMP-12 | P2 | 명칭·발급기관에 글자수 카운터 없음 | 이 화면 | UI 기획 |
+| 17 | IA-03 | P1 | breadcrumb 부재 | 앱 전역 | 프론트 구현 / UI 기획 |
+| 18 | IA-14 · ERP-15 | P1 | 반응형 미선언 · 대형 리스트 계약 부재. **8컬럼 + 썸네일이라 형제 화면보다 심각** | 앱 전역 | UI 기획 / 프론트 구현 |
+| 19 | ~~ERP-13~~ · ERP-06 | P1 | **ERP-13 해소됨(통합) — 이관 취소.** **해소됨(통합) — 이관 취소.** 조사 헬퍼가 `shared/format.ts:269+` 로 승격돼 `requiredText`(`shared/crud/validation.ts:17,21,24`) · `useCrudForm.ts:222` · `useCrudList.tsx:108,158` 이 전부 그것을 소비한다. `pages/company/` 의 사용자 대상 조사 리터럴 **0건**. **남은 것은 ERP-06 의 라벨 축 하나**: 엔티티 라벨이 `'인증서/특허'` 라 조사 파생이 슬래시 뒤 '특허'(받침 없음)를 보고 `를` 를 고른다 — 문법은 맞지만 '인증서/특허를 저장했습니다.' 는 라벨 자체가 어색하다(조사 헬퍼가 아니라 라벨 설계 문제) | 이 화면(라벨) | UI 기획 |
+| 20 | ERP-01 | P1 | `certKindTone` 이 per-page helper — 공유 레지스트리 부재(대상 여부는 UI 기획 판단) | 이 화면 | UI 기획 |
+| 21 | EXC-05 · EXC-11 | P1 | client timeout · offline 감지 부재. **업로드 도입 시 timeout 이 특히 필요** | 앱 전역 | 프론트 구현 / UI 기획 |
+| 22 | EXC-06 | P1 | 403·429 전용 surface 없음 | 공용 | UI 기획 / 백엔드 명세 |
+| 23 | EXC-18 | P1 | Shift-range · 대량 confirm · progress · cancel 부재 | 공용 | UI 기획 |
 | 24 | MOTION-04 · MOTION-08 | P1 | 행 FLIP · easing recipe 부재(MOTION-01/02 종속) | DS · 앱 전역 | DS 소유자 |
-| 25 | COMP-06 · COMP-09 | P2 | skeleton `length: 5` 하드코딩 · 명칭/발급기관 truncation 없음 | 공용(`CrudTable`) + 이 화면 | A41 |
-| 26 | — | — | **동시 편집 last-write-wins + 이미지 자산 고아**(EXC-04 acceptanceCheck 는 통과하나 잔여 위험) | 계약 | A63 (BE-019 §7.4) |
-| 27 | — | — | **이미지 URL 스킴 화이트리스트 미적용** — `requiredImage` 가 형식을 강제하지 않아 `blob:`·`data:`·`javascript:` 가 전부 통과한다(`certificates.test.ts:95` 가 이를 단언). **§7.5 와 업로드 심(§7.6)을 같은 배치에서 켜야 한다** | 계약 + 검증 | **A63 (BE-019 §7.5)** |
-| 28 | EXC-19 | P1 | 세션 만료 redirect 시 dirty 폼 draft 유실 | 앱 전역 | A40 / A11 |
+| 25 | COMP-06 · COMP-09 | P2 | skeleton `length: 5` 하드코딩 · 명칭/발급기관 truncation 없음 | 공용(`CrudTable`) + 이 화면 | 프론트 리팩터 |
+| 26 | — | — | **동시 편집 last-write-wins + 이미지 자산 고아**(EXC-04 acceptanceCheck 는 통과하나 잔여 위험) | 계약 | 백엔드 명세 (BE-019 §7.4) |
+| 27 | — | — | **이미지 URL 스킴 화이트리스트 미적용** — `requiredImage` 가 형식을 강제하지 않아 `blob:`·`data:`·`javascript:` 가 전부 통과한다(`certificates.test.ts:95` 가 이를 단언). **§7.5 와 업로드 심(§7.6)을 같은 배치에서 켜야 한다** | 계약 + 검증 | **백엔드 명세 (BE-019 §7.5)** |
+| 28 | EXC-19 | P1 | 세션 만료 redirect 시 dirty 폼 draft 유실 | 앱 전역 | 프론트 구현 / UI 기획 |
 
 ## 6. 측정 도구 · 재현 스위치
 

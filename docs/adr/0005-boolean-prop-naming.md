@@ -3,7 +3,7 @@ id: ADR-0005
 title: boolean prop 네이밍 규칙 확장 — 표시 토글 접두(show/hide/dim) 및 상태 형용사 추가
 status: accepted
 date: 2026-07-15
-owner: A01 (Architecture AI)
+owner: 아키텍처
 supersedes: null
 relatedTo: [ADR-0002, ADR-0003]
 ---
@@ -12,7 +12,7 @@ relatedTo: [ADR-0002, ADR-0003]
 
 ## 맥락
 
-계약 15종(ADR-0003)을 작성하자 A76(Naming Guard)이 boolean prop 6건을 차단했다.
+계약 15종(ADR-0003)을 작성하자 네이밍 가드가 boolean prop 6건을 차단했다.
 
 | prop | 계약 | 성격 |
 |---|---|---|
@@ -38,7 +38,7 @@ relatedTo: [ADR-0002, ADR-0003]
 **(2) 표시 토글 접두 `show` / `hide` / `dim` 허용.**
 `BOOL_DISPLAY_PREFIX_RE = /^(?:show|hide|dim)[A-Z][A-Za-z0-9]*$/`
 
-**접두 3개는 열거 가능한 전체 집합이다.** 늘리려면 A01 승인(새 ADR)이 필요하다.
+**접두 3개는 열거 가능한 전체 집합이다.** 늘리려면 아키텍처 승인(새 ADR)이 필요하다.
 
 ## 근거
 
@@ -55,7 +55,7 @@ relatedTo: [ADR-0002, ADR-0003]
    더 나쁜 이름을 얻고 MAJOR 범프까지 치른다. 기각.
 2. **동사 접두를 전면 허용** (`/^[a-z]+[A-Z]/`) — 규칙이 사실상 무의미해진다. `renderFooter`,
    `updateOnBlur` 같은 것까지 통과하며, boolean 이 술어로 읽히도록 강제하는 장치가 사라진다. 기각.
-3. **가드 우회 / 예외 주석** — A76 리포트가 명시하듯 "가드는 우회하지 않는다". 규칙에 이의가 있으면
+3. **가드 우회 / 예외 주석** — 네이밍 가드 리포트가 명시하듯 "가드는 우회하지 않는다". 규칙에 이의가 있으면
    규칙을 고치는 것이 조직의 절차다 (ADR-0002 에서 확립한 패턴). 기각.
 
 ## 결과
@@ -63,5 +63,5 @@ relatedTo: [ADR-0002, ADR-0003]
 - `tools/naming-guard/src/rules.ts`: `BOOL_DISPLAY_PREFIX_RE` 추가, `BOOLEAN_STATE_WHITELIST` 에
   `busy`/`revealed` 추가, `checkContractContent` 가 세 조건을 OR 로 검사.
 - `pnpm naming:check` 위반 0건.
-- 계약 15종 **무변경** — MAJOR 범프 없음. 4자 일치(A74) PASS 15/15 유지.
+- 계약 15종 **무변경** — MAJOR 범프 없음. 4자 일치(계약 테스트) PASS 15/15 유지.
 - 접두 목록을 늘리려는 시도는 이 ADR 을 superseding 하는 새 ADR 을 요구한다.

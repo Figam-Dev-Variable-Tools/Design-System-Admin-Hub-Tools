@@ -3,8 +3,8 @@ id: FS-021
 title: "고객사 관리 (목록·등록/수정 모달·삭제)"
 screen: SCR-021               # ⚠ 기업 관리 SCR 미작성 — §7 미결 사항 참조
 route: /company/clients
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -161,7 +161,7 @@ FS-020 §4.1 과 **동일한 코드가 만드는 동일한 규칙**이다(같은
 | FS-021-EL-005.8 / EL-005.10 | 재정렬 | W | 새 순서 id 배열 | `clientsAdapter.reorder(orderedIds, signal)` | 낙관적 업데이트 + 롤백. 서버가 order 1..n 재매김 |
 | FS-021-EL-009.3 | 로고 이미지 업로드 | W | 이미지 파일 | **없음 — 심 미존재** | `ImageUploadField` 가 `URL.createObjectURL` 로 `blob:` URL 을 만들 뿐이다. 업로드 어댑터가 없다 — §7 #8 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드가 없다. `createLogoAdapter(scope, seed)`(`logo-list/adapter.ts`)가 **브라우저 안 mutable 배열**을 들고 CRUD 를 흉내 낸다 — 실제 네트워크 호출 0건. 고객사는 `scope='clients'` 와 `CLIENT_SEED` **3건**으로 이 팩토리를 호출한다(`clients/data-source.ts:36`) — 파트너사와 **같은 팩토리·다른 배열**이라 두 화면의 데이터는 섞이지 않는다. 각 함수는 `wait(LATENCY_MS=400, signal)` 로 지연을 흉내 내고 `failIfRequested('clients', op)` 로 개발용 실패를 재현한다. `clients/data-source.ts:35` 의 `// TODO(backend)` 주석이 유일한 연동 지점이며 위 표는 백엔드 연결 후 의도된 동작이다. **`update`·`remove`·`setActive` 는 없는 id 에 대해 `HttpError(409)` 를 던진다**(`adapter.ts:40-44,63,69,80` — F3b 에서 유령 저장을 막았다. §7 #11). 새로고침하면 모든 변경이 시드로 되돌아간다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드가 없다. `createLogoAdapter(scope, seed)`(`logo-list/adapter.ts`)가 **브라우저 안 mutable 배열**을 들고 CRUD 를 흉내 낸다 — 실제 네트워크 호출 0건. 고객사는 `scope='clients'` 와 `CLIENT_SEED` **3건**으로 이 팩토리를 호출한다(`clients/data-source.ts:36`) — 파트너사와 **같은 팩토리·다른 배열**이라 두 화면의 데이터는 섞이지 않는다. 각 함수는 `wait(LATENCY_MS=400, signal)` 로 지연을 흉내 내고 `failIfRequested('clients', op)` 로 개발용 실패를 재현한다. `clients/data-source.ts:35` 의 `// TODO(backend)` 주석이 유일한 연동 지점이며 위 표는 백엔드 연결 후 의도된 동작이다. **`update`·`remove`·`setActive` 는 없는 id 에 대해 `HttpError(409)` 를 던진다**(`adapter.ts:40-44,63,69,80` — F3b 에서 유령 저장을 막았다. §7 #11). 새로고침하면 모든 변경이 시드로 되돌아간다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -174,7 +174,7 @@ FS-020 §4.1 과 **동일한 코드가 만드는 동일한 규칙**이다(같은
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-021 영역)
 - [x] 화면에 없는 기능을 쓰지 않았다 — 페이지네이션·일괄 토글·상세 라우트·행 클릭 이동·정렬 컬럼·내보내기는 **구현에 없어 기술하지 않았다**
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 > **판정 기준일 2026-07-17 · HEAD `a5c2639`.** 직전 판정은 `4b805ad` 기준이었다.
 >
@@ -188,16 +188,16 @@ FS-020 §4.1 과 **동일한 코드가 만드는 동일한 규칙**이다(같은
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 3 | 등록·수정·삭제·토글 컨트롤에 권한 게이팅이 없다 — read 전용 역할이 '고객사 추가'·수정·삭제·토글을 그대로 보고 누른다(EXC-03 P0). **⚠ 범위 정정**: `useRouteWritePermissions` 소비자는 이제 **7곳**(products 3 · settings 4)이고 **`pages/company/**` 만 그 목록에 없다** — '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | A11 change_request |
-| 4 | 페이지네이션·페이지 크기·목록 상한이 없다 — 고객사가 늘면 전량이 한 표에 렌더된다(IA-04 P0). 재정렬을 전체 순서에서 다루기 위한 결정인지 미정 | A11 · A63 (BE-021 페이징) |
-| 5 | 빈 상태가 '검색 결과 없음'과 '진짜 등록 0건'을 구분하지 않는다 — 검색이 빗나가도 '등록된 고객사가 없습니다.' 라 안내가 어긋난다. 공용 `Empty` 컴포넌트·생성 CTA·'검색 지우기' 없음(STATE-05 P1) | A11 change_request |
-| 6 | 저장 실패가 코드별로 갈리지 않는다 — 검증 거절(422)·권한(403)·충돌(409)·서버 오류(500)가 모두 '저장하지 못했습니다…' 한 문구다. 서버 필드 오류를 입력에 매핑하지 않는다(EXC-06 · EXC-07 P1) | A11 change_request · A63 (BE-021) |
+| 3 | 등록·수정·삭제·토글 컨트롤에 권한 게이팅이 없다 — read 전용 역할이 '고객사 추가'·수정·삭제·토글을 그대로 보고 누른다(EXC-03 P0). **⚠ 범위 정정**: `useRouteWritePermissions` 소비자는 이제 **7곳**(products 3 · settings 4)이고 **`pages/company/**` 만 그 목록에 없다** — '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | UI 기획 쪽 변경 요청 |
+| 4 | 페이지네이션·페이지 크기·목록 상한이 없다 — 고객사가 늘면 전량이 한 표에 렌더된다(IA-04 P0). 재정렬을 전체 순서에서 다루기 위한 결정인지 미정 | UI 기획 · 백엔드 명세 (BE-021 페이징) |
+| 5 | 빈 상태가 '검색 결과 없음'과 '진짜 등록 0건'을 구분하지 않는다 — 검색이 빗나가도 '등록된 고객사가 없습니다.' 라 안내가 어긋난다. 공용 `Empty` 컴포넌트·생성 CTA·'검색 지우기' 없음(STATE-05 P1) | UI 기획 쪽 변경 요청 |
+| 6 | 저장 실패가 코드별로 갈리지 않는다 — 검증 거절(422)·권한(403)·충돌(409)·서버 오류(500)가 모두 '저장하지 못했습니다…' 한 문구다. 서버 필드 오류를 입력에 매핑하지 않는다(EXC-06 · EXC-07 P1) | UI 기획 쪽 변경 요청 · 백엔드 명세 (BE-021) |
 | 7 | ~~**A11Y-11 P0 의 required 절**~~ — **해소됨(PR #30) · 이관 취소.** `<input id="logo-name">` 의 required 는 F3a 가 닫았고(`FormField` 가 `withAriaRequired()` 로 자식 컨트롤의 `aria-required` 에 **런타임 주입** — `FormField.tsx:50-56,107`, 대상 판별 `:38-41`), 마지막 남은 `ImageUploadField`(`LogoFormModal.tsx:170`)는 PR #30 이 **접근성 이름**으로 닫았다 — 드롭존 `<button>` 의 `aria-label` 이 `requiredNameSuffix(required)` 로 '(필수)' 를 싣는다(정의 `ImageUploadField.tsx:55`, 적용 `:250`). **직전 미결 사유였던 '`aria-required` 0건' 은 결함이 아니라 의도였다** — `aria-required` 는 `role=button` 이 지원하지 않는 속성이라(ARIA 1.2) 얹으면 거짓 시맨틱 + axe `aria-allowed-attr` 위반이고, 진짜 `<input type="file">` 은 `aria-hidden`+`tabIndex=-1` 이라 그쪽에 줘도 AT 에 닿지 않는다(근거 `ImageUploadField.tsx:44-54`). 회귀 방어선: `ImageUploadField.test.tsx:114` 가 `aria-required` **부재**를 단언한다. **파트너사(FS-020 §7 #7)와 같은 모듈이라 함께 닫혔다** | — |
-| 8 | **로고 이미지 업로드 심이 없다 — 이것은 '고쳐야 할 결함'이 아니라 '알려진 빚(known debt)'이다.** `ImageUploadField` 가 파일을 서버로 보내지 않고 `URL.createObjectURL` 로 만든 `blob:` URL 을 값으로 넘기며, 그 필드가 언마운트될 때 그 URL 을 `revokeObjectURL` 하므로 **모달이 닫히는 순간 저장값이 죽는다**(`ImageUploadField.tsx:156-161,178-181`). **검증(`requiredImage`)이 형식을 강제하지 않는 것은 누락이 아니라 판정이다** — 그 필드에는 URL 을 칠 입력이 없어 도달 가능한 값이 `blob:…` 과 `''` 뿐이라, http(s) 를 요구하면 사용자가 그것을 만족시킬 방법이 없어 **폼이 영영 제출되지 않는다**(근거 전문: `shared/crud/validation.ts` 의 `requiredImage` 주석). 그래서 **깨질 것을 아는 채로 통과시키고, 테스트가 그 상태를 고정한다** — `logo-list.test.ts:98-99` (`TODO(backend): POST /api/uploads 가 붙으면 이 단언은 뒤집힌다(blob: 거절)`), `:90-97` 주석이 '이 단언을 설계로 읽지 말 것'이라 못 박는다. **고칠 곳은 검증이 아니라 업로드 이음매**이며 엔드포인트·저장 URL 규약이 미정이다 | A63 (BE-021) · A11 |
-| 9 | 모달 제출에 동기 제출 락·멱등키가 없다 — `LogoFormModal.tsx:88` 의 `onValid` 는 `disabled={saving}` 에만 의존한다. 비멱등 등록(POST)에서 비활성 렌더 전의 빠른 재클릭/Enter 연타가 두 건을 만들 수 있다(EXC-08 P0). 공용 `useCrudForm` 의 `submitLockRef` 패턴이 이 모달에 적용되지 않았다 | A11 change_request · A40 |
-| 10 | 일괄 삭제가 실패한 id 를 돌려주지 않는다 — `settleAll` 이 건수만 반환해 재시도가 **이미 삭제된 id 까지 재전송**한다. 부분 실패 시 목록을 무효화하지 않아(`queries.ts:84`) 이미 지워진 행이 표에 남는다(EXC-10 P1) | A11 change_request · A40 |
-| 11 | **사유가 바뀌었다(EXC-04 P0 — 절반 해소).** ① **유령 저장은 닫혔다** — `requireExisting` 이 없는 id 를 `HttpError(409)` 로 막는다(`adapter.ts:40-44,63,69,80`). ② **남은 것 1**: 그 409 를 받아 줄 충돌 다이얼로그가 없다 — `LogoFormModal.tsx:94-97` 의 `onError` 가 어댑터의 '다른 사용자가 먼저 삭제한 항목입니다.' 를 버리고 generic '저장하지 못했습니다…' 로 뭉갠다(공용 `useCrudForm.ts:166-179` 는 같은 자리에 `isConflict` 분기를 갖는다). ③ **남은 것 2**: `LogoItem` 에 `updatedAt`/`version` 이 없어 `If-Match` 를 보내지 않는다. **어댑터의 409 는 '존재 여부' 기반이지 버전 토큰이 아니다 — 둘 다 존재하는 동시 편집은 여전히 마지막 쓰기가 이긴다.** 동시 재정렬도 같다 | A63 (BE-021) · A11 |
-| 12 | 오프라인 감지·프론트 타임아웃 상한이 없다(`navigator.onLine`·`AbortSignal.timeout` 미사용) — 앱 전역 사안(EXC-05 · EXC-11 P1) | A40 |
-| 13 | 노출 토글이 만든 `AbortController` 를 어디서도 abort 하지 않는다 — `LogoListPage.tsx:153` 이 컨트롤러를 만들고 ref 에 담지도, 언마운트에서 취소하지도 않아 `isAbort` 분기(`:166`)가 죽은 코드다. 재정렬(`:96`)·삭제(`:95`)는 ref + 정리 경로를 갖는데 토글만 이탈했다(EXC-09 P0) | A11 change_request · A40 |
-| 15 | **고객사 고유** — '고객사' 와 '파트너사' 의 도메인 경계가 화면·데이터에 없다. 두 목록은 모양이 같고(`LogoItem`) 이름만 다르므로, 한 회사가 양쪽에 중복 등록돼도 아무도 막지 않는다. 고객 화면에서 두 목록이 어떻게 구분 노출되는지도 미정 | A11 · A01 |
-| 16 | 대응 SCR 문서 부재 (기업 관리 섹션 전체 사안) | A11 / A01 |
+| 8 | **로고 이미지 업로드 심이 없다 — 이것은 '고쳐야 할 결함'이 아니라 '알려진 빚(known debt)'이다.** `ImageUploadField` 가 파일을 서버로 보내지 않고 `URL.createObjectURL` 로 만든 `blob:` URL 을 값으로 넘기며, 그 필드가 언마운트될 때 그 URL 을 `revokeObjectURL` 하므로 **모달이 닫히는 순간 저장값이 죽는다**(`ImageUploadField.tsx:156-161,178-181`). **검증(`requiredImage`)이 형식을 강제하지 않는 것은 누락이 아니라 판정이다** — 그 필드에는 URL 을 칠 입력이 없어 도달 가능한 값이 `blob:…` 과 `''` 뿐이라, http(s) 를 요구하면 사용자가 그것을 만족시킬 방법이 없어 **폼이 영영 제출되지 않는다**(근거 전문: `shared/crud/validation.ts` 의 `requiredImage` 주석). 그래서 **깨질 것을 아는 채로 통과시키고, 테스트가 그 상태를 고정한다** — `logo-list.test.ts:98-99` (`TODO(backend): POST /api/uploads 가 붙으면 이 단언은 뒤집힌다(blob: 거절)`), `:90-97` 주석이 '이 단언을 설계로 읽지 말 것'이라 못 박는다. **고칠 곳은 검증이 아니라 업로드 이음매**이며 엔드포인트·저장 URL 규약이 미정이다 | 백엔드 명세 (BE-021) · UI 기획 |
+| 9 | 모달 제출에 동기 제출 락·멱등키가 없다 — `LogoFormModal.tsx:88` 의 `onValid` 는 `disabled={saving}` 에만 의존한다. 비멱등 등록(POST)에서 비활성 렌더 전의 빠른 재클릭/Enter 연타가 두 건을 만들 수 있다(EXC-08 P0). 공용 `useCrudForm` 의 `submitLockRef` 패턴이 이 모달에 적용되지 않았다 | UI 기획 쪽 변경 요청 · 프론트 구현 |
+| 10 | 일괄 삭제가 실패한 id 를 돌려주지 않는다 — `settleAll` 이 건수만 반환해 재시도가 **이미 삭제된 id 까지 재전송**한다. 부분 실패 시 목록을 무효화하지 않아(`queries.ts:84`) 이미 지워진 행이 표에 남는다(EXC-10 P1) | UI 기획 쪽 변경 요청 · 프론트 구현 |
+| 11 | **사유가 바뀌었다(EXC-04 P0 — 절반 해소).** ① **유령 저장은 닫혔다** — `requireExisting` 이 없는 id 를 `HttpError(409)` 로 막는다(`adapter.ts:40-44,63,69,80`). ② **남은 것 1**: 그 409 를 받아 줄 충돌 다이얼로그가 없다 — `LogoFormModal.tsx:94-97` 의 `onError` 가 어댑터의 '다른 사용자가 먼저 삭제한 항목입니다.' 를 버리고 generic '저장하지 못했습니다…' 로 뭉갠다(공용 `useCrudForm.ts:166-179` 는 같은 자리에 `isConflict` 분기를 갖는다). ③ **남은 것 2**: `LogoItem` 에 `updatedAt`/`version` 이 없어 `If-Match` 를 보내지 않는다. **어댑터의 409 는 '존재 여부' 기반이지 버전 토큰이 아니다 — 둘 다 존재하는 동시 편집은 여전히 마지막 쓰기가 이긴다.** 동시 재정렬도 같다 | 백엔드 명세 (BE-021) · UI 기획 |
+| 12 | 오프라인 감지·프론트 타임아웃 상한이 없다(`navigator.onLine`·`AbortSignal.timeout` 미사용) — 앱 전역 사안(EXC-05 · EXC-11 P1) | 프론트 구현 |
+| 13 | 노출 토글이 만든 `AbortController` 를 어디서도 abort 하지 않는다 — `LogoListPage.tsx:153` 이 컨트롤러를 만들고 ref 에 담지도, 언마운트에서 취소하지도 않아 `isAbort` 분기(`:166`)가 죽은 코드다. 재정렬(`:96`)·삭제(`:95`)는 ref + 정리 경로를 갖는데 토글만 이탈했다(EXC-09 P0) | UI 기획 쪽 변경 요청 · 프론트 구현 |
+| 15 | **고객사 고유** — '고객사' 와 '파트너사' 의 도메인 경계가 화면·데이터에 없다. 두 목록은 모양이 같고(`LogoItem`) 이름만 다르므로, 한 회사가 양쪽에 중복 등록돼도 아무도 막지 않는다. 고객 화면에서 두 목록이 어떻게 구분 노출되는지도 미정 | UI 기획 · 아키텍처 |
+| 16 | 대응 SCR 문서 부재 (기업 관리 섹션 전체 사안) | UI 기획 / 아키텍처 |

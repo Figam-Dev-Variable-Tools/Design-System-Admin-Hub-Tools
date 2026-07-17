@@ -1,4 +1,4 @@
-// PermissionsPage — 권한 관리 (라우트: /users/roles) · A40 소유
+// PermissionsPage — 권한 관리 (라우트: /users/roles)
 //
 // 좌: 역할 목록 패널(추가/수정/삭제)
 // 우: 역할 헤더(적용 상태 · 데이터 접근 범위) → 권한 매트릭스(리소스 × 액션) → 대시보드 위젯

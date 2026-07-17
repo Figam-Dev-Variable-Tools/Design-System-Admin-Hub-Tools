@@ -1,4 +1,4 @@
-// 성공 사례 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/portfolio/**)
+// 성공 사례 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 공용 CRUD 프레임워크의 createCrudAdapter 에 시드를 넣는다(포트폴리오 항목과 달리
 // 카테고리 결합이 없어 프레임워크 어댑터를 그대로 쓴다). 실제 연동 시 // TODO(backend) 로 교체.

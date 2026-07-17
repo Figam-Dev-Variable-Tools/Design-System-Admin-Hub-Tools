@@ -1,4 +1,4 @@
-// 인증서/특허 화면 전용 타입 + 순수 규칙 (A41 소유 — apps/admin/src/pages/company/certificates/**)
+// 인증서/특허 화면 전용 타입 + 순수 규칙
 import type { StatusTone } from '../../../shared/ui';
 
 export type CertKind = 'certificate' | 'patent';

@@ -1,4 +1,4 @@
-// CSV 직렬화 회귀 테스트 (A40 — apps/admin/src/shared/download.ts)
+// CSV 직렬화 회귀 테스트 (apps/admin/src/shared/download.ts)
 //
 // [왜 수식 주입이 여기서 막혀야 하나] 셀에는 우리가 만들지 않은 문자열이 들어간다 — 검색 키워드·
 // 닉네임·그룹은 제3자가 정한 값이다. download.ts 는 도메인을 모르므로 '이 열은 안전하다'는 판단을

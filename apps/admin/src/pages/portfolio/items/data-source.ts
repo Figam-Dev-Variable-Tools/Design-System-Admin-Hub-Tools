@@ -1,4 +1,4 @@
-// 포트폴리오 항목 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/portfolio/**)
+// 포트폴리오 항목 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 공용 CRUD 프레임워크의 CrudAdapter 를 _shared/store 저장소 위에 배선한다.
 // 실제 연동 시 아래 함수 본문만 HTTP 로 바꾸고 화면 코드는 그대로 둔다.

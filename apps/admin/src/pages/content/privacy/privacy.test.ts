@@ -1,4 +1,4 @@
-// 개인정보 처리방침 화면의 동작 회귀 테스트 (A41)
+// 개인정보 처리방침 화면의 동작 회귀 테스트
 import { describe, expect, it } from 'vitest';
 
 import { fetchPrivacyVersion, sortVersions } from './data-source';

@@ -1,4 +1,4 @@
-// 자료실 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/support/downloads/**)
+// 자료실 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 프레임워크 createCrudAdapter 에 시드를 넣는다. 등록 시 다운로드수 0·등록일시 now 를
 // build 가 채우고, 수정은 그 둘을 보존한다(patch). 실제 파일 업로드는 없다 — 폼이 파일 메타만 넘긴다.

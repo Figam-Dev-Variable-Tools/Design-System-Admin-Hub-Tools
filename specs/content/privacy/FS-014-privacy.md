@@ -3,8 +3,8 @@ id: FS-014
 title: "개인정보 처리방침 관리 (버전 이력·상세·새 버전)"
 screen: SCR-014               # ⚠ 콘텐츠 SCR(D2) 미작성 — §7 미결 사항 참조
 route: /content/privacy
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-15
@@ -146,7 +146,7 @@ date: 2026-07-15
 | FS-014-EL-024 (수정) | 버전 수정 | W | id + 위 입력 | `updatePrivacyVersion(id, input, signal)` | 성공 후 이력·버전 무효화 |
 | FS-014-EL-025 | 수정 폼 초기 로드 | R | 버전 전문 | `fetchPrivacyVersion(id, signal)` | 폼 채움 |
 
-> **현재 구현 상태 (A63 참고)**: 쓰기 함수(`createPrivacyVersion`·`updatePrivacyVersion`·`deletePrivacyVersion`)는 resolve 만 하고 저장하지 않는다(백엔드 미구현). `// TODO(backend)` 주석이 연동 지점. 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 쓰기 함수(`createPrivacyVersion`·`updatePrivacyVersion`·`deletePrivacyVersion`)는 resolve 만 하고 저장하지 않는다(백엔드 미구현). `// TODO(backend)` 주석이 연동 지점. 위 표는 백엔드 연결 후 의도된 동작이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -156,11 +156,11 @@ date: 2026-07-15
 - [x] `[서버]` = O 요소가 §5 에 전부 요약됐다
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-014 영역)
 
-## 7. 미결 사항 (A11 / A01 / A63 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 (§FS-009 #1 과 동일) | A11 / A01 |
-| 2 | 버전 표기 중복 검사·본문 XSS 정제·현재 시행본 보호(시행 중 삭제 차단)·게시 권한 서버 판정이 미정 | A63 (BE-014) |
-| 3 | 세션 만료·타임아웃 상한이 미정 | A63 (BE-014) |
-| 4 | 시행일이 겹치는 두 버전(어느 것이 시행본인가) 규칙이 미정 | A63 (BE-014) |
+| 1 | 대응 SCR 문서 부재 (§FS-009 #1 과 동일) | UI 기획 / 아키텍처 |
+| 2 | 버전 표기 중복 검사·본문 XSS 정제·현재 시행본 보호(시행 중 삭제 차단)·게시 권한 서버 판정이 미정 | 백엔드 명세 (BE-014) |
+| 3 | 세션 만료·타임아웃 상한이 미정 | 백엔드 명세 (BE-014) |
+| 4 | 시행일이 겹치는 두 버전(어느 것이 시행본인가) 규칙이 미정 | 백엔드 명세 (BE-014) |

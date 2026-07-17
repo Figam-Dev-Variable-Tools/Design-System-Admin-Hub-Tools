@@ -1,4 +1,4 @@
-// 파트너사 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/company/partners/**)
+// 파트너사 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 로고 목록 공용 어댑터(createLogoAdapter)에 파트너사 시드를 넣는다. 실제 연동 시
 // 아래 // TODO(backend) 엔드포인트로 어댑터 본문을 바꾼다(화면·공용 모듈 코드는 그대로).

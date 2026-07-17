@@ -4,8 +4,8 @@ title: "배송 정책 비기능 명세"
 functionalSpec: FS-043
 backendSpec: BE-043
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -198,26 +198,26 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | FEEDBACK-03 · A11Y-13 | P1 | **⚠ 이 화면 고유 결함 — `baseFee` 검증이 무조건인데 필드는 조건부 렌더다.** `validation.ts:28` vs `ShippingPolicyPage.tsx:130`. RHF 가 언마운트 필드 값을 유지하므로 '유료배송 → 배송비 삭제 → 무료배송 → 저장' 이 **검증 실패 → 오류가 렌더되지 않는 필드에 붙음 → 아무 일도 안 일어남**. **FS-041 의 같은 필드는 조건부다**(`items/validation.ts:186-196`) — **같은 섹션의 두 스키마가 갈려 있어 설계가 아니라 오류임이 드러난다.** `shipping.test.ts:39-43` 이 `baseFee: ''` + `feeType: 'free'` 를 검증하지 않아 회귀 테스트가 놓쳤다. **백엔드와 무관하게 지금 고칠 수 있다** | 이 화면 | **A11 change_request (최우선)** |
-| 2 | EXC-03 | P0 | **쓰기 게이팅이 0건 — 세 화면 중 가장 무방비하다.** 이 화면은 `useRouteWritePermissions` 를 **import 조차 하지 않는다**(`ShippingPolicyPage.tsx:1-25` 전수 확인). 상품·카테고리는 `canCreate` 만이라도 쓴다. read 전용 역할이 정책을 전부 고치고 저장을 눌러 403 을 받는다 | 이 화면 | A11 change_request |
-| 3 | EXC-04 | P0 | **동시 편집이 아무것도 막지 않는다 — 세 화면 중 가장 넓게 열려 있다.** ① `version`/`updatedAt` 없음 ② **`SaveVars` 에 `If-Match` 자리조차 없음**(`document.ts:48-51`) ③ **`createDocumentStore` 가 `HttpError` 를 아예 던지지 않음**(`:22-36`) — 상품·카테고리가 F3b 에서 얻은 409 가드를 **이 팩토리는 받지 못했다** ④ 409 를 읽는 코드 없음. **전체 치환이라 한 필드를 고친 사람이 상대의 모든 변경을 되돌린다** | 이 화면 + **공용 `document.ts`** + BE 계약 | **A63 (BE-043 §7.1) · A11** |
-| 4 | EXC-08 | P0 | **동기 락·멱등키 없음 — 자리 자체가 없다**(`SaveVars` = `{ input, signal }`). `crud.ts` 가 `WriteContext.idempotencyKey` + 멱등 원장으로 얻은 것을 `document.ts` 는 받지 못했다. **완화 요인**: 전체 치환이라 같은 body 두 번은 결과가 같다 — **데이터 손상 없고 요청 수만 는다**(카테고리와 대조 — 거기는 '같은 이름 2개' 라는 실사고) | 이 화면 + **공용 `document.ts`** | A11 · A63 |
-| 5 | EXC-06 · EXC-07 · EXC-20 | P1 | **status 분기 0건** — 400/403/409/422/429/500 이 전부 하나의 문구('잠시 후 다시 시도해 주세요' — **403·429 에는 거짓 안내**). **`createDocumentStore` 가 `HttpError` 를 던지지 않아 분기할 근거 자체가 없다.** 422 필드 매핑 경로 없음 · reference code 없음(**`DocumentFormShell` 의 `serverError: string \| null` 에 실을 자리가 없다**) | 이 화면 + 공용 `document.ts`/`DocumentFormShell` | A11 change_request |
-| 6 | (BE-043 §7.3) | — | **금액 문자열 → 숫자 매핑** — `types.ts:5` 의 `// TODO(backend)` 가 가리키는 작업. **`DocumentStore<T>` 가 fetch/save 같은 타입이라 시그니처가 바뀐다** — **'어댑터 본문만 바꾸면 된다' 가 이 화면에서 성립하지 않는다.** 권장: 화면이 `toValues`/`toInput` 을 갖는다(상품 폼 선례 — `ProductFormPage.tsx:161-247`). **연동 산정에 반드시 포함** | 이 화면 + 공용 `document.ts` + BE 계약 | **A63 · A11 (연동 산정 필수)** |
-| 7 | EXC-09 (잔여) | P0 | **`onSuccess` 에 `aborted` 가드가 없다**(`:78-81`) — `useCrudForm`·`useCrudList`·`useCrudRowUpdate`·`ProductCategoriesPage` 의 삭제는 전부 그 가드를 두는데 이 화면만 없다. 이탈 후 완료된 저장이 **언마운트된 컴포넌트에서 `reset`·토스트를 부른다**. 요구의 세 절은 충족하므로 P0 는 pass — 잔여만 이관 | 이 화면 | A11 |
-| 8 | STATE-03 · A11Y-16 | P1 | 재조회 인디케이터 없음(`DocumentFormShell` 에 `refreshing` 개념이 없다) · **footer 상태 문구에 `aria-live` 없음**(그 문구가 이 화면의 유일한 상태 표시다) | 공용 `DocumentFormShell` | A11 |
-| 9 | (FS-043 §7 #13) | — | **재조회가 편집 중 입력을 덮는다** — `useEffect(() => reset(data), [data, reset])`(`:61-64`)가 dirty 여부를 보지 않는다. `staleTime` 30초 경과 후 재조회가 오면 작성 중이던 값이 되돌아간다 | 이 화면 | A11 change_request |
-| 10 | COMP-12 · ERP-14 | P2 · P1 | **택배사에 `maxLength` 없음**(이 화면·상품 화면의 다른 모든 텍스트 입력은 두는데 **여기만 없다**) · 카운터 0건 · 금액 필드 **5종**에 실시간 마스킹·붙여넣기 정규화 없음(**이 화면은 금액 비중이 가장 높다 — 8필드 중 5개**) | 이 화면 + DS field adapter | A11 |
-| 11 | COMP-01 (경미) | P1 | 저장 버튼이 `loading` prop 대신 손으로 쓴 '저장 중…'. **`buttonStyle(`/`tds-ui-btn-` grep 은 0건 — 세 화면 중 유일하게 깨끗하다** | 공용 `DocumentFormShell` | A11 |
-| 12 | (FS-043 §7 #15 · #24) | — | 조회 실패 문구가 도메인 미지칭('내용을 불러오지 못했습니다') + 화면 전체 대체(안내문까지 사라진다) · 스켈레톤 4줄 고정(실제 필드 8~10개 — layout shift) | 공용 `DocumentFormShell` | A11 |
-| 13 | (BE-043 §7.4) | — | **서버에만 있는 검증 셋**: `freeThreshold > baseFee`(422 `INVALID_FEE_POLICY` — 무료 기준이 배송비보다 낮으면 정책이 모순) · 추가배송비 상한 없음(10,000,000원 통과) · `carrier` trim 미적용(`' 가상택배 '` 가 그대로 저장) | BE 계약 + 이 화면 | A63 · A01(상한값) |
-| 14 | (BE-043 §7.4 ⑤ · §4.4) | — | **`PUT` 이 정규화된 문서를 200 으로 돌려주고 프론트가 `reset(응답)` 해야 한다** — 현재 `save: Promise<void>` 라 **자기가 보낸 값**이 기준선이다. 서버 정규화 시 dirty 판정이 거짓이 된다 | BE 계약 + 이 화면 | A63 · A11 |
-| 15 | (§4.3) | — | **이 정책을 아무도 읽지 않는다** — 반품 화면이 `returnFee` 를, 상품 폼이 기본값을 읽지 않고 주문 계산이 없다. **화면은 '스토어 전체 배송비 계산에 반영됩니다' 라고 약속하는데 그 계산이 어디에도 없다.** 주문 배송비 산식 · 반품 배송비 주체 · 권역 판정 주체 확정 필요 | **도메인 경계** | **A01 (최우선) · A63** |
-| 16 | (§4.3 · BE-043 §7.6 #1) | — | **`DEFAULT_SHIPPING`(상품)과 `DEFAULT_SHIPPING_POLICY`(정책)가 별개 상수다** — 정책에서 기본 배송비를 바꿔도 **새 상품은 옛 값으로 시작한다.** **정책이 '기본값' 이라는 이름값을 못 하고 있다.** BE-041 §7.15 #14 와 같은 사안. **지금 실재하는 불일치** | 이 화면 + 상품 화면 | A11 · A01 |
-| 17 | (§4.3) | — | **묶음배송이 아무것도 지배하지 않는다**(단위·산식 미정의) · **택배사가 자유 텍스트라 연동 키가 없다** · **권역 2축 고정 + 판정 규칙 없음** — 셋 다 도메인 확정 필요 | **도메인 경계** | **A01 · A63** |
-| 18 | (§4.4) | — | **감사 축 부재** — `updatedAt`/`updatedBy` 없음 · 변경 이력 없음. **배송 정책은 모든 주문의 배송비를 지배한다.** 최소선: `GET` 응답에 두 필드를 실어 '마지막 수정' 을 보인다 | BE 계약 | A63 (BE-043 §7.11) |
-| 19 | EXC-05 · EXC-11 · EXC-19 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 · 세션 만료가 8필드 입력을 버린다 | **앱 전역** | A40 · A11 |
-| 20 | (§1.2 · 횡단) | — | **단일 문서형 5화면(회사 정보·CEO 인사말·비전/미션·오시는 길·배송)이 전부 같은 문제일 가능성이 높다** — `createDocumentStore`/`useSaveDocument`/`DocumentFormShell` 이 `crud.ts` 계열이 F3b 에서 얻은 것(409 가드·멱등키 자리·status 분기·reference)을 받지 못했다. **한 화면의 문제가 아니다 — 나머지 넷을 확인해야 한다** | **공용 `document.ts`/`DocumentFormShell`**(횡단) | **A11 (확인 필요)** |
+| 1 | FEEDBACK-03 · A11Y-13 | P1 | **⚠ 이 화면 고유 결함 — `baseFee` 검증이 무조건인데 필드는 조건부 렌더다.** `validation.ts:28` vs `ShippingPolicyPage.tsx:130`. RHF 가 언마운트 필드 값을 유지하므로 '유료배송 → 배송비 삭제 → 무료배송 → 저장' 이 **검증 실패 → 오류가 렌더되지 않는 필드에 붙음 → 아무 일도 안 일어남**. **FS-041 의 같은 필드는 조건부다**(`items/validation.ts:186-196`) — **같은 섹션의 두 스키마가 갈려 있어 설계가 아니라 오류임이 드러난다.** `shipping.test.ts:39-43` 이 `baseFee: ''` + `feeType: 'free'` 를 검증하지 않아 회귀 테스트가 놓쳤다. **백엔드와 무관하게 지금 고칠 수 있다** | 이 화면 | **UI 기획 쪽 변경 요청 (최우선)** |
+| 2 | EXC-03 | P0 | **쓰기 게이팅이 0건 — 세 화면 중 가장 무방비하다.** 이 화면은 `useRouteWritePermissions` 를 **import 조차 하지 않는다**(`ShippingPolicyPage.tsx:1-25` 전수 확인). 상품·카테고리는 `canCreate` 만이라도 쓴다. read 전용 역할이 정책을 전부 고치고 저장을 눌러 403 을 받는다 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 3 | EXC-04 | P0 | **동시 편집이 아무것도 막지 않는다 — 세 화면 중 가장 넓게 열려 있다.** ① `version`/`updatedAt` 없음 ② **`SaveVars` 에 `If-Match` 자리조차 없음**(`document.ts:48-51`) ③ **`createDocumentStore` 가 `HttpError` 를 아예 던지지 않음**(`:22-36`) — 상품·카테고리가 F3b 에서 얻은 409 가드를 **이 팩토리는 받지 못했다** ④ 409 를 읽는 코드 없음. **전체 치환이라 한 필드를 고친 사람이 상대의 모든 변경을 되돌린다** | 이 화면 + **공용 `document.ts`** + BE 계약 | **백엔드 명세 (BE-043 §7.1) · UI 기획** |
+| 4 | EXC-08 | P0 | **동기 락·멱등키 없음 — 자리 자체가 없다**(`SaveVars` = `{ input, signal }`). `crud.ts` 가 `WriteContext.idempotencyKey` + 멱등 원장으로 얻은 것을 `document.ts` 는 받지 못했다. **완화 요인**: 전체 치환이라 같은 body 두 번은 결과가 같다 — **데이터 손상 없고 요청 수만 는다**(카테고리와 대조 — 거기는 '같은 이름 2개' 라는 실사고) | 이 화면 + **공용 `document.ts`** | UI 기획 · 백엔드 명세 |
+| 5 | EXC-06 · EXC-07 · EXC-20 | P1 | **status 분기 0건** — 400/403/409/422/429/500 이 전부 하나의 문구('잠시 후 다시 시도해 주세요' — **403·429 에는 거짓 안내**). **`createDocumentStore` 가 `HttpError` 를 던지지 않아 분기할 근거 자체가 없다.** 422 필드 매핑 경로 없음 · reference code 없음(**`DocumentFormShell` 의 `serverError: string \| null` 에 실을 자리가 없다**) | 이 화면 + 공용 `document.ts`/`DocumentFormShell` | UI 기획 쪽 변경 요청 |
+| 6 | (BE-043 §7.3) | — | **금액 문자열 → 숫자 매핑** — `types.ts:5` 의 `// TODO(backend)` 가 가리키는 작업. **`DocumentStore<T>` 가 fetch/save 같은 타입이라 시그니처가 바뀐다** — **'어댑터 본문만 바꾸면 된다' 가 이 화면에서 성립하지 않는다.** 권장: 화면이 `toValues`/`toInput` 을 갖는다(상품 폼 선례 — `ProductFormPage.tsx:161-247`). **연동 산정에 반드시 포함** | 이 화면 + 공용 `document.ts` + BE 계약 | **백엔드 명세 · UI 기획 (연동 산정 필수)** |
+| 7 | EXC-09 (잔여) | P0 | **`onSuccess` 에 `aborted` 가드가 없다**(`:78-81`) — `useCrudForm`·`useCrudList`·`useCrudRowUpdate`·`ProductCategoriesPage` 의 삭제는 전부 그 가드를 두는데 이 화면만 없다. 이탈 후 완료된 저장이 **언마운트된 컴포넌트에서 `reset`·토스트를 부른다**. 요구의 세 절은 충족하므로 P0 는 pass — 잔여만 이관 | 이 화면 | UI 기획 |
+| 8 | STATE-03 · A11Y-16 | P1 | 재조회 인디케이터 없음(`DocumentFormShell` 에 `refreshing` 개념이 없다) · **footer 상태 문구에 `aria-live` 없음**(그 문구가 이 화면의 유일한 상태 표시다) | 공용 `DocumentFormShell` | UI 기획 |
+| 9 | (FS-043 §7 #13) | — | **재조회가 편집 중 입력을 덮는다** — `useEffect(() => reset(data), [data, reset])`(`:61-64`)가 dirty 여부를 보지 않는다. `staleTime` 30초 경과 후 재조회가 오면 작성 중이던 값이 되돌아간다 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 10 | COMP-12 · ERP-14 | P2 · P1 | **택배사에 `maxLength` 없음**(이 화면·상품 화면의 다른 모든 텍스트 입력은 두는데 **여기만 없다**) · 카운터 0건 · 금액 필드 **5종**에 실시간 마스킹·붙여넣기 정규화 없음(**이 화면은 금액 비중이 가장 높다 — 8필드 중 5개**) | 이 화면 + DS field adapter | UI 기획 |
+| 11 | COMP-01 (경미) | P1 | 저장 버튼이 `loading` prop 대신 손으로 쓴 '저장 중…'. **`buttonStyle(`/`tds-ui-btn-` grep 은 0건 — 세 화면 중 유일하게 깨끗하다** | 공용 `DocumentFormShell` | UI 기획 |
+| 12 | (FS-043 §7 #15 · #24) | — | 조회 실패 문구가 도메인 미지칭('내용을 불러오지 못했습니다') + 화면 전체 대체(안내문까지 사라진다) · 스켈레톤 4줄 고정(실제 필드 8~10개 — layout shift) | 공용 `DocumentFormShell` | UI 기획 |
+| 13 | (BE-043 §7.4) | — | **서버에만 있는 검증 셋**: `freeThreshold > baseFee`(422 `INVALID_FEE_POLICY` — 무료 기준이 배송비보다 낮으면 정책이 모순) · 추가배송비 상한 없음(10,000,000원 통과) · `carrier` trim 미적용(`' 가상택배 '` 가 그대로 저장) | BE 계약 + 이 화면 | 백엔드 명세 · 아키텍처(상한값) |
+| 14 | (BE-043 §7.4 ⑤ · §4.4) | — | **`PUT` 이 정규화된 문서를 200 으로 돌려주고 프론트가 `reset(응답)` 해야 한다** — 현재 `save: Promise<void>` 라 **자기가 보낸 값**이 기준선이다. 서버 정규화 시 dirty 판정이 거짓이 된다 | BE 계약 + 이 화면 | 백엔드 명세 · UI 기획 |
+| 15 | (§4.3) | — | **이 정책을 아무도 읽지 않는다** — 반품 화면이 `returnFee` 를, 상품 폼이 기본값을 읽지 않고 주문 계산이 없다. **화면은 '스토어 전체 배송비 계산에 반영됩니다' 라고 약속하는데 그 계산이 어디에도 없다.** 주문 배송비 산식 · 반품 배송비 주체 · 권역 판정 주체 확정 필요 | **도메인 경계** | **아키텍처 (최우선) · 백엔드 명세** |
+| 16 | (§4.3 · BE-043 §7.6 #1) | — | **`DEFAULT_SHIPPING`(상품)과 `DEFAULT_SHIPPING_POLICY`(정책)가 별개 상수다** — 정책에서 기본 배송비를 바꿔도 **새 상품은 옛 값으로 시작한다.** **정책이 '기본값' 이라는 이름값을 못 하고 있다.** BE-041 §7.15 #14 와 같은 사안. **지금 실재하는 불일치** | 이 화면 + 상품 화면 | UI 기획 · 아키텍처 |
+| 17 | (§4.3) | — | **묶음배송이 아무것도 지배하지 않는다**(단위·산식 미정의) · **택배사가 자유 텍스트라 연동 키가 없다** · **권역 2축 고정 + 판정 규칙 없음** — 셋 다 도메인 확정 필요 | **도메인 경계** | **아키텍처 · 백엔드 명세** |
+| 18 | (§4.4) | — | **감사 축 부재** — `updatedAt`/`updatedBy` 없음 · 변경 이력 없음. **배송 정책은 모든 주문의 배송비를 지배한다.** 최소선: `GET` 응답에 두 필드를 실어 '마지막 수정' 을 보인다 | BE 계약 | 백엔드 명세 (BE-043 §7.11) |
+| 19 | EXC-05 · EXC-11 · EXC-19 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 · 세션 만료가 8필드 입력을 버린다 | **앱 전역** | 프론트 구현 · UI 기획 |
+| 20 | (§1.2 · 횡단) | — | **단일 문서형 5화면(회사 정보·CEO 인사말·비전/미션·오시는 길·배송)이 전부 같은 문제일 가능성이 높다** — `createDocumentStore`/`useSaveDocument`/`DocumentFormShell` 이 `crud.ts` 계열이 F3b 에서 얻은 것(409 가드·멱등키 자리·status 분기·reference)을 받지 못했다. **한 화면의 문제가 아니다 — 나머지 넷을 확인해야 한다** | **공용 `document.ts`/`DocumentFormShell`**(횡단) | **UI 기획 (확인 필요)** |
 
 ## 6. 측정 도구 · 재현 스위치
 

@@ -4,8 +4,8 @@ title: "ESG 활동 관리 비기능 명세"
 functionalSpec: FS-022
 backendSpec: BE-022
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -197,29 +197,29 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | **IA-13** | **P0** | 분류 필터가 `useState` 에만 산다 — `useListState`(실소비자는 `members/**` 뿐)를 이 화면이 쓰지 않는다. 폼 왕복·F5·링크 공유로 필터 view 가 복원되지 않는다 | **이 화면** — 가장 값싸게 닫히는 P0 | **A41 (즉시 가능)** |
-| 2 | **IA-02** | **P0** | `/company/esg/new`·`/:id/edit` 가 `findNavLabel` branch 폴백으로 '기업 관리' 를 보이고, 폼에 `<h1>` 이 2개다. 목록/폼의 title 소스도 다르다. (A11Y-07 의 route announce 도 같은 이유로 '기업 관리' 를 읽는다) | **앱 전역** (`AppHeader`/`findNavLabel` + 전 form/detail route) | A40 · A11 |
-| 3 | **IA-04** | **P0** | Pagination 이 없다 — 전량 조회 + 전량 렌더. page size 개념 자체가 없다. 부수 피해: EXC-18(전체 선택이 전량) · ERP-15 · ERP-03 · COMP-06/COMP-07 · BE-022 §7.1(일괄 DELETE 레이트리밋) | **`CrudListShell` 소비 목록 전체**(연혁·인증서·ESG) | A40 · A63 · A11 |
-| 4 | **EXC-03** | **P0** | 쓰기 권한 게이팅 없음 — 등록·수정·삭제·일괄삭제 버튼이 권한과 무관하게 보이고 눌린다. 강등 reconcile 도 성립하지 않는다. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | **기업 관리 섹션 전체**(앱 전역 아님) | A11 change_request |
-| 5 | **A11Y-11** | **P0** | 필수 4필드에 `required`/`aria-required` 가 없다 — `FormField` 의 `*` 마커가 `aria-hidden` 이라 스크린리더에 필수 여부가 닿는 경로 0개. (describedby·hint 절반은 통과) | **앱 전역** (`FormField`/`TextareaField` 계약 + 전 폼) | A40 (DS 자동 배선 승격 검토) · A41 |
-| 6 | EXC-18 | P1 | selection scope 라벨이 '이 페이지의…' 인데 page 가 없다 · Shift-range 없음 · 임계 강화 confirm/progress/cancel 없음 | 공유(`useCrudList`/`CrudTable`) + IA-04 결합 | A40 · A11 |
-| 7 | EXC-06 | P1 | 목록 조회 실패가 403/404/500 을 뭉갠다(`CrudListShell.tsx:156`). 403 이 generic 문구 | 공유(`CrudListShell`) | A40 · A11 |
-| 8 | EXC-10 | P1 | `settleAll` 이 실패 id 를 돌려주지 않아 '실패분만 retry' 불가 | 공유(`shared/bulk.ts`) | A40 |
-| 9 | A11Y-13 | P1 | 폼 진입 첫 필드 자동 포커스 없음(검증 실패 포커스는 통과) | 공유(`useCrudForm`) | A40 |
-| 10 | — | P1 | **'취소'·'목록으로' 버튼이 미저장 가드를 통과한다** — 둘 다 `navigate(listPath)` push 라 링크 가로채기·popstate 어디에도 안 걸린다(FEEDBACK-04 의 3경로 밖이라 P0 판정에는 영향 없음) | 공유(`FormPageShell`) | A40 · A11 |
+| 1 | **IA-13** | **P0** | 분류 필터가 `useState` 에만 산다 — `useListState`(실소비자는 `members/**` 뿐)를 이 화면이 쓰지 않는다. 폼 왕복·F5·링크 공유로 필터 view 가 복원되지 않는다 | **이 화면** — 가장 값싸게 닫히는 P0 | **프론트 리팩터 (즉시 가능)** |
+| 2 | **IA-02** | **P0** | `/company/esg/new`·`/:id/edit` 가 `findNavLabel` branch 폴백으로 '기업 관리' 를 보이고, 폼에 `<h1>` 이 2개다. 목록/폼의 title 소스도 다르다. (A11Y-07 의 route announce 도 같은 이유로 '기업 관리' 를 읽는다) | **앱 전역** (`AppHeader`/`findNavLabel` + 전 form/detail route) | 프론트 구현 · UI 기획 |
+| 3 | **IA-04** | **P0** | Pagination 이 없다 — 전량 조회 + 전량 렌더. page size 개념 자체가 없다. 부수 피해: EXC-18(전체 선택이 전량) · ERP-15 · ERP-03 · COMP-06/COMP-07 · BE-022 §7.1(일괄 DELETE 레이트리밋) | **`CrudListShell` 소비 목록 전체**(연혁·인증서·ESG) | 프론트 구현 · 백엔드 명세 · UI 기획 |
+| 4 | **EXC-03** | **P0** | 쓰기 권한 게이팅 없음 — 등록·수정·삭제·일괄삭제 버튼이 권한과 무관하게 보이고 눌린다. 강등 reconcile 도 성립하지 않는다. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | **기업 관리 섹션 전체**(앱 전역 아님) | UI 기획 쪽 변경 요청 |
+| 5 | **A11Y-11** | **P0** | 필수 4필드에 `required`/`aria-required` 가 없다 — `FormField` 의 `*` 마커가 `aria-hidden` 이라 스크린리더에 필수 여부가 닿는 경로 0개. (describedby·hint 절반은 통과) | **앱 전역** (`FormField`/`TextareaField` 계약 + 전 폼) | 프론트 구현 (DS 자동 배선 승격 검토) · 프론트 리팩터 |
+| 6 | EXC-18 | P1 | selection scope 라벨이 '이 페이지의…' 인데 page 가 없다 · Shift-range 없음 · 임계 강화 confirm/progress/cancel 없음 | 공유(`useCrudList`/`CrudTable`) + IA-04 결합 | 프론트 구현 · UI 기획 |
+| 7 | EXC-06 | P1 | 목록 조회 실패가 403/404/500 을 뭉갠다(`CrudListShell.tsx:156`). 403 이 generic 문구 | 공유(`CrudListShell`) | 프론트 구현 · UI 기획 |
+| 8 | EXC-10 | P1 | `settleAll` 이 실패 id 를 돌려주지 않아 '실패분만 retry' 불가 | 공유(`shared/bulk.ts`) | 프론트 구현 |
+| 9 | A11Y-13 | P1 | 폼 진입 첫 필드 자동 포커스 없음(검증 실패 포커스는 통과) | 공유(`useCrudForm`) | 프론트 구현 |
+| 10 | — | P1 | **'취소'·'목록으로' 버튼이 미저장 가드를 통과한다** — 둘 다 `navigate(listPath)` push 라 링크 가로채기·popstate 어디에도 안 걸린다(FEEDBACK-04 의 3경로 밖이라 P0 판정에는 영향 없음) | 공유(`FormPageShell`) | 프론트 구현 · UI 기획 |
 | ~~11~~ | ~~ERP-13 / ERP-06~~ | P1 | **해소됨(통합) — 이관 취소.** 조사 헬퍼가 `shared/format.ts:269+` 로 승격돼 `requiredText`(`shared/crud/validation.ts:17,21,24`) · `useCrudForm.ts:222` · `useCrudList.tsx:108,158` 이 전부 그것을 소비한다. `pages/company/` 의 사용자 대상 조사 리터럴 **0건** — '제목을 입력하세요.' · 'ESG 활동을 등록했습니다.' 로 옳게 갈린다 | — | **이관 취소** |
-| 12 | IA-03 | P1 | 폼 route 에 breadcrumb 없음 | **앱 전역** | A40 · A11 |
-| 13 | ERP-03 / ERP-04 / ERP-15 | P1 | sticky thead·SelectionBar 없음 · sortable header 없음 · 대형 list 렌더 계약 없음 — **페이징 부재와 결합해 악화** | 공유(`CrudTable`) | A40 |
-| 14 | ERP-12 | P1 | 목록 export(CSV/xlsx) 없음 | **앱 전역** | A40 · A11 |
-| 15 | EXC-05 / EXC-11 / EXC-19 | P1 | client timeout · offline 감지 · 세션 만료 draft 보존이 전부 없다 | **앱 전역** | A40 · A63 |
-| 16 | COMP-09 / COMP-12 | P2 | 제목 열 truncate 없음 · 내용 hover expand 없음 · 글자 수 카운터 없음 | 이 화면 | A41 |
-| 17 | COMP-06 | P2 | 스켈레톤 `length: 5` 하드코딩 | 공유(`CrudTable`) | A40 |
-| 18 | ERP-08 | P2 | 일자 셀이 `shared/format` 미경유(raw `item.date`) | 이 화면 | A41 |
-| 19 | IA-14 | P1 | 768/375px 반응형 · 표 가로 scroll 컨테이너 없음 | **앱 전역** | A40 · A11 |
-| 20 | — | — | **이미지가 저장되지 않는다**(FS-022 §7 #9 · BE-022 §7.6) — quality-bar 축이 아니라 기능 결손. `blob:` URL 이 폼 언마운트와 함께 죽는다 | 이 화면 + 백엔드 | A63 · A11 · A01 |
-| 21 | — | — | **삭제가 멱등이 아니다**(BE-022 §7.11) — 이미 삭제된 항목에 409. 일괄에서 영원히 성공하지 않는 재시도가 된다 | 공유(`shared/crud/crud.ts`) | A40 · A63 |
-| 22 | — | — | **멱등키가 만들어지고 버려진다**(BE-022 §7.10) — `CrudAdapter` 시그니처에 자리가 없다 | 공유(`shared/crud/crud.ts`) | A40 · A63 |
-| 23 | — | — | 동시 **수정** 충돌 미감지(BE-022 §7.8) — **프론트 충돌 UI 는 이미 완비**돼 있어 `version` + `If-Match` + 어댑터 본문만 오면 성립한다 | 데이터 계약 + 어댑터 | A63 · A41 |
+| 12 | IA-03 | P1 | 폼 route 에 breadcrumb 없음 | **앱 전역** | 프론트 구현 · UI 기획 |
+| 13 | ERP-03 / ERP-04 / ERP-15 | P1 | sticky thead·SelectionBar 없음 · sortable header 없음 · 대형 list 렌더 계약 없음 — **페이징 부재와 결합해 악화** | 공유(`CrudTable`) | 프론트 구현 |
+| 14 | ERP-12 | P1 | 목록 export(CSV/xlsx) 없음 | **앱 전역** | 프론트 구현 · UI 기획 |
+| 15 | EXC-05 / EXC-11 / EXC-19 | P1 | client timeout · offline 감지 · 세션 만료 draft 보존이 전부 없다 | **앱 전역** | 프론트 구현 · 백엔드 명세 |
+| 16 | COMP-09 / COMP-12 | P2 | 제목 열 truncate 없음 · 내용 hover expand 없음 · 글자 수 카운터 없음 | 이 화면 | 프론트 리팩터 |
+| 17 | COMP-06 | P2 | 스켈레톤 `length: 5` 하드코딩 | 공유(`CrudTable`) | 프론트 구현 |
+| 18 | ERP-08 | P2 | 일자 셀이 `shared/format` 미경유(raw `item.date`) | 이 화면 | 프론트 리팩터 |
+| 19 | IA-14 | P1 | 768/375px 반응형 · 표 가로 scroll 컨테이너 없음 | **앱 전역** | 프론트 구현 · UI 기획 |
+| 20 | — | — | **이미지가 저장되지 않는다**(FS-022 §7 #9 · BE-022 §7.6) — quality-bar 축이 아니라 기능 결손. `blob:` URL 이 폼 언마운트와 함께 죽는다 | 이 화면 + 백엔드 | 백엔드 명세 · UI 기획 · 아키텍처 |
+| 21 | — | — | **삭제가 멱등이 아니다**(BE-022 §7.11) — 이미 삭제된 항목에 409. 일괄에서 영원히 성공하지 않는 재시도가 된다 | 공유(`shared/crud/crud.ts`) | 프론트 구현 · 백엔드 명세 |
+| 22 | — | — | **멱등키가 만들어지고 버려진다**(BE-022 §7.10) — `CrudAdapter` 시그니처에 자리가 없다 | 공유(`shared/crud/crud.ts`) | 프론트 구현 · 백엔드 명세 |
+| 23 | — | — | 동시 **수정** 충돌 미감지(BE-022 §7.8) — **프론트 충돌 UI 는 이미 완비**돼 있어 `version` + `If-Match` + 어댑터 본문만 오면 성립한다 | 데이터 계약 + 어댑터 | 백엔드 명세 · 프론트 리팩터 |
 
 ## 6. 측정 도구 · 재현 스위치
 

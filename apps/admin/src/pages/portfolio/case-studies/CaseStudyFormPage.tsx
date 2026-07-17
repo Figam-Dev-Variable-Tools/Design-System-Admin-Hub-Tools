@@ -1,4 +1,4 @@
-// CaseStudyFormPage — 성공 사례 등록/수정 (라우트: /portfolio/case-studies/new · /:id/edit) · A41 소유
+// CaseStudyFormPage — 성공 사례 등록/수정 (라우트: /portfolio/case-studies/new · /:id/edit)
 //
 // 승격된 CRUD 프레임워크(useCrudForm + FormPageShell) 위에 업종·과제/해결/성과·대표/본문 이미지·노출을 얹는다.
 import type { CSSProperties } from 'react';

@@ -1,4 +1,4 @@
-// 문의 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/sales/**)
+// 문의 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 프레임워크 createCrudAdapter 에 시드를 넣는다. 목록/상세는 fetchAll/fetchOne,
 // 답변·상태·담당 저장은 update 를 쓴다(문의 생성은 고객 채널이 만든다 — 관리자 생성 UI 없음).

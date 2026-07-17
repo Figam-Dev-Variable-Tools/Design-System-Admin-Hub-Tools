@@ -1,4 +1,4 @@
-// 발송 템플릿 폼 검증 회귀 테스트 (A41) — 채널별 제목 요건·알림톡 심사 규칙
+// 발송 템플릿 폼 검증 회귀 테스트 — 채널별 제목 요건·알림톡 심사 규칙
 import { describe, expect, it } from 'vitest';
 
 import { templateSchema } from './validation';

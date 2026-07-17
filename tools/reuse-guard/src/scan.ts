@@ -1,5 +1,5 @@
 /**
- * @tds/reuse-guard — 모듈 추출 스캐너 진입점 (A75 Component Reuse AI)
+ * @tds/reuse-guard — 모듈 추출 스캐너 진입점 (재사용 가드 Component Reuse AI)
  *
  * page-module-pipeline **② 페이지 조사 · 공통 모듈 후보 추출** 단계의 자동화 도구
  * (docs/tds/guidelines/page-module-pipeline.md).

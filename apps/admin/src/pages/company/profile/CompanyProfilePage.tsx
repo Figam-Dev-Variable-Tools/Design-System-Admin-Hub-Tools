@@ -1,4 +1,4 @@
-// CompanyProfilePage — 회사 정보 (라우트: /company/profile) · A41 소유
+// CompanyProfilePage — 회사 정보 (라우트: /company/profile)
 //
 // 단일 편집 폼(회사당 1건). 목록 없음 — 문서 하나를 불러와 고치고 저장한다. 저장은 토스트, 필드
 // 오류는 인라인, 저장하지 않은 채 이탈하면 가드가 막는다(단일 문서형 4종 공통 껍데기 재사용).

@@ -1,4 +1,4 @@
-// HTTP 오류 타입 (A41 소유 — apps/admin/src/shared/errors/**)
+// HTTP 오류 타입
 //
 // [왜 이 파일이 있나]
 // 지금까지 이 앱의 모든 실패는 `new Error('요청을 처리하지 못했습니다.')` 하나로 붕괴했다.

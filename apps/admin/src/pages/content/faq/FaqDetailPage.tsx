@@ -1,4 +1,4 @@
-// FaqDetailPage — FAQ 조회 (라우트: /content/faq/:id) · A41 소유
+// FaqDetailPage — FAQ 조회 (라우트: /content/faq/:id)
 //
 // 읽기 전용 뷰 + 상단 액션(수정 → 폼 / 삭제 → 확인 다이얼로그). 패턴은 공지 상세를 따른다.
 import { useRef, useState } from 'react';

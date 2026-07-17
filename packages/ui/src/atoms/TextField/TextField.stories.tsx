@@ -58,7 +58,7 @@ const inputOf = (canvasElement: HTMLElement) => canvasElement.querySelector('inp
 /**
  * play 컨텍스트 — 구조 분해를 파라미터에서 하지 않는다.
  *
- * [왜 이렇게 쓰는가] A77(test-coverage)의 정적 스캐너는 `play: hover` 같은 **참조형 play** 를
+ * [왜 이렇게 쓰는가] 테스트 커버리지의 정적 스캐너는 `play: hover` 같은 **참조형 play** 를
  * 모듈 스코프 함수 본문까지 따라가 단언을 센다. 그런데 파라미터에서 구조 분해하면
  * (`async ({ canvasElement }) => {`) 스캐너가 선언 직후의 첫 `{` 를 **함수 본문으로 오인**해
  * 구조 분해 괄호를 본문으로 잡고, 진짜 본문의 expect 를 보지 못한다.

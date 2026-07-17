@@ -1,4 +1,4 @@
-// TicketDetailPage — 1:1 문의 처리 (라우트: /support/tickets/:id) · A41 소유
+// TicketDetailPage — 1:1 문의 처리 (라우트: /support/tickets/:id)
 //
 // 상태·저장 배선만 쥐고, 표시 본문은 TicketWorkspace, 순수 규칙은 process.ts 에 위임한다.
 // SLA 배지·상태 전이 차단·답변 템플릿 삽입은 각각 domain/process/workspace 로 나눠 복잡도를 낮췄다.

@@ -1,11 +1,11 @@
 /**
- * @tds/perf — 성능 감사 엔트리 (A73 Performance Audit AI 소유)
+ * @tds/perf — 성능 감사 엔트리 (성능 감사 Performance Audit AI 소유)
  *
  * 검사:
  *   - packages/ui 가 **자기 코드로 내보내는 JS 전부**(dist/*.js = entry + 자체 청크)의
  *     gzip 합계를 size-limit 으로 측정
  *   - 동적 예산 = BASE_BUDGET_KB + PER_COMPONENT_KB × 컴포넌트 수
- *     (G6 체크리스트: "컴포넌트 추가 gzip +2KB 이내" — gates.json G6 blockedBy A73)
+ *     (G6 체크리스트: "컴포넌트 추가 gzip +2KB 이내" — 게이트 정의 G6 blockedBy 성능 감사)
  *   - .size-limit.json 의 정적 한도(128KB)는 절대 상한, 실제 판정은 동적 예산이 우선
  *
  * ── 예산 단위: '진입 청크'가 아니라 '@tds/ui 자체 코드 전체 합' ──────────────
@@ -54,7 +54,7 @@ const DATE = new Date().toISOString().slice(0, 10);
 
 /** 컴포넌트 0개 시점의 public entry 기본 예산 (런타임 + 유틸 몫) */
 const BASE_BUDGET_KB = 30;
-/** G6 규칙: 컴포넌트 추가당 gzip +2KB 이내 (gates.json G6 blockedBy A73) */
+/** G6 규칙: 컴포넌트 추가당 gzip +2KB 이내 (게이트 정의 G6 blockedBy 성능 감사) */
 const PER_COMPONENT_KB = 2;
 /** Atomic 레벨 디렉터리 — 하위 1단계 폴더 1개 = 컴포넌트 1개로 계산 */
 const ATOMIC_LEVELS = ['atoms', 'molecules', 'organisms', 'templates'];
@@ -85,7 +85,7 @@ function unmeasurable(reason: string, guidance: string): void {
   console.error(`[perf] 안내: ${guidance}`);
   writeReport({
     tool: '@tds/perf',
-    agent: 'A73',
+    agent: 'performance-audit',
     date: DATE,
     generatedAt: new Date().toISOString(),
     status: 'unmeasurable',
@@ -180,11 +180,11 @@ function main(): void {
 
   writeReport({
     tool: '@tds/perf',
-    agent: 'A73',
+    agent: 'performance-audit',
     date: DATE,
     generatedAt: new Date().toISOString(),
     status,
-    blockCondition: 'gzip 예산 초과 → G6 차단 (gates.json G6 blockedBy A73)',
+    blockCondition: 'gzip 예산 초과 → G6 차단 (게이트 정의 G6 blockedBy 성능 감사)',
     entry: rel(entry),
     // 예산 단위 = @tds/ui 자체 JS 전체 합 (entry + 자체 청크). 파일 목록을 남겨
     // '무엇이 합산됐는지'가 리포트만 보고도 검증되게 한다 — 합계만 있는 수치는 믿기 어렵다.

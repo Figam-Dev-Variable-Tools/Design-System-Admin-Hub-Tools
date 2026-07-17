@@ -1,4 +1,4 @@
-// 노출 여부 인라인 토글 열 (A41 소유 — apps/admin/src/pages/portfolio/**)
+// 노출 여부 인라인 토글 열
 //
 // 포트폴리오·성공 사례 목록이 똑같은 '노출 토글' 열을 쓴다(이진 상태 → ToggleSwitch, 오너 규칙).
 // 두 목록이 같은 열을 복사하는 대신 여기 한 벌만 둔다. 갱신 배선은 shared/crud 의 useCrudRowUpdate 가 맡고,

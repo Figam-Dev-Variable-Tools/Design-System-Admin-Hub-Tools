@@ -1,4 +1,4 @@
-// 문의 유형 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/support/**)
+// 문의 유형 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 공용 CRUD 프레임워크의 CrudAdapter 를 _shared/store 위에 배선한다. 목록 항목은
 // '유형 + 사용 중 건수(티켓·템플릿)'라 삭제 차단(사용 중 409)을 store.removeCategory 가 강제한다.

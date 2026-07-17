@@ -1,4 +1,4 @@
-# .git-blame-ignore-revs — 소유: A81 (Lint & Format Engineer) · 근거: ADR-0008 §9.3
+# .git-blame-ignore-revs — 소유: 린트·포맷 · 근거: ADR-0008 §9.3
 #
 # [무엇을 막는가]
 # Prettier 도입 커밋은 **125개 파일 · 약 7,800줄**을 건드린다 (의미 변경 0줄 — 공백·줄바꿈·따옴표뿐).

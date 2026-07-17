@@ -1,12 +1,12 @@
 /**
- * 임계값 — 원천은 orchestration/registry/agents.json(A83 blockCondition)과 ADR-0009 다.
+ * 임계값 — 원천은 레지스트리(클린코드 점검 blockCondition)과 ADR-0009 다.
  *
- * **도구가 임의로 바꾸지 않는다.** 위반이 많다고 임계값을 올리는 것은 A01의 ADR 사안이며,
- * A83은 임계값 완화 요청을 반려하고 구조 개선 ADR을 요청한다 (SKILL: "임계값 표류 감시").
+ * **도구가 임의로 바꾸지 않는다.** 위반이 많다고 임계값을 올리는 것은 아키텍처의 ADR 사안이며,
+ * 클린코드 점검은 임계값 완화 요청을 반려하고 구조 개선 ADR을 요청한다 (SKILL: "임계값 표류 감시").
  *
  * severity 규약:
  *   blocker — 1건이라도 있으면 exit 1 (PR 차단)
- *   major   — 경고. exit 0 이지만 리포트에 수치와 함께 남고 리뷰(A42)의 evidence 가 된다
+ *   major   — 경고. exit 0 이지만 리포트에 수치와 함께 남고 리뷰(코드 리뷰)의 evidence 가 된다
  */
 
 export type Severity = 'blocker' | 'major';

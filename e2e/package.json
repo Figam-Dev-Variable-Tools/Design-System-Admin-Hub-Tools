@@ -2,7 +2,7 @@
   "name": "@tds/e2e",
   "version": "0.1.0",
   "private": true,
-  "description": "E2E / 통합 테스트 (A85) — FS-NNN 의 요소 번호와 예외 7축을 실행 가능한 Playwright 시나리오로 옮긴다. 백엔드는 없다: 화면은 data-source 어댑터의 픽스처로 돈다.",
+  "description": "E2E / 통합 테스트 — FS-NNN 의 요소 번호와 예외 7축을 실행 가능한 Playwright 시나리오로 옮긴다. 백엔드는 없다: 화면은 data-source 어댑터의 픽스처로 돈다.",
   "engines": {
     "node": ">=20"
   },

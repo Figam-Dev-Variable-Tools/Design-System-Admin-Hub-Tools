@@ -1,4 +1,4 @@
-// QuoteListPage — 견적 목록 (라우트: /sales/quotes) · A41 소유
+// QuoteListPage — 견적 목록 (라우트: /sales/quotes)
 //
 // CRUD 프레임워크(useCrudList + CrudListShell) 위에 상태 필터 + 검색 + 합계금액 + 상태 배지 +
 // 승인 견적 인라인 '수주 전환' 액션 + 삭제팝업을 얹는다. 목록엔 이미지 열이 없다.

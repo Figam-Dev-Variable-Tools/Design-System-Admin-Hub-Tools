@@ -1,4 +1,4 @@
-// AppShell — TDS Admin Hub 레이아웃 셸 (A40 소유 — apps/admin/src/**)
+// AppShell — TDS Admin Hub 레이아웃 셸
 //
 // 좌측 고정 사이드바 + 우측 콘텐츠. 사이드바 구조는 ./nav-config.ts 가 소유하고
 // 여기서는 렌더만 한다. 인증 후 화면이 <Outlet />으로 들어온다.

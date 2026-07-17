@@ -4,8 +4,8 @@ title: "쿠폰 비기능 명세"
 functionalSpec: FS-045
 backendSpec: BE-045
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -195,29 +195,29 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | A11Y-11 · COMP-12 | P0 · P2 | **`coupon-max-discount`·`coupon-min-order`·`coupon-quantity` 세 입력이 `error` 를 렌더하면서 `aria-invalid`·`aria-describedby` 를 세우지 않는다** — 형제 3개는 세운다. 같은 파일 안의 비일관. 오류가 색상뿐(`controlStyle`)이라 WCAG 1.4.1 도 걸린다. hint 도 `hintIdOf` 로 연결되지 않는다(`settings/_shared/fields.tsx:22` 가 선례). 카운터도 없다 | 이 화면 | A11 change_request (FS-045 §7 #17·#26) |
-| 2 | IA-02 | P0 | 폼에서 AppHeader `<h1>쿠폰</h1>` + 자체 `<h1>쿠폰 등록/수정</h1>` → **`<h1>` 2개.** 브랜치 폴백은 `findCoveringLeaf` 로 해소됐고 남은 것은 h1 이중 | **앱 전역**(`AppHeader`·`findNavLabel` 모델) | A40 · A11 (FS-045 §7 #3) |
-| 3 | IA-04 · COMP-06 · COMP-07 · ERP-15 | P0 · P2 · P1 | 페이지네이션 없음 — `CrudListShell` 이 `Pagination` 을 안 그린다. 스켈레톤 행 수 하드코딩 5 · `SeqCell` 오프셋 없음이 함께 붙어야 한다. **URL list state 는 이미 있어**(`useListState`) `page` 를 쓰기만 하면 된다 | **`shared/crud` 전역**(모든 CrudListShell 소비 화면) | A11 · A63 (BE-045 §7.6 · FS-045 §7 #2·#6) |
-| 4 | EXC-03 | P0 | **쓰기 게이팅 미배선** — `useRouteWritePermissions` 미소비. 등록 버튼·토글·수정/삭제·일괄 삭제·제출이 전부 무조건 렌더된다. **BE-045 §7.7 이 `operator` 를 조회 전용으로 판정하므로 실사용에서 즉시 드러난다.** 형제 `products/items`·`products/returns` 는 이미 배선했다 | 이 화면 | A11 change_request (FS-045 §7 #4) |
-| 5 | (§4.3) · EXC-08(잔여) | — | **`issuedCount` 가 폼 값으로 왕복한다** — 조작 위조 + **조작 없는 lost update**(토글 클릭 한 번이 전체 치환). `totalQuantity < issuedCount` 를 막는 것도 없고 `usageRate` 가 초과를 숨긴다. **토글·삭제에 멱등키가 없다** | 이 화면 + BE 계약 | **A63 (BE-045 §7.2 — 최우선)** · A11 |
-| 6 | EXC-04(잔여) | — | 낙관적 동시성 **토큰**(`If-Match`/`version`) 없음 → 동시 편집 last-write-wins. 현 409 는 '존재 여부' 기반. §7.2 안 A 채택 시 용인 가능, 안 B 유지 시 필수 | BE 계약 | A63 (BE-045 §7.9 #14) |
-| 7 | (§4.3) | — | **쿠폰 코드 유일성 검사가 없다** — 같은 코드 두 쿠폰이면 고객 입력 시 동작이 정의되지 않는다. **그 실패를 409 로 내면 틀린 다이얼로그가 뜬다** — 422 + `field: 'code'` 로 내야 화면 코드 0줄로 성립한다 | BE 계약 | **A63 (BE-045 §7.3)** |
-| 8 | (§4.3) | — | **발급 대상이 유형만 있고 대상 필드가 없다** — '특정 상품' 쿠폰이 '전체 회원'과 동작상 구분되지 않는다. 세 해석 중 무엇도 코드에 근거가 없어 **'미정'** | **A01 (선행)** · A63 (BE-045 §7.1) · A11 (FS-045 §7 #1) |
-| 9 | (§4.3) | — | **발급 실행 경계 미정** — 발급 조건의 강제 주체 · 발급된 쿠폰의 삭제 · `enabled` 가 사용도 막는지 | **A01 (선행)** · A63 (BE-045 §7.5) |
-| 10 | COMP-01 | P1 | 제출 버튼이 `loading` prop 대신 손으로 쓴 '저장 중…' 라벨(`:446`). 형제 `ReturnDetailPage.tsx:355` 는 `loading={saving}` | 이 화면 | A11 change_request (FS-045 §7 #21) |
-| 11 | EXC-06 | P1 | 403/429/5xx 를 한 배너로 뭉갬. **토글 경로는 전부 error toast 하나** — 409 도 토스트로 뭉개져 폼과 UX 가 갈린다 | 이 화면 | A11 change_request (FS-045 §7 #23·#25) |
-| 12 | EXC-10 · EXC-18 | P1 | 일괄 삭제가 실패 id 를 모른다(건수만) — retry 가 전건 재실행. Shift-click 없음 · 임계값 강화 confirm 없음 · 진행률·취소 없음. **N 요청 병렬 발사가 레이트리밋에 걸린다**(§4.1) | **`shared/crud` 전역** | A11 change_request (FS-045 §7 #8) |
-| 13 | ERP-14 | P1 | 금액 3필드에 masked input 없음 — **붙여넣은 '1,000,000' 이 거절된다**. 미리보기의 `toNum` 은 콤마를 받아들여 **미리보기와 검증이 다른 규칙**(FS-045 §7 #19) | 이 화면 + 공유 field adapter | A11 change_request |
-| 14 | ERP-09 | P2 | `today` 가 브라우저 로컬 시각(`:95` `formatDate(new Date())`) — `format.ts:142` 의 `seoulDayOf` 를 쓰지 않는다. 다른 타임존 관리자가 자정 부근에서 다른 상태를 본다 | 이 화면 | A11 (FS-045 §7 #9 · BE-045 §7.9 #9) |
-| 15 | COMP-11 · A11Y-13(잔여) | P1 | 사용 기간에 preset 없음. 폼 진입 시 첫 필드 자동 포커스 없음(검증 실패 포커스는 pass) | 이 화면 + DS | A11 change_request (FS-045 §7 #18) |
-| 16 | STATE-05(잔여) | P1 | 빈 상태의 진짜 0건 분기에 생성 CTA 없음 — `CrudTable` 이 `empty.createAction` 슬롯을 받는데 넘기지 않는다 | 이 화면 | A11 change_request (FS-045 §7 #7) |
-| 17 | ERP-01(잔여) · ERP-08 · COMP-09 | P1 · P2 | '중지'와 '만료'가 같은 톤(neutral) — 복구 수단이 다른데 색이 같다. 사용기간 셀이 raw 날짜 문자열. 쿠폰명 truncate 없음 | 이 화면 | A11 (FS-045 §7 #11·#22·#10) |
-| 18 | EXC-05 · EXC-11 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 | **앱 전역** | A40 · A11 (FS-045 §7 #27) |
-| 19 | (FS-045 §7 #5) | — | 이탈 가드가 `navigate()` 프로그램 이동('목록으로'·'취소')을 가로채지 못한다 | 이 화면 | A11 change_request |
-| 20 | (FS-045 §7 #16) | — | **선택 상태가 두 벌 마운트된다** — `useCrudList` 의 `useRowSelection` 과 `useListState` 의 `selectedIds`. 화면은 전자만 쓰고 후자는 방치된다. EL-015 가 후자의 기능(뷰 서명 변경 시 해제)을 손으로 다시 한다 | 이 화면 + `shared/crud` | A11 change_request |
-| 21 | (FS-045 §7 #20) | — | 미리보기 꺼짐이 `opacity: 0.55` 리터럴 — **quality-bar TOKEN-07(P1)이 'coupon/review preview-disabled' 를 appliesTo 에 명시 지목**. `ReviewPreview.tsx:139` 도 같다 | 이 화면 + tokens | A11 change_request |
-| 22 | (FS-045 §7 #24) | — | 토글을 여러 행에 잇달아 누르면 **이전 요청이 abort 되고 조용히 사라진다**(`useCrudRowUpdate.ts:39` — controllerRef 1개) | `shared/crud` | A11 change_request |
-| 23 | (BE-045 §7.9 #6·#8) | — | `maxDiscount` 에 검증 없음(`z.string()`) — 서버가 유일한 방어선. **필드 단위 거절을 400 이 아니라 422 로 내는 계약**이 BE-003 §2.1 과 조정돼야 한다 | BE 계약 | A63 |
+| 1 | A11Y-11 · COMP-12 | P0 · P2 | **`coupon-max-discount`·`coupon-min-order`·`coupon-quantity` 세 입력이 `error` 를 렌더하면서 `aria-invalid`·`aria-describedby` 를 세우지 않는다** — 형제 3개는 세운다. 같은 파일 안의 비일관. 오류가 색상뿐(`controlStyle`)이라 WCAG 1.4.1 도 걸린다. hint 도 `hintIdOf` 로 연결되지 않는다(`settings/_shared/fields.tsx:22` 가 선례). 카운터도 없다 | 이 화면 | UI 기획 쪽 변경 요청 (FS-045 §7 #17·#26) |
+| 2 | IA-02 | P0 | 폼에서 AppHeader `<h1>쿠폰</h1>` + 자체 `<h1>쿠폰 등록/수정</h1>` → **`<h1>` 2개.** 브랜치 폴백은 `findCoveringLeaf` 로 해소됐고 남은 것은 h1 이중 | **앱 전역**(`AppHeader`·`findNavLabel` 모델) | 프론트 구현 · UI 기획 (FS-045 §7 #3) |
+| 3 | IA-04 · COMP-06 · COMP-07 · ERP-15 | P0 · P2 · P1 | 페이지네이션 없음 — `CrudListShell` 이 `Pagination` 을 안 그린다. 스켈레톤 행 수 하드코딩 5 · `SeqCell` 오프셋 없음이 함께 붙어야 한다. **URL list state 는 이미 있어**(`useListState`) `page` 를 쓰기만 하면 된다 | **`shared/crud` 전역**(모든 CrudListShell 소비 화면) | UI 기획 · 백엔드 명세 (BE-045 §7.6 · FS-045 §7 #2·#6) |
+| 4 | EXC-03 | P0 | **쓰기 게이팅 미배선** — `useRouteWritePermissions` 미소비. 등록 버튼·토글·수정/삭제·일괄 삭제·제출이 전부 무조건 렌더된다. **BE-045 §7.7 이 `operator` 를 조회 전용으로 판정하므로 실사용에서 즉시 드러난다.** 형제 `products/items`·`products/returns` 는 이미 배선했다 | 이 화면 | UI 기획 쪽 변경 요청 (FS-045 §7 #4) |
+| 5 | (§4.3) · EXC-08(잔여) | — | **`issuedCount` 가 폼 값으로 왕복한다** — 조작 위조 + **조작 없는 lost update**(토글 클릭 한 번이 전체 치환). `totalQuantity < issuedCount` 를 막는 것도 없고 `usageRate` 가 초과를 숨긴다. **토글·삭제에 멱등키가 없다** | 이 화면 + BE 계약 | **백엔드 명세 (BE-045 §7.2 — 최우선)** · UI 기획 |
+| 6 | EXC-04(잔여) | — | 낙관적 동시성 **토큰**(`If-Match`/`version`) 없음 → 동시 편집 last-write-wins. 현 409 는 '존재 여부' 기반. §7.2 안 A 채택 시 용인 가능, 안 B 유지 시 필수 | BE 계약 | 백엔드 명세 (BE-045 §7.9 #14) |
+| 7 | (§4.3) | — | **쿠폰 코드 유일성 검사가 없다** — 같은 코드 두 쿠폰이면 고객 입력 시 동작이 정의되지 않는다. **그 실패를 409 로 내면 틀린 다이얼로그가 뜬다** — 422 + `field: 'code'` 로 내야 화면 코드 0줄로 성립한다 | BE 계약 | **백엔드 명세 (BE-045 §7.3)** |
+| 8 | (§4.3) | — | **발급 대상이 유형만 있고 대상 필드가 없다** — '특정 상품' 쿠폰이 '전체 회원'과 동작상 구분되지 않는다. 세 해석 중 무엇도 코드에 근거가 없어 **'미정'** | **아키텍처 (선행)** · 백엔드 명세 (BE-045 §7.1) · UI 기획 (FS-045 §7 #1) |
+| 9 | (§4.3) | — | **발급 실행 경계 미정** — 발급 조건의 강제 주체 · 발급된 쿠폰의 삭제 · `enabled` 가 사용도 막는지 | **아키텍처 (선행)** · 백엔드 명세 (BE-045 §7.5) |
+| 10 | COMP-01 | P1 | 제출 버튼이 `loading` prop 대신 손으로 쓴 '저장 중…' 라벨(`:446`). 형제 `ReturnDetailPage.tsx:355` 는 `loading={saving}` | 이 화면 | UI 기획 쪽 변경 요청 (FS-045 §7 #21) |
+| 11 | EXC-06 | P1 | 403/429/5xx 를 한 배너로 뭉갬. **토글 경로는 전부 error toast 하나** — 409 도 토스트로 뭉개져 폼과 UX 가 갈린다 | 이 화면 | UI 기획 쪽 변경 요청 (FS-045 §7 #23·#25) |
+| 12 | EXC-10 · EXC-18 | P1 | 일괄 삭제가 실패 id 를 모른다(건수만) — retry 가 전건 재실행. Shift-click 없음 · 임계값 강화 confirm 없음 · 진행률·취소 없음. **N 요청 병렬 발사가 레이트리밋에 걸린다**(§4.1) | **`shared/crud` 전역** | UI 기획 쪽 변경 요청 (FS-045 §7 #8) |
+| 13 | ERP-14 | P1 | 금액 3필드에 masked input 없음 — **붙여넣은 '1,000,000' 이 거절된다**. 미리보기의 `toNum` 은 콤마를 받아들여 **미리보기와 검증이 다른 규칙**(FS-045 §7 #19) | 이 화면 + 공유 field adapter | UI 기획 쪽 변경 요청 |
+| 14 | ERP-09 | P2 | `today` 가 브라우저 로컬 시각(`:95` `formatDate(new Date())`) — `format.ts:142` 의 `seoulDayOf` 를 쓰지 않는다. 다른 타임존 관리자가 자정 부근에서 다른 상태를 본다 | 이 화면 | UI 기획 (FS-045 §7 #9 · BE-045 §7.9 #9) |
+| 15 | COMP-11 · A11Y-13(잔여) | P1 | 사용 기간에 preset 없음. 폼 진입 시 첫 필드 자동 포커스 없음(검증 실패 포커스는 pass) | 이 화면 + DS | UI 기획 쪽 변경 요청 (FS-045 §7 #18) |
+| 16 | STATE-05(잔여) | P1 | 빈 상태의 진짜 0건 분기에 생성 CTA 없음 — `CrudTable` 이 `empty.createAction` 슬롯을 받는데 넘기지 않는다 | 이 화면 | UI 기획 쪽 변경 요청 (FS-045 §7 #7) |
+| 17 | ERP-01(잔여) · ERP-08 · COMP-09 | P1 · P2 | '중지'와 '만료'가 같은 톤(neutral) — 복구 수단이 다른데 색이 같다. 사용기간 셀이 raw 날짜 문자열. 쿠폰명 truncate 없음 | 이 화면 | UI 기획 (FS-045 §7 #11·#22·#10) |
+| 18 | EXC-05 · EXC-11 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 | **앱 전역** | 프론트 구현 · UI 기획 (FS-045 §7 #27) |
+| 19 | (FS-045 §7 #5) | — | 이탈 가드가 `navigate()` 프로그램 이동('목록으로'·'취소')을 가로채지 못한다 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 20 | (FS-045 §7 #16) | — | **선택 상태가 두 벌 마운트된다** — `useCrudList` 의 `useRowSelection` 과 `useListState` 의 `selectedIds`. 화면은 전자만 쓰고 후자는 방치된다. EL-015 가 후자의 기능(뷰 서명 변경 시 해제)을 손으로 다시 한다 | 이 화면 + `shared/crud` | UI 기획 쪽 변경 요청 |
+| 21 | (FS-045 §7 #20) | — | 미리보기 꺼짐이 `opacity: 0.55` 리터럴 — **quality-bar TOKEN-07(P1)이 'coupon/review preview-disabled' 를 appliesTo 에 명시 지목**. `ReviewPreview.tsx:139` 도 같다 | 이 화면 + tokens | UI 기획 쪽 변경 요청 |
+| 22 | (FS-045 §7 #24) | — | 토글을 여러 행에 잇달아 누르면 **이전 요청이 abort 되고 조용히 사라진다**(`useCrudRowUpdate.ts:39` — controllerRef 1개) | `shared/crud` | UI 기획 쪽 변경 요청 |
+| 23 | (BE-045 §7.9 #6·#8) | — | `maxDiscount` 에 검증 없음(`z.string()`) — 서버가 유일한 방어선. **필드 단위 거절을 400 이 아니라 422 로 내는 계약**이 BE-003 §2.1 과 조정돼야 한다 | BE 계약 | 백엔드 명세 |
 
 ## 6. 측정 도구 · 재현 스위치
 

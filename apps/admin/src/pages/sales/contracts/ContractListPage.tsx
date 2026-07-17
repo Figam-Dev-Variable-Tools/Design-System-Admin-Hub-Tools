@@ -1,4 +1,4 @@
-// ContractListPage — 계약 목록 (라우트: /sales/contracts) · A41 소유
+// ContractListPage — 계약 목록 (라우트: /sales/contracts)
 //
 // CRUD 프레임워크(useCrudList + CrudListShell) 위에 상태 필터 + 검색 + 금액·기간·상태 배지 + 만료임박
 // 표시 + 삭제팝업을 얹는다. 목록엔 이미지 열이 없다(첨부는 폼에서 다룬다).

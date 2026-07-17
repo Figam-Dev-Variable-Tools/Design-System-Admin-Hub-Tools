@@ -5,7 +5,7 @@ openapi: 3.1.0
 #
 # 원천: specs/login/BE-001-login.md · specs/dashboard/BE-002-dashboard.md
 #       specs/users/members/BE-003-members.md · specs/users/members/detail/BE-004-member-detail.md
-# 이 파일은 BE 명세(A63 소유)를 **기계가 읽을 수 있는 형식으로 옮긴 것**이며,
+# 이 파일은 BE 명세(백엔드 명세)를 **기계가 읽을 수 있는 형식으로 옮긴 것**이며,
 # 명세와 어긋나면 **명세가 옳다**. 서버는 백엔드 개발자가 이 스키마를 보고 구현한다.
 # 자세한 것은 openapi/README.md.
 #
@@ -30,7 +30,7 @@ info:
     - 쓰기 요청(POST/PUT/PATCH/DELETE)은 `X-CSRF-Token` 헤더를 요구한다 (BE-003 §3.3 · BE-004 §3.3).
       예외: `POST /auth/session` — 익명(미인증) 호출 전용이다.
     - 401 은 '유효한 자격 증명 없음'이다. 자격 증명의 전달 방식(HttpOnly 쿠키 vs Authorization 헤더)은
-      **BE-001 §7.1 의 미확정 항목**이며 A01 판정 대상이다 — 이 스키마는 그것을 확정하지 않는다.
+      **BE-001 §7.1 의 미확정 항목**이며 아키텍처 판정 대상이다 — 이 스키마는 그것을 확정하지 않는다.
 
     ## 엔드포인트 (14건)
 
@@ -51,7 +51,7 @@ info:
     | 13 | BE-003-EP-02 | `GET /member-groups` |
     | 14 | BE-003-EP-03 | `POST /member-groups` |
   contact:
-    name: A63 (Backend Spec Writer) — 명세 소유자
+    name: 백엔드 명세 소유자
   license:
     name: UNLICENSED
 
@@ -459,7 +459,7 @@ paths:
         "409":
           description: |
             `GROUP_NAME_DUPLICATED` — 같은 `type` 안에 정규화한 이름이 이미 있다 (BE-003 §7.3).
-            재시도해도 같은 결과다 — 프론트 문구 분기는 A11 change_request (BE-003 §7.7 #5).
+            재시도해도 같은 결과다 — 프론트 문구 분기는 UI 기획 쪽 변경 요청 (BE-003 §7.7 #5).
           content:
             application/json:
               schema:
@@ -839,7 +839,7 @@ paths:
           description: |
             `MEMO_CONFLICT` — `If-Match` 가 서버의 현재 메모 버전과 다르다 (**다른 관리자가 먼저 저장했다**).
             message = '다른 관리자가 메모를 먼저 저장했습니다. 새로고침 후 다시 시도해 주세요.'
-            재시도해도 같은 409 가 반복된다 — 프론트 문구 분기는 A11 change_request (BE-004 §7.6 #6).
+            재시도해도 같은 409 가 반복된다 — 프론트 문구 분기는 UI 기획 쪽 변경 요청 (BE-004 §7.6 #6).
           content:
             application/json:
               schema:
@@ -931,10 +931,10 @@ components:
       name: session
       description: |
         **미확정 항목이다.** 세션 자격 증명의 전달 방식(HttpOnly 쿠키 vs `Authorization` 헤더)은
-        BE-001 §7.1 이 명시적으로 확정을 보류했고 **A01 판정 대상**이다.
+        BE-001 §7.1 이 명시적으로 확정을 보류했고 **아키텍처 판정 대상**이다.
         여기서는 BE-003/BE-004 §1 의 '인증은 세션 쿠키 기반' 전제를 따라 쿠키로 표기하지만,
         **401 판정은 전달 방식과 무관하게 '유효한 자격 증명 없음'으로 성립한다** (BE-002 §1).
-        A01 이 판정하면 이 블록만 고친다 — 엔드포인트 계약은 바뀌지 않는다.
+        아키텍처가 판정하면 이 블록만 고친다 — 엔드포인트 계약은 바뀌지 않는다.
 
   # ── 공통 헤더 ──────────────────────────────────────────────────────────────
   headers:
@@ -1026,7 +1026,7 @@ components:
         401 `UNAUTHENTICATED` — 유효한 세션 자격 증명 없음·만료.
         프론트 기대 동작은 `/login?returnUrl=<현재경로>&reason=session_expired` 이동이지만
         **현재 프론트에 401 처리 경로가 없다** (BE-002 §7.2-1 · BE-003 §7.7 #3 · BE-004 §7.6 #8 —
-        A11 · A40 change_request).
+        UI 기획 · 프론트 구현 변경 요청).
       content:
         application/json:
           schema:

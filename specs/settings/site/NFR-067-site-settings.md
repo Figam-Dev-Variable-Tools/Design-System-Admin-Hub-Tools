@@ -4,8 +4,8 @@ functionalSpec: FS-067
 backendSpec: BE-067
 qualityBar: specs/quality-bar.md
 title: "사이트 설정 비기능 명세"
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -195,23 +195,23 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | MOTION-01 | P0 → **종속** | **~~Motion 라이브러리 미도입으로 Modal 에 fade/scale/exit 이 없다~~ — 이 사유는 PR #26 으로 해소됐다.** 오버레이 모션이 구현됐고(`Modal.css:20-21,30-38,58-59` + keyframes `:126-168` · reduced-motion 게이트 `:173-180`) **Toast exit**(`Toast.css:32-37,121-131`)과 **`ToggleSwitch` reduced-motion 게이트**(`ToggleSwitch.css:79-84`)도 신설돼 **MOTION-02·03 은 pass 로 뒤집혔다.** **라이브러리는 여전히 미도입**(`packages/ui/src` Motion/AnimatePresence 0건)이나 'exit 후 unmount' 는 `onAnimationEnd`(`Modal.tsx:216-218`)로 동등 달성했다. **잔여**: footer 버튼 경로는 즉시 언마운트(`Modal.tsx:27-31`)이고 **이 화면의 다이얼로그 3종은 footer 가 주 닫기 수단**이다. **라이브러리 부재/footer 경로를 gap 으로 볼지는 DS 소유 문서가 정한다** | **`packages/ui`(DS)** | **A41 / DS (판정 대기)** |
-| 2 | EXC-08 | P0 | 저장에 **멱등키 없음**(`grep Idempotency pages/settings/` = 0건). 동기 잠금(`useSubmitLock`)은 있어 연타는 막힌다. **`If-Match` 가 중복 적용을 막아 데이터는 안전** — 잔여 위험은 '자기 저장에 대해 거짓 충돌 다이얼로그를 보는' UX. 선례: `members/components/PointsCard.tsx:103,162-173` | 이 화면 + BE 계약 | A11 · A63 (BE-067 §7.4) |
-| 3 | STATE-03 | P1 | `useEffect([data, reset])`(`:139-142`)가 **편집 중 재조회에서도 `reset`** 을 돌려 입력을 덮는다 | 이 화면(설정 4화면 공통 패턴) | A11 change_request |
-| 4 | EXC-06 · EXC-12 | P1 | 조회·저장 실패가 status 를 구분하지 않는다. 근본 원인은 `createRevisionedStore` 가 **`HttpError`(status 보유)를 던지지 않는 것** — 409 만 `SettingsConflictError` 로 갈린다 | 이 화면 + `_shared/store.ts` + 어댑터 | A11 · A63 |
-| 5 | EXC-07 · EXC-20 | P1 | 422 `error.fields` → RHF `setError` 매핑 없음 · 5xx reference code 미표시. 패턴은 섹션 안에 이미 있다(`CreateApiKeyModal` 의 `setError('name', …)`) | 이 화면 | A11 (BE-067 §7.6 #2) |
-| 6 | A11Y-13 | P1 | `handleSubmit(onValid)` 에 **`onInvalid` 가 없어** 검증 실패 시 첫 오류 필드로 포커스가 가지 않는다. 폼 진입 첫 필드 포커스도 없다 | 이 화면(설정 4화면 공통) | A11 change_request |
-| 7 | ERP-13 (주석) | — | `_shared/validation.ts:11-12` 가 '조사 헬퍼가 **아직 없다**'고 적으나 **GROUND-TRUTH §2 기준 `shared/format.ts:269+` 에 승격돼 있다** — 낡은 주석. 판정 자체는 pass(이 화면에 보간 문구가 없다) | 이 화면(주석) | A11 change_request(경미) |
-| 8 | COMP-12 | P1 | 카운터는 있으나 **상한 근접 경고가 없고** `maxLength` 가 조용히 자른다. 조합형 한글 counting 기준 미정의 | 이 화면(설정 4화면 공통) | A11 |
-| 9 | EXC-05 · EXC-11 · EXC-19 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 · 세션 만료가 미저장 입력을 버린다 | **앱 전역** | A40 · A11 |
-| 10 | (FS-067 §7 #5) | — | **저장 실패 배너가 충돌 다이얼로그와 중복 표시된다** — `:264` 가 `conflict === null` 을 검사하지 않는다. **언어(`LanguagesPage.tsx:283`)·OAuth(`OAuthPage.tsx:247`)는 검사한다 — 이 화면만 빠졌다** | 이 화면 | A11 change_request |
-| 11 | (FS-067 §7 #6) | — | **`timezone` 이 저장되지만 아무도 읽지 않는다** — 화면이 그 사실을 알리지 않는다(언어 화면은 같은 상황을 info 배너로 밝힌다 — FS-068-EL-010). 운영자가 UTC 를 골라 두고 기다리게 된다 | 이 화면 + 소비자 부재 | A11 · A01 (BE-067 §7.6 #7) |
-| 12 | (FS-067 §7 #13 · BE-067 §7.6 #4) | — | `baseUrl`·`contactEmail`·`contactPhone` 에 **길이 상한이 없다.** `baseUrl` 이 정규식 검증이라 authority 트릭을 거르지 못한다 — **같은 섹션의 OAuth 는 URL 파서를 쓴다**(`oauth/validation.ts:60-65`). 섹션 안에서 두 방식이 갈렸다 | 이 화면 + BE 계약 | A11 · A63 |
-| 13 | (BE-067 §7.3) | — | **감사 주체 위조 가능** — `updatedBy` 하드코딩 `'김운영'`(`_shared/store.ts:84`), `updatedAt` 클라이언트 시각(`:131`). 서버가 세션·서버 시각으로 찍어야 한다. **심이 이미 선언**(`store.ts:83`) | BE 계약 | **A63 (최우선)** |
-| 14 | (BE-067 §7.1) | — | **`maintenanceMessage`·`siteName`·`siteDescription` 저장 시 XSS 정제 미정** — 방문자에게 렌더되는 문구다 | BE 계약 | A63 |
-| 15 | (BE-067 §7.6 #5) | — | **미설정 상태의 계약이 미정** — 서버가 기본값 문서를 시딩하지 않으면 EP-01 이 404 를 낼 수 있고 화면에 그 분기가 없다 | BE 계약 | A63 |
-| 16 | (BE-067 §7.6 #6) | — | **유지보수 모드의 집행 주체가 계약 밖** — 저장은 되는데 사이트가 안 내려가면 이 화면은 거짓말이 된다 | BE 계약 · 인프라 | A63 · A40 |
-| 17 | (FS-067 §7 #8 · #12) | P2 | 스켈레톤 행 수 하드코딩 `[0,1,2,3]`(실제 필드 9) · `SiteSettingsPage.tsx:15` 주석이 **존재하지 않는 `_shared/access.tsx`** 를 권한 게이트로 지목(실제는 `shared/permissions/RequirePermission`) | 이 화면 | A11 |
+| 1 | MOTION-01 | P0 → **종속** | **~~Motion 라이브러리 미도입으로 Modal 에 fade/scale/exit 이 없다~~ — 이 사유는 PR #26 으로 해소됐다.** 오버레이 모션이 구현됐고(`Modal.css:20-21,30-38,58-59` + keyframes `:126-168` · reduced-motion 게이트 `:173-180`) **Toast exit**(`Toast.css:32-37,121-131`)과 **`ToggleSwitch` reduced-motion 게이트**(`ToggleSwitch.css:79-84`)도 신설돼 **MOTION-02·03 은 pass 로 뒤집혔다.** **라이브러리는 여전히 미도입**(`packages/ui/src` Motion/AnimatePresence 0건)이나 'exit 후 unmount' 는 `onAnimationEnd`(`Modal.tsx:216-218`)로 동등 달성했다. **잔여**: footer 버튼 경로는 즉시 언마운트(`Modal.tsx:27-31`)이고 **이 화면의 다이얼로그 3종은 footer 가 주 닫기 수단**이다. **라이브러리 부재/footer 경로를 gap 으로 볼지는 DS 소유 문서가 정한다** | **`packages/ui`(DS)** | **프론트 리팩터 / DS (판정 대기)** |
+| 2 | EXC-08 | P0 | 저장에 **멱등키 없음**(`grep Idempotency pages/settings/` = 0건). 동기 잠금(`useSubmitLock`)은 있어 연타는 막힌다. **`If-Match` 가 중복 적용을 막아 데이터는 안전** — 잔여 위험은 '자기 저장에 대해 거짓 충돌 다이얼로그를 보는' UX. 선례: `members/components/PointsCard.tsx:103,162-173` | 이 화면 + BE 계약 | UI 기획 · 백엔드 명세 (BE-067 §7.4) |
+| 3 | STATE-03 | P1 | `useEffect([data, reset])`(`:139-142`)가 **편집 중 재조회에서도 `reset`** 을 돌려 입력을 덮는다 | 이 화면(설정 4화면 공통 패턴) | UI 기획 쪽 변경 요청 |
+| 4 | EXC-06 · EXC-12 | P1 | 조회·저장 실패가 status 를 구분하지 않는다. 근본 원인은 `createRevisionedStore` 가 **`HttpError`(status 보유)를 던지지 않는 것** — 409 만 `SettingsConflictError` 로 갈린다 | 이 화면 + `_shared/store.ts` + 어댑터 | UI 기획 · 백엔드 명세 |
+| 5 | EXC-07 · EXC-20 | P1 | 422 `error.fields` → RHF `setError` 매핑 없음 · 5xx reference code 미표시. 패턴은 섹션 안에 이미 있다(`CreateApiKeyModal` 의 `setError('name', …)`) | 이 화면 | UI 기획 (BE-067 §7.6 #2) |
+| 6 | A11Y-13 | P1 | `handleSubmit(onValid)` 에 **`onInvalid` 가 없어** 검증 실패 시 첫 오류 필드로 포커스가 가지 않는다. 폼 진입 첫 필드 포커스도 없다 | 이 화면(설정 4화면 공통) | UI 기획 쪽 변경 요청 |
+| 7 | ERP-13 (주석) | — | `_shared/validation.ts:11-12` 가 '조사 헬퍼가 **아직 없다**'고 적으나 **GROUND-TRUTH §2 기준 `shared/format.ts:269+` 에 승격돼 있다** — 낡은 주석. 판정 자체는 pass(이 화면에 보간 문구가 없다) | 이 화면(주석) | UI 기획 쪽 변경 요청(경미) |
+| 8 | COMP-12 | P1 | 카운터는 있으나 **상한 근접 경고가 없고** `maxLength` 가 조용히 자른다. 조합형 한글 counting 기준 미정의 | 이 화면(설정 4화면 공통) | UI 기획 |
+| 9 | EXC-05 · EXC-11 · EXC-19 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 · 세션 만료가 미저장 입력을 버린다 | **앱 전역** | 프론트 구현 · UI 기획 |
+| 10 | (FS-067 §7 #5) | — | **저장 실패 배너가 충돌 다이얼로그와 중복 표시된다** — `:264` 가 `conflict === null` 을 검사하지 않는다. **언어(`LanguagesPage.tsx:283`)·OAuth(`OAuthPage.tsx:247`)는 검사한다 — 이 화면만 빠졌다** | 이 화면 | UI 기획 쪽 변경 요청 |
+| 11 | (FS-067 §7 #6) | — | **`timezone` 이 저장되지만 아무도 읽지 않는다** — 화면이 그 사실을 알리지 않는다(언어 화면은 같은 상황을 info 배너로 밝힌다 — FS-068-EL-010). 운영자가 UTC 를 골라 두고 기다리게 된다 | 이 화면 + 소비자 부재 | UI 기획 · 아키텍처 (BE-067 §7.6 #7) |
+| 12 | (FS-067 §7 #13 · BE-067 §7.6 #4) | — | `baseUrl`·`contactEmail`·`contactPhone` 에 **길이 상한이 없다.** `baseUrl` 이 정규식 검증이라 authority 트릭을 거르지 못한다 — **같은 섹션의 OAuth 는 URL 파서를 쓴다**(`oauth/validation.ts:60-65`). 섹션 안에서 두 방식이 갈렸다 | 이 화면 + BE 계약 | UI 기획 · 백엔드 명세 |
+| 13 | (BE-067 §7.3) | — | **감사 주체 위조 가능** — `updatedBy` 하드코딩 `'김운영'`(`_shared/store.ts:84`), `updatedAt` 클라이언트 시각(`:131`). 서버가 세션·서버 시각으로 찍어야 한다. **심이 이미 선언**(`store.ts:83`) | BE 계약 | **백엔드 명세 (최우선)** |
+| 14 | (BE-067 §7.1) | — | **`maintenanceMessage`·`siteName`·`siteDescription` 저장 시 XSS 정제 미정** — 방문자에게 렌더되는 문구다 | BE 계약 | 백엔드 명세 |
+| 15 | (BE-067 §7.6 #5) | — | **미설정 상태의 계약이 미정** — 서버가 기본값 문서를 시딩하지 않으면 EP-01 이 404 를 낼 수 있고 화면에 그 분기가 없다 | BE 계약 | 백엔드 명세 |
+| 16 | (BE-067 §7.6 #6) | — | **유지보수 모드의 집행 주체가 계약 밖** — 저장은 되는데 사이트가 안 내려가면 이 화면은 거짓말이 된다 | BE 계약 · 인프라 | 백엔드 명세 · 프론트 구현 |
+| 17 | (FS-067 §7 #8 · #12) | P2 | 스켈레톤 행 수 하드코딩 `[0,1,2,3]`(실제 필드 9) · `SiteSettingsPage.tsx:15` 주석이 **존재하지 않는 `_shared/access.tsx`** 를 권한 게이트로 지목(실제는 `shared/permissions/RequirePermission`) | 이 화면 | UI 기획 |
 
 ## 6. 측정 도구 · 재현 스위치
 

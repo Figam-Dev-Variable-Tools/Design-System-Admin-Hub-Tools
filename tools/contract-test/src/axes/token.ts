@@ -108,7 +108,7 @@ export function checkTokenAxis(ctx: AxisContext, options?: TokenAxisOptions): Ax
           ...(exists
             ? {}
             : {
-                detail: `tokens/tokens.json 에 "${tokenPath}" 경로 없음 — Token Engineer(A20)에게 change_request 필요`,
+                detail: `tokens/tokens.json 에 "${tokenPath}" 경로 없음 — Token Engineer(토큰 엔지니어)에게 변경 요청 필요`,
               }),
         });
       }

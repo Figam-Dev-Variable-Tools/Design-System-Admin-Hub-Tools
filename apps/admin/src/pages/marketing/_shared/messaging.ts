@@ -1,4 +1,4 @@
-// 마케팅/메시징 공용 도메인 타입 · 순수 규칙 (A41 소유 — apps/admin/src/pages/marketing/**)
+// 마케팅/메시징 공용 도메인 타입 · 순수 규칙
 //
 // [왜 _shared 인가] SMS 발송·이메일 발송·뉴스레터·발송 템플릿 네 화면이 같은 도메인을 공유한다:
 //   - 세그먼트(수신자 그룹)·발신번호/발신자는 SMS·이메일·뉴스레터가 함께 참조한다.
@@ -38,7 +38,7 @@ export const MESSAGE_CHANNEL_OPTIONS: readonly Option<MessageChannel>[] = [
 //   목록 필터가 URL 문자열을 좁힐 때 쓰던 사본이다. IA-13 롤아웃으로 그 자리를 공용
 //   `shared/crud/parseFilter` 가 가져갔고 — 허용 목록은 위 MESSAGE_CHANNEL_OPTIONS 의 id 에서
 //   파생한다 — 마지막 소비자가 사라졌다. 소비자 없는 export 는 '나중에 쓸지도 모르는 것'이
-//   아니라 죽은 코드다(A83 축5 죽은 코드 0).
+//   아니라 죽은 코드다(클린코드 점검 축5 죽은 코드 0).
 
 const optionLabel = <T extends string>(options: readonly Option<T>[], id: T): string =>
   options.find((option) => option.id === id)?.label ?? id;

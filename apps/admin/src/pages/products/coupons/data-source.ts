@@ -1,4 +1,4 @@
-// 쿠폰 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/products/**)
+// 쿠폰 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 카테고리 결합이 없어 프레임워크 createCrudAdapter 에 시드를 넣는다.
 // 실제 연동 시 // TODO(backend) 로 어댑터 본문만 교체하고 화면은 그대로 둔다.

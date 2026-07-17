@@ -1,4 +1,4 @@
-// FaqPage — FAQ 목록 (라우트: /content/faq) · A41 소유
+// FaqPage — FAQ 목록 (라우트: /content/faq)
 //
 // 좌: 카테고리 + 노출 여부 필터 / 우: 검색 + 카테고리 등록(모달) + FAQ 등록 + 표 + 페이지네이션.
 // 배치·패턴은 회원 관리(MembersPage)/공지사항을 따른다.

@@ -1,4 +1,4 @@
-// 목록 필터 select 값 좁히기 (A41 소유 — apps/admin/src/shared/crud/** · 앱 공용 선언적 CRUD 프레임워크)
+// 목록 필터 select 값 좁히기 (앱 공용 선언적 CRUD 프레임워크)
 //
 // [무엇인가] <select onChange> 는 `event.target.value: string` 을 준다. 목록 필터는 이 문자열을
 // 좁은 유니온(예: 'all' | 'exchange' | 'return')으로 되돌려야 한다. 지금까지는 `value as XxxFilter`

@@ -4,8 +4,8 @@ title: "뉴스레터 비기능 명세"
 functionalSpec: FS-033
 backendSpec: BE-033
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -174,20 +174,20 @@ date: 2026-07-17
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
 | 1 | ~~IA-13~~ | ~~P0~~ | **해소 (F3b · 2026-07-17)** — `NewsletterListPage.tsx:127` 이 공용 `useListState` 를 소비해 `?status=`·`?q=` 를 URL 이 소유한다(`useListState.ts:87-99,125`). 뒤로가기·새로고침·링크 공유로 복원된다. `useListState` 소비 화면은 이제 **34곳**(마케팅 6화면 전부 포함 — `a5c2639` 재확인). **⚠ `a5c2639` 갱신 시 §2 의 판정 셀이 `gap` 으로 남아 있던 것을 발견해 `pass` 로 바로잡았다** — 이 행(닫힘)이 옳았다 | — | **닫힘** |
-| 2 | IA-04 | **P0** | Pagination 이 없다 — 필터 결과 전량 렌더. BE-033 EP-01 도 페이징 파라미터가 없다 | 앱 전역(`CrudListShell` 소비 화면 전부) | A11 · A63 |
-| 3 | IA-02 | **P0** | **gap 유지 · 사유 전환.** ~~하위 라우트의 branch 라벨('마케팅 관리') 폴백~~은 통합의 `findCoveringLeaf`(`nav-config.ts:260-278,297-299`)로 **해소**됐다 — 상단 h1 이 이제 '뉴스레터' 다. 남은 것: **폼 라우트에 `<h1>` 이 2개**(`AppHeader.tsx:101` + `NewsletterFormPage.tsx:241`)이고, `nav-config.ts:294-296` 이 '등록/수정' 행위를 제목에 넣지 않는 것을 의도로 못 박아 `/new` 와 `/:id/edit` 의 상단 h1 이 동일하다. **목록 라우트는 h1 1개 — 그 축은 pass** | 앱 전역(`AppHeader`·폼 셸) | A11 · A40 |
-| 4 | EXC-03 | **P0** | **gap 유지 · 범위 축소.** 쓰기 권한 게이팅 미배선 — 등록·수정·삭제 버튼이 권한 무관하게 렌더. **`useRouteWritePermissions`(`RequirePermission.tsx:45`) 소비처는 0 → 7곳**(products 3 · settings 4)이 됐다. 훅·선례는 완비돼 있고 **`pages/marketing/**` 이 아직 배선되지 않았을 뿐**이다(grep = 0) | **이 섹션**(앱 전역 아님 — 선례 7곳 존재) | A11 · A40 |
+| 2 | IA-04 | **P0** | Pagination 이 없다 — 필터 결과 전량 렌더. BE-033 EP-01 도 페이징 파라미터가 없다 | 앱 전역(`CrudListShell` 소비 화면 전부) | UI 기획 · 백엔드 명세 |
+| 3 | IA-02 | **P0** | **gap 유지 · 사유 전환.** ~~하위 라우트의 branch 라벨('마케팅 관리') 폴백~~은 통합의 `findCoveringLeaf`(`nav-config.ts:260-278,297-299`)로 **해소**됐다 — 상단 h1 이 이제 '뉴스레터' 다. 남은 것: **폼 라우트에 `<h1>` 이 2개**(`AppHeader.tsx:101` + `NewsletterFormPage.tsx:241`)이고, `nav-config.ts:294-296` 이 '등록/수정' 행위를 제목에 넣지 않는 것을 의도로 못 박아 `/new` 와 `/:id/edit` 의 상단 h1 이 동일하다. **목록 라우트는 h1 1개 — 그 축은 pass** | 앱 전역(`AppHeader`·폼 셸) | UI 기획 · 프론트 구현 |
+| 4 | EXC-03 | **P0** | **gap 유지 · 범위 축소.** 쓰기 권한 게이팅 미배선 — 등록·수정·삭제 버튼이 권한 무관하게 렌더. **`useRouteWritePermissions`(`RequirePermission.tsx:45`) 소비처는 0 → 7곳**(products 3 · settings 4)이 됐다. 훅·선례는 완비돼 있고 **`pages/marketing/**` 이 아직 배선되지 않았을 뿐**이다(grep = 0) | **이 섹션**(앱 전역 아님 — 선례 7곳 존재) | UI 기획 · 프론트 구현 |
 | 5 | ~~COMP-10~~ | ~~P0~~ | **해소 (F3b · 2026-07-17)** — `NewsletterListPage.tsx:127` 이 `useListState` 를 통해 `useDebouncedSearch`(`useListState.ts:227-230`)를 소비한다. 조합 중 커밋 금지(`useDebouncedSearch.ts:87`)·250ms 디바운스(`:23,93-95`)·Enter 차단(`:121-124`) 전부 붙었다. **BE-033 §7.5 의 서버 검색이 붙어도 race 표면이 되지 않는다** | — | **닫힘** |
-| 6 | A11Y-11 | **P0** | **gap 유지 (2026-07-17 재확인).** 발신자 select 가 `aria-invalid` 만 있고 `aria-describedby` 가 없다(`NewsletterFormPage.tsx:269-288`) — 스크린리더가 '유효하지 않음'만 읽고 '발신자를 선택하세요.'를 못 읽는다. **⚠ F3a 의 `aria-required` 주입과 무관한 축이다** — `FormField.tsx:50-56` 은 `required`→`aria-required` 만 주입하고 `aria-describedby` 는 여전히 호출부 책임이다(`errorIdOf` 노출만 — `:59-66`). 같은 폼의 제목(`:265`)·예약일시(`:368-370`)는 올바르게 배선돼 있고 본문 `TextareaField` 는 내부 배선이다 — **이 select 1건만 빠졌다**. **`SegmentPicker` 절은 PR #30 에서 닫혔다**(`a5c2639` 재확인) — 묶음이 `role="group"` + 필수를 실은 `aria-label` + 안내/오류를 잇는 `aria-describedby` 를 갖는다(`_shared/SegmentPicker.tsx:129-131`). 즉 **범위가 이 화면 1줄로 좁아졌다** | **이 화면 1줄**(`NewsletterFormPage.tsx:275-280` 에 `aria-describedby={errors.senderId !== undefined ? errorIdOf('nl-sender') : undefined}` 추가) | A11 |
-| 7 | ERP-13 | P1 | **절반 해소.** ~~`을(를)`·`은(는)` 폴백형 출하~~는 **통합에서 닫혔다** — 헬퍼가 `shared/format.ts:306,311` 로 승격되고 `useCrudForm.ts:222`·`useCrudList.tsx:108,158`·`crud/validation.ts:22,25` 가 소비한다(리터럴 grep = 0). **남은 것은 이 화면 고유 비문 2줄** — `NewsletterFormPage.tsx:211` `'뉴스레터 찾을 수 없습니다.'` · `:212` `'뉴스레터 불러오지 못했습니다.'` 에서 목적격 조사가 **아예 빠졌다**. 이 폼이 `FormPageShell`(`:129-130` 이 `objectParticle` 로 옳게 만든다)을 쓰지 않고 Alert 를 자기가 그리면서 생긴 누락이다. **형제 화면은 맞다**(`EmailFormPage.tsx:222-223` · `SmsFormPage.tsx:233-234`) | **이 화면 2줄** | A11 |
-| 8 | EXC-19 · EXC-05 · EXC-11 | P1 | 세션 만료 시 작성 중 본문 소실 · 프론트 타임아웃 상한 없음 · 오프라인 감지 없음 | 앱 전역 | A40 · A63 |
-| 9 | EXC-10 · EXC-18 | P1 | 일괄 삭제가 실패 id 를 안 준다 · Shift-range/대량 confirm/progress/cancel 없음 | 앱 전역(`useCrudList`) | A11 |
-| 10 | EXC-06 | P1 | 403 이 일반 실패 배너로 수렴 — 권한 전용 문구가 없다 | 앱 전역 | A11 |
-| 11 | A11Y-13 · IA-03 · IA-08 · IA-10 · IA-12 · IA-14 | P1/P2 | 폼 진입 첫 필드 포커스 없음 · breadcrumb 없음 · footer 가 카드 밖(형제 폼은 카드 안) · 2-col shell 손조립(`* 13`) · `FormPageShell` 미공유 · 반응형 미선언 | 앱 전역(preview form family) | A11 |
-| 12 | (quality-bar 밖) | — | **발송 상태 머신이 UI 에 강제되지 않는다** — 발송완료 회차를 열어 저장하면 상태가 초안으로 뒤집힌다. `isEditableSend` 미호출 | **이 화면**(+SMS·이메일 발송) | A11 · A63(BE-033 §7.1) |
-| 13 | (quality-bar 밖) | — | 세그먼트·발신자 **엔드포인트 심 없음** + 동기 호출부라 로딩·실패 경로 부재 — 백엔드 연결 시 재구조화 필요 | marketing 전역 | A63(BE-033 §7.6) |
-| 14 | ERP-12 · ERP-15 · COMP-09 · COMP-12 | P1/P2 | export 없음 · 대형 목록 계약 없음 · 긴 제목 truncation 없음 · 제목 카운터 없음 | 앱 전역 + 이 화면 | A11 |
-| 15 | (quality-bar 밖) | — | 상태 전이 감사 로그 계약 없음(§4.3) — 발송은 되돌릴 수 없는 대외 행위다 | — | A63 |
+| 6 | A11Y-11 | **P0** | **gap 유지 (2026-07-17 재확인).** 발신자 select 가 `aria-invalid` 만 있고 `aria-describedby` 가 없다(`NewsletterFormPage.tsx:269-288`) — 스크린리더가 '유효하지 않음'만 읽고 '발신자를 선택하세요.'를 못 읽는다. **⚠ F3a 의 `aria-required` 주입과 무관한 축이다** — `FormField.tsx:50-56` 은 `required`→`aria-required` 만 주입하고 `aria-describedby` 는 여전히 호출부 책임이다(`errorIdOf` 노출만 — `:59-66`). 같은 폼의 제목(`:265`)·예약일시(`:368-370`)는 올바르게 배선돼 있고 본문 `TextareaField` 는 내부 배선이다 — **이 select 1건만 빠졌다**. **`SegmentPicker` 절은 PR #30 에서 닫혔다**(`a5c2639` 재확인) — 묶음이 `role="group"` + 필수를 실은 `aria-label` + 안내/오류를 잇는 `aria-describedby` 를 갖는다(`_shared/SegmentPicker.tsx:129-131`). 즉 **범위가 이 화면 1줄로 좁아졌다** | **이 화면 1줄**(`NewsletterFormPage.tsx:275-280` 에 `aria-describedby={errors.senderId !== undefined ? errorIdOf('nl-sender') : undefined}` 추가) | UI 기획 |
+| 7 | ERP-13 | P1 | **절반 해소.** ~~`을(를)`·`은(는)` 폴백형 출하~~는 **통합에서 닫혔다** — 헬퍼가 `shared/format.ts:306,311` 로 승격되고 `useCrudForm.ts:222`·`useCrudList.tsx:108,158`·`crud/validation.ts:22,25` 가 소비한다(리터럴 grep = 0). **남은 것은 이 화면 고유 비문 2줄** — `NewsletterFormPage.tsx:211` `'뉴스레터 찾을 수 없습니다.'` · `:212` `'뉴스레터 불러오지 못했습니다.'` 에서 목적격 조사가 **아예 빠졌다**. 이 폼이 `FormPageShell`(`:129-130` 이 `objectParticle` 로 옳게 만든다)을 쓰지 않고 Alert 를 자기가 그리면서 생긴 누락이다. **형제 화면은 맞다**(`EmailFormPage.tsx:222-223` · `SmsFormPage.tsx:233-234`) | **이 화면 2줄** | UI 기획 |
+| 8 | EXC-19 · EXC-05 · EXC-11 | P1 | 세션 만료 시 작성 중 본문 소실 · 프론트 타임아웃 상한 없음 · 오프라인 감지 없음 | 앱 전역 | 프론트 구현 · 백엔드 명세 |
+| 9 | EXC-10 · EXC-18 | P1 | 일괄 삭제가 실패 id 를 안 준다 · Shift-range/대량 confirm/progress/cancel 없음 | 앱 전역(`useCrudList`) | UI 기획 |
+| 10 | EXC-06 | P1 | 403 이 일반 실패 배너로 수렴 — 권한 전용 문구가 없다 | 앱 전역 | UI 기획 |
+| 11 | A11Y-13 · IA-03 · IA-08 · IA-10 · IA-12 · IA-14 | P1/P2 | 폼 진입 첫 필드 포커스 없음 · breadcrumb 없음 · footer 가 카드 밖(형제 폼은 카드 안) · 2-col shell 손조립(`* 13`) · `FormPageShell` 미공유 · 반응형 미선언 | 앱 전역(preview form family) | UI 기획 |
+| 12 | (quality-bar 밖) | — | **발송 상태 머신이 UI 에 강제되지 않는다** — 발송완료 회차를 열어 저장하면 상태가 초안으로 뒤집힌다. `isEditableSend` 미호출 | **이 화면**(+SMS·이메일 발송) | UI 기획 · 백엔드 명세(BE-033 §7.1) |
+| 13 | (quality-bar 밖) | — | 세그먼트·발신자 **엔드포인트 심 없음** + 동기 호출부라 로딩·실패 경로 부재 — 백엔드 연결 시 재구조화 필요 | marketing 전역 | 백엔드 명세(BE-033 §7.6) |
+| 14 | ERP-12 · ERP-15 · COMP-09 · COMP-12 | P1/P2 | export 없음 · 대형 목록 계약 없음 · 긴 제목 truncation 없음 · 제목 카운터 없음 | 앱 전역 + 이 화면 | UI 기획 |
+| 15 | (quality-bar 밖) | — | 상태 전이 감사 로그 계약 없음(§4.3) — 발송은 되돌릴 수 없는 대외 행위다 | — | 백엔드 명세 |
 
 ## 6. 측정 도구 · 재현 스위치
 

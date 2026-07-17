@@ -6,10 +6,10 @@
 // ⚠ loading 상태는 **테스트할 수 없다**: 계약이 `states: ["default","loading"]` 과
 //   `a11y.ariaBusy: "when loading"` 을 선언하면서도 **loading 을 켤 prop 을 선언하지 않았다**
 //   (props = columns · rows · rowKey · summaryRows · caption · dimZero · empty).
-//   계약에 없는 prop 을 만드는 것은 A30 의 권한 밖이므로 (SKILL: "계약에 없는 prop 은 만들지 않는다")
-//   A18 에 change_request 를 발행했다 — orchestration/tasks/CR-2026-0715-001.json.
-//   그 CR 이 처리되기 전까지 이 칸은 **미커버로 남긴다**. 이름만 맞춘 빈 테스트로 덮으면
-//   그것이야말로 A77 이 고발한 초록불 위조다.
+//   계약에 없는 prop 을 만드는 것은 컴포넌트 엔지니어의 권한 밖이므로 (원칙: "계약에 없는 prop 은 만들지 않는다")
+//   계약 엔지니어에 변경 요청을 발행했다.
+//   그 변경 요청이 처리되기 전까지 이 칸은 **미커버로 남긴다**. 이름만 맞춘 빈 테스트로 덮으면
+//   그것이야말로 테스트 커버리지가 고발한 초록불 위조다.
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 

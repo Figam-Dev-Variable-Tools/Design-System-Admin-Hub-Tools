@@ -1,4 +1,4 @@
-// 생성 타입에 불변성을 되씌운다 (A41)
+// 생성 타입에 불변성을 되씌운다
 //
 // [왜 필요한가]
 // `openapi-typescript` 는 기본적으로 **mutable** 타입을 낸다 (`T[]` · `{ x: string }`).
@@ -6,12 +6,12 @@
 // 계약이고, 실제로 `readonly` 가 그 실수를 컴파일 타임에 막아 왔다.
 // 생성 타입을 그대로 쓰면 그 방어선이 조용히 풀린다.
 //
-// [정석은 이게 아니다 — A80 change_request]
+// [정석은 이게 아니다 — 의존성 관리 쪽 변경 요청]
 // 올바른 해법은 생성 스크립트에 **`--immutable`** 플래그를 주는 것이다:
 //   openapi-typescript openapi/openapi.yaml -o ... --immutable
-// 그러면 이 파일 자체가 필요 없다. 그러나 `package.json#scripts` 는 **A80 소유**라
-// A41 이 고치지 않는다 (skills/react-refactorer §절대 금지 — 집행은 나, 설치·스크립트는 A80).
-// → **A80 handoff**: `openapi:types` 에 `--immutable` 추가. 반영되면 이 파일을 지운다.
+// 그러면 이 파일 자체가 필요 없다. 그러나 `package.json#scripts` 는 **의존성 관리 영역**이라
+// 여기서 고치지 않는다 (skills/react-refactorer §절대 금지 — 집행은 프론트, 설치·스크립트는 의존성 관리).
+// → **의존성 관리 후속 과제**: `openapi:types` 에 `--immutable` 추가. 반영되면 이 파일을 지운다.
 
 /**
  * 깊은 readonly.

@@ -1,4 +1,4 @@
-/* AppShell 전용 스타일 (A40 소유 — apps/admin/src/**)
+/* AppShell 전용 스타일
  *
  * 인라인 style로 표현할 수 없는 상태(:hover, :focus-visible)만 여기에 둔다.
  * [G6] 모든 값은 토큰 CSS 변수(var(--tds-*))만 사용 — 하드코딩 색상 hex / px 리터럴 0건.

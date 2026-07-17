@@ -1,4 +1,4 @@
-// EmailListPage — 이메일 발송 목록 (라우트: /marketing/email) · A41 소유
+// EmailListPage — 이메일 발송 목록 (라우트: /marketing/email)
 //
 // CRUD 프레임워크(useCrudList + CrudListShell) 위에 상태 필터 + 검색 + 대상수·발송상태·오픈율/클릭율 열을
 // 얹는다. 목록엔 이미지 열이 없다.

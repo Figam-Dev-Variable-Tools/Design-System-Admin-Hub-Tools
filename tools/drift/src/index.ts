@@ -1,11 +1,11 @@
 /**
- * @tds/drift — Design Drift 상시 감시 엔트리 (A71 Design Drift AI 소유)
+ * @tds/drift — Design Drift 상시 감시 엔트리 (디자인 드리프트 Design Drift AI 소유)
  *
  * 검사 항목:
  *   (a) stale-codegen : `pnpm --filter @tds/codegen run check` 재실행으로 계약 대비
  *       오래된(stale) 생성물 검출 — 생성물은 손으로 쓰지 않는다는 SSOT 원칙의 감시자
  *   (b) hardcoded-values : packages/ui/src 하드코딩 스캔 (contract-test와 동일 정규식,
- *       단 여기서는 severity "warning"으로 수집만 — 차단은 A74 관할)
+ *       단 여기서는 severity "warning"으로 수집만 — 차단은 계약 테스트 관할)
  *   (c) unused-tokens : tokens.json 전체 토큰 대비 미참조 토큰 비율 계산
  *       (계약 tokens 블록 + 계약 responsive.breakpoints + DTCG alias +
  *        TOKEN_USAGE_ROOTS 의 var(--tds-*) 대조 — 정확/접두 일치),
@@ -21,7 +21,7 @@
  *
  * 출력: reports/drift/<date>.json + reports/drift/<date>.md
  * 종료 코드: 0 = 드리프트 없음 / 2 = 드리프트 발견 (알림 레벨 — CI에서 자동 Fix PR 트리거용)
- *   ※ A71은 게이트를 차단하지 않는다 (agents.json blockCondition: "차단 없음 — 알림 + Fix PR",
+ *   ※ 디자인 드리프트은 게이트를 차단하지 않는다 (레지스트리 blockCondition: "차단 없음 — 알림 + Fix PR",
  *     수정 리드타임 SLO 24h). exit 2는 실패가 아니라 "Fix PR 파이프라인 기동" 신호다.
  */
 import fs from 'node:fs';
@@ -52,7 +52,7 @@ const UI_SRC = path.join(REPO_ROOT, 'packages', 'ui', 'src');
  * tokens.json 내부 alias 로 참조돼 있었기 때문이다 — 설계가 아니라 요행이다.
  *
  * 하드코딩 스캔(b)은 여기 합류시키지 않는다: 그 규칙은 'DS 컴포넌트가 토큰 대신 리터럴을
- * 쓰지 않는가'를 보는 것이고, 소유(A71/A74)와 규칙 범위가 다르다. 범위를 넓히면 검사의
+ * 쓰지 않는가'를 보는 것이고, 소유(디자인 드리프트/계약 테스트)와 규칙 범위가 다르다. 범위를 넓히면 검사의
  * 의미가 바뀐다 — 이 커밋이 고치는 것은 **오계수**이지 규칙이 아니다.
  */
 const TOKEN_USAGE_ROOTS = [
@@ -227,7 +227,7 @@ function checkHardcodedValues(): CheckResult {
     ...base,
     status: 'drift',
     severity: 'warning',
-    summary: `하드코딩 값 ${findings.length}건 — SLO 목표 0건 (gates.json slo.hardcodedValues)`,
+    summary: `하드코딩 값 ${findings.length}건 — SLO 목표 0건 (게이트 정의 slo.hardcodedValues)`,
     findings,
   };
 }
@@ -271,7 +271,7 @@ function checkUnusedTokens(): CheckResult & { analysis?: UnusedTokenAnalysis } {
       ...base,
       status: 'drift',
       severity: 'warning',
-      summary: `미사용 토큰 ${analysis.unusedCount}/${analysis.totalTokens}건 (${pct}%) — 5% 초과, A20(Token Engineer)에 정리 요구`,
+      summary: `미사용 토큰 ${analysis.unusedCount}/${analysis.totalTokens}건 (${pct}%) — 5% 초과, 토큰 엔지니어(Token Engineer)에 정리 요구`,
       findings: analysis.unused.map((tokenPath) => ({ detail: tokenPath })),
       analysis,
     };
@@ -291,7 +291,7 @@ function renderMarkdown(checks: CheckResult[], status: string, exitCode: number)
   const lines: string[] = [
     `# Drift 리포트 — ${DATE}`,
     '',
-    '> 생성: `@tds/drift` (A71 Design Drift AI) — 기계 생성 전용, 수기 편집 금지',
+    '> 생성: `@tds/drift` (디자인 드리프트 Design Drift AI) — 기계 생성 전용, 수기 편집 금지',
     '',
     `- 판정: **${status}** (exit ${exitCode})`,
     `- 정책: 드리프트 발견 = 알림 레벨(exit 2) → CI가 자동 Fix PR 트리거. 게이트 차단 없음 (SLO: 수정 리드타임 ≤ 24h)`,
@@ -338,7 +338,7 @@ function main(): void {
     JSON.stringify(
       {
         tool: '@tds/drift',
-        agent: 'A71',
+        agent: 'design-drift',
         date: DATE,
         generatedAt: new Date().toISOString(),
         status,

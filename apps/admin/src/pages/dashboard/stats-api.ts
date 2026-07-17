@@ -1,4 +1,4 @@
-// 통계 섹션 로컬 mock API (A40 소유)
+// 통계 섹션 로컬 mock API
 //
 // 백엔드가 붙으면 fetchStats 내부만 교체한다.
 //

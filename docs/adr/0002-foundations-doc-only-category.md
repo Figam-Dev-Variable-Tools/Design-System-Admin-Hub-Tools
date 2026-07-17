@@ -3,7 +3,7 @@ id: ADR-0002
 title: Foundations를 문서 전용 카테고리로 규정하고 네이밍 규칙에 반영
 status: accepted
 date: 2026-07-14
-owner: A01 (Architecture AI)
+owner: 아키텍처
 supersedes: null
 relatedTo: [ADR-0001]
 ---
@@ -17,13 +17,13 @@ Phase 2에서 `packages/ui/src/foundations/`가 신설됐다. 이 폴더는 `tok
 라디우스 · 섀도 · 모션**을 Storybook에 렌더하는 스펙시멘 스토리 7종을 담는다. Figma Variables와
 동일 원천에서 파생되므로 두 뷰의 일치가 구조적으로 보장된다 (page-module-pipeline §4).
 
-A76(Naming Guard)이 이 폴더를 두 건의 위반으로 차단했다:
+네이밍 가드가 이 폴더를 두 건의 위반으로 차단했다:
 
 1. `component-dir` — 폴더명 `foundations`가 PascalCase도, Atomic 레벨 폴더
    (`atoms`/`molecules`/`organisms`/`templates`/`pages`)도 아니다.
 2. `component-file` — 스토리 공용 렌더 유틸 `_shared.tsx`가 `<Name>.tsx` 규칙에 어긋난다.
 
-A76의 리포트는 "규칙 자체에 이의가 있으면 A01에 규칙 개정을 제안한다 — 가드는 우회하지 않는다"고
+네이밍 가드의 리포트는 "규칙 자체에 이의가 있으면 아키텍처에 규칙 개정을 제안한다 — 가드는 우회하지 않는다"고
 명시한다. 이 ADR이 그 개정 기록이다.
 
 ## 결정

@@ -6,7 +6,7 @@
 // ⚠ loading 상태는 **테스트할 수 없다**: 계약이 `states: ["default","loading"]` 과
 //   `a11y.ariaBusy: "when loading"` 을 선언하면서도 **loading 을 켤 prop 을 선언하지 않았다**
 //   (props = series · labels · showLegend · ariaLabel).
-//   A18 에 change_request 발행 — orchestration/tasks/CR-2026-0715-002.json. 그때까지 미커버로 남긴다.
+//   계약 엔지니어에 변경 요청 발행. 그때까지 미커버로 남긴다.
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 

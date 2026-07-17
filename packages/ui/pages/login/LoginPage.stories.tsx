@@ -1,5 +1,5 @@
 /**
- * Pages/로그인 — placeholder 골격 스토리 (조립 전용, A32 소유 · 게이트 G5).
+ * Pages/로그인 — placeholder 골격 스토리 (조립 전용, 담당: 스토리북 페이지 · 게이트 G5).
  *
  * 대응 화면정의서: docs/plan/ui/SCR-001-login.md
  * 필요 모듈: TextField · Checkbox · Alert · Button(contracts/Button.contract.json@1.0.0)
@@ -8,7 +8,7 @@
  *
  * [선행 조건] `pnpm codegen` 선행 필요 — generated/tokens/* 미생성 시 Storybook 빌드 불가.
  * 하드코딩 색상(hex)/px 리터럴 0건 — 모든 시각 값은 토큰 CSS 변수(var(--tds-*))만 참조한다.
- * 신규 컴포넌트 생성 금지 — 부족한 모듈은 A18에게 change_request 발행 (pages/README.md).
+ * 신규 컴포넌트 생성 금지 — 부족한 모듈은 계약 엔지니어에게 변경 요청 발행 (pages/README.md).
  */
 import type { Meta, StoryObj } from '@storybook/react';
 import type { CSSProperties } from 'react';

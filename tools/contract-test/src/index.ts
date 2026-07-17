@@ -1,5 +1,5 @@
 /**
- * @tds/contract-test — 4자 일치 검증 진입점 (A74 Contract Test AI)
+ * @tds/contract-test — 4자 일치 검증 진입점 (계약 테스트 Contract Test AI)
  *
  * 실행: pnpm contract-test  (= pnpm --filter @tds/contract-test run test)
  *

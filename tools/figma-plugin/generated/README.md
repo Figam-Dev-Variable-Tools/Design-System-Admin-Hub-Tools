@@ -21,6 +21,6 @@
   - `alias` 는 참조 토큰(`{a.b.c}`)의 대상 Variable 이름(슬래시 표기, 예: `a/b/c`) —
     현행 플러그인은 무시하며, 추후 이름→ID 해석 후 `VARIABLE_ALIAS` 승격용 메타데이터다.
 
-소비자: 이 플러그인의 UI(src/ui.html) · A51/A52(Figma 생산) · A74(Contract Test — 4자 일치 검증).
+소비자: 이 플러그인의 UI(src/ui.html) · Figma 컴포넌트·변수(Figma 생산) · 계약 테스트(4자 일치 검증).
 
-이 폴더를 손으로 고치면 Contract ↔ Figma 축이 어긋나 A74가 G5/G6/G7을 동시에 차단한다.
+이 폴더를 손으로 고치면 Contract ↔ Figma 축이 어긋나 계약 테스트가 G5/G6/G7을 동시에 차단한다.

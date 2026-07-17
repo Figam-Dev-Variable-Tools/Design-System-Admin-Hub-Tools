@@ -4,8 +4,8 @@ title: "교환/반품 비기능 명세"
 functionalSpec: FS-044
 backendSpec: BE-044
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -185,24 +185,24 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | FEEDBACK-02 · FEEDBACK-05 | P0 · P2 | **완료 처리(재고 이동)가 비가역인데 ConfirmDialog 게이트가 없다.** 미리보기(`ExchangeOptionField.tsx:107-135`)는 예고일 뿐 게이트가 아니다. 형제 `ReviewDetailPage.tsx:305-316` 은 삭제에 그 게이트를 갖고 있다 | 이 화면 | A11 change_request (FS-044 §7 #5) |
-| 2 | IA-02 | P0 | sub-route 에서 AppHeader `<h1>교환/반품</h1>` + 상세 자체 `<h1>교환/반품 처리</h1>` → **`<h1>` 2개.** 브랜치 폴백은 `findCoveringLeaf` 로 해소됐고 남은 것은 h1 이중 + 행위 미반영 | **앱 전역**(`AppHeader`·`findNavLabel` 모델 — 폼/상세 화면 다수가 같은 결함) | A40 · A11 (FS-044 §7 #4) |
-| 3 | IA-04 · ERP-15 · COMP-06 · COMP-07 | P0 · P1 · P2 | 페이지네이션 없음 — 전량 렌더. 교환/반품은 상한 없이 증가. `SeqCell` 오프셋·스켈레톤 행 수가 함께 붙어야 한다. **URL list state 는 이미 있어**(`useListState`) `page` 를 쓰기만 하면 된다 | 이 화면 + BE 계약 | A11 · A63 (BE-044 §7.9 · FS-044 §7 #2) |
-| 4 | EXC-04 · EXC-06 | P0 · P1 | 409 해소 UI 없음(`onError` 에 `isConflict` 분기 부재) · If-Match/version 없음 → 동시 편집 last-write-wins. 403/409/429/5xx 를 한 배너로 뭉갬 | 이 화면 + BE 계약 | A11 · A63 (BE-044 §7.11 #4·#5 · FS-044 §7 #8·#10) |
-| 5 | EXC-08 | P0 | `submitLockRef`·멱등키 없음 — `useCrudForm` 미사용. **`crud.ts` 의 `idempotencyKey` 자리와 원장이 있는데 호출부가 비어 있다.** 재고 이중 이동은 `stockAppliedAt` 이 막지만 상태·메모는 두 번 적용된다 | 이 화면 | A11 · A63 (BE-044 §7.11 #3 · FS-044 §7 #7) |
-| 6 | (§4.3) | — | **재고 무결성** — `stockAppliedAt`·`stockMovements` 가 요청 바디에 있어 위조 가능. 이동 id 가 같은 ms 에 충돌 | 이 화면 + BE 계약 | **A63 (BE-044 §7.3 — 최우선)** · A11 |
-| 7 | (§4.3) | — | **상태 전이 규칙 부재** — 완료→접수 역행 시 재고가 남아 상태와 갈린다. `RETURN_FLOW` 는 표시 전용 | **A01 (선행)** · A63 (BE-044 §7.1) · A11 (FS-044 §7 #3) |
-| 8 | (§4.3) | — | 상품 삭제가 미처리 요청을 검사하지 않아 고아 요청이 생긴다 — 완료가 영원히 422 | BE-042 연동 | A63 (BE-044 §7.4 · FS-044 §7 #16) |
-| 9 | A11Y-13 · EXC-07(잔여) | P1 | 폼 진입 첫 필드 포커스·422 시 그 필드로 포커스 이동 없음. `violations[0]` 만 읽어 다중 위반을 버린다 | 이 화면 | A11 change_request |
-| 10 | A11Y-11(잔여) · A11Y-16 | P1 | `ExchangeOptionField.tsx:81` 의 `hint` 가 유효 상태에서 `hintIdOf` 로 연결되지 않는다(`settings/_shared/fields.tsx:22` 는 그 배선을 갖고 있다). 목록에 지속 live region 이 없어 0행 전환이 announce 되지 않는다 | 이 화면 | A11 change_request |
-| 11 | COMP-09 · ERP-08 | P2 | 상품명·사유 셀 truncate 없음(`ReviewListPage.tsx:78-84` 가 선례). 접수일이 포맷 함수·`tabular-nums` 없이 raw 문자열 | 이 화면 | A11 (#3 과 함께) |
-| 12 | COMP-12 | P2 | 처리 메모 상한 근접 경고 없음 · counting 기준 미정의 | 이 화면 | A11 |
-| 13 | EXC-05 · EXC-11 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건. **BE-044 §2 의 '서버 10초 < 프론트 상한' 이 성립하지 않는다** | **앱 전역** | A40 · A11 (FS-044 §7 #17) |
-| 14 | (FS-044 §7 #9) | — | 이탈 가드가 `navigate()` 프로그램 이동('목록으로')을 가로채지 못한다 | 이 화면 | A11 change_request |
-| 15 | (FS-044 §7 #11·#13) | — | 상세 재조회가 편집 중 입력을 덮는다 · 상세 사유에 `pre-wrap` 없음 | 이 화면 | A11 change_request |
-| 16 | (BE-044 §7.11 #8) | — | **`create`/`remove` 가 공용 팩토리 때문에 실제로 동작한다** — 부재가 코드로 강제되지 않는다(BE-026 의 `ticketAdapter` 는 명시적 거절 구현을 뒀다) | 이 화면 | A11 change_request |
-| 17 | (§4.1) | — | 저장 성공 후 재고가 안 움직인 경우에도 상품을 재조회한다 — `movesStock(status) && !applied` 로 가를 수 있다 | 이 화면 | A11 (경미) |
-| 18 | (BE-044 §7.7) | — | **환불 실행 경계 미정** — 완료 전이가 결제 취소를 트리거하는지 계약이 없다 | **A01 (선행)** · A63 |
+| 1 | FEEDBACK-02 · FEEDBACK-05 | P0 · P2 | **완료 처리(재고 이동)가 비가역인데 ConfirmDialog 게이트가 없다.** 미리보기(`ExchangeOptionField.tsx:107-135`)는 예고일 뿐 게이트가 아니다. 형제 `ReviewDetailPage.tsx:305-316` 은 삭제에 그 게이트를 갖고 있다 | 이 화면 | UI 기획 쪽 변경 요청 (FS-044 §7 #5) |
+| 2 | IA-02 | P0 | sub-route 에서 AppHeader `<h1>교환/반품</h1>` + 상세 자체 `<h1>교환/반품 처리</h1>` → **`<h1>` 2개.** 브랜치 폴백은 `findCoveringLeaf` 로 해소됐고 남은 것은 h1 이중 + 행위 미반영 | **앱 전역**(`AppHeader`·`findNavLabel` 모델 — 폼/상세 화면 다수가 같은 결함) | 프론트 구현 · UI 기획 (FS-044 §7 #4) |
+| 3 | IA-04 · ERP-15 · COMP-06 · COMP-07 | P0 · P1 · P2 | 페이지네이션 없음 — 전량 렌더. 교환/반품은 상한 없이 증가. `SeqCell` 오프셋·스켈레톤 행 수가 함께 붙어야 한다. **URL list state 는 이미 있어**(`useListState`) `page` 를 쓰기만 하면 된다 | 이 화면 + BE 계약 | UI 기획 · 백엔드 명세 (BE-044 §7.9 · FS-044 §7 #2) |
+| 4 | EXC-04 · EXC-06 | P0 · P1 | 409 해소 UI 없음(`onError` 에 `isConflict` 분기 부재) · If-Match/version 없음 → 동시 편집 last-write-wins. 403/409/429/5xx 를 한 배너로 뭉갬 | 이 화면 + BE 계약 | UI 기획 · 백엔드 명세 (BE-044 §7.11 #4·#5 · FS-044 §7 #8·#10) |
+| 5 | EXC-08 | P0 | `submitLockRef`·멱등키 없음 — `useCrudForm` 미사용. **`crud.ts` 의 `idempotencyKey` 자리와 원장이 있는데 호출부가 비어 있다.** 재고 이중 이동은 `stockAppliedAt` 이 막지만 상태·메모는 두 번 적용된다 | 이 화면 | UI 기획 · 백엔드 명세 (BE-044 §7.11 #3 · FS-044 §7 #7) |
+| 6 | (§4.3) | — | **재고 무결성** — `stockAppliedAt`·`stockMovements` 가 요청 바디에 있어 위조 가능. 이동 id 가 같은 ms 에 충돌 | 이 화면 + BE 계약 | **백엔드 명세 (BE-044 §7.3 — 최우선)** · UI 기획 |
+| 7 | (§4.3) | — | **상태 전이 규칙 부재** — 완료→접수 역행 시 재고가 남아 상태와 갈린다. `RETURN_FLOW` 는 표시 전용 | **아키텍처 (선행)** · 백엔드 명세 (BE-044 §7.1) · UI 기획 (FS-044 §7 #3) |
+| 8 | (§4.3) | — | 상품 삭제가 미처리 요청을 검사하지 않아 고아 요청이 생긴다 — 완료가 영원히 422 | BE-042 연동 | 백엔드 명세 (BE-044 §7.4 · FS-044 §7 #16) |
+| 9 | A11Y-13 · EXC-07(잔여) | P1 | 폼 진입 첫 필드 포커스·422 시 그 필드로 포커스 이동 없음. `violations[0]` 만 읽어 다중 위반을 버린다 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 10 | A11Y-11(잔여) · A11Y-16 | P1 | `ExchangeOptionField.tsx:81` 의 `hint` 가 유효 상태에서 `hintIdOf` 로 연결되지 않는다(`settings/_shared/fields.tsx:22` 는 그 배선을 갖고 있다). 목록에 지속 live region 이 없어 0행 전환이 announce 되지 않는다 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 11 | COMP-09 · ERP-08 | P2 | 상품명·사유 셀 truncate 없음(`ReviewListPage.tsx:78-84` 가 선례). 접수일이 포맷 함수·`tabular-nums` 없이 raw 문자열 | 이 화면 | UI 기획 (#3 과 함께) |
+| 12 | COMP-12 | P2 | 처리 메모 상한 근접 경고 없음 · counting 기준 미정의 | 이 화면 | UI 기획 |
+| 13 | EXC-05 · EXC-11 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건. **BE-044 §2 의 '서버 10초 < 프론트 상한' 이 성립하지 않는다** | **앱 전역** | 프론트 구현 · UI 기획 (FS-044 §7 #17) |
+| 14 | (FS-044 §7 #9) | — | 이탈 가드가 `navigate()` 프로그램 이동('목록으로')을 가로채지 못한다 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 15 | (FS-044 §7 #11·#13) | — | 상세 재조회가 편집 중 입력을 덮는다 · 상세 사유에 `pre-wrap` 없음 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 16 | (BE-044 §7.11 #8) | — | **`create`/`remove` 가 공용 팩토리 때문에 실제로 동작한다** — 부재가 코드로 강제되지 않는다(BE-026 의 `ticketAdapter` 는 명시적 거절 구현을 뒀다) | 이 화면 | UI 기획 쪽 변경 요청 |
+| 17 | (§4.1) | — | 저장 성공 후 재고가 안 움직인 경우에도 상품을 재조회한다 — `movesStock(status) && !applied` 로 가를 수 있다 | 이 화면 | UI 기획 (경미) |
+| 18 | (BE-044 §7.7) | — | **환불 실행 경계 미정** — 완료 전이가 결제 취소를 트리거하는지 계약이 없다 | **아키텍처 (선행)** · 백엔드 명세 |
 
 ## 6. 측정 도구 · 재현 스위치
 

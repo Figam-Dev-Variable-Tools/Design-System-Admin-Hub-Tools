@@ -1,4 +1,4 @@
-// 표 행 선택 상태 훅 (A41 소유 — apps/admin/src/shared/ui/**)
+// 표 행 선택 상태 훅
 //
 // [왜 공통인가] 콘텐츠 목록 6종이 같은 규칙으로 행을 고른다 — 체크박스로 하나씩, 헤더로 이 페이지
 // 전체. MembersPage 가 손으로 들고 있던 selectedIds/toggleOne/toggleAll 을 여섯 화면이 복사하는

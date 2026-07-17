@@ -1,7 +1,7 @@
 # @tds/code-quality — 클린코드 6축 측정 도구
 
-> 담당 에이전트: **A83 Clean Code Inspector** (Layer 3 · Verification)
-> 근거: `orchestration/registry/agents.json` (A83 `blockCondition`) · `docs/adr/0009-ci-and-code-quality-gates.md`
+> 담당: 클린코드 점검 (Layer 3 · Verification)
+> 근거: ADR-0009 (`docs/adr/0009-ci-and-code-quality-gates.md`) — clean-code 임계값 정의
 > 차단 규칙: **blocker ≥ 1건 → PR 차단** (`.github/workflows/pr-gates.yml` 의 `code-quality` job)
 
 **기계가 셀 수 있는 것은 도구로 잰다.** 이 도구는 판단하지 않는다 — 측정하고, 기준 미달이면 차단한다.
@@ -25,8 +25,8 @@ pnpm --filter @tds/code-quality run check   # 동일 (직접 호출)
 | 5 | **죽은 코드** | export 됐으나 어디서도 import 되지 않는 심볼 (**배럴 재export 는 사용으로 세지 않는다**) | 0건 | major |
 | 6 | **레이어 역방향** | `packages/ui/src` 의 `atoms ← molecules ← organisms ← templates` 방향 위배 | **0건** | **blocker** |
 
-임계값의 원천은 레지스트리(`agents.json` A83 `blockCondition`)와 ADR-0009 다.
-**위반이 많다고 임계값을 올리지 않는다** — 임계값 변경은 A01의 ADR 사안이다 (`src/thresholds.ts` 가 구현상 원천).
+임계값의 원천은 ADR-0009 다.
+**위반이 많다고 임계값을 올리지 않는다** — 임계값 변경은 아키텍처의 ADR 사안이다 (`src/thresholds.ts` 가 구현상 원천).
 
 ### 축 1 · 2 — 왜 blocker 인가
 
@@ -62,7 +62,7 @@ pnpm --filter @tds/code-quality run check   # 동일 (직접 호출)
 
 리포트의 모든 항목은 **측정값 + 임계값 + 위반 위치(`file:line`)** 를 동반한다.
 수치 없는 지적은 리포트에 실을 수 없다 — **리포트 없는 차단 금지**, 재현 불가능한 차단 금지.
-**위반 0건이어도 pass 리포트를 남긴다** (A42 가 G6 검수에서 evidence 로 인용한다).
+**위반 0건이어도 pass 리포트를 남긴다** (코드 리뷰가 G6 검수에서 evidence 로 인용한다).
 
 ## 종료 코드
 
@@ -75,17 +75,17 @@ pnpm --filter @tds/code-quality run check   # 동일 (직접 호출)
 ## UNDEFINED — 규칙에 없는 문제
 
 규칙에 정의되지 않은 의심 사례는 **차단하지 않고** 리포트의 `undefined[]` 에 기록하고
-A01 에 규칙 제정(ADR)을 요청한다. **규칙 없는 차단은 하지 않는다** (A76 이 확립한 패턴).
+아키텍처에 규칙 제정(ADR)을 요청한다. **규칙 없는 차단은 하지 않는다** (네이밍 가드가 확립한 패턴).
 현재 UNDEFINED 로 수집하는 사례: `packages/ui/src/<layer>/**` 가 공개 배럴(`packages/ui/src/index.ts`)을 import.
 
 ## 경계 (Hard Boundary)
 
 - 이 도구는 **측정만** 한다. 위반을 발견해도 **코드를 고치지 않는다** (P1 단일 소유권).
-  수정은 소유자의 일이다 — `apps/**` → A40/A41, `packages/**` → A30/A31/A32.
+  수정은 소유자의 일이다 — `apps/**` → 프론트 구현/리팩터, `packages/**` → 컴포넌트 엔지니어/스토리북 문서/스토리북 페이지.
 - 외부 의존성 0. `typescript`(AST)와 `tsx`(실행)는 리포 전 도구의 공통 devDependency 이며 신규 추가가 아니다.
   나머지는 node 내장 모듈만 쓴다.
-- 소유 경로: `tools/code-quality/**`, `reports/code-quality/**` (A83).
-  `package.json` 스크립트 등록은 **A80**, CI job 등록은 **A82** 의 소유다.
+- 담당 경로: `tools/code-quality/**`, `reports/code-quality/**`.
+  `package.json` 스크립트 등록은 **의존성 관리**, CI job 등록은 **CI·CD** 의 소유다.
 
 ## 구현 구조
 

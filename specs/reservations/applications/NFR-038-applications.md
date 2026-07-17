@@ -4,8 +4,8 @@ title: "신청서 관리 비기능 명세"
 functionalSpec: FS-038
 backendSpec: BE-038
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.1
@@ -187,43 +187,43 @@ date: 2026-07-17
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
 | ~~1~~ | ~~STATE-01~~ | ~~P0~~ | **해소됨(F3b).** `ApplicationListPage.tsx:127-129` 가 `firstLoading`/`refreshing` 을 파생하고 스켈레톤은 `firstLoading` 에만 걸린다(`:183,211-220`). 재조회는 요약 줄의 `aria-busy` + '· 새로고침 중…'으로만 표시된다(`:178-181`). **`useCrudList` 로 이관하지 않고 규칙만 복제했다** — 주석(`:118-125`)이 그 관계를 명시한다. 1.0 이 아래에 적은 이관 방안('`useCrudList` 로 이관하면')과는 다른 길을 택했으나 결과는 같다 | — | **닫힘** |
-| 1 | STATE-02 | P0 | 상세 조회 실패 배너에 '다시 시도' 없음(`ApplicationDetailPage.tsx:163-174`) | 이 화면 | A11 (FS-038 §7 #9 · BE-038 §7.7 #2) |
+| 1 | STATE-02 | P0 | 상세 조회 실패 배너에 '다시 시도' 없음(`ApplicationDetailPage.tsx:163-174`) | 이 화면 | UI 기획 (FS-038 §7 #9 · BE-038 §7.7 #2) |
 | ~~—~~ | ~~COMP-10~~ | ~~P0~~ | **해소됨(F3b).** `useListState`(`ApplicationListPage.tsx:108`)가 `useDebouncedSearch` 를 배선하고 입력창이 `{...list.searchInputProps}`(`:160`)로 IME 가드를 받는다 | — | **닫힘** |
-| 2 | FEEDBACK-02 | P0 | 비가역 종료 전이(반려·완료)에 ConfirmDialog 게이트 없음 | 이 화면 | A11 (FS-038 §7 #1) |
-| 3 | IA-02 | P0 | **상세에 `<h1>` 이 둘이다**(AppHeader `:101` + `ApplicationDetailPage.tsx:191` 자체 h1). ⚠ **1.0 의 '상단이 브랜치 라벨 「예약/신청 관리」' 는 이제 틀렸다** — `findCoveringLeaf`(`nav-config.ts:269-279`)가 '신청서'를 정확히 준다. **남은 것은 이중 h1 하나** | 이 화면(자체 h1 제거 또는 AppHeader 와의 역할 분담) | A40 · A11 (FS-038 §7 #2) |
-| 4 | IA-04 | P0 | Pagination 없음 — 무한 증가 컬렉션을 전량 렌더. **`useListState` 소비로 `page`·`clampPage`(`useListState.ts:217-223`)가 준비됐다** — 배선만 없다 | 이 화면 + 계약(BE-038 §7.3) | A11 · A63 (BE-038 §7.7 #7) |
+| 2 | FEEDBACK-02 | P0 | 비가역 종료 전이(반려·완료)에 ConfirmDialog 게이트 없음 | 이 화면 | UI 기획 (FS-038 §7 #1) |
+| 3 | IA-02 | P0 | **상세에 `<h1>` 이 둘이다**(AppHeader `:101` + `ApplicationDetailPage.tsx:191` 자체 h1). ⚠ **1.0 의 '상단이 브랜치 라벨 「예약/신청 관리」' 는 이제 틀렸다** — `findCoveringLeaf`(`nav-config.ts:269-279`)가 '신청서'를 정확히 준다. **남은 것은 이중 h1 하나** | 이 화면(자체 h1 제거 또는 AppHeader 와의 역할 분담) | 프론트 구현 · UI 기획 (FS-038 §7 #2) |
+| 4 | IA-04 | P0 | Pagination 없음 — 무한 증가 컬렉션을 전량 렌더. **`useListState` 소비로 `page`·`clampPage`(`useListState.ts:217-223`)가 준비됐다** — 배선만 없다 | 이 화면 + 계약(BE-038 §7.3) | UI 기획 · 백엔드 명세 (BE-038 §7.7 #7) |
 | ~~—~~ | ~~IA-13~~ | ~~P0~~ | **해소됨(F3b).** 필터·키워드의 단일 원천이 URL 이다(`ApplicationListPage.tsx:61,108-114,165`). Back·F5·링크 공유가 조건을 보존한다 — **'접수만 걸러 하나씩 열고 돌아오는' 이 화면의 운영 루프가 실제로 이 갱신의 최대 수혜다** | — | **닫힘** |
-| 5 | EXC-03 | P0 | 쓰기 권한 게이팅 없음 — '처리 저장' 이 권한 무관 렌더. **1.0 의 '소비 0건' 은 이제 틀렸다** — 7곳이 소비하는데 이 섹션만 미배선 | 이 화면 (read 가드는 상속으로 충족) | A11 (BE-038 §7.7 #10) |
-| 6 | EXC-04 | P0 | 동시성 토큰·충돌 다이얼로그 없음 — 409 가 일반 배너로 뭉개진다. ⚠ **`useCrudForm` 우회로 F3b 의 409 다이얼로그를 받지 못했다** — 다른 화면은 어댑터 개선만으로 화면 코드 0줄에 복구 경로가 열렸는데 이 화면은 열리지 않았다 | 이 화면 + 계약(BE-038 §7.6) | A11 · A63 (BE-038 §7.7 #3) |
-| 7 | EXC-08 | P0 | 동기 제출 락·멱등키 없음 — `disabled={saving}` 만. ⚠ **F3b 로 `WriteContext.idempotencyKey` 자리가 생겼는데 이 화면은 `update.mutate({ id, input, signal })`(`ApplicationDetailPage.tsx:139-149`)로 비워 둔다** — 격차가 오히려 벌어졌다 | 이 화면 | A11 (BE-038 §7.7 #1 과 연동 — 중복 저장이 이력 중복이 된다) |
+| 5 | EXC-03 | P0 | 쓰기 권한 게이팅 없음 — '처리 저장' 이 권한 무관 렌더. **1.0 의 '소비 0건' 은 이제 틀렸다** — 7곳이 소비하는데 이 섹션만 미배선 | 이 화면 (read 가드는 상속으로 충족) | UI 기획 (BE-038 §7.7 #10) |
+| 6 | EXC-04 | P0 | 동시성 토큰·충돌 다이얼로그 없음 — 409 가 일반 배너로 뭉개진다. ⚠ **`useCrudForm` 우회로 F3b 의 409 다이얼로그를 받지 못했다** — 다른 화면은 어댑터 개선만으로 화면 코드 0줄에 복구 경로가 열렸는데 이 화면은 열리지 않았다 | 이 화면 + 계약(BE-038 §7.6) | UI 기획 · 백엔드 명세 (BE-038 §7.7 #3) |
+| 7 | EXC-08 | P0 | 동기 제출 락·멱등키 없음 — `disabled={saving}` 만. ⚠ **F3b 로 `WriteContext.idempotencyKey` 자리가 생겼는데 이 화면은 `update.mutate({ id, input, signal })`(`ApplicationDetailPage.tsx:139-149`)로 비워 둔다** — 격차가 오히려 벌어졌다 | 이 화면 | UI 기획 (BE-038 §7.7 #1 과 연동 — 중복 저장이 이력 중복이 된다) |
 
 **P1 · P2** (표면이 실재하는 것만)
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
 | ~~11~~ | ~~STATE-03~~ | ~~P1~~ | **해소됨(F3b) — STATE-01 과 같은 뿌리였다.** 재조회 인디케이터가 생겼다: `ApplicationListPage.tsx:178-181` 이 `aria-busy={refreshing}` + '· 새로고침 중…' 을 요약 줄에 붙이고 표는 비우지 않는다 | — | **닫힘** |
-| 12 | STATE-05 | P1 | 빈 상태 3분기·복구 액션 없음(공용 `Empty` 미사용) | 이 화면 | A11 (FS-038 §7 #8) |
-| 13 | COMP-01 | P1 | '상세' 버튼 손조립(`buttonStyle`+`tds-ui-btn-`) | 이 화면 | A11 (FS-038 §7 #4) |
-| 14 | COMP-06 | P2 | 스켈레톤 `length: 5` 하드코딩 | 이 화면 | A11 (FS-038 §7 #5) |
-| 15 | COMP-07 | P2 | `SeqCell seq={index+1}` — **Pagination 부재로 현재 재현 불가능한 잠복 결함**. #6 을 닫을 때 함께 고쳐야 한다 | 이 화면 | A11 (FS-038 §7 #5) |
-| 16 | COMP-08 | P2 | '상세' 버튼이 행 클릭과 중복. **지우기 전에 행 내 링크를 만들어야 A11Y-08 이 유지된다** | 이 화면 | A11 (FS-038 §7 #4) |
-| 17 | COMP-09 | P2 | 긴 텍스트 truncation 없음 | 이 화면 | A11 |
-| 18 | COMP-12 | P2 | 메모 500자 카운터·경고 없음 | 이 화면 | A11 (FS-038 §7 #11) |
-| 19 | A11Y-13 | P1 | 첫 필드 포커스·검증 실패 포커스 없음(검증 자체가 없다) | 이 화면 | A11 |
-| 20 | A11Y-16 | P1 | 목록 상태 live region 없음(`CrudListShell` 미사용) | 이 화면 | A11 |
-| 21 | ERP-01 | P1 | 상태→tone 이 화면 로컬 맵. 승인·완료가 둘 다 success | 앱 전역 | A11 (FS-038 §7 #7) |
-| 22 | ERP-06 | P1 | '전체 N건' 의 N 이 필터 후 건수 | 이 화면 | A11 (FS-038 §7 #6) |
-| 23 | ERP-12 | P1 | 엑셀 export 없음 | 앱 전역 | A11 |
-| 24 | ERP-13 | P1 | ~~`toTimelineEvents` 가 리터럴 '(으)로' 렌더~~ → **그 건은 해소됨**(`types.ts:133` 이 `directionParticle` 소비). **대신 새 건**: `ApplicationDetailPage.tsx:250` 이 조사 `은` 을 하드코딩하는데 이 Alert 가 뜨는 종료 상태는 '반려'·'완료' 둘 다 **받침이 없어 '는' 이 옳다** — 두 경우 모두 틀린 문장을 낸다. `topicParticle`(`shared/format.ts:311`)로 고친다 | 이 화면 | A11 |
-| 25 | EXC-05 | P1 | client timeout 없음 | 앱 전역 | A11 · A40 (FS-038 §7 #12) |
-| 26 | EXC-06 | P1 | status 별 UX 분기 없음 — 모든 실패가 한 문구 | 이 화면 | A11 (BE-038 §7.7 #3) |
-| 27 | EXC-07 | P1 | 422 필드 매핑 없음 | 이 화면 | A11 (BE-038 §7.7 #3) |
-| 28 | EXC-11 | P1 | offline 감지 없음 | 앱 전역 | A11 |
-| 29 | EXC-12 | P1 | 상세 404 vs 5xx 미구분 | 이 화면 | A11 (BE-038 §7.7 #2) |
-| 30 | EXC-19 | P1 | 세션 만료가 dirty 입력을 버린다 | 앱 전역 | A11 · A40 (BE-038 §7.7 #9) |
-| 31 | EXC-20 | P1 | 500 참조 코드 미표시(`referenceOf` 미사용) | 이 화면 | A11 (BE-038 §7.7 #4) |
-| 32 | IA-03 | P1 | breadcrumb 없음 | 앱 전역 | A40 |
-| 33 | COMP-11 | — | **기능 부재** — 접수일 기간 필터가 없다(요구는 N/A). 신청 triage 의 기본 동작이라 기능 요청으로 남긴다 | 이 화면 | A11 change_request |
+| 12 | STATE-05 | P1 | 빈 상태 3분기·복구 액션 없음(공용 `Empty` 미사용) | 이 화면 | UI 기획 (FS-038 §7 #8) |
+| 13 | COMP-01 | P1 | '상세' 버튼 손조립(`buttonStyle`+`tds-ui-btn-`) | 이 화면 | UI 기획 (FS-038 §7 #4) |
+| 14 | COMP-06 | P2 | 스켈레톤 `length: 5` 하드코딩 | 이 화면 | UI 기획 (FS-038 §7 #5) |
+| 15 | COMP-07 | P2 | `SeqCell seq={index+1}` — **Pagination 부재로 현재 재현 불가능한 잠복 결함**. #6 을 닫을 때 함께 고쳐야 한다 | 이 화면 | UI 기획 (FS-038 §7 #5) |
+| 16 | COMP-08 | P2 | '상세' 버튼이 행 클릭과 중복. **지우기 전에 행 내 링크를 만들어야 A11Y-08 이 유지된다** | 이 화면 | UI 기획 (FS-038 §7 #4) |
+| 17 | COMP-09 | P2 | 긴 텍스트 truncation 없음 | 이 화면 | UI 기획 |
+| 18 | COMP-12 | P2 | 메모 500자 카운터·경고 없음 | 이 화면 | UI 기획 (FS-038 §7 #11) |
+| 19 | A11Y-13 | P1 | 첫 필드 포커스·검증 실패 포커스 없음(검증 자체가 없다) | 이 화면 | UI 기획 |
+| 20 | A11Y-16 | P1 | 목록 상태 live region 없음(`CrudListShell` 미사용) | 이 화면 | UI 기획 |
+| 21 | ERP-01 | P1 | 상태→tone 이 화면 로컬 맵. 승인·완료가 둘 다 success | 앱 전역 | UI 기획 (FS-038 §7 #7) |
+| 22 | ERP-06 | P1 | '전체 N건' 의 N 이 필터 후 건수 | 이 화면 | UI 기획 (FS-038 §7 #6) |
+| 23 | ERP-12 | P1 | 엑셀 export 없음 | 앱 전역 | UI 기획 |
+| 24 | ERP-13 | P1 | ~~`toTimelineEvents` 가 리터럴 '(으)로' 렌더~~ → **그 건은 해소됨**(`types.ts:133` 이 `directionParticle` 소비). **대신 새 건**: `ApplicationDetailPage.tsx:250` 이 조사 `은` 을 하드코딩하는데 이 Alert 가 뜨는 종료 상태는 '반려'·'완료' 둘 다 **받침이 없어 '는' 이 옳다** — 두 경우 모두 틀린 문장을 낸다. `topicParticle`(`shared/format.ts:311`)로 고친다 | 이 화면 | UI 기획 |
+| 25 | EXC-05 | P1 | client timeout 없음 | 앱 전역 | UI 기획 · 프론트 구현 (FS-038 §7 #12) |
+| 26 | EXC-06 | P1 | status 별 UX 분기 없음 — 모든 실패가 한 문구 | 이 화면 | UI 기획 (BE-038 §7.7 #3) |
+| 27 | EXC-07 | P1 | 422 필드 매핑 없음 | 이 화면 | UI 기획 (BE-038 §7.7 #3) |
+| 28 | EXC-11 | P1 | offline 감지 없음 | 앱 전역 | UI 기획 |
+| 29 | EXC-12 | P1 | 상세 404 vs 5xx 미구분 | 이 화면 | UI 기획 (BE-038 §7.7 #2) |
+| 30 | EXC-19 | P1 | 세션 만료가 dirty 입력을 버린다 | 앱 전역 | UI 기획 · 프론트 구현 (BE-038 §7.7 #9) |
+| 31 | EXC-20 | P1 | 500 참조 코드 미표시(`referenceOf` 미사용) | 이 화면 | UI 기획 (BE-038 §7.7 #4) |
+| 32 | IA-03 | P1 | breadcrumb 없음 | 앱 전역 | 프론트 구현 |
+| 33 | COMP-11 | — | **기능 부재** — 접수일 기간 필터가 없다(요구는 N/A). 신청 triage 의 기본 동작이라 기능 요청으로 남긴다 | 이 화면 | UI 기획 쪽 변경 요청 |
 
 ## 6. 측정 도구 · 재현 스위치
 

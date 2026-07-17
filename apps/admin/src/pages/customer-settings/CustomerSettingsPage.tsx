@@ -1,4 +1,4 @@
-// CustomerSettingsPage — 고객 설정 (라우트: /users/settings) · A40 소유
+// CustomerSettingsPage — 고객 설정 (라우트: /users/settings)
 //
 // 회원 등급(일반/VIP/VVIP)의 **승급 조건**과 **등급별 할인율**, 그리고 등급 **산정 기준**을 정한다.
 // 좌: 등급 정책 + 산정 기준 / 우: 현재 등급 분포(읽기 전용 미리보기) / 하단 우측: 저장.

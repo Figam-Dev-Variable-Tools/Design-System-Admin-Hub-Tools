@@ -3,8 +3,8 @@ id: FS-038
 title: "신청서 관리 (목록·상세 처리)"
 screen: SCR-038               # ⚠ 예약/신청 SCR 미작성 — §7 미결 사항 참조
 route: /reservations/applications
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -140,7 +140,7 @@ date: 2026-07-17
 | FS-038-EL-011 / EL-012 / EL-013 / EL-013.1 / EL-013.2 / EL-014 / EL-016 / EL-020 | 신청서 상세 조회 | R | `Application` 전문(커스텀 필드 + 처리 메모 + 처리 이력 포함) | `applicationAdapter.fetchOne(id, signal)` | 없으면 404(`HttpError`) |
 | FS-038-EL-019 / EL-022 | 처리 저장(상태 전이 + 메모 + 이력) | W | 신청 id + `ApplicationInput` 전체(= `Application` 에서 `id`·`code` 를 뺀 전부 — type·applicantName·applicantContact·submittedAt·status·fields·adminNote·**history**) | `applicationAdapter.update(id, input, signal)` | **전체 치환**이다. 화면이 안 바꾼 필드(신청자·연락처·커스텀 필드)까지 되돌려 보낸다 — BE-038 §7.1 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드가 없다. `applicationAdapter` 는 `createCrudAdapter`(`shared/crud/crud.ts`)가 브라우저 안 mutable 배열(`APPLICATION_SEED`)로 CRUD 를 흉내 낸 것이다 — `fetchAll`·`fetchOne`·`update` 만 화면이 쓰고, 어댑터가 프레임워크 계약상 갖는 `create`·`remove` 는 **이 화면의 어떤 경로에서도 호출되지 않는다**(`data-source.ts:3-4` 가 같은 판정). `fetchOne` 은 없는 id 에 404 `HttpError`, `update` 는 없는 id 에 409 `HttpError`('다른 사용자가 먼저 삭제한 항목입니다.')를 던진다. 유일한 연동 지점 주석은 `data-source.ts:5` 의 `// TODO(backend): GET /api/reservations/applications · GET·PUT /api/reservations/applications/:id` 이며 **POST·DELETE 심은 없다**. 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드가 없다. `applicationAdapter` 는 `createCrudAdapter`(`shared/crud/crud.ts`)가 브라우저 안 mutable 배열(`APPLICATION_SEED`)로 CRUD 를 흉내 낸 것이다 — `fetchAll`·`fetchOne`·`update` 만 화면이 쓰고, 어댑터가 프레임워크 계약상 갖는 `create`·`remove` 는 **이 화면의 어떤 경로에서도 호출되지 않는다**(`data-source.ts:3-4` 가 같은 판정). `fetchOne` 은 없는 id 에 404 `HttpError`, `update` 는 없는 id 에 409 `HttpError`('다른 사용자가 먼저 삭제한 항목입니다.')를 던진다. 유일한 연동 지점 주석은 `data-source.ts:5` 의 `// TODO(backend): GET /api/reservations/applications · GET·PUT /api/reservations/applications/:id` 이며 **POST·DELETE 심은 없다**. 위 표는 백엔드 연결 후 의도된 동작이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -153,23 +153,23 @@ date: 2026-07-17
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-038 영역) — §5 는 어댑터 함수까지만
 - [x] 실제 코드와 어긋나는 요소를 쓰지 않았다 — 페이지네이션·행 선택·일괄 작업·낙관적 업데이트는 **없으므로 쓰지 않았다**
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **종료 상태(반려·완료)로의 전이가 비가역인데 확인 다이얼로그가 없다** — '처리 저장' 한 번이면 되돌릴 수 없다(`TRANSITIONS[rejected] = []`). 오조작 복구 수단이 화면에 없다 | A11 change_request (FEEDBACK-02 P0) |
-| 2 | 대응 SCR 문서 부재. 더해 **상세 화면에 `<h1>` 이 둘이다** — AppHeader(`:101`)와 본문(`ApplicationDetailPage.tsx:191` '신청서 처리')이 각각 그린다. ⚠ **`4b805ad` 재확인 — 1.0 의 'AppHeader 가 브랜치 라벨 「예약/신청 관리」를 그린다(`findNavLabel` 이 잎에서 못 찾아 폴백)' 는 이제 틀렸다**: 통합이 `findNavLabel` 을 `findCoveringLeaf`(`nav-config.ts:269-279,297-299` — '자기를 감싸는 가장 긴 잎', 세그먼트 경계 매칭) 위에 얹어 **폴백을 없앴고**, `/reservations/applications/:id` 는 이제 **'신청서'** 를 받는다. **남은 결함은 이중 h1 하나** | A11 / A01 / A40 (IA-02 P0) |
+| 1 | **종료 상태(반려·완료)로의 전이가 비가역인데 확인 다이얼로그가 없다** — '처리 저장' 한 번이면 되돌릴 수 없다(`TRANSITIONS[rejected] = []`). 오조작 복구 수단이 화면에 없다 | UI 기획 쪽 변경 요청 (FEEDBACK-02 P0) |
+| 2 | 대응 SCR 문서 부재. 더해 **상세 화면에 `<h1>` 이 둘이다** — AppHeader(`:101`)와 본문(`ApplicationDetailPage.tsx:191` '신청서 처리')이 각각 그린다. ⚠ **`4b805ad` 재확인 — 1.0 의 'AppHeader 가 브랜치 라벨 「예약/신청 관리」를 그린다(`findNavLabel` 이 잎에서 못 찾아 폴백)' 는 이제 틀렸다**: 통합이 `findNavLabel` 을 `findCoveringLeaf`(`nav-config.ts:269-279,297-299` — '자기를 감싸는 가장 긴 잎', 세그먼트 경계 매칭) 위에 얹어 **폴백을 없앴고**, `/reservations/applications/:id` 는 이제 **'신청서'** 를 받는다. **남은 결함은 이중 h1 하나** | UI 기획 / 아키텍처 / 프론트 구현 (IA-02 P0) |
 | ~~3~~ | ~~검색에 IME 조합 처리·디바운스가 없다~~ → **해소됨(F3b · `HEAD = 4b805ad`).** 이 화면이 `useListState` 를 소비하고(`ApplicationListPage.tsx:108`) 그 훅이 `useDebouncedSearch` 를 배선한다(`useListState.ts:24,227-230`). 입력창이 `{...list.searchInputProps}`(`:160`)로 `compositionstart/end` 와 조합 중 Enter 차단을 받으며, 조회에 들어가는 것은 커밋된 `keyword`(URL 의 `q`)뿐이다 — 조합 중 자모는 `searchInput` 에만 머문다 | **닫힘** — NFR-038 §2 COMP-10 = pass |
-| 4 | '상세' 버튼이 DS `<Button>` 이 아니라 `buttonStyle('secondary')` + `tds-ui-btn-secondary` 손조립이고, **행 전체 클릭과 목적지가 같아 중복**이다. 다만 이 버튼이 현재 **키보드 사용자의 유일한 상세 진입 경로**라 그냥 지우면 접근성이 깨진다 — 행 안 링크로 바꾸는 것이 정답 | A11 change_request (COMP-01 P1 · COMP-08 P2 · A11Y-08 P1 동시 해소) |
-| 5 | 스켈레톤 행 수가 `length: 5` 고정(실제 컬럼 수와도 무관하게 `COLUMN_COUNT + 1` 로 별도 계산)이고, 순번이 `index + 1` 이다. **페이지네이션이 없어 지금은 둘 다 재현 불가능한 잠복 결함**이다 — 페이지네이션을 넣는 순간 2페이지 순번이 1로 리셋된다 | A11 change_request (COMP-06 P2 · COMP-07 P2) |
-| 6 | 조회 요약이 '전체 N건'인데 N 은 **필터·검색 후** 건수다 — '전체'라는 낱말과 값이 어긋난다 | A11 change_request (ERP-06 P1) |
-| 7 | 상태→톤 매핑이 이 화면 로컬(`applications/types.ts` 의 `STATUS_META`)이다. 앱 공용 레지스트리가 없어 같은 의미의 상태가 화면마다 다른 색일 수 있다(승인·완료가 둘 다 success 라 배지만으로 구분되지 않는 것도 여기서 온다) | A11 change_request (ERP-01 P1) |
-| 8 | 빈 상태가 '신청서가 없습니다.' 한 문구다 — 검색·필터로 0건이 된 경우와 진짜 0건을 구분하지 않고, 검색 지우기·필터 초기화 액션이 없다. 공용 `Empty` 를 쓰지 않는다(상담 예약은 쓴다) | A11 change_request (STATE-05 P1) |
-| 9 | 상세 조회 실패 배너에 '다시 시도'가 없고 404 와 5xx 를 문구로 구분하지 않는다 — 목록으로 나갔다 다시 들어오는 것이 유일한 복구다 | A11 change_request (STATE-02 P0 · EXC-12 P1) |
-| 10 | 상태 전이 후보가 **로드 시점** 상태 기준이다. 여는 사이 다른 관리자가 상태를 옮겼으면 이미 무효인 전이를 고를 수 있다 — 서버 판정이 필요하다 | A63 (BE-038) |
-| 11 | 이 화면에 검증 스키마(`validation.ts`)가 없다 — 처리 메모 500자는 브라우저 `maxLength` 가 자를 뿐 초과 문구·카운터가 없고, 제출 시 검증이 아무것도 없다 | A11 change_request (COMP-12 P2) · A63 (BE-038) |
-| 12 | 프론트 타임아웃 상한이 없다(`AbortSignal.timeout` 앱 전역 0건). abort 는 화면 이탈 시에만 난다 | A11 · A40 |
-| 13 | 세션 만료 리다이렉트가 dirty 한 처리 입력을 버린다 — 앱이 programmatic 이동을 하므로 FS-038-EL-021 가드가 발화하지 못한다 | A11 · A40 (EXC-19 P1) |
-| 14 | 감사 이력의 작성자·시각·id 를 클라이언트가 만들고 `history` 배열 전체를 쓰기 바디에 싣는다(FS-038-EL-022) — 서버 정본·위조 방지 계약이 필요하다 | A63 (BE-038 §7.1) |
-| 15 | 신청서에 **생성·삭제 경로가 없다**(고객이 제출, 감사 성격상 미삭제). 보존 기간·파기 정책이 이 화면 밖에서 정의돼야 한다 — 개인정보(신청자·연락처)를 담기 때문이다 | A63 (BE-038) · A01 |
-| 16 | **종료 상태 안내 문구의 조사가 하드코딩돼 항상 틀린다**(`4b805ad` 에서 새로 발견). `ApplicationDetailPage.tsx:250` 이 `` `'<상태>' 은 종료 상태라 더 이상 전이할 수 없습니다.` `` 로 조사 `은` 을 고정한다. 이 Alert 는 `terminal === true` 일 때만 뜨고(`:248`) 종료 상태는 `TRANSITIONS` 가 빈 배열인 **'반려'·'완료'** 둘뿐인데(`types.ts:105-106,119-121`) **둘 다 받침이 없어 옳은 조사는 '는'** 이다 — 즉 이 문장은 **가능한 두 경우 모두 틀린다**('반려 은' · '완료 은'). 통합이 `topicParticle` 을 `shared/format.ts:311` 로 승격해 두었고 같은 파일의 `toTimelineEvents`(`types.ts:133`)는 이미 `directionParticle` 을 쓴다 — **한 모듈 안에서 규칙이 갈렸다** | A11 change_request (ERP-13 P1 — NFR-038 §3) |
+| 4 | '상세' 버튼이 DS `<Button>` 이 아니라 `buttonStyle('secondary')` + `tds-ui-btn-secondary` 손조립이고, **행 전체 클릭과 목적지가 같아 중복**이다. 다만 이 버튼이 현재 **키보드 사용자의 유일한 상세 진입 경로**라 그냥 지우면 접근성이 깨진다 — 행 안 링크로 바꾸는 것이 정답 | UI 기획 쪽 변경 요청 (COMP-01 P1 · COMP-08 P2 · A11Y-08 P1 동시 해소) |
+| 5 | 스켈레톤 행 수가 `length: 5` 고정(실제 컬럼 수와도 무관하게 `COLUMN_COUNT + 1` 로 별도 계산)이고, 순번이 `index + 1` 이다. **페이지네이션이 없어 지금은 둘 다 재현 불가능한 잠복 결함**이다 — 페이지네이션을 넣는 순간 2페이지 순번이 1로 리셋된다 | UI 기획 쪽 변경 요청 (COMP-06 P2 · COMP-07 P2) |
+| 6 | 조회 요약이 '전체 N건'인데 N 은 **필터·검색 후** 건수다 — '전체'라는 낱말과 값이 어긋난다 | UI 기획 쪽 변경 요청 (ERP-06 P1) |
+| 7 | 상태→톤 매핑이 이 화면 로컬(`applications/types.ts` 의 `STATUS_META`)이다. 앱 공용 레지스트리가 없어 같은 의미의 상태가 화면마다 다른 색일 수 있다(승인·완료가 둘 다 success 라 배지만으로 구분되지 않는 것도 여기서 온다) | UI 기획 쪽 변경 요청 (ERP-01 P1) |
+| 8 | 빈 상태가 '신청서가 없습니다.' 한 문구다 — 검색·필터로 0건이 된 경우와 진짜 0건을 구분하지 않고, 검색 지우기·필터 초기화 액션이 없다. 공용 `Empty` 를 쓰지 않는다(상담 예약은 쓴다) | UI 기획 쪽 변경 요청 (STATE-05 P1) |
+| 9 | 상세 조회 실패 배너에 '다시 시도'가 없고 404 와 5xx 를 문구로 구분하지 않는다 — 목록으로 나갔다 다시 들어오는 것이 유일한 복구다 | UI 기획 쪽 변경 요청 (STATE-02 P0 · EXC-12 P1) |
+| 10 | 상태 전이 후보가 **로드 시점** 상태 기준이다. 여는 사이 다른 관리자가 상태를 옮겼으면 이미 무효인 전이를 고를 수 있다 — 서버 판정이 필요하다 | 백엔드 명세 (BE-038) |
+| 11 | 이 화면에 검증 스키마(`validation.ts`)가 없다 — 처리 메모 500자는 브라우저 `maxLength` 가 자를 뿐 초과 문구·카운터가 없고, 제출 시 검증이 아무것도 없다 | UI 기획 쪽 변경 요청 (COMP-12 P2) · 백엔드 명세 (BE-038) |
+| 12 | 프론트 타임아웃 상한이 없다(`AbortSignal.timeout` 앱 전역 0건). abort 는 화면 이탈 시에만 난다 | UI 기획 · 프론트 구현 |
+| 13 | 세션 만료 리다이렉트가 dirty 한 처리 입력을 버린다 — 앱이 programmatic 이동을 하므로 FS-038-EL-021 가드가 발화하지 못한다 | UI 기획 · 프론트 구현 (EXC-19 P1) |
+| 14 | 감사 이력의 작성자·시각·id 를 클라이언트가 만들고 `history` 배열 전체를 쓰기 바디에 싣는다(FS-038-EL-022) — 서버 정본·위조 방지 계약이 필요하다 | 백엔드 명세 (BE-038 §7.1) |
+| 15 | 신청서에 **생성·삭제 경로가 없다**(고객이 제출, 감사 성격상 미삭제). 보존 기간·파기 정책이 이 화면 밖에서 정의돼야 한다 — 개인정보(신청자·연락처)를 담기 때문이다 | 백엔드 명세 (BE-038) · 아키텍처 |
+| 16 | **종료 상태 안내 문구의 조사가 하드코딩돼 항상 틀린다**(`4b805ad` 에서 새로 발견). `ApplicationDetailPage.tsx:250` 이 `` `'<상태>' 은 종료 상태라 더 이상 전이할 수 없습니다.` `` 로 조사 `은` 을 고정한다. 이 Alert 는 `terminal === true` 일 때만 뜨고(`:248`) 종료 상태는 `TRANSITIONS` 가 빈 배열인 **'반려'·'완료'** 둘뿐인데(`types.ts:105-106,119-121`) **둘 다 받침이 없어 옳은 조사는 '는'** 이다 — 즉 이 문장은 **가능한 두 경우 모두 틀린다**('반려 은' · '완료 은'). 통합이 `topicParticle` 을 `shared/format.ts:311` 로 승격해 두었고 같은 파일의 `toTimelineEvents`(`types.ts:133`)는 이미 `directionParticle` 을 쓴다 — **한 모듈 안에서 규칙이 갈렸다** | UI 기획 쪽 변경 요청 (ERP-13 P1 — NFR-038 §3) |

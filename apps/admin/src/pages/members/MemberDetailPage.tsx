@@ -1,4 +1,4 @@
-// MemberDetailPage — 회원 상세 (라우트: /users/members/:id) · A40 소유
+// MemberDetailPage — 회원 상세 (라우트: /users/members/:id)
 //
 // [핵심 규칙 — 지우지 말 것]
 // 1. 회원 정보는 **전부 읽기 전용**이다. 입력 필드/드롭다운으로 만들지 않는다.

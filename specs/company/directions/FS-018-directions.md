@@ -3,8 +3,8 @@ id: FS-018
 title: "오시는 길 (단일 문서 편집)"
 screen: SCR-018               # ⚠ 기업 관리 SCR 미작성 — §7 미결 사항 참조
 route: /company/directions
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -110,7 +110,7 @@ date: 2026-07-17
 | FS-018-EL-003 / EL-013 / EL-017 | 오시는 길 문서 저장 | W | 위 5개 필드 전체(부분 갱신 없음 — 전체 치환) | `directionsStore.save(input, signal)` (`useSaveDocument(directionsKey, directionsStore)`) | 성공 시 조회 키 무효화 → 재조회 |
 | FS-018-EL-009 | 지도 임베드 | — | (좌표를 렌더할 지도 SDK) | **없음 — 미구현** | 어댑터도 심도 없다. BE-018-EP-03 참조 |
 
-> **현재 구현 상태 (A63 참고)**: `directionsStore` 는 `createDocumentStore<Directions>('directions', DIRECTIONS_SEED)` 로 만든 **브라우저 안 mutable 픽스처**다(`data-source.ts:19`). `fetch` 는 400ms 지연 후 메모리의 문서를 돌려주고, `save` 는 그 문서를 입력으로 통째 덮는다 — 실제 네트워크 호출은 없다. `data-source.ts:18` 의 `// TODO(backend): GET /api/company/directions · PUT /api/company/directions` 주석이 유일한 연동 지점이며, 위 표는 백엔드 연결 후 의도된 동작이다. **저장한 값은 새로고침하면 시드로 돌아간다**(영속 없음). 지도 임베드는 어떤 형태로도 존재하지 않는다.
+> **현재 구현 상태 (백엔드 명세 참고)**: `directionsStore` 는 `createDocumentStore<Directions>('directions', DIRECTIONS_SEED)` 로 만든 **브라우저 안 mutable 픽스처**다(`data-source.ts:19`). `fetch` 는 400ms 지연 후 메모리의 문서를 돌려주고, `save` 는 그 문서를 입력으로 통째 덮는다 — 실제 네트워크 호출은 없다. `data-source.ts:18` 의 `// TODO(backend): GET /api/company/directions · PUT /api/company/directions` 주석이 유일한 연동 지점이며, 위 표는 백엔드 연결 후 의도된 동작이다. **저장한 값은 새로고침하면 시드로 돌아간다**(영속 없음). 지도 임베드는 어떤 형태로도 존재하지 않는다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -122,20 +122,20 @@ date: 2026-07-17
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-018 영역)
 - [x] 검증 문구를 `validation.ts` 원문대로 옮겼다 — **조사는 리터럴이 아니라 `objectParticle`/`topicParticle` 파생이다**(`shared/crud/validation.ts:17,21,24` → `shared/format.ts:269+`) — 실제 렌더 문구다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **지도 임베드 미구현** — 좌표를 입력해도 지도가 보이지 않는다. placeholder 는 `aria-hidden` 이라 보조기기 사용자에게는 아무것도 없다. 지도 SDK(제공자·키 관리·좌표→마커 계약)가 미정 | A11 / A01 |
-| 2 | 조회 실패가 404/403/5xx 를 구분하지 않는다 — `DocumentFormShell` 은 `loadFailed`(boolean) 하나만 받아 '내용을 불러오지 못했습니다.' + '다시 시도' 로 뭉갠다. 재시도해도 소용없는 403 에도 '다시 시도' 를 권한다 | A11 · A63 (BE-018) |
-| 3 | 재조회 결과가 **편집 중인 폼을 덮는다** — `data` 가 바뀌면 무조건 `reset(data)`. 저장 성공 후 무효화 재조회는 같은 값이라 무해하지만, 다른 관리자가 바꾼 값이 도착하면 입력이 사라진다 | A11 change_request |
-| 4 | **동시 수정 감지가 없다** — `If-Match`/`updatedAt`/`version` 이 어디에도 없고 `save` 는 무조건 덮는다. 두 관리자가 동시에 편집하면 마지막 저장이 이기고 앞선 변경은 통지 없이 사라진다 | A63 (BE-018) · A11 |
-| 5 | 위도·경도 입력에 `maxLength` 가 없다 — 주소·상세주소·교통편은 있다. 임의 길이 문자열을 넣을 수 있고 제출 시에만 막힌다 | A11 change_request |
-| 6 | 지도 placeholder 의 '좌표 있음' 판정이 검증과 무관하다 — 'abc'/'999' 를 넣어도 `위도 abc · 경도 999` 로 표시된다(실제 지도가 붙으면 렌더 오류가 될 자리) | A11 change_request |
-| 7 | 교통편(1000자)·주소(200자)에 글자 수 카운터가 없다 — 상한에 닿으면 예고 없이 입력이 멈춘다 | A11 change_request |
-| 8 | **쓰기 권한 게이팅이 없다** — 저장 권한이 없는 역할도 저장 버튼을 보고 누른다. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | A11 change_request |
-| 9 | **동기 제출 잠금이 없다** — `useCrudForm` 이 갖는 `submitLockRef`/멱등키가 이 화면에는 없다(단일 문서 폼은 그 훅을 쓰지 않는다). 응답 전 Enter 연타 = 요청 2건 | A40 (`DocumentFormShell`/`document.ts`) · A63 (BE-018 멱등성) |
-| 10 | 오프라인 감지가 없다 — 네트워크 단절이 일반 조회/저장 실패와 같은 문구로 떨어진다 | A11 · A40 |
-| 11 | 세션 만료 리다이렉트가 편집 중인 입력을 버린다 — 프로그램적 이동이라 이탈 가드가 발화하지 못한다 | A11 · A40 |
-| 12 | 프론트 타임아웃 상한이 없다 — 응답이 오지 않으면 '저장 중…' 이 무한히 남는다 | A63 (BE-018 §2) · A40 |
-| 13 | 대응 SCR 문서 부재 (기업 관리 섹션 공통 사안) | A11 / A01 |
+| 1 | **지도 임베드 미구현** — 좌표를 입력해도 지도가 보이지 않는다. placeholder 는 `aria-hidden` 이라 보조기기 사용자에게는 아무것도 없다. 지도 SDK(제공자·키 관리·좌표→마커 계약)가 미정 | UI 기획 / 아키텍처 |
+| 2 | 조회 실패가 404/403/5xx 를 구분하지 않는다 — `DocumentFormShell` 은 `loadFailed`(boolean) 하나만 받아 '내용을 불러오지 못했습니다.' + '다시 시도' 로 뭉갠다. 재시도해도 소용없는 403 에도 '다시 시도' 를 권한다 | UI 기획 · 백엔드 명세 (BE-018) |
+| 3 | 재조회 결과가 **편집 중인 폼을 덮는다** — `data` 가 바뀌면 무조건 `reset(data)`. 저장 성공 후 무효화 재조회는 같은 값이라 무해하지만, 다른 관리자가 바꾼 값이 도착하면 입력이 사라진다 | UI 기획 쪽 변경 요청 |
+| 4 | **동시 수정 감지가 없다** — `If-Match`/`updatedAt`/`version` 이 어디에도 없고 `save` 는 무조건 덮는다. 두 관리자가 동시에 편집하면 마지막 저장이 이기고 앞선 변경은 통지 없이 사라진다 | 백엔드 명세 (BE-018) · UI 기획 |
+| 5 | 위도·경도 입력에 `maxLength` 가 없다 — 주소·상세주소·교통편은 있다. 임의 길이 문자열을 넣을 수 있고 제출 시에만 막힌다 | UI 기획 쪽 변경 요청 |
+| 6 | 지도 placeholder 의 '좌표 있음' 판정이 검증과 무관하다 — 'abc'/'999' 를 넣어도 `위도 abc · 경도 999` 로 표시된다(실제 지도가 붙으면 렌더 오류가 될 자리) | UI 기획 쪽 변경 요청 |
+| 7 | 교통편(1000자)·주소(200자)에 글자 수 카운터가 없다 — 상한에 닿으면 예고 없이 입력이 멈춘다 | UI 기획 쪽 변경 요청 |
+| 8 | **쓰기 권한 게이팅이 없다** — 저장 권한이 없는 역할도 저장 버튼을 보고 누른다. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | UI 기획 쪽 변경 요청 |
+| 9 | **동기 제출 잠금이 없다** — `useCrudForm` 이 갖는 `submitLockRef`/멱등키가 이 화면에는 없다(단일 문서 폼은 그 훅을 쓰지 않는다). 응답 전 Enter 연타 = 요청 2건 | 프론트 구현 (`DocumentFormShell`/`document.ts`) · 백엔드 명세 (BE-018 멱등성) |
+| 10 | 오프라인 감지가 없다 — 네트워크 단절이 일반 조회/저장 실패와 같은 문구로 떨어진다 | UI 기획 · 프론트 구현 |
+| 11 | 세션 만료 리다이렉트가 편집 중인 입력을 버린다 — 프로그램적 이동이라 이탈 가드가 발화하지 못한다 | UI 기획 · 프론트 구현 |
+| 12 | 프론트 타임아웃 상한이 없다 — 응답이 오지 않으면 '저장 중…' 이 무한히 남는다 | 백엔드 명세 (BE-018 §2) · 프론트 구현 |
+| 13 | 대응 SCR 문서 부재 (기업 관리 섹션 공통 사안) | UI 기획 / 아키텍처 |

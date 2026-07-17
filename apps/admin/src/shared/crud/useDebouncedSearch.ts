@@ -1,4 +1,4 @@
-// 한글(IME) 안전 검색 입력 (A41 소유 — apps/admin/src/shared/crud/**)
+// 한글(IME) 안전 검색 입력
 //
 // [왜 이 훅이 있나 — COMP-10 (P0)]
 // 한국 운영자는 **전부 IME 로 입력한다**. 그런데 앱 전체에서 `isComposing`/`compositionend` grep 이

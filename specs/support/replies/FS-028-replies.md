@@ -3,8 +3,8 @@ id: FS-028
 title: "문의 답변 — 답변 템플릿 관리 (목록·등록/수정)"
 screen: SCR-028               # ⚠ 고객센터 SCR 미작성 — §7 미결 사항 참조
 route: /support/replies
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -158,7 +158,7 @@ date: 2026-07-17
 | FS-028-EL-005.2 / EL-011 | 템플릿 일괄 삭제 | W | 선택된 id 배열 | `replyTemplateAdapter.remove(id, signal)` × N (`settleAll`) | 전원 성공일 때만 목록 무효화 |
 | FS-028-EL-019 | 유형 태그 선택지 | R | 전체 문의 유형(비활성 포함) | **없음 — `_shared/store.listCategoryUsage()` 를 동기 직접 호출** | 어댑터·쿼리를 거치지 않는다. **연동 심이 없다** — BE-028 §7. 엔드포인트는 BE-027 소관. **사용 건수(`ticketCount`·`templateCount`)는 쓰지 않고 라벨·활성 여부만 쓴다** — 필요보다 무거운 조회다 |
 
-> **현재 구현 상태 (A63 참고 · 2026-07-17 · HEAD = `4b805ad`)**: 백엔드는 없다. `replyTemplateAdapter` 는 **`createStoreAdapter`** 로 조립돼(`data-source.ts:19-26`) `_shared/store.ts` 의 브라우저 안 mutable 배열(`templates`)에 400ms 지연(`LATENCY_MS`)과 실패 스위치(`failIfRequested('support-templates', op)`)를 얹는다 — 실제 네트워크 0건. `getTemplate` 은 없으면 **status 없는 일반 `Error('답변 템플릿을 찾을 수 없습니다')`** 를 던진다(`HttpError(404)` 가 아니다 — §7 #8). `updateTemplate` 은 `map`, `removeTemplate` 은 `filter` 라 **없는 id 를 조용히 지나치고 성공을 반환한다**(유령 저장·유령 삭제 — §7 #10). 저장 시 제목·본문을 `trim` 하고 `categoryLabel` 을 유형 라벨로 다시 조인한다(공용이면 '전체'). 새로고침하면 시드로 되돌아간다. `data-source.ts:18` 의 `// TODO(backend): GET/POST /api/support/reply-templates · GET/PUT/DELETE /api/support/reply-templates/:id` 가 유일한 연동 심이며, **유형 조회에는 심이 없다.** 위 표는 백엔드 연결 후 의도된 동작이다. |
+> **현재 구현 상태 (백엔드 명세 참고 · 2026-07-17 · HEAD = `4b805ad`)**: 백엔드는 없다. `replyTemplateAdapter` 는 **`createStoreAdapter`** 로 조립돼(`data-source.ts:19-26`) `_shared/store.ts` 의 브라우저 안 mutable 배열(`templates`)에 400ms 지연(`LATENCY_MS`)과 실패 스위치(`failIfRequested('support-templates', op)`)를 얹는다 — 실제 네트워크 0건. `getTemplate` 은 없으면 **status 없는 일반 `Error('답변 템플릿을 찾을 수 없습니다')`** 를 던진다(`HttpError(404)` 가 아니다 — §7 #8). `updateTemplate` 은 `map`, `removeTemplate` 은 `filter` 라 **없는 id 를 조용히 지나치고 성공을 반환한다**(유령 저장·유령 삭제 — §7 #10). 저장 시 제목·본문을 `trim` 하고 `categoryLabel` 을 유형 라벨로 다시 조인한다(공용이면 '전체'). 새로고침하면 시드로 되돌아간다. `data-source.ts:18` 의 `// TODO(backend): GET/POST /api/support/reply-templates · GET/PUT/DELETE /api/support/reply-templates/:id` 가 유일한 연동 심이며, **유형 조회에는 심이 없다.** 위 표는 백엔드 연결 후 의도된 동작이다. |
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -172,32 +172,32 @@ date: 2026-07-17
 - [x] §7 의 미결 항목이 BE-028 §7 후속 이관 · NFR-028 §5 와 일치한다
 - [x] **2026-07-17 · HEAD = `4b805ad`(F3a·F3b·통합 머지 후) 코드로 재검증했다** — F2(`3cd3078`) 기준의 이전 판정 중 **검색 디바운스/IME 부재(§7 #4) · 검색어의 URL 부재 · 어댑터의 409 미발생(§7 #9) · 유령 저장/삭제(§7 #10 의 일부) · 조사 폴백형 리터럴(§7 #16) · IA-02 의 가지 라벨 폴백(§7 #6 일부)** 은 해소되어 갱신했다. **§7 #3(검색어 변경 시 선택 미해제)은 여전히 gap 이고, F3b 가 선택 상태를 두 벌로 만들면서 사유가 더 분명해졌다.** 남은 것만 적었다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **화면명이 도메인과 어긋난다** — GNB 는 '문의 답변'인데 이 화면이 관리하는 것은 **답변 템플릿**이다. '문의 답변'이라는 이름은 FS-026 의 고객 답변(타임라인)을 가리키는 것으로 읽혀 운영자가 '여기서 고객에게 답장하는 화면'으로 오해할 수 있다. GNB 라벨을 '답변 템플릿'으로 바꾸거나, 이 화면이 실제 답변 이력까지 포함하도록 범위를 넓혀야 한다 | A01 (IA) · A11 |
-| 2 | **페이지네이션이 없다** — 전량을 한 화면에 렌더한다. 템플릿은 운영 기간에 비례해 는다(quality-bar IA-04 P0) | A11 change_request |
-| 3 | **검색어를 바꿔도 행 선택이 해제되지 않는다** — **F3b 이후 사유가 더 분명해졌다.** 이 화면은 이제 `useListState`(`RepliesPage.tsx:76`)와 `useCrudList`(`:79-84`)를 **둘 다** 쓴다. `useListState` 는 자기 안에 선택 상태를 갖고 view 서명(page|keyword|sort|filters)이 바뀌면 비우지만(`useListState.ts:205-213`), **표에 넘기는 선택은 그것이 아니라 `controller.selectedIds`**(`useRowSelection` 소유)이고 그것은 keyword 와 아무 연결이 없다 — `list.selectedIds`·`list.clearSelection` 은 이 화면에서 **소비되지 않는다**. 결과: 3건을 고른 뒤 검색으로 그 행들을 화면에서 치워도 선택 집합에 남고, **'선택 3건 삭제'가 보이지 않는 행을 지운다**(`useCrudList.tsx:127` 이 `[...selectedIds]` 를 대상으로 삼는다). `useRowSelection` 헤더가 '페이지/필터가 바뀌면 호출부가 clear() 로 비운다 — 안 보이는 행이 선택된 채 남지 않게'라고 계약을 명시하는데 이 호출부가 어긴다. **이 화면에서 유일하게 데이터를 잃는 결함이며 한 줄로 고쳐진다**(`controller.clear()` 를 keyword 에 연결하거나 `list.selectedIds` 로 일원화) (quality-bar **STATE-04 P0**) | **A11 change_request (최우선)** |
+| 1 | **화면명이 도메인과 어긋난다** — GNB 는 '문의 답변'인데 이 화면이 관리하는 것은 **답변 템플릿**이다. '문의 답변'이라는 이름은 FS-026 의 고객 답변(타임라인)을 가리키는 것으로 읽혀 운영자가 '여기서 고객에게 답장하는 화면'으로 오해할 수 있다. GNB 라벨을 '답변 템플릿'으로 바꾸거나, 이 화면이 실제 답변 이력까지 포함하도록 범위를 넓혀야 한다 | 아키텍처 (IA) · UI 기획 |
+| 2 | **페이지네이션이 없다** — 전량을 한 화면에 렌더한다. 템플릿은 운영 기간에 비례해 는다(quality-bar IA-04 P0) | UI 기획 쪽 변경 요청 |
+| 3 | **검색어를 바꿔도 행 선택이 해제되지 않는다** — **F3b 이후 사유가 더 분명해졌다.** 이 화면은 이제 `useListState`(`RepliesPage.tsx:76`)와 `useCrudList`(`:79-84`)를 **둘 다** 쓴다. `useListState` 는 자기 안에 선택 상태를 갖고 view 서명(page|keyword|sort|filters)이 바뀌면 비우지만(`useListState.ts:205-213`), **표에 넘기는 선택은 그것이 아니라 `controller.selectedIds`**(`useRowSelection` 소유)이고 그것은 keyword 와 아무 연결이 없다 — `list.selectedIds`·`list.clearSelection` 은 이 화면에서 **소비되지 않는다**. 결과: 3건을 고른 뒤 검색으로 그 행들을 화면에서 치워도 선택 집합에 남고, **'선택 3건 삭제'가 보이지 않는 행을 지운다**(`useCrudList.tsx:127` 이 `[...selectedIds]` 를 대상으로 삼는다). `useRowSelection` 헤더가 '페이지/필터가 바뀌면 호출부가 clear() 로 비운다 — 안 보이는 행이 선택된 채 남지 않게'라고 계약을 명시하는데 이 호출부가 어긴다. **이 화면에서 유일하게 데이터를 잃는 결함이며 한 줄로 고쳐진다**(`controller.clear()` 를 keyword 에 연결하거나 `list.selectedIds` 로 일원화) (quality-bar **STATE-04 P0**) | **UI 기획 쪽 변경 요청 (최우선)** |
 | 4 | ~~검색 입력에 디바운스·IME 조합 처리가 없다~~ **— 해소됨(F3b)**: `RepliesPage.tsx:93-99` 이 `list.searchInputProps` 를 `SearchField` 에 스프레드하고 `useListState`(`:76`)가 내부에서 `useDebouncedSearch`(`useListState.ts:227-230`)를 소비한다 — 조합 중 커밋 금지 · 조합 중 Enter 차단 · 250ms 디바운스(quality-bar COMP-10 P0 → pass) | — (해소) |
-| 5 | **유형 태그 선택지(EL-019)가 어댑터를 거치지 않고 store 를 동기 직접 호출**한다(`listCategoryUsage()`) — 로딩·실패·재조회가 없고, 백엔드가 붙으면 이 호출부가 비동기로 바뀌어야 한다. 게다가 **사용 건수까지 계산하는 무거운 조회인데 라벨·활성 여부만 쓴다** | A11 · A63 (BE-028 §7) |
-| 6 | 폼이 **자체 `<h1>답변 템플릿 등록/수정</h1>` 을 그리고 AppHeader 도 `<h1>` 을 그린다** — `/support/replies/new`·`/:id/edit` 는 nav 잎이 아니라 브랜치 폴백이 걸려 '고객센터'를 보인다. `<h1>` 이 2개(quality-bar IA-02 P0) | A11 · A40 |
-| 7 | **본문 필드에 필수 마커(`*`)가 없다** — zod 는 `requiredText('본문', 1000)` 로 필수인데 `TextareaField` 에 `required` prop 을 넘기지 않아 라벨 옆 `*` 가 렌더되지 않는다. 제목은 `FormField required` 로 마커가 있어 **같은 폼 안에서 필수 표기가 갈린다**(quality-bar COMP-04 P1) | A11 change_request |
-| 8 | **폼 로드 실패의 404 갈래가 발현되지 않는다** — `FormPageShell` 은 404 와 5xx 를 정확히 가르는데(404 면 재시도를 숨긴다), `getTemplate` 이 `HttpError(404)` 가 아니라 일반 `Error` 를 던져 `isNotFound` 판정이 언제나 false 다. 삭제된 템플릿의 수정 링크를 열어도 '다시 시도'를 권한다(quality-bar EXC-12 P1) | A11 · A63 (BE-028 §7) |
-| 9 | ~~어댑터가 409 를 만들지 않는다~~ **— 해소됨(F3b)**: `createStoreAdapter`(`shared/crud/crud.ts:165-240`)가 `exists()`(`:171`)로 확인해 `update` 없는 id 에 `HttpError(409, '다른 사용자가 먼저 삭제한 항목입니다.')`(`:219-221`), `remove` 없는 id 에 `HttpError(409, '이미 삭제된 항목입니다.')`(`:232-234`)를 던진다. **이 화면은 `useCrudForm` 의 충돌 다이얼로그(EL-027)를 이미 갖고 있어 화면 코드 0줄로 복구 경로가 열렸다** — 다른 관리자가 지운 템플릿을 저장하면 이제 입력이 보존된 채 충돌 다이얼로그가 뜬다. **잔여**: 그 409 는 '대상이 아직 존재하는가' 로만 판정한다 — 동시성 토큰은 §7 #10 을 보라 | — (해소) | 던지지 않아 그 경로가 `?status=save:409` 로만 재현된다. 실사용에서는 마지막 쓰기가 조용히 이긴다 | A63 (BE-028 §7) |
-| 10 | **낙관적 동시성 토큰이 없다 — 동시 편집은 last-write-wins.** *(유령 저장·유령 삭제는 F3b 의 `createStoreAdapter` 가드로 해소 — §7 #9. store 의 `updateTemplate`(`map`)·`removeTemplate`(`filter`)이 여전히 없는 id 를 조용히 지나가더라도 어댑터 경계가 그 앞을 막는다.)* **남은 것**: `ReplyTemplate` 에 `updatedAt`/`version` 이 없어 If-Match/ETag 로 보낼 값이 없다 — 어댑터의 409 는 '대상이 아직 존재하는가' 로만 판정하므로 **A 가 폼을 연 사이 B 가 같은 템플릿을 수정하면 A 의 저장이 경고 없이 B 를 덮는다**(quality-bar **EXC-04 P0**) | A63 (BE-028 §7.5 — 응답에 `version`/`ETag` 필요) · A11 |
-| 10.1 | ~~(F2 잔여 서술 자리 — 위 #10 으로 통합됨)~~ | — |eateCrudAdapter` 는 이 함정을 409 로 막아 뒀는데(`crud.ts:71-73,82-84`) **`createStoreAdapter` 에는 그 가드가 없다** — 다른 관리자가 방금 지운 템플릿을 편집하면 '저장했습니다' 토스트가 뜨고 목록으로 돌아가지만 저장된 것은 없다(quality-bar EXC-04 P0) | **A63 (BE-028 §7) · A11 (공용 어댑터 결함)** |
-| 11 | 스켈레톤 행 수가 하드코딩 `length: 5` 다(`CrudTable.tsx:144`) — 공용 프레임워크의 문제라 이 화면 단독으로 못 고친다(quality-bar COMP-06 P2) | A11 change_request |
-| 12 | 순번이 `index + 1` 이다(`CrudTable.tsx:179`) — 페이지네이션(#2) 도입 시 2페이지에서 1로 리셋된다(quality-bar COMP-07 P2) | A11 (#2 와 함께) |
-| 13 | 진짜 0건일 때 **등록 CTA 가 없다** — `Empty` 가 `createAction` 을 지원하는데(`CrudTable.tsx:70`) 이 화면이 넘기지 않는다. 툴바에 등록 버튼이 있어 치명적이지는 않다(quality-bar STATE-05 P1) | A11 change_request |
-| 14 | **쓰기 권한 게이팅이 배선돼 있지 않다** — `useRouteWritePermissions` 소비자가 **앱 전체 0건**이라 read 전용 역할도 '템플릿 등록'·'수정'·'삭제'를 본다(quality-bar EXC-03 P0) | A11 change_request |
-| 15 | 이탈 가드(EL-026)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-012)·'취소'(EL-022)를 누르면 미저장 입력이 조용히 사라진다 | A11 change_request |
-| 16 | ~~삭제 확인·토스트 문구의 리터럴 조사 폴백~~ **— 해소됨(통합)**: 조사 헬퍼가 `shared/format.ts:269+`(`objectParticle` `:306` · `topicParticle` `:311`)로 승격됐고 이 화면이 소비하는 공용 프레임워크 문구가 전부 그것을 경유한다 — `useCrudList.tsx:108,158`(삭제 토스트·확인 문구) · `useCrudForm.ts:222`(등록/저장 토스트) · `FormPageShell.tsx:129-130`(로드 실패) · `shared/crud/validation.ts:17,20`(`requiredText`). **'답변 템플릿'은 받침이 없으므로 이제 '답변 템플릿를 등록했습니다' 가 나온다.** 앱 전체에서 사용자 대상 조사 폴백형 리터럴 0건 (quality-bar ERP-13) | — (해소) |— `useCrudList`·`useCrudForm` 이 소유한 공용 문구다(quality-bar ERP-13 P1) | A11 (공용 수정) |
-| 17 | 일괄 삭제 **부분 실패 후 재시도가 성공분까지 재요청**한다 — 실패한 id 를 반환하지 않아 겨냥할 수 없다(quality-bar EXC-10 P1) | A11 change_request |
-| 18 | 일괄 삭제에 **상한·progress·cancel·Shift-range 선택이 없다**(quality-bar EXC-18 P1) | A11 change_request |
-| 19 | **템플릿 제목 중복 검사가 없다** — 같은 이름 템플릿 둘이 만들어지면 티켓 상세의 삽입 드롭다운(FS-026-EL-025)에서 구분할 수 없다 | A63 (BE-028 §7) |
-| 20 | **유형 태그에 검증이 없다** — `z.string()` 이라 없는 유형 id 도 통과한다. 서버가 참조 무결성을 판정해야 한다 | A63 (BE-028 §7) |
-| 21 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다(가드 미발화)(quality-bar EXC-05 · EXC-11 · EXC-19 P1) | A11 · A40 |
-| 22 | 대응 SCR 문서 부재 (고객센터 SCR 미작성) | A11 / A01 |
-| 23 | **템플릿 본문이 고객에게 전달되는 문구인데 이 화면에 미리보기(치환 결과)가 없다** — `{{고객명}}` 이 어떻게 보일지 저장 전에 확인할 수 없다. 치환은 FS-026 이 수행한다 | A11 change_request |
-| 24 | 목록에 **유형 태그 필터가 없다** — 검색만 있다. 유형이 늘면 특정 유형 템플릿만 보기가 어렵다 | A11 change_request |
+| 5 | **유형 태그 선택지(EL-019)가 어댑터를 거치지 않고 store 를 동기 직접 호출**한다(`listCategoryUsage()`) — 로딩·실패·재조회가 없고, 백엔드가 붙으면 이 호출부가 비동기로 바뀌어야 한다. 게다가 **사용 건수까지 계산하는 무거운 조회인데 라벨·활성 여부만 쓴다** | UI 기획 · 백엔드 명세 (BE-028 §7) |
+| 6 | 폼이 **자체 `<h1>답변 템플릿 등록/수정</h1>` 을 그리고 AppHeader 도 `<h1>` 을 그린다** — `/support/replies/new`·`/:id/edit` 는 nav 잎이 아니라 브랜치 폴백이 걸려 '고객센터'를 보인다. `<h1>` 이 2개(quality-bar IA-02 P0) | UI 기획 · 프론트 구현 |
+| 7 | **본문 필드에 필수 마커(`*`)가 없다** — zod 는 `requiredText('본문', 1000)` 로 필수인데 `TextareaField` 에 `required` prop 을 넘기지 않아 라벨 옆 `*` 가 렌더되지 않는다. 제목은 `FormField required` 로 마커가 있어 **같은 폼 안에서 필수 표기가 갈린다**(quality-bar COMP-04 P1) | UI 기획 쪽 변경 요청 |
+| 8 | **폼 로드 실패의 404 갈래가 발현되지 않는다** — `FormPageShell` 은 404 와 5xx 를 정확히 가르는데(404 면 재시도를 숨긴다), `getTemplate` 이 `HttpError(404)` 가 아니라 일반 `Error` 를 던져 `isNotFound` 판정이 언제나 false 다. 삭제된 템플릿의 수정 링크를 열어도 '다시 시도'를 권한다(quality-bar EXC-12 P1) | UI 기획 · 백엔드 명세 (BE-028 §7) |
+| 9 | ~~어댑터가 409 를 만들지 않는다~~ **— 해소됨(F3b)**: `createStoreAdapter`(`shared/crud/crud.ts:165-240`)가 `exists()`(`:171`)로 확인해 `update` 없는 id 에 `HttpError(409, '다른 사용자가 먼저 삭제한 항목입니다.')`(`:219-221`), `remove` 없는 id 에 `HttpError(409, '이미 삭제된 항목입니다.')`(`:232-234`)를 던진다. **이 화면은 `useCrudForm` 의 충돌 다이얼로그(EL-027)를 이미 갖고 있어 화면 코드 0줄로 복구 경로가 열렸다** — 다른 관리자가 지운 템플릿을 저장하면 이제 입력이 보존된 채 충돌 다이얼로그가 뜬다. **잔여**: 그 409 는 '대상이 아직 존재하는가' 로만 판정한다 — 동시성 토큰은 §7 #10 을 보라 | — (해소) | 던지지 않아 그 경로가 `?status=save:409` 로만 재현된다. 실사용에서는 마지막 쓰기가 조용히 이긴다 | 백엔드 명세 (BE-028 §7) |
+| 10 | **낙관적 동시성 토큰이 없다 — 동시 편집은 last-write-wins.** *(유령 저장·유령 삭제는 F3b 의 `createStoreAdapter` 가드로 해소 — §7 #9. store 의 `updateTemplate`(`map`)·`removeTemplate`(`filter`)이 여전히 없는 id 를 조용히 지나가더라도 어댑터 경계가 그 앞을 막는다.)* **남은 것**: `ReplyTemplate` 에 `updatedAt`/`version` 이 없어 If-Match/ETag 로 보낼 값이 없다 — 어댑터의 409 는 '대상이 아직 존재하는가' 로만 판정하므로 **A 가 폼을 연 사이 B 가 같은 템플릿을 수정하면 A 의 저장이 경고 없이 B 를 덮는다**(quality-bar **EXC-04 P0**) | 백엔드 명세 (BE-028 §7.5 — 응답에 `version`/`ETag` 필요) · UI 기획 |
+| 10.1 | ~~(F2 잔여 서술 자리 — 위 #10 으로 통합됨)~~ | — |eateCrudAdapter` 는 이 함정을 409 로 막아 뒀는데(`crud.ts:71-73,82-84`) **`createStoreAdapter` 에는 그 가드가 없다** — 다른 관리자가 방금 지운 템플릿을 편집하면 '저장했습니다' 토스트가 뜨고 목록으로 돌아가지만 저장된 것은 없다(quality-bar EXC-04 P0) | **백엔드 명세 (BE-028 §7) · UI 기획 (공용 어댑터 결함)** |
+| 11 | 스켈레톤 행 수가 하드코딩 `length: 5` 다(`CrudTable.tsx:144`) — 공용 프레임워크의 문제라 이 화면 단독으로 못 고친다(quality-bar COMP-06 P2) | UI 기획 쪽 변경 요청 |
+| 12 | 순번이 `index + 1` 이다(`CrudTable.tsx:179`) — 페이지네이션(#2) 도입 시 2페이지에서 1로 리셋된다(quality-bar COMP-07 P2) | UI 기획 (#2 와 함께) |
+| 13 | 진짜 0건일 때 **등록 CTA 가 없다** — `Empty` 가 `createAction` 을 지원하는데(`CrudTable.tsx:70`) 이 화면이 넘기지 않는다. 툴바에 등록 버튼이 있어 치명적이지는 않다(quality-bar STATE-05 P1) | UI 기획 쪽 변경 요청 |
+| 14 | **쓰기 권한 게이팅이 배선돼 있지 않다** — `useRouteWritePermissions` 소비자가 **앱 전체 0건**이라 read 전용 역할도 '템플릿 등록'·'수정'·'삭제'를 본다(quality-bar EXC-03 P0) | UI 기획 쪽 변경 요청 |
+| 15 | 이탈 가드(EL-026)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-012)·'취소'(EL-022)를 누르면 미저장 입력이 조용히 사라진다 | UI 기획 쪽 변경 요청 |
+| 16 | ~~삭제 확인·토스트 문구의 리터럴 조사 폴백~~ **— 해소됨(통합)**: 조사 헬퍼가 `shared/format.ts:269+`(`objectParticle` `:306` · `topicParticle` `:311`)로 승격됐고 이 화면이 소비하는 공용 프레임워크 문구가 전부 그것을 경유한다 — `useCrudList.tsx:108,158`(삭제 토스트·확인 문구) · `useCrudForm.ts:222`(등록/저장 토스트) · `FormPageShell.tsx:129-130`(로드 실패) · `shared/crud/validation.ts:17,20`(`requiredText`). **'답변 템플릿'은 받침이 없으므로 이제 '답변 템플릿를 등록했습니다' 가 나온다.** 앱 전체에서 사용자 대상 조사 폴백형 리터럴 0건 (quality-bar ERP-13) | — (해소) |— `useCrudList`·`useCrudForm` 이 소유한 공용 문구다(quality-bar ERP-13 P1) | UI 기획 (공용 수정) |
+| 17 | 일괄 삭제 **부분 실패 후 재시도가 성공분까지 재요청**한다 — 실패한 id 를 반환하지 않아 겨냥할 수 없다(quality-bar EXC-10 P1) | UI 기획 쪽 변경 요청 |
+| 18 | 일괄 삭제에 **상한·progress·cancel·Shift-range 선택이 없다**(quality-bar EXC-18 P1) | UI 기획 쪽 변경 요청 |
+| 19 | **템플릿 제목 중복 검사가 없다** — 같은 이름 템플릿 둘이 만들어지면 티켓 상세의 삽입 드롭다운(FS-026-EL-025)에서 구분할 수 없다 | 백엔드 명세 (BE-028 §7) |
+| 20 | **유형 태그에 검증이 없다** — `z.string()` 이라 없는 유형 id 도 통과한다. 서버가 참조 무결성을 판정해야 한다 | 백엔드 명세 (BE-028 §7) |
+| 21 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다(가드 미발화)(quality-bar EXC-05 · EXC-11 · EXC-19 P1) | UI 기획 · 프론트 구현 |
+| 22 | 대응 SCR 문서 부재 (고객센터 SCR 미작성) | UI 기획 / 아키텍처 |
+| 23 | **템플릿 본문이 고객에게 전달되는 문구인데 이 화면에 미리보기(치환 결과)가 없다** — `{{고객명}}` 이 어떻게 보일지 저장 전에 확인할 수 없다. 치환은 FS-026 이 수행한다 | UI 기획 쪽 변경 요청 |
+| 24 | 목록에 **유형 태그 필터가 없다** — 검색만 있다. 유형이 늘면 특정 유형 템플릿만 보기가 어렵다 | UI 기획 쪽 변경 요청 |

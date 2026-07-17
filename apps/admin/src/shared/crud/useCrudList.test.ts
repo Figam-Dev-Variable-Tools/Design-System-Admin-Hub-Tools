@@ -1,4 +1,4 @@
-// 일괄 삭제 실패 문구(bulkDeleteErrorMessage) 단언 (A41)
+// 일괄 삭제 실패 문구(bulkDeleteErrorMessage) 단언
 //
 // [이 파일이 왜 생겼나] 일괄 삭제의 409 갭을 덮는 테스트가 저장소 어디에도 없었다 —
 // crud.test.ts 는 단건 409 만 보고, bulk.test.ts 는 건수만 봤다. 그래서

@@ -3,8 +3,8 @@ id: FS-041
 title: "상품 (목록·등록·수정)"
 screen: SCR-041               # ⚠ 상품 관리 SCR 미작성 — §7 미결 사항 참조
 route: /products
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -259,7 +259,7 @@ date: 2026-07-17
 | EL-014 | 상품 단건 삭제 | W | 상품 id | `productAdapter.remove(id, { signal })` | 없으면 `HttpError(409)`. **멱등키 없음** |
 | EL-015 | 상품 일괄 삭제 | W | 상품 id 목록 | `settleAll(ids, (id) => productAdapter.remove(id, { signal }))` | 병렬 · 부분 실패는 건수로만. abort 는 실패로 세지 않는다 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `productAdapter` 는 `shared/crud/crud.ts:165-240` 의 **`createStoreAdapter`** 로 `_shared/store.ts` 의 브라우저 안 mutable 배열(`products`) 위에 배선된다 — 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('products', op)`)를 얹어 CRUD 를 흉내 낸다. 실제 네트워크 0건. 이 팩토리가 화면 코드 0줄로 세 가지를 준다: **`fetchOne` 없는 id → `HttpError(404)`**(`crud.ts:192-194`) · **`update`/`remove` 없는 id → `HttpError(409)`**(`:219-221,232-234` — 유령 저장 해소) · **멱등 원장**(`:168,200-203,208`). 새로고침하면 시드로 되돌아간다. 연동 지점은 `data-source.ts:19` `// TODO(backend): GET/POST /api/products · GET/PUT/DELETE /api/products/:id` 와 `:29` `// TODO(backend): GET /api/products/categories (폼·목록의 분류 선택지)` **두 줄**이다. 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드는 없다. `productAdapter` 는 `shared/crud/crud.ts:165-240` 의 **`createStoreAdapter`** 로 `_shared/store.ts` 의 브라우저 안 mutable 배열(`products`) 위에 배선된다 — 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('products', op)`)를 얹어 CRUD 를 흉내 낸다. 실제 네트워크 0건. 이 팩토리가 화면 코드 0줄로 세 가지를 준다: **`fetchOne` 없는 id → `HttpError(404)`**(`crud.ts:192-194`) · **`update`/`remove` 없는 id → `HttpError(409)`**(`:219-221,232-234` — 유령 저장 해소) · **멱등 원장**(`:168,200-203,208`). 새로고침하면 시드로 되돌아간다. 연동 지점은 `data-source.ts:19` `// TODO(backend): GET/POST /api/products · GET/PUT/DELETE /api/products/:id` 와 `:29` `// TODO(backend): GET /api/products/categories (폼·목록의 분류 선택지)` **두 줄**이다. 위 표는 백엔드 연결 후 의도된 동작이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -273,43 +273,43 @@ date: 2026-07-17
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-041 영역)
 - [x] §7 의 미결 항목이 BE-041 §7 후속 이관 · NFR-041 §5 와 일치한다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 (상품 관리 SCR 미작성) | A11 / A01 |
+| 1 | 대응 SCR 문서 부재 (상품 관리 SCR 미작성) | UI 기획 / 아키텍처 |
 | 2 | (해소됨 — 기록) 필터·검색이 URL 에 있고(`useListState`) 검색이 IME 안전(`useDebouncedSearch`)이며 빈 상태가 3분기(`Empty`)한다. F2 기준 문서가 gap 으로 잡던 IA-13 · COMP-10 · STATE-05 는 이 화면에서 **해소됐다** | — |
 | 3 | (해소됨 — 기록) **대표 이미지(EL-028.1)의 필수 여부가 보조기기에 닿는다.** 구 기준 문서는 '`aria-required` 미주입 잔여 결함' 으로 잡았으나 그 판정은 낡았다 — DS 가 `packages/ui` 에서 고쳤고(PR #30), **해법은 `aria-required` 가 아니라 접근성 이름**이다. `requiredNameSuffix(required)`(`ImageUploadField.tsx:55`, export `index.ts:2`)가 드롭존 `aria-label` 에 `' (필수)'` 를 붙인다(`:250`). `aria-required` 를 쓰지 않은 것은 의도적이다 — `role=button` 미지원 속성이라 얹으면 거짓 시맨틱 + axe `aria-allowed-attr` 위반이다(근거 `:44-54`). 상세 이미지 갤러리(EL-028.2)도 같은 유틸을 쓰되 **빈 드롭존에만** 붙인다(`ImageGalleryField.tsx:237` — 타일이 하나라도 있으면 '최소 한 장'이 이미 충족이라 `:275-277` 의 '이미지 추가' 버튼은 생략) | — |
-| 4 | **낙관적 동시성 토큰이 없다.** `Product` 에 `version`/`updatedAt` 필드가 없고(`_shared/store.ts:111-137`) 어댑터가 `If-Match` 를 보내지 않는다. `createStoreAdapter` 의 409 는 **'대상이 존재하는가'** 기반이라(`crud.ts:219-221`) **둘 다 존재하는 동시 편집은 여전히 last-write-wins** 로 덮는다 — EL-034 가 뜨지 않는다(quality-bar EXC-04 P0). 유령 저장은 해소됐다 | A63 (BE-041 §7.2) · A11 |
-| 5 | **페이지네이션이 없다** — `CrudListShell` 이 `visibleItems` 전량을 렌더한다. 상품은 상한 없이 늘어나는 컬렉션이라 1,000건이면 1,000행이 DOM 에 올라가고, 순번(EL-010.3)이 `index + 1` 이라 도입 시 공식이 틀어진다(quality-bar IA-04 P0 · ERP-15 P1 · COMP-07 P2) | A11 · A63 (BE-041 §7.6) |
-| 6 | 폼이 **자체 `<h1>` 을 그리고 AppHeader 도 `<h1>` 을 그린다**(`ProductFormPage.tsx:362` + `AppHeader.tsx:101`) → `/products/new`·`/products/:id/edit` 에 h1 이 2개다. 통합의 `findCoveringLeaf` 가 **가지 라벨 폴백은 해소**해 AppHeader 가 '상품 관리'가 아니라 잎 라벨 '상품'을 보이나, **'등록/수정' 행위는 의도적으로 제목에 넣지 않으므로**(`nav-config.ts:293-295`) quality-bar IA-02 가 예시로 든 '상품 등록' 은 AppHeader 에 없다. **gap 은 유지되되 사유가 바뀌었다**(가지 폴백 ✕ → h1 이중 + 행위 미반영) — 목록 `/products` 는 잎이라 pass | A40 · A11 |
-| 7 | **쓰기 게이팅이 '상품 등록' 버튼 하나뿐이다.** `ProductListPage.tsx:119` 가 `useRouteWritePermissions` 에서 `canCreate` 만 꺼낸다 — 행 수정·행 삭제(`CrudTable.tsx:192-197`)·일괄 삭제(`CrudListShell.tsx:125-133`)·폼 제출(EL-032)이 `canUpdate`/`canRemove` 를 묻지 않는다. read 전용 역할이 `/products/new` 를 deep-link 하면 **완전한 폼과 저장 버튼**을 본다(quality-bar EXC-03 P0) | A11 change_request |
-| 8 | 이탈 가드(EL-035)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-019)·'취소'(EL-031)를 누르면 미저장 입력이 조용히 사라진다. 훅의 3경로 계약(unload·링크·popstate) 밖이다 | A11 change_request |
-| 9 | **카테고리 조회 실패·로딩이 폼에는 보이지 않는다.** 목록은 EL-002.3 으로 알리지만 `ProductFormPage.tsx:284-288` 은 `categoriesQuery.data ?? []` 만 읽어 **실패해도 '카테고리 선택' 하나뿐인 정상적인 select 처럼 보인다** — required 라 저장이 막히는데 이유를 알 수 없다. 또 두 쿼리 키가 달라(`[products,'category-options']` vs `['product-categories','list']`) FS-042 에서 카테고리를 바꿔도 이 선택지가 무효화되지 않는다 | A11 change_request |
-| 10 | **폼만 `useCrudForm` 의 오류 분기·동기 락·멱등키를 상속한다.** 전시 토글(EL-010.9)·단건 삭제(EL-014)·일괄 삭제(EL-015)는 저수준 훅을 직접 써서 ① 409 를 generic 문구로 뭉개고 ② 동기 제출 락이 없고 ③ 멱등키를 싣지 않는다(quality-bar EXC-04 · EXC-06 · EXC-08) | A11 change_request |
-| 11 | 상품명·SKU·카테고리 셀에 truncate 가 없어 긴 값이 표 열을 넓힌다(quality-bar COMP-09 P2) | A11 change_request |
-| 12 | 스켈레톤 행 수가 하드코딩 `Array.from({ length: 5 })`(`CrudTable.tsx:144`) — 페이지네이션이 없어 'row 수 === PAGE_SIZE' 를 만족시킬 기준값 자체가 없다(quality-bar COMP-06 P2 · #5 와 연동) | A11 (공용 `CrudTable` 소관) |
-| 13 | 일괄 삭제가 **실패한 항목을 식별하지 않고**(건수만), 재시도가 전량을 다시 쏘며, 진행률·취소·동시 요청 상한이 없다(quality-bar EXC-10 · EXC-18 P1) | A11 change_request |
-| 14 | **상품코드(SKU)의 전역 유일성을 검증하지 않는다.** `validation.ts:88-94` 의 중복 검사는 **한 상품의 variants 안**에 갇혀 있다 — 두 상품이 같은 `code` 를 가질 수 있고, 두 관리자가 같은 코드로 동시에 등록해도 둘 다 성공한다. 재고 집계·주문 매핑의 키가 겹친다 | A63 (BE-041 §7.3) · A11 |
-| 15 | 재고 부족 임계값(`LOW_STOCK_THRESHOLD = 10` — `_shared/store.ts:184`)이 코드 상수다 — 상품·카테고리마다 적정 재고가 다른데 운영자가 바꿀 수 없다 | A01 (도메인 경계) |
-| 16 | 전시상태 토글(EL-023.6)·과세 토글(EL-024.4)·옵션 그룹 입력(EL-026.1)이 **`FormField` 가 아니라 bare 라벨 span 또는 `aria-label`** 로만 라벨링된다 — 표준 오류 슬롯이 없고 라벨-컨트롤 연결이 프로그램적이지 않다 | A11 change_request |
-| 17 | 판매가·할인값·배송비·적립액에 **실시간 천단위 마스킹·붙여넣기 정규화가 없다** — 붙여넣은 '129,000' 이 '숫자만 입력할 수 있습니다' 로 거절된다(quality-bar ERP-14 P1) | A11 change_request |
-| 18 | 옵션 그룹 id 가 `og-${Date.now()}`(`ProductOptionMatrix.tsx:121`) — 같은 밀리초에 두 번 누르면 충돌해 React key 가 겹친다 | A11 change_request |
-| 19 | **옵션 조합 수에 상한이 없다.** 3그룹 × 각 20값 = 8,000행이 한 표에 펼쳐진다(`buildVariantMatrix` 의 데카르트 곱). 가상화·cap·경고가 없다 | A11 change_request |
-| 20 | `ProductVariant.addPrice` 의 타입 주석은 '음수 가능: 할인 조합'(`_shared/store.ts:61`)인데 **UI(`toDigits`)와 스키마(`addPrice >= 0`)가 둘 다 음수를 막는다** — 주석과 실제가 어긋난다. 어느 쪽이 의도인지 확정이 필요하다 | A01 (도메인 경계) · A11 |
-| 21 | 총 재고 요약(EL-026.8)과 미리보기 금액(EL-030)이 **`toLocaleString('ko-KR')` 을 직접 조립**한다(`ProductOptionMatrix.tsx:304` · `ProductCardPreview.tsx:13`) — 공유 `formatNumber` 를 경유하지 않는다(quality-bar ERP-08 P2) | A11 change_request |
-| 22 | 옵션·재고 오류(EL-026.9)가 **배열 전체에 하나의 문구**라 어느 행이 문제인지 짚지 않는다 — SKU 가 8,000개면 중복 하나를 손으로 찾아야 한다 | A11 change_request |
-| 23 | 미리보기 카드의 `opacity: 0.55`(`ProductCardPreview.tsx:76,183`)가 토큰이 아닌 매직 넘버다(quality-bar TOKEN-07 P1) | A11 change_request |
-| 24 | 수정 진입 시 **스켈레톤이 아니라 비활성 빈 폼**을 보인다(EL-037) — 등록 폼과 시각적으로 구분되지 않고, 우측 미리보기가 '상품명'·'브랜드' 자리표시자를 그린다 | A11 change_request |
-| 25 | 손으로 고친 `?category=없는id` 는 되돌려지지 않는다(자유 문자열이라 `parseFilter` 대상이 아니다) — 결과 0건 + '필터 초기화' 로 회복은 되나 판매상태(`parseFilter` 적용)와 규칙이 다르다 | A11 change_request |
-| 26 | **재고를 폼이 통째로 덮어쓴다.** 재고는 주문이 실시간으로 깎는 값인데 `ProductInput` 이 `variants` 전체를 실어 전체 치환한다 — 편집 중 팔린 재고가 저장으로 되살아난다 | A63 (BE-041 §7.4) · A11 |
-| 27 | 전시 토글(EL-010.9)이 한 필드를 바꾸려 **`toProductInput(item)` 전체**(옵션·이미지·설명 포함)를 전송한다 — 목록 스냅샷이 낡았으면 그 낡은 값으로 상품을 되돌린다 | A63 (BE-041 §7.4) · A11 |
-| 28 | 판매가 `0` 이 통과한다(`^\d+$` 가 '0' 을 허용 — `validation.ts:51`) — 0원 상품이 등록된다. 하한이 정의되지 않았다 | A11 change_request |
-| 29 | 정액 적립액에 **상한이 없다**(`validation.ts:171-181` 은 1 이상만 본다) — 판매가보다 큰 적립액이 통과한다 | A11 change_request |
-| 30 | 옵션값을 지우면 그 조합의 재고·SKU 가 **경고 없이 사라진다**(`buildVariantMatrix` 는 일치하는 조합만 보존) | A11 change_request |
-| 31 | 이탈 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장이 화면에 안 보일 수 있다 | A63 (BE-041) |
-| 32 | 재조회 중에는 입력이 잠기지 않아(`loadingDetail` 이 최초 로드 전용) **편집 중 도착한 상세가 `reset` 으로 입력을 덮을 수 있다**(`useCrudForm.ts:131-134`) | A11 change_request |
-| 33 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다(가드 미발화) — quality-bar EXC-05 · EXC-11 · EXC-19 P1 | A11 · A40 |
-| 34 | **`blob:` 이미지가 저장되면 깨진다**(§4.1) — 결함이 아니라 알려진 빚이다. `TODO(backend): POST /api/uploads` 가 붙는 순간 `requiredImage` 가 `optionalHttpUrl` 과 같은 규칙으로 조여진다 | A63 · A41 / DS |
+| 4 | **낙관적 동시성 토큰이 없다.** `Product` 에 `version`/`updatedAt` 필드가 없고(`_shared/store.ts:111-137`) 어댑터가 `If-Match` 를 보내지 않는다. `createStoreAdapter` 의 409 는 **'대상이 존재하는가'** 기반이라(`crud.ts:219-221`) **둘 다 존재하는 동시 편집은 여전히 last-write-wins** 로 덮는다 — EL-034 가 뜨지 않는다(quality-bar EXC-04 P0). 유령 저장은 해소됐다 | 백엔드 명세 (BE-041 §7.2) · UI 기획 |
+| 5 | **페이지네이션이 없다** — `CrudListShell` 이 `visibleItems` 전량을 렌더한다. 상품은 상한 없이 늘어나는 컬렉션이라 1,000건이면 1,000행이 DOM 에 올라가고, 순번(EL-010.3)이 `index + 1` 이라 도입 시 공식이 틀어진다(quality-bar IA-04 P0 · ERP-15 P1 · COMP-07 P2) | UI 기획 · 백엔드 명세 (BE-041 §7.6) |
+| 6 | 폼이 **자체 `<h1>` 을 그리고 AppHeader 도 `<h1>` 을 그린다**(`ProductFormPage.tsx:362` + `AppHeader.tsx:101`) → `/products/new`·`/products/:id/edit` 에 h1 이 2개다. 통합의 `findCoveringLeaf` 가 **가지 라벨 폴백은 해소**해 AppHeader 가 '상품 관리'가 아니라 잎 라벨 '상품'을 보이나, **'등록/수정' 행위는 의도적으로 제목에 넣지 않으므로**(`nav-config.ts:293-295`) quality-bar IA-02 가 예시로 든 '상품 등록' 은 AppHeader 에 없다. **gap 은 유지되되 사유가 바뀌었다**(가지 폴백 ✕ → h1 이중 + 행위 미반영) — 목록 `/products` 는 잎이라 pass | 프론트 구현 · UI 기획 |
+| 7 | **쓰기 게이팅이 '상품 등록' 버튼 하나뿐이다.** `ProductListPage.tsx:119` 가 `useRouteWritePermissions` 에서 `canCreate` 만 꺼낸다 — 행 수정·행 삭제(`CrudTable.tsx:192-197`)·일괄 삭제(`CrudListShell.tsx:125-133`)·폼 제출(EL-032)이 `canUpdate`/`canRemove` 를 묻지 않는다. read 전용 역할이 `/products/new` 를 deep-link 하면 **완전한 폼과 저장 버튼**을 본다(quality-bar EXC-03 P0) | UI 기획 쪽 변경 요청 |
+| 8 | 이탈 가드(EL-035)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-019)·'취소'(EL-031)를 누르면 미저장 입력이 조용히 사라진다. 훅의 3경로 계약(unload·링크·popstate) 밖이다 | UI 기획 쪽 변경 요청 |
+| 9 | **카테고리 조회 실패·로딩이 폼에는 보이지 않는다.** 목록은 EL-002.3 으로 알리지만 `ProductFormPage.tsx:284-288` 은 `categoriesQuery.data ?? []` 만 읽어 **실패해도 '카테고리 선택' 하나뿐인 정상적인 select 처럼 보인다** — required 라 저장이 막히는데 이유를 알 수 없다. 또 두 쿼리 키가 달라(`[products,'category-options']` vs `['product-categories','list']`) FS-042 에서 카테고리를 바꿔도 이 선택지가 무효화되지 않는다 | UI 기획 쪽 변경 요청 |
+| 10 | **폼만 `useCrudForm` 의 오류 분기·동기 락·멱등키를 상속한다.** 전시 토글(EL-010.9)·단건 삭제(EL-014)·일괄 삭제(EL-015)는 저수준 훅을 직접 써서 ① 409 를 generic 문구로 뭉개고 ② 동기 제출 락이 없고 ③ 멱등키를 싣지 않는다(quality-bar EXC-04 · EXC-06 · EXC-08) | UI 기획 쪽 변경 요청 |
+| 11 | 상품명·SKU·카테고리 셀에 truncate 가 없어 긴 값이 표 열을 넓힌다(quality-bar COMP-09 P2) | UI 기획 쪽 변경 요청 |
+| 12 | 스켈레톤 행 수가 하드코딩 `Array.from({ length: 5 })`(`CrudTable.tsx:144`) — 페이지네이션이 없어 'row 수 === PAGE_SIZE' 를 만족시킬 기준값 자체가 없다(quality-bar COMP-06 P2 · #5 와 연동) | UI 기획 (공용 `CrudTable` 소관) |
+| 13 | 일괄 삭제가 **실패한 항목을 식별하지 않고**(건수만), 재시도가 전량을 다시 쏘며, 진행률·취소·동시 요청 상한이 없다(quality-bar EXC-10 · EXC-18 P1) | UI 기획 쪽 변경 요청 |
+| 14 | **상품코드(SKU)의 전역 유일성을 검증하지 않는다.** `validation.ts:88-94` 의 중복 검사는 **한 상품의 variants 안**에 갇혀 있다 — 두 상품이 같은 `code` 를 가질 수 있고, 두 관리자가 같은 코드로 동시에 등록해도 둘 다 성공한다. 재고 집계·주문 매핑의 키가 겹친다 | 백엔드 명세 (BE-041 §7.3) · UI 기획 |
+| 15 | 재고 부족 임계값(`LOW_STOCK_THRESHOLD = 10` — `_shared/store.ts:184`)이 코드 상수다 — 상품·카테고리마다 적정 재고가 다른데 운영자가 바꿀 수 없다 | 아키텍처 (도메인 경계) |
+| 16 | 전시상태 토글(EL-023.6)·과세 토글(EL-024.4)·옵션 그룹 입력(EL-026.1)이 **`FormField` 가 아니라 bare 라벨 span 또는 `aria-label`** 로만 라벨링된다 — 표준 오류 슬롯이 없고 라벨-컨트롤 연결이 프로그램적이지 않다 | UI 기획 쪽 변경 요청 |
+| 17 | 판매가·할인값·배송비·적립액에 **실시간 천단위 마스킹·붙여넣기 정규화가 없다** — 붙여넣은 '129,000' 이 '숫자만 입력할 수 있습니다' 로 거절된다(quality-bar ERP-14 P1) | UI 기획 쪽 변경 요청 |
+| 18 | 옵션 그룹 id 가 `og-${Date.now()}`(`ProductOptionMatrix.tsx:121`) — 같은 밀리초에 두 번 누르면 충돌해 React key 가 겹친다 | UI 기획 쪽 변경 요청 |
+| 19 | **옵션 조합 수에 상한이 없다.** 3그룹 × 각 20값 = 8,000행이 한 표에 펼쳐진다(`buildVariantMatrix` 의 데카르트 곱). 가상화·cap·경고가 없다 | UI 기획 쪽 변경 요청 |
+| 20 | `ProductVariant.addPrice` 의 타입 주석은 '음수 가능: 할인 조합'(`_shared/store.ts:61`)인데 **UI(`toDigits`)와 스키마(`addPrice >= 0`)가 둘 다 음수를 막는다** — 주석과 실제가 어긋난다. 어느 쪽이 의도인지 확정이 필요하다 | 아키텍처 (도메인 경계) · UI 기획 |
+| 21 | 총 재고 요약(EL-026.8)과 미리보기 금액(EL-030)이 **`toLocaleString('ko-KR')` 을 직접 조립**한다(`ProductOptionMatrix.tsx:304` · `ProductCardPreview.tsx:13`) — 공유 `formatNumber` 를 경유하지 않는다(quality-bar ERP-08 P2) | UI 기획 쪽 변경 요청 |
+| 22 | 옵션·재고 오류(EL-026.9)가 **배열 전체에 하나의 문구**라 어느 행이 문제인지 짚지 않는다 — SKU 가 8,000개면 중복 하나를 손으로 찾아야 한다 | UI 기획 쪽 변경 요청 |
+| 23 | 미리보기 카드의 `opacity: 0.55`(`ProductCardPreview.tsx:76,183`)가 토큰이 아닌 매직 넘버다(quality-bar TOKEN-07 P1) | UI 기획 쪽 변경 요청 |
+| 24 | 수정 진입 시 **스켈레톤이 아니라 비활성 빈 폼**을 보인다(EL-037) — 등록 폼과 시각적으로 구분되지 않고, 우측 미리보기가 '상품명'·'브랜드' 자리표시자를 그린다 | UI 기획 쪽 변경 요청 |
+| 25 | 손으로 고친 `?category=없는id` 는 되돌려지지 않는다(자유 문자열이라 `parseFilter` 대상이 아니다) — 결과 0건 + '필터 초기화' 로 회복은 되나 판매상태(`parseFilter` 적용)와 규칙이 다르다 | UI 기획 쪽 변경 요청 |
+| 26 | **재고를 폼이 통째로 덮어쓴다.** 재고는 주문이 실시간으로 깎는 값인데 `ProductInput` 이 `variants` 전체를 실어 전체 치환한다 — 편집 중 팔린 재고가 저장으로 되살아난다 | 백엔드 명세 (BE-041 §7.4) · UI 기획 |
+| 27 | 전시 토글(EL-010.9)이 한 필드를 바꾸려 **`toProductInput(item)` 전체**(옵션·이미지·설명 포함)를 전송한다 — 목록 스냅샷이 낡았으면 그 낡은 값으로 상품을 되돌린다 | 백엔드 명세 (BE-041 §7.4) · UI 기획 |
+| 28 | 판매가 `0` 이 통과한다(`^\d+$` 가 '0' 을 허용 — `validation.ts:51`) — 0원 상품이 등록된다. 하한이 정의되지 않았다 | UI 기획 쪽 변경 요청 |
+| 29 | 정액 적립액에 **상한이 없다**(`validation.ts:171-181` 은 1 이상만 본다) — 판매가보다 큰 적립액이 통과한다 | UI 기획 쪽 변경 요청 |
+| 30 | 옵션값을 지우면 그 조합의 재고·SKU 가 **경고 없이 사라진다**(`buildVariantMatrix` 는 일치하는 조합만 보존) | UI 기획 쪽 변경 요청 |
+| 31 | 이탈 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장이 화면에 안 보일 수 있다 | 백엔드 명세 (BE-041) |
+| 32 | 재조회 중에는 입력이 잠기지 않아(`loadingDetail` 이 최초 로드 전용) **편집 중 도착한 상세가 `reset` 으로 입력을 덮을 수 있다**(`useCrudForm.ts:131-134`) | UI 기획 쪽 변경 요청 |
+| 33 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다(가드 미발화) — quality-bar EXC-05 · EXC-11 · EXC-19 P1 | UI 기획 · 프론트 구현 |
+| 34 | **`blob:` 이미지가 저장되면 깨진다**(§4.1) — 결함이 아니라 알려진 빚이다. `TODO(backend): POST /api/uploads` 가 붙는 순간 `requiredImage` 가 `optionalHttpUrl` 과 같은 규칙으로 조여진다 | 백엔드 명세 · 프론트 리팩터 / DS |
 </content>
 </invoke>

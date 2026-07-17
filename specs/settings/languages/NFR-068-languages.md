@@ -4,8 +4,8 @@ functionalSpec: FS-068
 backendSpec: BE-068
 qualityBar: specs/quality-bar.md
 title: "언어 관리 비기능 명세"
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -204,22 +204,22 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | MOTION-01 | P0 → **종속** | **~~Motion 라이브러리 미도입으로 Modal 에 fade/scale/exit·reduced-motion 게이트가 없다~~ — 이 사유는 PR #26 으로 해소됐다.** 오버레이 모션이 구현됐고(`Modal.css:20-21,30-38,58-59` + keyframes `:126-168`) **reduced-motion 게이트**(`:173-180`)와 **Toast exit**(`Toast.css:32-37,121-131`)도 신설돼 **MOTION-02·03 은 pass 로 뒤집혔다.** **라이브러리는 여전히 미도입**(`packages/ui/src` Motion/AnimatePresence 0건)이나 'exit 후 unmount' 는 `onAnimationEnd`(`Modal.tsx:216-218`)로 동등 달성했다. **잔여**: footer 버튼 경로는 즉시 언마운트(`Modal.tsx:27-31`)이고 **이 화면의 다이얼로그 3종은 footer 가 주 닫기 수단**이다. **라이브러리 부재/footer 경로를 gap 으로 볼지는 DS 소유 문서가 정한다** | **`packages/ui`(DS)** | **A41 / DS (판정 대기)** |
-| 2 | **A11Y-11** · A11Y-16 | **P0** · P1 | **이 화면 고유 결함 2건.** ① **고아 오류 id** — `:331` 이 `<p id={errorIdOf('lang-supported')}>` 를 렌더하나 **`lang-supported` 라는 id 의 요소가 없고**(체크박스는 `lang-supported-ko` 등) 어떤 컨트롤도 이 오류를 `aria-describedby` 로 참조하지 않는다. **`<fieldset>` 에 `aria-describedby` 를 물리는 것이 옳은 해법** ② **잠긴 체크박스가 이유를 말하지 않는다** — 잠금 사유(`:320-324`)가 형제 `<span>` 일 뿐 연결되지 않아 시각 사용자만 안다. **required 노출·aria-invalid 짝은 pass**(select 자식이 `SelectField` 라 주입됨) | 이 화면 | A11 change_request |
-| 3 | EXC-08 | P0 | 저장에 **멱등키 없음**(`grep Idempotency pages/settings/` = 0건). 동기 잠금(`useSubmitLock`)은 있어 연타는 막힌다. **`If-Match` 가 중복 적용을 막아 데이터는 안전** — 잔여 위험은 '자기 저장에 대해 거짓 충돌 다이얼로그를 보는' UX. 선례: `members/components/PointsCard.tsx:103,162-173` | 이 화면 + BE 계약 | A11 · A63 (BE-068 §7.4) |
-| 4 | STATE-03 | P1 | `useEffect([data, reset])`(`:156-159`)가 **편집 중 재조회에서도 `reset`** 을 돌려 체크 상태를 덮는다. **설정 4화면 공통** | 이 화면(섹션 공통 패턴) | A11 change_request |
-| 5 | EXC-06 · EXC-12 | P1 | 조회·저장 실패가 status 를 구분하지 않는다. 근본 원인은 `createRevisionedStore` 가 **`HttpError`(status 보유)를 던지지 않는 것** — 409 만 `SettingsConflictError` 로 갈린다. **설정 4화면 공통** | 이 화면 + `_shared/store.ts` + 어댑터 | A11 · A63 (BE-068 §7.6 #7) |
-| 6 | EXC-07 · EXC-20 · FEEDBACK-05 | P1 | 422 `error.fields` → RHF `setError` 매핑 없음(**서버가 어느 규칙을 어겼는지 정확히 아는데 화면이 버린다**) · 5xx reference code 미표시 · **저장 확인 문구가 고정이라 무엇이 바뀌는지 이름으로 말하지 않는다**(OAuth 화면은 말한다) | 이 화면 | A11 (BE-068 §7.6 #3) |
-| 7 | A11Y-13 | P1 | `handleSubmit(onValid)` 에 **`onInvalid` 가 없어** 검증 실패 시 첫 오류 필드로 포커스가 가지 않는다. 폼 진입 첫 필드 포커스도 없다. **설정 폼 3화면 공통** | 이 화면(섹션 공통) | A11 change_request |
-| 8 | ERP-13 (주석) | — | `_shared/validation.ts:11-12` 가 '조사 헬퍼가 **아직 없다**'고 적으나 **GROUND-TRUTH §2 기준 `shared/format.ts:269+` 에 승격돼 있다** — 낡은 주석. 판정 자체는 pass | 이 화면(주석) | A11 change_request(경미) |
-| 9 | ERP-06 | P1 | **nav 라벨('언어 관리')과 카드 제목('언어 설정')이 다르다** — AppHeader `<h1>` 은 '언어 관리', 카드는 '언어 설정'. 같은 화면을 두 이름으로 부른다. **다른 3화면은 일치한다**(사이트 설정·API Key·OAuth 설정) | 이 화면 | A11 change_request · A01 |
-| 10 | EXC-05 · EXC-11 · EXC-19 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 · 세션 만료가 미저장 입력을 버린다 | **앱 전역** | A40 · A11 |
-| 11 | (FS-068 §7 #9) | — | **`selectable` 이 비면 기본/폴백 select 가 빈 옵션 목록이 된다** — 잠금 규칙(EL-004.4) 하나가 유일한 방어다. select 가 비면 아무것도 고를 수 없고 오류 문구도 없다 | 이 화면 | A11 change_request |
-| 12 | (BE-068 §7.2) | — | **`supported` 정규화를 서버가 하지 않으면 거짓 dirty·거짓 충돌이 난다** — `diff.ts:13-20` 의 배열 비교가 **순서를 포함**하기 때문. 서버 정규화(중복 제거 + 정의 순서 정렬)를 계약에 넣어야 한다 | BE 계약 | A63 |
-| 13 | (BE-068 §7.3 = BE-067 §7.3) | — | **감사 주체 위조 가능** — `updatedBy` 하드코딩 `'김운영'`(`_shared/store.ts:84`), `updatedAt` 클라이언트 시각(`:131`). 서버가 세션·서버 시각으로 찍어야 한다. **심이 이미 선언**(`store.ts:83`). **4화면 공통** | BE 계약 | **A63 (최우선)** |
-| 14 | (BE-068 §7.6 #4) | — | **서버 불변식 위반 문서의 가능성** — 시딩·마이그레이션이 교차 규칙을 깬 문서를 만들면 화면이 사용자가 만들지 않은 오류를 보인다. **미설정 상태의 계약도 미정** | BE 계약 | A63 |
-| 15 | (BE-068 §7.6 #1 · #2) | — | **로케일 카탈로그(EP-03) 심 없음(미정)** — 후보 4종이 코드 상수다. **현재로선 그것이 옳다**(번역 리소스가 없다). **i18n 도입 시 연동에 화면 코드가 함께 바뀐다**(`LANGUAGE_META` import → `useQuery`) — 어댑터만 바꾸면 되는 작업으로 산정하면 빠진다. 그리고 **이 계약에 소비자가 없다**(§4.3) | BE 계약 + 이 화면 | A63 · A11 · A01 |
-| 16 | (FS-068 §7 #12 · #13) | P2 | `Checkbox` 를 앱 배럴이 아니라 `@tds/ui` 에서 직접 import(`:16-18`) — **의도된 우회**(배럴은 F2 소유)이나 일관성이 깨져 있다(`CreateApiKeyModal.tsx:15` 도 같다 — 2곳) · 스켈레톤 행 수 하드코딩 `[0,1,2,3]` | 이 화면 | A11 (배럴 확장은 F2) |
+| 1 | MOTION-01 | P0 → **종속** | **~~Motion 라이브러리 미도입으로 Modal 에 fade/scale/exit·reduced-motion 게이트가 없다~~ — 이 사유는 PR #26 으로 해소됐다.** 오버레이 모션이 구현됐고(`Modal.css:20-21,30-38,58-59` + keyframes `:126-168`) **reduced-motion 게이트**(`:173-180`)와 **Toast exit**(`Toast.css:32-37,121-131`)도 신설돼 **MOTION-02·03 은 pass 로 뒤집혔다.** **라이브러리는 여전히 미도입**(`packages/ui/src` Motion/AnimatePresence 0건)이나 'exit 후 unmount' 는 `onAnimationEnd`(`Modal.tsx:216-218`)로 동등 달성했다. **잔여**: footer 버튼 경로는 즉시 언마운트(`Modal.tsx:27-31`)이고 **이 화면의 다이얼로그 3종은 footer 가 주 닫기 수단**이다. **라이브러리 부재/footer 경로를 gap 으로 볼지는 DS 소유 문서가 정한다** | **`packages/ui`(DS)** | **프론트 리팩터 / DS (판정 대기)** |
+| 2 | **A11Y-11** · A11Y-16 | **P0** · P1 | **이 화면 고유 결함 2건.** ① **고아 오류 id** — `:331` 이 `<p id={errorIdOf('lang-supported')}>` 를 렌더하나 **`lang-supported` 라는 id 의 요소가 없고**(체크박스는 `lang-supported-ko` 등) 어떤 컨트롤도 이 오류를 `aria-describedby` 로 참조하지 않는다. **`<fieldset>` 에 `aria-describedby` 를 물리는 것이 옳은 해법** ② **잠긴 체크박스가 이유를 말하지 않는다** — 잠금 사유(`:320-324`)가 형제 `<span>` 일 뿐 연결되지 않아 시각 사용자만 안다. **required 노출·aria-invalid 짝은 pass**(select 자식이 `SelectField` 라 주입됨) | 이 화면 | UI 기획 쪽 변경 요청 |
+| 3 | EXC-08 | P0 | 저장에 **멱등키 없음**(`grep Idempotency pages/settings/` = 0건). 동기 잠금(`useSubmitLock`)은 있어 연타는 막힌다. **`If-Match` 가 중복 적용을 막아 데이터는 안전** — 잔여 위험은 '자기 저장에 대해 거짓 충돌 다이얼로그를 보는' UX. 선례: `members/components/PointsCard.tsx:103,162-173` | 이 화면 + BE 계약 | UI 기획 · 백엔드 명세 (BE-068 §7.4) |
+| 4 | STATE-03 | P1 | `useEffect([data, reset])`(`:156-159`)가 **편집 중 재조회에서도 `reset`** 을 돌려 체크 상태를 덮는다. **설정 4화면 공통** | 이 화면(섹션 공통 패턴) | UI 기획 쪽 변경 요청 |
+| 5 | EXC-06 · EXC-12 | P1 | 조회·저장 실패가 status 를 구분하지 않는다. 근본 원인은 `createRevisionedStore` 가 **`HttpError`(status 보유)를 던지지 않는 것** — 409 만 `SettingsConflictError` 로 갈린다. **설정 4화면 공통** | 이 화면 + `_shared/store.ts` + 어댑터 | UI 기획 · 백엔드 명세 (BE-068 §7.6 #7) |
+| 6 | EXC-07 · EXC-20 · FEEDBACK-05 | P1 | 422 `error.fields` → RHF `setError` 매핑 없음(**서버가 어느 규칙을 어겼는지 정확히 아는데 화면이 버린다**) · 5xx reference code 미표시 · **저장 확인 문구가 고정이라 무엇이 바뀌는지 이름으로 말하지 않는다**(OAuth 화면은 말한다) | 이 화면 | UI 기획 (BE-068 §7.6 #3) |
+| 7 | A11Y-13 | P1 | `handleSubmit(onValid)` 에 **`onInvalid` 가 없어** 검증 실패 시 첫 오류 필드로 포커스가 가지 않는다. 폼 진입 첫 필드 포커스도 없다. **설정 폼 3화면 공통** | 이 화면(섹션 공통) | UI 기획 쪽 변경 요청 |
+| 8 | ERP-13 (주석) | — | `_shared/validation.ts:11-12` 가 '조사 헬퍼가 **아직 없다**'고 적으나 **GROUND-TRUTH §2 기준 `shared/format.ts:269+` 에 승격돼 있다** — 낡은 주석. 판정 자체는 pass | 이 화면(주석) | UI 기획 쪽 변경 요청(경미) |
+| 9 | ERP-06 | P1 | **nav 라벨('언어 관리')과 카드 제목('언어 설정')이 다르다** — AppHeader `<h1>` 은 '언어 관리', 카드는 '언어 설정'. 같은 화면을 두 이름으로 부른다. **다른 3화면은 일치한다**(사이트 설정·API Key·OAuth 설정) | 이 화면 | UI 기획 쪽 변경 요청 · 아키텍처 |
+| 10 | EXC-05 · EXC-11 · EXC-19 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 · 세션 만료가 미저장 입력을 버린다 | **앱 전역** | 프론트 구현 · UI 기획 |
+| 11 | (FS-068 §7 #9) | — | **`selectable` 이 비면 기본/폴백 select 가 빈 옵션 목록이 된다** — 잠금 규칙(EL-004.4) 하나가 유일한 방어다. select 가 비면 아무것도 고를 수 없고 오류 문구도 없다 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 12 | (BE-068 §7.2) | — | **`supported` 정규화를 서버가 하지 않으면 거짓 dirty·거짓 충돌이 난다** — `diff.ts:13-20` 의 배열 비교가 **순서를 포함**하기 때문. 서버 정규화(중복 제거 + 정의 순서 정렬)를 계약에 넣어야 한다 | BE 계약 | 백엔드 명세 |
+| 13 | (BE-068 §7.3 = BE-067 §7.3) | — | **감사 주체 위조 가능** — `updatedBy` 하드코딩 `'김운영'`(`_shared/store.ts:84`), `updatedAt` 클라이언트 시각(`:131`). 서버가 세션·서버 시각으로 찍어야 한다. **심이 이미 선언**(`store.ts:83`). **4화면 공통** | BE 계약 | **백엔드 명세 (최우선)** |
+| 14 | (BE-068 §7.6 #4) | — | **서버 불변식 위반 문서의 가능성** — 시딩·마이그레이션이 교차 규칙을 깬 문서를 만들면 화면이 사용자가 만들지 않은 오류를 보인다. **미설정 상태의 계약도 미정** | BE 계약 | 백엔드 명세 |
+| 15 | (BE-068 §7.6 #1 · #2) | — | **로케일 카탈로그(EP-03) 심 없음(미정)** — 후보 4종이 코드 상수다. **현재로선 그것이 옳다**(번역 리소스가 없다). **i18n 도입 시 연동에 화면 코드가 함께 바뀐다**(`LANGUAGE_META` import → `useQuery`) — 어댑터만 바꾸면 되는 작업으로 산정하면 빠진다. 그리고 **이 계약에 소비자가 없다**(§4.3) | BE 계약 + 이 화면 | 백엔드 명세 · UI 기획 · 아키텍처 |
+| 16 | (FS-068 §7 #12 · #13) | P2 | `Checkbox` 를 앱 배럴이 아니라 `@tds/ui` 에서 직접 import(`:16-18`) — **의도된 우회**(배럴은 F2 소유)이나 일관성이 깨져 있다(`CreateApiKeyModal.tsx:15` 도 같다 — 2곳) · 스켈레톤 행 수 하드코딩 `[0,1,2,3]` | 이 화면 | UI 기획 (배럴 확장은 F2) |
 
 ## 6. 측정 도구 · 재현 스위치
 

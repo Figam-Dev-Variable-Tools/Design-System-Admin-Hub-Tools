@@ -1,7 +1,7 @@
 /**
  * 리포트 기록 — reports/reuse/<name>.json + <name>.md
- * 리포트 경로 소유: A75 (orchestration/registry/agents.json)
- * G0 게이트: UI Planner(A11)는 신규 컴포넌트 표기 전 이 리포트를 반드시 첨부한다.
+ * 리포트 경로 소유: 재사용 가드
+ * G0 게이트: UI Planner(UI 기획)는 신규 컴포넌트 표기 전 이 리포트를 반드시 첨부한다.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -58,7 +58,7 @@ export function buildReportMd(report: ReuseReport): string {
   lines.push(`# Reuse Guard 판정 — ${report.target.name}`);
   lines.push('');
   lines.push(
-    '> 중복 컴포넌트 차단 (A75 Component Reuse AI) — G0 사전 조회 필수, 유사도 >= 85% 신규 생성 차단',
+    '> 중복 컴포넌트 차단 (재사용 가드 Component Reuse AI) — G0 사전 조회 필수, 유사도 >= 85% 신규 생성 차단',
   );
   lines.push('');
   lines.push(`- 실행 시각: ${report.generatedAt}`);
@@ -111,9 +111,11 @@ export function buildReportMd(report: ReuseReport): string {
         `- 신규 컴포넌트 생성 금지. **${best?.name ?? '기존 컴포넌트'}** 를 확장(EXTEND)한다.`,
       );
       lines.push(
-        '- Contract Engineer(A18)에게 change_request 를 발행해 기존 계약에 필요한 prop 을 추가한다 (G3 재진입, additive 변경이면 MINOR).',
+        '- Contract Engineer(계약 엔지니어)에게 변경 요청 를 발행해 기존 계약에 필요한 prop 을 추가한다 (G3 재진입, additive 변경이면 MINOR).',
       );
-      lines.push('- 판정에 이의가 있으면 CEO AI(A00)에 에스컬레이션한다 — 가드 우회 금지.');
+      lines.push(
+        '- 판정에 이의가 있으면 CEO AI(오케스트레이터)에 에스컬레이션한다 — 가드 우회 금지.',
+      );
       break;
     case 'EXTEND_RECOMMENDED':
       lines.push(

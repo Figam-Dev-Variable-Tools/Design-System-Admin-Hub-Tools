@@ -3,8 +3,8 @@ id: FS-042
 title: "상품 카테고리 (목록·모달 등록/수정)"
 screen: SCR-042               # ⚠ 상품 관리 SCR 미작성 — §7 미결 사항 참조
 route: /products/categories
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -134,7 +134,7 @@ date: 2026-07-17
 | EL-005.4 / EL-009 / EL-015 | 카테고리 삭제 | W | 카테고리 id | `productCategoryAdapter.remove(id, { signal })` | 없으면 `HttpError(409)`. **사용 중이면 저장소가 generic `Error` 를 던진다** — 서버는 **409** 로 막아야 한다(BE-042 §7.2). **멱등키 없음** |
 | (호출부 없음) | 카테고리 단건 조회 | R | 카테고리 1건 | `productCategoryAdapter.fetchOne(id, signal)` — **`createStoreAdapter` 가 요구해 채웠으나 이 화면에 호출부가 0건이다** | 수정 모달이 **행 데이터를 그대로 쓰고 상세를 재조회하지 않는다**(EL-005.3). `// TODO(backend)` 주석도 `GET /:id` 를 적지 않는다 — **연동 심이 없다**(BE-042 §7.6) |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `productCategoryAdapter` 는 `shared/crud/crud.ts:165-240` 의 **`createStoreAdapter`** 로 `_shared/store.ts` 의 브라우저 안 mutable 배열(`categories`) 위에 배선된다 — 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('product-categories', op)`)를 얹어 CRUD 를 흉내 낸다. 실제 네트워크 0건. 이 팩토리가 화면 코드 0줄로 세 가지를 준다: **`fetchOne` 없는 id → `HttpError(404)`** · **`update`/`remove` 없는 id → `HttpError(409)`**(유령 저장 해소) · **멱등 원장**. **다만 이 화면은 그 셋을 거의 활용하지 못한다** — `fetchOne` 호출부가 없고, 409 를 분기하지 않으며(§7 #7), 멱등키를 싣지 않는다(§7 #3). 목록 항목은 `listProductCategoryUsage()` 가 카테고리마다 `countProductsUsingCategory` 를 돌려 만든다(`store.ts:661-666`) — **O(카테고리 수 × 상품 수)**. 새로고침하면 시드로 되돌아간다. 연동 지점은 `data-source.ts:20` `// TODO(backend): GET/POST /api/products/categories · PUT/DELETE /api/products/categories/:id (사용 중이면 409)` **한 줄**이다. 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드는 없다. `productCategoryAdapter` 는 `shared/crud/crud.ts:165-240` 의 **`createStoreAdapter`** 로 `_shared/store.ts` 의 브라우저 안 mutable 배열(`categories`) 위에 배선된다 — 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('product-categories', op)`)를 얹어 CRUD 를 흉내 낸다. 실제 네트워크 0건. 이 팩토리가 화면 코드 0줄로 세 가지를 준다: **`fetchOne` 없는 id → `HttpError(404)`** · **`update`/`remove` 없는 id → `HttpError(409)`**(유령 저장 해소) · **멱등 원장**. **다만 이 화면은 그 셋을 거의 활용하지 못한다** — `fetchOne` 호출부가 없고, 409 를 분기하지 않으며(§7 #7), 멱등키를 싣지 않는다(§7 #3). 목록 항목은 `listProductCategoryUsage()` 가 카테고리마다 `countProductsUsingCategory` 를 돌려 만든다(`store.ts:661-666`) — **O(카테고리 수 × 상품 수)**. 새로고침하면 시드로 되돌아간다. 연동 지점은 `data-source.ts:20` `// TODO(backend): GET/POST /api/products/categories · PUT/DELETE /api/products/categories/:id (사용 중이면 409)` **한 줄**이다. 위 표는 백엔드 연결 후 의도된 동작이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -149,29 +149,29 @@ date: 2026-07-17
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-042 영역)
 - [x] §7 의 미결 항목이 BE-042 §7 후속 이관 · NFR-042 §5 와 일치한다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 (상품 관리 SCR 미작성) | A11 / A01 |
-| 2 | **낙관적 동시성 토큰이 없다.** `ProductCategory` 에 `version`/`updatedAt` 필드가 없고(`_shared/store.ts:17-25`) 어댑터가 `If-Match` 를 보내지 않는다. `createStoreAdapter` 의 409 는 **'대상이 존재하는가'** 기반이라(`crud.ts:219-221`) **둘 다 존재하는 동시 편집은 last-write-wins** 로 덮는다. 유령 저장은 해소됐다(quality-bar EXC-04 P0) | A63 (BE-042 §7.1) · A11 |
-| 3 | **모달 저장에 동기 제출 락·멱등키가 없다.** `ProductCategoryFormModal` 이 `useCrudForm` 을 쓰지 않고 `useCrudCreate`/`useCrudUpdate` 를 직접 쓴다(`:57-58,84-94`) — 그 훅이 제공하는 `submitLockRef`(`useCrudForm.ts:103`)·`idempotencyKeyRef`(`:118-123`)를 상속하지 못했다. RHF `handleSubmit` 은 **비동기**라(`:108`) 비활성 렌더 전 연타가 두 번째 요청을 통과시킨다. **중복 이름 검증도 없어(#12) 결과가 '같은 이름의 카테고리 2개'** 다(quality-bar EXC-08 P0) | A11 · A63 |
-| 4 | **페이지네이션이 없다** — `<ul>` 이 전량을 렌더한다. 카테고리는 사용자가 만드는 만큼 늘어난다. 게다가 **`<table>` 이 아니라 `<ul>`** 이라 공유 `CrudTable` 템플릿(선택·순번·행 액션·스켈레톤)을 쓰지 않는다 — quality-bar IA-04 의 근거가 'members/categories 가 부분 이탈' 이라며 이 화면을 명시적으로 지목한다(quality-bar IA-04 P0) | A11 · A63 (BE-042 §7.7) |
-| 5 | **쓰기 게이팅이 '카테고리 추가' 버튼 하나뿐이다.** `ProductCategoriesPage.tsx:181` 이 `useRouteWritePermissions` 에서 `canCreate` 만 꺼낸다 — 행 수정(`:149-156`)·행 삭제(`:158-169`)·모달 저장이 `canUpdate`/`canRemove` 를 묻지 않는다(quality-bar EXC-03 P0) | A11 change_request |
-| 6 | **'그 상품들' 로 가는 경로가 없다.** 상시 안내문(EL-007.1)이 '먼저 그 상품들의 카테고리를 바꾸거나 삭제하세요' 라고 말하지만 **어느 상품인지 알려주지도, 거기로 데려가지도 않는다.** 사용량 배지('12개 상품')를 `/products?category=<id>` 링크로 만들면 해결된다 — 그 URL 은 이미 실재한다(FS-041-EL-017 이 카테고리 필터를 URL 로 소유한다) | A11 change_request |
-| 7 | **status 분기가 없다 — 그리고 그중 하나는 거짓 안내다.** 모달·삭제의 `onError` 가 `isAbort` 만 보고 403·409·422·429·500 을 전부 '…하지 못했습니다. **잠시 후 다시 시도해 주세요.**' 로 뭉갠다(`ProductCategoryFormModal.tsx:78-81` · `ProductCategoriesPage.tsx:237-240`). **'사용 중이라 삭제 불가'(EL-015 ②)가 그 문구로 보이면 운영자는 영원히 재시도한다** — `useCrudForm` 의 네 갈래(404·409·422·그 밖)를 상속하지 못했다(quality-bar EXC-06 P1 · EXC-12 P1) | A11 change_request |
-| 8 | **이 화면과 상품 화면이 같은 서버 리소스를 서로 다른 react-query 키로 캐시한다** — `['product-categories','list']`(`crud.ts:244`) vs `[products,'category-options']`(`ProductListPage.tsx:142` · `ProductFormPage.tsx:285`). **여기서 카테고리를 추가·수정·삭제해도 상품 화면의 선택지가 무효화되지 않는다** — 새로고침 전에는 낡은 목록을 본다. **백엔드와 무관하게 지금 고칠 수 있다** | A11 change_request |
-| 9 | 조회 요약(EL-003)에 **재조회 인디케이터가 없다** — `CrudListShell` 은 `aria-busy={refreshing}` + ' · 새로고침 중…' 을 주는데(`CrudListShell.tsx:118-122`) 이 화면은 그 껍데기를 쓰지 않아 상속하지 못했다. 이전 행은 유지되나 갱신 중임을 알 수 없다(quality-bar STATE-03 P1) | A11 change_request |
-| 10 | 행 액션 2개(EL-005.3·EL-005.4)가 **DS `<Button>` 이 아니라 `buttonStyle('ghost')` + `tds-ui-btn-ghost` 손조립**이고(`:149-169`), 모달 제출(EL-008.4)이 `loading` prop 대신 손으로 쓴 `'저장 중…'` 라벨을 쓴다(`:117`) — quality-bar COMP-01 P1 이 'ghost icon 버튼 포함' 을 명시한다 | A11 change_request |
-| 11 | **삭제 버튼 접근 이름의 조사가 틀렸다** — `'<이름> — ${usage}라 삭제할 수 없습니다'`(`:163`)에서 `usage` 는 '12개 상품' 이라 **'12개 상품라'** 가 된다(받침이 있으므로 '이라' 여야 한다). ERP-13 이 금지한 리터럴 `이(가)` 형은 아니지만 **같은 뿌리의 조사 오류**이며 `shared/format` 에 이 조사(이라/라)를 고르는 헬퍼가 없다 | A11 change_request |
-| 12 | **카테고리 이름 중복을 막지 않는다.** `productCategorySchema`(`validation.ts:7-9`)가 `requiredText` 뿐이고 저장소도 그냥 append 한다(`store.ts:674-677`). '아우터' 를 두 번 만들 수 있고, 그러면 상품 폼의 select 에 같은 이름이 두 개 뜬다 — 운영자가 어느 것을 골라야 할지 알 수 없다. **유일성은 원자적 제약이라 클라이언트가 강제할 수 없다** | A63 (BE-042 §7.3) · A11 |
-| 13 | 조회 실패 시 **툴바의 '전체 0개' 가 남는다** — 배너가 카드만 대체하고 툴바는 밖에 있다(`:268-285`). '불러오지 못했습니다' 와 '전체 0개' 가 **동시에 보인다** | A11 change_request |
-| 14 | 수정 모달이 **행 데이터를 그대로 쓰고 상세를 재조회하지 않는다**(`:305` `setModal({ kind: 'edit', category: target })`) — 목록 스냅샷이 30초 낡을 수 있어(`staleTime`) 그 사이 다른 관리자가 바꾼 이름을 못 보고 편집한다. #2 의 토큰이 없으면 그것을 덮는다 | A11 change_request |
-| 15 | `deleting` 이 **화면 단위 플래그**다(`:200` `deleteCategory.isPending`) — 한 행을 지우는 동안 **모든 행의 삭제 버튼이 비활성된다**. `useCrudList` 는 `deletingId` 로 행 단위를 구분하는데(`useCrudList.tsx:192`) 이 화면은 그 훅을 쓰지 않아 상속하지 못했다 | A11 change_request |
-| 16 | 상시 안내문(EL-007.1)이 **빈 상태·로딩 중에도 표시된다** — 지울 카테고리가 하나도 없는데 삭제 제약을 설명한다 | A11 change_request |
-| 17 | 모달 닫기 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장이 화면에 안 보일 수 있다 | A63 (BE-042) |
-| 18 | **모달 저장의 `onSuccess` 에 `aborted` 가드가 없다**(`:86,93` — `onSuccess: () => onSaved(name, true)`). `useCrudForm`(`:218`)·`useCrudList`(`:105`)·`useCrudRowUpdate`(`:48`)는 전부 `if (controller.signal.aborted) return;` 를 두는데 이 모달만 없다 → **취소된(모달을 닫은) 요청이 완료되면 닫힌 모달의 성공 토스트가 뜬다** | A11 change_request |
-| 19 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 모달 입력을 버린다 — quality-bar EXC-05 · EXC-11 · EXC-19 P1 | A11 · A40 |
-| 20 | **카테고리에 순서·계층이 없다**(`ProductCategory` = `id` + `label`). 목록이 등록 순으로만 나오고 정렬 UI 도 없다. 커머스 카테고리는 보통 **트리 + 노출 순서**를 갖는다 — 이것이 의도된 단순화인지 미구현인지 확정이 필요하다 | A01 (도메인 경계) |
-| 21 | `listProductCategoryUsage()` 가 **카테고리마다 상품 전량을 스캔**한다(`store.ts:661-666` → `countProductsUsingCategory` — O(카테고리 × 상품)). 픽스처(5×5)에서는 드러나지 않으나 서버에서는 **집계 쿼리 한 번**이어야 한다 | A63 (BE-042 §7.7) |
+| 1 | 대응 SCR 문서 부재 (상품 관리 SCR 미작성) | UI 기획 / 아키텍처 |
+| 2 | **낙관적 동시성 토큰이 없다.** `ProductCategory` 에 `version`/`updatedAt` 필드가 없고(`_shared/store.ts:17-25`) 어댑터가 `If-Match` 를 보내지 않는다. `createStoreAdapter` 의 409 는 **'대상이 존재하는가'** 기반이라(`crud.ts:219-221`) **둘 다 존재하는 동시 편집은 last-write-wins** 로 덮는다. 유령 저장은 해소됐다(quality-bar EXC-04 P0) | 백엔드 명세 (BE-042 §7.1) · UI 기획 |
+| 3 | **모달 저장에 동기 제출 락·멱등키가 없다.** `ProductCategoryFormModal` 이 `useCrudForm` 을 쓰지 않고 `useCrudCreate`/`useCrudUpdate` 를 직접 쓴다(`:57-58,84-94`) — 그 훅이 제공하는 `submitLockRef`(`useCrudForm.ts:103`)·`idempotencyKeyRef`(`:118-123`)를 상속하지 못했다. RHF `handleSubmit` 은 **비동기**라(`:108`) 비활성 렌더 전 연타가 두 번째 요청을 통과시킨다. **중복 이름 검증도 없어(#12) 결과가 '같은 이름의 카테고리 2개'** 다(quality-bar EXC-08 P0) | UI 기획 · 백엔드 명세 |
+| 4 | **페이지네이션이 없다** — `<ul>` 이 전량을 렌더한다. 카테고리는 사용자가 만드는 만큼 늘어난다. 게다가 **`<table>` 이 아니라 `<ul>`** 이라 공유 `CrudTable` 템플릿(선택·순번·행 액션·스켈레톤)을 쓰지 않는다 — quality-bar IA-04 의 근거가 'members/categories 가 부분 이탈' 이라며 이 화면을 명시적으로 지목한다(quality-bar IA-04 P0) | UI 기획 · 백엔드 명세 (BE-042 §7.7) |
+| 5 | **쓰기 게이팅이 '카테고리 추가' 버튼 하나뿐이다.** `ProductCategoriesPage.tsx:181` 이 `useRouteWritePermissions` 에서 `canCreate` 만 꺼낸다 — 행 수정(`:149-156`)·행 삭제(`:158-169`)·모달 저장이 `canUpdate`/`canRemove` 를 묻지 않는다(quality-bar EXC-03 P0) | UI 기획 쪽 변경 요청 |
+| 6 | **'그 상품들' 로 가는 경로가 없다.** 상시 안내문(EL-007.1)이 '먼저 그 상품들의 카테고리를 바꾸거나 삭제하세요' 라고 말하지만 **어느 상품인지 알려주지도, 거기로 데려가지도 않는다.** 사용량 배지('12개 상품')를 `/products?category=<id>` 링크로 만들면 해결된다 — 그 URL 은 이미 실재한다(FS-041-EL-017 이 카테고리 필터를 URL 로 소유한다) | UI 기획 쪽 변경 요청 |
+| 7 | **status 분기가 없다 — 그리고 그중 하나는 거짓 안내다.** 모달·삭제의 `onError` 가 `isAbort` 만 보고 403·409·422·429·500 을 전부 '…하지 못했습니다. **잠시 후 다시 시도해 주세요.**' 로 뭉갠다(`ProductCategoryFormModal.tsx:78-81` · `ProductCategoriesPage.tsx:237-240`). **'사용 중이라 삭제 불가'(EL-015 ②)가 그 문구로 보이면 운영자는 영원히 재시도한다** — `useCrudForm` 의 네 갈래(404·409·422·그 밖)를 상속하지 못했다(quality-bar EXC-06 P1 · EXC-12 P1) | UI 기획 쪽 변경 요청 |
+| 8 | **이 화면과 상품 화면이 같은 서버 리소스를 서로 다른 react-query 키로 캐시한다** — `['product-categories','list']`(`crud.ts:244`) vs `[products,'category-options']`(`ProductListPage.tsx:142` · `ProductFormPage.tsx:285`). **여기서 카테고리를 추가·수정·삭제해도 상품 화면의 선택지가 무효화되지 않는다** — 새로고침 전에는 낡은 목록을 본다. **백엔드와 무관하게 지금 고칠 수 있다** | UI 기획 쪽 변경 요청 |
+| 9 | 조회 요약(EL-003)에 **재조회 인디케이터가 없다** — `CrudListShell` 은 `aria-busy={refreshing}` + ' · 새로고침 중…' 을 주는데(`CrudListShell.tsx:118-122`) 이 화면은 그 껍데기를 쓰지 않아 상속하지 못했다. 이전 행은 유지되나 갱신 중임을 알 수 없다(quality-bar STATE-03 P1) | UI 기획 쪽 변경 요청 |
+| 10 | 행 액션 2개(EL-005.3·EL-005.4)가 **DS `<Button>` 이 아니라 `buttonStyle('ghost')` + `tds-ui-btn-ghost` 손조립**이고(`:149-169`), 모달 제출(EL-008.4)이 `loading` prop 대신 손으로 쓴 `'저장 중…'` 라벨을 쓴다(`:117`) — quality-bar COMP-01 P1 이 'ghost icon 버튼 포함' 을 명시한다 | UI 기획 쪽 변경 요청 |
+| 11 | **삭제 버튼 접근 이름의 조사가 틀렸다** — `'<이름> — ${usage}라 삭제할 수 없습니다'`(`:163`)에서 `usage` 는 '12개 상품' 이라 **'12개 상품라'** 가 된다(받침이 있으므로 '이라' 여야 한다). ERP-13 이 금지한 리터럴 `이(가)` 형은 아니지만 **같은 뿌리의 조사 오류**이며 `shared/format` 에 이 조사(이라/라)를 고르는 헬퍼가 없다 | UI 기획 쪽 변경 요청 |
+| 12 | **카테고리 이름 중복을 막지 않는다.** `productCategorySchema`(`validation.ts:7-9`)가 `requiredText` 뿐이고 저장소도 그냥 append 한다(`store.ts:674-677`). '아우터' 를 두 번 만들 수 있고, 그러면 상품 폼의 select 에 같은 이름이 두 개 뜬다 — 운영자가 어느 것을 골라야 할지 알 수 없다. **유일성은 원자적 제약이라 클라이언트가 강제할 수 없다** | 백엔드 명세 (BE-042 §7.3) · UI 기획 |
+| 13 | 조회 실패 시 **툴바의 '전체 0개' 가 남는다** — 배너가 카드만 대체하고 툴바는 밖에 있다(`:268-285`). '불러오지 못했습니다' 와 '전체 0개' 가 **동시에 보인다** | UI 기획 쪽 변경 요청 |
+| 14 | 수정 모달이 **행 데이터를 그대로 쓰고 상세를 재조회하지 않는다**(`:305` `setModal({ kind: 'edit', category: target })`) — 목록 스냅샷이 30초 낡을 수 있어(`staleTime`) 그 사이 다른 관리자가 바꾼 이름을 못 보고 편집한다. #2 의 토큰이 없으면 그것을 덮는다 | UI 기획 쪽 변경 요청 |
+| 15 | `deleting` 이 **화면 단위 플래그**다(`:200` `deleteCategory.isPending`) — 한 행을 지우는 동안 **모든 행의 삭제 버튼이 비활성된다**. `useCrudList` 는 `deletingId` 로 행 단위를 구분하는데(`useCrudList.tsx:192`) 이 화면은 그 훅을 쓰지 않아 상속하지 못했다 | UI 기획 쪽 변경 요청 |
+| 16 | 상시 안내문(EL-007.1)이 **빈 상태·로딩 중에도 표시된다** — 지울 카테고리가 하나도 없는데 삭제 제약을 설명한다 | UI 기획 쪽 변경 요청 |
+| 17 | 모달 닫기 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장이 화면에 안 보일 수 있다 | 백엔드 명세 (BE-042) |
+| 18 | **모달 저장의 `onSuccess` 에 `aborted` 가드가 없다**(`:86,93` — `onSuccess: () => onSaved(name, true)`). `useCrudForm`(`:218`)·`useCrudList`(`:105`)·`useCrudRowUpdate`(`:48`)는 전부 `if (controller.signal.aborted) return;` 를 두는데 이 모달만 없다 → **취소된(모달을 닫은) 요청이 완료되면 닫힌 모달의 성공 토스트가 뜬다** | UI 기획 쪽 변경 요청 |
+| 19 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 모달 입력을 버린다 — quality-bar EXC-05 · EXC-11 · EXC-19 P1 | UI 기획 · 프론트 구현 |
+| 20 | **카테고리에 순서·계층이 없다**(`ProductCategory` = `id` + `label`). 목록이 등록 순으로만 나오고 정렬 UI 도 없다. 커머스 카테고리는 보통 **트리 + 노출 순서**를 갖는다 — 이것이 의도된 단순화인지 미구현인지 확정이 필요하다 | 아키텍처 (도메인 경계) |
+| 21 | `listProductCategoryUsage()` 가 **카테고리마다 상품 전량을 스캔**한다(`store.ts:661-666` → `countProductsUsingCategory` — O(카테고리 × 상품)). 픽스처(5×5)에서는 드러나지 않으나 서버에서는 **집계 쿼리 한 번**이어야 한다 | 백엔드 명세 (BE-042 §7.7) |
 </content>

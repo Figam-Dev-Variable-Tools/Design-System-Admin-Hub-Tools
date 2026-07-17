@@ -3,8 +3,8 @@ id: FS-039
 title: "상담 예약 관리 (목록·등록/수정)"
 screen: SCR-039               # ⚠ 예약/신청 SCR 미작성 — §7 미결 사항 참조
 route: /reservations/consultations
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -179,7 +179,7 @@ date: 2026-07-17
 | FS-039-EL-007.2 / EL-013 | 상담 예약 일괄 삭제 | W | 선택된 id 배열 | `consultBookingAdapter.remove(id, signal)` × N (`settleAll`) | 전원 성공일 때만 목록 무효화 + 선택 해제 |
 | FS-039-EL-019 / EL-008.9 | 담당자 마스터 | R | 담당자 id·이름·역할 | **어댑터 없음** — `_shared/resources.ts` 의 `listStaff()`/`staffName()` 이 **모듈 상수**를 반환한다 | 심은 있다: `resources.ts:7` `// TODO(backend): GET /api/reservations/resources · GET /api/reservations/staff`. **조회 함수가 아니라 상수라 로딩·실패 상태가 없다** — §7 #7 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드가 없다. `consultBookingAdapter` 는 `createCrudAdapter`(`shared/crud/crud.ts`)가 브라우저 안 mutable 배열(`CONSULT_BOOKING_SEED`)로 CRUD 를 흉내 낸 것이다 — `fetchAll`·`fetchOne`·`create`·`update`·`remove` **다섯 개 전부**를 화면이 실제로 쓴다(신청서와 다른 점). `fetchOne` 은 없는 id 에 404, `update`·`remove` 는 없는 id 에 409 `HttpError` 를 던진다(유령 저장·유령 삭제 방지). 연동 지점 주석은 `data-source.ts:4` 의 `// TODO(backend): GET/POST /api/reservations/consultations · GET/PUT/DELETE /api/reservations/consultations/:id` 이며 **일괄 삭제 전용 심은 없다**(단건 DELETE 를 `settleAll` 로 N번 부른다). 담당자 마스터는 어댑터가 아니라 모듈 상수다(`_shared/resources.ts`). 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드가 없다. `consultBookingAdapter` 는 `createCrudAdapter`(`shared/crud/crud.ts`)가 브라우저 안 mutable 배열(`CONSULT_BOOKING_SEED`)로 CRUD 를 흉내 낸 것이다 — `fetchAll`·`fetchOne`·`create`·`update`·`remove` **다섯 개 전부**를 화면이 실제로 쓴다(신청서와 다른 점). `fetchOne` 은 없는 id 에 404, `update`·`remove` 는 없는 id 에 409 `HttpError` 를 던진다(유령 저장·유령 삭제 방지). 연동 지점 주석은 `data-source.ts:4` 의 `// TODO(backend): GET/POST /api/reservations/consultations · GET/PUT/DELETE /api/reservations/consultations/:id` 이며 **일괄 삭제 전용 심은 없다**(단건 DELETE 를 `settleAll` 로 N번 부른다). 담당자 마스터는 어댑터가 아니라 모듈 상수다(`_shared/resources.ts`). 위 표는 백엔드 연결 후 의도된 동작이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -192,29 +192,29 @@ date: 2026-07-17
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-039 영역) — §5 는 어댑터 함수까지만. 다만 어댑터가 던지는 404/409 는 **화면 동작을 결정하므로** 예외 열에 남겼다
 - [x] 실제 코드와 어긋나는 요소를 쓰지 않았다 — 페이지네이션·기간 필터·낙관적 업데이트·시간 충돌 경고는 **없으므로 쓰지 않았다**
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **상담 예약에 시간 겹침(더블부킹) 판정이 없다.** 같은 담당자·같은 시각에 상담을 몇 건이든 만들 수 있고 경고가 없다. 섹션 공용 `findConflicts`(`_shared/reservation.ts`)는 `resourceId` 키 + `startTime`·`endTime` 구간을 요구하는데 `ConsultBooking` 에는 둘 다 없다 — `preferredTime` 한 **점**뿐이다. **소요시간을 정하지 않고는 겹침 구간을 정의할 수 없다.** 상담유형별 기본 소요시간(방문 60분·전화 20분?)을 둘지, 종료 시각을 입력받을지, 담당자 단위로 볼지 자원 단위로 볼지가 **전부 미정**이다 — 도메인 결정이 선행돼야 프론트도 계약도 쓸 수 있다 | A01(도메인 결정 선행) → A63(BE-039 §7.3) · A11 |
-| 2 | 종료 상태(취소·노쇼·상담완료)로의 전이가 비가역인데(`TRANSITIONS` 가 빈 배열) **확인 다이얼로그가 없다** — 삭제는 ConfirmDialog 로 게이트하면서 '노쇼' 로 옮겨 저장하는 것은 한 번에 끝난다 | A11 change_request (FEEDBACK-02 P0) |
-| 3 | 대응 SCR 문서 부재. 더해 **폼 화면에 `<h1>` 이 둘이다** — AppHeader(`:101`)와 `FormPageShell.tsx:160`('상담 예약 등록/수정')이 각각 그린다. ⚠ **`4b805ad` 재확인 — 1.0 의 'AppHeader 가 브랜치 라벨 「예약/신청 관리」를 그린다(`findNavLabel` 이 잎에서 못 찾아 폴백)' 는 이제 틀렸다**: 통합이 `findNavLabel` 을 `findCoveringLeaf`(`nav-config.ts:269-279,297-299` — '자기를 감싸는 가장 긴 잎', 세그먼트 경계 매칭) 위에 얹어 **폴백을 없앴고** `/reservations/consultations/new` 는 이제 **'상담 예약'** 을 받는다(`nav-config.test.ts:16-40` 이 같은 규칙을 고정). **남은 결함은 이중 h1 하나**이며, 소유가 `findNavLabel` 이 아니라 **`FormPageShell`** 로 옮겨졌다 | A11 / A01 / A40 (IA-02 P0) |
+| 1 | **상담 예약에 시간 겹침(더블부킹) 판정이 없다.** 같은 담당자·같은 시각에 상담을 몇 건이든 만들 수 있고 경고가 없다. 섹션 공용 `findConflicts`(`_shared/reservation.ts`)는 `resourceId` 키 + `startTime`·`endTime` 구간을 요구하는데 `ConsultBooking` 에는 둘 다 없다 — `preferredTime` 한 **점**뿐이다. **소요시간을 정하지 않고는 겹침 구간을 정의할 수 없다.** 상담유형별 기본 소요시간(방문 60분·전화 20분?)을 둘지, 종료 시각을 입력받을지, 담당자 단위로 볼지 자원 단위로 볼지가 **전부 미정**이다 — 도메인 결정이 선행돼야 프론트도 계약도 쓸 수 있다 | 아키텍처(도메인 결정 선행) → 백엔드 명세(BE-039 §7.3) · UI 기획 |
+| 2 | 종료 상태(취소·노쇼·상담완료)로의 전이가 비가역인데(`TRANSITIONS` 가 빈 배열) **확인 다이얼로그가 없다** — 삭제는 ConfirmDialog 로 게이트하면서 '노쇼' 로 옮겨 저장하는 것은 한 번에 끝난다 | UI 기획 쪽 변경 요청 (FEEDBACK-02 P0) |
+| 3 | 대응 SCR 문서 부재. 더해 **폼 화면에 `<h1>` 이 둘이다** — AppHeader(`:101`)와 `FormPageShell.tsx:160`('상담 예약 등록/수정')이 각각 그린다. ⚠ **`4b805ad` 재확인 — 1.0 의 'AppHeader 가 브랜치 라벨 「예약/신청 관리」를 그린다(`findNavLabel` 이 잎에서 못 찾아 폴백)' 는 이제 틀렸다**: 통합이 `findNavLabel` 을 `findCoveringLeaf`(`nav-config.ts:269-279,297-299` — '자기를 감싸는 가장 긴 잎', 세그먼트 경계 매칭) 위에 얹어 **폴백을 없앴고** `/reservations/consultations/new` 는 이제 **'상담 예약'** 을 받는다(`nav-config.test.ts:16-40` 이 같은 규칙을 고정). **남은 결함은 이중 h1 하나**이며, 소유가 `findNavLabel` 이 아니라 **`FormPageShell`** 로 옮겨졌다 | UI 기획 / 아키텍처 / 프론트 구현 (IA-02 P0) |
 | ~~4~~ | ~~검색에 IME 조합 처리·디바운스가 없다~~ → **해소됨(F3b · `HEAD = 4b805ad`).** 이 화면이 `useListState` 를 소비하고(`ConsultationBookingListPage.tsx:78`) 그 훅이 `useDebouncedSearch` 를 배선한다(`useListState.ts:24,227-230`). 입력창이 `{...list.searchInputProps}`(`:143`)로 `compositionstart/end` 와 조합 중 Enter 차단을 받으며, 조회에 들어가는 것은 커밋된 `keyword`(URL 의 `q`)뿐이다 | **닫힘** — NFR-039 §2 COMP-10 = pass |
 | ~~5~~ | ~~`FormField required` 가 `*` 마커를 `aria-hidden` 으로만 그리고 컨트롤에 `aria-required` 를 붙이지 않는다~~ → **해소됨(F3a · `HEAD = 4b805ad`) — 이 화면 코드 0줄 변경.** 1.0 이 'DS `FormField` 소유'라 이관한 그대로 DS 가 고쳤다: `FormField.tsx:50-56` `withAriaRequired()` 가 `required` 를 **런타임 `cloneElement` 로 자식 컨트롤의 `aria-required` 에 주입**한다(마커의 시각 표현은 그대로 두고 **AT 경로만 더한다** — `:17-22` 주석). 주입 대상은 네이티브 `input`/`select`/`textarea` 와 DS `SelectField` 뿐이다(`isRequirableChild:36-41` — 래퍼 `div` 에 얹으면 거짓 시맨틱이므로 제외). **이 폼의 required 7필드(고객명·연락처·상담유형·상담 주제·희망 날짜·희망 시각·상태)가 전부 `input`/`SelectField` 라 7/7 주입된다.** ⚠ **같은 수정을 받고도 예약 폼(FS-037)은 여전히 gap 이다** — '이용 시간'을 래퍼 `<div>` 로 감싸 시작/종료 두 입력을 넣었기 때문이다. **이 폼이 통과한 것은 희망 날짜/시각을 각자의 `FormField` 로 나눈 구조 덕이다** | **닫힘** — NFR-039 §2 A11Y-11 = pass |
-| 6 | 연락처에 형식 검증이 없다 — 공백 아닌 20자 이하면 무엇이든 통과한다. 마스킹·하이픈 자동 삽입·붙여넣기 정규화도 없다. 상담 예약의 연락처는 **상담사가 실제로 거는 번호**라 오타가 곧 미상담이다 | A11 change_request (ERP-14 P1) |
-| 7 | 담당자 마스터가 **모듈 로드 시 고정된 상수**다(`const STAFF = listStaff()`) — 서버 조회가 아니라 로딩·실패 상태가 없고, 담당자가 추가·삭제돼도 새로고침 전엔 모른다. 심은 있다(`_shared/resources.ts:7`) | A63 (BE-039) · A11 |
-| 8 | 희망 날짜가 **과거를 막지 않는다** — `isRealDate` 는 달력상 실재만 본다. 어제 날짜로 상담 예약을 등록할 수 있다. 영업시간·슬롯 단위 강제도 없다 | A11 change_request · A01 |
-| 9 | 쓰기 권한 게이팅이 없다 — '상담 예약 등록'·수정·삭제·저장이 권한과 무관하게 렌더·활성된다. `useRouteWritePermissions` 가 존재하는데 이 화면(과 reservations 전체)이 쓰지 않는다 | A11 change_request (EXC-03 P0) |
-| 10 | 조회 요약이 '전체 N건'인데 N 은 **필터·검색 후** 건수다 | A11 change_request (ERP-06 P1) |
-| 11 | 스켈레톤 행 수가 `length: 5` 고정이고 순번이 `index + 1` 이다(공용 `CrudTable` 소유). **페이지네이션이 없어 지금은 재현 불가능한 잠복 결함** — 페이지네이션을 넣는 순간 2페이지 순번이 1로 리셋된다 | A11 change_request (COMP-06 P2 · COMP-07 P2) |
-| 12 | 희망일시 셀이 `shared/format` 을 거치지 않고 `'<date> <time>'` 원문을 이어 붙인다 — 다른 화면의 날짜 표기(`formatDateTime`)와 다르다 | A11 change_request (ERP-08 P2) |
-| 13 | 담당자 마스터에 없는 `staffId` 가 '미배정' 으로 표시된다(`staffName` 폴백) — **배정 해제와 '삭제된 담당자에게 배정됨' 이 구분되지 않는다**. 검증(`z.string()`)도 존재하지 않는 id 를 통과시킨다 | A11 change_request · A63 (BE-039 참조 무결성) |
-| 14 | 빈 상태 3분기는 충족하지만 **생성 CTA 를 주지 않는다**(`createAction` 미전달) — 진짜 0건일 때 '상담 예약 등록' 을 권하지 못한다. 툴바에 버튼은 있다 | A11 change_request (STATE-05 P1) |
-| 15 | 일괄 삭제에 **건수 상한·진행률·중단 수단이 없고**, 전체선택이 '보이는 행 전부' 를 한 번에 잡는다. 부분 실패 후 **실패한 것만 골라 재시도할 수 없다**(전량 재실행). Shift 범위 선택도 없다 | A11 change_request (EXC-18 P1 · EXC-10 P1) |
-| 16 | 상담 메모·주제에 실시간 글자 수 카운터·상한 근접 경고가 없다 | A11 change_request (COMP-12 P2) |
-| 17 | 상담예약번호 채번이 '같은 희망날짜의 기존 건수 + 1' 이다 — **삭제 후 재등록하면 번호가 재사용되고**, 동시 등록 시 같은 번호가 만들어질 수 있다. 서버 채번이 정본이어야 한다 | A63 (BE-039 §7.4) |
-| 18 | **선택된 행을 단건 삭제하면 그 id 가 선택 집합에 남는다**(공용 `useCrudList` 의 단건 삭제 성공 경로에 `clear()` 가 없다 — 일괄 삭제 경로에는 있다). 행은 사라졌는데 'N건 선택됨' 이 유령 건수를 세고, 그 상태로 일괄 삭제하면 '1건 중 1건을 삭제하지 못했습니다' 가 뜬다 | A11 change_request (STATE-04 P0 · 공용 `useCrudList` 소유 — 10개 화면 공통) |
+| 6 | 연락처에 형식 검증이 없다 — 공백 아닌 20자 이하면 무엇이든 통과한다. 마스킹·하이픈 자동 삽입·붙여넣기 정규화도 없다. 상담 예약의 연락처는 **상담사가 실제로 거는 번호**라 오타가 곧 미상담이다 | UI 기획 쪽 변경 요청 (ERP-14 P1) |
+| 7 | 담당자 마스터가 **모듈 로드 시 고정된 상수**다(`const STAFF = listStaff()`) — 서버 조회가 아니라 로딩·실패 상태가 없고, 담당자가 추가·삭제돼도 새로고침 전엔 모른다. 심은 있다(`_shared/resources.ts:7`) | 백엔드 명세 (BE-039) · UI 기획 |
+| 8 | 희망 날짜가 **과거를 막지 않는다** — `isRealDate` 는 달력상 실재만 본다. 어제 날짜로 상담 예약을 등록할 수 있다. 영업시간·슬롯 단위 강제도 없다 | UI 기획 쪽 변경 요청 · 아키텍처 |
+| 9 | 쓰기 권한 게이팅이 없다 — '상담 예약 등록'·수정·삭제·저장이 권한과 무관하게 렌더·활성된다. `useRouteWritePermissions` 가 존재하는데 이 화면(과 reservations 전체)이 쓰지 않는다 | UI 기획 쪽 변경 요청 (EXC-03 P0) |
+| 10 | 조회 요약이 '전체 N건'인데 N 은 **필터·검색 후** 건수다 | UI 기획 쪽 변경 요청 (ERP-06 P1) |
+| 11 | 스켈레톤 행 수가 `length: 5` 고정이고 순번이 `index + 1` 이다(공용 `CrudTable` 소유). **페이지네이션이 없어 지금은 재현 불가능한 잠복 결함** — 페이지네이션을 넣는 순간 2페이지 순번이 1로 리셋된다 | UI 기획 쪽 변경 요청 (COMP-06 P2 · COMP-07 P2) |
+| 12 | 희망일시 셀이 `shared/format` 을 거치지 않고 `'<date> <time>'` 원문을 이어 붙인다 — 다른 화면의 날짜 표기(`formatDateTime`)와 다르다 | UI 기획 쪽 변경 요청 (ERP-08 P2) |
+| 13 | 담당자 마스터에 없는 `staffId` 가 '미배정' 으로 표시된다(`staffName` 폴백) — **배정 해제와 '삭제된 담당자에게 배정됨' 이 구분되지 않는다**. 검증(`z.string()`)도 존재하지 않는 id 를 통과시킨다 | UI 기획 쪽 변경 요청 · 백엔드 명세 (BE-039 참조 무결성) |
+| 14 | 빈 상태 3분기는 충족하지만 **생성 CTA 를 주지 않는다**(`createAction` 미전달) — 진짜 0건일 때 '상담 예약 등록' 을 권하지 못한다. 툴바에 버튼은 있다 | UI 기획 쪽 변경 요청 (STATE-05 P1) |
+| 15 | 일괄 삭제에 **건수 상한·진행률·중단 수단이 없고**, 전체선택이 '보이는 행 전부' 를 한 번에 잡는다. 부분 실패 후 **실패한 것만 골라 재시도할 수 없다**(전량 재실행). Shift 범위 선택도 없다 | UI 기획 쪽 변경 요청 (EXC-18 P1 · EXC-10 P1) |
+| 16 | 상담 메모·주제에 실시간 글자 수 카운터·상한 근접 경고가 없다 | UI 기획 쪽 변경 요청 (COMP-12 P2) |
+| 17 | 상담예약번호 채번이 '같은 희망날짜의 기존 건수 + 1' 이다 — **삭제 후 재등록하면 번호가 재사용되고**, 동시 등록 시 같은 번호가 만들어질 수 있다. 서버 채번이 정본이어야 한다 | 백엔드 명세 (BE-039 §7.4) |
+| 18 | **선택된 행을 단건 삭제하면 그 id 가 선택 집합에 남는다**(공용 `useCrudList` 의 단건 삭제 성공 경로에 `clear()` 가 없다 — 일괄 삭제 경로에는 있다). 행은 사라졌는데 'N건 선택됨' 이 유령 건수를 세고, 그 상태로 일괄 삭제하면 '1건 중 1건을 삭제하지 못했습니다' 가 뜬다 | UI 기획 쪽 변경 요청 (STATE-04 P0 · 공용 `useCrudList` 소유 — 10개 화면 공통) |
 | ~~19~~ | ~~필터·검색 상태가 URL 에 없다~~ → **해소됨(F3b · `HEAD = 4b805ad`).** `useListState({ filterDefaults })`(`ConsultationBookingListPage.tsx:78`)가 상태·검색어를 URL 쿼리스트링으로 소유한다(`:45,79-84,148`). **1.0 이 지목한 「목록에서 수정으로 갔다 뒤로 오면 조건이 풀린다」가 실제로 복구됐다** — `{ replace: true }`(`useListState.ts:125`)로 목록 URL 이 늘 최신이라 Back 이 그 조건에 착지한다. 기본값과 같은 값은 URL 에서 지운다(`:114-118`). **정렬은 여전히 URL 에 없다** — `useListState.sort`(`:163-168`) 축이 있으나 이 화면에 정렬 UI 자체가 없다(ERP-04) | **닫힘**(정렬 축은 ERP-04 로) — NFR-039 §2 IA-13 = pass |
-| 20 | 페이지네이션이 없다 — 조회된 전량을 한 표에 렌더한다. 기간(희망일) 필터도 없다 — 상담 예약 triage 의 기본 동작이다 | A11 change_request (IA-04 P0 · COMP-11 P1) |
-| 21 | 프론트 타임아웃 상한이 없고(`AbortSignal.timeout` 앱 전역 0건), 세션 만료 리다이렉트가 dirty 한 폼 입력을 버린다 | A11 · A40 (EXC-05 · EXC-19) |
-| 22 | 개인정보(고객명·연락처·상담 메모)를 담는데 보존 기간·파기 정책이 없다. 삭제는 즉시·비가역이며 undo 가 없다 | A01 · A63 (BE-039) |
+| 20 | 페이지네이션이 없다 — 조회된 전량을 한 표에 렌더한다. 기간(희망일) 필터도 없다 — 상담 예약 triage 의 기본 동작이다 | UI 기획 쪽 변경 요청 (IA-04 P0 · COMP-11 P1) |
+| 21 | 프론트 타임아웃 상한이 없고(`AbortSignal.timeout` 앱 전역 0건), 세션 만료 리다이렉트가 dirty 한 폼 입력을 버린다 | UI 기획 · 프론트 구현 (EXC-05 · EXC-19) |
+| 22 | 개인정보(고객명·연락처·상담 메모)를 담는데 보존 기간·파기 정책이 없다. 삭제는 즉시·비가역이며 undo 가 없다 | 아키텍처 · 백엔드 명세 (BE-039) |

@@ -976,7 +976,7 @@ export interface components {
          * @description 401 `UNAUTHENTICATED` — 유효한 세션 자격 증명 없음·만료.
          *     프론트 기대 동작은 `/login?returnUrl=<현재경로>&reason=session_expired` 이동이지만
          *     **현재 프론트에 401 처리 경로가 없다** (BE-002 §7.2-1 · BE-003 §7.7 #3 · BE-004 §7.6 #8 —
-         *     A11 · A40 change_request).
+         *     UI 기획 · 프론트 구현 변경 요청).
          */
         Unauthenticated: {
             headers: {
@@ -1403,7 +1403,7 @@ export interface operations {
             403: components["responses"]["ForbiddenOrCsrf"];
             /**
              * @description `GROUP_NAME_DUPLICATED` — 같은 `type` 안에 정규화한 이름이 이미 있다 (BE-003 §7.3).
-             *     재시도해도 같은 결과다 — 프론트 문구 분기는 A11 change_request (BE-003 §7.7 #5).
+             *     재시도해도 같은 결과다 — 프론트 문구 분기는 UI 기획 쪽 변경 요청 (BE-003 §7.7 #5).
              */
             409: {
                 headers: {
@@ -1757,7 +1757,7 @@ export interface operations {
             /**
              * @description `MEMO_CONFLICT` — `If-Match` 가 서버의 현재 메모 버전과 다르다 (**다른 관리자가 먼저 저장했다**).
              *     message = '다른 관리자가 메모를 먼저 저장했습니다. 새로고침 후 다시 시도해 주세요.'
-             *     재시도해도 같은 409 가 반복된다 — 프론트 문구 분기는 A11 change_request (BE-004 §7.6 #6).
+             *     재시도해도 같은 409 가 반복된다 — 프론트 문구 분기는 UI 기획 쪽 변경 요청 (BE-004 §7.6 #6).
              */
             409: {
                 headers: {

@@ -4,8 +4,8 @@ title: "이메일 템플릿 비기능 명세"
 functionalSpec: FS-065
 backendSpec: BE-065
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -108,7 +108,7 @@ date: 2026-07-17
 | STATE-03 | P1 | `useCrudListQuery` 가 `placeholderData: (previous) => previous`(`crud.ts:151`)로 이전 행을 유지하고 `staleTime` 30초가 재조회 시점을 지배한다. **화면이 그 이득을 버리지 않는다** — `refreshing` 을 별도 파생으로 받아 요약에만 인디케이터를 붙인다(`CrudListShell.tsx:116-122`) | 재조회에서 이전 행이 유지되는지 | **pass** |
 | STATE-05 | P1 | 빈 상태가 **3분기**한다 — 화면이 `hasQuery`·`hasActiveFilters`·`onClearSearch`·`onResetFilters`·`createAction` 을 전부 공급하고(`EmailTemplateListPage.tsx:120-131`) `Empty` 가 조사와 copy 를 고른다(`CrudTable.tsx:156-167`) | 검색 0건 → '조건에 맞는 …' + 검색 지우기. 필터 0건 → 필터 초기화. 진짜 0건 → 등록 CTA | **pass** |
 | STATE-06 | P1 | write 성공 시 `useCrudCreate`/`useCrudUpdate`/`useCrudDelete` 가 목록·상세를 정확히 무효화한다 | 폼에서 제목 변경 후 목록 복귀 시 갱신돼 있는지 | **pass** |
-| COMP-01 | P1 | **모든 action/navigation 버튼이 DS `<Button>`** 이다 — 등록(`EmailTemplateListPage.tsx:91,126`) · 취소/저장(`FormPageShell.tsx:181-191`) · '다시 시도'/'목록으로'(`:133,137,160`) · '선택 N건 삭제'(`CrudListShell.tsx:126`). `grep "buttonStyle(\|tds-ui-btn-" apps/admin/src/pages/notifications` → **0건**. **⚠ 진행 상태를 `loading` prop 이 아니라 손라벨로** — `FormPageShell.tsx:190` `{saving ? '저장 중…' : …}`. 요구가 명시적으로 금지한 형태이나 **공용 셸의 결정이며 화면 코드가 아니다**. 손조립 `<button>` 은 `FilterPanel.tsx:61`(리스트 항목) · `FormPageShell.tsx:148`(back-link) · **`VariableInsertBar.tsx:64`(변수 칩)** — 앞 둘은 공유 소유. **칩은 이 섹션 소유다** — `<button type="button" className="tds-ui-focusable" style={chipStyle}>`(`:64-72`). Button variant 에 chip 이 없어 DS 로 표현할 수 없다(정당한 이탈) | `grep -n "buttonStyle(\|tds-ui-btn-" apps/admin/src/pages/notifications` → 0건(현재 0건). `FormPageShell` 의 손라벨은 A41 이관 | **gap(공용 셸 소유)** |
+| COMP-01 | P1 | **모든 action/navigation 버튼이 DS `<Button>`** 이다 — 등록(`EmailTemplateListPage.tsx:91,126`) · 취소/저장(`FormPageShell.tsx:181-191`) · '다시 시도'/'목록으로'(`:133,137,160`) · '선택 N건 삭제'(`CrudListShell.tsx:126`). `grep "buttonStyle(\|tds-ui-btn-" apps/admin/src/pages/notifications` → **0건**. **⚠ 진행 상태를 `loading` prop 이 아니라 손라벨로** — `FormPageShell.tsx:190` `{saving ? '저장 중…' : …}`. 요구가 명시적으로 금지한 형태이나 **공용 셸의 결정이며 화면 코드가 아니다**. 손조립 `<button>` 은 `FilterPanel.tsx:61`(리스트 항목) · `FormPageShell.tsx:148`(back-link) · **`VariableInsertBar.tsx:64`(변수 칩)** — 앞 둘은 공유 소유. **칩은 이 섹션 소유다** — `<button type="button" className="tds-ui-focusable" style={chipStyle}>`(`:64-72`). Button variant 에 chip 이 없어 DS 로 표현할 수 없다(정당한 이탈) | `grep -n "buttonStyle(\|tds-ui-btn-" apps/admin/src/pages/notifications` → 0건(현재 0건). `FormPageShell` 의 손라벨은 프론트 리팩터 이관 | **gap(공용 셸 소유)** |
 | COMP-02 | P1 | 선택 셀이 `RowSelectCell`/`SelectAllHeaderCell`, 순번이 `SeqCell`/`SeqHeaderCell`(`CrudTable.tsx:124-130,173-179`). raw checkbox 0건 | selectable 표에 raw checkbox 가 0건인지 | **pass** |
 | COMP-03 | P1 | 검색이 DS `<SearchField>`(`EmailTemplateListPage.tsx:83`). `grep 'type="search"' apps/admin/src/pages/notifications` → 0건 | raw `<input type="search">` 재구현 0건인지 | **pass** |
 | COMP-04 | P1 | **required 필드 4개가 전부 `FormField required`** 로 노출돼 `*` 마커가 렌더된다 — 템플릿명·이벤트(`TemplateIdentityFields.tsx:56,79`) · 제목(`EmailTemplateFormPage.tsx:179`) · 본문(`:202` → `TextareaField` 가 `FormField required` 로 전달, `TextareaField.tsx:47`). bare `<label>` 로 그린 required 필드 0건 | 모든 zod-required 필드가 `*` 마커를 렌더하는지 | **pass** |
@@ -195,26 +195,26 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | IA-02 | P0 | 폼 sub-route 에 `<h1>` 이 2개('이메일 템플릿' + '이메일 템플릿 등록') + AppHeader 가 행위를 반영하지 않는다. **가지 폴백은 통합이 해소했다 — 사유가 바뀌었다.** 목록은 pass | **앱 전역**(`AppHeader`·`FormPageShell` title 모델) | A40 · A11 (횡단 배치) |
-| 2 | IA-04 · ERP-15 · COMP-07 | P0 · P1 · P2 | Pagination 없음 — 전량 렌더. **FS-064 와 달리 상한이 없다.** BE-065 §7.9 가 페이징 + **서버측 필터·검색·건수**(클라이언트는 현재 page 만 안다)를 판정했다. `SeqCell` 의 `startIndex` 부재가 함께 발현 | 공용 셸 + BE 계약 | A41 · A11 · A63 (한 배치) |
-| 3 | EXC-03 | P0 | write 액션 게이팅 미배선 — `useRouteWritePermissions` 소비처 8곳에 알림 관리 없음. **`operator` 가 인증번호 메일 문구를 고치는 버튼을 본다** | **앱 전역** | A11 change_request |
-| 4 | EXC-04 | P0 | **낙관적 동시성 토큰 부재 — 동시 편집이 last-write-wins.** `updatedAt` 이 목록에 **표시까지 되는데** `If-Match` 로 실리지 않는다. ⚠ **유령 저장·409 UI 는 이미 pass** — gap 은 토큰 절 하나다 | 공용 어댑터 계약 | A63 (BE-065 §7.1) · A41 |
-| 5 | (§4.2·§4.3) | — | **⚠ 절반이 해소됐다 — 범위가 줄었다.** ① **삭제 — 해소.** `_shared/store.ts:95-101` 이 `rulesUsingTemplate(id) > 0` 이면 409 로 거절한다(회귀 `store.test.ts:69-98`). **'조용한 파손'은 더 이상 없다.** 남은 것은 **삭제 *전* 경고 부재** — 확인 다이얼로그가 참조 규칙 수를 미리 말하지 않아 운영자가 확인을 누른 뒤에야 실패 배너로 안다(경미) ② **trigger 변경 — 미해소.** `patch`(`store.ts:183-190`)가 `trigger` 를 검사 없이 덮어쓴다. 그 템플릿을 쓰는 규칙은 남고 **잘못된 메일이 실제로 발송된다**(`#{송장번호}` 가 빈칸) — **이쪽이 삭제보다 나쁘고 여전히 열려 있다** | ① 이 화면(경미) ② 이 화면 + FS-064 + BE 계약 | ① A11 · **② A63 (BE-065 §7.2·§7.4) · A11 (최우선)** |
-| 6 | (§4.3) | — | **광고성 검증이 클라이언트에만 있고 오탐이 실재한다** — `AD_WORDS` 의 **'이벤트'** 가 정상 트랜잭션 문구를 차단한다. 서버 재판정 + 낱말 목록 소유자·판정 방식 결정 필요 | 이 화면 + BE 계약 + 도메인 경계 | A63 (BE-065 §7.5) · A01 |
-| 7 | A11Y-13 (부분) | P1 | **제목의 변수 오류가 `body` 에 꽂힌다**(`validation.ts:51-61` `path: ['body']`) — 첫 오류 필드 포커스가 엉뚱한 필드로 간다. 서버도 이 버그를 따라 하면 안 된다(BE-065 §7.4-1) | 이 화면 | A11 change_request |
-| 8 | COMP-09 (부분) | P2 | **템플릿명 열에 truncate 없음** — `_shared/styles.ts:53-61` 의 `ellipsisCellStyle` 이 바로 그 용도로 있고 **제목 열은 쓰는데**(`EmailTemplateListPage.tsx:43`) 이름 열만 안 쓴다(`:42`). **한 줄로 해소** | 이 화면 | A11 change_request |
-| 9 | COMP-12 (부분) | P2 | **템플릿명(60자)에 카운터가 없다** — 제목·본문은 있는데 이름만 조용히 멈춘다. 상한 근접 경고는 세 필드 모두 없다. counting 기준(UTF-16 code unit) 미명시 | 이 화면 + `_shared/TemplateIdentityFields` | A11 change_request |
-| 10 | A11Y-16 (부분) | P1 | **광고성 경고(FS-065-EL-028)가 live region 이 아니다** — 입력 중 나타나는 warning `Alert` 가 announce 되지 않는다 | 이 화면 | A11 change_request |
-| 11 | ERP-09 | P2 | **수정일시의 표시 TZ 정책이 없다** — 다른 TZ 관리자가 다르게 본다. **FS-064 엔 이 표면이 없다** | `shared/format` | A40 |
-| 12 | EXC-09 (표면상) | P0 | 일괄 삭제의 `settleAll` 이 abort 를 실패 수에서 제외하지 않는다. **그러나 `onSuccess` 의 aborted 가드(`useCrudList.tsx:137`)가 집계를 통째로 버려 관측되지 않는다** — pass 로 두되 기록 | 공용 `shared/bulk` | A41 (관측 불가 — 후순위) |
-| 13 | (§4.1) | — | **미리보기가 `useMemo` 없이 렌더마다 `applyVariableSamples` 를 2회 돈다**(`EmailTemplateFormPage.tsx:225-226`). `detectAdWords` 는 `useMemo` 를 쓰는데(`:135`) 미리보기만 안 쓴다 — 대칭이 깨졌다 | 이 화면 | A11 (경미) |
-| 14 | COMP-01 · COMP-06 | P1 · P2 | `FormPageShell.tsx:190` 의 손라벨 '저장 중…' · `CrudTable.tsx:144` 의 `length: 5` — **둘 다 공용 셸 소유이며 화면 코드가 아니다** | 공용 셸 | A41 |
-| 15 | ERP-04 · EXC-06 | P1 | sortable header 없음(상한 없는 목록이라 요구가 실재) · status 별 surface 미분기(**404 만 갈린다**) | 공용 셸 + 이 화면 + BE 계약 | A41 · A11 · A63 (BE-065 §7.10) |
-| 16 | EXC-05 · EXC-11 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 | **앱 전역** | A40 · A11 |
-| 17 | (§4.3) | — | **본문·제목 XSS + 헤더 인젝션 계약 부재(§4.3)** — 지금은 평문이나 고객 메일(HTML)로 나간다. `TODO(lib): Tiptap + DOMPurify` 가 HTML 전환을 예고 | BE 계약 | **A63 (BE-065 §7.3 — 보안 최우선)** |
-| 18 | (§4.3) | — | 문구 변경의 감사 로그 부재 — 인증번호 메일 문구 변경이 기록되지 않는다 | BE 계약 | A63 (BE-065 §7.7 과 연동) |
-| 19 | (BE-065 §7.6) | — | **트리거·변수 카탈로그 소유자 미정** — 이 화면은 그 카탈로그를 **세 곳**(삽입 칩·미리보기 표본값·**검증**)에서 쓴다. 즉 '이 이벤트가 무슨 값을 주는가'가 곧 저장 가능 여부인데 **정본이 소비자 쪽에 있다.** 서버 소유가 되면 `TemplateIdentityFields`·`VariableInsertBar` 가 `useQuery` 를 배선해야 한다(**이 화면의 유일한 화면코드 변경 요인**) | 도메인 경계 | A01 · A63 |
-| 20 | (§4.1) | — | 일괄 삭제의 **선택 수 상한이 없어** 레이트리밋(분당 60)에 걸릴 수 있다 | 이 화면 + BE 계약 | A11 · A63 |
+| 1 | IA-02 | P0 | 폼 sub-route 에 `<h1>` 이 2개('이메일 템플릿' + '이메일 템플릿 등록') + AppHeader 가 행위를 반영하지 않는다. **가지 폴백은 통합이 해소했다 — 사유가 바뀌었다.** 목록은 pass | **앱 전역**(`AppHeader`·`FormPageShell` title 모델) | 프론트 구현 · UI 기획 (횡단 배치) |
+| 2 | IA-04 · ERP-15 · COMP-07 | P0 · P1 · P2 | Pagination 없음 — 전량 렌더. **FS-064 와 달리 상한이 없다.** BE-065 §7.9 가 페이징 + **서버측 필터·검색·건수**(클라이언트는 현재 page 만 안다)를 판정했다. `SeqCell` 의 `startIndex` 부재가 함께 발현 | 공용 셸 + BE 계약 | 프론트 리팩터 · UI 기획 · 백엔드 명세 (한 배치) |
+| 3 | EXC-03 | P0 | write 액션 게이팅 미배선 — `useRouteWritePermissions` 소비처 8곳에 알림 관리 없음. **`operator` 가 인증번호 메일 문구를 고치는 버튼을 본다** | **앱 전역** | UI 기획 쪽 변경 요청 |
+| 4 | EXC-04 | P0 | **낙관적 동시성 토큰 부재 — 동시 편집이 last-write-wins.** `updatedAt` 이 목록에 **표시까지 되는데** `If-Match` 로 실리지 않는다. ⚠ **유령 저장·409 UI 는 이미 pass** — gap 은 토큰 절 하나다 | 공용 어댑터 계약 | 백엔드 명세 (BE-065 §7.1) · 프론트 리팩터 |
+| 5 | (§4.2·§4.3) | — | **⚠ 절반이 해소됐다 — 범위가 줄었다.** ① **삭제 — 해소.** `_shared/store.ts:95-101` 이 `rulesUsingTemplate(id) > 0` 이면 409 로 거절한다(회귀 `store.test.ts:69-98`). **'조용한 파손'은 더 이상 없다.** 남은 것은 **삭제 *전* 경고 부재** — 확인 다이얼로그가 참조 규칙 수를 미리 말하지 않아 운영자가 확인을 누른 뒤에야 실패 배너로 안다(경미) ② **trigger 변경 — 미해소.** `patch`(`store.ts:183-190`)가 `trigger` 를 검사 없이 덮어쓴다. 그 템플릿을 쓰는 규칙은 남고 **잘못된 메일이 실제로 발송된다**(`#{송장번호}` 가 빈칸) — **이쪽이 삭제보다 나쁘고 여전히 열려 있다** | ① 이 화면(경미) ② 이 화면 + FS-064 + BE 계약 | ① UI 기획 · **② 백엔드 명세 (BE-065 §7.2·§7.4) · UI 기획 (최우선)** |
+| 6 | (§4.3) | — | **광고성 검증이 클라이언트에만 있고 오탐이 실재한다** — `AD_WORDS` 의 **'이벤트'** 가 정상 트랜잭션 문구를 차단한다. 서버 재판정 + 낱말 목록 소유자·판정 방식 결정 필요 | 이 화면 + BE 계약 + 도메인 경계 | 백엔드 명세 (BE-065 §7.5) · 아키텍처 |
+| 7 | A11Y-13 (부분) | P1 | **제목의 변수 오류가 `body` 에 꽂힌다**(`validation.ts:51-61` `path: ['body']`) — 첫 오류 필드 포커스가 엉뚱한 필드로 간다. 서버도 이 버그를 따라 하면 안 된다(BE-065 §7.4-1) | 이 화면 | UI 기획 쪽 변경 요청 |
+| 8 | COMP-09 (부분) | P2 | **템플릿명 열에 truncate 없음** — `_shared/styles.ts:53-61` 의 `ellipsisCellStyle` 이 바로 그 용도로 있고 **제목 열은 쓰는데**(`EmailTemplateListPage.tsx:43`) 이름 열만 안 쓴다(`:42`). **한 줄로 해소** | 이 화면 | UI 기획 쪽 변경 요청 |
+| 9 | COMP-12 (부분) | P2 | **템플릿명(60자)에 카운터가 없다** — 제목·본문은 있는데 이름만 조용히 멈춘다. 상한 근접 경고는 세 필드 모두 없다. counting 기준(UTF-16 code unit) 미명시 | 이 화면 + `_shared/TemplateIdentityFields` | UI 기획 쪽 변경 요청 |
+| 10 | A11Y-16 (부분) | P1 | **광고성 경고(FS-065-EL-028)가 live region 이 아니다** — 입력 중 나타나는 warning `Alert` 가 announce 되지 않는다 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 11 | ERP-09 | P2 | **수정일시의 표시 TZ 정책이 없다** — 다른 TZ 관리자가 다르게 본다. **FS-064 엔 이 표면이 없다** | `shared/format` | 프론트 구현 |
+| 12 | EXC-09 (표면상) | P0 | 일괄 삭제의 `settleAll` 이 abort 를 실패 수에서 제외하지 않는다. **그러나 `onSuccess` 의 aborted 가드(`useCrudList.tsx:137`)가 집계를 통째로 버려 관측되지 않는다** — pass 로 두되 기록 | 공용 `shared/bulk` | 프론트 리팩터 (관측 불가 — 후순위) |
+| 13 | (§4.1) | — | **미리보기가 `useMemo` 없이 렌더마다 `applyVariableSamples` 를 2회 돈다**(`EmailTemplateFormPage.tsx:225-226`). `detectAdWords` 는 `useMemo` 를 쓰는데(`:135`) 미리보기만 안 쓴다 — 대칭이 깨졌다 | 이 화면 | UI 기획 (경미) |
+| 14 | COMP-01 · COMP-06 | P1 · P2 | `FormPageShell.tsx:190` 의 손라벨 '저장 중…' · `CrudTable.tsx:144` 의 `length: 5` — **둘 다 공용 셸 소유이며 화면 코드가 아니다** | 공용 셸 | 프론트 리팩터 |
+| 15 | ERP-04 · EXC-06 | P1 | sortable header 없음(상한 없는 목록이라 요구가 실재) · status 별 surface 미분기(**404 만 갈린다**) | 공용 셸 + 이 화면 + BE 계약 | 프론트 리팩터 · UI 기획 · 백엔드 명세 (BE-065 §7.10) |
+| 16 | EXC-05 · EXC-11 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 | **앱 전역** | 프론트 구현 · UI 기획 |
+| 17 | (§4.3) | — | **본문·제목 XSS + 헤더 인젝션 계약 부재(§4.3)** — 지금은 평문이나 고객 메일(HTML)로 나간다. `TODO(lib): Tiptap + DOMPurify` 가 HTML 전환을 예고 | BE 계약 | **백엔드 명세 (BE-065 §7.3 — 보안 최우선)** |
+| 18 | (§4.3) | — | 문구 변경의 감사 로그 부재 — 인증번호 메일 문구 변경이 기록되지 않는다 | BE 계약 | 백엔드 명세 (BE-065 §7.7 과 연동) |
+| 19 | (BE-065 §7.6) | — | **트리거·변수 카탈로그 소유자 미정** — 이 화면은 그 카탈로그를 **세 곳**(삽입 칩·미리보기 표본값·**검증**)에서 쓴다. 즉 '이 이벤트가 무슨 값을 주는가'가 곧 저장 가능 여부인데 **정본이 소비자 쪽에 있다.** 서버 소유가 되면 `TemplateIdentityFields`·`VariableInsertBar` 가 `useQuery` 를 배선해야 한다(**이 화면의 유일한 화면코드 변경 요인**) | 도메인 경계 | 아키텍처 · 백엔드 명세 |
+| 20 | (§4.1) | — | 일괄 삭제의 **선택 수 상한이 없어** 레이트리밋(분당 60)에 걸릴 수 있다 | 이 화면 + BE 계약 | UI 기획 · 백엔드 명세 |
 
 ## 6. 측정 도구 · 재현 스위치
 

@@ -3,8 +3,8 @@ id: FS-048
 title: "거래처 (목록·등록·수정)"
 screen: SCR-048               # ⚠ 영업 관리 SCR 미작성 — §7 미결 사항 참조
 route: /sales/accounts
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -210,7 +210,7 @@ date: 2026-07-17
 | FS-048-EL-013 | 거래처 단건 삭제 | W | id | `accountAdapter.remove(id, { signal })` — **멱등키 없음** | 없는 id 면 `HttpError(409)`(`crud.ts:139-141`) |
 | FS-048-EL-014 | 거래처 일괄 삭제 | W | id 배열 | `settleAll(ids, (id) => adapter.remove(id, { signal }))`(`crud.ts:349-350`) | **전용 일괄 엔드포인트가 아니다** — N 건의 개별 삭제를 병렬로 낸다 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `accountAdapter` 는 `createCrudAdapter`(`shared/crud/crud.ts:86-147`)로 조립돼 브라우저 안 클로저 배열에 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('sales-accounts', op)`)를 얹어 CRUD 를 흉내 낸다 — 실제 네트워크 0건. 새로고침하면 시드 3건으로 되돌아간다. `fetchOne` 은 없는 id 에 `HttpError(404)`, `update`/`remove` 는 없는 id 에 `HttpError(409)` 를 던지고, `create`/`update` 는 멱등 원장(`createIdempotencyLedger`)으로 재생을 흉내 낸다. **연동 지점은 `data-source.ts:110` 의 `// TODO(backend): GET/POST /api/sales/accounts · GET/PUT/DELETE /api/sales/accounts/:id` 한 줄이며, 이것이 이 화면의 유일한 심이다.** 일괄 삭제·인라인 토글·주소 검색에는 **별도 심이 없다**(BE-048 §4). 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드는 없다. `accountAdapter` 는 `createCrudAdapter`(`shared/crud/crud.ts:86-147`)로 조립돼 브라우저 안 클로저 배열에 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('sales-accounts', op)`)를 얹어 CRUD 를 흉내 낸다 — 실제 네트워크 0건. 새로고침하면 시드 3건으로 되돌아간다. `fetchOne` 은 없는 id 에 `HttpError(404)`, `update`/`remove` 는 없는 id 에 `HttpError(409)` 를 던지고, `create`/`update` 는 멱등 원장(`createIdempotencyLedger`)으로 재생을 흉내 낸다. **연동 지점은 `data-source.ts:110` 의 `// TODO(backend): GET/POST /api/sales/accounts · GET/PUT/DELETE /api/sales/accounts/:id` 한 줄이며, 이것이 이 화면의 유일한 심이다.** 일괄 삭제·인라인 토글·주소 검색에는 **별도 심이 없다**(BE-048 §4). 위 표는 백엔드 연결 후 의도된 동작이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -225,35 +225,35 @@ date: 2026-07-17
 - [x] `useRouteWritePermissions` **미소비**를 grep 으로 확인하고(소비처 9곳에 `pages/sales/**` 없음) §4.1·§7 에 정직히 적었다
 - [x] required FormField 자식 타입을 전수 확인했다 — 8개 전부 `input`/`SelectField` 라 `aria-required` 가 주입된다. **`AccountContactsField` 만 `FormField` 밖 손조립**임을 §7 #6 에 남겼다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 (영업 관리 SCR 미작성 — `specs/sales/` 에 이 문서가 최초다) | A11 / A01 |
-| 2 | **페이지네이션이 없다** — `CrudTable` 이 `visibleItems` 전량을 렌더한다(`CrudTable.tsx:171`). 거래처는 상한 없이 늘어나는 원장이다. 그래서 `useListState` 의 `page`·`clampPage` 가 소비되지 않고, `SeqCell seq={index + 1}` 도 페이징 도입 시 2페이지에서 1로 리셋된다(quality-bar IA-04 P0 · ERP-15 P1 · COMP-07 P2) | A11 · A63 (BE-048 §7.5) |
-| 3 | **쓰기 권한 게이팅이 배선돼 있지 않다** — `useRouteWritePermissions` 소비처 9곳에 `pages/sales/**` 가 없다. read 전용 역할도 '거래처 등록'·행 수정/삭제·상태 토글을 보고 누른다. read 게이팅은 `RequirePermission` 이 정상 수행(quality-bar EXC-03 P0) | A11 change_request |
-| 4 | 이탈 가드(EL-043)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-018)·'취소'(EL-039)를 누르면 미저장 입력이 조용히 사라진다. 훅의 3경로 계약 밖이다 | A11 change_request |
-| 5 | 폼이 **자체 `<h1>`(EL-019)을 그리고 AppHeader 도 `<h1>` 을 그린다** — `<h1>` 2개. `findCoveringLeaf` 수렴으로 **가지 라벨 폴백은 해소**됐으나(`/sales/accounts/new` → '거래처'), '등록/수정' 행위가 AppHeader 제목에 반영되지 않는 것은 의도된 설계다(`nav-config.ts:294-296`). 목록에는 in-content h1 이 없어 **title 소스 모델이 화면 타입마다 모순**이다(quality-bar IA-02 P0) | A40 · A11 |
-| 6 | **A11Y-11 잔여 2건**: ① `FormField` 의 `hint`(여신한도 '0 이면 미설정')가 **유효할 때 `hintIdOf` 로 `aria-describedby` 에 연결되지 않는다** — 힌트가 AT 에 닿지 않는다 ② `AccountContactsField` 가 `FormField` 밖에서 `<span>담당자 *</span>` 를 손으로 그려 **`*` 가 리터럴 텍스트이고 어느 담당자 입력에도 `aria-required` 가 없다**(quality-bar A11Y-11 P0 · COMP-04 P1) | A11 change_request |
-| 7 | **상세 조회 실패 문구에 조사가 빠졌다** — `'거래처 찾을 수 없습니다.'` · `'거래처 불러오지 못했습니다.'`(`AccountFormPage.tsx:230-231`). 형제 화면은 `'계약을 찾을 수 없습니다.'`(`ContractFormPage.tsx:222`) · `'견적을 찾을 수 없습니다.'`(`QuoteFormPage.tsx:236`)로 조사가 있다 — **이 화면만 누락**이다. `objectParticle('거래처')` = '를' 이므로 헬퍼로 풀 수 있다(quality-bar ERP-13 P1 · ERP-06 P1) | A11 change_request |
-| 8 | 목록 조회 실패(EL-012)·저장 실패(EL-021)·삭제 실패(EL-013)가 **status 로 분기하지 않는다** — 403·404·409·429·500·타임아웃이 같은 문구다. `HttpError` 는 status 를 갖고 `?status=<op>:<code>` 로 재현 가능한데도 소비하지 않는다(quality-bar EXC-06 P1) | A11 |
-| 9 | **`lastTradeAt`·`creditGrade` 가 사람이 손으로 넣는 값**이다 — 최근거래일이 거래 이력에서 파생되지 않고, 신용등급에 산정 근거가 없다. 게다가 `lastTradeAt` 은 스키마 검증이 `z.string()` 뿐이라 날짜 실재를 확인하지 않는다. 원장의 신뢰가 입력자의 성실성에 걸린다 | A01 (도메인 경계) · A63 |
-| 10 | 사업자명 셀(EL-009.4)·주소·비고에 truncate 가 없어 긴 값이 표 열을 넓힌다(quality-bar COMP-09 P2) | A11 change_request |
-| 11 | 거래유형·신용등급 톤 레지스트리가 `pages/sales/accounts/types.ts` **지역**이다 — 계약(FS-049)·견적(FS-050)과 통합된 앱 전역 status→tone 레지스트리가 아니다(quality-bar ERP-01 P1) | A11 · A01 |
-| 12 | 스켈레톤 행 수가 하드코딩 `Array.from({ length: 5 })` 다(`CrudTable.tsx:144`). 셀 수만 `columns.length + 3` 로 파생된다. 페이지네이션이 없어 'row 수 === PAGE_SIZE' 를 만족시킬 기준값 자체가 없다(quality-bar COMP-06 P2) | A11 (#2 와 함께) |
-| 13 | 빈 상태(EL-011)에 **생성 CTA 를 넘기지 않는다** — `empty.createAction` 이 비어 진짜 빈 상태에서도 등록 버튼이 툴바에만 있다(quality-bar STATE-05 P1 의 '(a) 진짜 비어있음 → primary create CTA') | A11 change_request |
-| 14 | **한국형 ERP 입력 마스킹이 반쪽이다**(quality-bar ERP-14 P1) — 사업자등록번호만 실시간 하이픈 + 체크섬을 갖췄다. **여신한도**는 천단위 구분·'원' 표기가 없고 `'1,000,000'` 붙여넣기를 거절한다. **전화번호**(대표전화·담당자 연락처)는 형식 검증·마스킹이 전무하다. 사업자번호 붙여넣기가 10자리를 넘으면 **초과분이 조용히 잘린다**(`business.ts:13`) | A11 change_request |
-| 15 | 사업장 주소가 자유 텍스트다 — 우편번호·주소 검색 연동이 없다 | A01 · A11 |
-| 16 | 담당자 삭제 버튼(EL-036.3)이 **DS `<Button>` 이 아닌 손조립**이고 접근 이름이 `'담당자 삭제'` 로 **행을 구분하지 못한다** — 세 행 모두 같은 이름이다. 확인 절차도 없다(quality-bar COMP-01 P1 · A11Y-16 P1) | A11 change_request |
-| 17 | 담당자 8명 상한(EL-036.4)에 도달하면 **버튼이 조용히 사라질 뿐** 사유를 말하지 않는다. 품목 상한(FS-050)도 같은 결이다 | A11 change_request |
-| 18 | 담당자 오류(EL-036.5)가 **어느 행이 문제인지 말하지 않고**, 어떤 입력과도 `aria-describedby` 로 연결되지 않으며, 순차 `return` 이라 한 번에 한 문구만 뜬다 — 8행 중 3행의 이메일이 틀려도 한 줄만 본다 | A11 change_request |
-| 19 | 저장 버튼(EL-040)이 `loading` prop 대신 손으로 쓴 `'저장 중…'` 라벨을 쓴다(quality-bar COMP-01 P1) | A11 change_request |
-| 20 | 인라인 토글(EL-009.10)의 **409 가 일반 토스트로 뭉개진다** — `useCrudRowUpdate` 에 충돌 다이얼로그가 없어 '다른 사용자가 먼저 삭제한 항목입니다'가 '변경하지 못했습니다'로 바뀐다 | A11 change_request |
-| 21 | 여신한도에 **상한이 없다** — `/^\d+$/` 만 보므로 20자리 숫자도 통과하고 `Number()` 가 안전 정수 범위를 넘으면 값이 뭉개진다. 금액 필드의 상한은 서버 계약에도 필요하다(BE-048 §3) | A11 · A63 |
-| 22 | **낙관적 동시성 토큰이 없다** — `Account` 에 `version`/`updatedAt` 필드가 없고 어댑터가 `If-Match` 를 보내지 않는다. 현재 409 는 **'대상이 사라졌는가'** 만 본다 → **둘 다 존재하는 동시 편집은 last-write-wins 로 조용히 덮인다**(BE-048 §7.1) | A63 (BE-048 §7.1) · A11 |
-| 23 | 이탈 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장이 화면에 안 보일 수 있다 | A63 (BE-048) |
-| 24 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다(가드 미발화) — 전부 **앱 전역** 사안(quality-bar EXC-05 · EXC-11 · EXC-19 P1) | A11 · A40 |
-| 25 | 일괄 삭제(EL-014)에 **진행률·취소·실패 행 식별이 없다** — 'N중 M건 실패'만 알린다. Shift-click 범위 선택도 없다(quality-bar EXC-10 P1 · EXC-18 P1) | A11 |
-| 26 | 목록에 **엑셀 내보내기가 없다** — 거래처 원장은 세무·오프라인 검토의 대표 대상이다(quality-bar ERP-12 P1) | A11 |
+| 1 | 대응 SCR 문서 부재 (영업 관리 SCR 미작성 — `specs/sales/` 에 이 문서가 최초다) | UI 기획 / 아키텍처 |
+| 2 | **페이지네이션이 없다** — `CrudTable` 이 `visibleItems` 전량을 렌더한다(`CrudTable.tsx:171`). 거래처는 상한 없이 늘어나는 원장이다. 그래서 `useListState` 의 `page`·`clampPage` 가 소비되지 않고, `SeqCell seq={index + 1}` 도 페이징 도입 시 2페이지에서 1로 리셋된다(quality-bar IA-04 P0 · ERP-15 P1 · COMP-07 P2) | UI 기획 · 백엔드 명세 (BE-048 §7.5) |
+| 3 | **쓰기 권한 게이팅이 배선돼 있지 않다** — `useRouteWritePermissions` 소비처 9곳에 `pages/sales/**` 가 없다. read 전용 역할도 '거래처 등록'·행 수정/삭제·상태 토글을 보고 누른다. read 게이팅은 `RequirePermission` 이 정상 수행(quality-bar EXC-03 P0) | UI 기획 쪽 변경 요청 |
+| 4 | 이탈 가드(EL-043)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-018)·'취소'(EL-039)를 누르면 미저장 입력이 조용히 사라진다. 훅의 3경로 계약 밖이다 | UI 기획 쪽 변경 요청 |
+| 5 | 폼이 **자체 `<h1>`(EL-019)을 그리고 AppHeader 도 `<h1>` 을 그린다** — `<h1>` 2개. `findCoveringLeaf` 수렴으로 **가지 라벨 폴백은 해소**됐으나(`/sales/accounts/new` → '거래처'), '등록/수정' 행위가 AppHeader 제목에 반영되지 않는 것은 의도된 설계다(`nav-config.ts:294-296`). 목록에는 in-content h1 이 없어 **title 소스 모델이 화면 타입마다 모순**이다(quality-bar IA-02 P0) | 프론트 구현 · UI 기획 |
+| 6 | **A11Y-11 잔여 2건**: ① `FormField` 의 `hint`(여신한도 '0 이면 미설정')가 **유효할 때 `hintIdOf` 로 `aria-describedby` 에 연결되지 않는다** — 힌트가 AT 에 닿지 않는다 ② `AccountContactsField` 가 `FormField` 밖에서 `<span>담당자 *</span>` 를 손으로 그려 **`*` 가 리터럴 텍스트이고 어느 담당자 입력에도 `aria-required` 가 없다**(quality-bar A11Y-11 P0 · COMP-04 P1) | UI 기획 쪽 변경 요청 |
+| 7 | **상세 조회 실패 문구에 조사가 빠졌다** — `'거래처 찾을 수 없습니다.'` · `'거래처 불러오지 못했습니다.'`(`AccountFormPage.tsx:230-231`). 형제 화면은 `'계약을 찾을 수 없습니다.'`(`ContractFormPage.tsx:222`) · `'견적을 찾을 수 없습니다.'`(`QuoteFormPage.tsx:236`)로 조사가 있다 — **이 화면만 누락**이다. `objectParticle('거래처')` = '를' 이므로 헬퍼로 풀 수 있다(quality-bar ERP-13 P1 · ERP-06 P1) | UI 기획 쪽 변경 요청 |
+| 8 | 목록 조회 실패(EL-012)·저장 실패(EL-021)·삭제 실패(EL-013)가 **status 로 분기하지 않는다** — 403·404·409·429·500·타임아웃이 같은 문구다. `HttpError` 는 status 를 갖고 `?status=<op>:<code>` 로 재현 가능한데도 소비하지 않는다(quality-bar EXC-06 P1) | UI 기획 |
+| 9 | **`lastTradeAt`·`creditGrade` 가 사람이 손으로 넣는 값**이다 — 최근거래일이 거래 이력에서 파생되지 않고, 신용등급에 산정 근거가 없다. 게다가 `lastTradeAt` 은 스키마 검증이 `z.string()` 뿐이라 날짜 실재를 확인하지 않는다. 원장의 신뢰가 입력자의 성실성에 걸린다 | 아키텍처 (도메인 경계) · 백엔드 명세 |
+| 10 | 사업자명 셀(EL-009.4)·주소·비고에 truncate 가 없어 긴 값이 표 열을 넓힌다(quality-bar COMP-09 P2) | UI 기획 쪽 변경 요청 |
+| 11 | 거래유형·신용등급 톤 레지스트리가 `pages/sales/accounts/types.ts` **지역**이다 — 계약(FS-049)·견적(FS-050)과 통합된 앱 전역 status→tone 레지스트리가 아니다(quality-bar ERP-01 P1) | UI 기획 · 아키텍처 |
+| 12 | 스켈레톤 행 수가 하드코딩 `Array.from({ length: 5 })` 다(`CrudTable.tsx:144`). 셀 수만 `columns.length + 3` 로 파생된다. 페이지네이션이 없어 'row 수 === PAGE_SIZE' 를 만족시킬 기준값 자체가 없다(quality-bar COMP-06 P2) | UI 기획 (#2 와 함께) |
+| 13 | 빈 상태(EL-011)에 **생성 CTA 를 넘기지 않는다** — `empty.createAction` 이 비어 진짜 빈 상태에서도 등록 버튼이 툴바에만 있다(quality-bar STATE-05 P1 의 '(a) 진짜 비어있음 → primary create CTA') | UI 기획 쪽 변경 요청 |
+| 14 | **한국형 ERP 입력 마스킹이 반쪽이다**(quality-bar ERP-14 P1) — 사업자등록번호만 실시간 하이픈 + 체크섬을 갖췄다. **여신한도**는 천단위 구분·'원' 표기가 없고 `'1,000,000'` 붙여넣기를 거절한다. **전화번호**(대표전화·담당자 연락처)는 형식 검증·마스킹이 전무하다. 사업자번호 붙여넣기가 10자리를 넘으면 **초과분이 조용히 잘린다**(`business.ts:13`) | UI 기획 쪽 변경 요청 |
+| 15 | 사업장 주소가 자유 텍스트다 — 우편번호·주소 검색 연동이 없다 | 아키텍처 · UI 기획 |
+| 16 | 담당자 삭제 버튼(EL-036.3)이 **DS `<Button>` 이 아닌 손조립**이고 접근 이름이 `'담당자 삭제'` 로 **행을 구분하지 못한다** — 세 행 모두 같은 이름이다. 확인 절차도 없다(quality-bar COMP-01 P1 · A11Y-16 P1) | UI 기획 쪽 변경 요청 |
+| 17 | 담당자 8명 상한(EL-036.4)에 도달하면 **버튼이 조용히 사라질 뿐** 사유를 말하지 않는다. 품목 상한(FS-050)도 같은 결이다 | UI 기획 쪽 변경 요청 |
+| 18 | 담당자 오류(EL-036.5)가 **어느 행이 문제인지 말하지 않고**, 어떤 입력과도 `aria-describedby` 로 연결되지 않으며, 순차 `return` 이라 한 번에 한 문구만 뜬다 — 8행 중 3행의 이메일이 틀려도 한 줄만 본다 | UI 기획 쪽 변경 요청 |
+| 19 | 저장 버튼(EL-040)이 `loading` prop 대신 손으로 쓴 `'저장 중…'` 라벨을 쓴다(quality-bar COMP-01 P1) | UI 기획 쪽 변경 요청 |
+| 20 | 인라인 토글(EL-009.10)의 **409 가 일반 토스트로 뭉개진다** — `useCrudRowUpdate` 에 충돌 다이얼로그가 없어 '다른 사용자가 먼저 삭제한 항목입니다'가 '변경하지 못했습니다'로 바뀐다 | UI 기획 쪽 변경 요청 |
+| 21 | 여신한도에 **상한이 없다** — `/^\d+$/` 만 보므로 20자리 숫자도 통과하고 `Number()` 가 안전 정수 범위를 넘으면 값이 뭉개진다. 금액 필드의 상한은 서버 계약에도 필요하다(BE-048 §3) | UI 기획 · 백엔드 명세 |
+| 22 | **낙관적 동시성 토큰이 없다** — `Account` 에 `version`/`updatedAt` 필드가 없고 어댑터가 `If-Match` 를 보내지 않는다. 현재 409 는 **'대상이 사라졌는가'** 만 본다 → **둘 다 존재하는 동시 편집은 last-write-wins 로 조용히 덮인다**(BE-048 §7.1) | 백엔드 명세 (BE-048 §7.1) · UI 기획 |
+| 23 | 이탈 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장이 화면에 안 보일 수 있다 | 백엔드 명세 (BE-048) |
+| 24 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다(가드 미발화) — 전부 **앱 전역** 사안(quality-bar EXC-05 · EXC-11 · EXC-19 P1) | UI 기획 · 프론트 구현 |
+| 25 | 일괄 삭제(EL-014)에 **진행률·취소·실패 행 식별이 없다** — 'N중 M건 실패'만 알린다. Shift-click 범위 선택도 없다(quality-bar EXC-10 P1 · EXC-18 P1) | UI 기획 |
+| 26 | 목록에 **엑셀 내보내기가 없다** — 거래처 원장은 세무·오프라인 검토의 대표 대상이다(quality-bar ERP-12 P1) | UI 기획 |
 </content>
 </invoke>

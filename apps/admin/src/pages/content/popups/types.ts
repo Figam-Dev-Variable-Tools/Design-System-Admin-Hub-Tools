@@ -1,4 +1,4 @@
-// 팝업 관리 화면 **전용** 타입 (A41 소유 — apps/admin/src/pages/content/popups/**)
+// 팝업 관리 화면 **전용** 타입
 //
 // 팝업과 배너는 '닮은 쌍'이지만 서로를 import 하지 않는다(페이지 결합 금지). 공유는 도메인을
 // 모르는 공통 모듈(ImageUploadField·DateRangeField·StatusBadge·RowActions)로만 한다.
@@ -34,7 +34,7 @@ export interface Popup {
 }
 
 // [상태 표시는 토글로 이동] 목록의 ON/OFF 는 배지 대신 ToggleSwitch 로 바로 켜고 끈다.
-// 배지용이던 enabledTone/enabledLabel 은 소비자가 사라져 삭제했다(A83 축5 죽은 코드 0 유지).
+// 배지용이던 enabledTone/enabledLabel 은 소비자가 사라져 삭제했다(클린코드 점검 축5 죽은 코드 0 유지).
 
 /* ── 필터 ────────────────────────────────────────────────────────────────── */
 

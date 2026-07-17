@@ -1,4 +1,4 @@
-// HistoryListPage — 연혁 목록 (라우트: /company/history) · A41 소유
+// HistoryListPage — 연혁 목록 (라우트: /company/history)
 //
 // 목록 + 등록/수정 폼(별도 라우트) + 삭제팝업. 연·월 내림차순(최근이 위). 공용 목록 키트를 쓴다.
 import type { CSSProperties } from 'react';

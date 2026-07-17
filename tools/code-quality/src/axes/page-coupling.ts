@@ -5,7 +5,7 @@
  * side-effect CSS import(`import '../members/members.css'`)도 결합이다 — B를 지우면 A가 깨진다.
  *
  * 해소 방향은 하나: 공통으로 쓰이는 것은 `shared/ui`(또는 `packages/ui`)로 **승격**한다.
- * 이동은 A83이 하지 않는다 — A40/A41의 일이다 (ADR-0006 후속 작업).
+ * 이동은 클린코드 점검이 하지 않는다 — 프론트 구현/프론트 리팩터의 일이다 (ADR-0006 후속 작업).
  */
 import type { ParsedFile } from '../lib/ast.ts';
 import type { AxisResult, Violation } from '../report.ts';

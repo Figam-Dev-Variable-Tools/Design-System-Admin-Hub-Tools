@@ -1,7 +1,7 @@
 // 알림 관리 목록 화면 공용 스타일 (apps/admin/src/pages/notifications/**)
 //
 // 세 목록(발송 규칙·이메일 템플릿·SMS 템플릿)이 같은 골격이다: 안내 배너 → [좌측 분류 필터 | 목록].
-// 같은 값의 CSSProperties 를 세 파일이 재선언하면 여백을 손볼 때 화면이 어긋난다(A83 축3 중복) — 한 벌만 둔다.
+// 같은 값의 CSSProperties 를 세 파일이 재선언하면 여백을 손볼 때 화면이 어긋난다(클린코드 점검 축3 중복) — 한 벌만 둔다.
 //
 // [토큰만] 시각 값은 전부 semantic 토큰 CSS 변수다 — 하드코딩 hex/px 0건.
 // [shorthand 금지] shared/ui/styles.ts 규칙과 같이 shorthand(padding)와 longhand(paddingLeft)를 한 객체에

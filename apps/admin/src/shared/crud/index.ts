@@ -1,4 +1,4 @@
-// 선언적 CRUD 프레임워크 배럴 (A41 소유 — apps/admin/src/shared/crud/**)
+// 선언적 CRUD 프레임워크 배럴
 //
 // **섹션은 반드시 여기서만 import 한다** (개별 파일 직접 import 금지 — shared/ui 규약과 동일).
 //   허용: import { useCrudList, CrudListShell } from '../../shared/crud';

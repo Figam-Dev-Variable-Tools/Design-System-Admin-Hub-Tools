@@ -1,4 +1,4 @@
-// 역할(Role) 모델 (A40 소유 — apps/admin/src/shared/permissions/**)
+// 역할(Role) 모델
 //
 // [권한의 단위]
 // 역할 = 권한 매트릭스(리소스 × 액션) + 대시보드 위젯 + 데이터 접근 범위(scope).

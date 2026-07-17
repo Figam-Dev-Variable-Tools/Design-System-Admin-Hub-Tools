@@ -1,4 +1,4 @@
-// 상품 카테고리 좌측 필터 (A41 소유 — apps/admin/src/pages/products/**)
+// 상품 카테고리 좌측 필터
 //
 // 회원 화면(TierFilter/GroupFilter)의 좌측 필터가 정본이다 — 새 패턴을 만들지 않는다:
 // 승격된 filterPanel/filterNav/filterList/filterItem 스타일(COMP-05) · 건수 배지 ·

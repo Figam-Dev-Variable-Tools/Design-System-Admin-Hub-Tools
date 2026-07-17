@@ -1,14 +1,14 @@
 /**
- * A77 자기 검증 — 검증기를 검증한다.
+ * 테스트 커버리지 자기 검증 — 검증기를 검증한다.
  *
  * 실행: pnpm --filter @tds/test-coverage run selftest
  *
- * **왜 필요한가.** A77은 다른 도구(codegen · contract-test)에게 골든 픽스처를 요구한다(축 5).
+ * **왜 필요한가.** 테스트 커버리지은 다른 도구(codegen · contract-test)에게 골든 픽스처를 요구한다(축 5).
  * 요구하는 자가 스스로 그것을 갖지 않으면 그 요구는 규율이 아니라 위선이다.
  * 감사 실측: 재작업 8건 중 2건이 **검증 도구의 오판**이었다. 도구의 판정도 검증돼야 한다.
  *
  * **무엇을 증명하는가.** "항상 RED 를 뱉는 도구"는 "항상 GREEN 을 뱉는 도구"만큼 쓸모없다.
- * 이 selftest 는 A77이 **판별한다**는 것을 증명한다 —
+ * 이 selftest 는 테스트 커버리지이 **판별한다**는 것을 증명한다 —
  *   1. 커버가 실제로 존재하면 GREEN 이 된다 (기준선)
  *   2. 위반을 심으면 정확히 그 항목에서 RED 가 된다 (검출)
  *   3. 위반을 지우면 기준선으로 돌아온다 (복귀)
@@ -198,7 +198,7 @@ check(
 
 // M2 — **비발생 단언을 렌더 단언으로 약화한다.** 이름은 그대로 두고 단언만 바꾼다.
 //      "disabled 로 렌더된다"는 "onClick 이 발화하지 않는다"를 증명하지 못한다.
-//      이 케이스를 잡지 못하면 A77은 이름만 보는 도구다.
+//      이 케이스를 잡지 못하면 테스트 커버리지은 이름만 보는 도구다.
 const m2 = mutate('weaken-assertion', (root) => {
   const p = abs(root, WIDGET_TEST);
   const src = fsm.readFileSync(p, 'utf8');
@@ -232,7 +232,7 @@ check(
 );
 
 // M4 — 단언 없는 play function 만 남긴다. **리포의 실제 상태다** (play 62건 · expect 0건).
-//      play 가 있으니 "테스트가 있다"고 세면 A77은 자기가 고발하려던 초록불을 재생산한다.
+//      play 가 있으니 "테스트가 있다"고 세면 테스트 커버리지은 자기가 고발하려던 초록불을 재생산한다.
 const m4 = mutate('assertion-free-play', (root) => {
   fsm.rmSync(abs(root, WIDGET_TEST), { force: true });
   fsm.rmSync(abs(root, 'e2e'), { recursive: true, force: true });
@@ -292,7 +292,7 @@ check(
   `축5 major ${m6.majors.filter((g) => g.id === 'tool-golden-fixtures').length}건`,
 );
 
-/* ── 3b. 축 1 스코프 분리 + 워크스페이스 파생 (A00/A01 판정 1) ───────────── */
+/* ── 3b. 축 1 스코프 분리 + 워크스페이스 파생 (오케스트레이터/아키텍처 판정 1) ───────────── */
 
 console.log('\n[selftest] 3b. 축 1 — 스코프 분리 · 워크스페이스 파생');
 
@@ -341,7 +341,7 @@ check(
   `전역 테스트 ${m8.testUnits}건인데도 apps/newapp 이 BLOCKER — 이것이 §5-1 구멍의 해소다`,
 );
 
-/* ── 3b-2. 파서 회귀 — 구조 분해 시그니처 (A30 신고: 거짓 음성) ──────────── */
+/* ── 3b-2. 파서 회귀 — 구조 분해 시그니처 (컴포넌트 엔지니어 신고: 거짓 음성) ──────────── */
 
 console.log('\n[selftest] 3b-2. 파서 — play function 의 구조 분해 시그니처 (거짓 음성 회귀 방지)');
 
@@ -426,7 +426,7 @@ check(
   `테스트 ${p3.testUnits}건 (기준선 7 + 참조형 1 + 인라인 1) · 단언 없는 단위 ${p3.assertionFree}건`,
 );
 
-/* ── 3c. 축 4 래칫 — 후퇴 금지 (A00/A01 판정 2) ──────────────────────────── */
+/* ── 3c. 축 4 래칫 — 후퇴 금지 (오케스트레이터/아키텍처 판정 2) ──────────────────────────── */
 
 console.log('\n[selftest] 3c. 축 4 래칫 — 후퇴 금지');
 
@@ -521,7 +521,7 @@ check(
   'M12 계약에서 state 삭제 + 그 테스트 삭제 → 커버리지는 100%지만 **표면 축소 major** 로 신고',
   m12s.length === 1 && !m12.blockers.some((g) => g.id === 'contract-states'),
   m12s.length === 1
-    ? `${m12s[0]?.item.replace(/\*/g, '')} — blocker 로 발명하지 않고 A19에 확인을 요구한다`
+    ? `${m12s[0]?.item.replace(/\*/g, '')} — blocker 로 발명하지 않고 계약 리뷰에 확인을 요구한다`
     : '표면 축소를 놓쳤다 — 분모 세탁이 통과한다',
 );
 
@@ -573,7 +573,7 @@ check(
   '기준선에서 Widget 테스트 7건이 Widget 계약을 정상 커버 — 경계 강화가 참 양성을 죽이지 않았다',
 );
 
-/* ── 3f. 결정론 — 같은 입력 두 번 → 커밋 파일 바이트 동일 (A00 판정: churn 금지) ── */
+/* ── 3f. 결정론 — 같은 입력 두 번 → 커밋 파일 바이트 동일 (오케스트레이터 판정: churn 금지) ── */
 
 console.log('\n[selftest] 3f. 결정론 — 커밋되는 기준선은 벽시계 churn 이 없어야 한다');
 
@@ -602,7 +602,7 @@ check(
   hasWallClock ? '벽시계 흔적 발견 — 커밋 파일이 churn 한다' : '벽시계 필드/값 0건',
 );
 
-// (3) writeReport 를 임시 루트에 **두 번** 써서 파일 바이트가 동일한지 — A00 이 명시한 불변식.
+// (3) writeReport 를 임시 루트에 **두 번** 써서 파일 바이트가 동일한지 — 오케스트레이터 이 명시한 불변식.
 const detRoot = fsm.mkdtempSync(path.join(os.tmpdir(), 'a77-determinism-'));
 fsm.writeFileSync(path.join(detRoot, 'pnpm-workspace.yaml'), 'packages:\n  - packages/*\n');
 const w1 = writeReport(detRoot, buildFixtureReport(FIXTURE, B0));
@@ -645,11 +645,11 @@ check(
 
 console.log('');
 if (failed > 0) {
-  console.error(`[selftest] FAIL — ${failed}건. A77의 판정을 신뢰할 수 없다. exit 1`);
+  console.error(`[selftest] FAIL — ${failed}건. 테스트 커버리지의 판정을 신뢰할 수 없다. exit 1`);
   process.exitCode = 1;
 } else {
   console.log(
-    '[selftest] PASS — A77은 판별한다: 커버되면 GREEN, 위반을 심으면 그 항목이 RED. exit 0',
+    '[selftest] PASS — 테스트 커버리지은 판별한다: 커버되면 GREEN, 위반을 심으면 그 항목이 RED. exit 0',
   );
   process.exitCode = 0;
 }

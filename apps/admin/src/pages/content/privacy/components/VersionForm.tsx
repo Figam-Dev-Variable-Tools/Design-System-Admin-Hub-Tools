@@ -1,4 +1,4 @@
-// 개인정보 처리방침 버전 등록/수정 폼 (A41 소유)
+// 개인정보 처리방침 버전 등록/수정 폼
 //
 // 약관 버전 폼과 같은 구조(단일 문서라 종류가 없다). 폼 = RHF + zod/mini. 본문은 제어 textarea.
 import { useEffect, useRef, useState } from 'react';

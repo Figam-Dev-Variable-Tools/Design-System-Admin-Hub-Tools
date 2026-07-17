@@ -1,4 +1,4 @@
-// AccountListPage — 거래처 목록 (라우트: /sales/accounts) · A41 소유
+// AccountListPage — 거래처 목록 (라우트: /sales/accounts)
 //
 // 승격된 CRUD 프레임워크(useCrudList + CrudListShell) 위에 거래유형 필터 + 검색 + 신용등급 배지 +
 // 거래 상태 인라인 토글 + 삭제팝업을 얹는다. 목록엔 이미지 열이 없다(상세/폼에서 다룬다).

@@ -1,4 +1,4 @@
-// 약관 관리 화면 **전용** 타입 (A41 소유 — apps/admin/src/pages/content/terms/**)
+// 약관 관리 화면 **전용** 타입
 //
 // 약관과 개인정보 처리방침은 '버전 문서 쌍'이다 — 버전 이력 표(VersionHistoryTable)를 공유하되
 // 서로를 import 하지 않는다. 상태 → 색(tone) 매핑은 도메인 지식이라 페이지에 남긴다.

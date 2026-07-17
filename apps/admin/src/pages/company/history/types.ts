@@ -1,4 +1,4 @@
-// 연혁 화면 전용 타입 + 순수 규칙 (A41 소유 — apps/admin/src/pages/company/history/**)
+// 연혁 화면 전용 타입 + 순수 규칙
 
 export interface HistoryItem {
   readonly id: string;

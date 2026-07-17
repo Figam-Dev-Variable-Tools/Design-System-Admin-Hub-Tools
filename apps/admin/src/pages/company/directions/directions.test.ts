@@ -1,4 +1,4 @@
-// 오시는 길 화면의 폼 검증 회귀 테스트 (A41)
+// 오시는 길 화면의 폼 검증 회귀 테스트
 import { describe, expect, it } from 'vitest';
 
 import { directionsSchema } from './validation';

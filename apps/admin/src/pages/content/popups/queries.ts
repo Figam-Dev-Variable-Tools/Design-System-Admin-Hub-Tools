@@ -1,4 +1,4 @@
-// 팝업 도메인 훅 (A41 — ADR-0008 §7.1 집행)
+// 팝업 도메인 훅 (ADR-0008 §7.1 집행)
 //
 // 화면은 여기 도메인 훅만 부른다 — data-source.ts 본문이 fixture → HTTP 로 바뀌어도 화면에
 // 도달하지 않는다. 연동 지점은 data-source.ts 의 // TODO(backend) 주석이다.

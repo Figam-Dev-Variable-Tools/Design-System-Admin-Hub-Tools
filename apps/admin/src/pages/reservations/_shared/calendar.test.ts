@@ -1,4 +1,4 @@
-// 예약 달력·시간슬롯 헬퍼 테스트 (A41) — 분 환산·겹침·주 계산·과거 판정(순수)
+// 예약 달력·시간슬롯 헬퍼 테스트 — 분 환산·겹침·주 계산·과거 판정(순수)
 import { afterEach, describe, expect, it } from 'vitest';
 
 import {

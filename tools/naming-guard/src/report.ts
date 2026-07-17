@@ -1,6 +1,6 @@
 /**
  * 리포트 기록 — reports/naming/naming-report.json + naming-report.md
- * 리포트 경로 소유: A76 (orchestration/registry/agents.json)
+ * 리포트 경로 소유: 네이밍 가드
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -41,7 +41,9 @@ export function buildReportMd(report: NamingReport): string {
   const lines: string[] = [];
   lines.push('# Naming Guard 리포트');
   lines.push('');
-  lines.push('> 네이밍 규칙 강제 (A76 Naming Convention AI) — 위반 시 커밋 차단 (pre-commit)');
+  lines.push(
+    '> 네이밍 규칙 강제 (네이밍 가드 Naming Convention AI) — 위반 시 커밋 차단 (pre-commit)',
+  );
   lines.push('');
   lines.push(`- 실행 시각: ${report.generatedAt}`);
   lines.push(
@@ -72,7 +74,7 @@ export function buildReportMd(report: NamingReport): string {
   lines.push('');
   lines.push('- 위반 파일/키를 규칙에 맞게 개명한 뒤 재커밋한다.');
   lines.push(
-    '- 규칙 자체에 이의가 있으면 Architecture AI(A01)에 규칙 개정을 제안한다 — 가드는 우회하지 않는다.',
+    '- 규칙 자체에 이의가 있으면 Architecture AI(아키텍처)에 규칙 개정을 제안한다 — 가드는 우회하지 않는다.',
   );
   lines.push('');
   return lines.join('\n');

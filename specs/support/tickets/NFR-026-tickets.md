@@ -4,8 +4,8 @@ title: "1:1 문의 비기능 명세"
 functionalSpec: FS-026
 backendSpec: BE-026
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -174,27 +174,27 @@ date: 2026-07-17
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
 | ~~1~~ | ~~STATE-01 · STATE-03~~ | ~~P0 · P1~~ | **해소됨(F3b)** — `TicketListPage.tsx:163,165` 가 `firstLoading = isFetching && data === undefined` · `refreshing = isFetching && data !== undefined` 를 파생하고, 스켈레톤(`:304`)·`aria-busy`(`:264`)는 `firstLoading` 만, 요약(`:259-261`)은 건수를 유지한 채 '· 새로고침 중…' 만 덧붙인다. **같은 결함이라 적었던 5개 화면도 함께 고쳐졌다** — `CustomerFaqPage.tsx:72-74` · `CategoriesPage.tsx:176-178` · `PortfolioCategoriesPage.tsx:175-177` 를 직접 확인했다 | — | — |
-| 2 | STATE-02 · EXC-12 · EXC-06 | P0 · P1 | 상세 조회 실패에 '다시 시도' 가 없고 404/5xx 를 구분하지 않는다. 근본 원인은 `getTicket` 이 `HttpError(404)` 가 아닌 일반 `Error` 를 던지는 것 | 이 화면 + 어댑터 | A11 · A63 (BE-026 §7.11 #5) |
+| 2 | STATE-02 · EXC-12 · EXC-06 | P0 · P1 | 상세 조회 실패에 '다시 시도' 가 없고 404/5xx 를 구분하지 않는다. 근본 원인은 `getTicket` 이 `HttpError(404)` 가 아닌 일반 `Error` 를 던지는 것 | 이 화면 + 어댑터 | UI 기획 · 백엔드 명세 (BE-026 §7.11 #5) |
 | ~~3~~ | ~~COMP-10~~ | ~~P0~~ | **해소됨(F3b)** — `TicketListPage.tsx:193-199` 이 `list.searchInputProps` 를 `SearchField` 에 스프레드하고, `useListState`(`:129`)가 내부에서 `useDebouncedSearch`(`useListState.ts:227-230`)를 소비한다: 조합 중 커밋 금지(`useDebouncedSearch.ts:87`) · 조합 중 Enter 차단(`:121-124`) · 250ms 디바운스(`:23,93-95`). stale 응답은 클라이언트 필터라 애초에 없다 | — | — |
-| 4 | IA-02 | P0 | **`<h1>` 이 2개**(AppHeader `:101` '1:1 문의' ↔ `TicketDetailPage.tsx:193` '문의 처리') — '단일 title 메커니즘' 미충족. 목록/상세의 title 소스가 갈린다. 그리고 '행위'가 AppHeader 제목에 없다(`nav-config.ts:294-296` 이 의도로 명시). *(브랜치 라벨 '고객센터' 폴백은 `findCoveringLeaf`(`:260-278`)로 해소 — 이제 '1:1 문의')* | **앱 전역**(`AppHeader`·title 모델) | A40 · A11 |
-| 5 | IA-04 · ERP-15 | P0 · P1 | 페이지네이션 없음 — 전량 렌더. 문의는 상한 없이 증가 | 이 화면 + BE 계약 | A11 · A63 (BE-026 §7.9 — IA-13 과 한 배치) |
+| 4 | IA-02 | P0 | **`<h1>` 이 2개**(AppHeader `:101` '1:1 문의' ↔ `TicketDetailPage.tsx:193` '문의 처리') — '단일 title 메커니즘' 미충족. 목록/상세의 title 소스가 갈린다. 그리고 '행위'가 AppHeader 제목에 없다(`nav-config.ts:294-296` 이 의도로 명시). *(브랜치 라벨 '고객센터' 폴백은 `findCoveringLeaf`(`:260-278`)로 해소 — 이제 '1:1 문의')* | **앱 전역**(`AppHeader`·title 모델) | 프론트 구현 · UI 기획 |
+| 5 | IA-04 · ERP-15 | P0 · P1 | 페이지네이션 없음 — 전량 렌더. 문의는 상한 없이 증가 | 이 화면 + BE 계약 | UI 기획 · 백엔드 명세 (BE-026 §7.9 — IA-13 과 한 배치) |
 | ~~6~~ | ~~IA-13~~ | ~~P0~~ | **해소됨(F3b)** — `TicketListPage.tsx:129` `useListState({ filterDefaults: FILTER_DEFAULTS })` 가 상태·우선순위·채널·유형·검색어를 URL 쿼리스트링으로 옮겼다. 기본값은 URL 에서 지우고(`useListState.ts:113-118`) `replace` 로 갱신해(`:125`) 상세에서 Back 하면 트리아지 큐가 그대로 복원된다. 손으로 고친 값은 `parseFilter`(`:130-144`)가 안전하게 좁힌다 | — | — |
-| 7 | EXC-03 | P0 | write 액션 게이팅 미배선 — **`useRouteWritePermissions`/`useRouteCan` 은 이제 8곳이 소비하지만**(products 3 · settings 4 · logs 1) `pages/support/**` 는 그 밖이다. 최근접 선례는 같은 '상세에서 처리 저장' 패턴인 `products/returns/ReturnDetailPage.tsx:110`. read 게이팅은 pass | **이 화면**(공용 훅 + 선례 존재) | A11 change_request |
-| 8 | EXC-04 | P0 | **If-Match/version 없음**(동시 편집 last-write-wins — 타임라인 전체 치환이라 **남의 답변이 사라진다**) · **409 해소 UI 없음**(`useCrudForm` 미사용 → conflict 다이얼로그 미상속, `TicketDetailPage.tsx:155-158` 이 generic 배너로 뭉갠다). *(유령 저장은 F3b 의 어댑터 가드 — `data-source.ts:17,44-46` — 로 해소)* | 이 화면 + 도메인 모델 + BE 계약 | A63 (BE-026 §7.5) · A11 |
-| 9 | EXC-08 | P0 | `submitLockRef`·멱등키 없음 — `useCrudForm` 미사용. 연타가 답변 이벤트를 2건 만든다 | 이 화면 | A11 · A63 (BE-026 §7.11 #9) |
-| 10 | COMP-01 | P1 | `buttonStyle()`/`tds-ui-btn-*` 손조립 + 손으로 쓴 '저장 중…' — **quality-bar 가 `TicketListPage` 를 명시 지목** | 이 화면 | A11 change_request |
-| 11 | COMP-08 · A11Y-08 | P2 · P1 | 중복 '상세' 버튼. 단 제목이 링크가 아니라 그것이 유일한 키보드 경로 — **제목 링크 승격이 선행돼야 제거 가능** | 이 화면 | A11 change_request (한 묶음) |
-| 12 | A11Y-13 | P1 | 폼 진입 첫 필드 포커스·검증 실패 시 첫 오류 포커스 없음 | 이 화면 | A11 change_request |
-| 13 | A11Y-16 | P1 | 답변/메모 유형 토글에 `aria-pressed` 없음 — 선택 상태가 색으로만 인코딩 | 이 화면 | A11 change_request |
-| 14 | EXC-07 · EXC-20 | P1 | 422 필드 매핑 없음 · 5xx reference code 미표시 | 이 화면 | A11 |
+| 7 | EXC-03 | P0 | write 액션 게이팅 미배선 — **`useRouteWritePermissions`/`useRouteCan` 은 이제 8곳이 소비하지만**(products 3 · settings 4 · logs 1) `pages/support/**` 는 그 밖이다. 최근접 선례는 같은 '상세에서 처리 저장' 패턴인 `products/returns/ReturnDetailPage.tsx:110`. read 게이팅은 pass | **이 화면**(공용 훅 + 선례 존재) | UI 기획 쪽 변경 요청 |
+| 8 | EXC-04 | P0 | **If-Match/version 없음**(동시 편집 last-write-wins — 타임라인 전체 치환이라 **남의 답변이 사라진다**) · **409 해소 UI 없음**(`useCrudForm` 미사용 → conflict 다이얼로그 미상속, `TicketDetailPage.tsx:155-158` 이 generic 배너로 뭉갠다). *(유령 저장은 F3b 의 어댑터 가드 — `data-source.ts:17,44-46` — 로 해소)* | 이 화면 + 도메인 모델 + BE 계약 | 백엔드 명세 (BE-026 §7.5) · UI 기획 |
+| 9 | EXC-08 | P0 | `submitLockRef`·멱등키 없음 — `useCrudForm` 미사용. 연타가 답변 이벤트를 2건 만든다 | 이 화면 | UI 기획 · 백엔드 명세 (BE-026 §7.11 #9) |
+| 10 | COMP-01 | P1 | `buttonStyle()`/`tds-ui-btn-*` 손조립 + 손으로 쓴 '저장 중…' — **quality-bar 가 `TicketListPage` 를 명시 지목** | 이 화면 | UI 기획 쪽 변경 요청 |
+| 11 | COMP-08 · A11Y-08 | P2 · P1 | 중복 '상세' 버튼. 단 제목이 링크가 아니라 그것이 유일한 키보드 경로 — **제목 링크 승격이 선행돼야 제거 가능** | 이 화면 | UI 기획 쪽 변경 요청 (한 묶음) |
+| 12 | A11Y-13 | P1 | 폼 진입 첫 필드 포커스·검증 실패 시 첫 오류 포커스 없음 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 13 | A11Y-16 | P1 | 답변/메모 유형 토글에 `aria-pressed` 없음 — 선택 상태가 색으로만 인코딩 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 14 | EXC-07 · EXC-20 | P1 | 422 필드 매핑 없음 · 5xx reference code 미표시 | 이 화면 | UI 기획 |
 | ~~15~~ | ~~ERP-13~~ | ~~P1~~ | **해소됨(통합)** — 조사 헬퍼가 `shared/format.ts:269+` 로 승격됐고 이 화면이 소비한다: `tickets/process.ts:5` `import { directionParticle }` · `:54` `` `상태를 '${ticketStatusLabel(draft.status)}'${directionParticle(...)} 변경` `` → '처리중**으로** 변경' / '완료**로** 변경'. **타임라인에 저장되는 값이라 이 수정이 특히 중요했다** | — | — |
-| 16 | STATE-05 | P1 | 빈 상태 3분기 미구분 — 공유 `Empty` 미사용 | 이 화면 | A11 change_request |
-| 17 | COMP-06 · COMP-07 · COMP-09 · ERP-08 | P2 | 스켈레톤 `length: 5` · `SeqCell` 에 `startIndex` 없음(페이지네이션 도입 시 발현) · 셀 truncate 없음 · `durationLabel` 의 raw `String()` | 이 화면 | A11 (#5 와 함께) |
-| 18 | COMP-12 | P2 | 답변 상한 근접 경고 없음 · counting 기준 미정의 | 이 화면 | A11 |
-| 19 | EXC-05 · EXC-11 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 | **앱 전역** | A40 · A11 |
-| 20 | (§4.3) | — | **감사 무결성** — 타임라인 author 하드코딩 · 클라이언트 시각/id · 전체 치환으로 동시 답변 유실 | 이 화면 + BE 계약 | **A63 (BE-026 §7.2·§7.3 — 최우선)** |
-| 21 | (§4.1) | — | 저장 요청 크기가 이력에 비례해 무한 증가 | BE 계약 | A63 (BE-026 §7.3 안 A 가 해소) |
-| 22 | (BE-026 §7.4) | — | 유형·템플릿 조회가 어댑터 없는 동기 store 직접 호출 — 연동 시 **화면 코드가 함께 바뀐다** | 이 화면 | A11 (연동 산정에 포함) |
+| 16 | STATE-05 | P1 | 빈 상태 3분기 미구분 — 공유 `Empty` 미사용 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 17 | COMP-06 · COMP-07 · COMP-09 · ERP-08 | P2 | 스켈레톤 `length: 5` · `SeqCell` 에 `startIndex` 없음(페이지네이션 도입 시 발현) · 셀 truncate 없음 · `durationLabel` 의 raw `String()` | 이 화면 | UI 기획 (#5 와 함께) |
+| 18 | COMP-12 | P2 | 답변 상한 근접 경고 없음 · counting 기준 미정의 | 이 화면 | UI 기획 |
+| 19 | EXC-05 · EXC-11 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 | **앱 전역** | 프론트 구현 · UI 기획 |
+| 20 | (§4.3) | — | **감사 무결성** — 타임라인 author 하드코딩 · 클라이언트 시각/id · 전체 치환으로 동시 답변 유실 | 이 화면 + BE 계약 | **백엔드 명세 (BE-026 §7.2·§7.3 — 최우선)** |
+| 21 | (§4.1) | — | 저장 요청 크기가 이력에 비례해 무한 증가 | BE 계약 | 백엔드 명세 (BE-026 §7.3 안 A 가 해소) |
+| 22 | (BE-026 §7.4) | — | 유형·템플릿 조회가 어댑터 없는 동기 store 직접 호출 — 연동 시 **화면 코드가 함께 바뀐다** | 이 화면 | UI 기획 (연동 산정에 포함) |
 
 ## 6. 측정 도구 · 재현 스위치
 

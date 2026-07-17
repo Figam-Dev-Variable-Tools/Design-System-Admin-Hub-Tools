@@ -1,4 +1,4 @@
-// 약관 버전 등록/수정 폼 (A41 소유)
+// 약관 버전 등록/수정 폼
 //
 // 목록과 같은 화면에 뜨는 인라인 폼. 폼 = RHF + zod/mini. 본문은 제어 textarea(TextareaField).
 import { useEffect, useRef, useState } from 'react';

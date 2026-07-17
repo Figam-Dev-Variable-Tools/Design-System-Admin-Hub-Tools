@@ -1,4 +1,4 @@
-// ESG 화면의 동작 회귀 테스트 (A41) — 정렬·필터·건수(순수) + 폼 검증
+// ESG 화면의 동작 회귀 테스트 — 정렬·필터·건수(순수) + 폼 검증
 import { describe, expect, it } from 'vitest';
 
 import { countEsgByCategory, esgCategoryLabel, filterEsg, MAX_ESG_IMAGES, sortEsg } from './types';

@@ -1,4 +1,4 @@
-// 상담 이력 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/sales/**)
+// 상담 이력 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 프레임워크 createCrudAdapter 에 시드를 넣는다. 상담 이력은 읽기 위주라 화면은
 // fetchAll/fetchOne 만 쓴다(생성/수정/삭제 UI 없음 — 감사 이력). build/patch 는 프레임워크 계약상 둔다.

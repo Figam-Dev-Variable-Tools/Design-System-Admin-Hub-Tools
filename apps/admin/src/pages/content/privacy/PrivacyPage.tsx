@@ -1,4 +1,4 @@
-// PrivacyPage — 개인정보 처리방침 (라우트: /content/privacy) · A41 소유
+// PrivacyPage — 개인정보 처리방침 (라우트: /content/privacy)
 //
 // [오너 피드백 ⑦] 문서 전문 dump 를 없애고 다른 목록(공지 등)과 같은 툴바 패턴으로 통일했다.
 //   상단 툴바(검색 + '새 버전 등록') + 버전 이력 표(VersionHistoryTable 공통). 단일 문서라 종류 선택은 없다.

@@ -1,4 +1,4 @@
-// CaseStudyListPage — 성공 사례 목록 (라우트: /portfolio/case-studies) · A41 소유
+// CaseStudyListPage — 성공 사례 목록 (라우트: /portfolio/case-studies)
 //
 // 승격된 CRUD 프레임워크(useCrudList + CrudListShell) 위에 업종 필터 + 노출 인라인 토글을 얹는다.
 // 목록엔 이미지 열을 넣지 않는다 — 이미지는 상세/등록/수정 폼에서만.

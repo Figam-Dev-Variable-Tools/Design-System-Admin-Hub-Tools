@@ -1,4 +1,4 @@
-// LoginHistoryPage — 로그인 이력 (라우트: /users/login-history) · A40 소유
+// LoginHistoryPage — 로그인 이력 (라우트: /users/login-history)
 //
 // 좌: 결과 · 계정 유형 · 기간 필터 / 우: 검색 + 내보내기 + 표 + 페이지네이션.
 // 배치·스타일·패턴은 회원 관리(MembersPage) / 관리자 관리(AdminsPage)를 **그대로** 따른다.

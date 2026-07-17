@@ -1,4 +1,4 @@
-// 기간 '직접 지정' 검증 (A40 소유 — apps/admin/src/pages/login-history/**)
+// 기간 '직접 지정' 검증
 //
 // 손으로 쓴 if 문 검증기를 두지 않는다 — **규칙의 정본은 zod 스키마다** (ADR-0008 §7.3).
 // 진입점은 `zod/mini` 다 (classic zod +17.5 kB vs mini +4.6 kB — 같은 이유로 customer-settings 도 mini 다).
@@ -18,7 +18,7 @@ import type { DateRange } from './types';
 
 // [공개 표면은 실제로 쓰이는 것만] `RangeIssueTarget` · `CustomRangeValidation` 은 **export 하지 않는다** —
 // 호출부는 `issueOf(issues, 'from')` 처럼 리터럴을 넘기고 반환 타입을 추론받을 뿐, 이름으로 import 하지
-// 않는다. 내보내면 아무도 쓰지 않는 공개 API 가 되고 지울 때 파급 범위를 알 수 없게 된다 (A83 축5).
+// 않는다. 내보내면 아무도 쓰지 않는 공개 API 가 되고 지울 때 파급 범위를 알 수 없게 된다 (클린코드 점검 축5).
 
 /** 화면의 입력 칸 id 와 1:1 — 그래야 어느 칸이 틀렸는지 그 자리에 짚을 수 있다 */
 type RangeIssueTarget = 'from' | 'to' | 'range';

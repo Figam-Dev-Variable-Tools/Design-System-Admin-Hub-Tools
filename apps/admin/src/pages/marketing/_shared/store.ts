@@ -1,4 +1,4 @@
-// 마케팅 픽스처 · 저장소 API (A41 소유 — apps/admin/src/pages/marketing/**)
+// 마케팅 픽스처 · 저장소 API
 //
 // [백엔드 없음] mutable 배열을 아래 쓰기 함수가 갱신한다 — 실제 네트워크 0건. 각 화면 data-source.ts 의
 // // TODO(backend) 주석이 연동 지점이다. 정본이 서버로 옮겨가면 이 배열이 서버 상태로 바뀐다.

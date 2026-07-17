@@ -1,4 +1,4 @@
-// CEO 인사말 화면의 폼 검증 회귀 테스트 (A41)
+// CEO 인사말 화면의 폼 검증 회귀 테스트
 import { describe, expect, it } from 'vitest';
 
 import { ceoMessageSchema } from './validation';

@@ -1,4 +1,4 @@
-// MembersPage — 회원 목록 (라우트: /users/members) · A40 소유
+// MembersPage — 회원 목록 (라우트: /users/members)
 //
 // 좌: 등급 필터 + 그룹 필터 사이드 / 우: 검색 + 일괄 액션 + 표 + 페이지네이션.
 // 등급과 그룹은 다른 축이며, 함께 고르면 AND 로 걸린다.

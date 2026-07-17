@@ -1,4 +1,4 @@
-// HistoryFormPage — 연혁 등록/수정 (라우트: /company/history/new · /company/history/:id/edit) · A41 소유
+// HistoryFormPage — 연혁 등록/수정 (라우트: /company/history/new · /company/history/:id/edit)
 import type { CSSProperties } from 'react';
 
 import { controlStyle, errorIdOf, FormField, SelectField, TextareaField } from '../../../shared/ui';

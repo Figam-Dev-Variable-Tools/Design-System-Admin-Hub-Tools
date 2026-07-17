@@ -4,8 +4,8 @@ title: "발송 템플릿 비기능 명세"
 functionalSpec: FS-036
 backendSpec: BE-036
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -179,23 +179,23 @@ date: 2026-07-17
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
 | 1 | ~~**EXC-04**~~ | ~~P0~~ | **해소 (F3b · 2026-07-17)** — `createStoreAdapter` 에 존재 검사가 생겼다: `crud.ts:171` `exists()` → **`:219-221` `update` 가 `HttpError(409, '다른 사용자가 먼저 삭제한 항목입니다.')`** · `:232-234` `remove` 동일. **`createCrudAdapter` 와 계약이 다시 합쳐졌다.** 소비 화면(이 화면 포함 — 상품·포트폴리오·카테고리·답변템플릿·고객센터 유형)이 **코드 0줄 변경으로** 충돌 다이얼로그 복구 경로를 얻었다(`crud.ts:210-218` 주석이 그 설계를 명시). **⚠ 남은 것**: 이 409 는 '존재 여부' 기반이지 version/ETag 토큰이 아니다 — **동시 수정(둘 다 존재)은 여전히 last-write-wins** 다 → **#1' 로 승계** | — | **닫힘**(동시성 토큰 축은 #1' 로) |
-| 1' | EXC-04(동시 수정 축) | P1 | **낙관적 동시성 토큰이 없다** — `MessageTemplate` 에 `version`/`If-Match` 가 없고 `updatedAt`(`_shared/messaging.ts:146`)은 서버가 찍는 표시값일 뿐 토큰으로 쓰이지 않는다. 두 관리자가 같은 템플릿을 동시에 편집하면 나중 저장이 조용히 이긴다. **어댑터의 409(`crud.ts:219-221`)는 대상이 삭제됐을 때만 발현된다** | 이 화면 + 서버 계약 | A63(**BE-036 §7.5**) · A41(`_shared/messaging.ts`·어댑터) |
+| 1' | EXC-04(동시 수정 축) | P1 | **낙관적 동시성 토큰이 없다** — `MessageTemplate` 에 `version`/`If-Match` 가 없고 `updatedAt`(`_shared/messaging.ts:146`)은 서버가 찍는 표시값일 뿐 토큰으로 쓰이지 않는다. 두 관리자가 같은 템플릿을 동시에 편집하면 나중 저장이 조용히 이긴다. **어댑터의 409(`crud.ts:219-221`)는 대상이 삭제됐을 때만 발현된다** | 이 화면 + 서버 계약 | 백엔드 명세(**BE-036 §7.5**) · 프론트 리팩터(`_shared/messaging.ts`·어댑터) |
 | 2 | ~~IA-13~~ | ~~P0~~ | **해소 (F3b · 2026-07-17)** — `TemplateListPage.tsx:124` 가 공용 `useListState` 를 소비해 `?channel=`·`?q=` 를 URL 이 소유한다(`useListState.ts:87-99,125`). F5·Back·링크 공유로 복원된다. `useListState` 소비 화면은 이제 **34곳**(`a5c2639` 재확인 — `= useListState(` 호출부 실측)(마케팅 6화면 전부 포함) | — | **닫힘** |
-| 3 | IA-04 | **P0** | Pagination 이 없다 — 필터 결과 전량 렌더. BE-036 EP-01 도 페이징 파라미터가 없다 | 앱 전역 | A11 · A63 |
-| 4 | IA-02 | **P0** | **gap 유지 · 사유 전환.** ~~하위 라우트의 branch 라벨('마케팅 관리') 폴백~~은 통합의 `findCoveringLeaf`(`nav-config.ts:260-278,297-299`)로 **해소**됐다 — 상단 h1 이 이제 '발송 템플릿 관리' 다. 남은 것: ① **h1 이 2개**(`AppHeader.tsx:101` + `FormPageShell.tsx:160`) ② 목록 제목('발송 템플릿 관리' — nav 잎 라벨)과 폼 entityLabel('발송 템플릿')이 **여전히 갈린다** ③ `nav-config.ts:294-296` 이 '등록/수정' 행위를 제목에 넣지 않는 것을 의도로 못 박아 `/new` 와 `/:id/edit` 의 상단 h1 이 동일하다. **목록 라우트는 h1 1개 — 그 축은 pass** | 앱 전역(`AppHeader`·`FormPageShell`) + 이 화면(잎 라벨 ↔ entityLabel 정합) | A11 · A40 |
-| 5 | EXC-03 | **P0** | **gap 유지 · 범위 축소.** 쓰기 권한 게이팅 미배선 — **승인상태 select(`TemplateFormPage.tsx:202-216`)도 권한 축으로 막히지 않는다**(#12 와 같은 뿌리). **`useRouteWritePermissions`(`RequirePermission.tsx:45`) 소비처는 0 → 7곳**(products 3 · settings 4)이 됐다 — 훅·선례는 완비돼 있고 **`pages/marketing/**` 이 아직 배선되지 않았을 뿐**이다(grep = 0) | **이 섹션**(앱 전역 아님 — 선례 7곳 존재) | A11 · A40 |
+| 3 | IA-04 | **P0** | Pagination 이 없다 — 필터 결과 전량 렌더. BE-036 EP-01 도 페이징 파라미터가 없다 | 앱 전역 | UI 기획 · 백엔드 명세 |
+| 4 | IA-02 | **P0** | **gap 유지 · 사유 전환.** ~~하위 라우트의 branch 라벨('마케팅 관리') 폴백~~은 통합의 `findCoveringLeaf`(`nav-config.ts:260-278,297-299`)로 **해소**됐다 — 상단 h1 이 이제 '발송 템플릿 관리' 다. 남은 것: ① **h1 이 2개**(`AppHeader.tsx:101` + `FormPageShell.tsx:160`) ② 목록 제목('발송 템플릿 관리' — nav 잎 라벨)과 폼 entityLabel('발송 템플릿')이 **여전히 갈린다** ③ `nav-config.ts:294-296` 이 '등록/수정' 행위를 제목에 넣지 않는 것을 의도로 못 박아 `/new` 와 `/:id/edit` 의 상단 h1 이 동일하다. **목록 라우트는 h1 1개 — 그 축은 pass** | 앱 전역(`AppHeader`·`FormPageShell`) + 이 화면(잎 라벨 ↔ entityLabel 정합) | UI 기획 · 프론트 구현 |
+| 5 | EXC-03 | **P0** | **gap 유지 · 범위 축소.** 쓰기 권한 게이팅 미배선 — **승인상태 select(`TemplateFormPage.tsx:202-216`)도 권한 축으로 막히지 않는다**(#12 와 같은 뿌리). **`useRouteWritePermissions`(`RequirePermission.tsx:45`) 소비처는 0 → 7곳**(products 3 · settings 4)이 됐다 — 훅·선례는 완비돼 있고 **`pages/marketing/**` 이 아직 배선되지 않았을 뿐**이다(grep = 0) | **이 섹션**(앱 전역 아님 — 선례 7곳 존재) | UI 기획 · 프론트 구현 |
 | 6 | ~~COMP-10~~ | ~~P0~~ | **해소 (F3b · 2026-07-17)** — `TemplateListPage.tsx:124` 가 `useListState` 를 통해 `useDebouncedSearch`(`useListState.ts:227-230`)를 소비한다. 조합 중 커밋 금지(`useDebouncedSearch.ts:87`)·250ms 디바운스(`:23,93-95`)·Enter 차단(`:121-124`) 전부 붙었다. **본문(최대 2000자)까지 훑는 `searchTemplates` 가 자모마다 돌던 비용이 조합당 1회로 줄었다** | — | **닫힘** |
-| 7 | ~~EXC-12~~ · EXC-06 | P1 | **EXC-12 해소 (F3b · 2026-07-17)** — `createStoreAdapter.fetchOne` 이 `:192-194` 에서 `if (!exists(id)) throw new HttpError(HTTP_STATUS.notFound, '항목을 찾을 수 없습니다.')` 를 던진다. 예전에는 store 의 `getTemplate`(`_shared/store.ts:168-172`)이 **status 없는 generic Error** 를 던져 `useCrudForm` 의 `isNotFound` 분기(`useCrudForm.ts:143-149`)가 **영원히 발현되지 않았고**, 삭제된 템플릿에 '다시 시도'(영원히 실패)를 권했다. 이제 404 분기가 살아나 `/marketing/templates/nope/edit` 이 '찾을 수 없습니다 + 목록으로'(재시도 버튼 없음)로 간다(`FormPageShell.tsx:116-144`). **`store.ts` 는 그대로지만 어댑터가 먼저 `exists` 로 거른다** — 화면 코드 0줄 변경. **EXC-06 은 유지** — 403·429·400 전용 surface 는 여전히 없다 | 이 화면 + 공용 셸 | **A63(BE-036 §7.5)** |
-| 8 | STATE-05 | P1 | **빈 상태가 채널 필터 맥락을 못 받는다** — 호출부가 `hasActiveFilters`·`onResetFilters` 를 안 넘겨 필터 0행에 '등록하세요' 를 권한다. 뉴스레터 목록은 넘긴다 | **이 화면**(호출부 1곳 · 4줄) | A11 |
-| 9 | COMP-12 | P2 | **길이 기준이 문자/바이트로 갈렸고 SMS 본문이 LMS 한도를 넘겨도 저장된다**. 템플릿명·제목에 카운터 없음 | 이 화면 | A11 · A63(BE-036 §7.8) |
+| 7 | ~~EXC-12~~ · EXC-06 | P1 | **EXC-12 해소 (F3b · 2026-07-17)** — `createStoreAdapter.fetchOne` 이 `:192-194` 에서 `if (!exists(id)) throw new HttpError(HTTP_STATUS.notFound, '항목을 찾을 수 없습니다.')` 를 던진다. 예전에는 store 의 `getTemplate`(`_shared/store.ts:168-172`)이 **status 없는 generic Error** 를 던져 `useCrudForm` 의 `isNotFound` 분기(`useCrudForm.ts:143-149`)가 **영원히 발현되지 않았고**, 삭제된 템플릿에 '다시 시도'(영원히 실패)를 권했다. 이제 404 분기가 살아나 `/marketing/templates/nope/edit` 이 '찾을 수 없습니다 + 목록으로'(재시도 버튼 없음)로 간다(`FormPageShell.tsx:116-144`). **`store.ts` 는 그대로지만 어댑터가 먼저 `exists` 로 거른다** — 화면 코드 0줄 변경. **EXC-06 은 유지** — 403·429·400 전용 surface 는 여전히 없다 | 이 화면 + 공용 셸 | **백엔드 명세(BE-036 §7.5)** |
+| 8 | STATE-05 | P1 | **빈 상태가 채널 필터 맥락을 못 받는다** — 호출부가 `hasActiveFilters`·`onResetFilters` 를 안 넘겨 필터 0행에 '등록하세요' 를 권한다. 뉴스레터 목록은 넘긴다 | **이 화면**(호출부 1곳 · 4줄) | UI 기획 |
+| 9 | COMP-12 | P2 | **길이 기준이 문자/바이트로 갈렸고 SMS 본문이 LMS 한도를 넘겨도 저장된다**. 템플릿명·제목에 카운터 없음 | 이 화면 | UI 기획 · 백엔드 명세(BE-036 §7.8) |
 | 10 | ~~ERP-13~~ | ~~P1~~ | **해소 (통합 · 2026-07-17)** — 조사 헬퍼가 `shared/format.ts:306(objectParticle)·311(topicParticle)` 로 승격되고 공용 소비처가 전부 소비한다(`useCrudForm.ts:222` → '발송 템플릿을 등록했습니다' · `useCrudList.tsx:108,158` → 템플릿명의 받침으로 고른다 · `FormPageShell.tsx:129-130` · `crud/validation.ts:22,25` → '템플릿명을 입력하세요'). 사용자 대상 리터럴 `'을(를)'`·`'은(는)'` grep = **0**. 이 화면 테스트가 느슨했던 덕에 수정이 필요 없었다는 예측이 맞았다 | — | **닫힘** |
-| 11 | (quality-bar 밖) | — | 치환변수 바가 '**미리보기에서** 치환됩니다' 라고 안내하나 **이 화면에 미리보기가 없다** | 이 화면(문구 1줄) | A11 |
-| 12 | **(quality-bar 밖)** | — | **승인 흐름이 통째로 클라이언트 손에 있다** — 폼이 `approvalStatus` 를 입력으로 보내 **카카오 심사를 우회**할 수 있다. 승인 후 본문 변경·채널 전환 잔여값·반려 사유 자작·승인 이력 부재 포함. **quality-bar 에 이를 겨냥한 요구가 없어 §2 에 행이 없으나 실무 위험도는 P0 gap 보다 높다** | **이 화면** | **A11 change_request · A63(BE-036 §7.1) — 최우선** |
-| 13 | EXC-19 · EXC-05 · EXC-11 | P1 | 세션 만료 시 작성 중 본문 소실 · 프론트 타임아웃 상한 없음 · 오프라인 감지 없음 | 앱 전역 | A40 · A63 |
-| 14 | EXC-10 · EXC-18 | P1 | 일괄 삭제가 실패 id 를 안 준다 · Shift-range/대량 confirm/progress/cancel 없음. **없는 id 를 성공으로 집계**(#1) | 앱 전역 | A11 |
-| 15 | A11Y-13 · A11Y-16 · IA-03 · IA-14 | P1 | 폼 진입 첫 필드 포커스 없음 · **SMS→LMS 승격이 announce 되지 않음** · breadcrumb 없음 · 반응형 미선언 | 앱 전역 + 이 화면 | A11 |
-| 16 | ERP-12 · ERP-15 · ERP-08 · COMP-09 | P1/P2 | export 없음 · 대형 목록 계약 없음 · **`updatedAt` 이 UTC 저장 + 로컬 렌더라 시드와 기준이 다름** · 템플릿명 truncation 없음 | 앱 전역 + 이 화면 | A11 · A63 |
-| 17 | (quality-bar 밖) | — | 심사 제출 트리거 부재(심만 있고 호출부 0건) · 템플릿명 중복 검사 없음 · 목록 정렬 규칙 없음 · 채널 배지 3종 동일 tone | 이 화면 | A01 · A63 · A11 |
+| 11 | (quality-bar 밖) | — | 치환변수 바가 '**미리보기에서** 치환됩니다' 라고 안내하나 **이 화면에 미리보기가 없다** | 이 화면(문구 1줄) | UI 기획 |
+| 12 | **(quality-bar 밖)** | — | **승인 흐름이 통째로 클라이언트 손에 있다** — 폼이 `approvalStatus` 를 입력으로 보내 **카카오 심사를 우회**할 수 있다. 승인 후 본문 변경·채널 전환 잔여값·반려 사유 자작·승인 이력 부재 포함. **quality-bar 에 이를 겨냥한 요구가 없어 §2 에 행이 없으나 실무 위험도는 P0 gap 보다 높다** | **이 화면** | **UI 기획 쪽 변경 요청 · 백엔드 명세(BE-036 §7.1) — 최우선** |
+| 13 | EXC-19 · EXC-05 · EXC-11 | P1 | 세션 만료 시 작성 중 본문 소실 · 프론트 타임아웃 상한 없음 · 오프라인 감지 없음 | 앱 전역 | 프론트 구현 · 백엔드 명세 |
+| 14 | EXC-10 · EXC-18 | P1 | 일괄 삭제가 실패 id 를 안 준다 · Shift-range/대량 confirm/progress/cancel 없음. **없는 id 를 성공으로 집계**(#1) | 앱 전역 | UI 기획 |
+| 15 | A11Y-13 · A11Y-16 · IA-03 · IA-14 | P1 | 폼 진입 첫 필드 포커스 없음 · **SMS→LMS 승격이 announce 되지 않음** · breadcrumb 없음 · 반응형 미선언 | 앱 전역 + 이 화면 | UI 기획 |
+| 16 | ERP-12 · ERP-15 · ERP-08 · COMP-09 | P1/P2 | export 없음 · 대형 목록 계약 없음 · **`updatedAt` 이 UTC 저장 + 로컬 렌더라 시드와 기준이 다름** · 템플릿명 truncation 없음 | 앱 전역 + 이 화면 | UI 기획 · 백엔드 명세 |
+| 17 | (quality-bar 밖) | — | 심사 제출 트리거 부재(심만 있고 호출부 0건) · 템플릿명 중복 검사 없음 · 목록 정렬 규칙 없음 · 채널 배지 3종 동일 tone | 이 화면 | 아키텍처 · 백엔드 명세 · UI 기획 |
 
 ## 6. 측정 도구 · 재현 스위치
 

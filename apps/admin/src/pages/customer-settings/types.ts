@@ -1,4 +1,4 @@
-// 고객 설정(회원 등급 정책) 도메인 모델 (A40 소유 — apps/admin/src/pages/customer-settings/**)
+// 고객 설정(회원 등급 정책) 도메인 모델
 //
 // [등급의 SSOT] 등급 개념(MemberTier / TIER_LABEL)은 shared/domain/member.ts 가 갖는다.
 // 이 파일은 그 등급에 **정책(승급 조건·할인율·산정 기준)** 을 얹을 뿐, 등급을 새로 정의하지 않는다.

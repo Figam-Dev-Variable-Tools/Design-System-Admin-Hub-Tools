@@ -1,11 +1,11 @@
 /**
- * @tds/reuse-guard — 중복 컴포넌트 차단 진입점 (A75 Component Reuse AI)
+ * @tds/reuse-guard — 중복 컴포넌트 차단 진입점 (재사용 가드 Component Reuse AI)
  *
  * 실행:
  *   pnpm --filter @tds/reuse-guard run check --name StatusFilter --props options,value,multiple,onChange
  *   pnpm reuse:check -- --name StatusFilter --props options,value,multiple
  *
- * 판정 (설계서 §3 A75 · §13):
+ * 판정 (설계서 §3 재사용 가드 · §13):
  *   종합 유사도 = 이름(레벤슈타인 정규화) 40% + props 집합 자카드 60%
  *   >= 85%      → CREATE_BLOCKED  (신규 생성 차단 — EXTEND 강제, exit 1)
  *   60% ~ 85%   → EXTEND_RECOMMENDED

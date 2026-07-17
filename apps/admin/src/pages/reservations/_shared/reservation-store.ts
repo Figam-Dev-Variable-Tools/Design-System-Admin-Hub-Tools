@@ -1,4 +1,4 @@
-// 예약 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/reservations/**)
+// 예약 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 프레임워크 createCrudAdapter 에 시드를 넣는다. 예약 목록·폼과 예약 일정(달력)이
 // 같은 어댑터를 읽는다(_shared 라 페이지 간 결합이 아니다).

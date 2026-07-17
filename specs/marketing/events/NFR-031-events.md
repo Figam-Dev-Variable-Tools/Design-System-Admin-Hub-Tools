@@ -4,8 +4,8 @@ title: "이벤트 비기능 명세"
 functionalSpec: FS-031
 backendSpec: BE-031
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -180,30 +180,30 @@ date: 2026-07-17
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
 | 1 | ~~COMP-10~~ | ~~P0~~ | **해소 (F3b)** — `EventListPage.tsx:84,145-149` 가 `useListState` 를 통해 `useDebouncedSearch`(`useListState.ts:227-230`)를 소비한다. 조합 중 커밋 금지·250ms 디바운스·Enter 차단 전부 붙었다 | — | **닫힘** |
-| 2 | IA-02 | **P0** | **h1 2개 + 상단 h1 이 행위 미반영.** ~~브랜치 라벨 폴백~~은 `findCoveringLeaf`(`nav-config.ts:260-278,297-299`)로 해소돼 상단 h1 이 '이벤트' 다. 남은 것: `AppHeader.tsx:101` + `FormPageShell.tsx:160` 이 각각 h1 을 그리고, `nav-config.ts:294-296` 이 '행위는 제목에 넣지 않는다'를 의도로 못 박아 `/new` 와 `/:id/edit` 이 같은 이름으로 announce 된다. **잎 목록 라우트는 h1 1개 — 그 축은 pass** | 앱 전역(`AppHeader`·`FormPageShell`) | A11 change_request |
-| 3 | IA-04 | **P0** | Pagination 부재 — 전량 렌더. 이벤트 수 상한 없음. DS `Pagination` 은 F3a 에서 범위/page-size 를 opt-in(`Pagination.tsx:112`)으로 열었으나 `pages/marketing/**` 소비 0건이고 `CrudListShell` 자체에 페이지네이션 슬롯이 없다 | 앱 전역(`CrudListShell`) | A11 change_request |
+| 2 | IA-02 | **P0** | **h1 2개 + 상단 h1 이 행위 미반영.** ~~브랜치 라벨 폴백~~은 `findCoveringLeaf`(`nav-config.ts:260-278,297-299`)로 해소돼 상단 h1 이 '이벤트' 다. 남은 것: `AppHeader.tsx:101` + `FormPageShell.tsx:160` 이 각각 h1 을 그리고, `nav-config.ts:294-296` 이 '행위는 제목에 넣지 않는다'를 의도로 못 박아 `/new` 와 `/:id/edit` 이 같은 이름으로 announce 된다. **잎 목록 라우트는 h1 1개 — 그 축은 pass** | 앱 전역(`AppHeader`·`FormPageShell`) | UI 기획 쪽 변경 요청 |
+| 3 | IA-04 | **P0** | Pagination 부재 — 전량 렌더. 이벤트 수 상한 없음. DS `Pagination` 은 F3a 에서 범위/page-size 를 opt-in(`Pagination.tsx:112`)으로 열었으나 `pages/marketing/**` 소비 0건이고 `CrudListShell` 자체에 페이지네이션 슬롯이 없다 | 앱 전역(`CrudListShell`) | UI 기획 쪽 변경 요청 |
 | 4 | ~~IA-13~~ | ~~P0~~ | **해소 (F3b)** — `EventListPage.tsx:84` 가 `useListState` 를 소비해 `?phase=`·`?q=` 를 URL 이 소유한다(`useListState.ts:87-99,125`). F5·Back·링크 공유로 복원된다 | — | **닫힘** |
-| 5 | EXC-03 | **P0** | 쓰기 컨트롤 권한 게이팅 없음. **범위가 좁아졌다** — `useRouteWritePermissions`(`RequirePermission.tsx:45`) 소비자가 0 → **7곳**(products 3 · settings 4)이 됐다. 즉 훅·선례는 완비돼 있고 **`pages/marketing/**` 이 아직 배선되지 않았을 뿐**이다. 읽기 게이팅은 충족 | **이 섹션**(앱 전역 아님 — 선례 7곳 존재) | A11 change_request |
-| 6 | EXC-04 | **P0** | 낙관적 동시성 토큰 부재 — `updatedAt`/`version` 필드가 없어 '먼저 수정' 미감지(last-write-wins). 어댑터의 409(`crud.ts:126-128`)는 **'존재 여부' 기반**이라 '먼저 삭제'만 잡는다 | 이 화면 + 서버 계약 | A63 (**BE-031 §7.3**) · A41(`types.ts`·어댑터) |
-| 7 | COMP-01 | P1 | 공용 폼 셸의 '목록으로' 가 DS Button 아님 + 수기 '저장 중…' | 앱 전역(`FormPageShell`) | A11 change_request |
-| 8 | COMP-12 | P2 | 이벤트명·대상에 카운터 없음. 대상은 `maxLength` 속성도 없음 | 이 화면 | A11 change_request |
-| 9 | IA-03 | P1 | breadcrumb 부재 | 앱 전역 | A11 change_request |
-| 10 | IA-14 | P1 | 반응형 계약 미선언 | 앱 전역 | A11 change_request |
-| 11 | ERP-01 | P1 | status→tone 이 마케팅 섹션 스코프 — 앱 전역 단일 레지스트리 아님 | 앱 전역 | A11 change_request |
-| 12 | ERP-04 | P1 | sortable header 부재 — 정렬 고정 | 앱 전역(`CrudTable`) | A11 change_request |
-| 13 | ERP-06 | P1 | microcopy 표준 문서 부재 | 앱 전역 | A11 change_request |
+| 5 | EXC-03 | **P0** | 쓰기 컨트롤 권한 게이팅 없음. **범위가 좁아졌다** — `useRouteWritePermissions`(`RequirePermission.tsx:45`) 소비자가 0 → **7곳**(products 3 · settings 4)이 됐다. 즉 훅·선례는 완비돼 있고 **`pages/marketing/**` 이 아직 배선되지 않았을 뿐**이다. 읽기 게이팅은 충족 | **이 섹션**(앱 전역 아님 — 선례 7곳 존재) | UI 기획 쪽 변경 요청 |
+| 6 | EXC-04 | **P0** | 낙관적 동시성 토큰 부재 — `updatedAt`/`version` 필드가 없어 '먼저 수정' 미감지(last-write-wins). 어댑터의 409(`crud.ts:126-128`)는 **'존재 여부' 기반**이라 '먼저 삭제'만 잡는다 | 이 화면 + 서버 계약 | 백엔드 명세 (**BE-031 §7.3**) · 프론트 리팩터(`types.ts`·어댑터) |
+| 7 | COMP-01 | P1 | 공용 폼 셸의 '목록으로' 가 DS Button 아님 + 수기 '저장 중…' | 앱 전역(`FormPageShell`) | UI 기획 쪽 변경 요청 |
+| 8 | COMP-12 | P2 | 이벤트명·대상에 카운터 없음. 대상은 `maxLength` 속성도 없음 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 9 | IA-03 | P1 | breadcrumb 부재 | 앱 전역 | UI 기획 쪽 변경 요청 |
+| 10 | IA-14 | P1 | 반응형 계약 미선언 | 앱 전역 | UI 기획 쪽 변경 요청 |
+| 11 | ERP-01 | P1 | status→tone 이 마케팅 섹션 스코프 — 앱 전역 단일 레지스트리 아님 | 앱 전역 | UI 기획 쪽 변경 요청 |
+| 12 | ERP-04 | P1 | sortable header 부재 — 정렬 고정 | 앱 전역(`CrudTable`) | UI 기획 쪽 변경 요청 |
+| 13 | ERP-06 | P1 | microcopy 표준 문서 부재 | 앱 전역 | UI 기획 쪽 변경 요청 |
 | 14 | ~~**ERP-09**~~ | ~~P2~~ | **해소 (F3b)** — `formatDate`(`format.ts:161-165`)가 KST 고정 Intl 포매터(`:63,76-85,102-124`)를 쓴다. `derivePhase` 기준일이 보는 사람의 OS 타임존과 무관해졌다. 표시 TZ 정책이 화면에도 적힌다(`:68` `TIME_ZONE_NOTICE`) | — | **닫힘** |
 | 15 | ~~**ERP-13**~~ | ~~P1~~ | **해소 (통합)** — 조사 헬퍼가 `shared/format.ts:306(objectParticle)·311(topicParticle)` 로 승격되고 `useCrudForm.ts:222`·`useCrudList.tsx:108,158`·`FormPageShell.tsx:129-130`·`crud/validation.ts:22,25` 가 소비한다. 사용자 대상 리터럴 '을(를)' **0건** | — | **닫힘** |
-| 16 | ERP-15 | P1 | 대형 list 렌더 계약 부재(cap·virtualization) | 앱 전역 | A11 change_request |
-| 17 | EXC-05 | P1 | 클라이언트 타임아웃 상한 부재 | 앱 전역 | A11 · A63 (**BE-031 §2** 서버 상한 5초) |
-| 18 | EXC-06 | P1 | 403·429·400 전용 surface 부재 — 일반 실패로 수렴 | 이 화면 + 공용 셸 | A11 (**BE-031 §7.7**) |
-| 19 | EXC-10 | P1 | 일괄 삭제가 실패 id 미반환 — 실패분만 재시도 불가 | 앱 전역 + 서버 계약 | A11 · A63 (**BE-031 §7.5**) |
-| 20 | EXC-11 | P1 | 오프라인 감지 부재 | 앱 전역 | A11 change_request |
-| 21 | EXC-18 | P1 | Shift-range·임계값 confirm·progress/cancel 부재 | 앱 전역 | A11 change_request |
-| 22 | EXC-19 | P1 | 세션 만료 시 dirty 초안 소실 | 앱 전역 | A11 · A63 |
-| 23 | EXC-20 | P1 | 조회·삭제 실패 배너에 참조 코드 미표시 | 앱 전역 | A11 (**BE-031 §7.12**) |
-| 24 | A11Y-13 | P1 | 폼 진입 시 첫 필드 자동 포커스 없음(submit 실패 포커스는 충족) | 앱 전역(`FormPageShell`) | A11 change_request |
-| 25 | COMP-07 | P2 | `SeqCell seq={index + 1}` — 페이지 오프셋 미반영. **IA-04(#3) 해소 시 즉시 위반** | 앱 전역(`CrudTable`) | A11 (#3 과 함께) |
+| 16 | ERP-15 | P1 | 대형 list 렌더 계약 부재(cap·virtualization) | 앱 전역 | UI 기획 쪽 변경 요청 |
+| 17 | EXC-05 | P1 | 클라이언트 타임아웃 상한 부재 | 앱 전역 | UI 기획 · 백엔드 명세 (**BE-031 §2** 서버 상한 5초) |
+| 18 | EXC-06 | P1 | 403·429·400 전용 surface 부재 — 일반 실패로 수렴 | 이 화면 + 공용 셸 | UI 기획 (**BE-031 §7.7**) |
+| 19 | EXC-10 | P1 | 일괄 삭제가 실패 id 미반환 — 실패분만 재시도 불가 | 앱 전역 + 서버 계약 | UI 기획 · 백엔드 명세 (**BE-031 §7.5**) |
+| 20 | EXC-11 | P1 | 오프라인 감지 부재 | 앱 전역 | UI 기획 쪽 변경 요청 |
+| 21 | EXC-18 | P1 | Shift-range·임계값 confirm·progress/cancel 부재 | 앱 전역 | UI 기획 쪽 변경 요청 |
+| 22 | EXC-19 | P1 | 세션 만료 시 dirty 초안 소실 | 앱 전역 | UI 기획 · 백엔드 명세 |
+| 23 | EXC-20 | P1 | 조회·삭제 실패 배너에 참조 코드 미표시 | 앱 전역 | UI 기획 (**BE-031 §7.12**) |
+| 24 | A11Y-13 | P1 | 폼 진입 시 첫 필드 자동 포커스 없음(submit 실패 포커스는 충족) | 앱 전역(`FormPageShell`) | UI 기획 쪽 변경 요청 |
+| 25 | COMP-07 | P2 | `SeqCell seq={index + 1}` — 페이지 오프셋 미반영. **IA-04(#3) 해소 시 즉시 위반** | 앱 전역(`CrudTable`) | UI 기획 (#3 과 함께) |
 
 > **BE-031 §7 로 가는 것**(서버 계약이 선행돼야 하는 것): #6(§7.3 version/If-Match) · #14(이관 #13 TZ) · #17(§2 타임아웃) · #18(§7.7 · §7.13) · #19(§7.5 일괄) · #23(§7.12 traceId). 나머지는 프론트 단독 해소 가능.
 >

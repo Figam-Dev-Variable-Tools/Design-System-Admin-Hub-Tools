@@ -165,11 +165,11 @@ export function generateArgTypes(contract: ComponentContract): GeneratedFile {
   // [왜 states 를 곱하지 않는가 — 도구 간 정의가 갈라졌던 자리다]
   //   이전 구현은 `enum × states` 를 생성했고(Button 72칸), contract-test 의 게이트는
   //   `enum × 2^boolean` 을 요구했다(96칸). **같은 이름의 두 정의가 다른 수를 말했다** —
-  //   스토리 작성자가 이 생성물을 믿으면 게이트에서 반드시 FAIL 한다 (A30 실측).
+  //   스토리 작성자가 이 생성물을 믿으면 게이트에서 반드시 FAIL 한다 (실측 확인됨).
   //
   //   책임을 나눠 해소한다:
   //     - **prop 표면 조합** → 여기(그리고 contract-test 의 combinationMatrixSize). 두 곳이 같은 식을 쓴다.
-  //     - **states 커버리지** → A77 축2 가 소유한다. 모든 state 가 **단언을 가진** 테스트로 덮였는지 본다.
+  //     - **states 커버리지** → 커버리지 축2(contract-states) 가 소유한다. 모든 state 가 **단언을 가진** 테스트로 덮였는지 본다.
   //   states 를 여기서 또 곱하면 이중 과금이고, 조합이 폭발해(Button 576칸) 아무도 못 채운다.
   const enumDims = Object.entries(contract.props)
     .filter(([, p]) => p.type === 'enum' && (p.values?.length ?? 0) > 0)
@@ -192,7 +192,7 @@ export function generateArgTypes(contract: ComponentContract): GeneratedFile {
   out.push(
     ' * **states 는 여기 없다** — contract-test 의 combinationMatrixSize() 와 같은 식이어야 하고,',
   );
-  out.push(' * state 커버리지는 A77 축2(contract-states)가 단언 있는 테스트로 따로 강제한다.');
+  out.push(' * state 커버리지는 커버리지 축2(contract-states)가 단언 있는 테스트로 따로 강제한다.');
   out.push(' */');
   out.push('export const combinationMatrix = [');
   for (const combo of combos) {

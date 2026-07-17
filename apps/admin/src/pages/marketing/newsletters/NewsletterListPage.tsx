@@ -1,4 +1,4 @@
-// NewsletterListPage — 뉴스레터 발송회차 목록 (라우트: /marketing/newsletters) · A41 소유
+// NewsletterListPage — 뉴스레터 발송회차 목록 (라우트: /marketing/newsletters)
 //
 // CRUD 프레임워크(useCrudList + CrudListShell) 위에 상태 필터 + 검색 + 회차·구독자수·상태·오픈율·클릭율
 // 열을 얹는다. 목록엔 이미지 열이 없다.

@@ -1,29 +1,27 @@
-# AI / 에이전트 오케스트레이션 층 — 로컬 전용 (git 추적 제외)
+# 로컬 전용 개발 도구층 — git 추적 제외
 #
 # 이 저장소가 공개하는 것은 제품(React 어드민 + 디자인 시스템)이다. 아래 경로는 그 제품을
-# *만드는 방식*에 속하는 도구층이지 제품의 일부가 아니므로 추적하지 않는다.
-# 디스크에는 그대로 남아 로컬 에이전트 작업은 종전대로 동작한다.
+# *만드는 방식*에 속하는 로컬 도구층이지 제품의 일부가 아니므로 추적하지 않는다.
+# 디스크에는 그대로 남아 로컬 작업은 종전대로 동작한다.
 #
-#   orchestration/  에이전트 레지스트리(agents.json·gates.json)·스키마·태스크·상태
-#   skills/         에이전트별 SKILL 정의
-#   tools/boundary/ 위 레지스트리 전용 도구. registry.ts 가 읽는 경로(AGENTS_JSON·
-#                   GATES_JSON·REGISTRY_SCHEMA_JSON)가 전부 orchestration/ 아래라
+#   orchestration/  로컬 워크플로 레지스트리·스키마·태스크·상태
+#   skills/         로컬 작업 절차 정의
+#   tools/boundary/ 위 레지스트리 전용 도구. 읽는 경로가 전부 orchestration/ 아래라
 #                   레지스트리 없이는 동작 자체가 불가능하다 → 함께 제외한다.
-#   .github/CODEOWNERS  agents.json 에서 생성되던 산출물. 소유자가 @tds-agents/* 인데
-#                   GitHub 에 실존하지 않는 팀이라 공개 저장소에서는 리뷰어를 못 붙인다.
-#   .claude/        Claude Code 세션 로컬 설정·워크트리
+#   .github/CODEOWNERS  레지스트리에서 생성되던 산출물. 공개 저장소에서는 사용하지 않는다.
+#   .claude/        로컬 세션 설정·워크트리
 orchestration/
 skills/
 tools/boundary/
 .github/CODEOWNERS
 .claude/
 
-# 에이전트 조직 운영 문서 — 주제 자체가 '조직'이지 제품이 아니다.
+# 로컬 워크플로 운영 문서 — 주제가 '작업 조직'이지 제품이 아니다.
 #   docs/architecture/org-design-v2.md        조직 설계서
 #   docs/architecture/org-audit-2026-07-15.md 조직 감사 리포트
-#   docs/architecture/context-digest.md       agents.json/gates.json 에서 생성된 에이전트용 요약본
-#   docs/_templates/checklists/G*.md          게이트 승인 체계 (approver/producers 가 에이전트 id)
-#   docs/_templates/D5-review-report.md       에이전트 리뷰 리포트 (orchestration 스키마 준수 강제)
+#   docs/architecture/context-digest.md       레지스트리에서 생성된 요약본
+#   docs/_templates/checklists/G*.md          게이트 승인 체크리스트
+#   docs/_templates/D5-review-report.md       리뷰 리포트 템플릿
 # ADR(docs/adr/**)은 여기 포함하지 않는다 — 아키텍처 결정 기록은 제품 자산이다.
 docs/architecture/org-design-v2.md
 docs/architecture/org-audit-2026-07-15.md
@@ -66,8 +64,8 @@ Thumbs.db
 # 트리가 더러워져 끝없는 churn 이 생긴다. 그래서 재생성물은 추적하지 않는다.
 #
 # 예외 (커밋한다): reports/test-coverage/**
-#   A77 축4 래칫의 기준선이다. CI 캐시가 초기화돼도 후퇴를 감지하려면 이 파일이
-#   저장소에 영속돼야 한다 (ADR-0010 결정 2 · A77 인계). 기준선 없는 래칫은 반쪽이다.
+#   커버리지 축4 래칫의 기준선이다. CI 캐시가 초기화돼도 후퇴를 감지하려면 이 파일이
+#   저장소에 영속돼야 한다 (ADR-0010 결정 2). 기준선 없는 래칫은 반쪽이다.
 #
 # 예외 (커밋한다): reports/vrt/baseline/**
 #   같은 이유다 — VRT 기준 이미지는 '재생성물'이 아니라 **비교 대상**이다.

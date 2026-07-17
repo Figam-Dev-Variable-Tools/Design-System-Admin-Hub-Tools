@@ -1,4 +1,4 @@
-// 목록형 화면 공용 CRUD 키트 (A41 소유 — apps/admin/src/shared/crud/** · 앱 공용 선언적 CRUD 프레임워크)
+// 목록형 화면 공용 CRUD 키트 (앱 공용 선언적 CRUD 프레임워크)
 //
 // 목록 + 상세(등록/수정 폼) + 삭제팝업 을 갖는 기업 관리 화면(연혁·인증서·ESG·조직도)이 같은
 // 조회/쓰기 배선을 쓴다. 각 화면이 useQuery/useMutation 을 복사하는 대신 여기 한 벌만 둔다.
@@ -29,7 +29,7 @@ import { HTTP_STATUS, HttpError } from '../errors/http-error';
  *
  * [export 하지 않는다] 이 타입의 이름을 import 하는 곳은 없다 — 어댑터 구현부(ticketAdapter 등)는
  * `CrudAdapter<T, Input>` 를 달고 파라미터 타입을 **구조적으로** 물려받는다. 이름을 export 하면
- * 소비자 0인 export 가 되어 dead-code(A83 축5, 임계 0건) 가 한 건 늘 뿐이다.
+ * 소비자 0인 export 가 되어 dead-code(클린코드 점검 축5, 임계 0건) 가 한 건 늘 뿐이다.
  * (앱 tsconfig 는 `declaration: false` 라 공개 시그니처가 비공개 타입을 참조해도 문제가 없다.)
  */
 interface WriteContext {

@@ -1,4 +1,4 @@
-// PrivacyFormPage — 개인정보 처리방침 버전 등록/수정 (라우트: /content/privacy/new · /:id/edit) · A41 소유
+// PrivacyFormPage — 개인정보 처리방침 버전 등록/수정 (라우트: /content/privacy/new · /:id/edit)
 //
 // [별도 폼 페이지 — 오너 피드백 ⑦/⑥] 목록의 인라인 폼을 없애고 별도 라우트로 옮겼다.
 //   단일 문서라 종류가 없다. 수정은 :id 로 기존 버전을 불러온다. 폼 본문은 기존 VersionForm 재사용.

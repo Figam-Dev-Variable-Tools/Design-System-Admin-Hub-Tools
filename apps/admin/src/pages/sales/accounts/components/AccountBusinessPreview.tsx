@@ -1,4 +1,4 @@
-// 거래처 사업자 정보 미리보기 (A41 소유 — apps/admin/src/pages/sales/**)
+// 거래처 사업자 정보 미리보기
 //
 // 입력한 사업자정보를 사업자등록증 요약 카드처럼 보여준다. 거래처 폼 1곳만 쓰므로 페이지 전용이다.
 import type { CSSProperties } from 'react';

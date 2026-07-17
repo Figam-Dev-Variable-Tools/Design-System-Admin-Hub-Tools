@@ -1,4 +1,4 @@
-// 적립금 정책 폼 검증 규칙 (A41 — 검증의 정본은 이 zod 스키마다)
+// 적립금 정책 폼 검증 규칙 (검증의 정본은 이 zod 스키마다)
 import * as z from 'zod/mini';
 
 import { objectParticle, topicParticle } from '../../../shared/format';

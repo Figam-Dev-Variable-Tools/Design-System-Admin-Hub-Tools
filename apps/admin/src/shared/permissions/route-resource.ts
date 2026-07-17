@@ -1,4 +1,4 @@
-// 라우트 → 권한 리소스 매핑 (A41 소유 — apps/admin/src/shared/permissions/**)
+// 라우트 → 권한 리소스 매핑
 //
 // [왜 이 파일이 있나 — EXC-03]
 // 권한 리소스는 **사이드바 잎(nav-config)** 에서 파생된다(resources.ts). 그런데 라우트는 잎보다

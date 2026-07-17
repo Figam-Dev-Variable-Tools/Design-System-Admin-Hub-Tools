@@ -1,4 +1,4 @@
-// ApplicationListPage — 신청서 목록 (라우트: /reservations/applications) · A41 소유
+// ApplicationListPage — 신청서 목록 (라우트: /reservations/applications)
 //
 // 신청은 고객 채널이 만든다 — 읽기 위주다(생성/삭제 없음). 상태 필터 + 검색 + 행 → 상세(처리).
 // 데이터는 프레임워크 useCrudListQuery(읽기)로 배선한다. 목록엔 이미지 열이 없다.

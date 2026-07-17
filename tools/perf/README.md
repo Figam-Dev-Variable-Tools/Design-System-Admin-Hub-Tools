@@ -1,7 +1,7 @@
 # @tds/perf — 성능 감사
 
-> 소유: **A73 Performance Audit AI** (`orchestration/registry/agents.json`)
-> 차단 조건: **Performance Budget 초과 → G6 차단** (`orchestration/registry/gates.json`)
+> 담당: 성능 감사
+> 차단 조건: **Performance Budget 초과 → G6 차단**
 
 packages/ui public entry의 gzip 번들 크기를 size-limit으로 측정하고
 "컴포넌트당 +2KB" 예산 규칙으로 판정한다.
@@ -40,11 +40,11 @@ pnpm perf        # 루트 스크립트 (= pnpm --filter @tds/perf run audit)
 | 코드 | 의미 |
 |---|---|
 | 0 | 예산 이내 · 또는 graceful skip |
-| 1 | **예산 초과** → G6 차단 (A42 Code Reviewer + A00에 escalation, 성능 ↔ 기능 충돌은 A01 판정) |
+| 1 | **예산 초과** → G6 차단 (코드 리뷰 + 오케스트레이터에 escalation, 성능 ↔ 기능 충돌은 아키텍처 판정) |
 
 ## 렌더 카운트 예산 가이드 (수동/Play Function 검증)
 
-번들과 달리 렌더 횟수는 정적 측정이 불가능하다. 아래 예산을 G6 리뷰(A42)와
+번들과 달리 렌더 횟수는 정적 측정이 불가능하다. 아래 예산을 G6 리뷰(코드 리뷰)와
 Storybook Play Function에서 검증한다.
 
 | 예산 | 기준 |
@@ -61,4 +61,4 @@ Storybook Play Function에서 검증한다.
 ## 출력 규격
 
 `reports/perf/<date>.json` — 측정값(gzip bytes) · 예산 계산식 · size-limit 원본 결과.
-A42(Code Reviewer)가 RR-G6 검수의 evidence로 인용한다.
+코드 리뷰가 RR-G6 검수의 evidence로 인용한다.

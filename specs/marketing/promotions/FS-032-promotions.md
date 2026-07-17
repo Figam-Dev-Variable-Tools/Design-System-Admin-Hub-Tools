@@ -3,8 +3,8 @@ id: FS-032
 title: "프로모션 (목록 · 등록/수정)"
 screen: SCR-032               # ⚠ 마케팅 SCR(D2) 미작성 — §7 미결 사항 참조
 route: /marketing/promotions
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -186,7 +186,7 @@ date: 2026-07-17
 | FS-032-EL-007.9 / EL-011 | 프로모션 삭제(단건) | W | 프로모션 id | `promotionAdapter.remove(id, signal)` | 이미 없으면 **409**. 성공 후 목록 무효화 |
 | FS-032-EL-006.2 / EL-012 | 프로모션 일괄 삭제 | W | 선택된 id 배열 | `promotionAdapter.remove(id, signal)` × N (`settleAll`) | **일괄 전용 경로가 아니다** — N 개의 단건 삭제를 병렬로 낸다 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드가 없다. `promotionAdapter` 는 `createCrudAdapter` 가 만든 **브라우저 안 mutable 픽스처**(`PROMOTION_SEED` 3건)로, 모든 함수가 `LATENCY_MS`(400ms) 만큼 기다린 뒤 그 배열을 읽고 쓴다 — **실제 네트워크 호출은 0건이다.** 새로고침하면 모든 변경이 사라진다. `update`·`remove` 는 대상 id 가 없으면 `HttpError(409)` 를 던진다(유령 저장 방지). `fetchOne` 은 없으면 `HttpError(404)`. `data-source.ts:55` 의 `// TODO(backend): GET/POST /api/marketing/promotions · GET/PUT/DELETE /api/marketing/promotions/:id` 주석이 **유일한 연동 지점**이며, 위 표는 백엔드 연결 후 의도된 동작이다. 계약 정본은 BE-032.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드가 없다. `promotionAdapter` 는 `createCrudAdapter` 가 만든 **브라우저 안 mutable 픽스처**(`PROMOTION_SEED` 3건)로, 모든 함수가 `LATENCY_MS`(400ms) 만큼 기다린 뒤 그 배열을 읽고 쓴다 — **실제 네트워크 호출은 0건이다.** 새로고침하면 모든 변경이 사라진다. `update`·`remove` 는 대상 id 가 없으면 `HttpError(409)` 를 던진다(유령 저장 방지). `fetchOne` 은 없으면 `HttpError(404)`. `data-source.ts:55` 의 `// TODO(backend): GET/POST /api/marketing/promotions · GET/PUT/DELETE /api/marketing/promotions/:id` 주석이 **유일한 연동 지점**이며, 위 표는 백엔드 연결 후 의도된 동작이다. 계약 정본은 BE-032.
 >
 > **할인율·금액의 강제는 서버가 정본이다** — 현재 `promotionSchema` 만이 '0 초과 · 정률 ≤ 100' 을 막는다. 어댑터를 우회한 호출은 어떤 값이든 통과한다(BE-032 §7.3).
 
@@ -203,33 +203,33 @@ date: 2026-07-17
 - [x] **할인값 검증을 코드로 재확인했다** — 0 이하(`validation.ts:65-72`)·정률 100 초과(`:74-81`)를 막고 `promotions.test.ts:78-91` 이 고정한다. **정액 상한 부재**(§7 #24)와 **최소 주문금액의 `aria-invalid` 누락**(§7 #25)을 코드에서 확인해 적었다
 - [x] **2026-07-17 · `HEAD = 4b805ad`(F3a·F3b·통합 머지 후) 기준으로 전수 재검증했다.** F2(`3cd3078`) 판정을 재사용하지 않았다. 뒤집힌 것: **검색 디바운스·IME**(`PromotionListPage.tsx:80,145-151` → `useListState.ts:227-230` → `useDebouncedSearch.ts:84-131`) · **URL 조회 상태**(`useListState.ts:87-99`) · **리터럴 '을(를)' 0건**(`format.ts:306-311` 로 승격) · **파생 기준일 KST 고정**(`format.ts:63,76-85`) · **멱등키가 어댑터에 도달**(`crud.ts:41,47-48,114`) · **AppHeader 라벨이 '프로모션'**(`nav-config.ts:260-278`). 그대로인 것: **최소 주문금액의 `aria-invalid` 누락**(`PromotionFormPage.tsx:227-243` — F3a 의 `aria-required` 주입은 이 축과 무관하다), h1 2개, 쓰기 권한 게이팅 부재, 페이지네이션 부재, 동시성 토큰 부재
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR(마케팅 관리) 문서 부재 | A11 / A01 |
+| 1 | 대응 SCR(마케팅 관리) 문서 부재 | UI 기획 / 아키텍처 |
 | 2 | **해소됨 (F3b · 2026-07-17)** — 검색이 공용 `useListState`(`PromotionListPage.tsx:80`)를 거쳐 `useDebouncedSearch`(`useListState.ts:227-230`)를 소비한다. 조합 중 커밋 금지·Enter 차단·250ms 디바운스가 붙어(`useDebouncedSearch.ts:87,121-129`) 자모마다 재필터·선택 해제가 일어나지 않는다 | — (COMP-10 P0 **pass**) |
-| 3 | 하위 라우트에서 `<h1>` 이 2개다 — `AppHeader.tsx:101` + `FormPageShell.tsx:160`. **사유가 바뀌었다**: 브랜치 폴백은 `findCoveringLeaf`(`nav-config.ts:260-278,297-299`)로 해소돼 상단 h1 이 '프로모션' 이다. 남은 것은 ① h1 이 둘이라는 사실 ② 상단 h1 이 '등록/수정' 행위를 반영하지 않는다는 사실(`nav-config.ts:294-296` 이 그것을 의도로 명시) — quality-bar IA-02 의 '단일 title 메커니즘'이 여전히 미충족 | A11 change_request (IA-02 P0 · 앱 전역) |
-| 4 | 쓰기 컨트롤이 권한과 무관하게 렌더된다 — `useRouteWritePermissions`(`RequirePermission.tsx:45`)는 이제 **7곳이 소비한다**(products 3 · settings 4). **그러나 `pages/marketing/**` 소비 0건** — 이 화면의 '프로모션 등록'·`RowActions`·'선택 N건 삭제'는 여전히 권한과 무관하게 렌더된다. **할인 정의는 금전 권한이라 이 gap 의 무게가 이벤트보다 크다** | A11 change_request (EXC-03 P0) |
-| 5 | 페이지네이션·정렬 헤더가 없다 — 전량 렌더, 정렬 고정. (`useListState` 는 `page`·`clampPage` 를 이미 제공하나 이 화면이 쓰지 않는다 — `useListState.ts:89,217-223`. DS `Pagination` 은 F3a 에서 범위/page-size 를 **opt-in**(`Pagination.tsx:112` `pageSize > 0`)으로 열었지만 `pages/marketing/**` 에 `<Pagination` 소비 0건) | A11 change_request (IA-04 P0 · ERP-04/05/15) |
-| 6 | 순번이 `index + 1` 이다(`CrudTable.tsx:179`) | A11 change_request (COMP-07 · #5 와 함께) |
+| 3 | 하위 라우트에서 `<h1>` 이 2개다 — `AppHeader.tsx:101` + `FormPageShell.tsx:160`. **사유가 바뀌었다**: 브랜치 폴백은 `findCoveringLeaf`(`nav-config.ts:260-278,297-299`)로 해소돼 상단 h1 이 '프로모션' 이다. 남은 것은 ① h1 이 둘이라는 사실 ② 상단 h1 이 '등록/수정' 행위를 반영하지 않는다는 사실(`nav-config.ts:294-296` 이 그것을 의도로 명시) — quality-bar IA-02 의 '단일 title 메커니즘'이 여전히 미충족 | UI 기획 쪽 변경 요청 (IA-02 P0 · 앱 전역) |
+| 4 | 쓰기 컨트롤이 권한과 무관하게 렌더된다 — `useRouteWritePermissions`(`RequirePermission.tsx:45`)는 이제 **7곳이 소비한다**(products 3 · settings 4). **그러나 `pages/marketing/**` 소비 0건** — 이 화면의 '프로모션 등록'·`RowActions`·'선택 N건 삭제'는 여전히 권한과 무관하게 렌더된다. **할인 정의는 금전 권한이라 이 gap 의 무게가 이벤트보다 크다** | UI 기획 쪽 변경 요청 (EXC-03 P0) |
+| 5 | 페이지네이션·정렬 헤더가 없다 — 전량 렌더, 정렬 고정. (`useListState` 는 `page`·`clampPage` 를 이미 제공하나 이 화면이 쓰지 않는다 — `useListState.ts:89,217-223`. DS `Pagination` 은 F3a 에서 범위/page-size 를 **opt-in**(`Pagination.tsx:112` `pageSize > 0`)으로 열었지만 `pages/marketing/**` 에 `<Pagination` 소비 0건) | UI 기획 쪽 변경 요청 (IA-04 P0 · ERP-04/05/15) |
+| 6 | 순번이 `index + 1` 이다(`CrudTable.tsx:179`) | UI 기획 쪽 변경 요청 (COMP-07 · #5 와 함께) |
 | 7 | **해소됨 (F3b · 2026-07-17)** — '기간상 XX' 파생 기준일 `formatDate(new Date())`(`PromotionListPage.tsx:88`)이 **KST 고정**이다. `shared/format.ts:63,76-85` 가 `Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' })` 의 `formatToParts` 로 조각을 뽑아 조립한다 — 로컬 getter 0건 | — (ERP-09 **pass**) |
-| 8 | 403 에 전용 문구가 없다 — 403 vs 404 은닉 정책 미정 | A63 (BE-032 §2.1) |
+| 8 | 403 에 전용 문구가 없다 — 403 vs 404 은닉 정책 미정 | 백엔드 명세 (BE-032 §2.1) |
 | 9 | **해소됨 (통합 · 2026-07-17)** — 사용자 대상 리터럴 `'을(를)'` 출하 **0건**. 목적격 `objectParticle`·보조사 `topicParticle` 헬퍼가 `shared/format.ts:306,311` 로 승격됐고 이 화면의 전 경로가 소비한다: 토스트 `useCrudForm.ts:222` ('프로모션을 등록했습니다' — 이제 **우연이 아니라 규칙**) · 삭제 문구 `useCrudList.tsx:108,158`(**행 이름의 받침**으로 고른다) · 로드 실패 `FormPageShell.tsx:129-130` · 검증 `shared/crud/validation.ts:22,25` | — (ERP-13 **pass**) |
-| 10 | 일괄 삭제가 실패한 id 를 알려주지 않는다. 임계값 강화 확인·진행률·취소도 없다 | A11 change_request (EXC-10 · EXC-18) |
-| 11 | 폼 '목록으로' 가 DS `<Button>` 이 아니고, 제출 버튼이 `loading` prop 대신 '저장 중…' 문자열을 쓴다(`FormPageShell.tsx:147-155,189`) | A11 change_request (COMP-01 · 공용 셸) |
-| 12 | 길이 제한 필드 중 **설명만** 카운터가 있다 — 프로모션명(80자)·대상(60자)에는 없다 | A11 change_request (COMP-12) |
-| 13 | 지정 상태와 기간이 어긋나도 폼이 막지 않는다. 상태 정본 미정 | A63 (BE-032 §7.6) / A01 |
-| 14 | **연동 쿠폰코드가 자유 텍스트 사본**이다 — hint 는 '상품 관리 쿠폰과 연결됩니다.' 라 약속하지만 실재 쿠폰 검증도, 형식 규칙도, 참조 무결성도 없다. 쿠폰이 삭제·변경돼도 문자열이 남아 **끊긴 참조로 할인이 적용되지 않는다** | A63 (BE-032 §7.2) / A01 |
-| 15 | 낙관적 동시성 토큰이 없다 — `Promotion` 에 `updatedAt`/`version` 이 없어 '먼저 **수정**' 을 감지하지 못한다. **할인율이 걸린 필드라 마지막 저장이 이기면 금전 손실이 된다** | A63 (BE-032 §7.3) |
-| 16 | 세션 만료 시 편집 중 입력이 사라진다 | A63 (BE-032 §7) / A11 (EXC-19) |
-| 17 | 긴 자유 텍스트(프로모션명·대상)에 말줄임이 없다 | A11 change_request (COMP-09) |
-| 18 | 오프라인 감지·배너가 없다 | A11 change_request (EXC-11 · 앱 전역) |
-| 19 | 프론트 요청 타임아웃 상한이 없다 | A63 (BE-032 §3.4) / A11 (EXC-05) |
+| 10 | 일괄 삭제가 실패한 id 를 알려주지 않는다. 임계값 강화 확인·진행률·취소도 없다 | UI 기획 쪽 변경 요청 (EXC-10 · EXC-18) |
+| 11 | 폼 '목록으로' 가 DS `<Button>` 이 아니고, 제출 버튼이 `loading` prop 대신 '저장 중…' 문자열을 쓴다(`FormPageShell.tsx:147-155,189`) | UI 기획 쪽 변경 요청 (COMP-01 · 공용 셸) |
+| 12 | 길이 제한 필드 중 **설명만** 카운터가 있다 — 프로모션명(80자)·대상(60자)에는 없다 | UI 기획 쪽 변경 요청 (COMP-12) |
+| 13 | 지정 상태와 기간이 어긋나도 폼이 막지 않는다. 상태 정본 미정 | 백엔드 명세 (BE-032 §7.6) / 아키텍처 |
+| 14 | **연동 쿠폰코드가 자유 텍스트 사본**이다 — hint 는 '상품 관리 쿠폰과 연결됩니다.' 라 약속하지만 실재 쿠폰 검증도, 형식 규칙도, 참조 무결성도 없다. 쿠폰이 삭제·변경돼도 문자열이 남아 **끊긴 참조로 할인이 적용되지 않는다** | 백엔드 명세 (BE-032 §7.2) / 아키텍처 |
+| 15 | 낙관적 동시성 토큰이 없다 — `Promotion` 에 `updatedAt`/`version` 이 없어 '먼저 **수정**' 을 감지하지 못한다. **할인율이 걸린 필드라 마지막 저장이 이기면 금전 손실이 된다** | 백엔드 명세 (BE-032 §7.3) |
+| 16 | 세션 만료 시 편집 중 입력이 사라진다 | 백엔드 명세 (BE-032 §7) / UI 기획 (EXC-19) |
+| 17 | 긴 자유 텍스트(프로모션명·대상)에 말줄임이 없다 | UI 기획 쪽 변경 요청 (COMP-09) |
+| 18 | 오프라인 감지·배너가 없다 | UI 기획 쪽 변경 요청 (EXC-11 · 앱 전역) |
+| 19 | 프론트 요청 타임아웃 상한이 없다 | 백엔드 명세 (BE-032 §3.4) / UI 기획 (EXC-05) |
 | 20 | **해소됨 (F3b · 2026-07-17)** — 목록 조회 상태(`?phase=`·`?q=`)의 단일 원천이 URL 이다. `PromotionListPage.tsx:80` 이 공용 `useListState` 를 소비하고 그것이 `useSearchParams`(`useListState.ts:87`)로 직렬화한다. `replace: true`(`:125`)라 히스토리가 쌓이지 않고, 수정 폼에서 Back 하면 조건이 복원되며, 링크 공유로도 재현된다 | — (IA-13 P0 **pass**) |
-| 21 | **할인 컬럼의 '원' 단위가 숫자에 붙어 있다**(`types.ts:48` `discountLabel`) — 우측 정렬 숫자 열인데 단위가 마지막 자릿수를 따라가 자릿수 정렬이 깨진다 | A11 change_request (ERP-07) |
-| 22 | **정률 표기가 `String(value)` 로 천단위 구분을 거치지 않는다**(`types.ts:48`) — 정액은 `formatNumber` 를 쓴다. 현재 정률 상한이 100 이라 무해하나 셀에서 raw `String()` 을 호출하는 것 자체가 규약 이탈이다 | A11 change_request (ERP-08) |
-| 23 | **금액 입력에 마스킹·paste normalize 가 없다** — `digitsToNumber`(`PromotionFormPage.tsx:52-55`)가 콤마를 벗기지만 **검증(`/^\d+$/`)이 먼저 막아 도달하지 않는다.** 붙여넣은 '1,234,000' 은 normalize 되지 않고 '할인값은 숫자만 입력할 수 있습니다.' 로 거절된다 — `digitsToNumber` 의 관용은 사실상 죽은 코드다. 실시간 천단위 구분도 없다 | A11 change_request (ERP-14) |
-| 24 | **정액 할인·최소 주문금액에 상한이 없다** — 정률만 100 상한이다. '정액 99999999원 할인' 이 검증을 통과한다. 서버 측 범위 검증이 필수다 | A63 (BE-032 §7.3) / A11 |
-| 25 | **최소 주문금액 입력이 `aria-invalid`·`aria-describedby` 를 배선하지 않는다**(`PromotionFormPage.tsx:233-242`) — 이 폼의 다른 입력 4종은 전부 배선한다. 위반 시 `FormField` 가 `<p id="promo-min-order-error" role="alert">` 를 그리지만 입력과 **연결되지 않고**, 입력에 무효 표시도 없다. 남는 것은 `controlStyle(true)` 의 **붉은 테두리뿐 = 색상 단독 표기**(WCAG 1.4.1) | A11 change_request (**A11Y-11 P0**) |
-| 26 | **금액 마스킹이 없다** — 할인액·최소 주문금액이 목록·폼에서 권한과 무관하게 전부 노출된다. 금액 열람 권한 분리가 필요한지 미정 | A01 / A63 (BE-032 §7.7) |
+| 21 | **할인 컬럼의 '원' 단위가 숫자에 붙어 있다**(`types.ts:48` `discountLabel`) — 우측 정렬 숫자 열인데 단위가 마지막 자릿수를 따라가 자릿수 정렬이 깨진다 | UI 기획 쪽 변경 요청 (ERP-07) |
+| 22 | **정률 표기가 `String(value)` 로 천단위 구분을 거치지 않는다**(`types.ts:48`) — 정액은 `formatNumber` 를 쓴다. 현재 정률 상한이 100 이라 무해하나 셀에서 raw `String()` 을 호출하는 것 자체가 규약 이탈이다 | UI 기획 쪽 변경 요청 (ERP-08) |
+| 23 | **금액 입력에 마스킹·paste normalize 가 없다** — `digitsToNumber`(`PromotionFormPage.tsx:52-55`)가 콤마를 벗기지만 **검증(`/^\d+$/`)이 먼저 막아 도달하지 않는다.** 붙여넣은 '1,234,000' 은 normalize 되지 않고 '할인값은 숫자만 입력할 수 있습니다.' 로 거절된다 — `digitsToNumber` 의 관용은 사실상 죽은 코드다. 실시간 천단위 구분도 없다 | UI 기획 쪽 변경 요청 (ERP-14) |
+| 24 | **정액 할인·최소 주문금액에 상한이 없다** — 정률만 100 상한이다. '정액 99999999원 할인' 이 검증을 통과한다. 서버 측 범위 검증이 필수다 | 백엔드 명세 (BE-032 §7.3) / UI 기획 |
+| 25 | **최소 주문금액 입력이 `aria-invalid`·`aria-describedby` 를 배선하지 않는다**(`PromotionFormPage.tsx:233-242`) — 이 폼의 다른 입력 4종은 전부 배선한다. 위반 시 `FormField` 가 `<p id="promo-min-order-error" role="alert">` 를 그리지만 입력과 **연결되지 않고**, 입력에 무효 표시도 없다. 남는 것은 `controlStyle(true)` 의 **붉은 테두리뿐 = 색상 단독 표기**(WCAG 1.4.1) | UI 기획 쪽 변경 요청 (**A11Y-11 P0**) |
+| 26 | **금액 마스킹이 없다** — 할인액·최소 주문금액이 목록·폼에서 권한과 무관하게 전부 노출된다. 금액 열람 권한 분리가 필요한지 미정 | 아키텍처 / 백엔드 명세 (BE-032 §7.7) |

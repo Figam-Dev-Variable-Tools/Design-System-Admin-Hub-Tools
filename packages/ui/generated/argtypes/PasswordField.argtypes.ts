@@ -155,7 +155,7 @@ export const PasswordFieldArgTypes = {
     },
   },
   onBlur: {
-    description: '포커스 이탈 — 폼 검증 트리거 지점. disabled 에서는 발화 금지 (자식 TextField 의 가드로 실제 차단된다 — CR-2026-0715-003 실측). 계약이 현실보다 약했던 부분의 정정이며, 이 보장을 고정하는 테스트는 A30 이 채운다 발화 차단 상태: disabled',
+    description: '포커스 이탈 — 폼 검증 트리거 지점. disabled 에서는 발화 금지 (자식 TextField 의 가드로 실제 차단된다 — 실측 확인됨). 계약이 현실보다 약했던 부분의 정정이며, 이 보장을 고정하는 테스트로 고정한다 발화 차단 상태: disabled',
     action: 'onBlur',
     control: false,
     table: {
@@ -183,7 +183,7 @@ export const PasswordFieldArgTypes = {
  * 총 8개 조합. Story 커버리지는 이 행렬 대비 100%여야 G5 통과.
  *
  * **states 는 여기 없다** — contract-test 의 combinationMatrixSize() 와 같은 식이어야 하고,
- * state 커버리지는 A77 축2(contract-states)가 단언 있는 테스트로 따로 강제한다.
+ * state 커버리지는 커버리지 축2(contract-states)가 단언 있는 테스트로 따로 강제한다.
  */
 export const combinationMatrix = [
   { disabled: 'false', required: 'false', revealed: 'false' },

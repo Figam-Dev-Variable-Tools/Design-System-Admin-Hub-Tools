@@ -1,4 +1,4 @@
-// 회원 화면 폼 검증 규칙 (A41 — ADR-0008 §7.3 집행)
+// 회원 화면 폼 검증 규칙 (ADR-0008 §7.3 집행)
 //
 // **검증 규칙의 정본은 이 zod 스키마다.** 모달 안에 흩어져 있던 손코딩 검증기
 // (CreateGroupModal 의 submit() 내부 if 문 · PasswordChangeModal 의 validate())는 삭제했다.

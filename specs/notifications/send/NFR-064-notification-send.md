@@ -4,8 +4,8 @@ title: "알림 발송 규칙 비기능 명세"
 functionalSpec: FS-064
 backendSpec: BE-064
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -104,7 +104,7 @@ date: 2026-07-17
 | STATE-03 | P1 | `useCrudListQuery` 가 `placeholderData: (previous) => previous`(`crud.ts:151`)로 이전 행을 유지하고 `staleTime` 30초가 재조회 시점을 지배한다. **화면이 그 이득을 버리지 않는다** — `refreshing` 을 별도 파생으로 받아 요약에만 ' · 새로고침 중…' 을 붙이고 표는 그대로 둔다(`CrudListShell.tsx:116-122`) | 데이터가 있는 상태의 재조회에서 이전 행이 유지되고 가벼운 인디케이터만 뜨는지 | **pass** |
 | STATE-05 | P1 | 빈 상태가 **3분기**한다 — `CrudTable` 이 공유 `Empty` 에 맥락을 넘기고(`CrudTable.tsx:157-167`) 화면이 `hasQuery`·`hasActiveFilters`·`onClearSearch`·`onResetFilters`·`createAction` 을 전부 공급한다(`RuleListPage.tsx:202-213`). **조사(이/가)는 `Empty` 가 고른다**(`CrudTable.tsx:156`) | 검색어로 0건 → '조건에 맞는 …' + 검색 지우기. 필터로 0건 → 필터 초기화. 진짜 0건 → '발송 규칙 등록' CTA | **pass** |
 | STATE-06 | P1 | write 성공 시 `useCrudCreate`/`useCrudUpdate`/`useCrudDelete` 가 목록·상세를 정확히 무효화한다(`crud.ts` 의 mutation 훅). **토글도 같다** — `useCrudRowUpdate` 가 `useCrudUpdate` 를 쓰므로(`:33`) 스위치를 켜면 목록이 갱신된다 | 폼에서 채널 변경 후 목록 복귀 시 값이 갱신돼 있는지. 토글 후 '켜짐 N건'이 바뀌는지 | **pass** |
-| COMP-01 | P1 | **모든 action/navigation 버튼이 DS `<Button>`** 이다 — '발송 규칙 등록'(`RuleListPage.tsx:171,208`) · 취소/저장(`FormPageShell.tsx:181-191`) · '다시 시도'/'목록으로'(`:133,137,160`) · '선택 N건 삭제'(`CrudListShell.tsx:126`). `grep "buttonStyle(\|tds-ui-btn-" apps/admin/src/pages/notifications` → **0건**. **⚠ 진행 상태를 `loading` prop 이 아니라 손으로 쓴 라벨로 표현한다** — `FormPageShell.tsx:190` `{saving ? '저장 중…' : …}`. 요구가 명시적으로 금지한 형태다. **다만 이것은 공용 셸의 결정이며 화면 코드가 아니다**(`RuleFormPage` 는 `saving` 을 넘길 뿐). 손조립 `<button>` 은 `FilterPanel.tsx:61`(필터 항목 — 리스트 항목이라 Button 이 아닌 것이 옳다) · `FormPageShell.tsx:148`('목록으로' back-link) · `ToggleSwitch.tsx:24`(switch role) 뿐이며 셋 다 DS/공유 소유 | `grep -n "buttonStyle(\|tds-ui-btn-" apps/admin/src/pages/notifications` → 0건(현재 0건). `FormPageShell` 의 손라벨은 A41 이관 | **gap(공용 셸 소유)** |
+| COMP-01 | P1 | **모든 action/navigation 버튼이 DS `<Button>`** 이다 — '발송 규칙 등록'(`RuleListPage.tsx:171,208`) · 취소/저장(`FormPageShell.tsx:181-191`) · '다시 시도'/'목록으로'(`:133,137,160`) · '선택 N건 삭제'(`CrudListShell.tsx:126`). `grep "buttonStyle(\|tds-ui-btn-" apps/admin/src/pages/notifications` → **0건**. **⚠ 진행 상태를 `loading` prop 이 아니라 손으로 쓴 라벨로 표현한다** — `FormPageShell.tsx:190` `{saving ? '저장 중…' : …}`. 요구가 명시적으로 금지한 형태다. **다만 이것은 공용 셸의 결정이며 화면 코드가 아니다**(`RuleFormPage` 는 `saving` 을 넘길 뿐). 손조립 `<button>` 은 `FilterPanel.tsx:61`(필터 항목 — 리스트 항목이라 Button 이 아닌 것이 옳다) · `FormPageShell.tsx:148`('목록으로' back-link) · `ToggleSwitch.tsx:24`(switch role) 뿐이며 셋 다 DS/공유 소유 | `grep -n "buttonStyle(\|tds-ui-btn-" apps/admin/src/pages/notifications` → 0건(현재 0건). `FormPageShell` 의 손라벨은 프론트 리팩터 이관 | **gap(공용 셸 소유)** |
 | COMP-02 | P1 | 선택 셀이 `RowSelectCell`/`SelectAllHeaderCell`, 순번이 `SeqCell`/`SeqHeaderCell` 이다(`CrudTable.tsx:124-130,173-179`). raw checkbox 손조립 0건 | selectable 표에 raw checkbox 마크업이 0건인지 | **pass** |
 | COMP-03 | P1 | 검색이 DS `<SearchField>` 다(`RuleListPage.tsx:162`). `grep 'type="search"' apps/admin/src/pages/notifications` → 0건 | raw `<input type="search">` 재구현이 0건인지 | **pass** |
 | COMP-06 | P2 | 스켈레톤 행 수가 하드코딩 `Array.from({ length: 5 })`(`CrudTable.tsx:144`). 셀 수만 `columns.length + 3` 으로 파생된다(`:113,146`). 페이지네이션이 없어 'row 수 === PAGE_SIZE' 기준값 자체가 없다(IA-04 gap 과 연동) | `grep "length: 5" shared/crud/CrudTable.tsx` → 0건이어야 한다. 현재 1건 | **gap(공용 셸 소유)** |
@@ -189,25 +189,25 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | IA-02 | P0 | 폼 sub-route 에 `<h1>` 이 2개('알림 발송' + '발송 규칙 등록') + AppHeader 가 행위를 반영하지 않는다. **가지 폴백은 통합이 해소했다 — 사유가 바뀌었다.** 목록은 pass | **앱 전역**(`AppHeader`·`FormPageShell` title 모델) | A40 · A11 (횡단 배치) |
-| 2 | IA-04 · COMP-07 | P0 · P2 | Pagination 없음 — 전량 렌더. **도메인 상한 20건이라 심각도는 낮으나 `PAGE_SIZE=10` 관례로는 초과 가능.** `SeqCell` 의 `startIndex` 부재가 함께 발현된다 | 공용 `CrudListShell`/`CrudTable` | A41 · A11 (횡단 배치) |
-| 3 | EXC-03 | P0 | write 액션 게이팅 미배선 — `useRouteWritePermissions` 소비처 8곳에 알림 관리 없음. **`operator` 가 보안 알림 토글을 본다**(BE-064 §7.6·§7.7 과 맞물림) | **앱 전역** | A11 change_request |
-| 4 | EXC-04 | P0 | **낙관적 동시성 토큰 부재 — 동시 편집이 last-write-wins.** `updatedAt` 이 있는데 `If-Match` 로 실리지 않는다. ⚠ **유령 저장·409 UI 는 이미 pass** — gap 은 토큰 절 하나다 | 공용 어댑터 계약(`createStoreAdapter` 소비 화면 전부) | A63 (BE-064 §7.1) · A41 |
-| 5 | EXC-08 | P0 | **자동 발송 토글에 동기 락·멱등키 없음** — `useCrudRowUpdate.ts:44-45`. 확인 다이얼로그도 없어 `crud.ts:36-39` 의 생략 예외가 성립하지 않는다. **이 화면 고유 gap**(형제 두 화면은 pass) | 공용 `useCrudRowUpdate` + 이 화면 | A41 · A11 (BE-064 §7.10) |
-| 6 | COMP-01 | P1 | `FormPageShell.tsx:190` 이 `loading` prop 대신 손으로 쓴 '저장 중…' 라벨. **화면 코드가 아니라 공용 셸 소유** — `buttonStyle`/`tds-ui-btn-*` 손조립은 이 섹션 0건 | 공용 `FormPageShell` | A41 |
-| 7 | COMP-06 | P2 | 스켈레톤 행 수 하드코딩 `length: 5`(`CrudTable.tsx:144`) | 공용 `CrudTable` | A41 (#2 와 함께) |
-| 8 | COMP-09 | P2 | 템플릿명 셀에 truncate 없음. **`_shared/styles.ts:53-61` 의 `ellipsisCellStyle` 이 바로 그 용도로 있는데 이 화면만 쓰지 않는다**(형제 두 화면은 쓴다) — 한 줄로 해소 | 이 화면 | A11 change_request |
-| 9 | FEEDBACK-01 · EXC-20 | P1 | 토글 실패 error toast 가 **자동 소멸하고 '다시 시도'·reference 가 없다**(`useCrudRowUpdate.ts:53`) | 공용 `useCrudRowUpdate` | A41 · A11 |
-| 10 | (FEEDBACK-02 관련 · 요구 위반 아님) | — | **자동 발송 토글의 운영 무게와 상호작용 비용이 비대칭이다** — 보안 알림을 끄는 것이 클릭 한 번이고 확인도 권한 게이팅도 없다. 되돌릴 수 있어 FEEDBACK-02 의 대상은 아니나(§2 판정), **BE-064 §7.6 이 감사 로그를 요구하는 바로 그 액션**이다 | 이 화면 + BE 계약 | A11 · A63 (BE-064 §7.6 — 보안 최우선) |
-| 11 | EXC-06 | P1 | status 별 surface 미분기 — 400·403·429 가 일반 배너/토스트로 뭉개진다. **404 만 갈린다.** 서버가 필드 거절을 422 로 내면 프론트가 이미 옳게 그린다 | 이 화면 + BE 계약 | A11 · A63 (BE-064 §7.12) |
-| 12 | ERP-04 | P1 | sortable header 없음(고정 default-sort). 20건에서는 요구가 약하다 | 공용 `CrudTable` | A41 (후순위) |
-| 13 | (§4.1) | — | **토글 체감이 400ms 왕복에 묶인다** — 낙관적 업데이트가 없다. EXC-14 는 pass 지만(위반 표면 부재) 스위치 UX 비용이 있다. 도입 시 rollback 페어링 필수 | 이 화면 | A11 (검토) |
-| 14 | EXC-09 (표면상) | P0 | 일괄 삭제의 `settleAll` 이 abort 를 실패 수에서 제외하지 않는다. **그러나 `onSuccess` 의 aborted 가드(`useCrudList.tsx:137`)가 집계를 통째로 버려 관측되지 않는다** — pass 로 두되 기록 | 공용 `shared/bulk` | A41 (관측 불가 — 후순위) |
-| 15 | EXC-05 · EXC-11 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 | **앱 전역** | A40 · A11 |
-| 16 | (§4.3) | — | **운영 안전** — 보안 알림 비활성의 감사 로그 부재 · 규칙 변경 감사 부재 · 중복 규칙의 서버 검증 부재 · `templateId` 참조 서버 검증 부재 | BE 계약 | **A63 (BE-064 §7.2·§7.4·§7.6 — 최우선)** |
-| 17 | (§4.2·§4.3) | — | **템플릿 삭제가 규칙을 조용히 무력화한다** — `rulesUsingTemplate` 프로덕션 소비처 0건(grep 확인). 삭제 전 경고 또는 서버 409 `TEMPLATE_IN_USE` 필요 | 이 화면 + FS-065/066 + BE 계약 | A63 (BE-064 §7.5) · A11 |
-| 18 | (BE-064 §7.3) | — | 템플릿 후보 조회가 어댑터 없는 동기 store 직접 호출 — 연동 시 **`RuleFormPage` 가 `useQuery` 를 새로 배선해야 한다**(로딩·실패·재시도 UI 가 신규 요구사항으로 발생) | 이 화면 | A11 (연동 산정에 반드시 포함) |
-| 19 | (BE-064 §7.11) | — | **트리거 카탈로그 소유자 미정** — 서버 소유가 되면 `z.enum`·변수 카탈로그·20건 상한(ERP-15 pass 의 근거)이 함께 무너진다 | 도메인 경계 | A01 · A63 |
+| 1 | IA-02 | P0 | 폼 sub-route 에 `<h1>` 이 2개('알림 발송' + '발송 규칙 등록') + AppHeader 가 행위를 반영하지 않는다. **가지 폴백은 통합이 해소했다 — 사유가 바뀌었다.** 목록은 pass | **앱 전역**(`AppHeader`·`FormPageShell` title 모델) | 프론트 구현 · UI 기획 (횡단 배치) |
+| 2 | IA-04 · COMP-07 | P0 · P2 | Pagination 없음 — 전량 렌더. **도메인 상한 20건이라 심각도는 낮으나 `PAGE_SIZE=10` 관례로는 초과 가능.** `SeqCell` 의 `startIndex` 부재가 함께 발현된다 | 공용 `CrudListShell`/`CrudTable` | 프론트 리팩터 · UI 기획 (횡단 배치) |
+| 3 | EXC-03 | P0 | write 액션 게이팅 미배선 — `useRouteWritePermissions` 소비처 8곳에 알림 관리 없음. **`operator` 가 보안 알림 토글을 본다**(BE-064 §7.6·§7.7 과 맞물림) | **앱 전역** | UI 기획 쪽 변경 요청 |
+| 4 | EXC-04 | P0 | **낙관적 동시성 토큰 부재 — 동시 편집이 last-write-wins.** `updatedAt` 이 있는데 `If-Match` 로 실리지 않는다. ⚠ **유령 저장·409 UI 는 이미 pass** — gap 은 토큰 절 하나다 | 공용 어댑터 계약(`createStoreAdapter` 소비 화면 전부) | 백엔드 명세 (BE-064 §7.1) · 프론트 리팩터 |
+| 5 | EXC-08 | P0 | **자동 발송 토글에 동기 락·멱등키 없음** — `useCrudRowUpdate.ts:44-45`. 확인 다이얼로그도 없어 `crud.ts:36-39` 의 생략 예외가 성립하지 않는다. **이 화면 고유 gap**(형제 두 화면은 pass) | 공용 `useCrudRowUpdate` + 이 화면 | 프론트 리팩터 · UI 기획 (BE-064 §7.10) |
+| 6 | COMP-01 | P1 | `FormPageShell.tsx:190` 이 `loading` prop 대신 손으로 쓴 '저장 중…' 라벨. **화면 코드가 아니라 공용 셸 소유** — `buttonStyle`/`tds-ui-btn-*` 손조립은 이 섹션 0건 | 공용 `FormPageShell` | 프론트 리팩터 |
+| 7 | COMP-06 | P2 | 스켈레톤 행 수 하드코딩 `length: 5`(`CrudTable.tsx:144`) | 공용 `CrudTable` | 프론트 리팩터 (#2 와 함께) |
+| 8 | COMP-09 | P2 | 템플릿명 셀에 truncate 없음. **`_shared/styles.ts:53-61` 의 `ellipsisCellStyle` 이 바로 그 용도로 있는데 이 화면만 쓰지 않는다**(형제 두 화면은 쓴다) — 한 줄로 해소 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 9 | FEEDBACK-01 · EXC-20 | P1 | 토글 실패 error toast 가 **자동 소멸하고 '다시 시도'·reference 가 없다**(`useCrudRowUpdate.ts:53`) | 공용 `useCrudRowUpdate` | 프론트 리팩터 · UI 기획 |
+| 10 | (FEEDBACK-02 관련 · 요구 위반 아님) | — | **자동 발송 토글의 운영 무게와 상호작용 비용이 비대칭이다** — 보안 알림을 끄는 것이 클릭 한 번이고 확인도 권한 게이팅도 없다. 되돌릴 수 있어 FEEDBACK-02 의 대상은 아니나(§2 판정), **BE-064 §7.6 이 감사 로그를 요구하는 바로 그 액션**이다 | 이 화면 + BE 계약 | UI 기획 · 백엔드 명세 (BE-064 §7.6 — 보안 최우선) |
+| 11 | EXC-06 | P1 | status 별 surface 미분기 — 400·403·429 가 일반 배너/토스트로 뭉개진다. **404 만 갈린다.** 서버가 필드 거절을 422 로 내면 프론트가 이미 옳게 그린다 | 이 화면 + BE 계약 | UI 기획 · 백엔드 명세 (BE-064 §7.12) |
+| 12 | ERP-04 | P1 | sortable header 없음(고정 default-sort). 20건에서는 요구가 약하다 | 공용 `CrudTable` | 프론트 리팩터 (후순위) |
+| 13 | (§4.1) | — | **토글 체감이 400ms 왕복에 묶인다** — 낙관적 업데이트가 없다. EXC-14 는 pass 지만(위반 표면 부재) 스위치 UX 비용이 있다. 도입 시 rollback 페어링 필수 | 이 화면 | UI 기획 (검토) |
+| 14 | EXC-09 (표면상) | P0 | 일괄 삭제의 `settleAll` 이 abort 를 실패 수에서 제외하지 않는다. **그러나 `onSuccess` 의 aborted 가드(`useCrudList.tsx:137`)가 집계를 통째로 버려 관측되지 않는다** — pass 로 두되 기록 | 공용 `shared/bulk` | 프론트 리팩터 (관측 불가 — 후순위) |
+| 15 | EXC-05 · EXC-11 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 | **앱 전역** | 프론트 구현 · UI 기획 |
+| 16 | (§4.3) | — | **운영 안전** — 보안 알림 비활성의 감사 로그 부재 · 규칙 변경 감사 부재 · 중복 규칙의 서버 검증 부재 · `templateId` 참조 서버 검증 부재 | BE 계약 | **백엔드 명세 (BE-064 §7.2·§7.4·§7.6 — 최우선)** |
+| 17 | (§4.2·§4.3) | — | **템플릿 삭제가 규칙을 조용히 무력화한다** — `rulesUsingTemplate` 프로덕션 소비처 0건(grep 확인). 삭제 전 경고 또는 서버 409 `TEMPLATE_IN_USE` 필요 | 이 화면 + FS-065/066 + BE 계약 | 백엔드 명세 (BE-064 §7.5) · UI 기획 |
+| 18 | (BE-064 §7.3) | — | 템플릿 후보 조회가 어댑터 없는 동기 store 직접 호출 — 연동 시 **`RuleFormPage` 가 `useQuery` 를 새로 배선해야 한다**(로딩·실패·재시도 UI 가 신규 요구사항으로 발생) | 이 화면 | UI 기획 (연동 산정에 반드시 포함) |
+| 19 | (BE-064 §7.11) | — | **트리거 카탈로그 소유자 미정** — 서버 소유가 되면 `z.enum`·변수 카탈로그·20건 상한(ERP-15 pass 의 근거)이 함께 무너진다 | 도메인 경계 | 아키텍처 · 백엔드 명세 |
 | 20 | (MOTION-03 · DS) | P0 | **✅ 해소됐다 — 이관 종료.** `4b805ad` 기준의 '`ToggleSwitch.css:32,56` 에 reduced-motion off 없음' 은 낡았다. **`ToggleSwitch.css:79-84` 가 `.tds-toggle__track`·`.tds-toggle__knob` 의 transition 을 `none` 으로 끈다**(두 선언 모두 덮음, 근거 주석 `:76-78`). **알림 관리 3화면 중 이 화면만 노출돼 있던 DS gap 이 사라졌다** — 후속 작업 없음. 기록으로만 남긴다 | `packages/ui` | **— (완료)** |
 
 ## 6. 측정 도구 · 재현 스위치

@@ -4,8 +4,8 @@ title: "자료실 비기능 명세"
 functionalSpec: FS-030
 backendSpec: BE-030
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -171,27 +171,27 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | **STATE-04** | **P0** | 필터·검색 변경 시 `controller.clear()` 미호출 + 일괄 삭제가 `visibleItems` 와 교집합을 취하지 않음(`useCrudList.tsx:127`) → **안 보이는 행이 삭제된다**. 공용 훅의 명시적 계약 위반(`useRowSelection.ts:7-8`). **F3b 이후 사유가 더 분명해졌다** — 이 화면은 `useListState`(`:87`, 자기 선택 상태가 view 서명 변경 시 비워진다 — `useListState.ts:205-213`)와 `useCrudList`(`:99-104`, `useRowSelection` 소유)를 **둘 다** 쓰면서 `CrudListShell` 에는 후자의 선택을 넘긴다(`:212-225`). **선택 상태가 두 벌인데 URL 상태와 연결된 쪽(`list.selectedIds`)이 쓰이지 않는다** | 이 화면(+`useCrudList` 의 교집합 방어는 전역 개선 후보) | A41 |
-| 2 | **FEEDBACK-04** | **P0** | '취소'(`:306-314`)·'목록으로'(`:190-198`)가 `<button>`+`navigate()` 라 가드를 우회 → **입력·파일 선택이 조용히 소실**. 수정 방향: `<Link>` 로 바꾸거나 가드에 programmatic navigate 훅 제공 | 이 화면(같은 패턴이 다른 폼에도 있을 수 있다 — 전역 점검 권고) | A41 · A40 |
-| 3 | **EXC-04** | **P0** | `updatedAt`/version 부재 + `If-Match` 미전송 → '다른 관리자가 먼저 수정' 탐지 불가(lost update). **충돌 UI 는 이미 있다** — BE-030 §7.4 의 묶음 도입(토큰 + 412 + 어댑터)만 하면 프론트 변경 없이 동작 | 이 화면 · 백엔드 | A63 · A41 |
+| 1 | **STATE-04** | **P0** | 필터·검색 변경 시 `controller.clear()` 미호출 + 일괄 삭제가 `visibleItems` 와 교집합을 취하지 않음(`useCrudList.tsx:127`) → **안 보이는 행이 삭제된다**. 공용 훅의 명시적 계약 위반(`useRowSelection.ts:7-8`). **F3b 이후 사유가 더 분명해졌다** — 이 화면은 `useListState`(`:87`, 자기 선택 상태가 view 서명 변경 시 비워진다 — `useListState.ts:205-213`)와 `useCrudList`(`:99-104`, `useRowSelection` 소유)를 **둘 다** 쓰면서 `CrudListShell` 에는 후자의 선택을 넘긴다(`:212-225`). **선택 상태가 두 벌인데 URL 상태와 연결된 쪽(`list.selectedIds`)이 쓰이지 않는다** | 이 화면(+`useCrudList` 의 교집합 방어는 전역 개선 후보) | 프론트 리팩터 |
+| 2 | **FEEDBACK-04** | **P0** | '취소'(`:306-314`)·'목록으로'(`:190-198`)가 `<button>`+`navigate()` 라 가드를 우회 → **입력·파일 선택이 조용히 소실**. 수정 방향: `<Link>` 로 바꾸거나 가드에 programmatic navigate 훅 제공 | 이 화면(같은 패턴이 다른 폼에도 있을 수 있다 — 전역 점검 권고) | 프론트 리팩터 · 프론트 구현 |
+| 3 | **EXC-04** | **P0** | `updatedAt`/version 부재 + `If-Match` 미전송 → '다른 관리자가 먼저 수정' 탐지 불가(lost update). **충돌 UI 는 이미 있다** — BE-030 §7.4 의 묶음 도입(토큰 + 412 + 어댑터)만 하면 프론트 변경 없이 동작 | 이 화면 · 백엔드 | 백엔드 명세 · 프론트 리팩터 |
 | ~~4~~ | ~~**IA-13**~~ | ~~P0~~ | **해소됨(F3b)** — `DownloadListPage.tsx:87` `useListState({ filterDefaults: FILTER_DEFAULTS })` 가 카테고리(`:178`)·노출상태(`:192`)·검색어(`:167-173`)를 URL 쿼리스트링으로 옮겼다. 기본값은 URL 에서 지우고(`useListState.ts:113-118`) `replace` 로 갱신해(`:125`) **행 클릭 → 저장 → 목록 복귀 주 루프에서 필터가 살아남는다**. 손으로 고친 값은 `parseFilter`(`:92-96`)가 안전하게 좁힌다 | — | — |
-| 5 | **IA-02** | **P0** | **`<h1>` 이 2개**(AppHeader `:101` '자료실' ↔ `DownloadFormPage.tsx:201` '자료 등록') — '단일 title 메커니즘' 미충족. 목록/폼의 title 소스가 갈리고, '행위'가 AppHeader 제목에 없다(`nav-config.ts:294-296` 이 의도로 명시). *(브랜치 라벨 '고객센터' 폴백은 `findCoveringLeaf`(`:260-278`)로 해소 — 이제 '자료실')* | 앱 전역(AppHeader · title 모델) + 이 화면 | A40 |
-| 6 | **IA-04** | **P0** | Pagination 부재 · 전량 렌더 · 상한 미정. 클라이언트 필터라 페이징 도입 시 필터를 서버로 옮겨야 한다 | 이 화면 · `CrudListShell` · 백엔드 | A41 · A63 · A11 |
+| 5 | **IA-02** | **P0** | **`<h1>` 이 2개**(AppHeader `:101` '자료실' ↔ `DownloadFormPage.tsx:201` '자료 등록') — '단일 title 메커니즘' 미충족. 목록/폼의 title 소스가 갈리고, '행위'가 AppHeader 제목에 없다(`nav-config.ts:294-296` 이 의도로 명시). *(브랜치 라벨 '고객센터' 폴백은 `findCoveringLeaf`(`:260-278`)로 해소 — 이제 '자료실')* | 앱 전역(AppHeader · title 모델) + 이 화면 | 프론트 구현 |
+| 6 | **IA-04** | **P0** | Pagination 부재 · 전량 렌더 · 상한 미정. 클라이언트 필터라 페이징 도입 시 필터를 서버로 옮겨야 한다 | 이 화면 · `CrudListShell` · 백엔드 | 프론트 리팩터 · 백엔드 명세 · UI 기획 |
 | ~~7~~ | ~~**COMP-10**~~ | ~~P0~~ | **해소됨(F3b)** — `DownloadListPage.tsx:167-173` 이 `list.searchInputProps` 를 `SearchField` 에 스프레드하고, `useListState`(`:87`)가 내부에서 `useDebouncedSearch`(`useListState.ts:227-230`)를 소비한다: 조합 중 커밋 금지(`useDebouncedSearch.ts:87`) · 조합 중 Enter 차단(`:121-124`) · 250ms 디바운스(`:23,93-95`) | — | — |
-| 8 | **A11Y-11** | **P0** | **두 갈래.** ① 버전 입력(`:249-258`)이 `aria-invalid`·`aria-describedby` 미배선 → 오류·힌트가 AT 에 미연결. 같은 폼의 제목 필드는 정상 — **규칙이 필드마다 갈린다**(이 화면). ② **`FileUploadField`(첨부 파일)의 required 가 AT 에 닿지 않는다** — `FormField` 를 쓰지 않는 페이지 전용 컴포넌트라 `withAriaRequired`(`FormField.tsx:50-56`) 주입 경로 밖이고, 드롭존 button 에도 hidden file input 에도 `aria-required` 가 없다(`FileUploadField.tsx:187-194`·`:226-258`). *(제목·카테고리는 F3a 의 런타임 주입으로 충족)* | ① 이 화면 ② 이 화면(`FileUploadField` 는 페이지 전용 — 공통 `ImageUploadField` 와 같은 계약 결손이다) | A41 |
-| 9 | EXC-15 | P1 | 업로드 미연동(파일 미전송) · `accept` 누락 · 진행률/취소 부재. **§4.1 의 업로드 예산이 전부 측정 불가**인 근본 원인 | 이 화면 · 백엔드 | A63 · A40 · A41 |
-| 10 | STATE-05 | P1 | `hasActiveFilters`·`onResetFilters` 미전달 → 필터 0건이 '진짜 비어있음' 으로 오보 | 이 화면 | A41 |
-| 11 | EXC-18 | P1 | 일괄 삭제에 강화 confirm·progress·cancel·Shift-range 없음. **#1 과 결합 시 위험** | 이 화면 · `useCrudList`·`SelectionBar` | A40 · A41 |
-| 12 | — | — | **자료 변경 감사 로그 부재**(§4.3) — 고객 배포 파일의 교체·삭제 이력이 없다 | 백엔드 | A63 · A11 |
-| 13 | EXC-10 | P1 | 일괄 실패 id 미반환 → 재시도가 성공분 재실행 | `shared/bulk.ts`·`useCrudList` | A41 |
-| 14 | A11Y-08 | P1 | 행 클릭 목적지의 row 내 focusable 링크 없음(제목 평문). RowActions 수정 버튼이 완화 | 이 화면 · `CrudTable` | A41 |
-| 15 | EXC-06 | P1 | 목록 조회가 status 를 뭉갠다(403·500 동일 배너). 폼은 정확히 가른다 | `CrudListShell` | A41 |
-| 16 | COMP-01 | P1 | `FileUploadField` 가 `buttonStyle()`/`tds-ui-btn-*` 로 버튼 3개 손조립 + '저장 중…' 손작성 | 이 화면 · DS | A41 |
-| 17 | ERP-13 | P1 | **이 화면 전용 문구 2곳** — ① `DownloadFormPage.tsx:171-172` 의 로드 실패 배너가 **조사를 통째로 뺐다**('자료 찾을 수 없습니다' → '자료**를** 찾을 수 없습니다'). 이 화면은 `FormPageShell` 을 쓰지 않고 배너를 자체 구현하면서 셸의 `objectParticle(entityLabel)`(`FormPageShell.tsx:129-130`)을 옮겨오지 않았다. ② `DownloadListPage.tsx:118` 의 노출 토글 토스트가 **조사를 리터럴 '를' 로 고정**했다(받침 있는 제목이면 '을'). *(공용 프레임워크 문구('자료을(를) 등록했습니다' 류)는 통합의 `shared/format.ts:269+` 승격으로 **해소** — `useCrudForm.ts:222`·`useCrudList.tsx:108,158`. 앱 전역 리터럴 '을(를)' 0건)*. 선례: `portfolio/items/PortfolioListPage.tsx:91-92` 가 같은 토글 토스트를 옳게 낸다 | 이 화면 | A41 |
-| 18 | EXC-05 | P1 | 프론트 타임아웃 상한 없음. **업로드 60초 계약과 맞물려 특히 필요** | 앱 전역 | A40 |
-| 19 | EXC-11 | P1 | offline 감지 없음. 20MB 업로드 중 단절이 특히 아프다 | 앱 전역 | A40 |
-| 20 | ERP-12 | P1 | 목록 export 없음 | 앱 전역 | A40 |
-| 21 | COMP-06 · COMP-09 · COMP-12 | P2 | 스켈레톤 5행 하드코딩 · truncation 규칙 없음 · 길이 카운터 없음 | 이 화면 · DS | A41 |
+| 8 | **A11Y-11** | **P0** | **두 갈래.** ① 버전 입력(`:249-258`)이 `aria-invalid`·`aria-describedby` 미배선 → 오류·힌트가 AT 에 미연결. 같은 폼의 제목 필드는 정상 — **규칙이 필드마다 갈린다**(이 화면). ② **`FileUploadField`(첨부 파일)의 required 가 AT 에 닿지 않는다** — `FormField` 를 쓰지 않는 페이지 전용 컴포넌트라 `withAriaRequired`(`FormField.tsx:50-56`) 주입 경로 밖이고, 드롭존 button 에도 hidden file input 에도 `aria-required` 가 없다(`FileUploadField.tsx:187-194`·`:226-258`). *(제목·카테고리는 F3a 의 런타임 주입으로 충족)* | ① 이 화면 ② 이 화면(`FileUploadField` 는 페이지 전용 — 공통 `ImageUploadField` 와 같은 계약 결손이다) | 프론트 리팩터 |
+| 9 | EXC-15 | P1 | 업로드 미연동(파일 미전송) · `accept` 누락 · 진행률/취소 부재. **§4.1 의 업로드 예산이 전부 측정 불가**인 근본 원인 | 이 화면 · 백엔드 | 백엔드 명세 · 프론트 구현 · 프론트 리팩터 |
+| 10 | STATE-05 | P1 | `hasActiveFilters`·`onResetFilters` 미전달 → 필터 0건이 '진짜 비어있음' 으로 오보 | 이 화면 | 프론트 리팩터 |
+| 11 | EXC-18 | P1 | 일괄 삭제에 강화 confirm·progress·cancel·Shift-range 없음. **#1 과 결합 시 위험** | 이 화면 · `useCrudList`·`SelectionBar` | 프론트 구현 · 프론트 리팩터 |
+| 12 | — | — | **자료 변경 감사 로그 부재**(§4.3) — 고객 배포 파일의 교체·삭제 이력이 없다 | 백엔드 | 백엔드 명세 · UI 기획 |
+| 13 | EXC-10 | P1 | 일괄 실패 id 미반환 → 재시도가 성공분 재실행 | `shared/bulk.ts`·`useCrudList` | 프론트 리팩터 |
+| 14 | A11Y-08 | P1 | 행 클릭 목적지의 row 내 focusable 링크 없음(제목 평문). RowActions 수정 버튼이 완화 | 이 화면 · `CrudTable` | 프론트 리팩터 |
+| 15 | EXC-06 | P1 | 목록 조회가 status 를 뭉갠다(403·500 동일 배너). 폼은 정확히 가른다 | `CrudListShell` | 프론트 리팩터 |
+| 16 | COMP-01 | P1 | `FileUploadField` 가 `buttonStyle()`/`tds-ui-btn-*` 로 버튼 3개 손조립 + '저장 중…' 손작성 | 이 화면 · DS | 프론트 리팩터 |
+| 17 | ERP-13 | P1 | **이 화면 전용 문구 2곳** — ① `DownloadFormPage.tsx:171-172` 의 로드 실패 배너가 **조사를 통째로 뺐다**('자료 찾을 수 없습니다' → '자료**를** 찾을 수 없습니다'). 이 화면은 `FormPageShell` 을 쓰지 않고 배너를 자체 구현하면서 셸의 `objectParticle(entityLabel)`(`FormPageShell.tsx:129-130`)을 옮겨오지 않았다. ② `DownloadListPage.tsx:118` 의 노출 토글 토스트가 **조사를 리터럴 '를' 로 고정**했다(받침 있는 제목이면 '을'). *(공용 프레임워크 문구('자료을(를) 등록했습니다' 류)는 통합의 `shared/format.ts:269+` 승격으로 **해소** — `useCrudForm.ts:222`·`useCrudList.tsx:108,158`. 앱 전역 리터럴 '을(를)' 0건)*. 선례: `portfolio/items/PortfolioListPage.tsx:91-92` 가 같은 토글 토스트를 옳게 낸다 | 이 화면 | 프론트 리팩터 |
+| 18 | EXC-05 | P1 | 프론트 타임아웃 상한 없음. **업로드 60초 계약과 맞물려 특히 필요** | 앱 전역 | 프론트 구현 |
+| 19 | EXC-11 | P1 | offline 감지 없음. 20MB 업로드 중 단절이 특히 아프다 | 앱 전역 | 프론트 구현 |
+| 20 | ERP-12 | P1 | 목록 export 없음 | 앱 전역 | 프론트 구현 |
+| 21 | COMP-06 · COMP-09 · COMP-12 | P2 | 스켈레톤 5행 하드코딩 · truncation 규칙 없음 · 길이 카운터 없음 | 이 화면 · DS | 프론트 리팩터 |
 | ~~22~~ | ~~MOTION-03~~ | ~~종속~~ | **해소됨(`a5c2639` · PR #26)** — `ToggleSwitch.css:79-84` 가 `.tds-toggle__track`·`.tds-toggle__knob` 의 transition 을 `none` 으로 끈다(`:32`·`:56` 두 선언 모두 덮음, 근거 주석 `:76-78`). 이 화면은 행마다 1개 + 폼 1개를 소비하지만 더 이상 gap 이 아니다 | — | — |
 
 ## 6. 측정 도구 · 재현 스위치

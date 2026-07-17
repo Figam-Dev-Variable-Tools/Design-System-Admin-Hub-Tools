@@ -3,8 +3,8 @@ id: FS-044
 title: "교환/반품 (목록·상세 처리)"
 screen: SCR-044               # ⚠ 상품 관리 SCR 미작성 — §7 미결 사항 참조
 route: /products/returns
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -182,7 +182,7 @@ date: 2026-07-17
 | (범위 밖) | 요청 등록 | — | — | `returnAdapter.create()` — `createCrudAdapter` 가 제공하나 **호출부가 0건** | 화면에 진입점이 없다. BE-044 §7.6 범위 밖 |
 | (범위 밖) | 요청 삭제 | — | — | `returnAdapter.remove()` — 위와 동일 | 화면에 진입점이 없다. BE-044 §7.6 범위 밖 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `returnAdapter` 는 공용 `createCrudAdapter`(`shared/crud/crud.ts:86-147`)에 `RETURN_SEED` 5건을 넣어 브라우저 안 mutable 배열에 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('returns', op)`)를 얹어 CRUD 를 흉내 낸다 — 실제 네트워크 0건. `fetchAll` 은 `sortReturns` 로 접수일 내림차순 정렬한 전량, `fetchOne` 은 없으면 `HttpError(404, '항목을 찾을 수 없습니다.')`, `update` 는 **없는 id 에 `HttpError(409, '다른 사용자가 먼저 삭제한 항목입니다.')`** 를 던지고(유령 저장 방지 — `crud.ts:126-128`) 멱등키 원장(`createIdempotencyLedger` — `:62-72`)을 갖는다. **다만 이 화면은 멱등키를 넘기지 않아 원장이 발현되지 않는다**(§7 #7). `patch: applyStockOnComplete` 가 완료 전이의 재고 부수효과를 소유한다: 완료가 아니거나 이미 반영됐으면 건너뛰고(`:145`), 상품이 없으면 422, 재고 위반이면 **`violations: [{ field: 'exchangeOptionValues' | 'optionValues', … }]` 를 실은 422**(`:158-163`), 통과하면 `planStockMovements` → `applyMovements` → `updateProduct` 로 SKU 재고를 실제로 갱신하고 `stockAppliedAt`·`stockMovements` 를 남긴다(`:165-176`). 새로고침하면 시드로 되돌아간다. `data-source.ts:179-181` 의 `// TODO(backend): GET /api/returns · GET/PUT /api/returns/:id (상태 전이·처리 메모)` 와 `:193-194` 의 `// TODO(backend): GET /api/products/:id` 가 연동 지점이며, **재고 트랜잭션·422·멱등키(`stockAppliedAt`)까지 주석이 명시한다**. 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드는 없다. `returnAdapter` 는 공용 `createCrudAdapter`(`shared/crud/crud.ts:86-147`)에 `RETURN_SEED` 5건을 넣어 브라우저 안 mutable 배열에 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('returns', op)`)를 얹어 CRUD 를 흉내 낸다 — 실제 네트워크 0건. `fetchAll` 은 `sortReturns` 로 접수일 내림차순 정렬한 전량, `fetchOne` 은 없으면 `HttpError(404, '항목을 찾을 수 없습니다.')`, `update` 는 **없는 id 에 `HttpError(409, '다른 사용자가 먼저 삭제한 항목입니다.')`** 를 던지고(유령 저장 방지 — `crud.ts:126-128`) 멱등키 원장(`createIdempotencyLedger` — `:62-72`)을 갖는다. **다만 이 화면은 멱등키를 넘기지 않아 원장이 발현되지 않는다**(§7 #7). `patch: applyStockOnComplete` 가 완료 전이의 재고 부수효과를 소유한다: 완료가 아니거나 이미 반영됐으면 건너뛰고(`:145`), 상품이 없으면 422, 재고 위반이면 **`violations: [{ field: 'exchangeOptionValues' | 'optionValues', … }]` 를 실은 422**(`:158-163`), 통과하면 `planStockMovements` → `applyMovements` → `updateProduct` 로 SKU 재고를 실제로 갱신하고 `stockAppliedAt`·`stockMovements` 를 남긴다(`:165-176`). 새로고침하면 시드로 되돌아간다. `data-source.ts:179-181` 의 `// TODO(backend): GET /api/returns · GET/PUT /api/returns/:id (상태 전이·처리 메모)` 와 `:193-194` 의 `// TODO(backend): GET /api/products/:id` 가 연동 지점이며, **재고 트랜잭션·422·멱등키(`stockAppliedAt`)까지 주석이 명시한다**. 위 표는 백엔드 연결 후 의도된 동작이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -195,24 +195,24 @@ date: 2026-07-17
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-044 영역)
 - [x] §7 의 미결 항목이 BE-044 §7.7 후속 이관 · NFR-044 §5 와 일치한다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 (상품 관리 SCR 미작성) | A11 / A01 |
-| 2 | **페이지네이션이 없다** — `visible.map`(`:229`)이 전량을 렌더한다. 교환/반품은 상한 없이 쌓이는 컬렉션이라 1,000건이면 1,000행이 DOM 에 올라간다. `SeqCell seq={index + 1}`(`:237`)도 도입 시 `startIndex + index + 1` 로 바뀌어야 하고, 스켈레톤 행 수(`SKELETON_ROWS = 5`)도 PAGE_SIZE 에서 파생돼야 한다(quality-bar IA-04 P0 · ERP-05/15 P1 · COMP-06/07 P2) | A11 · A63 (BE-044 §7.4) |
-| 3 | 상태 select(EL-019)가 **5개 상태 전부**를 열어 둔다 — 완료→접수 역행, 반려→완료 건너뛰기를 막는 것이 없다. 상태 흐름 상수(`RETURN_FLOW`)는 **스텝퍼 표시에만** 쓰이고 전이 판정에는 쓰이지 않는다 | A01 (도메인 경계) · A63 (BE-044 §7.1) |
-| 4 | 상세가 **자체 `<h1>교환/반품 처리</h1>`(`:256`) 를 그리고 AppHeader 도 `<h1>` 을 그린다** — `findCoveringLeaf` 덕에 AppHeader 는 브랜치 폴백('상품 관리')이 아니라 잎 라벨 '교환/반품'을 옳게 보이지만, 결과적으로 **`<h1>` 이 2개**이고 어느 쪽도 접수번호를 식별하지 못한다(quality-bar IA-02 P0) | A40 · A11 |
-| 5 | **완료 처리(EL-023)가 비가역인데 확인 다이얼로그가 없다** — 재고가 실제로 움직이고 `stockAppliedAt` 이 그것을 못박아 되돌릴 수 없다(`returns.test.ts:212-221` 이 그 불가역성을 고정한다). 미리보기(EL-032.2)는 예고일 뿐 게이트가 아니다(quality-bar FEEDBACK-02 P0) | A11 change_request |
-| 6 | 재고 이동에 **되돌리기(취소 전이) 경로가 없다** — 완료를 잘못 눌러도 상태를 되돌릴 수 있지만(#3) 재고는 그대로다. 역이동 계약이 없다 | A63 (BE-044 §7.3) · A01 |
-| 7 | 저장에 **동기 제출 락(`submitLockRef`)·멱등키가 없다** — 이 화면이 `useCrudForm` 을 쓰지 않아 그 훅의 두 장치(`useCrudForm.ts:103,118-123,211`)를 상속하지 못한다. `useCrudUpdate` 의 `idempotencyKey` 자리(`crud.ts:301,310`)가 비어 있어 어댑터 원장(`crud.ts:121`)이 발현되지 않는다. 재고 이중 이동은 `stockAppliedAt` 이 막지만, **상태·메모 저장은 두 번 나갈 수 있다**(quality-bar EXC-08 P0) | A11 · A63 |
-| 8 | **409 를 해소할 UI 가 없다** — 어댑터가 `HttpError(409)` 를 던져도(`crud.ts:126-128`) `onError` 에 `isConflict` 분기가 없어(`:203-212`) '저장하지 못했습니다' 일반 배너로 뭉개진다. `useCrudForm` 의 conflict 다이얼로그(`useCrudForm.ts:166-179`)를 상속하지 못했다. 낙관적 동시성 **토큰**(If-Match/version)도 없어 **동시 편집(둘 다 존재)은 last-write-wins** 다(quality-bar EXC-04 P0) | A11 · A63 (BE-044 §7.3) |
-| 9 | 이탈 가드(EL-035)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-011 · EL-022)를 누르면 미저장 처리 내용이 조용히 사라진다 | A11 change_request |
-| 10 | 저장 실패가 **403/409/5xx 를 같은 문구로 뭉갠다**(EL-016). 조회 실패도 **403 을 404 와 구분하지 않는다**(EL-014). `HttpError.status` 가 이미 존재하고 `isForbidden`(`http-error.ts:93-95`)도 있는데 이 화면이 쓰지 않는다(quality-bar EXC-06 P1) | A11 change_request |
-| 11 | 상세 도착 시 상태·메모·교환 옵션을 원본으로 되돌리는 효과(`useEffect([request])` — `:139-144`)가 **편집 중 재조회에서도 돈다** — 저장 후 재조회는 정상이나, 그 밖의 재조회가 오면 입력이 덮인다 | A11 change_request |
-| 12 | 상품명·사유 셀에 truncate 가 없어 긴 값이 표 열을 넓힌다(quality-bar COMP-09 P2). **리뷰 목록은 같은 문제를 `contentStyle` 의 ellipsis 로 풀었다**(`reviews/ReviewListPage.tsx:78-84`) — 이 화면에 그 처리가 없다 | A11 change_request |
-| 13 | 상세 사유(EL-018)에 `pre-wrap` 이 없어 **고객이 쓴 줄바꿈이 한 문단으로 뭉친다**. `ReviewPreview` 는 같은 자리에서 `whiteSpace: 'pre-wrap'` 을 쓴다(`reviews/components/ReviewPreview.tsx:69`) | A11 change_request |
-| 14 | 접수일 셀(EL-007.8)이 `requestedAt` 문자열을 **포맷 함수 없이 그대로** 렌더하고 `tabular-nums` 도 없다 — 같은 화면의 이력 표는 `formatDateTime` + `tabular-nums` 를 쓴다(`StockMovementTable.tsx:26-30,87`). 값이 'YYYY-MM-DD' 가 아니면 그대로 새어 나온다(quality-bar ERP-08 P2) | A11 change_request |
-| 15 | 이탈 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 재고가 이미 움직였는데 화면에 안 보일 수 있다 | A63 (BE-044 §7.2) |
-| 16 | **상품이 삭제되면 요청이 고아가 된다** — `fetchReturnProduct` 가 404 를 내고(EL-029) 완료 처리가 영원히 불가능해진다. 상품 삭제가 이 참조를 검사하지 않는다(`_shared/store.ts:650-652` `removeProduct` 는 카테고리 사용 중 검사와 달리 요청 참조를 보지 않는다) | A63 (BE-044 §7.4) · A11 |
-| 17 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 처리 내용을 버린다(가드 미발화) | A11 · A40 (quality-bar EXC-05 · EXC-11 · EXC-19 P1) |
+| 1 | 대응 SCR 문서 부재 (상품 관리 SCR 미작성) | UI 기획 / 아키텍처 |
+| 2 | **페이지네이션이 없다** — `visible.map`(`:229`)이 전량을 렌더한다. 교환/반품은 상한 없이 쌓이는 컬렉션이라 1,000건이면 1,000행이 DOM 에 올라간다. `SeqCell seq={index + 1}`(`:237`)도 도입 시 `startIndex + index + 1` 로 바뀌어야 하고, 스켈레톤 행 수(`SKELETON_ROWS = 5`)도 PAGE_SIZE 에서 파생돼야 한다(quality-bar IA-04 P0 · ERP-05/15 P1 · COMP-06/07 P2) | UI 기획 · 백엔드 명세 (BE-044 §7.4) |
+| 3 | 상태 select(EL-019)가 **5개 상태 전부**를 열어 둔다 — 완료→접수 역행, 반려→완료 건너뛰기를 막는 것이 없다. 상태 흐름 상수(`RETURN_FLOW`)는 **스텝퍼 표시에만** 쓰이고 전이 판정에는 쓰이지 않는다 | 아키텍처 (도메인 경계) · 백엔드 명세 (BE-044 §7.1) |
+| 4 | 상세가 **자체 `<h1>교환/반품 처리</h1>`(`:256`) 를 그리고 AppHeader 도 `<h1>` 을 그린다** — `findCoveringLeaf` 덕에 AppHeader 는 브랜치 폴백('상품 관리')이 아니라 잎 라벨 '교환/반품'을 옳게 보이지만, 결과적으로 **`<h1>` 이 2개**이고 어느 쪽도 접수번호를 식별하지 못한다(quality-bar IA-02 P0) | 프론트 구현 · UI 기획 |
+| 5 | **완료 처리(EL-023)가 비가역인데 확인 다이얼로그가 없다** — 재고가 실제로 움직이고 `stockAppliedAt` 이 그것을 못박아 되돌릴 수 없다(`returns.test.ts:212-221` 이 그 불가역성을 고정한다). 미리보기(EL-032.2)는 예고일 뿐 게이트가 아니다(quality-bar FEEDBACK-02 P0) | UI 기획 쪽 변경 요청 |
+| 6 | 재고 이동에 **되돌리기(취소 전이) 경로가 없다** — 완료를 잘못 눌러도 상태를 되돌릴 수 있지만(#3) 재고는 그대로다. 역이동 계약이 없다 | 백엔드 명세 (BE-044 §7.3) · 아키텍처 |
+| 7 | 저장에 **동기 제출 락(`submitLockRef`)·멱등키가 없다** — 이 화면이 `useCrudForm` 을 쓰지 않아 그 훅의 두 장치(`useCrudForm.ts:103,118-123,211`)를 상속하지 못한다. `useCrudUpdate` 의 `idempotencyKey` 자리(`crud.ts:301,310`)가 비어 있어 어댑터 원장(`crud.ts:121`)이 발현되지 않는다. 재고 이중 이동은 `stockAppliedAt` 이 막지만, **상태·메모 저장은 두 번 나갈 수 있다**(quality-bar EXC-08 P0) | UI 기획 · 백엔드 명세 |
+| 8 | **409 를 해소할 UI 가 없다** — 어댑터가 `HttpError(409)` 를 던져도(`crud.ts:126-128`) `onError` 에 `isConflict` 분기가 없어(`:203-212`) '저장하지 못했습니다' 일반 배너로 뭉개진다. `useCrudForm` 의 conflict 다이얼로그(`useCrudForm.ts:166-179`)를 상속하지 못했다. 낙관적 동시성 **토큰**(If-Match/version)도 없어 **동시 편집(둘 다 존재)은 last-write-wins** 다(quality-bar EXC-04 P0) | UI 기획 · 백엔드 명세 (BE-044 §7.3) |
+| 9 | 이탈 가드(EL-035)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-011 · EL-022)를 누르면 미저장 처리 내용이 조용히 사라진다 | UI 기획 쪽 변경 요청 |
+| 10 | 저장 실패가 **403/409/5xx 를 같은 문구로 뭉갠다**(EL-016). 조회 실패도 **403 을 404 와 구분하지 않는다**(EL-014). `HttpError.status` 가 이미 존재하고 `isForbidden`(`http-error.ts:93-95`)도 있는데 이 화면이 쓰지 않는다(quality-bar EXC-06 P1) | UI 기획 쪽 변경 요청 |
+| 11 | 상세 도착 시 상태·메모·교환 옵션을 원본으로 되돌리는 효과(`useEffect([request])` — `:139-144`)가 **편집 중 재조회에서도 돈다** — 저장 후 재조회는 정상이나, 그 밖의 재조회가 오면 입력이 덮인다 | UI 기획 쪽 변경 요청 |
+| 12 | 상품명·사유 셀에 truncate 가 없어 긴 값이 표 열을 넓힌다(quality-bar COMP-09 P2). **리뷰 목록은 같은 문제를 `contentStyle` 의 ellipsis 로 풀었다**(`reviews/ReviewListPage.tsx:78-84`) — 이 화면에 그 처리가 없다 | UI 기획 쪽 변경 요청 |
+| 13 | 상세 사유(EL-018)에 `pre-wrap` 이 없어 **고객이 쓴 줄바꿈이 한 문단으로 뭉친다**. `ReviewPreview` 는 같은 자리에서 `whiteSpace: 'pre-wrap'` 을 쓴다(`reviews/components/ReviewPreview.tsx:69`) | UI 기획 쪽 변경 요청 |
+| 14 | 접수일 셀(EL-007.8)이 `requestedAt` 문자열을 **포맷 함수 없이 그대로** 렌더하고 `tabular-nums` 도 없다 — 같은 화면의 이력 표는 `formatDateTime` + `tabular-nums` 를 쓴다(`StockMovementTable.tsx:26-30,87`). 값이 'YYYY-MM-DD' 가 아니면 그대로 새어 나온다(quality-bar ERP-08 P2) | UI 기획 쪽 변경 요청 |
+| 15 | 이탈 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 재고가 이미 움직였는데 화면에 안 보일 수 있다 | 백엔드 명세 (BE-044 §7.2) |
+| 16 | **상품이 삭제되면 요청이 고아가 된다** — `fetchReturnProduct` 가 404 를 내고(EL-029) 완료 처리가 영원히 불가능해진다. 상품 삭제가 이 참조를 검사하지 않는다(`_shared/store.ts:650-652` `removeProduct` 는 카테고리 사용 중 검사와 달리 요청 참조를 보지 않는다) | 백엔드 명세 (BE-044 §7.4) · UI 기획 |
+| 17 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 처리 내용을 버린다(가드 미발화) | UI 기획 · 프론트 구현 (quality-bar EXC-05 · EXC-11 · EXC-19 P1) |

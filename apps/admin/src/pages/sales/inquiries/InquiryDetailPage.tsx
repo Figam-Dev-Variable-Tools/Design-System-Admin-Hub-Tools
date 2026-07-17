@@ -1,4 +1,4 @@
-// InquiryDetailPage — 문의 상세·처리 (라우트: /sales/inquiries/:id) · A41 소유
+// InquiryDetailPage — 문의 상세·처리 (라우트: /sales/inquiries/:id)
 //
 // 문의 정보 + 대화 타임라인 + 담당 배정 + 상태 전이 + 답변/내부메모 작성(append). 저장은 프레임워크
 // 저수준 훅(useCrudUpdate). 삭제는 없다(문의는 고객이 만들고 관리자는 처리만 한다).

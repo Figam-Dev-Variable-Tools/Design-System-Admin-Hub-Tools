@@ -1,7 +1,7 @@
 # @tds/contract-test — 4자 일치 검증 도구
 
-> 담당 에이전트: **A74 Contract Test AI** (Layer 3 · Verification)
-> 근거: `docs/architecture/org-design-v2.md` §5.3, `orchestration/registry/agents.json` (A74)
+> 담당: 계약 테스트 (Layer 3 · Verification)
+> 근거: `docs/architecture/org-design-v2.md` §5.3
 > 차단 규칙: **불일치 1건 → G5(Storybook) · G6(React) · G7(Figma) 동시 차단** — "100% 동기화"의 실제 구현체
 
 ## 실행
@@ -46,7 +46,7 @@ codegen(`tools/codegen`)이 생성하는 권장 헤더:
 
 - 필요 조합 수 = (모든 enum prop 의 values 개수 곱) × (boolean prop 당 ×2)
 - export 된 Story 수 = Story 파일의 `export const <PascalCase>` 고유 개수 (CSF 규약)
-- Story 수 ≥ 필요 조합 수 → PASS. 정밀 검증(어떤 조합이 빠졌는지)은 G5 Storybook Reviewer(A33)와
+- Story 수 ≥ 필요 조합 수 → PASS. 정밀 검증(어떤 조합이 빠졌는지)은 G5 스토리북 리뷰와
   `scripts/validate-coverage` 계열 도구의 몫이며, 본 도구는 게이트 차단용 휴리스틱만 제공한다.
 
 ### 축 3 — figma.json 허용 형태
@@ -95,5 +95,5 @@ codegen(`tools/codegen`)이 생성하는 권장 헤더:
 ## 경계 (Hard Boundary)
 
 - 본 도구는 **검증만** 한다 — `contracts/**`, `packages/**`, `tokens/**` 를 수정하지 않는다 (P1 단일 소유권).
-- 리포트 경로 `reports/contract-test/**` 는 A74 소유.
-- 생성물 재생성이 필요하면 `pnpm codegen` (`@tds/codegen`) 을 실행하는 것은 생산자 에이전트의 몫이다.
+- 리포트 경로 `reports/contract-test/**` 는 계약 테스트 담당 소유.
+- 생성물 재생성이 필요하면 `pnpm codegen` (`@tds/codegen`) 을 실행하는 것은 생성(codegen) 담당의 몫이다.

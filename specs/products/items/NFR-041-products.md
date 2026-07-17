@@ -4,8 +4,8 @@ title: "상품 비기능 명세"
 functionalSpec: FS-041
 backendSpec: BE-041
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -88,7 +88,7 @@ date: 2026-07-17
 | `gap` | **4** | IA-02 · IA-04 · EXC-03 · EXC-04 |
 | **합계** | **30** | 15 + 10 + 1 + 4 = **30** ✔ |
 
-> **P0 gap 4건 — quality-bar '배치 실패' 사유.** 이 중 **IA-02**(앱 전역 title 모델)는 **화면 코드로 해소할 수 없다** — A40 선행이 필요하다. **EXC-03**(쓰기 게이팅)은 훅이 이미 있어 이 화면에서 즉시 해소 가능하다. **IA-04**(페이지네이션)·**EXC-04**(동시성 토큰)는 BE 계약과 함께 가야 한다(BE-041 §7.6·§7.2).
+> **P0 gap 4건 — quality-bar '배치 실패' 사유.** 이 중 **IA-02**(앱 전역 title 모델)는 **화면 코드로 해소할 수 없다** — 프론트 구현 선행이 필요하다. **EXC-03**(쓰기 게이팅)은 훅이 이미 있어 이 화면에서 즉시 해소 가능하다. **IA-04**(페이지네이션)·**EXC-04**(동시성 토큰)는 BE 계약과 함께 가야 한다(BE-041 §7.6·§7.2).
 >
 > **`a5c2639` 기준 갱신으로 뒤집힌 것 — A11Y-11 `gap` → `pass`.** 구 기준의 유일한 gap 사유였던 '대표 이미지의 required 가 AT 에 안 닿는다'를 **PR #30 이 DS 층에서 닫았다**(`requiredNameSuffix` — `ImageUploadField.tsx:55,250` · `ImageGalleryField.tsx:237`). **이 화면 코드는 0줄 바뀌지 않았다** — FS-039 의 A11Y-11 이 `FormField.withAriaRequired` 덕에 닫힌 것과 같은 모양이다. 해법이 `aria-required` 주입이 **아니라** 접근성 이름이었다는 점이 중요하다(§2 A11Y-11 행).
 >
@@ -209,29 +209,29 @@ date: 2026-07-17
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
 | 1 | ~~A11Y-11 · A11Y-16~~ | ~~P0 · P1~~ | **(해소됨 — 기록)** 구 기준(`4b805ad`)의 '대표 이미지의 required 가 AT 에 닿지 않는다'는 **PR #30 이 DS 층에서 닫았다** — `requiredNameSuffix`(`ImageUploadField.tsx:55,250` · `ImageGalleryField.tsx:237`)가 드롭존의 **접근성 이름**에 `' (필수)'` 를 붙인다. 예상과 달리 해법은 `aria-required` 주입이 아니었다 — `role=button` 이 지원하지 않는 속성이라 얹으면 axe 위반이 된다(`:44-54`). **이관 불필요** | — | — |
-| 2 | IA-02 | P0 | 폼에 `<h1>` 이 2개(AppHeader + 자체) + '등록/수정' 행위가 AppHeader 에 없다(의도적 — `nav-config.ts:293-295`). **가지 라벨 폴백은 통합이 해소했다** — 사유가 바뀐 gap | **앱 전역**(AppHeader·title 모델) | A40 · A11 |
-| 3 | IA-04 · ERP-05 · ERP-15 · COMP-06 · COMP-07 | P0 · P1 · P2 | **페이지네이션 없음** — 전량 렌더. `SeqCell` 에 `startIndex` 없음(도입 시 발현) · 스켈레톤 `length: 5` · Pagination range/page-size 표면 부재 | 이 화면 + 공용 `CrudListShell`/`CrudTable` + BE 계약 | A11 · A63 (BE-041 §7.6 — IA-13 은 이미 충족돼 절반은 공짜) |
-| 4 | EXC-03 | P0 | **쓰기 게이팅이 '등록' 버튼 하나뿐** — `ProductListPage.tsx:119` 가 `canCreate` 만 꺼낸다. 행 수정/삭제·일괄 삭제·전시 토글·폼 제출이 게이팅되지 않고, read 전용 역할이 `/products/new` 를 deep-link 하면 완전한 폼을 본다. **훅은 이미 있다 — 즉시 해소 가능** | 이 화면 + 공용 `CrudTable`/`CrudListShell`(권한 prop 이 없다) | A11 change_request |
-| 5 | EXC-04 | P0 | **낙관적 동시성 토큰 없음** — `Product` 에 `version`/`updatedAt` 부재. 409 는 '존재 여부' 기반이라 **동시 편집은 last-write-wins**. 전체 치환이라 덮이는 것이 상품 전체다. **유령 저장 절은 `createStoreAdapter` 가 해소했다** | 이 화면 + 타입 + `WriteContext` + BE 계약 | A63 (BE-041 §7.2) · A11 |
-| 6 | (§4.2 · BE-041 §7.4) | — | **편집 중 팔린 재고가 저장으로 되살아난다(과판매).** `version` 토큰으로도 완전히 풀리지 않는다 — 재고를 계약에서 분리해야 한다 | BE 계약 + 이 화면 | **A63 (BE-041 §7.4 — 최우선)** |
-| 7 | (BE-041 §7.3) | — | **상품코드 전역 유일성 미검증** — 중복 검사가 한 상품의 variants 안에 갇혀 있다. 재고 집계·주문 매핑의 키가 겹친다 | BE 계약 + 이 화면 | A63 · A11 |
-| 8 | (BE-041 §7.7) | — | **카테고리 선택지의 react-query 키가 두 벌**(`[products,'category-options']` vs `['product-categories','list']`) — FS-042 에서 카테고리를 바꿔도 무효화되지 않는다. **백엔드와 무관하게 지금 고칠 수 있다** | 이 화면 + FS-042 | A11 change_request |
-| 9 | EXC-06 · EXC-20 | P1 | **목록·삭제·토글이 `useCrudForm` 의 status 분기를 상속하지 못한다** — 403/409/422/429/500 이 전부 '잠시 후 다시 시도해 주세요' 로 뭉개진다(429·403 에는 거짓 안내). reference code 도 없다. **폼은 pass** | 공용 `useCrudList`/`useCrudRowUpdate` | A11 change_request |
-| 10 | EXC-10 · EXC-18 | P1 | 일괄 삭제가 **실패 id 를 반환하지 않고**(건수만) 재시도가 전량을 재실행. progress·cancel·Shift-click range 선택 없음. **선택 건수만큼 동시 발사가 429 를 부른다** | 공용 `bulk.ts`/`useCrudList` + BE 계약 | A11 · A63 (BE-041 §7.13) |
-| 11 | EXC-08 (잔여) | P0 | **삭제 확인 버튼에 동기 락 없음** · `DeleteVars`/`useCrudRowUpdate` 에 멱등키 자리 없음. 폼은 pass(락+키 둘 다) — 잔여만 이관 | 공용 `useCrudList`/`crud.ts` | A11 |
-| 12 | A11Y-13 (부분) | P1 | 폼 진입 시 첫 필드 자동 포커스 없음. **검증 실패 시 첫 오류 포커스는 pass**. `ImageUploadField`·`ProductOptionMatrix` 오류에는 포커스가 가지 않는다(RHF 필드가 아니다) | 이 화면 + 공용 `useCrudForm` | A11 change_request |
-| 13 | COMP-09 · ERP-07 | P2 | 셀 truncate 없음(`nowrap` 열은 더 나쁘다 — 열이 늘어난다) · 금액의 '원' 이 자릿수 정렬을 깬다 | 이 화면 + 공용 `CrudTable` | A11 |
-| 14 | COMP-12 · ERP-14 | P2 · P1 | **상한 근접 경고 없음**(전 필드) · 상품명·상품코드·브랜드는 **카운터조차 없고** `maxLength` 가 조용히 자른다 · 금액 필드에 실시간 마스킹·붙여넣기 정규화 없음(붙여넣은 '129,000' 이 거절된다). **범위가 좁아졌다**: 상세설명은 `RichTextField` 로 바뀌며 '조용히 멈춤' 과 'counting 기준 미정의' 가 둘 다 해소됐다 — 상한 집행이 zod 단독이라 초과 시 특정 문구로 거절되고(`validation.ts:107-111`), 카운터·검증이 `richTextLength`(평문) 한 함수를 공유한다 | 이 화면 + DS field adapter | A11 |
-| 15 | ERP-06 · ERP-08 | P1 · P2 | `toLocaleString` 직접 호출 2곳(`ProductCardPreview.tsx:13` · `ProductOptionMatrix.tsx:304`) — `formatNumber` 미경유 | 이 화면 | A11 change_request |
-| 16 | ERP-01 | P1 | status→tone 이 `pages/products/items` 지역 레지스트리다 — 앱 전역 통합 레지스트리가 아니다. 카테고리 배지는 id 해시라 status 축이 아니다 | **앱 전역** | A11 |
-| 17 | ERP-15 (옵션) | P1 | **옵션 매트릭스가 데카르트 곱을 전부 펼친다**(3×20×20 = 8,000행) — cap·가상화·경고 없음. 가로 scroll 컨테이너는 있다 | 이 화면 | A11 change_request |
-| 18 | COMP-01 (경미) | P1 | 손조립 `<button>` 2곳 — '목록으로' back-link(IA-07 축) · 옵션 삭제 ghost icon. **`buttonStyle(`/`tds-ui-btn-` grep 은 0건** | 이 화면 | A11 |
-| 19 | MOTION-01 (잔여) | P0 | **범위가 크게 줄었다.** ~~`ToggleSwitch.css:56` 에 reduced-motion off 가 없다~~ → **게이트 실재**(`ToggleSwitch.css:79-84`) — 이 화면의 ToggleSwitch 3종에서 발현되던 위반은 **해소**. ~~Motion 라이브러리 미도입이라 오버레이 모션 부재~~ → **오버레이 모션 구현됨**(CSS-only · Modal `Modal.css:20-21,35-38,58-59` · Toast `Toast.css:32-37,121-131`, reduced-motion 게이트 각각 `:173-180`·`:136-141`). Motion/framer-motion 은 **여전히 미도입**이나 `onAnimationEnd` 로 동등 달성했다. **잔여**: 애니메이션되는 닫힘이 Modal 소유 3경로(Esc·딤·×)뿐이라 **이 화면 modal 4종의 footer 버튼 경로는 즉시 언마운트된다**(`Modal.tsx:27-31` — 조립하는 쪽 버튼이라 `onClose` 를 안 거친다). 라이브러리 부재를 gap 으로 볼지는 **소유 문서(DS)의 몫** | **`packages/ui`**(화면 코드로 해소 불가) | A41 / DS |
-| 20 | EXC-05 · EXC-11 · EXC-13 · EXC-19 | P1 · P2 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 · 전역 `retry:false` · 세션 만료가 장수명 폼 입력을 버린다 | **앱 전역** | A40 · A11 |
-| 21 | EXC-15 (부분) | P1 | upload progress·cancel 경로 없음 — **애초에 업로드하지 않기 때문이다.** 클라이언트 검증·로드 실패 fallback 은 pass | **알려진 빚에 종속** | A63 (BE-041 §7.5) |
-| 22 | (§4.3 · §4.4) | — | **감사 축 부재** — 가격·적립률 변경 이력 없음 · 재고 조정 사유 없음 · `createdAt`/`updatedAt` 부재로 '최근 등록순'·'언제 바뀌었나'를 답할 수 없다. **가격은 돈이다** | BE 계약 | **A63 (BE-041 §7.15 #1·#2)** |
-| 23 | (§4.4) | — | **`blob:` 이미지가 저장되면 깨진다** — **결함이 아니라 알려진 빚**. `POST /api/uploads` + 서버 `blob:` 거절 + `requiredImage` 조이기를 **한 배치로**(어느 하나만 붙이면 폼이 죽는다) | DS + BE 계약 | A63 · A41/DS (BE-041 §7.5) |
-| 24 | (BE-041 §7.8) | — | **`DEFAULT_POINTS`/`DEFAULT_SHIPPING` 이 코드 상수라 전역 정책과 어긋난다** — 정책이 기본 적립률을 2% 로 바꿔도 새 상품은 1% 로 시작한다. **지금 실재하는 불일치** | 이 화면 + 정책 화면 | A11 · A01 |
+| 2 | IA-02 | P0 | 폼에 `<h1>` 이 2개(AppHeader + 자체) + '등록/수정' 행위가 AppHeader 에 없다(의도적 — `nav-config.ts:293-295`). **가지 라벨 폴백은 통합이 해소했다** — 사유가 바뀐 gap | **앱 전역**(AppHeader·title 모델) | 프론트 구현 · UI 기획 |
+| 3 | IA-04 · ERP-05 · ERP-15 · COMP-06 · COMP-07 | P0 · P1 · P2 | **페이지네이션 없음** — 전량 렌더. `SeqCell` 에 `startIndex` 없음(도입 시 발현) · 스켈레톤 `length: 5` · Pagination range/page-size 표면 부재 | 이 화면 + 공용 `CrudListShell`/`CrudTable` + BE 계약 | UI 기획 · 백엔드 명세 (BE-041 §7.6 — IA-13 은 이미 충족돼 절반은 공짜) |
+| 4 | EXC-03 | P0 | **쓰기 게이팅이 '등록' 버튼 하나뿐** — `ProductListPage.tsx:119` 가 `canCreate` 만 꺼낸다. 행 수정/삭제·일괄 삭제·전시 토글·폼 제출이 게이팅되지 않고, read 전용 역할이 `/products/new` 를 deep-link 하면 완전한 폼을 본다. **훅은 이미 있다 — 즉시 해소 가능** | 이 화면 + 공용 `CrudTable`/`CrudListShell`(권한 prop 이 없다) | UI 기획 쪽 변경 요청 |
+| 5 | EXC-04 | P0 | **낙관적 동시성 토큰 없음** — `Product` 에 `version`/`updatedAt` 부재. 409 는 '존재 여부' 기반이라 **동시 편집은 last-write-wins**. 전체 치환이라 덮이는 것이 상품 전체다. **유령 저장 절은 `createStoreAdapter` 가 해소했다** | 이 화면 + 타입 + `WriteContext` + BE 계약 | 백엔드 명세 (BE-041 §7.2) · UI 기획 |
+| 6 | (§4.2 · BE-041 §7.4) | — | **편집 중 팔린 재고가 저장으로 되살아난다(과판매).** `version` 토큰으로도 완전히 풀리지 않는다 — 재고를 계약에서 분리해야 한다 | BE 계약 + 이 화면 | **백엔드 명세 (BE-041 §7.4 — 최우선)** |
+| 7 | (BE-041 §7.3) | — | **상품코드 전역 유일성 미검증** — 중복 검사가 한 상품의 variants 안에 갇혀 있다. 재고 집계·주문 매핑의 키가 겹친다 | BE 계약 + 이 화면 | 백엔드 명세 · UI 기획 |
+| 8 | (BE-041 §7.7) | — | **카테고리 선택지의 react-query 키가 두 벌**(`[products,'category-options']` vs `['product-categories','list']`) — FS-042 에서 카테고리를 바꿔도 무효화되지 않는다. **백엔드와 무관하게 지금 고칠 수 있다** | 이 화면 + FS-042 | UI 기획 쪽 변경 요청 |
+| 9 | EXC-06 · EXC-20 | P1 | **목록·삭제·토글이 `useCrudForm` 의 status 분기를 상속하지 못한다** — 403/409/422/429/500 이 전부 '잠시 후 다시 시도해 주세요' 로 뭉개진다(429·403 에는 거짓 안내). reference code 도 없다. **폼은 pass** | 공용 `useCrudList`/`useCrudRowUpdate` | UI 기획 쪽 변경 요청 |
+| 10 | EXC-10 · EXC-18 | P1 | 일괄 삭제가 **실패 id 를 반환하지 않고**(건수만) 재시도가 전량을 재실행. progress·cancel·Shift-click range 선택 없음. **선택 건수만큼 동시 발사가 429 를 부른다** | 공용 `bulk.ts`/`useCrudList` + BE 계약 | UI 기획 · 백엔드 명세 (BE-041 §7.13) |
+| 11 | EXC-08 (잔여) | P0 | **삭제 확인 버튼에 동기 락 없음** · `DeleteVars`/`useCrudRowUpdate` 에 멱등키 자리 없음. 폼은 pass(락+키 둘 다) — 잔여만 이관 | 공용 `useCrudList`/`crud.ts` | UI 기획 |
+| 12 | A11Y-13 (부분) | P1 | 폼 진입 시 첫 필드 자동 포커스 없음. **검증 실패 시 첫 오류 포커스는 pass**. `ImageUploadField`·`ProductOptionMatrix` 오류에는 포커스가 가지 않는다(RHF 필드가 아니다) | 이 화면 + 공용 `useCrudForm` | UI 기획 쪽 변경 요청 |
+| 13 | COMP-09 · ERP-07 | P2 | 셀 truncate 없음(`nowrap` 열은 더 나쁘다 — 열이 늘어난다) · 금액의 '원' 이 자릿수 정렬을 깬다 | 이 화면 + 공용 `CrudTable` | UI 기획 |
+| 14 | COMP-12 · ERP-14 | P2 · P1 | **상한 근접 경고 없음**(전 필드) · 상품명·상품코드·브랜드는 **카운터조차 없고** `maxLength` 가 조용히 자른다 · 금액 필드에 실시간 마스킹·붙여넣기 정규화 없음(붙여넣은 '129,000' 이 거절된다). **범위가 좁아졌다**: 상세설명은 `RichTextField` 로 바뀌며 '조용히 멈춤' 과 'counting 기준 미정의' 가 둘 다 해소됐다 — 상한 집행이 zod 단독이라 초과 시 특정 문구로 거절되고(`validation.ts:107-111`), 카운터·검증이 `richTextLength`(평문) 한 함수를 공유한다 | 이 화면 + DS field adapter | UI 기획 |
+| 15 | ERP-06 · ERP-08 | P1 · P2 | `toLocaleString` 직접 호출 2곳(`ProductCardPreview.tsx:13` · `ProductOptionMatrix.tsx:304`) — `formatNumber` 미경유 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 16 | ERP-01 | P1 | status→tone 이 `pages/products/items` 지역 레지스트리다 — 앱 전역 통합 레지스트리가 아니다. 카테고리 배지는 id 해시라 status 축이 아니다 | **앱 전역** | UI 기획 |
+| 17 | ERP-15 (옵션) | P1 | **옵션 매트릭스가 데카르트 곱을 전부 펼친다**(3×20×20 = 8,000행) — cap·가상화·경고 없음. 가로 scroll 컨테이너는 있다 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 18 | COMP-01 (경미) | P1 | 손조립 `<button>` 2곳 — '목록으로' back-link(IA-07 축) · 옵션 삭제 ghost icon. **`buttonStyle(`/`tds-ui-btn-` grep 은 0건** | 이 화면 | UI 기획 |
+| 19 | MOTION-01 (잔여) | P0 | **범위가 크게 줄었다.** ~~`ToggleSwitch.css:56` 에 reduced-motion off 가 없다~~ → **게이트 실재**(`ToggleSwitch.css:79-84`) — 이 화면의 ToggleSwitch 3종에서 발현되던 위반은 **해소**. ~~Motion 라이브러리 미도입이라 오버레이 모션 부재~~ → **오버레이 모션 구현됨**(CSS-only · Modal `Modal.css:20-21,35-38,58-59` · Toast `Toast.css:32-37,121-131`, reduced-motion 게이트 각각 `:173-180`·`:136-141`). Motion/framer-motion 은 **여전히 미도입**이나 `onAnimationEnd` 로 동등 달성했다. **잔여**: 애니메이션되는 닫힘이 Modal 소유 3경로(Esc·딤·×)뿐이라 **이 화면 modal 4종의 footer 버튼 경로는 즉시 언마운트된다**(`Modal.tsx:27-31` — 조립하는 쪽 버튼이라 `onClose` 를 안 거친다). 라이브러리 부재를 gap 으로 볼지는 **소유 문서(DS)의 몫** | **`packages/ui`**(화면 코드로 해소 불가) | 프론트 리팩터 / DS |
+| 20 | EXC-05 · EXC-11 · EXC-13 · EXC-19 | P1 · P2 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 · 전역 `retry:false` · 세션 만료가 장수명 폼 입력을 버린다 | **앱 전역** | 프론트 구현 · UI 기획 |
+| 21 | EXC-15 (부분) | P1 | upload progress·cancel 경로 없음 — **애초에 업로드하지 않기 때문이다.** 클라이언트 검증·로드 실패 fallback 은 pass | **알려진 빚에 종속** | 백엔드 명세 (BE-041 §7.5) |
+| 22 | (§4.3 · §4.4) | — | **감사 축 부재** — 가격·적립률 변경 이력 없음 · 재고 조정 사유 없음 · `createdAt`/`updatedAt` 부재로 '최근 등록순'·'언제 바뀌었나'를 답할 수 없다. **가격은 돈이다** | BE 계약 | **백엔드 명세 (BE-041 §7.15 #1·#2)** |
+| 23 | (§4.4) | — | **`blob:` 이미지가 저장되면 깨진다** — **결함이 아니라 알려진 빚**. `POST /api/uploads` + 서버 `blob:` 거절 + `requiredImage` 조이기를 **한 배치로**(어느 하나만 붙이면 폼이 죽는다) | DS + BE 계약 | 백엔드 명세 · 프론트 리팩터/DS (BE-041 §7.5) |
+| 24 | (BE-041 §7.8) | — | **`DEFAULT_POINTS`/`DEFAULT_SHIPPING` 이 코드 상수라 전역 정책과 어긋난다** — 정책이 기본 적립률을 2% 로 바꿔도 새 상품은 1% 로 시작한다. **지금 실재하는 불일치** | 이 화면 + 정책 화면 | UI 기획 · 아키텍처 |
 
 ## 6. 측정 도구 · 재현 스위치
 

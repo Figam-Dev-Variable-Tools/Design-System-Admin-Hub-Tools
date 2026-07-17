@@ -4,8 +4,8 @@
 id: BE-NNN
 title: "<대상 화면명> 백엔드 기능 명세"
 functionalSpec: FS-NNN        # 근거 기능 명세(D9) 역참조 — 번호를 FS와 동일하게 맞춘다
-owner: A63
-reviewer: A64
+owner: 백엔드 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft                 # draft | reviewed | approved
 version: 1.0
@@ -24,7 +24,7 @@ date: YYYY-MM-DD
 ★ **프론트가 이미 뚫어둔 연동 지점에서 출발한다.**
    `apps/admin/src/pages/<domain>/data-source.ts` 의 함수 시그니처와 `// TODO(backend):` 주석,
    그리고 `types.ts` 의 도메인 타입이 **프론트가 기대하는 계약의 초안**이다.
-   백지에서 새 모양을 설계하지 않는다. 프론트를 바꿔야 할 이유가 있으면 A40에 change_request를 내고,
+   백지에서 새 모양을 설계하지 않는다. 프론트를 바꿔야 할 이유가 있으면 프론트 구현에 변경 요청을 내고,
    임의로 다른 모양을 명세하지 않는다.
 
 ★ **추적성**: 모든 엔드포인트는 FS 요소 번호를 `근거` 로 역참조한다.
@@ -252,7 +252,7 @@ date: YYYY-MM-DD
 <!-- 프론트 `data-source.ts` 의 **모든** export 함수가 이 표에 나타나야 한다.
      매핑되지 않은 함수가 있으면 = 엔드포인트 누락. 매핑되지 않은 엔드포인트가 있으면 = 고아.
      `필드 일치` 열은 응답 스키마의 필드명·타입이 `types.ts` 와 일치하는지 O/X 로 판정한다
-     (X = major — 프론트를 바꿔야 한다면 A40에 change_request). -->
+     (X = major — 프론트를 바꿔야 한다면 프론트 구현에 변경 요청). -->
 
 | data-source.ts 함수 시그니처 | TODO(backend) 주석 | 엔드포인트 | 요청 타입 | 응답 타입 (types.ts) | 필드 일치 |
 |---|---|---|---|---|---|

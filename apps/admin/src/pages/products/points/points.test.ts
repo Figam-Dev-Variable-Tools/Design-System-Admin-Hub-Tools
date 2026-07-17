@@ -1,4 +1,4 @@
-// 적립금 정책 폼 검증 회귀 테스트 (A41)
+// 적립금 정책 폼 검증 회귀 테스트
 import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_POINTS_POLICY } from './types';

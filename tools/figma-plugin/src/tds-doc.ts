@@ -1,6 +1,6 @@
 /**
  * TDS 문서 생성기 — 피그마 파일에 'TDS 문서 스타일' 페이지를 생성/재생성한다.
- * 소유: A50 Figma Plugin Engineer (tools/figma-plugin/**), 게이트 G7, 검수: A56
+ * 소유: Figma 플러그인 Figma Plugin Engineer (tools/figma-plugin/**), 게이트 G7, 검수: Figma 리뷰
  *
  * 규격 문서: docs/figma/specs/tds-doc-style.md — 페이지 이름·치수·바인딩 규칙은
  * 전부 그 문서와 1:1이다. 여기 상수를 바꾸면 규격 문서도 같이 갱신할 것.
@@ -851,7 +851,7 @@ function buildComponentsPage(ctx: DocContext, page: PageNode, payload: TdsDocPay
     }
     section.appendChild(table);
 
-    // Variant 매트릭스 자리 — 내용은 A51 소유 (여기서는 자리만)
+    // Variant 매트릭스 자리 — 내용은 Figma 컴포넌트 소유 (여기서는 자리만)
     const slot = figma.createFrame();
     slot.name = `Variant Matrix Slot — ${spec.name}`;
     slot.resize(CONTENT_W, GRID * 30);
@@ -865,10 +865,14 @@ function buildComponentsPage(ctx: DocContext, page: PageNode, payload: TdsDocPay
     slot.primaryAxisAlignItems = 'CENTER';
     slot.counterAxisAlignItems = 'CENTER';
     slot.appendChild(
-      makeText(ctx, "Variant 매트릭스 — '계약 → Variant Property 동기화' 실행 후 A51이 채움", {
-        size: TYPE.body,
-        colorVar: ctx.chrome.textMuted,
-      }),
+      makeText(
+        ctx,
+        "Variant 매트릭스 — '계약 → Variant Property 동기화' 실행 후 Figma 컴포넌트이 채움",
+        {
+          size: TYPE.body,
+          colorVar: ctx.chrome.textMuted,
+        },
+      ),
     );
     section.appendChild(slot);
 
@@ -930,7 +934,7 @@ function buildPagesPage(ctx: DocContext, page: PageNode, payload: TdsDocPayload)
       );
     }
 
-    // 1440 데스크톱 아트보드 — 내용은 비워 둔다 (화면 조립은 A53 소유)
+    // 1440 데스크톱 아트보드 — 내용은 비워 둔다 (화면 조립은 Figma UI 소유)
     const artboard = figma.createFrame();
     artboard.name =
       meta.name !== undefined && meta.name.length > 0 ? `${meta.id} — ${meta.name}` : meta.id;

@@ -1,4 +1,4 @@
-// CategoriesPage — 문의 유형 관리 (라우트: /support/categories) · A41 소유
+// CategoriesPage — 문의 유형 관리 (라우트: /support/categories)
 //
 // 목록 + 추가/수정 모달 + 삭제팝업. **사용 중 차단**: 그 유형을 쓰는 티켓/템플릿이 1건이라도 있으면
 // 삭제 버튼을 잠근다(고아 참조 방지 — 국내 CS 관례: 참조되는 데이터는 하드 삭제하지 않는다).

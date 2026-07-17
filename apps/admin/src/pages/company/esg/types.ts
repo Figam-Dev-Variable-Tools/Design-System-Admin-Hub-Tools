@@ -1,4 +1,4 @@
-// ESG 화면 전용 타입 + 순수 규칙 (A41 소유 — apps/admin/src/pages/company/esg/**)
+// ESG 화면 전용 타입 + 순수 규칙
 import type { StatusTone } from '../../../shared/ui';
 
 export type EsgCategory = 'environment' | 'social' | 'governance';

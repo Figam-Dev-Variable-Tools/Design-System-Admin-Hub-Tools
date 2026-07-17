@@ -1,4 +1,4 @@
-// 목록 화면의 조회 상태 (A41 소유 — apps/admin/src/shared/crud/**)
+// 목록 화면의 조회 상태
 //
 // [IA-13 (P0)] page·filter·keyword·sort 의 **단일 원천을 URL 쿼리스트링**으로 옮긴다.
 //

@@ -1,4 +1,4 @@
-/* 견적서 print 템플릿 (A41 — ERP-10)
+/* 견적서 print 템플릿 (ERP-10)
  *
  * [왜 별도 파일인가]
  * QuotePreview 는 인라인 style 로 그린다. 인라인 style 로는 `@media print` 도 `@page` 도 표현할

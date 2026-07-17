@@ -1,4 +1,4 @@
-// ReviewListPage — 리뷰 목록 (라우트: /products/reviews) · A41 소유
+// ReviewListPage — 리뷰 목록 (라우트: /products/reviews)
 //
 // 승격된 CRUD 프레임워크(useCrudList + CrudListShell) 위에 별점 필터 + 검색 + 포토/신고 배지 +
 // 노출 인라인 토글 + 삭제팝업을 얹는다. 행의 연필 액션은 상세(노출·답변)로 이동한다. 목록엔 이미지 열 없음.

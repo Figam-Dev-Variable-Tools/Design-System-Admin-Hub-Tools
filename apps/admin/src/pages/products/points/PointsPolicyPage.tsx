@@ -1,4 +1,4 @@
-// PointsPolicyPage — 적립금 정책 (라우트: /products/points) · A41 소유
+// PointsPolicyPage — 적립금 정책 (라우트: /products/points)
 //
 // 정책 설정형: 문서 1건을 불러와 고치고 저장한다(회사 정보 화면과 같은 단일 문서형 껍데기 재사용).
 // 회원 상세의 PointsCard(개별 잔액)와는 별개 — 여기는 적립 기준·사용조건·유효기간 **정책**이다.

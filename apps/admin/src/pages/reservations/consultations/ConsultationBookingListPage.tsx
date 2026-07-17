@@ -1,4 +1,4 @@
-// ConsultationBookingListPage — 상담 예약 목록 (라우트: /reservations/consultations) · A41 소유
+// ConsultationBookingListPage — 상담 예약 목록 (라우트: /reservations/consultations)
 //
 // CRUD 프레임워크(useCrudList + CrudListShell) 위에 상태 필터 + 검색 + 상담유형·희망일시·담당·상태 배지 +
 // 삭제팝업. 목록엔 이미지 열이 없다.

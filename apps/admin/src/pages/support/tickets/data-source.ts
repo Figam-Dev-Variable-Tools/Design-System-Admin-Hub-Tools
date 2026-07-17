@@ -1,4 +1,4 @@
-// 1:1 문의(티켓) 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/support/**)
+// 1:1 문의(티켓) 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 공용 CRUD 프레임워크의 CrudAdapter 를 _shared/store 위에 배선한다. 목록/상세는
 // fetchAll/fetchOne, 답변·상태·담당 저장은 update 를 쓴다. 문의는 고객 채널이 만들고 관리자는 처리만

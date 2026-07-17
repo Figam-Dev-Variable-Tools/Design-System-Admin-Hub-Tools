@@ -1,4 +1,4 @@
-// BannersTable — 재정렬·ON/OFF 토글 동작 단언 (A41)
+// BannersTable — 재정렬·ON/OFF 토글 동작 단언
 //
 // 드래그는 마우스 전용이라 jsdom 재현이 불안정하다 — 키보드 대안(위/아래 버튼)과 토글이 검증 대상이다.
 // FAQ 와 같은 공통 재정렬 모듈(shared/ui/tableReorder)을 쓰므로 배너에서도 동일 동작을 확인한다.

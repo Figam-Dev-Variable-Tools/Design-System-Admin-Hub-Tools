@@ -3,7 +3,7 @@
 Storybook 사이드바 `Foundations/*` 카테고리의 원천 코드. **토큰 값을 하드코딩하지 않는다** —
 `tokens/tokens.json`(단일 원천, SSOT)에서 생성된 산출물만 순회/해석해 렌더하므로,
 토큰을 추가·변경하면 **codegen 재실행만으로 모든 Foundations 페이지가 자동 갱신**된다.
-Figma Variables 도 같은 tokens.json 에서 생성되므로(A52) Storybook ↔ Figma 는 구조적으로 동일함이 보장된다.
+Figma Variables 도 같은 tokens.json 에서 생성되므로(Figma 변수) Storybook ↔ Figma 는 구조적으로 동일함이 보장된다.
 
 ## 동작 원리
 
@@ -35,8 +35,8 @@ Storybook 실행/빌드 전 **반드시 루트에서 `pnpm codegen` 선행** (pa
 
 ## 토큰을 추가하려면
 
-1. `tokens/tokens.json` 수정은 A20(Token Engineer) 소유, A21(G4) 승인 필요 — 여기서는 수정하지 않는다.
+1. `tokens/tokens.json` 수정은 토큰 엔지니어 소유, 토큰 리뷰(G4) 승인 필요 — 여기서는 수정하지 않는다.
 2. G4 승인 + `pnpm codegen` 후 Foundations 는 자동 반영된다. 새 그룹(예: shadow)이 생겨도
    스토리가 맵을 동적 순회하므로 이 폴더의 코드 수정은 원칙적으로 불필요하다.
 
-소유: A30 (Storybook Component Engineer) · 검수: A33 (G5)
+담당: 컴포넌트 엔지니어 · 검수: 스토리북 리뷰 (G5)

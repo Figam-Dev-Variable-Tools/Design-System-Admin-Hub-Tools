@@ -1,5 +1,5 @@
 /**
- * @tds/vrt — Visual Regression 파이프라인 엔트리 (A70 Visual Regression AI 소유)
+ * @tds/vrt — Visual Regression 파이프라인 엔트리 (비주얼 회귀 Visual Regression AI 소유)
  *
  * 파이프라인:
  *   1. packages/ui/storybook-static 의 스토리를 Playwright로 스크린샷 캡처
@@ -11,7 +11,7 @@
  * 모드:
  *   --update-baseline : 기준 이미지가 전혀 없는 스토리의 현재 스크린샷을
  *                       reports/vrt/baseline/ 에 baseline으로 등록한다.
- *                       (docs/figma/specs/** 는 A51~A55 소유 경로이므로 절대 쓰지 않는다 — P1 단일 소유권)
+ *                       (docs/figma/specs/** 는 Figma 컴포넌트~Figma 아이콘 소유 경로이므로 절대 쓰지 않는다 — P1 단일 소유권)
  *
  * 종료 코드: 0 = 실제로 비교했고 전부 통과 / 1 = diff > 0.1% (G7 차단 입력)
  *            2 = NOT_VERIFIED — 측정 자체가 불가능했다
@@ -25,7 +25,7 @@
  *   따라서 켜져 있는 것은 **"코드 vs 코드의 과거" = 회귀 감지**다.
  *   **"코드 vs Figma" = 디자인 드리프트 감지는 켜져 있지 않다.**
  *   이 둘을 혼동하면 "Figma 100% 동기화"를 이 초록불의 근거로 오해하게 된다 — 아니다.
- *   tier ① 이 채워지면(A51~A55 소유) 해당 스토리는 자동으로 Figma export 를 정본으로 쓴다.
+ *   tier ① 이 채워지면(Figma 컴포넌트~Figma 아이콘 소유) 해당 스토리는 자동으로 Figma export 를 정본으로 쓴다.
  *
  * **측정 불가는 통과가 아니다** (ADR-0009 · ADR-0010).
  *   이 도구는 원래 storybook-static 부재 · playwright 미설치 시 exit 0 으로 빠져나갔고,
@@ -44,7 +44,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '../../..');
 
 /**
- * gates.json G7 blockedBy(A70): "pixel diff > 0.1%" 가 원천 — 임의 변경 금지
+ * 게이트 정의 G7 blockedBy(비주얼 회귀): "pixel diff > 0.1%" 가 원천 — 임의 변경 금지
  *
  * ⚠️ 감도의 한계(실측): 이 임계는 **캡처 면적 대비 비율**이라 큰 캡처에서는 작은 변화가 희석된다.
  *   버튼 radius 를 8px↔12px 로 뒤집었을 때 실측:
@@ -53,11 +53,11 @@ const REPO_ROOT = path.resolve(__dirname, '../../..');
  *   즉 전체 501건 중 129건이 0 이 아닌 diff 를 보였고 그중 60건만 차단됐다.
  *   Modal 도 --tds-component-button-radius 를 쓰지만(Modal.css) 다이얼로그가 뷰포트의 일부라
  *   모서리 몇 픽셀은 0.1% 에 못 미친다. **포털 스토리에서 작은 국소 변화는 이 게이트가 놓친다.**
- *   임계값은 gates.json 이 원천이므로 여기서 조정하지 않는다.
+ *   임계값은 게이트 정의 이 원천이므로 여기서 조정하지 않는다.
  *
  *   다만 **한계를 주석에만 두지 않는다** — 주석은 잊히고 수치는 남는다. 이제 리포트의
  *   `portalStories` 가 매 실행 '누가 사각지대에 있는지'를 기록한다(분모 921,600px 명시).
- *   임계/분모의 소유는 A70·gates.json 이므로 바꾸지 않되, 소유자가 근거를 갖고 판단할
+ *   임계/분모의 소유는 비주얼 회귀·게이트 정의 이므로 바꾸지 않되, 소유자가 근거를 갖고 판단할
  *   데이터는 만들어 둔다. 참고: 위 버튼 radius 사례 자체는 atoms-button 60건이 이미
  *   차단하므로 게이트 전체로는 잡혔다 — 사각지대가 무는 것은 **포털 스토리에서만
  *   드러나는 국소 변화**(예: 다이얼로그 자신의 모서리·여백)다.
@@ -131,7 +131,7 @@ function notVerified(reason: string, guidance: string): void {
   console.log('[vrt] 이것은 PASS 가 아니다. 측정할 수 없었다는 뜻이다.');
   writeSummary({
     tool: '@tds/vrt',
-    agent: 'A70',
+    agent: 'visual-regression',
     date: DATE,
     generatedAt: new Date().toISOString(),
     threshold: DIFF_THRESHOLD,
@@ -294,11 +294,11 @@ async function main(): Promise<void> {
 
   writeSummary({
     tool: '@tds/vrt',
-    agent: 'A70',
+    agent: 'visual-regression',
     date: DATE,
     generatedAt: new Date().toISOString(),
     threshold: DIFF_THRESHOLD,
-    blockCondition: 'diff > 0.1% → G7 차단 (gates.json)',
+    blockCondition: 'diff > 0.1% → G7 차단 (게이트 정의)',
     status,
     totalStories: stories.length,
     compared,
@@ -309,7 +309,7 @@ async function main(): Promise<void> {
     /**
      * 포털(뷰포트 캡처) 스토리 — 이 게이트의 **알려진 감도 사각지대**를 데이터로 남긴다.
      * 분모가 921,600px 이라 같은 크기의 변화가 요소 캡처(예: atoms-button 은 수만 px)
-     * 대비 수십~수백 배 희석된다. 임계값(0.1%)의 원천은 gates.json/A70 이므로 여기서
+     * 대비 수십~수백 배 희석된다. 임계값(0.1%)의 원천은 게이트 정의/비주얼 회귀 이므로 여기서
      * 바꾸지 않는다 — 대신 **누가 그 사각지대에 있는지**를 매 실행 기록해 소유자가
      * 근거를 갖고 판단할 수 있게 한다. 주석 속 한계는 잊히지만 리포트의 수치는 남는다.
      */

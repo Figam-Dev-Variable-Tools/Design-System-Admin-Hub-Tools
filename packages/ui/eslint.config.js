@@ -1,4 +1,4 @@
-// @tds/ui ESLint flat config (eslint 9) — 소유: A81 (Lint & Format Engineer)
+// @tds/ui ESLint flat config (eslint 9) — 담당: 린트·포맷
 //
 // 목적: G5/G6 체크리스트의 "하드코딩 값 0건" · "레이어 역방향 의존 금지"를 커밋 전에 기계적으로 차단한다.
 //
@@ -29,12 +29,12 @@ const noRawValueRules = {
     {
       selector: 'Literal[value=/#[0-9a-fA-F]{3,8}/]',
       message:
-        '하드코딩 색상(hex) 금지 — generated/tokens의 CSS 변수만 사용한다 (G5/G6 체크리스트, 토큰 필요 시 A20에 요청)',
+        '하드코딩 색상(hex) 금지 — generated/tokens의 CSS 변수만 사용한다 (G5/G6 체크리스트, 토큰 필요 시 토큰 소유 영역에 요청)',
     },
     {
       selector: 'TemplateElement[value.raw=/#[0-9a-fA-F]{3,8}/]',
       message:
-        '하드코딩 색상(hex) 금지 — generated/tokens의 CSS 변수만 사용한다 (G5/G6 체크리스트, 토큰 필요 시 A20에 요청)',
+        '하드코딩 색상(hex) 금지 — generated/tokens의 CSS 변수만 사용한다 (G5/G6 체크리스트, 토큰 필요 시 토큰 소유 영역에 요청)',
     },
     {
       selector: 'Literal[value=/[0-9]px/]',
@@ -79,7 +79,7 @@ export default tseslint.config(
       // Airbnb 의 실질 ③: React 관용구
       react.configs.flat.recommended,
       react.configs.flat['jsx-runtime'],
-      // Airbnb 의 실질 ④: 접근성 — 디자인 시스템의 a11y 는 컴포넌트에서 결정된다 (A72 · G5)
+      // Airbnb 의 실질 ④: 접근성 — 디자인 시스템의 a11y 는 컴포넌트에서 결정된다 (접근성 감사 · G5)
       jsxA11y.flatConfigs.recommended,
     ],
     languageOptions: {
@@ -122,7 +122,7 @@ export default tseslint.config(
 
   /* ── ③-b 단계적 도입 (warn) — ADR-0008 §5 ─────────────────────────────
    * 이번 프리셋 도입으로 **새로 켜졌고, 기존 코드에 위반이 존재하는** 규칙이다.
-   * 위반 코드(packages/ui/src/**)의 수정은 A30 의 소유 영역이므로 A81 이 고치지 않는다.
+   * 위반 코드(packages/ui/src/**)의 수정은 컴포넌트 엔지니어의 소유 영역이므로 린트·포맷 담당이 고치지 않는다.
    * `// eslint-disable` 로 덮지 않는다 — 규칙은 그대로 두고 **심각도만 warn** 으로 두어 위반을
    * 가시화하고, 소유자가 해소한 뒤 error 로 승격한다. 승격 조건·기한은 ADR-0008 §5.
    * 위반이 0건이 되면 이 블록을 삭제한다 (프리셋 기본 심각도 error 로 복귀).
@@ -131,7 +131,7 @@ export default tseslint.config(
     files: ['src/**/*.{ts,tsx}', 'pages/**/*.{ts,tsx}'],
     rules: {
       // 막는 버그: interactive role 을 준 요소가 focusable 하지 않아 키보드로 도달할 수 없다.
-      // 위반 1건 — src/molecules/SegmentedControl/SegmentedControl.tsx:48 (role="radiogroup", 소유 A30)
+      // 위반 1건 — src/molecules/SegmentedControl/SegmentedControl.tsx:48 (role="radiogroup", 소유 컴포넌트 엔지니어)
       'jsx-a11y/interactive-supports-focus': 'warn',
     },
   },

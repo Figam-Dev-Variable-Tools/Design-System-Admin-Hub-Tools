@@ -1,4 +1,4 @@
-// ScheduleCalendarPage — 예약 일정(달력) (라우트: /reservations/schedule) · A41 소유
+// ScheduleCalendarPage — 예약 일정(달력) (라우트: /reservations/schedule)
 //
 // 라이브러리 없이 직접 만든 일/주 캘린더다. 시간 슬롯별 예약·가용량·마감을 격자로 보여주고, 슬롯을
 // 클릭하면 그 슬롯의 예약 목록(상세로 이동)을 아래 패널에 편다. 예약 데이터는 예약 화면과 같은

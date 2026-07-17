@@ -1,4 +1,4 @@
-// 통계 표시 포맷 — 지표 단위 · 증감(delta) (A40 소유 — apps/admin/src/pages/stats/**)
+// 통계 표시 포맷 — 지표 단위 · 증감(delta)
 //
 // [왜 여기 있나] 6개 통계 화면이 같은 규칙으로 숫자를 보여준다. 단위를 화면마다 인라인으로
 // 붙이면 '원'이 어디는 붙고 어디는 안 붙는 drift 가 난다 (ERP-08).
@@ -6,7 +6,7 @@
 // [shared/format.ts 와의 관계] 천 단위 구분(formatNumber)·부호(formatSignedNumber)는 앱 공통
 // 포매터를 **그대로 쓴다**. 여기 있는 것은 앱 공통에 **없는 것**뿐이다: 금액(원)·비율(%)·
 // 체류시간(초)·증감 계산. 앱 공통에 formatWon 은 존재하지 않고, 존재하는 유일한 구현은
-// pages/sales/_shared/business.ts 라서 가져올 수 없다 — 페이지 간 import 는 A83 축1 blocker 다.
+// pages/sales/_shared/business.ts 라서 가져올 수 없다 — 페이지 간 import 는 클린코드 점검 축1 blocker 다.
 // (보고: 이 넷은 shared/format 으로 올라가야 한다 — 지금은 shared/** 를 건드릴 수 없다.)
 //
 // [ERP-07 — 금액 단위 분리] 우측 정렬 금액 칸에 '원'을 붙이면 단위가 마지막 자릿수를 따라다녀

@@ -3,8 +3,8 @@ id: FS-049
 title: "계약 (목록·등록·수정)"
 screen: SCR-049               # ⚠ 영업 관리 SCR 미작성 — §7 미결 사항 참조
 route: /sales/contracts
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -200,7 +200,7 @@ date: 2026-07-17
 | FS-049-EL-014 | 계약 일괄 삭제 | W | id 배열 | `settleAll(ids, (id) => adapter.remove(id, { signal }))`(`crud.ts:349-350`) | **전용 일괄 엔드포인트가 아니다** — N 건의 개별 삭제를 병렬로 |
 | FS-049-EL-034 | 계약서 첨부 업로드 | W | 파일 → URL | **없음 — `ImageGalleryField` 가 업로드하지 않는다** | 값이 `URL.createObjectURL(file)` = `blob:…`(`ImageGalleryField.tsx:153`). **심은 `ImageGalleryField.tsx:8` 의 `TODO(backend): POST /api/uploads`** 이며 **DS 컴포넌트 소유**다 — 이 화면의 `data-source.ts` 에는 없다(BE-049 §4 EP-06) |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `contractAdapter` 는 `createCrudAdapter`(`shared/crud/crud.ts:86-147`)로 조립돼 브라우저 안 클로저 배열에 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('sales-contracts', op)`)를 얹어 CRUD 를 흉내 낸다 — 실제 네트워크 0건. 새로고침하면 시드 3건으로 되돌아간다. `fetchOne` 은 없는 id 에 `HttpError(404)`, `update`/`remove` 는 없는 id 에 `HttpError(409)` 를 던지고, `create`/`update` 는 멱등 원장으로 재생을 흉내 낸다. **연동 지점은 `data-source.ts:68` 의 `// TODO(backend): GET/POST /api/sales/contracts · GET/PUT/DELETE /api/sales/contracts/:id` 한 줄이며, 이것이 이 화면 data-source 의 유일한 심이다.** 일괄 삭제에는 **심이 없고**, 첨부 업로드의 심은 **DS 컴포넌트가 소유**한다(BE-049 §4). 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드는 없다. `contractAdapter` 는 `createCrudAdapter`(`shared/crud/crud.ts:86-147`)로 조립돼 브라우저 안 클로저 배열에 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('sales-contracts', op)`)를 얹어 CRUD 를 흉내 낸다 — 실제 네트워크 0건. 새로고침하면 시드 3건으로 되돌아간다. `fetchOne` 은 없는 id 에 `HttpError(404)`, `update`/`remove` 는 없는 id 에 `HttpError(409)` 를 던지고, `create`/`update` 는 멱등 원장으로 재생을 흉내 낸다. **연동 지점은 `data-source.ts:68` 의 `// TODO(backend): GET/POST /api/sales/contracts · GET/PUT/DELETE /api/sales/contracts/:id` 한 줄이며, 이것이 이 화면 data-source 의 유일한 심이다.** 일괄 삭제에는 **심이 없고**, 첨부 업로드의 심은 **DS 컴포넌트가 소유**한다(BE-049 §4). 위 표는 백엔드 연결 후 의도된 동작이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -216,40 +216,40 @@ date: 2026-07-17
 - [x] required FormField 자식 타입을 전수 확인했다 — 6개 전부 `input`/`SelectField` 라 `aria-required` 주입. **`DateRangeField` 는 자기가 두 입력에 `required`+`aria-required` 를 준다**(`DateRangeField.tsx:48`) — 예약 화면(FS-037)이 래퍼 `div` 로 gap 이 된 그 패턴이 **이 화면에는 없다**
 - [x] `blob:` 첨부를 **'결함'이 아니라 '알려진 빚 + 그 근거'** 로 적었다(`shared/crud/validation.ts:39-63` 이 그 판정의 정본)
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 (영업 관리 SCR 미작성) | A11 / A01 |
-| 2 | **페이지네이션이 없다** — `CrudTable` 이 `visibleItems` 전량을 렌더한다(`CrudTable.tsx:171`). 계약은 해마다 쌓인다. `useListState` 의 `page`·`clampPage` 가 소비되지 않고, `SeqCell seq={index + 1}` 도 페이징 도입 시 2페이지에서 1로 리셋된다(quality-bar IA-04 P0 · ERP-15 P1 · COMP-07 P2) | A11 · A63 (BE-049 §7.6) |
-| 3 | **쓰기 권한 게이팅이 배선돼 있지 않다** — `useRouteWritePermissions` 소비처 9곳에 `pages/sales/**` 가 없다. read 전용 역할도 '계약 등록'·행 수정/삭제를 보고 누른다. read 게이팅은 정상(quality-bar EXC-03 P0) | A11 change_request |
-| 4 | 이탈 가드(EL-041)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-018)·'취소'(EL-037)를 누르면 미저장 입력이 조용히 사라진다 | A11 change_request |
-| 5 | 폼이 **자체 `<h1>`(EL-019)을 그리고 AppHeader 도 `<h1>` 을 그린다** — `<h1>` 2개. `findCoveringLeaf` 수렴으로 **가지 라벨 폴백은 해소**됐으나(`/sales/contracts/new` → '계약') '등록/수정' 행위가 AppHeader 제목에 반영되지 않는 것은 의도된 설계다(`nav-config.ts:294-296`). 목록에는 in-content h1 이 없어 title 소스 모델이 모순이다(quality-bar IA-02 P0) | A40 · A11 |
-| 6 | **A11Y-11 잔여 2건**: ① **`renewNoticeDays`(EL-030)의 오류가 `aria-invalid` 없이 테두리 색으로만 인코딩된다** — `controlStyle(errors.renewNoticeDays !== undefined)`(`ContractFormPage.tsx:407`)로 붉어지지만 입력에 `aria-invalid`·`aria-describedby` 가 없다. `FormField` 가 `<p id="contract-renew-notice-error" role="alert">` 를 렌더하나 **연결되지 않는다** ② **`FormField` 의 `hint`(EL-030 '만료 N일 전 통지')가 유효할 때 `hintIdOf` 로 연결되지 않는다** — 힌트가 AT 에 닿지 않는다(quality-bar A11Y-11 P0 · A11Y-16 P1) | A11 change_request |
-| 7 | **알려진 빚 — 계약서 첨부(EL-034)가 저장되지 않는다.** `ImageGalleryField` 가 업로드하지 않아 값이 `blob:…` 뿐이고(`ImageGalleryField.tsx:153`) 언마운트 시 revoke 된다(`:126-132`). **그대로 저장하면 계약서 스캔본이 깨진다 — 그것을 아는 채로 통과시킨다.** 스키마가 http(s) 를 강제하지 **않는 것이 의도**다(강제하면 제출 불가 — `shared/crud/validation.ts:39-63`). `TODO(backend): POST /api/uploads`(`ImageGalleryField.tsx:8`)가 붙으면 뒤집힌다. **계약서는 이 화면에서 가장 법적 무게가 큰 데이터라 다른 화면의 같은 빚보다 위험하다** | A63 (선행) · A11 |
-| 8 | **거래처가 FK 가 아니라 이름 문자열이다** — `types.ts:16-17` 의 주석이 자백한다(`/** 거래처명 — FE 전용이라 이름 문자열로 보관(연동 시 거래처 FK) */`). 결과: ① 거래처 화면(FS-048)에서 상호를 바꿔도 계약은 옛 이름 ② 거래처를 지워도 계약이 고아로 남고 서버가 그것을 알 수 없다 ③ 오타가 곧 새 거래처 ④ 목록의 거래처 셀이 링크가 아니라 거래처로 갈 수 없다. **BE-048 §7.7 · BE-050 §7.6 과 공동 판정** | **A63 (BE-049 §7.5)** · A01 |
-| 9 | **전자서명 상태(EL-032)가 사람이 고르는 select 다** — 서명 발송·수집·검증 워크플로가 없다. '서명완료'로 바꾸는 것과 실제 서명 사이에 아무 연결이 없고, 첨부가 0장이어도 막지 않는다 | A01 (도메인 경계) · A63 |
-| 10 | **자동갱신이 실행되지 않는다** — `autoRenew`·`renewNoticeDays` 는 데이터이고 이를 실행하는 배치·통지 발송이 없다. 화면은 `isRenewalDue` 로 **배지만** 띄운다. 배지를 못 보고 지나가면 계약이 조용히 자동갱신된 것으로 간주되는데 실제로는 아무 일도 일어나지 않는다 | A01 · A63 |
-| 11 | **목록 필터의 URL 파라미터 이름이 `?status=` 라 개발용 실패 스위치(`?status=<op>:<code>` — `dev.ts:24`)와 충돌한다.** `?status=active` 는 `requestedStatus` 가 `split(':')` 후 `code === undefined` 라 `continue` 하므로(`dev.ts:63`) **현재는 무해**하다. 그러나 `?status=save:409` 로 충돌을 재현하면 `parseFilter` 가 그것을 '전체'로 되돌려(`ContractListPage.tsx:82-86`) **필터가 조용히 초기화된다** — 두 기능이 같은 이름을 다툰다 | A11 change_request |
-| 12 | 계약명·거래처 셀에 truncate 가 없어 긴 값이 표 열을 넓힌다(quality-bar COMP-09 P2) | A11 change_request |
-| 13 | 금액 셀(EL-009.8)이 `formatWon` 으로 '원'을 숫자에 붙여 **우측 정렬 tabular grid 에서 단위가 마지막 자릿수를 따라다닌다**(quality-bar ERP-07 P2) | A11 change_request |
-| 14 | **부가세 포함/별도가 목록에 없다** — 같은 금액 열의 두 값이 다른 기준일 수 있고 실제 청구액이 10% 다르다. 미리보기에만 보인다(`ContractSummaryPreview.tsx:111`) | A11 change_request |
-| 15 | **'만료'와 '초안'이 같은 톤(neutral)** 이다(`types.ts:85,88`) — 끝난 계약과 시작 전 계약이 배지로 구분되지 않는다 | A11 · A01 |
-| 16 | `daysRemaining`(EL-010.1)이 **앵커를 혼용한다** — `today` 는 서울 고정(`formatDate` → `partsOfDate`)인데 두 끝을 `new Date('...T00:00:00')` 으로 **브라우저 로컬** 파싱한다. 두 끝이 같은 로컬 존이고 `Math.round` 가 있어 **관측되는 어긋남은 없으나**, `format.ts` 헤더가 정한 '달력일은 문자열로 다룬다 — 중간에 로컬 Date 로 왕복하면 하루가 밀린다' 규칙에서 이탈해 있다(quality-bar ERP-09 P2) | A11 change_request |
-| 17 | 스켈레톤 행 수가 하드코딩 `Array.from({ length: 5 })` 다(`CrudTable.tsx:144`)(quality-bar COMP-06 P2) | A11 (#2 와 함께) |
-| 18 | 빈 상태(EL-012)에 **생성 CTA 를 넘기지 않는다** — `empty.createAction` 이 비어 진짜 빈 상태에서도 등록 버튼이 툴바에만 있다(quality-bar STATE-05 P1) | A11 change_request |
-| 19 | 삭제(EL-013)가 **서명완료·진행중 계약도 아무 경고 없이 지운다** — 계약은 법적 증거이고 감사 대상이다. 상태 기반 삭제 제약(예: 진행중은 '해지' 후에만 삭제)이나 soft-delete 가 없다 | A01 · A63 (BE-049 §7.5) |
-| 20 | **정렬이 시작일 내림차순 고정**이다(EL-016) — 종료일·금액·상태로 정렬할 수 없어 **만료 임박 순으로 훑을 수 없다.** 갱신임박 배지가 있으나 그것으로 거르거나 정렬할 수단이 없다(quality-bar ERP-04 P1) | A11 change_request |
-| 21 | 담당자(EL-025)가 **선택지가 아니라 자유 텍스트**다 — 오타가 곧 새 담당자가 되고 운영자 계정과 연결되지 않는다(FS-026 §7 #15 와 같은 결) | A01 · A63 |
-| 22 | 금액(EL-026)에 **천단위 구분·'원' 마스킹이 없고** `'1,000,000'` 붙여넣기를 거절한다. **상한도 없다**(quality-bar ERP-14 P1) | A11 change_request |
-| 23 | **계약 상태·서명 상태에 전이 규칙이 없다**(EL-031·EL-032) — '해지'에서 '초안'으로 되돌릴 수 있고 '서명완료'에서 '미발송'으로 갈 수 있다. FS-026 의 `STATUS_FLOW`/`canSetStatus` 같은 순수 규칙이 이 도메인에 없다 | A01 · A63 (BE-049 §7.3) |
-| 24 | **계약의 법적 실체가 1000자 조항 요약(EL-033)이 아니라 첨부 스캔본(EL-034)에 있는데 첨부가 필수가 아니고 저장되지도 않는다**(#7) — '서명완료' 계약을 첨부 0장으로 저장할 수 있다 | A01 · A63 |
-| 25 | 첨부(EL-034)가 **`accept="image/*"` 라 PDF 를 받지 않는다** — 계약서 스캔본은 보통 PDF 다. `ImageGalleryField` 는 이름 그대로 이미지 갤러리이며 문서 첨부용 컴포넌트가 아니다(quality-bar EXC-15 P1) | A11 · A41 (DS) |
-| 26 | 저장 버튼(EL-038)이 `loading` prop 대신 손으로 쓴 `'저장 중…'` 라벨을 쓴다(quality-bar COMP-01 P1) | A11 change_request |
-| 27 | 통지기한(EL-030)에 **하한·상한이 없다** — `'0'` 이면 만료 당일에야 배지가 뜨고 `'9999'` 면 계약 시작부터 임박이다 | A11 · A63 |
-| 28 | **낙관적 동시성 토큰이 없다** — `Contract` 에 `version`/`updatedAt` 필드가 없고 어댑터가 `If-Match` 를 보내지 않는다. 현재 409 는 **'대상이 사라졌는가'** 만 본다 → **둘 다 존재하는 동시 편집은 last-write-wins 로 조용히 덮인다.** 계약금액이 조용히 되돌려질 수 있다(BE-049 §7.1) | A63 (BE-049 §7.1) · A11 |
-| 29 | 이탈 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 | A63 (BE-049) |
-| 30 | 프론트 타임아웃 상한 없음 · 오프라인 감지 없음 · 세션 만료 리다이렉트가 미저장 입력을 버린다 — 전부 **앱 전역**(quality-bar EXC-05 · EXC-11 · EXC-19 P1) | A11 · A40 |
-| 31 | 일괄 삭제(EL-014)에 **진행률·취소·실패 행 식별이 없다**. Shift-click 범위 선택도 없다(quality-bar EXC-10 P1 · EXC-18 P1) | A11 |
-| 32 | 목록에 **엑셀 내보내기가 없다** — 계약 목록은 법무·회계 검토의 대표 대상이다(quality-bar ERP-12 P1) | A11 |
+| 1 | 대응 SCR 문서 부재 (영업 관리 SCR 미작성) | UI 기획 / 아키텍처 |
+| 2 | **페이지네이션이 없다** — `CrudTable` 이 `visibleItems` 전량을 렌더한다(`CrudTable.tsx:171`). 계약은 해마다 쌓인다. `useListState` 의 `page`·`clampPage` 가 소비되지 않고, `SeqCell seq={index + 1}` 도 페이징 도입 시 2페이지에서 1로 리셋된다(quality-bar IA-04 P0 · ERP-15 P1 · COMP-07 P2) | UI 기획 · 백엔드 명세 (BE-049 §7.6) |
+| 3 | **쓰기 권한 게이팅이 배선돼 있지 않다** — `useRouteWritePermissions` 소비처 9곳에 `pages/sales/**` 가 없다. read 전용 역할도 '계약 등록'·행 수정/삭제를 보고 누른다. read 게이팅은 정상(quality-bar EXC-03 P0) | UI 기획 쪽 변경 요청 |
+| 4 | 이탈 가드(EL-041)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-018)·'취소'(EL-037)를 누르면 미저장 입력이 조용히 사라진다 | UI 기획 쪽 변경 요청 |
+| 5 | 폼이 **자체 `<h1>`(EL-019)을 그리고 AppHeader 도 `<h1>` 을 그린다** — `<h1>` 2개. `findCoveringLeaf` 수렴으로 **가지 라벨 폴백은 해소**됐으나(`/sales/contracts/new` → '계약') '등록/수정' 행위가 AppHeader 제목에 반영되지 않는 것은 의도된 설계다(`nav-config.ts:294-296`). 목록에는 in-content h1 이 없어 title 소스 모델이 모순이다(quality-bar IA-02 P0) | 프론트 구현 · UI 기획 |
+| 6 | **A11Y-11 잔여 2건**: ① **`renewNoticeDays`(EL-030)의 오류가 `aria-invalid` 없이 테두리 색으로만 인코딩된다** — `controlStyle(errors.renewNoticeDays !== undefined)`(`ContractFormPage.tsx:407`)로 붉어지지만 입력에 `aria-invalid`·`aria-describedby` 가 없다. `FormField` 가 `<p id="contract-renew-notice-error" role="alert">` 를 렌더하나 **연결되지 않는다** ② **`FormField` 의 `hint`(EL-030 '만료 N일 전 통지')가 유효할 때 `hintIdOf` 로 연결되지 않는다** — 힌트가 AT 에 닿지 않는다(quality-bar A11Y-11 P0 · A11Y-16 P1) | UI 기획 쪽 변경 요청 |
+| 7 | **알려진 빚 — 계약서 첨부(EL-034)가 저장되지 않는다.** `ImageGalleryField` 가 업로드하지 않아 값이 `blob:…` 뿐이고(`ImageGalleryField.tsx:153`) 언마운트 시 revoke 된다(`:126-132`). **그대로 저장하면 계약서 스캔본이 깨진다 — 그것을 아는 채로 통과시킨다.** 스키마가 http(s) 를 강제하지 **않는 것이 의도**다(강제하면 제출 불가 — `shared/crud/validation.ts:39-63`). `TODO(backend): POST /api/uploads`(`ImageGalleryField.tsx:8`)가 붙으면 뒤집힌다. **계약서는 이 화면에서 가장 법적 무게가 큰 데이터라 다른 화면의 같은 빚보다 위험하다** | 백엔드 명세 (선행) · UI 기획 |
+| 8 | **거래처가 FK 가 아니라 이름 문자열이다** — `types.ts:16-17` 의 주석이 자백한다(`/** 거래처명 — FE 전용이라 이름 문자열로 보관(연동 시 거래처 FK) */`). 결과: ① 거래처 화면(FS-048)에서 상호를 바꿔도 계약은 옛 이름 ② 거래처를 지워도 계약이 고아로 남고 서버가 그것을 알 수 없다 ③ 오타가 곧 새 거래처 ④ 목록의 거래처 셀이 링크가 아니라 거래처로 갈 수 없다. **BE-048 §7.7 · BE-050 §7.6 과 공동 판정** | **백엔드 명세 (BE-049 §7.5)** · 아키텍처 |
+| 9 | **전자서명 상태(EL-032)가 사람이 고르는 select 다** — 서명 발송·수집·검증 워크플로가 없다. '서명완료'로 바꾸는 것과 실제 서명 사이에 아무 연결이 없고, 첨부가 0장이어도 막지 않는다 | 아키텍처 (도메인 경계) · 백엔드 명세 |
+| 10 | **자동갱신이 실행되지 않는다** — `autoRenew`·`renewNoticeDays` 는 데이터이고 이를 실행하는 배치·통지 발송이 없다. 화면은 `isRenewalDue` 로 **배지만** 띄운다. 배지를 못 보고 지나가면 계약이 조용히 자동갱신된 것으로 간주되는데 실제로는 아무 일도 일어나지 않는다 | 아키텍처 · 백엔드 명세 |
+| 11 | **목록 필터의 URL 파라미터 이름이 `?status=` 라 개발용 실패 스위치(`?status=<op>:<code>` — `dev.ts:24`)와 충돌한다.** `?status=active` 는 `requestedStatus` 가 `split(':')` 후 `code === undefined` 라 `continue` 하므로(`dev.ts:63`) **현재는 무해**하다. 그러나 `?status=save:409` 로 충돌을 재현하면 `parseFilter` 가 그것을 '전체'로 되돌려(`ContractListPage.tsx:82-86`) **필터가 조용히 초기화된다** — 두 기능이 같은 이름을 다툰다 | UI 기획 쪽 변경 요청 |
+| 12 | 계약명·거래처 셀에 truncate 가 없어 긴 값이 표 열을 넓힌다(quality-bar COMP-09 P2) | UI 기획 쪽 변경 요청 |
+| 13 | 금액 셀(EL-009.8)이 `formatWon` 으로 '원'을 숫자에 붙여 **우측 정렬 tabular grid 에서 단위가 마지막 자릿수를 따라다닌다**(quality-bar ERP-07 P2) | UI 기획 쪽 변경 요청 |
+| 14 | **부가세 포함/별도가 목록에 없다** — 같은 금액 열의 두 값이 다른 기준일 수 있고 실제 청구액이 10% 다르다. 미리보기에만 보인다(`ContractSummaryPreview.tsx:111`) | UI 기획 쪽 변경 요청 |
+| 15 | **'만료'와 '초안'이 같은 톤(neutral)** 이다(`types.ts:85,88`) — 끝난 계약과 시작 전 계약이 배지로 구분되지 않는다 | UI 기획 · 아키텍처 |
+| 16 | `daysRemaining`(EL-010.1)이 **앵커를 혼용한다** — `today` 는 서울 고정(`formatDate` → `partsOfDate`)인데 두 끝을 `new Date('...T00:00:00')` 으로 **브라우저 로컬** 파싱한다. 두 끝이 같은 로컬 존이고 `Math.round` 가 있어 **관측되는 어긋남은 없으나**, `format.ts` 헤더가 정한 '달력일은 문자열로 다룬다 — 중간에 로컬 Date 로 왕복하면 하루가 밀린다' 규칙에서 이탈해 있다(quality-bar ERP-09 P2) | UI 기획 쪽 변경 요청 |
+| 17 | 스켈레톤 행 수가 하드코딩 `Array.from({ length: 5 })` 다(`CrudTable.tsx:144`)(quality-bar COMP-06 P2) | UI 기획 (#2 와 함께) |
+| 18 | 빈 상태(EL-012)에 **생성 CTA 를 넘기지 않는다** — `empty.createAction` 이 비어 진짜 빈 상태에서도 등록 버튼이 툴바에만 있다(quality-bar STATE-05 P1) | UI 기획 쪽 변경 요청 |
+| 19 | 삭제(EL-013)가 **서명완료·진행중 계약도 아무 경고 없이 지운다** — 계약은 법적 증거이고 감사 대상이다. 상태 기반 삭제 제약(예: 진행중은 '해지' 후에만 삭제)이나 soft-delete 가 없다 | 아키텍처 · 백엔드 명세 (BE-049 §7.5) |
+| 20 | **정렬이 시작일 내림차순 고정**이다(EL-016) — 종료일·금액·상태로 정렬할 수 없어 **만료 임박 순으로 훑을 수 없다.** 갱신임박 배지가 있으나 그것으로 거르거나 정렬할 수단이 없다(quality-bar ERP-04 P1) | UI 기획 쪽 변경 요청 |
+| 21 | 담당자(EL-025)가 **선택지가 아니라 자유 텍스트**다 — 오타가 곧 새 담당자가 되고 운영자 계정과 연결되지 않는다(FS-026 §7 #15 와 같은 결) | 아키텍처 · 백엔드 명세 |
+| 22 | 금액(EL-026)에 **천단위 구분·'원' 마스킹이 없고** `'1,000,000'` 붙여넣기를 거절한다. **상한도 없다**(quality-bar ERP-14 P1) | UI 기획 쪽 변경 요청 |
+| 23 | **계약 상태·서명 상태에 전이 규칙이 없다**(EL-031·EL-032) — '해지'에서 '초안'으로 되돌릴 수 있고 '서명완료'에서 '미발송'으로 갈 수 있다. FS-026 의 `STATUS_FLOW`/`canSetStatus` 같은 순수 규칙이 이 도메인에 없다 | 아키텍처 · 백엔드 명세 (BE-049 §7.3) |
+| 24 | **계약의 법적 실체가 1000자 조항 요약(EL-033)이 아니라 첨부 스캔본(EL-034)에 있는데 첨부가 필수가 아니고 저장되지도 않는다**(#7) — '서명완료' 계약을 첨부 0장으로 저장할 수 있다 | 아키텍처 · 백엔드 명세 |
+| 25 | 첨부(EL-034)가 **`accept="image/*"` 라 PDF 를 받지 않는다** — 계약서 스캔본은 보통 PDF 다. `ImageGalleryField` 는 이름 그대로 이미지 갤러리이며 문서 첨부용 컴포넌트가 아니다(quality-bar EXC-15 P1) | UI 기획 · 프론트 리팩터 (DS) |
+| 26 | 저장 버튼(EL-038)이 `loading` prop 대신 손으로 쓴 `'저장 중…'` 라벨을 쓴다(quality-bar COMP-01 P1) | UI 기획 쪽 변경 요청 |
+| 27 | 통지기한(EL-030)에 **하한·상한이 없다** — `'0'` 이면 만료 당일에야 배지가 뜨고 `'9999'` 면 계약 시작부터 임박이다 | UI 기획 · 백엔드 명세 |
+| 28 | **낙관적 동시성 토큰이 없다** — `Contract` 에 `version`/`updatedAt` 필드가 없고 어댑터가 `If-Match` 를 보내지 않는다. 현재 409 는 **'대상이 사라졌는가'** 만 본다 → **둘 다 존재하는 동시 편집은 last-write-wins 로 조용히 덮인다.** 계약금액이 조용히 되돌려질 수 있다(BE-049 §7.1) | 백엔드 명세 (BE-049 §7.1) · UI 기획 |
+| 29 | 이탈 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 | 백엔드 명세 (BE-049) |
+| 30 | 프론트 타임아웃 상한 없음 · 오프라인 감지 없음 · 세션 만료 리다이렉트가 미저장 입력을 버린다 — 전부 **앱 전역**(quality-bar EXC-05 · EXC-11 · EXC-19 P1) | UI 기획 · 프론트 구현 |
+| 31 | 일괄 삭제(EL-014)에 **진행률·취소·실패 행 식별이 없다**. Shift-click 범위 선택도 없다(quality-bar EXC-10 P1 · EXC-18 P1) | UI 기획 |
+| 32 | 목록에 **엑셀 내보내기가 없다** — 계약 목록은 법무·회계 검토의 대표 대상이다(quality-bar ERP-12 P1) | UI 기획 |
 </content>

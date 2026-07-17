@@ -1,4 +1,4 @@
-// NoticeFormPage — 공지 등록/수정 (라우트: /content/notices/new · /content/notices/:id/edit) · A41 소유
+// NoticeFormPage — 공지 등록/수정 (라우트: /content/notices/new · /content/notices/:id/edit)
 //
 // 하나의 폼이 등록과 수정을 겸한다 — :id 가 있으면 수정(기존 값 로드), 없으면 등록.
 // (회원 상세를 회원/운영자가 재사용하는 것과 같은 결: 컨텍스트만 다르고 화면은 하나다.)

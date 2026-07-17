@@ -1,4 +1,4 @@
-// ProjectFormPage — 프로젝트 등록/수정 (라우트: /sales/projects/new · /:id/edit) · A41 소유
+// ProjectFormPage — 프로젝트 등록/수정 (라우트: /sales/projects/new · /:id/edit)
 //
 // 데이터 배선은 공용 CRUD 프레임워크(useCrudForm)를 재사용하고, 화면은 입력 카드(기회정보·기간·진척·
 // 마일스톤·산출물) + 우측 파이프라인 스텝퍼/가중예상매출 미리보기 2단으로 구성한다. 검증은 ./validation.

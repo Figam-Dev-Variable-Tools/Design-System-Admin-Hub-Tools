@@ -1,4 +1,4 @@
-// 로그인 이력 화면의 동작 회귀 테스트 (A40)
+// 로그인 이력 화면의 동작 회귀 테스트
 //
 // [무엇을 고정하는가] 이 화면의 동작은 세 곳에 있다 — 필터 규칙(data-source.applyQuery),
 // 표시 규칙(types), 기간 계산(period). 화면 컴포넌트는 그 결과를 **그리기만** 한다.
@@ -6,10 +6,10 @@
 //
 // [렌더 테스트가 없는 이유 — 자백]
 // `apps/admin` 에는 jsdom·@testing-library 가 없다 (packages/ui 에만 있다). 추가는
-// `apps/admin/package.json` 변경이고 그것은 **A80(Dependency Manager)의 소유**다 —
-// A40 이 임의로 의존성을 늘리지 않는다(frontend-conventions §4). 그래서 이 앱의 기존 테스트
+// `apps/admin/package.json` 변경이고 그것은 **의존성 관리 영역**이다 —
+// 여기서 임의로 의존성을 늘리지 않는다(frontend-conventions §4). 그래서 이 앱의 기존 테스트
 // (login·members·customer-settings)와 같은 방식으로 **순수 규칙**을 단언한다.
-// 렌더 단언(행 클릭이 실제로 navigate 하는가)은 A80 이 devDependency 를 넣어주면 그때 붙인다.
+// 렌더 단언(행 클릭이 실제로 navigate 하는가)은 의존성 관리 쪽에서 devDependency 를 넣어주면 그때 붙인다.
 //
 // [불변성은 '없음'을 단언한다]
 // 감사 로그의 핵심 성질은 **삭제·수정 경로가 존재하지 않는다**는 것이다. 없는 것은 눈으로

@@ -4,8 +4,8 @@ title: "성공 사례 비기능 명세"
 functionalSpec: FS-025
 backendSpec: BE-025
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -200,29 +200,29 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | IA-13 | **P0** | 업종 필터가 URL 에 직렬화되지 않는다(`useState` 뿐). `shared/crud/useListState` 미소비 | 이 화면 | A11 (FS-025 §7 #1) |
-| 2 | IA-04 | **P0** | Pagination 부재 — `CrudListShell` 이 전량을 렌더한다. 사례 수 상한 없음 | **앱 전역**(shared/crud) | A11 change_request (FS-025 §7 #3) |
-| 3 | EXC-04 | **P0** | 동시성 토큰 부재(`updatedAt`/`version` 없음) → **동시 수정 미감지**(마지막 쓰기 승리). 노출 토글이 전체 치환 PUT 이라 남의 수정을 되돌린다. **동시 삭제는 어댑터가 409 로 잡는다**(포트폴리오와 갈리는 지점) | 이 화면(도메인 타입) | A63 (BE-025 §7.3 · §7.7 #2·#3) · A11 (FS-025 §7 #17) |
-| 4 | EXC-03 | **P0** | 쓰기 액션 권한 게이팅 부재 — **`useRouteWritePermissions` 는 이제 7곳이 소비하지만**(products 3 · settings 4) `pages/portfolio/**` 는 그 밖이다. 최근접 선례는 같은 `useCrudList`+`CrudListShell` 목록인 `products/items/ProductListPage.tsx:119`. read 게이팅은 성립 | **이 화면**(공용 훅 + 7곳 선례 존재) | A11 change_request (FS-025 §7 #2) |
-| 5 | IA-02 | **P0** | 하위 라우트가 브랜치 라벨로 폴백 + `<h1>` 2개. 목록/폼의 title 소스 불일치 | **앱 전역**(AppHeader · nav-config) | A11 change_request · A40 (FS-025 §7 #11) |
+| 1 | IA-13 | **P0** | 업종 필터가 URL 에 직렬화되지 않는다(`useState` 뿐). `shared/crud/useListState` 미소비 | 이 화면 | UI 기획 (FS-025 §7 #1) |
+| 2 | IA-04 | **P0** | Pagination 부재 — `CrudListShell` 이 전량을 렌더한다. 사례 수 상한 없음 | **앱 전역**(shared/crud) | UI 기획 쪽 변경 요청 (FS-025 §7 #3) |
+| 3 | EXC-04 | **P0** | 동시성 토큰 부재(`updatedAt`/`version` 없음) → **동시 수정 미감지**(마지막 쓰기 승리). 노출 토글이 전체 치환 PUT 이라 남의 수정을 되돌린다. **동시 삭제는 어댑터가 409 로 잡는다**(포트폴리오와 갈리는 지점) | 이 화면(도메인 타입) | 백엔드 명세 (BE-025 §7.3 · §7.7 #2·#3) · UI 기획 (FS-025 §7 #17) |
+| 4 | EXC-03 | **P0** | 쓰기 액션 권한 게이팅 부재 — **`useRouteWritePermissions` 는 이제 7곳이 소비하지만**(products 3 · settings 4) `pages/portfolio/**` 는 그 밖이다. 최근접 선례는 같은 `useCrudList`+`CrudListShell` 목록인 `products/items/ProductListPage.tsx:119`. read 게이팅은 성립 | **이 화면**(공용 훅 + 7곳 선례 존재) | UI 기획 쪽 변경 요청 (FS-025 §7 #2) |
+| 5 | IA-02 | **P0** | 하위 라우트가 브랜치 라벨로 폴백 + `<h1>` 2개. 목록/폼의 title 소스 불일치 | **앱 전역**(AppHeader · nav-config) | UI 기획 쪽 변경 요청 · 프론트 구현 (FS-025 §7 #11) |
 | ~~6~~ | ~~A11Y-11~~ | ~~P0~~ | **해소 (PR #30 · `a5c2639`)** — 마지막 하나였던 `ImageUploadField`(대표 이미지)의 required 가 AT 에 닿는다. **다만 이 행이 요구하던 해법(`aria-required`)이 틀렸고 DS 는 더 정확한 길을 골랐다**: 드롭존은 `<button>` 이라 `aria-required` 가 **미지원 속성**(ARIA 1.2)이고 얹으면 거짓 시맨틱 + axe `aria-allowed-attr` 위반이며, hidden file input 은 `aria-hidden`+`tabIndex={-1}` 이라 그쪽에 줘도 **아무에게도 닿지 않는다**(근거 `ImageUploadField.tsx:44-54`). 정답은 **접근가능 이름** — `requiredNameSuffix(required)`(`:55`)가 `:250` 의 `aria-label` 에 실려 '대표 이미지 (필수) 이미지 업로드 — …' 가 된다. 소비 `PortfolioMediaFields.tsx:51-59`. `ImageGalleryField` 에도 같은 유틸이 배선됐다(`:237`, import `:14`) | — | **닫힘** |
 | ~~7~~ | ~~MOTION-03~~ | ~~P0~~ | **해소 (PR #26 · `a5c2639`)** — `ToggleSwitch.css:79-84` 가 `@media (prefers-reduced-motion: reduce)` 에서 `.tds-toggle__track`·`.tds-toggle__knob` 의 transition 을 끈다. quality-bar 가 지목한 `:32`·`:56` 두 선언이 **둘 다** 덮인다. 이 화면의 두 표면(`publishColumn.tsx:20` · `PortfolioMediaFields.tsx:73`)에 그대로 적용된다. ⚠ quality-bar 의 MOTION-03 요구문은 요구 정본이라 그대로 둔다 | — | **닫힘** |
-| 8 | **FS-025 §7 #4** | — | **정렬 기준인 일자가 목록 열에 없다** — `sortCaseStudies` 가 일자 내림차순으로 정렬하는데 운영자가 그 근거를 볼 수 없다. **포트폴리오에는 일자 열이 있다**(ERP-08 · 자매 화면 불일치) | 이 화면 | A11 change_request |
-| 9 | FEEDBACK-04(부분) | P1 | '취소'·'목록으로' 버튼이 `<button>`+`navigate()` 라 미저장 가드를 우회한다(3경로 자체는 pass) | 공용(shared/crud `FormPageShell`) | A11 (FS-025 §7 #10) |
-| 10 | EXC-14 | P1 | 노출 토글이 비관적 — 낙관 반영·롤백·재시도 toast 없음 | 공용(shared/crud `useCrudRowUpdate`) | A11 (FS-025 §7 #7) |
-| 11 | EXC-06 / EXC-07(부분) | P1 | `?fail=` 가 status 없는 generic Error 를 던진다. `dev.ts` 의 422 가 `violations` 를 싣지 않아 필드 매핑 경로를 재현할 수 없다. **404/409 는 어댑터가 실사용 경로에서 옳게 던진다** | 공용(shared/crud `dev.ts`) | A63 (BE-025 §7.7 #7) · A11 |
-| 12 | EXC-15(부분) | P1 | 업로드 progress/cancel 경로 없음 — **업로드 자체가 없기 때문**. `blob:` 값이 저장된다. client 검증은 성립 | 이 화면 + 계약 미정 | A63 (BE-025 §7.2 · §7.7 #1) · A11 |
-| 13 | STATE-05(부분) | P1 | '진짜 비어있음' 분기에 생성 CTA 없음(`empty.createAction` 미전달). 3분기 copy 는 F2 에서 성립 | 이 화면 | A11 (FS-025 §7 #9) |
+| 8 | **FS-025 §7 #4** | — | **정렬 기준인 일자가 목록 열에 없다** — `sortCaseStudies` 가 일자 내림차순으로 정렬하는데 운영자가 그 근거를 볼 수 없다. **포트폴리오에는 일자 열이 있다**(ERP-08 · 자매 화면 불일치) | 이 화면 | UI 기획 쪽 변경 요청 |
+| 9 | FEEDBACK-04(부분) | P1 | '취소'·'목록으로' 버튼이 `<button>`+`navigate()` 라 미저장 가드를 우회한다(3경로 자체는 pass) | 공용(shared/crud `FormPageShell`) | UI 기획 (FS-025 §7 #10) |
+| 10 | EXC-14 | P1 | 노출 토글이 비관적 — 낙관 반영·롤백·재시도 toast 없음 | 공용(shared/crud `useCrudRowUpdate`) | UI 기획 (FS-025 §7 #7) |
+| 11 | EXC-06 / EXC-07(부분) | P1 | `?fail=` 가 status 없는 generic Error 를 던진다. `dev.ts` 의 422 가 `violations` 를 싣지 않아 필드 매핑 경로를 재현할 수 없다. **404/409 는 어댑터가 실사용 경로에서 옳게 던진다** | 공용(shared/crud `dev.ts`) | 백엔드 명세 (BE-025 §7.7 #7) · UI 기획 |
+| 12 | EXC-15(부분) | P1 | 업로드 progress/cancel 경로 없음 — **업로드 자체가 없기 때문**. `blob:` 값이 저장된다. client 검증은 성립 | 이 화면 + 계약 미정 | 백엔드 명세 (BE-025 §7.2 · §7.7 #1) · UI 기획 |
+| 13 | STATE-05(부분) | P1 | '진짜 비어있음' 분기에 생성 CTA 없음(`empty.createAction` 미전달). 3분기 copy 는 F2 에서 성립 | 이 화면 | UI 기획 (FS-025 §7 #9) |
 | ~~14~~ | ~~EXC-08(부분)~~ | ~~P1~~ | **해소됨(F3b)** — `WriteContext.idempotencyKey`(`crud.ts:30-42`)가 생겨 키가 어댑터까지 도달하고, `createCrudAdapter` 의 멱등 ledger(`:91`·`:113-116`·`:121`)가 재생을 처리한다. `Idempotency-Key` 헤더 심은 `crud.ts:39` | — | — |
-| 15 | A11Y-08 | P1 | 행 안에 keyboard-focusable 이름 링크 없음(제목이 평문, 행 클릭은 마우스 전용) | 공용(shared/crud `CrudTable`) | A11 (FS-025 §7 #5) |
+| 15 | A11Y-08 | P1 | 행 안에 keyboard-focusable 이름 링크 없음(제목이 평문, 행 클릭은 마우스 전용) | 공용(shared/crud `CrudTable`) | UI 기획 (FS-025 §7 #5) |
 | ~~16~~ | ~~ERP-13~~ | ~~P1~~ | **해소됨(통합)** — 조사 헬퍼가 `shared/format.ts:269+` 로 승격되고 이 화면의 모든 사용자 대상 문구가 경유한다. 이제 '성공 사례**를** 등록했습니다' 가 나온다. 사용자 대상 `'을(를)'` 리터럴 앱 전역 0건 | — | — |
-| 17 | EXC-10(부분) | P1 | 일괄 삭제가 실패 id 를 반환하지 않아 '실패분만 재시도' 불가. 진행률·취소 없음. **어댑터가 409 를 던져 부분 실패가 실제로 자주 난다** | 공용(shared/bulk) | A11 (FS-025 §7 #19) |
-| 18 | A11Y-13(부분) | P1 | 폼 진입 시 첫 필드 자동 포커스 없음(검증 실패 포커스는 pass) | 공용(shared/crud) | A11 |
-| 19 | **FS-025 §7 #13** | — | **업종 enum 의 정본이 프론트 상수다** — 서버가 6종 밖 값을 주면 수정 폼의 `<select>` 가 표시하지 못하고 저장 시 값이 조용히 바뀐다 | 이 화면 + 계약 | A63 (BE-025 §3.1 · §7.7 #4) · A11 |
-| 20 | EXC-05 · EXC-11 · EXC-19 | P1 | 프론트 타임아웃 상한·오프라인 감지·세션 만료 draft 보존 앱 전역 부재. **이 화면은 폼 손실량이 크다**(자유 텍스트 3개 × 500자) | **앱 전역** | A40 · A11 (FS-025 §7 #21) |
-| 21 | A11Y-14 | P2 | 업로드 완료 안내가 live region 아님 | **앱 전역**(@tds/ui) | A11 |
-| 22 | COMP-01(부분) · COMP-06 · COMP-09 · COMP-12 | P2 | 손수 쓴 '저장 중…' · skeleton `length: 5` 하드코딩 · **고객사/제목 truncate 부재(포트폴리오와 반대)** · 제목/고객사 카운터 부재 | 공용 + 이 화면 | A11 (FS-025 §7 #8 · #6 · #20) |
-| 23 | IA-03 · IA-14 · MOTION-04 · ERP-12 · ERP-15 · EXC-18 | P1/P2 | breadcrumb 부재 · 반응형 미선언(성과 열이 더 넓다) · 행 FLIP 부재 · export 부재 · 대형 리스트 계약 부재 · Shift-range/진행률 부재 | 공용 + 앱 전역 | A11 |
+| 17 | EXC-10(부분) | P1 | 일괄 삭제가 실패 id 를 반환하지 않아 '실패분만 재시도' 불가. 진행률·취소 없음. **어댑터가 409 를 던져 부분 실패가 실제로 자주 난다** | 공용(shared/bulk) | UI 기획 (FS-025 §7 #19) |
+| 18 | A11Y-13(부분) | P1 | 폼 진입 시 첫 필드 자동 포커스 없음(검증 실패 포커스는 pass) | 공용(shared/crud) | UI 기획 |
+| 19 | **FS-025 §7 #13** | — | **업종 enum 의 정본이 프론트 상수다** — 서버가 6종 밖 값을 주면 수정 폼의 `<select>` 가 표시하지 못하고 저장 시 값이 조용히 바뀐다 | 이 화면 + 계약 | 백엔드 명세 (BE-025 §3.1 · §7.7 #4) · UI 기획 |
+| 20 | EXC-05 · EXC-11 · EXC-19 | P1 | 프론트 타임아웃 상한·오프라인 감지·세션 만료 draft 보존 앱 전역 부재. **이 화면은 폼 손실량이 크다**(자유 텍스트 3개 × 500자) | **앱 전역** | 프론트 구현 · UI 기획 (FS-025 §7 #21) |
+| 21 | A11Y-14 | P2 | 업로드 완료 안내가 live region 아님 | **앱 전역**(@tds/ui) | UI 기획 |
+| 22 | COMP-01(부분) · COMP-06 · COMP-09 · COMP-12 | P2 | 손수 쓴 '저장 중…' · skeleton `length: 5` 하드코딩 · **고객사/제목 truncate 부재(포트폴리오와 반대)** · 제목/고객사 카운터 부재 | 공용 + 이 화면 | UI 기획 (FS-025 §7 #8 · #6 · #20) |
+| 23 | IA-03 · IA-14 · MOTION-04 · ERP-12 · ERP-15 · EXC-18 | P1/P2 | breadcrumb 부재 · 반응형 미선언(성과 열이 더 넓다) · 행 FLIP 부재 · export 부재 · 대형 리스트 계약 부재 · Shift-range/진행률 부재 | 공용 + 앱 전역 | UI 기획 |
 
 ## 6. 측정 도구 · 재현 스위치
 

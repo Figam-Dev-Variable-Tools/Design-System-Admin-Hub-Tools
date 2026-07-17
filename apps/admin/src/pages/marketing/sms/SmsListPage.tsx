@@ -1,4 +1,4 @@
-// SmsListPage — SMS 발송 목록 (라우트: /marketing/sms) · A41 소유
+// SmsListPage — SMS 발송 목록 (라우트: /marketing/sms)
 //
 // CRUD 프레임워크(useCrudList + CrudListShell) 위에 상태 필터 + 검색 + 유형(SMS/LMS/MMS)·대상수·발송상태·
 // 성공률 열을 얹는다. 목록엔 이미지 열이 없다.

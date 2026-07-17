@@ -1,4 +1,4 @@
-// 로고 목록 데이터 소스 어댑터 팩토리 (A41 소유 — apps/admin/src/pages/company/logo-list/**)
+// 로고 목록 데이터 소스 어댑터 팩토리
 //
 // 파트너사·고객사가 같은 CRUD 규약을 쓴다. 각 화면의 data-source.ts 가 자기 시드로 이 팩토리를
 // 호출하고, 실제 엔드포인트(// TODO(backend))는 그 data-source.ts 에 적는다.

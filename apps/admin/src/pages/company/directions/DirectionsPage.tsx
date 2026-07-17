@@ -1,4 +1,4 @@
-// DirectionsPage — 오시는 길 (라우트: /company/directions) · A41 소유
+// DirectionsPage — 오시는 길 (라우트: /company/directions)
 //
 // 단일 폼(주소·상세주소·좌표·교통편). 지도는 외부 임베드 없이 좌표 필드 + placeholder 로 대신한다.
 import { useEffect, useRef, useState } from 'react';

@@ -1,4 +1,4 @@
-// EsgFormPage — ESG 활동 등록/수정 (라우트: /company/esg/new · /company/esg/:id/edit) · A41 소유
+// EsgFormPage — ESG 활동 등록/수정 (라우트: /company/esg/new · /company/esg/:id/edit)
 import type { CSSProperties } from 'react';
 
 import {

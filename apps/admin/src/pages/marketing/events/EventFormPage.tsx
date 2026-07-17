@@ -1,4 +1,4 @@
-// EventFormPage — 이벤트 등록/수정 (라우트: /marketing/events/new · /:id/edit) · A41 소유
+// EventFormPage — 이벤트 등록/수정 (라우트: /marketing/events/new · /:id/edit)
 //
 // 공용 CRUD 프레임워크(useCrudForm + FormPageShell)를 재사용한다. 필드: 이벤트명·기간·상태·대상·혜택
 // (쿠폰/적립)·배너 연동·설명. 검증 정본은 ./validation.

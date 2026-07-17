@@ -1,4 +1,4 @@
-/* 공통 UI 클래스 (A40 소유 — apps/admin/src/shared/ui/**)
+/* 공통 UI 클래스
  *
  * 인라인 style 로 표현 불가한 상태(:hover, :focus-visible, ::placeholder, @keyframes)만 여기에 둔다.
  * shared/ui/index.ts 가 이 파일을 import 하므로, 배럴을 쓰는 페이지는 자동으로 함께 로드된다.

@@ -1,6 +1,6 @@
 /**
  * 모듈 추출 스캔 리포트 기록 — reports/reuse/module-candidates-<YYYY-MM-DD>.json + .md
- * 리포트 경로 소유: A75 (orchestration/registry/agents.json)
+ * 리포트 경로 소유: 재사용 가드
  * page-module-pipeline ② 단계 산출물: ③의 G0 접수 입력값이 된다
  * (docs/tds/guidelines/page-module-pipeline.md — 후보 리포트 없이 신규 모듈 계약 생성 금지).
  */
@@ -74,7 +74,7 @@ function pct(x: number): string {
 
 const RECOMMENDATION_LABELS: Record<ScanRecommendation, string> = {
   REUSE: 'REUSE — 기존 컴포넌트 소비로 교체 (사본 제거)',
-  EXTEND: 'EXTEND — 기존 계약 확장 검토 (A18 change_request)',
+  EXTEND: 'EXTEND — 기존 계약 확장 검토 (계약 엔지니어 변경 요청)',
   CREATE: 'CREATE — 신규 모듈 후보 (G0 접수 → 정밀 판정)',
 };
 
@@ -90,7 +90,7 @@ export function buildScanReportMd(report: ModuleScanReport): string {
   lines.push(`# 모듈 추출 스캔 — ${report.scanDate}`);
   lines.push('');
   lines.push(
-    '> page-module-pipeline **② 페이지 조사 · 공통 모듈 후보 추출** (A75 Component Reuse AI) — 어드민 페이지의 반복 UI 패턴을 공통 모듈 후보로 승격 제안한다 (docs/tds/guidelines/page-module-pipeline.md).',
+    '> page-module-pipeline **② 페이지 조사 · 공통 모듈 후보 추출** (재사용 가드 Component Reuse AI) — 어드민 페이지의 반복 UI 패턴을 공통 모듈 후보로 승격 제안한다 (docs/tds/guidelines/page-module-pipeline.md).',
   );
   lines.push('');
   lines.push(`- 실행 시각: ${report.generatedAt}`);
@@ -174,10 +174,10 @@ export function buildScanReportMd(report: ModuleScanReport): string {
   lines.push('## 후속 조치');
   lines.push('');
   lines.push(
-    '- **REUSE** 후보: 페이지 로컬 사본을 기존 컴포넌트 소비로 교체한다 (A40) — 사본 잔존은 중복률 SLO(<= 3%) 위반.',
+    '- **REUSE** 후보: 페이지 로컬 사본을 기존 컴포넌트 소비로 교체한다 (프론트 구현) — 사본 잔존은 중복률 SLO(<= 3%) 위반.',
   );
   lines.push(
-    '- **EXTEND** 후보: 기존 계약 확장을 우선 검토한다 — A18에 change_request 발행 (G3 재진입, additive 변경이면 MINOR).',
+    '- **EXTEND** 후보: 기존 계약 확장을 우선 검토한다 — 계약 엔지니어에 변경 요청 발행 (G3 재진입, additive 변경이면 MINOR).',
   );
   lines.push(
     '- **CREATE** 후보: 후보 1건 = 1 Task 로 G0 접수한다. 접수 시 `pnpm --filter @tds/reuse-guard run check --name <후보명> --props <속성들>` 로 정밀 판정을 다시 받는다 (본 스캔의 속성 키는 계약 props 만큼 정제되지 않았다).',

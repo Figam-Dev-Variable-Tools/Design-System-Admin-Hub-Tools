@@ -1,4 +1,4 @@
-// 로고 목록 도메인 훅 (A41 소유 — apps/admin/src/pages/company/logo-list/**)
+// 로고 목록 도메인 훅
 //
 // 화면은 여기 도메인 훅만 부른다. resource(쿼리 키 루트, 예: 'partners'/'clients')와 adapter 를
 // 받아 파트너사·고객사가 같은 훅을 각자의 저장소로 쓴다.

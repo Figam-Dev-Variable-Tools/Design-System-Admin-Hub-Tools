@@ -1,4 +1,4 @@
-// FAQ 폼 검증 규칙 (A41 — ADR-0008 §7.3 집행)
+// FAQ 폼 검증 규칙 (ADR-0008 §7.3 집행)
 //
 // **검증 규칙의 정본은 이 zod 스키마다.** 진입점은 `zod/mini` 다.
 import * as z from 'zod/mini';

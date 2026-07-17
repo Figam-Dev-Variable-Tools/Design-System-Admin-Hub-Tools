@@ -1,4 +1,4 @@
-// 인증서/특허 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/company/certificates/**)
+// 인증서/특허 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 공용 CRUD 어댑터에 시드를 넣는다. 실제 연동 시 // TODO(backend) 로 교체.
 // [더미] 실명·실제 회사명 금지 — 가상 기관/문서용 URL(cdn.example.com)만.

@@ -1,10 +1,10 @@
 /**
- * 축 1 (임무의 축 C) — 테스트 존재. **스코프별로 독립 판정한다** (A00/A01 판정 1).
+ * 축 1 (임무의 축 C) — 테스트 존재. **스코프별로 독립 판정한다** (오케스트레이터/아키텍처 판정 1).
  *
  * **테스트가 0건이면 무조건 실패한다.** 이것이 `--passWithNoTests` 에 대한 답이다.
  *
  * **왜 스코프별인가.** 전역 카운트였을 때 이 축에는 구멍이 있었다 —
- * A30이 `packages/ui` 에 테스트를 채우면 `apps/admin` 이 0건이어도 축 1이 초록으로 바뀐다.
+ * 컴포넌트 엔지니어이 `packages/ui` 에 테스트를 채우면 `apps/admin` 이 0건이어도 축 1이 초록으로 바뀐다.
  * **한쪽의 초록이 다른 쪽의 빈칸을 가린다.** 그래서 스코프마다 독립적으로 >= 1건을 요구하고,
  * 어느 한쪽이 0이면 **그 스코프가 blocker** 다.
  *
@@ -37,7 +37,7 @@ export function checkExistence(
       item: '축 1 스코프 0개 — 워크스페이스에서 제품 패키지(apps/* · packages/*)를 하나도 파생하지 못했다',
       expectedTest: '(워크스페이스 설정 확인 후 재측정)',
       evidence:
-        '측정 불가는 통과가 아니다. pnpm-workspace.yaml 의 packages: 글롭 또는 package.json 배치를 확인하라 (A80).',
+        '측정 불가는 통과가 아니다. pnpm-workspace.yaml 의 packages: 글롭 또는 package.json 배치를 확인하라 (의존성 관리).',
       gates: EXISTENCE.gates,
     });
     return {

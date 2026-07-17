@@ -1,4 +1,4 @@
-// 배너 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/content/banners/**)
+// 배너 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 함수 시그니처가 프론트 ↔ 백엔드 계약이다. 지금은 픽스처를 돌려준다.
 // [이미지 업로드 없음] 이미지는 URL 문자열로만 저장한다 — TODO(backend): POST /api/uploads.

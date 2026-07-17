@@ -1,6 +1,6 @@
 /**
  * 리포트 기록 — reports/contract-test/<component>.json + summary.md
- * 리포트 경로 소유: A74 (orchestration/registry/agents.json)
+ * 리포트 경로 소유: 계약 테스트
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -32,7 +32,7 @@ export function buildSummaryMd(reports: ComponentReport[], generatedAt: string):
   const lines: string[] = [];
   lines.push('# Contract Test — 4자 일치 검증 리포트');
   lines.push('');
-  lines.push('> Contract ↔ React ↔ Storybook ↔ Figma ↔ Token 일치 검증 (A74, 설계서 §5.3)');
+  lines.push('> Contract ↔ React ↔ Storybook ↔ Figma ↔ Token 일치 검증 (계약 테스트, 설계서 §5.3)');
   lines.push('> 불일치 1건이라도 있으면 exit 1 → G5/G6/G7 동시 차단.');
   lines.push('> SKIP = 구현 산출물이 아직 없는 계약 (부트스트랩 단계 — 차단하지 않음).');
   lines.push('');

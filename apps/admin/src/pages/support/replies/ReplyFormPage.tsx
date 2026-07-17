@@ -1,4 +1,4 @@
-// ReplyFormPage — 답변 템플릿 등록/수정 (라우트: /support/replies/new · /:id/edit) · A41 소유
+// ReplyFormPage — 답변 템플릿 등록/수정 (라우트: /support/replies/new · /:id/edit)
 //
 // 데이터 배선은 공용 CRUD 프레임워크(useCrudForm + FormPageShell)를 재사용한다. 필드만 주입한다:
 // 제목·유형 태그·본문. 본문은 치환 변수({{고객명}}·{{문의번호}}·{{담당자}})를 지원한다 — 티켓 상세가

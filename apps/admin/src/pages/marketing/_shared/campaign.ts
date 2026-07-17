@@ -1,4 +1,4 @@
-// 이벤트/프로모션 공용 도메인 (A41 소유 — apps/admin/src/pages/marketing/**)
+// 이벤트/프로모션 공용 도메인
 //
 // [왜 _shared 인가] 이벤트와 프로모션은 같은 뼈대를 쓴다: 노출기간·상태(예정/진행/종료)·혜택(쿠폰/적립)·
 // 배너 연동. 상태/혜택 enum·라벨·톤과 기간→상태 파생 규칙을 한 곳에 둔다(marketing 내부 공용).
@@ -25,7 +25,7 @@ export const CAMPAIGN_PHASE_OPTIONS: readonly Option<CampaignPhase>[] = [
 // [삭제됨] parseCampaignPhase / isCampaignPhase / PHASE_VALUES
 //   이벤트·프로모션 목록이 URL 문자열을 좁힐 때 쓰던 사본이다. IA-13 롤아웃으로 공용
 //   `shared/crud/parseFilter` 가 그 자리를 가져가며(허용 목록은 위 CAMPAIGN_PHASE_OPTIONS 의
-//   id 에서 파생) 마지막 소비자가 사라졌다 (A83 축5 죽은 코드 0).
+//   id 에서 파생) 마지막 소비자가 사라졌다 (클린코드 점검 축5 죽은 코드 0).
 
 export const campaignPhaseLabel = (v: CampaignPhase): string =>
   optionLabel(CAMPAIGN_PHASE_OPTIONS, v);

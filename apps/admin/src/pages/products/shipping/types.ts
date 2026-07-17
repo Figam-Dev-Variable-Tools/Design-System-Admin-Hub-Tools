@@ -1,4 +1,4 @@
-// 배송 정책 화면 전용 타입 · 옵션 (A41 소유 — apps/admin/src/pages/products/**)
+// 배송 정책 화면 전용 타입 · 옵션
 //
 // 배송은 목록형이 아니라 **정책 설정형**이다(권역·요금·묶음배송을 문서 1건으로 관리). 단일 문서형
 // 프레임워크(createDocumentStore + DocumentFormShell)를 쓴다. 값 표현은 폼 문자열과 일치시켜(회사 정보

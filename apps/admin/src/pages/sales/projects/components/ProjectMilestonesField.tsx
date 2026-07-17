@@ -1,4 +1,4 @@
-// 프로젝트 마일스톤 편집기 (A41 소유 — apps/admin/src/pages/sales/**)
+// 프로젝트 마일스톤 편집기
 //
 // 마일스톤(이름·목표일·완료)을 행으로 추가·삭제·편집한다. 프로젝트 폼 1곳만 쓰므로 페이지 전용이다.
 import type { CSSProperties } from 'react';

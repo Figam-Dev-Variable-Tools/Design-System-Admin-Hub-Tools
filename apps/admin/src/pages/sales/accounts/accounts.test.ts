@@ -1,4 +1,4 @@
-// 거래처 동작 회귀 테스트 (A41) — 사업자번호 검증·필터·정렬·대표담당(순수) + 폼 검증
+// 거래처 동작 회귀 테스트 — 사업자번호 검증·필터·정렬·대표담당(순수) + 폼 검증
 import { describe, expect, it } from 'vitest';
 
 import { bizNoDigits, formatBizNo, formatWon, isValidBizNo } from '../_shared/business';

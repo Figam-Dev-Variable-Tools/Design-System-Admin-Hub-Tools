@@ -1,4 +1,4 @@
-// FS-004 회원 상세 — 예외 7축 E2E (A85 소유 — e2e/**)
+// FS-004 회원 상세 — 예외 7축 E2E (담당: E2E 테스트 — e2e/**)
 //
 // 명세: specs/users/members/detail/FS-004-member-detail.md · 계약면: BE-004-member-detail.md
 // 구현: apps/admin/src/pages/members/{MemberDetailPage,components/PointsCard}.tsx

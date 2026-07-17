@@ -5,7 +5,7 @@
  * atom 이 molecule/organism 을 import 하면 역방향이다 (atom 이 조립물을 알면 atom 이 아니다).
  *
  * 배럴(`packages/ui/src/index.ts`)을 레이어 내부에서 import 하는 것은 규칙에 정의되어 있지
- * 않으므로 **차단하지 않고** UNDEFINED 로 기록한다 (규칙 없는 차단 금지 — A76이 확립한 패턴).
+ * 않으므로 **차단하지 않고** UNDEFINED 로 기록한다 (규칙 없는 차단 금지 — 네이밍 가드이 확립한 패턴).
  */
 import type { ParsedFile } from '../lib/ast.ts';
 import type { AxisResult, UndefinedCase, Violation } from '../report.ts';
@@ -40,7 +40,7 @@ export function checkLayerDirection(files: ParsedFile[]): {
         undefinedCases.push({
           file: pf.file,
           line: edge.line,
-          note: `레이어(${fromLayer}) 내부에서 공개 배럴(${UI_BARREL})을 import — 상위 레이어를 간접적으로 끌어온다. 규칙 미정의이므로 차단하지 않음. A01에 규칙 제정 요청.`,
+          note: `레이어(${fromLayer}) 내부에서 공개 배럴(${UI_BARREL})을 import — 상위 레이어를 간접적으로 끌어온다. 규칙 미정의이므로 차단하지 않음. 아키텍처에 규칙 제정 요청.`,
         });
         continue;
       }

@@ -3,8 +3,8 @@ id: FS-015
 title: "회사 정보 (단일 문서 편집 폼)"
 screen: SCR-015               # ⚠ 기업 관리 SCR 미작성 — §7 미결 사항 참조
 route: /company/profile
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -137,7 +137,7 @@ date: 2026-07-17
 | FS-015-EL-014 / EL-018 / EL-019 | 회사 정보 저장 | W | `CompanyProfile` **전체**(부분 갱신 아님) | `companyProfileStore.save(input, signal)` — `useSaveDocument(companyProfileKey, companyProfileStore)` | 전체 치환. 성공 시 `invalidateQueries(['company','profile'])` |
 | FS-015-EL-011.7 | 로고 파일 업로드 | — | (있어야 할 것) 파일 바이트 → 영구 URL | **없다** — 어댑터에 업로드 함수가 없다. `URL.createObjectURL` 결과가 그대로 `logoUrl` 이 된다 | **미구현.** BE-015 §4 BE-015-EP-03 '심 없음(미정)' · §7.6 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드가 없다. `createDocumentStore('profile', PROFILE_SEED)` 가 브라우저 안 mutable 픽스처 1건을 들고 `fetch`/`save` 를 흉내 낸다 — `save` 는 모듈 변수를 덮어쓰므로 **새로고침하면 초기 seed 로 돌아간다**. 두 연산 모두 `wait(LATENCY_MS=400, signal)` 로 지연을 흉내 내고 `failIfRequested('profile', 'load'\|'save')` 로 실패를 재현한다. 연동 지점은 `data-source.ts:21` 의 `// TODO(backend): GET /api/company/profile · PUT /api/company/profile` 주석 **2건뿐이며, 업로드 심은 없다.** 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드가 없다. `createDocumentStore('profile', PROFILE_SEED)` 가 브라우저 안 mutable 픽스처 1건을 들고 `fetch`/`save` 를 흉내 낸다 — `save` 는 모듈 변수를 덮어쓰므로 **새로고침하면 초기 seed 로 돌아간다**. 두 연산 모두 `wait(LATENCY_MS=400, signal)` 로 지연을 흉내 내고 `failIfRequested('profile', 'load'\|'save')` 로 실패를 재현한다. 연동 지점은 `data-source.ts:21` 의 `// TODO(backend): GET /api/company/profile · PUT /api/company/profile` 주석 **2건뿐이며, 업로드 심은 없다.** 위 표는 백엔드 연결 후 의도된 동작이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -149,15 +149,15 @@ date: 2026-07-17
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-015 영역)
 - [x] 지어내지 않았다 — `?delay=` 스위치·업로드 엔드포인트·역할 분기 등 코드에 없는 것을 쓰지 않았다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **로고가 저장되지 않는다.** `ImageUploadField` 가 만든 `blob:` URL 이 그대로 `logoUrl` 로 저장된다 — 업로드 심이 없어 파일이 서버에 도달하지 않고, 저장 후 새로고침하면 로고가 깨진다(FS-015-EL-011.7). `validation.ts:27` 의 `logoUrl: z.string()` 이 형식을 강제하지 않아 이 값을 막지도 못한다. 같은 파일의 `optionalHttpUrl()` 헬퍼가 이미 존재하고 `company/logo-list` 는 그것을 쓴다 — 이 화면만 무방비다 | A11 change_request · A63 (BE-015 §7.2·§7.6) |
-| 2 | **중복 제출 방어가 불완전하다.** 이 화면은 `useCrudForm` 을 우회하고 `useSaveDocument` 를 직접 쓴다 — F2 가 `useCrudForm` 에 넣은 `submitLockRef`·제출 시도 단위 멱등키가 이 화면에 **적용되지 않는다**(FS-015-EL-014 경합 열) | A11 change_request |
-| 3 | **쓰기 권한 게이팅이 없다.** read 권한만 라우트에서 막히고, 저장 버튼은 `update` 권한과 무관하게 렌더된다. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | A11 change_request |
-| 4 | **저장 실패의 갈래가 없다.** 403·409·422·500 이 한 문구로 수렴한다. `useCrudForm` 이 쓰는 `isConflict`/`isUnprocessable`/`referenceOf` 를 이 화면은 쓰지 않아 충돌 다이얼로그·필드 인라인 에러·오류 참조 코드가 전부 없다 | A11 change_request · A63 (BE-015 §7.4) |
-| 5 | 조회 실패에서 404(문서 미생성)와 5xx 를 구분하지 않는다 — `loadFailed={error !== null}`(FS-015-EL-015). 단일 문서라 '아직 만들어지지 않음' 이 정상 상태일 수 있는데 그 경로가 없다 | A63 (BE-015 §7.3) · A11 |
-| 6 | 사업자등록번호·연락처에 마스킹/실시간 포맷/붙여넣기 정규화가 없고, 사업자등록번호 검증이 **자리수만** 본다(체크섬 없음). 연락처는 형식 검증이 아예 없다 | A11 change_request (P1 ERP-14) · A63 (BE-015 §7.3) |
-| 7 | 프론트 타임아웃 상한이 없다(`AbortSignal.timeout` 미사용). 저장 중 사용자가 스스로 취소할 수단도 없다 | A63 (BE-015) · A40 |
-| 8 | 대응 SCR 문서 부재 — 기업 관리 섹션 SCR 미작성 | A11 / A01 |
+| 1 | **로고가 저장되지 않는다.** `ImageUploadField` 가 만든 `blob:` URL 이 그대로 `logoUrl` 로 저장된다 — 업로드 심이 없어 파일이 서버에 도달하지 않고, 저장 후 새로고침하면 로고가 깨진다(FS-015-EL-011.7). `validation.ts:27` 의 `logoUrl: z.string()` 이 형식을 강제하지 않아 이 값을 막지도 못한다. 같은 파일의 `optionalHttpUrl()` 헬퍼가 이미 존재하고 `company/logo-list` 는 그것을 쓴다 — 이 화면만 무방비다 | UI 기획 쪽 변경 요청 · 백엔드 명세 (BE-015 §7.2·§7.6) |
+| 2 | **중복 제출 방어가 불완전하다.** 이 화면은 `useCrudForm` 을 우회하고 `useSaveDocument` 를 직접 쓴다 — F2 가 `useCrudForm` 에 넣은 `submitLockRef`·제출 시도 단위 멱등키가 이 화면에 **적용되지 않는다**(FS-015-EL-014 경합 열) | UI 기획 쪽 변경 요청 |
+| 3 | **쓰기 권한 게이팅이 없다.** read 권한만 라우트에서 막히고, 저장 버튼은 `update` 권한과 무관하게 렌더된다. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | UI 기획 쪽 변경 요청 |
+| 4 | **저장 실패의 갈래가 없다.** 403·409·422·500 이 한 문구로 수렴한다. `useCrudForm` 이 쓰는 `isConflict`/`isUnprocessable`/`referenceOf` 를 이 화면은 쓰지 않아 충돌 다이얼로그·필드 인라인 에러·오류 참조 코드가 전부 없다 | UI 기획 쪽 변경 요청 · 백엔드 명세 (BE-015 §7.4) |
+| 5 | 조회 실패에서 404(문서 미생성)와 5xx 를 구분하지 않는다 — `loadFailed={error !== null}`(FS-015-EL-015). 단일 문서라 '아직 만들어지지 않음' 이 정상 상태일 수 있는데 그 경로가 없다 | 백엔드 명세 (BE-015 §7.3) · UI 기획 |
+| 6 | 사업자등록번호·연락처에 마스킹/실시간 포맷/붙여넣기 정규화가 없고, 사업자등록번호 검증이 **자리수만** 본다(체크섬 없음). 연락처는 형식 검증이 아예 없다 | UI 기획 쪽 변경 요청 (P1 ERP-14) · 백엔드 명세 (BE-015 §7.3) |
+| 7 | 프론트 타임아웃 상한이 없다(`AbortSignal.timeout` 미사용). 저장 중 사용자가 스스로 취소할 수단도 없다 | 백엔드 명세 (BE-015) · 프론트 구현 |
+| 8 | 대응 SCR 문서 부재 — 기업 관리 섹션 SCR 미작성 | UI 기획 / 아키텍처 |

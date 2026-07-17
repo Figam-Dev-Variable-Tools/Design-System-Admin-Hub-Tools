@@ -1,4 +1,4 @@
-// PopupFormPage — 팝업 등록/수정 (라우트: /content/popups/new · /content/popups/:id/edit) · A41 소유
+// PopupFormPage — 팝업 등록/수정 (라우트: /content/popups/new · /content/popups/:id/edit)
 //
 // [별도 상세 페이지 — 오너 피드백 ⑥] 목록+인라인 폼을 없애고 공지/FAQ 처럼 별도 폼 라우트로 옮겼다.
 //   하나의 폼이 등록과 수정을 겸한다(:id 유무로 갈린다). 폼 = RHF + zod/mini.

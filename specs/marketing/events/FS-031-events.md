@@ -3,8 +3,8 @@ id: FS-031
 title: "이벤트 (목록 · 등록/수정)"
 screen: SCR-031               # ⚠ 마케팅 SCR(D2) 미작성 — §7 미결 사항 참조
 route: /marketing/events
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -171,7 +171,7 @@ date: 2026-07-17
 | FS-031-EL-007.9 / EL-011 | 이벤트 삭제(단건) | W | 이벤트 id | `eventAdapter.remove(id, { signal })` | 이미 없으면 **409**. 성공 후 목록 무효화. 삭제는 확인 다이얼로그를 매번 거치므로 키 없이 온다(`crud.ts:36-38`) |
 | FS-031-EL-006.2 / EL-012 | 이벤트 일괄 삭제 | W | 선택된 id 배열 | `eventAdapter.remove(id, { signal })` × N (`settleAll`) | **일괄 전용 경로가 아니다** — N 개의 단건 삭제를 병렬로 낸다. 전원 성공일 때만 목록 무효화 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드가 없다. `eventAdapter` 는 `createCrudAdapter`(`crud.ts:86-147`)가 만든 **브라우저 안 mutable 픽스처**(`EVENT_SEED` 3건)로, 모든 함수가 `LATENCY_MS`(400ms) 만큼 기다린 뒤 그 배열을 읽고 쓴다 — **실제 네트워크 호출은 0건이다.** 새로고침하면 모든 변경이 사라진다. `update`(`crud.ts:126-128`)·`remove`(`:139-141`)는 대상 id 가 없으면 `HttpError(409)` 를 던진다(유령 저장 방지 — 안전 기본값). `fetchOne`(`:105-107`)은 없으면 `HttpError(404)`. `create`/`update` 는 멱등 ledger(`:91,114,121`)로 같은 키의 재시도를 재생한다. `data-source.ts:53` 의 `// TODO(backend): GET/POST /api/marketing/events · GET/PUT/DELETE /api/marketing/events/:id` 주석이 **유일한 연동 지점**이며, 위 표는 백엔드 연결 후 의도된 동작이다. 계약 정본은 BE-031.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드가 없다. `eventAdapter` 는 `createCrudAdapter`(`crud.ts:86-147`)가 만든 **브라우저 안 mutable 픽스처**(`EVENT_SEED` 3건)로, 모든 함수가 `LATENCY_MS`(400ms) 만큼 기다린 뒤 그 배열을 읽고 쓴다 — **실제 네트워크 호출은 0건이다.** 새로고침하면 모든 변경이 사라진다. `update`(`crud.ts:126-128`)·`remove`(`:139-141`)는 대상 id 가 없으면 `HttpError(409)` 를 던진다(유령 저장 방지 — 안전 기본값). `fetchOne`(`:105-107`)은 없으면 `HttpError(404)`. `create`/`update` 는 멱등 ledger(`:91,114,121`)로 같은 키의 재시도를 재생한다. `data-source.ts:53` 의 `// TODO(backend): GET/POST /api/marketing/events · GET/PUT/DELETE /api/marketing/events/:id` 주석이 **유일한 연동 지점**이며, 위 표는 백엔드 연결 후 의도된 동작이다. 계약 정본은 BE-031.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -185,27 +185,27 @@ date: 2026-07-17
 - [x] **`a5c2639` 재확인 — 날짜 실재 검사가 PR #28 에서 실제로 고쳐졌다.** 이 문서가 EL-017.1 에 '실재 날짜' 라고 적어 왔지만 **코드는 그것을 지키지 않고 있었다** — `_shared/campaign.ts` 의 사본 `isRealDate` 가 `!Number.isNaN(new Date(…).getTime())` 만 봐서 `2026-02-31` 을 통과시켰다(앱 전체 11벌 중 실재 검사를 빠뜨린 5벌 가운데 하나였다). 이제 `validation.ts:32` 가 정본 `isCalendarDate`(`shared/format.ts:244-249`)를 직접 쓰고 `events.test.ts:91` 이 `2026-02-31` 거부를 고정한다. **문서를 코드에 맞춘 것이 아니라 코드가 문서를 따라잡은 경우다** — 서술은 그대로 두고 근거만 갱신했다
 - [x] **2026-07-17 · `HEAD = 4b805ad`(F3a·F3b·통합 머지 후) 기준으로 전수 재검증했다.** F2(`3cd3078`) 판정을 재사용하지 않았다. 뒤집힌 것: **검색 디바운스·IME**(`EventListPage.tsx:84,149` → `useListState.ts:227-230` → `useDebouncedSearch.ts:84-131`) · **URL 조회 상태**(`useListState.ts:87-99`) · **리터럴 '을(를)' 0건**(`format.ts:306-311` 로 승격) · **파생 기준일 KST 고정**(`format.ts:63,76-85`) · **멱등키가 어댑터에 도달**(`crud.ts:41,47-48,114`) · **AppHeader 라벨이 '이벤트'**(`nav-config.ts:260-278`). 그대로인 것: 스켈레톤 최초 로드 한정(`useCrudList.tsx:71-72`), 404/500 분기(`useCrudForm.ts:144-149`), 빈 상태 3분기(`Empty.tsx:71-83`), 유령 저장 차단 409(`crud.ts:126-128`), h1 2개, 쓰기 권한 게이팅 부재, 페이지네이션 부재
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR(마케팅 관리) 문서 부재 | A11 / A01 |
+| 1 | 대응 SCR(마케팅 관리) 문서 부재 | UI 기획 / 아키텍처 |
 | 2 | **해소됨 (F3b · 2026-07-17)** — 검색이 공용 `useListState`(`EventListPage.tsx:84`)를 거쳐 `useDebouncedSearch`(`useListState.ts:227-230`)를 소비한다. 조합 중 커밋 금지·Enter 차단·250ms 디바운스가 붙어(`useDebouncedSearch.ts:87,121-129`) '여름' 입력이 자모마다 재필터·선택 해제를 일으키지 않는다 | — (COMP-10 P0 **pass**) |
-| 3 | 하위 라우트(`/new`·`/:id/edit`)에서 `<h1>` 이 2개다 — AppHeader(`AppHeader.tsx:101`) + FormPageShell(`FormPageShell.tsx:160`). **사유가 바뀌었다**: 브랜치 폴백은 `findCoveringLeaf`(`nav-config.ts:260-278,297-299`)로 해소돼 상단 h1 은 이제 '이벤트'다. 남은 것은 ① h1 이 둘이라는 사실 ② 상단 h1 이 '등록/수정' 행위를 반영하지 않는다는 사실(`nav-config.ts:294-296` 이 '행위는 제목에 넣지 않는다'를 의도로 명시) — quality-bar IA-02 의 '단일 title 메커니즘'이 여전히 미충족 | A11 change_request (IA-02 P0 · 앱 전역) |
-| 4 | 쓰기 컨트롤이 권한과 무관하게 렌더된다 — `useRouteWritePermissions`(`RequirePermission.tsx:45`)는 이제 **7곳이 소비한다**(products 3 · settings 4). **그러나 `pages/marketing/**` 소비 0건** — 이 화면의 '이벤트 등록'·`RowActions`·'선택 N건 삭제'는 여전히 권한과 무관하게 렌더된다. 읽기 권한만 라우트 가드가 막는다 | A11 change_request (EXC-03 P0) |
-| 5 | 페이지네이션·정렬 헤더가 없다 — 목록이 전량을 한 번에 렌더하고 정렬이 시작일 내림차순으로 고정이다. 이벤트 수 상한도 없다. (`useListState` 는 `page`·`clampPage` 를 이미 제공하나 이 화면이 쓰지 않는다 — `useListState.ts:89,217-223`. DS `Pagination` 은 F3a 에서 범위/page-size 를 **opt-in**(`Pagination.tsx:112` `pageSize > 0`)으로 열었지만 `pages/marketing/**` 에 `<Pagination` 소비 0건) | A11 change_request (IA-04 P0 · ERP-04/05/15) |
-| 6 | 순번이 `index + 1` 이다(`CrudTable.tsx:179`) — 페이지네이션이 도입되면 2페이지 첫 행이 1로 리셋된다 | A11 change_request (COMP-07 · #5 와 함께 해소) |
+| 3 | 하위 라우트(`/new`·`/:id/edit`)에서 `<h1>` 이 2개다 — AppHeader(`AppHeader.tsx:101`) + FormPageShell(`FormPageShell.tsx:160`). **사유가 바뀌었다**: 브랜치 폴백은 `findCoveringLeaf`(`nav-config.ts:260-278,297-299`)로 해소돼 상단 h1 은 이제 '이벤트'다. 남은 것은 ① h1 이 둘이라는 사실 ② 상단 h1 이 '등록/수정' 행위를 반영하지 않는다는 사실(`nav-config.ts:294-296` 이 '행위는 제목에 넣지 않는다'를 의도로 명시) — quality-bar IA-02 의 '단일 title 메커니즘'이 여전히 미충족 | UI 기획 쪽 변경 요청 (IA-02 P0 · 앱 전역) |
+| 4 | 쓰기 컨트롤이 권한과 무관하게 렌더된다 — `useRouteWritePermissions`(`RequirePermission.tsx:45`)는 이제 **7곳이 소비한다**(products 3 · settings 4). **그러나 `pages/marketing/**` 소비 0건** — 이 화면의 '이벤트 등록'·`RowActions`·'선택 N건 삭제'는 여전히 권한과 무관하게 렌더된다. 읽기 권한만 라우트 가드가 막는다 | UI 기획 쪽 변경 요청 (EXC-03 P0) |
+| 5 | 페이지네이션·정렬 헤더가 없다 — 목록이 전량을 한 번에 렌더하고 정렬이 시작일 내림차순으로 고정이다. 이벤트 수 상한도 없다. (`useListState` 는 `page`·`clampPage` 를 이미 제공하나 이 화면이 쓰지 않는다 — `useListState.ts:89,217-223`. DS `Pagination` 은 F3a 에서 범위/page-size 를 **opt-in**(`Pagination.tsx:112` `pageSize > 0`)으로 열었지만 `pages/marketing/**` 에 `<Pagination` 소비 0건) | UI 기획 쪽 변경 요청 (IA-04 P0 · ERP-04/05/15) |
+| 6 | 순번이 `index + 1` 이다(`CrudTable.tsx:179`) — 페이지네이션이 도입되면 2페이지 첫 행이 1로 리셋된다 | UI 기획 쪽 변경 요청 (COMP-07 · #5 와 함께 해소) |
 | 7 | **해소됨 (F3b · 2026-07-17)** — '기간상 XX' 파생 기준일 `formatDate(new Date())`(`EventListPage.tsx:92`)이 이제 **KST 고정**이다. `shared/format.ts:63,76-85` 가 `Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' })` 의 `formatToParts` 로 조각을 뽑아 조립한다 — 로컬 getter 0건. 서울 관리자와 베를린 관리자가 같은 이벤트에 **같은 배지**를 본다 | — (ERP-09 **pass**) |
-| 8 | 403(권한 부족)에 전용 문구가 없다 — 목록은 '불러오지 못했습니다' 배너, 폼은 '다시 시도' 를 권하는 로드 실패로 수렴한다. 403 vs 404 은닉 정책 미정 | A63 (BE-031 §3.2) |
+| 8 | 403(권한 부족)에 전용 문구가 없다 — 목록은 '불러오지 못했습니다' 배너, 폼은 '다시 시도' 를 권하는 로드 실패로 수렴한다. 403 vs 404 은닉 정책 미정 | 백엔드 명세 (BE-031 §3.2) |
 | 9 | **해소됨 (통합 · 2026-07-17)** — 사용자 대상 리터럴 `'을(를)'` 출하 **0건**. 목적격 `objectParticle`·보조사 `topicParticle` 헬퍼가 `shared/format.ts:306,311` 로 승격됐고(이전엔 `logs/josa.ts` 등 3곳 사본) 이 화면의 전 경로가 소비한다: 토스트 `useCrudForm.ts:222` ('이벤트를 등록했습니다') · 삭제 문구 `useCrudList.tsx:108,158` · 로드 실패 `FormPageShell.tsx:129-130` · 검증 `shared/crud/validation.ts:22,25` ('이벤트명을 입력하세요'). 빈 상태의 주격(이/가)은 `Empty.tsx:25-26,68` 이 자족 헬퍼로 그린다(`@tds/ui` 는 앱을 import 할 수 없다 — 의도된 자족) | — (ERP-13 **pass**) |
-| 10 | 일괄 삭제가 실패한 id 를 알려주지 않는다 — 재시도는 성공분을 포함해 전량을 다시 발사한다. 대량 선택 시 임계값 강화 확인·진행률·취소도 없다 | A11 change_request (EXC-10 · EXC-18) |
-| 11 | 폼 '목록으로' 가 DS `<Button>` 이 아니라 스타일 입힌 `<button>` 이고, 제출 버튼이 `loading` prop 대신 '저장 중…' 문자열을 손으로 쓴다(`FormPageShell.tsx:148-156,190`) | A11 change_request (COMP-01 · 공용 셸) |
-| 12 | 길이 제한 필드 중 **설명만** 카운터가 있다 — 이벤트명(80자)·대상(60자)에는 없다. 대상은 `maxLength` 속성조차 없어 초과 입력이 제출에서 처음 막힌다 | A11 change_request (COMP-12) |
-| 13 | 지정 상태와 기간이 어긋나도 폼이 막지 않는다 — 목록의 '기간상 XX' 힌트로만 알린다. 상태의 정본이 관리자 지정인지 기간 파생인지 미정 | A63 (BE-031 §7.6) / A01 |
-| 14 | **혜택 상세·연동 배너명이 자유 텍스트 사본**이다 — 쿠폰/적립 발급도, 배너 참조 무결성도 없다. 배너가 개명·삭제돼도 문자열이 그대로 남아 끊긴 참조가 조용히 생긴다 | A63 (BE-031 §7.2) / A01 |
-| 15 | 낙관적 동시성 토큰이 없다 — `MarketingEvent` 에 `updatedAt`/`version` 필드가 없어 '다른 관리자가 먼저 **수정**' 을 감지하지 못한다(마지막 저장이 이긴다). 어댑터가 잡는 것은 '먼저 **삭제**'(409) 뿐이다 | A63 (BE-031 §7.3) |
-| 16 | 세션 만료 시 편집 중이던 입력이 사라진다 — 401 인터셉터가 프로그램적으로 이동하므로 미저장 가드가 발화할 수 없다. 초안 스냅샷이 없다 | A63 (BE-031 §7) / A11 (EXC-19) |
-| 17 | 긴 자유 텍스트(이벤트명·대상·혜택)에 말줄임이 없다 — 컬럼을 넓혀 표 레이아웃을 밀 수 있다 | A11 change_request (COMP-09) |
-| 18 | 오프라인 감지·배너가 없다(`navigator.onLine` 0건) | A11 change_request (EXC-11 · 앱 전역) |
-| 19 | 프론트 요청 타임아웃 상한이 없다(`AbortSignal.timeout` 0건) — 픽스처 400ms 뒤에 가려져 있다 | A63 (BE-031 §3.4) / A11 (EXC-05) |
+| 10 | 일괄 삭제가 실패한 id 를 알려주지 않는다 — 재시도는 성공분을 포함해 전량을 다시 발사한다. 대량 선택 시 임계값 강화 확인·진행률·취소도 없다 | UI 기획 쪽 변경 요청 (EXC-10 · EXC-18) |
+| 11 | 폼 '목록으로' 가 DS `<Button>` 이 아니라 스타일 입힌 `<button>` 이고, 제출 버튼이 `loading` prop 대신 '저장 중…' 문자열을 손으로 쓴다(`FormPageShell.tsx:148-156,190`) | UI 기획 쪽 변경 요청 (COMP-01 · 공용 셸) |
+| 12 | 길이 제한 필드 중 **설명만** 카운터가 있다 — 이벤트명(80자)·대상(60자)에는 없다. 대상은 `maxLength` 속성조차 없어 초과 입력이 제출에서 처음 막힌다 | UI 기획 쪽 변경 요청 (COMP-12) |
+| 13 | 지정 상태와 기간이 어긋나도 폼이 막지 않는다 — 목록의 '기간상 XX' 힌트로만 알린다. 상태의 정본이 관리자 지정인지 기간 파생인지 미정 | 백엔드 명세 (BE-031 §7.6) / 아키텍처 |
+| 14 | **혜택 상세·연동 배너명이 자유 텍스트 사본**이다 — 쿠폰/적립 발급도, 배너 참조 무결성도 없다. 배너가 개명·삭제돼도 문자열이 그대로 남아 끊긴 참조가 조용히 생긴다 | 백엔드 명세 (BE-031 §7.2) / 아키텍처 |
+| 15 | 낙관적 동시성 토큰이 없다 — `MarketingEvent` 에 `updatedAt`/`version` 필드가 없어 '다른 관리자가 먼저 **수정**' 을 감지하지 못한다(마지막 저장이 이긴다). 어댑터가 잡는 것은 '먼저 **삭제**'(409) 뿐이다 | 백엔드 명세 (BE-031 §7.3) |
+| 16 | 세션 만료 시 편집 중이던 입력이 사라진다 — 401 인터셉터가 프로그램적으로 이동하므로 미저장 가드가 발화할 수 없다. 초안 스냅샷이 없다 | 백엔드 명세 (BE-031 §7) / UI 기획 (EXC-19) |
+| 17 | 긴 자유 텍스트(이벤트명·대상·혜택)에 말줄임이 없다 — 컬럼을 넓혀 표 레이아웃을 밀 수 있다 | UI 기획 쪽 변경 요청 (COMP-09) |
+| 18 | 오프라인 감지·배너가 없다(`navigator.onLine` 0건) | UI 기획 쪽 변경 요청 (EXC-11 · 앱 전역) |
+| 19 | 프론트 요청 타임아웃 상한이 없다(`AbortSignal.timeout` 0건) — 픽스처 400ms 뒤에 가려져 있다 | 백엔드 명세 (BE-031 §3.4) / UI 기획 (EXC-05) |
 | 20 | **해소됨 (F3b · 2026-07-17)** — 목록 조회 상태(`?phase=`·`?q=`)의 단일 원천이 URL 이다. `EventListPage.tsx:84` 가 공용 `useListState` 를 소비하고, 그것이 `useSearchParams`(`useListState.ts:87`)로 직렬화한다. `replace: true`(`:125`)라 히스토리가 쌓이지 않고, 수정 폼에서 Back 하면 조건이 복원되며, 링크 공유로도 재현된다. `EmailListPage.test.tsx:4` 가 같은 배선을 형제 화면에서 고정한다 | — (IA-13 P0 **pass**) |

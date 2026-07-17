@@ -1,4 +1,4 @@
-// 일괄 쓰기 공용 유틸 (A41 소유 — apps/admin/src/shared/**)
+// 일괄 쓰기 공용 유틸
 //
 // 콘텐츠 목록 6종의 '일괄 삭제 / 일괄 ON·OFF' 가 같은 규약을 쓴다: 선택된 항목마다 쓰기 요청을
 // 병렬로 보내고, **부분 실패도 건수로 알린다**(하나가 실패해도 나머지는 반영). 취소(abort)는
@@ -13,7 +13,7 @@ import { isAbort } from './async';
  *
  * [export 하지 않는다] 이름을 import 하는 곳이 없다 — 소비자(crud.ts·useCrudList)는
  * settleAllDetailed 의 반환 타입을 **구조적으로** 물려받는다. export 하면 소비자 0인 export 가
- * 되어 dead-code(A83 축5, 임계 0건)만 한 건 늘어난다. crud.ts 의 WriteContext 가 같은 이유로
+ * 되어 dead-code(클린코드 점검 축5, 임계 0건)만 한 건 늘어난다. crud.ts 의 WriteContext 가 같은 이유로
  * 같은 선택을 해 두었다 — 그 선례를 따른다.
  */
 interface SettleFailure<T> {

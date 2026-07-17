@@ -4,8 +4,8 @@ title: "회사 정보 비기능 명세"
 functionalSpec: FS-015
 backendSpec: BE-015
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -158,19 +158,19 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | **A11Y-11** | **P0** | **잔여 범위가 좁아졌다 — 세 절 중 둘이 닫혔다.** required 노출은 F3a 가 닫았고(`FormField.withAriaRequired` 가 `required` 를 자식 `<input>` 의 `aria-required` 로 런타임 주입 — `FormField.tsx:50-56,107`), `aria-invalid`↔`aria-describedby` 페어링은 원래 충족이었다. **남은 것은 hint 미연결 하나** — `profile-biznum` 이 hint 를 갖고도 valid 일 때 `aria-describedby` 가 `undefined` 라 그 hint 가 AT 에 닿지 않는다(`CompanyProfilePage.tsx:142-144`). `required` 와 달리 이 절에는 자동 주입이 없고 배선이 호출부 책임이다(`FormField.tsx:10-11`). **형제 NFR-018(오시는 길)이 같은 결함을 4필드에서 갖는다** — 함께 고칠 것 | 이 화면(+ 손수 배선 폼 전반 — NFR-017·NFR-018) | A11 change_request |
-| 2 | **EXC-03** | **P0** | 쓰기 권한 게이팅 없음 — 저장 버튼이 `can('update')` 를 보지 않는다. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | **기업 관리 섹션 전체**(앱 전역 아님) | A11 change_request |
-| 3 | **EXC-04** | **P0** | 낙관적 동시성 없음 — 타입에 `updatedAt`/`version` 이 없어 `If-Match` 를 실을 수 없다. 409 충돌 다이얼로그도 없다. **타입·어댑터 시그니처·`useSaveDocument` 를 함께 바꿔야 한다** | 앱 전역(단일 문서형 4종 공통) | A63(BE-015 §7.4) · A11 |
-| 4 | **EXC-08** | **P0** | 중복 제출 방어 없음 — `submitLockRef`·멱등키가 `useSaveDocument` 계층에 없다. F2 가 `useCrudForm` 에 넣은 방어가 **문서 계층에 상속되지 않았다** | 앱 전역(단일 문서형 4종 공통) | A11 change_request · A63 |
-| 5 | EXC-06 · EXC-07 · EXC-20 | P1 | 저장 실패의 갈래 없음 — status 분기·422 필드 매핑·참조 코드 표시 셋 다 없다. `useCrudForm` 에는 셋 다 있다 | 앱 전역(단일 문서형 4종) | A11 change_request |
-| 6 | EXC-12 | P1 | 404/5xx 미구분(`loadFailed = error !== null`) — quality-bar 가 `DocumentFormShell` 을 appliesTo 로 명시 | 앱 전역(DocumentFormShell) | A11 change_request |
-| 7 | EXC-15 | P1 | **로고가 저장되지 않는다** — `blob:` URL 이 서버로 나간다. progress/cancel 없음, `role=img` fallback 없음 | 이 화면(+ CEO 인사말 등 업로드 화면) | A63(BE-015 §7.6) · A11 |
-| 8 | EXC-05 · EXC-11 · EXC-19 | P1 | client timeout · offline 감지 · dirty draft 보존 없음 | 앱 전역 | A40 · A11 |
+| 1 | **A11Y-11** | **P0** | **잔여 범위가 좁아졌다 — 세 절 중 둘이 닫혔다.** required 노출은 F3a 가 닫았고(`FormField.withAriaRequired` 가 `required` 를 자식 `<input>` 의 `aria-required` 로 런타임 주입 — `FormField.tsx:50-56,107`), `aria-invalid`↔`aria-describedby` 페어링은 원래 충족이었다. **남은 것은 hint 미연결 하나** — `profile-biznum` 이 hint 를 갖고도 valid 일 때 `aria-describedby` 가 `undefined` 라 그 hint 가 AT 에 닿지 않는다(`CompanyProfilePage.tsx:142-144`). `required` 와 달리 이 절에는 자동 주입이 없고 배선이 호출부 책임이다(`FormField.tsx:10-11`). **형제 NFR-018(오시는 길)이 같은 결함을 4필드에서 갖는다** — 함께 고칠 것 | 이 화면(+ 손수 배선 폼 전반 — NFR-017·NFR-018) | UI 기획 쪽 변경 요청 |
+| 2 | **EXC-03** | **P0** | 쓰기 권한 게이팅 없음 — 저장 버튼이 `can('update')` 를 보지 않는다. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | **기업 관리 섹션 전체**(앱 전역 아님) | UI 기획 쪽 변경 요청 |
+| 3 | **EXC-04** | **P0** | 낙관적 동시성 없음 — 타입에 `updatedAt`/`version` 이 없어 `If-Match` 를 실을 수 없다. 409 충돌 다이얼로그도 없다. **타입·어댑터 시그니처·`useSaveDocument` 를 함께 바꿔야 한다** | 앱 전역(단일 문서형 4종 공통) | 백엔드 명세(BE-015 §7.4) · UI 기획 |
+| 4 | **EXC-08** | **P0** | 중복 제출 방어 없음 — `submitLockRef`·멱등키가 `useSaveDocument` 계층에 없다. F2 가 `useCrudForm` 에 넣은 방어가 **문서 계층에 상속되지 않았다** | 앱 전역(단일 문서형 4종 공통) | UI 기획 쪽 변경 요청 · 백엔드 명세 |
+| 5 | EXC-06 · EXC-07 · EXC-20 | P1 | 저장 실패의 갈래 없음 — status 분기·422 필드 매핑·참조 코드 표시 셋 다 없다. `useCrudForm` 에는 셋 다 있다 | 앱 전역(단일 문서형 4종) | UI 기획 쪽 변경 요청 |
+| 6 | EXC-12 | P1 | 404/5xx 미구분(`loadFailed = error !== null`) — quality-bar 가 `DocumentFormShell` 을 appliesTo 로 명시 | 앱 전역(DocumentFormShell) | UI 기획 쪽 변경 요청 |
+| 7 | EXC-15 | P1 | **로고가 저장되지 않는다** — `blob:` URL 이 서버로 나간다. progress/cancel 없음, `role=img` fallback 없음 | 이 화면(+ CEO 인사말 등 업로드 화면) | 백엔드 명세(BE-015 §7.6) · UI 기획 |
+| 8 | EXC-05 · EXC-11 · EXC-19 | P1 | client timeout · offline 감지 · dirty draft 보존 없음 | 앱 전역 | 프론트 구현 · UI 기획 |
 | 9 | ~~ERP-13~~ | P1 | **해소됨(통합) — 이관 취소.** 조사 헬퍼가 `shared/format.ts:269+` 로 승격돼 `requiredText`(`shared/crud/validation.ts:17,21,24`) · `useCrudForm.ts:222` · `useCrudList.tsx:108,158` 이 전부 그것을 소비한다. `grep -rn "을(를)\|이(가)\|은(는)" pages/company/` → **0건**. 회귀 방어선인 테스트 단언도 함께 뒤집혔다 — `profile.test.ts:34` 이 이제 `'회사명을 입력하세요.'` 를 단언한다 | — | **이관 취소** |
-| 10 | ERP-14 | P1 | 사업자등록번호·연락처 masking/paste normalize 없음 | 이 화면(+ AccountFormPage) | A11 change_request |
-| 11 | A11Y-13 | P1 | 폼 진입 시 첫 필드 포커스 없음. `onInvalid` 포커스 계약 미고정 | 이 화면 | A11 change_request |
-| 12 | COMP-01 | P1 | 저장 버튼이 `loading` prop 대신 손수 쓴 '저장 중…' | 앱 전역(DocumentFormShell) | A11 change_request |
-| 13 | COMP-12 · A11Y-14 | P2 | 글자수 카운터 없음(`FormField.counter` 미사용) · 업로드 완료 announce 없음 | 이 화면 · DS | A11 (후속) |
+| 10 | ERP-14 | P1 | 사업자등록번호·연락처 masking/paste normalize 없음 | 이 화면(+ AccountFormPage) | UI 기획 쪽 변경 요청 |
+| 11 | A11Y-13 | P1 | 폼 진입 시 첫 필드 포커스 없음. `onInvalid` 포커스 계약 미고정 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 12 | COMP-01 | P1 | 저장 버튼이 `loading` prop 대신 손수 쓴 '저장 중…' | 앱 전역(DocumentFormShell) | UI 기획 쪽 변경 요청 |
+| 13 | COMP-12 · A11Y-14 | P2 | 글자수 카운터 없음(`FormField.counter` 미사용) · 업로드 완료 announce 없음 | 이 화면 · DS | UI 기획 (후속) |
 
 > **§5 ↔ FS-015 §7 ↔ BE-015 §7.7 대조**: #1→(신규, FS 미기재) · #2→FS §7 #3 · #3→FS §7 #2·BE §7.7 #4 · #4→FS §7 #2·BE §7.7 #3 · #5→FS §7 #4·BE §7.7 #2 · #6→FS §7 #5 · #7→FS §7 #1·BE §7.7 #5 · #8→FS §7 #7 · #10→FS §7 #6·BE §7.7 #7.
 

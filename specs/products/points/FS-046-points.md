@@ -3,8 +3,8 @@ id: FS-046
 title: "적립금 정책 (단일 문서 설정)"
 screen: SCR-046               # ⚠ 상품 관리 SCR 미작성 — §7 미결 사항 참조
 route: /products/points
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -116,7 +116,7 @@ date: 2026-07-17
 | FS-046-EL-003 ~ EL-009 / EL-011 / EL-012 / EL-019 | 적립금 정책 조회 | R | 정책 문서 1건(7필드) | `pointsPolicyStore.fetch(signal)` (`createDocumentStore` — `document.ts:25-29`) → `useDocumentQuery(pointsPolicyKey, pointsPolicyStore)`(`:38-46`) | **단일 문서라 id 가 없다.** 404 가 성립하지 않는다 — `fetch` 는 언제나 `doc` 을 돌려준다 |
 | FS-046-EL-013 / EL-015 / EL-016 | 적립금 정책 저장 | W | `PointsPolicyValues` 전체(7필드) | `pointsPolicyStore.save(input, signal)` (`document.ts:30-34`) → `useSaveDocument(pointsPolicyKey, pointsPolicyStore)`(`:53-64`) | **전체 치환**(`doc = input`). 성공 시 문서 쿼리를 무효화한다(`:60-62`). **멱등키 자리가 없다** — `SaveVars` 가 `{ input, signal }` 뿐(`:48-51`) |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `pointsPolicyStore` 는 공용 `createDocumentStore('points-policy', DEFAULT_POINTS_POLICY)`(`data-source.ts:12-15` → `shared/crud/document.ts:22-36`)로 **모듈 스코프 변수 `doc` 하나**를 들고 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('points-policy', op)`)를 얹어 fetch/save 를 흉내 낸다 — 실제 네트워크 0건. `fetch` 는 `doc` 을 그대로 반환하고(404 경로 없음), `save` 는 `doc = input` **한 줄**이다(`document.ts:33`) — **검증도 충돌 검사도 없다.** 새로고침하면 시드로 되돌아간다. `data-source.ts:11` 의 `// TODO(backend): GET/PUT /api/points-policy` 가 **이 화면의 유일한 연동 지점**이며 두 조작을 전부 덮는다. `pointsPolicyKey = ['points-policy']`(`:9`)가 쿼리 키다. 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드는 없다. `pointsPolicyStore` 는 공용 `createDocumentStore('points-policy', DEFAULT_POINTS_POLICY)`(`data-source.ts:12-15` → `shared/crud/document.ts:22-36`)로 **모듈 스코프 변수 `doc` 하나**를 들고 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('points-policy', op)`)를 얹어 fetch/save 를 흉내 낸다 — 실제 네트워크 0건. `fetch` 는 `doc` 을 그대로 반환하고(404 경로 없음), `save` 는 `doc = input` **한 줄**이다(`document.ts:33`) — **검증도 충돌 검사도 없다.** 새로고침하면 시드로 되돌아간다. `data-source.ts:11` 의 `// TODO(backend): GET/PUT /api/points-policy` 가 **이 화면의 유일한 연동 지점**이며 두 조작을 전부 덮는다. `pointsPolicyKey = ['points-policy']`(`:9`)가 쿼리 키다. 위 표는 백엔드 연결 후 의도된 동작이다.
 >
 > **`createDocumentStore` 의 op 은 `list`/`detail`/`save` 가 아니라 `load`/`save` 다**(`document.ts:27,32`) — 형제 CRUD 화면들과 스위치 이름이 다르다. NFR-046 §6 이 그것을 못박는다.
 
@@ -132,24 +132,24 @@ date: 2026-07-17
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-046 영역)
 - [x] §7 의 미결 항목이 BE-046 §7.8 후속 이관 · NFR-046 §5 와 일치한다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **이 정책을 읽어 적립을 실행하는 코드가 앱에 없다.** `earnBaseline`(실결제/주문금액) · `signupBonus` · `minUseAmount` · `useUnit` · `maxUseRate` · `expireMonths` **여섯 필드 전부**를 소비하는 곳이 `grep` 0건이다. 상품의 `earnedPoints`(`_shared/store.ts:228-232`)는 **상품별 `ProductPoints` 만** 쓰고 이 정책을 보지 않는다(그 함수 주석 `:223-225` 이 '전역 정책의 적립 기준은 주문 단위 계산에 쓰이고'라고 적지만 **그 주문 단위 계산이 존재하지 않는다**). 이 화면은 **아무도 읽지 않는 값을 저장한다** | **A01 (도메인 경계 — 선행)** · A63 (BE-046 §7.1) |
-| 2 | **쓰기 권한 게이팅이 배선돼 있지 않다** — `useRouteWritePermissions` 를 소비하지 않아 read 전용 역할도 폼을 편집하고 '저장'을 누른다. **같은 단일 문서형인 `settings/site/SiteSettingsPage.tsx:109` · `settings/languages/LanguagesPage.tsx:126` · `settings/oauth/OAuthPage.tsx:78` 은 전부 `canUpdate` 를 배선했다** — 이 화면과 형제 `products/shipping` 만 빠졌다(quality-bar EXC-03 P0) | A11 change_request |
-| 3 | **이 화면에는 `<h1>` 이 하나뿐이다**(AppHeader 의 '적립금'). 담당 4화면 중 유일하게 IA-02 의 h1 이중 결함이 **없다** — 미결이 아니라 **선례로 기록한다**: `DocumentFormShell` 이 in-content h1 을 그리지 않고 `CardTitle`(`<h2>`)만 쓰기 때문이다. 형제 폼/상세 화면들이 이 형태를 따르면 IA-02 가 해소된다 | (기록 — A40 참고) |
-| 4 | **'기본 적립률'이 `DEFAULT_POINTS` 와 연결돼 있지 않다.** hint 는 '새 상품의 초기 적립률입니다'(`:50`)라고 약속하지만, 상품 폼의 실제 기본값은 `_shared/store.ts:169` 의 **하드코딩 `{ mode: 'rate', rate: 1, amount: 0 }`** 다 — 이 정책을 읽지 않는다. **정책에서 적립률을 5% 로 바꿔도 새 상품은 여전히 1% 로 시작한다.** 화면이 사실이 아닌 것을 말한다 | A11 · A63 (BE-046 §7.2) |
-| 5 | **교차 검증이 0건이다** — 필드 간 관계를 보지 않는다. 실재하는 모순 조합: ① `minUseAmount`(5000) 가 `useUnit`(100) 의 배수가 아니어도 통과 ② `maxUseRate: 0` 통과 — '포인트를 아예 못 쓴다'는 뜻인데 의도인지 알 수 없다 ③ `signupBonus`·`minUseAmount` 에 **상한이 없다**(1조원 통과) ④ `signupBonus`(3000) 가 `minUseAmount`(5000) 보다 작아 **가입 적립금만으로는 영원히 쓸 수 없다** — 지금 픽스처가 정확히 그 상태다(`types.ts:19-27`) | A01 (도메인) · A63 (BE-046 §7.3) · A11 |
-| 6 | **유효기간에 '무기한'을 표현할 값이 없다** — `positiveIntString` 이 1 이상을 강제해(`validation.ts:47`) 0 을 막는다. 다른 필드는 0 이 '조건 없음'/'무제한'의 관용 표현인데(쿠폰의 `totalQuantity: 0` = 무제한 — `products/coupons/types.ts:28`) 여기만 다르다 | A01 (도메인) · A11 |
-| 7 | 로딩 스켈레톤(EL-011)이 **4줄 고정**이다(`DocumentFormShell.tsx:129`) — 실제 필드는 7개다. 로딩 shape 가 실제 폼과 다르다(quality-bar COMP-06 P2 의 결) | A11 (셸 소유 — 단일 문서형 5화면 공통) |
-| 8 | 조회 실패 배너(EL-012)의 문구가 **'내용을 불러오지 못했습니다.'** 라는 **도메인 없는 문구**다(`DocumentFormShell.tsx:107`) — 셸이 `cardTitle` 을 받는데 배너에 쓰지 않는다. 어느 화면에서 실패했는지 문구가 말하지 않는다 | A11 (셸 소유) |
-| 9 | 저장 실패 배너(EL-013)에 **오류 참조 코드가 없다** — `DocumentFormShell` 이 `serverError: string \| null` 만 받고(`:76`) `errorReference` 슬롯이 없다. 형제 화면들은 `FormServerError`(`FormFeedback.tsx:38-47`)로 `오류 코드 TDS-…` 를 보인다. `referenceOf`(`http-error.ts:115-117`)가 이미 있는데 이 경로가 쓰지 않는다(quality-bar EXC-20 P1) | A11 (셸 소유) |
-| 10 | 저장 버튼(EL-015)이 진행 상태를 **`loading` prop 이 아니라 손으로 쓴 '저장 중…' 라벨**로 표현한다(`DocumentFormShell.tsx:151`). `ReturnDetailPage.tsx:355` 는 `loading={saving}` 을 쓴다(quality-bar COMP-01 P1) | A11 (셸 소유) |
-| 11 | 저장에 **동기 제출 락(`submitLockRef`)·멱등키가 없다** — 이 화면이 `useCrudForm` 이 아니라 `useForm` + `useSaveDocument` 를 직접 쓴다. `useSaveDocument` 의 `SaveVars` 에 **키가 앉을 자리 자체가 없다**(`document.ts:48-51` — `CrudAdapter` 의 `WriteContext`(`crud.ts:30-42`)에 대응하는 것이 없다). **완화**: 문서 전체 치환이라 두 번 실행돼도 최종 상태가 같다(quality-bar EXC-08 P0) | A11 · A63 |
-| 12 | 대응 SCR 문서 부재 (상품 관리 SCR 미작성) | A11 / A01 |
-| 13 | 문서 도착 시 `reset(data)`(`:90-93`)가 **편집 중 재조회에서도 돈다** — 그 밖의 재조회가 오면 입력이 덮인다. `staleTime` 30초라 실제로는 드물다 | A11 change_request |
-| 14 | 저장 실패가 **400/403/409/422/500 을 같은 문구로 뭉갠다**(EL-013). 조회 실패도 마찬가지다(EL-012). `HttpError.status` 가 이미 존재하고 `isForbidden`·`isConflict`·`isUnprocessable`(`http-error.ts:93-112`)도 있는데 이 화면이 쓰지 않는다(quality-bar EXC-06 P1) | A11 (셸 소유) |
-| 15 | **서버 검증 오류(422)를 필드로 되돌릴 경로가 없다** — `useCrudForm` 의 `setError`+`setFocus`(`useCrudForm.ts:182-192`)를 상속하지 못한다. 모든 저장 실패가 폼 레벨 배너로 간다(quality-bar EXC-07 P1) | A11 |
-| 16 | **낙관적 동시성이 아예 없다** — `createDocumentStore.save` 가 `doc = input` 한 줄이라(`document.ts:33`) **항상 성공한다.** 두 관리자가 동시에 정책을 고치면 **나중 것이 앞선 것을 조용히 덮는다**(last-write-wins). 형제 CRUD 어댑터는 없는 id 에 409 를 던지는데(`crud.ts:126-128`) 단일 문서에는 그 개념이 없다 — **버전/ETag 가 필요하다**(quality-bar EXC-04 P0) | A63 (BE-046 §7.4) · A11 |
-| 17 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다(가드 미발화) | A11 · A40 (quality-bar EXC-05 · EXC-11 · EXC-19 P1) |
+| 1 | **이 정책을 읽어 적립을 실행하는 코드가 앱에 없다.** `earnBaseline`(실결제/주문금액) · `signupBonus` · `minUseAmount` · `useUnit` · `maxUseRate` · `expireMonths` **여섯 필드 전부**를 소비하는 곳이 `grep` 0건이다. 상품의 `earnedPoints`(`_shared/store.ts:228-232`)는 **상품별 `ProductPoints` 만** 쓰고 이 정책을 보지 않는다(그 함수 주석 `:223-225` 이 '전역 정책의 적립 기준은 주문 단위 계산에 쓰이고'라고 적지만 **그 주문 단위 계산이 존재하지 않는다**). 이 화면은 **아무도 읽지 않는 값을 저장한다** | **아키텍처 (도메인 경계 — 선행)** · 백엔드 명세 (BE-046 §7.1) |
+| 2 | **쓰기 권한 게이팅이 배선돼 있지 않다** — `useRouteWritePermissions` 를 소비하지 않아 read 전용 역할도 폼을 편집하고 '저장'을 누른다. **같은 단일 문서형인 `settings/site/SiteSettingsPage.tsx:109` · `settings/languages/LanguagesPage.tsx:126` · `settings/oauth/OAuthPage.tsx:78` 은 전부 `canUpdate` 를 배선했다** — 이 화면과 형제 `products/shipping` 만 빠졌다(quality-bar EXC-03 P0) | UI 기획 쪽 변경 요청 |
+| 3 | **이 화면에는 `<h1>` 이 하나뿐이다**(AppHeader 의 '적립금'). 담당 4화면 중 유일하게 IA-02 의 h1 이중 결함이 **없다** — 미결이 아니라 **선례로 기록한다**: `DocumentFormShell` 이 in-content h1 을 그리지 않고 `CardTitle`(`<h2>`)만 쓰기 때문이다. 형제 폼/상세 화면들이 이 형태를 따르면 IA-02 가 해소된다 | (기록 — 프론트 구현 참고) |
+| 4 | **'기본 적립률'이 `DEFAULT_POINTS` 와 연결돼 있지 않다.** hint 는 '새 상품의 초기 적립률입니다'(`:50`)라고 약속하지만, 상품 폼의 실제 기본값은 `_shared/store.ts:169` 의 **하드코딩 `{ mode: 'rate', rate: 1, amount: 0 }`** 다 — 이 정책을 읽지 않는다. **정책에서 적립률을 5% 로 바꿔도 새 상품은 여전히 1% 로 시작한다.** 화면이 사실이 아닌 것을 말한다 | UI 기획 · 백엔드 명세 (BE-046 §7.2) |
+| 5 | **교차 검증이 0건이다** — 필드 간 관계를 보지 않는다. 실재하는 모순 조합: ① `minUseAmount`(5000) 가 `useUnit`(100) 의 배수가 아니어도 통과 ② `maxUseRate: 0` 통과 — '포인트를 아예 못 쓴다'는 뜻인데 의도인지 알 수 없다 ③ `signupBonus`·`minUseAmount` 에 **상한이 없다**(1조원 통과) ④ `signupBonus`(3000) 가 `minUseAmount`(5000) 보다 작아 **가입 적립금만으로는 영원히 쓸 수 없다** — 지금 픽스처가 정확히 그 상태다(`types.ts:19-27`) | 아키텍처 (도메인) · 백엔드 명세 (BE-046 §7.3) · UI 기획 |
+| 6 | **유효기간에 '무기한'을 표현할 값이 없다** — `positiveIntString` 이 1 이상을 강제해(`validation.ts:47`) 0 을 막는다. 다른 필드는 0 이 '조건 없음'/'무제한'의 관용 표현인데(쿠폰의 `totalQuantity: 0` = 무제한 — `products/coupons/types.ts:28`) 여기만 다르다 | 아키텍처 (도메인) · UI 기획 |
+| 7 | 로딩 스켈레톤(EL-011)이 **4줄 고정**이다(`DocumentFormShell.tsx:129`) — 실제 필드는 7개다. 로딩 shape 가 실제 폼과 다르다(quality-bar COMP-06 P2 의 결) | UI 기획 (셸 소유 — 단일 문서형 5화면 공통) |
+| 8 | 조회 실패 배너(EL-012)의 문구가 **'내용을 불러오지 못했습니다.'** 라는 **도메인 없는 문구**다(`DocumentFormShell.tsx:107`) — 셸이 `cardTitle` 을 받는데 배너에 쓰지 않는다. 어느 화면에서 실패했는지 문구가 말하지 않는다 | UI 기획 (셸 소유) |
+| 9 | 저장 실패 배너(EL-013)에 **오류 참조 코드가 없다** — `DocumentFormShell` 이 `serverError: string \| null` 만 받고(`:76`) `errorReference` 슬롯이 없다. 형제 화면들은 `FormServerError`(`FormFeedback.tsx:38-47`)로 `오류 코드 TDS-…` 를 보인다. `referenceOf`(`http-error.ts:115-117`)가 이미 있는데 이 경로가 쓰지 않는다(quality-bar EXC-20 P1) | UI 기획 (셸 소유) |
+| 10 | 저장 버튼(EL-015)이 진행 상태를 **`loading` prop 이 아니라 손으로 쓴 '저장 중…' 라벨**로 표현한다(`DocumentFormShell.tsx:151`). `ReturnDetailPage.tsx:355` 는 `loading={saving}` 을 쓴다(quality-bar COMP-01 P1) | UI 기획 (셸 소유) |
+| 11 | 저장에 **동기 제출 락(`submitLockRef`)·멱등키가 없다** — 이 화면이 `useCrudForm` 이 아니라 `useForm` + `useSaveDocument` 를 직접 쓴다. `useSaveDocument` 의 `SaveVars` 에 **키가 앉을 자리 자체가 없다**(`document.ts:48-51` — `CrudAdapter` 의 `WriteContext`(`crud.ts:30-42`)에 대응하는 것이 없다). **완화**: 문서 전체 치환이라 두 번 실행돼도 최종 상태가 같다(quality-bar EXC-08 P0) | UI 기획 · 백엔드 명세 |
+| 12 | 대응 SCR 문서 부재 (상품 관리 SCR 미작성) | UI 기획 / 아키텍처 |
+| 13 | 문서 도착 시 `reset(data)`(`:90-93`)가 **편집 중 재조회에서도 돈다** — 그 밖의 재조회가 오면 입력이 덮인다. `staleTime` 30초라 실제로는 드물다 | UI 기획 쪽 변경 요청 |
+| 14 | 저장 실패가 **400/403/409/422/500 을 같은 문구로 뭉갠다**(EL-013). 조회 실패도 마찬가지다(EL-012). `HttpError.status` 가 이미 존재하고 `isForbidden`·`isConflict`·`isUnprocessable`(`http-error.ts:93-112`)도 있는데 이 화면이 쓰지 않는다(quality-bar EXC-06 P1) | UI 기획 (셸 소유) |
+| 15 | **서버 검증 오류(422)를 필드로 되돌릴 경로가 없다** — `useCrudForm` 의 `setError`+`setFocus`(`useCrudForm.ts:182-192`)를 상속하지 못한다. 모든 저장 실패가 폼 레벨 배너로 간다(quality-bar EXC-07 P1) | UI 기획 |
+| 16 | **낙관적 동시성이 아예 없다** — `createDocumentStore.save` 가 `doc = input` 한 줄이라(`document.ts:33`) **항상 성공한다.** 두 관리자가 동시에 정책을 고치면 **나중 것이 앞선 것을 조용히 덮는다**(last-write-wins). 형제 CRUD 어댑터는 없는 id 에 409 를 던지는데(`crud.ts:126-128`) 단일 문서에는 그 개념이 없다 — **버전/ETag 가 필요하다**(quality-bar EXC-04 P0) | 백엔드 명세 (BE-046 §7.4) · UI 기획 |
+| 17 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다(가드 미발화) | UI 기획 · 프론트 구현 (quality-bar EXC-05 · EXC-11 · EXC-19 P1) |

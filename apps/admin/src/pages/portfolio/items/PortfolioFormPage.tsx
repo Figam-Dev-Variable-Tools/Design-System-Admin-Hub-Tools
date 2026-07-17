@@ -1,4 +1,4 @@
-// PortfolioFormPage — 포트폴리오 등록/수정 (라우트: /portfolio/items/new · /:id/edit) · A41 소유
+// PortfolioFormPage — 포트폴리오 등록/수정 (라우트: /portfolio/items/new · /:id/edit)
 //
 // 승격된 CRUD 프레임워크(useCrudForm + FormPageShell) 위에 대표 이미지·본문 다중 이미지·노출 토글을
 // 얹는다. 검증의 정본은 ./validation 의 zod 스키마다.

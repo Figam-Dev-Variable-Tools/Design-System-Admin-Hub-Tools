@@ -1,4 +1,4 @@
-// ReturnDetailPage — 교환/반품 상세·처리 (라우트: /products/returns/:id) · A41 소유
+// ReturnDetailPage — 교환/반품 상세·처리 (라우트: /products/returns/:id)
 //
 // 요청 정보(주문·상품·옵션·사유·환불금액) + 처리 상태 스텝퍼 + 상태 전이 선택 + 교환 옵션(재발송) 선택 +
 // 재고 이동 이력 + 처리 메모 저장. 저장은 프레임워크 저수준 훅(useCrudUpdate). 삭제는 없다(감사 성격).

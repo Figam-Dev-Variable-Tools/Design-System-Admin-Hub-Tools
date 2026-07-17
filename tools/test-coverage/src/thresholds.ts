@@ -1,13 +1,13 @@
 /**
- * 임계값 · 판정 어휘 — 원천은 orchestration/registry/agents.json(A77 blockCondition)과
+ * 임계값 · 판정 어휘 — 원천은 레지스트리(테스트 커버리지 blockCondition)과
  * skills/test-coverage-guard/SKILL.md 의 측정 기준 표다.
  *
- * **도구가 임의로 바꾸지 않는다.** 미달이 많다고 하한을 내리는 것은 A01의 ADR 사안이다
- * (SKILL: "기준치 임의 변경 금지 — 하한의 원천은 레지스트리 blockCondition 과 A01의 ADR").
+ * **도구가 임의로 바꾸지 않는다.** 미달이 많다고 하한을 내리는 것은 아키텍처의 ADR 사안이다
+ * (SKILL: "기준치 임의 변경 금지 — 하한의 원천은 레지스트리 blockCondition 과 아키텍처의 ADR").
  *
  * severity 규약:
  *   blocker — 1건이라도 있으면 exit 1 (G5·G6 BLOCKED)
- *   major   — 경고. exit 0 이지만 리포트에 남고 리뷰(A33/A42)의 evidence 가 된다
+ *   major   — 경고. exit 0 이지만 리포트에 남고 리뷰(스토리북 리뷰/코드 리뷰)의 evidence 가 된다
  */
 
 export type Severity = 'blocker' | 'major';
@@ -29,7 +29,7 @@ export interface AxisSpec {
 /**
  * 축 1 (임무의 축 C) — 테스트 존재. `--passWithNoTests` 에 대한 답이다.
  *
- * **스코프별로 독립 판정한다** (A00/A01 판정 1). 전역 카운트는 구멍이었다 —
+ * **스코프별로 독립 판정한다** (오케스트레이터/아키텍처 판정 1). 전역 카운트는 구멍이었다 —
  * `packages/ui` 의 초록이 `apps/admin` 의 0건을 가렸다. 스코프 목록은 하드코딩하지 않고
  * `pnpm-workspace.yaml` 에서 파생한다 (lib/workspace.ts).
  */
@@ -63,9 +63,9 @@ export const CONTRACT_BLOCKED_WHEN: AxisSpec = {
 };
 
 /**
- * 축 4 (임무의 축 B) — FS 예외 7축 격자. A85가 채워나가는 중일 수 있으므로 major.
+ * 축 4 (임무의 축 B) — FS 예외 7축 격자. E2E 테스트가 채워나가는 중일 수 있으므로 major.
  *
- * **단, 래칫(후퇴 금지)이 걸려 있다** (A00/A01 판정 2): 커버 칸 수가 직전 리포트보다
+ * **단, 래칫(후퇴 금지)이 걸려 있다** (오케스트레이터/아키텍처 판정 2): 커버 칸 수가 직전 리포트보다
  * **줄어들면 blocker**. 새 테스트를 요구하지는 않되 **있던 커버리지를 잃는 것은 차단**한다.
  * (713칸 미커버 상태에서 blocker 로 승격하면 리포가 무기한 RED 가 되고,
  *  **상시 RED 는 상시 GREEN 만큼 무용하다** — 사람이 게이트를 우회하기 시작한다.)
@@ -82,13 +82,13 @@ export const FS_EXCEPTIONS: AxisSpec = {
 /**
  * 축 5 — 검증 도구 자체의 골든 픽스처.
  *
- * ⚠ SKILL 측정 기준 표는 이 축을 **blocker(G5·G6)** 로 적었으나, 레지스트리 A77의
+ * ⚠ SKILL 측정 기준 표는 이 축을 **blocker(G5·G6)** 로 적었으나, 레지스트리 테스트 커버리지의
  * `blockCondition` 은 "테스트 0건 또는 커버리지 하한 미달 — 계약의 states/events,
  * FS의 예외 7축" 만 열거하고 골든 픽스처를 포함하지 않는다.
  *
- * SKILL 자신이 "하한의 원천은 **레지스트리 blockCondition**과 A01의 ADR" 이라고 명령하므로
+ * SKILL 자신이 "하한의 원천은 **레지스트리 blockCondition**과 아키텍처의 ADR" 이라고 명령하므로
  * 도구는 레지스트리를 따라 **major** 로 측정한다. 이 불일치는 도구가 임의로 해소하지 않고
- * 리포트의 REGISTRY-SKILL DISCREPANCY 절에 남겨 **A01의 판정**을 요청한다.
+ * 리포트의 REGISTRY-SKILL DISCREPANCY 절에 남겨 **아키텍처의 판정**을 요청한다.
  * (도구가 스스로 blocker 를 발명하는 것도, SKILL 요구를 조용히 버리는 것도 금지다.)
  */
 export const TOOL_FIXTURES: AxisSpec = {
@@ -114,7 +114,7 @@ export const AXES: AxisSpec[] = [
 export const CONTRACTS_DIR = 'contracts';
 export const SPECS_DIR = 'specs';
 
-/** 테스트가 존재할 수 있는 경로 (소유자: A30 · A40 · A85) */
+/** 테스트가 존재할 수 있는 경로 (소유자: 컴포넌트 엔지니어 · 프론트 구현 · E2E 테스트) */
 export const TEST_ROOTS = ['apps', 'packages', 'e2e'];
 
 /** 단위·렌더 테스트 파일 */
@@ -173,7 +173,7 @@ export const SPY_PATTERNS: RegExp[] = [
 export interface ExceptionAxis {
   /** FS §4 표의 헤더 문자열 (정본) */
   header: string;
-  /** 테스트 이름에서 이 축을 지목하는 토큰 (A85 명명 규칙: `FS-003-EL-042: 권한없음 — …`) */
+  /** 테스트 이름에서 이 축을 지목하는 토큰 (E2E 테스트 명명 규칙: `FS-003-EL-042: 권한없음 — …`) */
   aliases: string[];
 }
 

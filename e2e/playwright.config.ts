@@ -1,10 +1,10 @@
-// Playwright 설정 (A85 소유 — e2e/**)
+// Playwright 설정 (담당: E2E 테스트 — e2e/**)
 //
 // [백엔드는 없다] 화면은 apps/admin 의 data-source / api 어댑터가 돌려주는 픽스처로 돈다.
 // 따라서 여기서 API 를 stub 하지 않는다 — 예외 축은 어댑터가 이미 뚫어 둔 재현용 쿼리
 // 파라미터(?delay= · ?error=1 · ?empty=1 · ?fail=<op>)로 재현한다. 그것이 주입 지점이다.
 //
-// [retries = 0] 재시도로 초록불을 사는 것은 A77 이 고발하는 거짓말과 같은 종류다.
+// [retries = 0] 재시도로 초록불을 사는 것은 테스트 커버리지가 고발하는 거짓말과 같은 종류다.
 // 불안정한 테스트는 숨기지 않고 드러낸다.
 import { resolve } from 'node:path';
 

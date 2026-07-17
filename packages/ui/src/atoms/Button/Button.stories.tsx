@@ -5,14 +5,14 @@
 // [조합 폭발을 어떻게 다루는가 — 96칸]
 //   contract-test 의 combinationMatrix 는 enum 값의 곱 × boolean prop 당 2다:
 //     variant 4 × size 3 × loading 2 × disabled 2 × isFullWidth 2 = **96칸**.
-//   96개를 손으로 복붙하면 A84가 잡아낸 그 중복(30줄 블록 11벌)이 다시 생긴다. 그래서 축을 두 겹으로
+//   96개를 손으로 복붙하면 모듈 추출이 잡아낸 그 중복(30줄 블록 11벌)이 다시 생긴다. 그래서 축을 두 겹으로
 //   나눈다: **시각 축(variant × size)** 은 export 이름이 들고, **상태 축(셀 8종)** 은 CELLS 표 한 곳이
 //   소유한다. 각 스토리는 combo(variant, size, cell) 한 줄이고, args·play 는 그 표에서만 정의된다 —
 //   같은 args 객체나 play 배선이 파일 안에 두 번 나타나지 않는다.
 //
 // [Play Function 은 단언을 가진다 — 상태를 만들기만 하는 play 는 테스트가 아니다]
 //   `userEvent.hover(...)` 만 하고 아무것도 expect 하지 않는 play 는 **실패할 수 없다**.
-//   실패할 수 없는 것은 아무것도 검증하지 않는다 (A77 축1·축2).
+//   실패할 수 없는 것은 아무것도 검증하지 않는다 (테스트 커버리지 축1·축2).
 //
 // [계약 events.onClick.blockedWhen 전수 검증 — G5 exit]
 //   onClick 은 meta.args 에서 `fn()` 스파이로 주입한다 (Storybook 8 은 스토리마다 스파이를 초기화한다).
@@ -108,7 +108,7 @@ const formFrame: Decorator = (Story) => (
 /**
  * play 컨텍스트 — 구조 분해를 파라미터에서 하지 않는다.
  *
- * [왜 이렇게 쓰는가] A77(test-coverage)의 정적 스캐너는 `play: hover` 같은 **참조형 play** 를
+ * [왜 이렇게 쓰는가] 테스트 커버리지의 정적 스캐너는 `play: hover` 같은 **참조형 play** 를
  * 모듈 스코프 함수 본문까지 따라가 단언을 센다. 파라미터를 통째로 받고 본문에서 꺼내 쓴다.
  */
 interface PlayCtx {

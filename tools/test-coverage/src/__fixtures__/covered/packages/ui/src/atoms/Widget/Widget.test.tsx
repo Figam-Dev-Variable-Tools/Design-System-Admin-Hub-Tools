@@ -1,6 +1,6 @@
-// 골든 픽스처 — A77 자기 검증(selftest)의 입력. 실행되지 않는다(러너 대상 아님).
+// 골든 픽스처 — 테스트 커버리지 자기 검증(selftest)의 입력. 실행되지 않는다(러너 대상 아님).
 // Widget.contract.json 의 states 3개 + events.onClick.blockedWhen 2개를 전수 덮는 "정답지"다.
-// selftest 는 이 파일에서 blockedWhen 테스트를 지웠을 때 A77이 blocker 를 띄우는지 확인한다.
+// selftest 는 이 파일에서 blockedWhen 테스트를 지웠을 때 테스트 커버리지이 blocker 를 띄우는지 확인한다.
 import { fn } from '@storybook/test';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { expect, it } from 'vitest';

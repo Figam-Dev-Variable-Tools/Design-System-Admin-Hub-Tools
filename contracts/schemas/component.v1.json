@@ -23,12 +23,13 @@
     "description": { "type": "string" },
     "owner": {
       "type": "object",
+      "description": "축별 소유 팀. code=React 구현, design=디자인 정의, figma=Figma 컴포넌트.",
       "required": ["code", "design", "figma"],
       "additionalProperties": false,
       "properties": {
-        "code": { "$ref": "#/$defs/agentId" },
-        "design": { "$ref": "#/$defs/agentId" },
-        "figma": { "$ref": "#/$defs/agentId" }
+        "code": { "$ref": "#/$defs/ownerTeam" },
+        "design": { "$ref": "#/$defs/ownerTeam" },
+        "figma": { "$ref": "#/$defs/ownerTeam" }
       }
     },
     "props": {
@@ -135,7 +136,11 @@
     }
   },
   "$defs": {
-    "agentId": { "type": "string", "pattern": "^A\\d{2}$" },
+    "ownerTeam": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "소유 팀 슬러그 (kebab-case)"
+    },
     "prop": {
       "type": "object",
       "required": ["type"],

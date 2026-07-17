@@ -3,8 +3,8 @@ id: FS-026
 title: "1:1 문의 (목록·상세 처리)"
 screen: SCR-026               # ⚠ 고객센터 SCR 미작성 — §7 미결 사항 참조
 route: /support/tickets
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -173,7 +173,7 @@ date: 2026-07-17
 | (범위 밖) | 문의 등록 | — | — | `ticketAdapter.create()` — **항상 거절**('문의는 고객 채널에서 접수됩니다.') | 화면에 진입점이 없다. BE-026 §1 범위 밖 |
 | (범위 밖) | 문의 삭제 | — | — | `ticketAdapter.remove()` — **항상 거절**('문의는 삭제할 수 없습니다.') | 화면에 진입점이 없다. BE-026 §1 범위 밖 |
 
-> **현재 구현 상태 (A63 참고 · 2026-07-17 · HEAD = `4b805ad`)**: 백엔드는 없다. `ticketAdapter`(`data-source.ts:20-52`)는 `_shared/store.ts` 의 브라우저 안 mutable 배열(`tickets`)에 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('support-tickets', op)`)를 얹어 CRUD 를 흉내 낸다 — 실제 네트워크 0건. `fetchAll`(`:21-25`)은 `sortTickets` 로 접수일시 내림차순 정렬한 전량. `create`/`remove`(`:36-38`·`:49-51`)는 인터페이스를 채우기 위한 거절 구현이다(문의는 고객 채널이 만들고 관리자는 처리만 한다). 새로고침하면 시드로 되돌아간다. `data-source.ts:19` 의 `// TODO(backend): GET /api/support/tickets · GET/PUT /api/support/tickets/:id (답변·상태·담당 저장)` 가 유일한 연동 지점이며, **유형·템플릿 조회에는 심이 없다.** 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고 · 2026-07-17 · HEAD = `4b805ad`)**: 백엔드는 없다. `ticketAdapter`(`data-source.ts:20-52`)는 `_shared/store.ts` 의 브라우저 안 mutable 배열(`tickets`)에 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('support-tickets', op)`)를 얹어 CRUD 를 흉내 낸다 — 실제 네트워크 0건. `fetchAll`(`:21-25`)은 `sortTickets` 로 접수일시 내림차순 정렬한 전량. `create`/`remove`(`:36-38`·`:49-51`)는 인터페이스를 채우기 위한 거절 구현이다(문의는 고객 채널이 만들고 관리자는 처리만 한다). 새로고침하면 시드로 되돌아간다. `data-source.ts:19` 의 `// TODO(backend): GET /api/support/tickets · GET/PUT /api/support/tickets/:id (답변·상태·담당 저장)` 가 유일한 연동 지점이며, **유형·템플릿 조회에는 심이 없다.** 위 표는 백엔드 연결 후 의도된 동작이다.
 >
 > **F3b 가 이 손조립 어댑터에 가드를 넣었다** — 아래 둘은 더 이상 유효한 서술이 아니다:
 > · `fetchOne`(`:26-35`): `:17` 의 `exists()` 로 먼저 보고 없으면 **`HttpError(HTTP_STATUS.notFound, '문의를 찾을 수 없습니다.')`**(`:31-33`). 예전의 status 없는 일반 `Error` 가 아니다 → 폼/상세의 404 분기가 살아난다(`:29-30` 주석이 그 이유를 적는다).
@@ -193,38 +193,38 @@ date: 2026-07-17
 - [x] 상태 전이 규칙(`process.ts` · `_shared/domain.ts` `STATUS_FLOW`)을 §4.1 과 EL-022·EL-023·EL-028 에 반영했다
 - [x] §7 의 미결 항목이 BE-026 §7 후속 이관 · NFR-026 §5 와 일치한다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 (고객센터 SCR 미작성) | A11 / A01 |
-| 2 | **유형 필터(EL-005)·템플릿 선택지(EL-025)가 어댑터를 거치지 않고 store 를 동기 직접 호출**한다 — 로딩·실패·재조회가 없고, 백엔드가 붙으면 이 두 호출부가 비동기로 바뀌어야 한다(현재 시그니처로는 연결 불가) | A11 · A63 (BE-026 §7.4) |
-| 3 | 유형 필터가 **활성 유형만** 보여줘 비활성 유형(예: '기타')에 달린 기존 티켓을 유형으로 좁힐 수 없다 | A11 change_request |
+| 1 | 대응 SCR 문서 부재 (고객센터 SCR 미작성) | UI 기획 / 아키텍처 |
+| 2 | **유형 필터(EL-005)·템플릿 선택지(EL-025)가 어댑터를 거치지 않고 store 를 동기 직접 호출**한다 — 로딩·실패·재조회가 없고, 백엔드가 붙으면 이 두 호출부가 비동기로 바뀌어야 한다(현재 시그니처로는 연결 불가) | UI 기획 · 백엔드 명세 (BE-026 §7.4) |
+| 3 | 유형 필터가 **활성 유형만** 보여줘 비활성 유형(예: '기타')에 달린 기존 티켓을 유형으로 좁힐 수 없다 | UI 기획 쪽 변경 요청 |
 | 4 | ~~검색 입력에 디바운스·IME 조합 처리가 없다~~ **— 해소됨(F3b)**: `TicketListPage.tsx:193-199` 이 `list.searchInputProps` 를 `SearchField` 에 스프레드하고 `useListState`(`:129`)가 내부에서 `useDebouncedSearch`(`useListState.ts:227-230`)를 소비한다 — 조합 중 커밋 금지 · 조합 중 Enter 차단 · 250ms 디바운스. stale 응답은 클라이언트 필터라 애초에 없다(quality-bar COMP-10 P0 → pass) | — (해소) |
-| 5 | '상세' 버튼(EL-008.11)이 DS `<Button>` 이 아니라 `buttonStyle()`+`tds-ui-btn-*` 손조립이고, '처리 저장'(EL-028)이 `loading` prop 대신 손으로 쓴 '저장 중…' 라벨을 쓴다(quality-bar COMP-01 P1 이 `TicketListPage` 를 명시적으로 지목) | A11 change_request |
-| 6 | 행 클릭(EL-008.12)과 '상세' 버튼(EL-008.11)이 **같은 목적지를 중복 제공**한다(quality-bar COMP-08 P2). 다만 제목 셀이 링크가 아니라 '상세' 버튼을 단순 제거하면 **키보드 도달 경로가 사라진다**(quality-bar A11Y-08 P1) — 제목을 링크로 승격하는 것이 선행돼야 한다 | A11 change_request |
-| 7 | ~~스켈레톤이 `isFetching` 기준이라 재조회에서도 행을 덮는다~~ **— 해소됨(F3b)**: `TicketListPage.tsx:163` `firstLoading = isFetching && data === undefined` · `:165` `refreshing = isFetching && data !== undefined`(`:154-162` 주석이 전환을 밝힌다). 스켈레톤(`:304`)·표 `aria-busy`(`:264`)는 `firstLoading` 만 읽고, 요약(`:259-261`)은 건수를 유지한 채 '· 새로고침 중…' 만 덧붙인다(quality-bar STATE-01 P0 → pass). **잔여**: 스켈레톤 행 수가 `length: 5` 로 하드코딩돼 있다(COMP-06 P2) | A11 change_request (COMP-06 만) |
-| 8 | 빈 상태(EL-010)가 진짜 0건·검색 0건·필터 0건을 구분하지 않는다 — 공유 `Empty` 미사용(quality-bar STATE-05 P1) | A11 change_request |
-| 9 | **SLA 기준 시각이 목록(마운트 고정)과 상세(렌더마다 현재 시각)에서 다르다.** 목록을 열어 둔 채로는 '임박'이 '초과'로 넘어가지 않아 마감 시계가 멈춘 것처럼 보인다 | A11 change_request |
-| 10 | **한 화면에 `<h1>` 이 둘이고, 어느 쪽도 문의를 식별하지 못한다.** *(통합에서 절반 해소: `findCoveringLeaf`(`nav-config.ts:260-278`)가 '자기를 감싸는 가장 긴 잎'을 쓰므로 `/support/tickets/:id` 의 AppHeader `<h1>` 은 이제 브랜치 라벨 '고객센터' 가 아니라 잎 라벨 **'1:1 문의'** 다.)* **남은 것**: `AppHeader.tsx:101` 의 `<h1>1:1 문의</h1>` 와 `TicketDetailPage.tsx:193` 의 `<h1>문의 처리</h1>` 가 **동시에** 렌더된다 — 요구의 '단일 title 메커니즘' 미충족이고, 목록은 in-content h1 이 없어 title 소스가 화면 타입마다 갈린다. 더해 **둘 다 문의 제목·문의번호를 담지 않아** 어느 문의를 보고 있는지 제목만으로는 알 수 없다(quality-bar IA-02 P0) | A11 · A40 |
-| 11 | 상세 조회 실패 배너(EL-016)에 **'다시 시도'가 없다** — 복구가 '목록으로'뿐이다(quality-bar STATE-02 P0) | A11 change_request |
-| 12 | 상세 조회 실패가 **'찾을 수 없음'(404 상당)과 일반 오류를 문구로 구분하지 않는다.** 저장소가 `HttpError(404)` 가 아니라 status 없는 일반 `Error` 를 던져 화면이 분기할 근거가 없다(quality-bar EXC-12 P1) | A11 · A63 |
-| 13 | 문의 본문(EL-020)에 `pre-wrap` 이 없어 **고객이 쓴 줄바꿈이 한 문단으로 뭉친다** | A11 change_request |
+| 5 | '상세' 버튼(EL-008.11)이 DS `<Button>` 이 아니라 `buttonStyle()`+`tds-ui-btn-*` 손조립이고, '처리 저장'(EL-028)이 `loading` prop 대신 손으로 쓴 '저장 중…' 라벨을 쓴다(quality-bar COMP-01 P1 이 `TicketListPage` 를 명시적으로 지목) | UI 기획 쪽 변경 요청 |
+| 6 | 행 클릭(EL-008.12)과 '상세' 버튼(EL-008.11)이 **같은 목적지를 중복 제공**한다(quality-bar COMP-08 P2). 다만 제목 셀이 링크가 아니라 '상세' 버튼을 단순 제거하면 **키보드 도달 경로가 사라진다**(quality-bar A11Y-08 P1) — 제목을 링크로 승격하는 것이 선행돼야 한다 | UI 기획 쪽 변경 요청 |
+| 7 | ~~스켈레톤이 `isFetching` 기준이라 재조회에서도 행을 덮는다~~ **— 해소됨(F3b)**: `TicketListPage.tsx:163` `firstLoading = isFetching && data === undefined` · `:165` `refreshing = isFetching && data !== undefined`(`:154-162` 주석이 전환을 밝힌다). 스켈레톤(`:304`)·표 `aria-busy`(`:264`)는 `firstLoading` 만 읽고, 요약(`:259-261`)은 건수를 유지한 채 '· 새로고침 중…' 만 덧붙인다(quality-bar STATE-01 P0 → pass). **잔여**: 스켈레톤 행 수가 `length: 5` 로 하드코딩돼 있다(COMP-06 P2) | UI 기획 쪽 변경 요청 (COMP-06 만) |
+| 8 | 빈 상태(EL-010)가 진짜 0건·검색 0건·필터 0건을 구분하지 않는다 — 공유 `Empty` 미사용(quality-bar STATE-05 P1) | UI 기획 쪽 변경 요청 |
+| 9 | **SLA 기준 시각이 목록(마운트 고정)과 상세(렌더마다 현재 시각)에서 다르다.** 목록을 열어 둔 채로는 '임박'이 '초과'로 넘어가지 않아 마감 시계가 멈춘 것처럼 보인다 | UI 기획 쪽 변경 요청 |
+| 10 | **한 화면에 `<h1>` 이 둘이고, 어느 쪽도 문의를 식별하지 못한다.** *(통합에서 절반 해소: `findCoveringLeaf`(`nav-config.ts:260-278`)가 '자기를 감싸는 가장 긴 잎'을 쓰므로 `/support/tickets/:id` 의 AppHeader `<h1>` 은 이제 브랜치 라벨 '고객센터' 가 아니라 잎 라벨 **'1:1 문의'** 다.)* **남은 것**: `AppHeader.tsx:101` 의 `<h1>1:1 문의</h1>` 와 `TicketDetailPage.tsx:193` 의 `<h1>문의 처리</h1>` 가 **동시에** 렌더된다 — 요구의 '단일 title 메커니즘' 미충족이고, 목록은 in-content h1 이 없어 title 소스가 화면 타입마다 갈린다. 더해 **둘 다 문의 제목·문의번호를 담지 않아** 어느 문의를 보고 있는지 제목만으로는 알 수 없다(quality-bar IA-02 P0) | UI 기획 · 프론트 구현 |
+| 11 | 상세 조회 실패 배너(EL-016)에 **'다시 시도'가 없다** — 복구가 '목록으로'뿐이다(quality-bar STATE-02 P0) | UI 기획 쪽 변경 요청 |
+| 12 | 상세 조회 실패가 **'찾을 수 없음'(404 상당)과 일반 오류를 문구로 구분하지 않는다.** 저장소가 `HttpError(404)` 가 아니라 status 없는 일반 `Error` 를 던져 화면이 분기할 근거가 없다(quality-bar EXC-12 P1) | UI 기획 · 백엔드 명세 |
+| 13 | 문의 본문(EL-020)에 `pre-wrap` 이 없어 **고객이 쓴 줄바꿈이 한 문단으로 뭉친다** | UI 기획 쪽 변경 요청 |
 | 14 | ~~목록 필터·검색이 URL 에 없다~~ **— 해소됨(F3b)**: `TicketListPage.tsx:129` `useListState({ filterDefaults: FILTER_DEFAULTS })` 가 상태·우선순위·채널·유형·검색어를 **URL 쿼리스트링**으로 옮겼다(`useListState.ts:87` `useSearchParams`). 기본값과 같은 값은 URL 에서 지우고(`:113-118`), `replace` 로 갱신해(`:125`) 상세에서 Back 하면 트리아지 큐가 그대로 복원되며 링크 공유도 된다. 손으로 고친 값은 `parseFilter`(`TicketListPage.tsx:130-144`)가 허용 목록으로 안전하게 좁힌다(quality-bar IA-13 P0 → pass) | — (해소) |
-| 15 | 담당자가 **선택지가 아니라 자유 텍스트**다 — 오타가 곧 새 담당자가 되고 표기 흔들림('김상담'/'김 상담')을 막을 수단이 없다. 운영자 계정과 연결되지 않는다 | A01 (도메인 경계) · A63 |
-| 16 | 답변/메모 유형 토글(EL-024)의 선택 상태가 **버튼 variant(색)로만 인코딩**된다 — `aria-pressed` 가 없어 보조기기가 어느 쪽이 선택됐는지 모른다 | A11 change_request |
-| 17 | 템플릿 선택(EL-025)이 **작성 중 본문을 확인 없이 덮어쓴다** | A11 change_request |
-| 18 | 이탈 가드(EL-030)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-013 · EL-027)를 누르면 미저장 처리 내용이 조용히 사라진다 | A11 change_request |
-| 19 | 제목·유형 셀에 truncate 가 없어 긴 값이 표 열을 넓힌다(quality-bar COMP-09 P2) | A11 change_request |
-| 20 | 스켈레톤 행 수가 하드코딩 `length: 5` 다(quality-bar COMP-06 P2) | A11 change_request |
-| 21 | 저장 성공 직후 상세 재조회가 실패하면 **처리 카드 전체가 실패 배너로 대체**돼 작성 중이던 입력이 화면에서 사라진다 | A11 change_request |
-| 22 | 저장에 **동기 제출 락·멱등키가 없다** — 이 화면이 `useCrudForm` 을 쓰지 않아 그 훅이 제공하는 `submitLockRef`·`Idempotency-Key` 를 상속하지 못한다(quality-bar EXC-08 P0) | A11 · A63 |
-| 23 | 타임라인(EL-029)에 상한·접기·페이징이 없어 이벤트가 쌓이면 카드가 무한히 늘어나고, 저장 요청도 함께 커진다 | A11 change_request |
-| 24 | 내부메모가 고객답변과 같은 타임라인에 섞여 배지로만 구분된다 — 고객 노출 경로가 생기면 내부메모 유출 위험 | A63 (BE-026 §7.1) · A11 |
-| 25 | 이탈 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장이 화면에 안 보일 수 있다 | A63 (BE-026) |
-| 26 | **목록 필터 4종이 화면 로컬 state 라 새로고침·뒤로가기로 초기화**된다(#14 와 같은 뿌리) | A11 change_request |
-| 27 | 상세 도착 시 담당·상태를 원본으로 되돌리는 효과(`useEffect([ticket])`)가 **편집 중 재조회에서도 돈다** — 저장 후 재조회는 정상이나, 그 밖의 재조회가 오면 입력이 덮인다 | A11 change_request |
-| 28 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 처리 내용을 버린다(가드 미발화) | A11 · A40 (quality-bar EXC-05 · EXC-11 · EXC-19 P1) |
-| 29 | **쓰기 권한 게이팅이 이 화면에 배선돼 있지 않다** — `useRouteWritePermissions`/`useRouteCan`(`shared/permissions/RequirePermission.tsx:29-56`)는 이제 **8곳이 소비한다**(products 3 · settings 4 · logs 1). **그러나 `pages/support/**` 는 그 밖이라** read 전용 역할도 '처리 저장'을 본다. 최근접 선례는 같은 '상세에서 처리 저장' 패턴인 `products/returns/ReturnDetailPage.tsx:110`(quality-bar EXC-03 P0) | A11 change_request (이 화면 — 선례 존재) |
-| 30 | **낙관적 동시성 토큰이 없다 — 동시 편집은 last-write-wins.** *(F3b 에서 절반 해소: `ticketAdapter` 가 자기 자리에 가드를 얻었다 — `data-source.ts:17` `exists()` · `:44-46` `update` 없는 id → `HttpError(409, '다른 사용자가 먼저 변경한 문의입니다.')` · `:31-33` `fetchOne` 없는 id → `HttpError(404, '문의를 찾을 수 없습니다.')`. store 의 `updateTicket` 이 여전히 `map` 이더라도 어댑터 경계가 그 앞을 막아 **유령 저장은 해소됐다**.)* **남은 것 둘**: ① `Ticket` 에 `updatedAt`/`version` 이 없어 If-Match 로 보낼 값이 없다 — 그 409 는 '대상이 아직 존재하는가' 로만 판정하므로 **둘 다 존재하는 동시 편집은 감지되지 않는다**. **타임라인 전체 치환**(FS-026-EL-029.1)이라 그 대가가 크다 — A 가 상세를 연 사이 B 가 답변을 달았다면 A 의 저장이 **B 의 답변을 통째로 지운다**. ② 어댑터·서버가 409 를 줘도 이 화면이 `useCrudForm` 을 쓰지 않아 conflict 다이얼로그가 없고 `onError`(`TicketDetailPage.tsx:155-158`)가 generic 배너로 뭉갠다(quality-bar EXC-04 P0) | A63 (BE-026 §7.5) · A11 |
-| 31 | **타임라인 배열 전체를 클라이언트가 조립해 보내고**(EL-029.1) `author` 가 하드코딩 '관리자', `at`·`id` 가 클라이언트 값이다 — 감사 무결성과 동시 답변 시 lost update 위험 | A63 (BE-026 §7.2 · §7.3) · A11 |
+| 15 | 담당자가 **선택지가 아니라 자유 텍스트**다 — 오타가 곧 새 담당자가 되고 표기 흔들림('김상담'/'김 상담')을 막을 수단이 없다. 운영자 계정과 연결되지 않는다 | 아키텍처 (도메인 경계) · 백엔드 명세 |
+| 16 | 답변/메모 유형 토글(EL-024)의 선택 상태가 **버튼 variant(색)로만 인코딩**된다 — `aria-pressed` 가 없어 보조기기가 어느 쪽이 선택됐는지 모른다 | UI 기획 쪽 변경 요청 |
+| 17 | 템플릿 선택(EL-025)이 **작성 중 본문을 확인 없이 덮어쓴다** | UI 기획 쪽 변경 요청 |
+| 18 | 이탈 가드(EL-030)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-013 · EL-027)를 누르면 미저장 처리 내용이 조용히 사라진다 | UI 기획 쪽 변경 요청 |
+| 19 | 제목·유형 셀에 truncate 가 없어 긴 값이 표 열을 넓힌다(quality-bar COMP-09 P2) | UI 기획 쪽 변경 요청 |
+| 20 | 스켈레톤 행 수가 하드코딩 `length: 5` 다(quality-bar COMP-06 P2) | UI 기획 쪽 변경 요청 |
+| 21 | 저장 성공 직후 상세 재조회가 실패하면 **처리 카드 전체가 실패 배너로 대체**돼 작성 중이던 입력이 화면에서 사라진다 | UI 기획 쪽 변경 요청 |
+| 22 | 저장에 **동기 제출 락·멱등키가 없다** — 이 화면이 `useCrudForm` 을 쓰지 않아 그 훅이 제공하는 `submitLockRef`·`Idempotency-Key` 를 상속하지 못한다(quality-bar EXC-08 P0) | UI 기획 · 백엔드 명세 |
+| 23 | 타임라인(EL-029)에 상한·접기·페이징이 없어 이벤트가 쌓이면 카드가 무한히 늘어나고, 저장 요청도 함께 커진다 | UI 기획 쪽 변경 요청 |
+| 24 | 내부메모가 고객답변과 같은 타임라인에 섞여 배지로만 구분된다 — 고객 노출 경로가 생기면 내부메모 유출 위험 | 백엔드 명세 (BE-026 §7.1) · UI 기획 |
+| 25 | 이탈 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장이 화면에 안 보일 수 있다 | 백엔드 명세 (BE-026) |
+| 26 | **목록 필터 4종이 화면 로컬 state 라 새로고침·뒤로가기로 초기화**된다(#14 와 같은 뿌리) | UI 기획 쪽 변경 요청 |
+| 27 | 상세 도착 시 담당·상태를 원본으로 되돌리는 효과(`useEffect([ticket])`)가 **편집 중 재조회에서도 돈다** — 저장 후 재조회는 정상이나, 그 밖의 재조회가 오면 입력이 덮인다 | UI 기획 쪽 변경 요청 |
+| 28 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 처리 내용을 버린다(가드 미발화) | UI 기획 · 프론트 구현 (quality-bar EXC-05 · EXC-11 · EXC-19 P1) |
+| 29 | **쓰기 권한 게이팅이 이 화면에 배선돼 있지 않다** — `useRouteWritePermissions`/`useRouteCan`(`shared/permissions/RequirePermission.tsx:29-56`)는 이제 **8곳이 소비한다**(products 3 · settings 4 · logs 1). **그러나 `pages/support/**` 는 그 밖이라** read 전용 역할도 '처리 저장'을 본다. 최근접 선례는 같은 '상세에서 처리 저장' 패턴인 `products/returns/ReturnDetailPage.tsx:110`(quality-bar EXC-03 P0) | UI 기획 쪽 변경 요청 (이 화면 — 선례 존재) |
+| 30 | **낙관적 동시성 토큰이 없다 — 동시 편집은 last-write-wins.** *(F3b 에서 절반 해소: `ticketAdapter` 가 자기 자리에 가드를 얻었다 — `data-source.ts:17` `exists()` · `:44-46` `update` 없는 id → `HttpError(409, '다른 사용자가 먼저 변경한 문의입니다.')` · `:31-33` `fetchOne` 없는 id → `HttpError(404, '문의를 찾을 수 없습니다.')`. store 의 `updateTicket` 이 여전히 `map` 이더라도 어댑터 경계가 그 앞을 막아 **유령 저장은 해소됐다**.)* **남은 것 둘**: ① `Ticket` 에 `updatedAt`/`version` 이 없어 If-Match 로 보낼 값이 없다 — 그 409 는 '대상이 아직 존재하는가' 로만 판정하므로 **둘 다 존재하는 동시 편집은 감지되지 않는다**. **타임라인 전체 치환**(FS-026-EL-029.1)이라 그 대가가 크다 — A 가 상세를 연 사이 B 가 답변을 달았다면 A 의 저장이 **B 의 답변을 통째로 지운다**. ② 어댑터·서버가 409 를 줘도 이 화면이 `useCrudForm` 을 쓰지 않아 conflict 다이얼로그가 없고 `onError`(`TicketDetailPage.tsx:155-158`)가 generic 배너로 뭉갠다(quality-bar EXC-04 P0) | 백엔드 명세 (BE-026 §7.5) · UI 기획 |
+| 31 | **타임라인 배열 전체를 클라이언트가 조립해 보내고**(EL-029.1) `author` 가 하드코딩 '관리자', `at`·`id` 가 클라이언트 값이다 — 감사 무결성과 동시 답변 시 lost update 위험 | 백엔드 명세 (BE-026 §7.2 · §7.3) · UI 기획 |

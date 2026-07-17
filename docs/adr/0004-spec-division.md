@@ -3,7 +3,7 @@ id: ADR-0004
 title: 명세 분업 — G9 게이트 신설 · 기능 명세(D9) / 백엔드 명세(D10) 분리
 status: accepted
 date: 2026-07-14
-owner: A01 (Architecture AI)
+owner: 아키텍처
 supersedes: null
 relatedTo: [ADR-0001, ADR-0003]
 ---
@@ -32,20 +32,20 @@ Admin 화면(로그인·대시보드·회원 관리)이 컨펌됐다. 그런데 
 G8(릴리스)과 **병렬**로 돈다. G6(React 구현) 완료가 선행 조건이지만 릴리스를 기다리지 않는다 —
 백엔드 개발자가 명세를 먼저 받아야 병목이 안 생긴다.
 
-- 승인자: A64 · 생산자: A62, A63 · SLA 8시간 · 체크리스트 `docs/_templates/checklists/G9.md`
-- 진입 조건: 화면이 **컨펌**됨 (사용자 또는 A00 승인) + SCR과 구현이 존재
-- 병목 완화: A62(FS) 완료 즉시 A63(BE)이 착수한다. FS 전체 승인을 기다리지 않고 **요소 단위로 흘린다.**
+- 승인자: 명세 리뷰 · 생산자: 기능 명세, 백엔드 명세 · SLA 8시간 · 체크리스트 `docs/_templates/checklists/G9.md`
+- 진입 조건: 화면이 **컨펌**됨 (사용자 또는 오케스트레이터 승인) + SCR과 구현이 존재
+- 병목 완화: 기능 명세(FS) 완료 즉시 백엔드 명세(BE)가 착수한다. FS 전체 승인을 기다리지 않고 **요소 단위로 흘린다.**
 
-### (2) 에이전트 3종 추가 (39 → 42)
+### (2) 명세 역할 3종 추가
 
-| ID | 역할 | 소유 경로 |
+| 역할 | 정의 | 소유 경로 |
 |---|---|---|
-| **A62** Functional Spec Writer | 컨펌된 화면을 요소별로 전수 넘버링해 FS-NNN 작성 | `docs/spec/functional/**` |
-| **A63** Backend Spec Writer | FS와 프론트 data-source를 근거로 BE-NNN 작성 | `docs/spec/backend/**` |
-| **A64** Spec Reviewer | G9 기준으로 FS/BE 검수 · APPROVED/CHANGES_REQUESTED/BLOCKED 판정 | `docs/spec/review/**` |
+| **기능 명세** Functional Spec Writer | 컨펌된 화면을 요소별로 전수 넘버링해 FS-NNN 작성 | `docs/spec/functional/**` |
+| **백엔드 명세** Backend Spec Writer | FS와 프론트 data-source를 근거로 BE-NNN 작성 | `docs/spec/backend/**` |
+| **명세 리뷰** Spec Reviewer | G9 기준으로 FS/BE 검수 · APPROVED/CHANGES_REQUESTED/BLOCKED 판정 | `docs/spec/review/**` |
 
-A62는 백엔드를 설계하지 않고(`[서버]` 표시까지만), A63은 백엔드를 **구현하지 않는다**(API 계약까지만 —
-서버 코드·DB 스키마 금지). A64는 생산하지 않고 판정만 한다(자가 검수 금지, P3).
+기능 명세는 백엔드를 설계하지 않고(`[서버]` 표시까지만), 백엔드 명세는 백엔드를 **구현하지 않는다**(API 계약까지만 —
+서버 코드·DB 스키마 금지). 명세 리뷰는 생산하지 않고 판정만 한다(자가 검수 금지, P3).
 
 ### (3) 표준 문서 2종 추가
 
@@ -82,7 +82,7 @@ FS-NNN-EL-nnn
   404인가?" — 이 질문들은 구현 시점에 반드시 나오고, 명세에 없으면 개발자가 즉흥적으로 답을 만든다.
   그럴듯한 문장 100줄보다 채워지지 않은 예외 한 칸이 더 비싸다.
 - **BE 명세를 프론트의 data-source 시그니처에서 출발시키면 백지에서 시작하지 않는다.**
-  `fetchMembers(query, signal): Promise<MemberListResult>` 는 이미 **합의된 모양**이다. A63은 그것을
+  `fetchMembers(query, signal): Promise<MemberListResult>` 는 이미 **합의된 모양**이다. 백엔드 명세는 그것을
   확정만 하면 된다. 백엔드가 백지에서 설계하면 프론트가 기대하는 필드명·타입과 어긋나고, 그 불일치는
   통합 시점에 발견된다 — 가장 비싼 시점이다.
 
@@ -100,12 +100,8 @@ FS-NNN-EL-nnn
 
 ## 결과
 
-- `orchestration/registry/agents.json`: **42개** (A62·A63·A64 추가 — 39 → 42)
-- `orchestration/registry/gates.json`: **G9** 정의 추가 (approver A64 · producers [A62, A63] · slaHours 8 ·
+- **G9** 게이트 정의 확정 (승인자 명세 리뷰 · 생산자 [기능 명세, 백엔드 명세] · slaHours 8 ·
   checklist `docs/_templates/checklists/G9.md` · G8과 병렬)
-- `orchestration/schemas/*`: gate enum 에 `G9` 추가
-- `tools/validate-registry`: **하드코딩된 에이전트 수 39를 스키마 파생으로 교체.** 레지스트리가 늘 때마다
-  검증기의 상수와 실제 레지스트리가 갈라지던 문제를 해소한다 (이번 증설이 그 문제를 드러냈다).
 - 스킬 3종: `skills/functional-spec-writer/`, `skills/backend-spec-writer/`, `skills/spec-reviewer/`
 - 템플릿 3종: `docs/_templates/D9-functional-spec.md`, `docs/_templates/D10-backend-spec.md`,
   `docs/_templates/checklists/G9.md`

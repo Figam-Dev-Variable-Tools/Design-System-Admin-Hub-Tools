@@ -1,7 +1,7 @@
 # @tds/naming-guard — 네이밍 규칙 강제 도구
 
-> 담당 에이전트: **A76 Naming Convention AI** (Layer 3 · Verification)
-> 근거: `docs/architecture/org-design-v2.md` §3(A76) · §8(G3 체크리스트), `orchestration/registry/agents.json` (A76)
+> 담당: 네이밍 가드 (Layer 3 · Verification)
+> 근거: `docs/architecture/org-design-v2.md` §3 · §8(G3 체크리스트)
 > 차단 규칙: **규칙 위반 → 커밋 차단** (pre-commit 훅에서 `--staged` 모드로 실행)
 
 ## 실행
@@ -38,7 +38,7 @@ pnpm --filter @tds/naming-guard run check --staged
 collapsed, visible, hidden, indeterminate, inline, dense, fluid, bordered, striped, hoverable,
 closable, clearable, searchable, error`
 
-화이트리스트 추가가 필요하면 Architecture AI(A01)에 규칙 개정을 제안한다 —
+화이트리스트 추가가 필요하면 아키텍처에 규칙 개정을 제안한다 —
 `src/rules.ts` 의 `BOOLEAN_STATE_WHITELIST` 가 구현상 원천이다.
 
 ## 산출물
@@ -66,6 +66,6 @@ pnpm --filter @tds/naming-guard run check --staged
 
 ## 경계 (Hard Boundary)
 
-- 본 도구는 **검사만** 한다 — 파일 개명/수정은 위반을 만든 생산자 에이전트의 몫 (P1 단일 소유권).
-- 리포트 경로 `reports/naming/**` 는 A76 소유.
+- 본 도구는 **검사만** 한다 — 파일 개명/수정은 위반을 만든 생산자의 몫 (P1 단일 소유권).
+- 리포트 경로 `reports/naming/**` 는 네이밍 가드 소유.
 - 디렉터리가 아직 없는 부트스트랩 단계에서는 존재하는 대상만 스캔하며 실패하지 않는다.

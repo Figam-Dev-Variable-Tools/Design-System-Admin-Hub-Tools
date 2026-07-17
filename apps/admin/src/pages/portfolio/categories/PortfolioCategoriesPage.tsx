@@ -1,4 +1,4 @@
-// PortfolioCategoriesPage — 포트폴리오 카테고리 관리 (라우트: /portfolio/categories) · A41 소유
+// PortfolioCategoriesPage — 포트폴리오 카테고리 관리 (라우트: /portfolio/categories)
 //
 // 목록 + 추가/수정 모달 + 삭제팝업. **사용 중 차단**: 카테고리를 쓰는 포트폴리오가 1건이라도 있으면
 // 삭제 버튼을 잠그고 'N개 사용 중'을 알린다(고아 항목 방지 — FAQ 카테고리 패턴과 같은 안전 기본값).

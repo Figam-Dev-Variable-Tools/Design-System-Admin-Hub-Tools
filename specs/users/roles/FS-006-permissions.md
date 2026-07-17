@@ -3,8 +3,8 @@ id: FS-006
 title: "권한 관리 (역할 · 권한 매트릭스)"
 screen: SCR-006               # ⚠ 권한 관리 SCR(D2) 미작성 — §7 미결 사항 참조
 route: /users/roles
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-15
@@ -29,7 +29,7 @@ date: 2026-07-15
 
 | 원칙 | 내용과 이유 |
 |---|---|
-| **⚠ 프론트 권한은 보안 경계가 아니다** | 이 화면이 켜고 끄는 체크박스는 **UI 를 그리는 규칙**일 뿐, 서버 접근을 막지 않는다. 실제 권한 강제는 전적으로 서버의 책임이며(A63 BE-006 §3·§7 이 확정), 이 화면의 상태는 현재 브라우저 `localStorage` 에만 있다. **보안 판정은 BE-006 이 정본이다** |
+| **⚠ 프론트 권한은 보안 경계가 아니다** | 이 화면이 켜고 끄는 체크박스는 **UI 를 그리는 규칙**일 뿐, 서버 접근을 막지 않는다. 실제 권한 강제는 전적으로 서버의 책임이며(백엔드 명세 BE-006 §3·§7 이 확정), 이 화면의 상태는 현재 브라우저 `localStorage` 에만 있다. **보안 판정은 BE-006 이 정본이다** |
 | **권한의 단위는 역할이다** | 역할 = 리소스×액션 매트릭스 + 대시보드 위젯 + 데이터 접근 범위(scope). 누가 어떤 역할을 갖는지(운영자 배정)는 이 모델에서 제거됐다 — 관리자 관리(FS-005)의 몫이다(`roles.ts`) |
 | **모델이 규칙을 강제한다 (UI 가 아니라)** | ① 조회(read)를 끄면 나머지 4개 액션이 함께 꺼진다 ② 다른 액션을 켜면 조회가 함께 켜진다 ③ 그룹 리소스의 권한 = 자식(페이지)들의 합집합. 이 세 규칙은 화면이 아니라 모델(`resources.ts` `enforceMatrix`)이 강제하므로, 저장값이 모순 상태(read=false 인데 update=true)로 남는 경로가 없다. **화면은 규칙을 보여줄 뿐 흉내 내지 않는다** |
 | **저장 버튼이 없다 (즉시 저장)** | 체크를 바꾸면 그 자리에서 저장된다. 그 역할이 '적용 중' 이면 사이드바·대시보드가 리로드 없이 따라 바뀐다(`PermissionProvider` 구독) |
@@ -146,7 +146,7 @@ date: 2026-07-15
 | FS-006-EL-006.5 | 역할 생성 / 이름 변경 | W | 생성: 이름 · 삭제: — · 이름: 역할 id · 새 이름 | (없음 — `createRole`/`renameRole` → `saveState`) | `POST /api/roles` · `PATCH /api/roles/:id`. 이름 중복·길이는 서버도 재검증 |
 | FS-006-EL-007.3 | 역할 삭제 | W | 역할 id | (없음 — `deleteRole` → `saveState`) | `DELETE /api/roles/:id`. 마지막 역할·시스템 역할 삭제 거절을 서버가 강제 |
 
-> **현재 구현 상태 (A63 참고)**: 이 화면은 `apps/admin/src/pages/permissions/` 에 `data-source.ts` 가 **없다.** 모든 읽기/쓰기는 `apps/admin/src/shared/permissions/PermissionProvider.tsx` 가 `localStorage`(`STORAGE_KEY = 'tds-admin.roles'`)로 처리한다. 백엔드 연동 지점은 그 파일과 `roles.ts` 의 `// TODO(backend): GET /api/roles · PUT /api/roles/:id/permissions` 주석이다. BE-006 은 이 provider 를 대체할 어댑터의 계약을 정의한다. 위 표는 백엔드 연결 후의 **의도된 동작**이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 이 화면은 `apps/admin/src/pages/permissions/` 에 `data-source.ts` 가 **없다.** 모든 읽기/쓰기는 `apps/admin/src/shared/permissions/PermissionProvider.tsx` 가 `localStorage`(`STORAGE_KEY = 'tds-admin.roles'`)로 처리한다. 백엔드 연동 지점은 그 파일과 `roles.ts` 의 `// TODO(backend): GET /api/roles · PUT /api/roles/:id/permissions` 주석이다. BE-006 은 이 provider 를 대체할 어댑터의 계약을 정의한다. 위 표는 백엔드 연결 후의 **의도된 동작**이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -157,20 +157,20 @@ date: 2026-07-15
 - [x] §4 예외 7축에 빈칸 0건. 모든 `N/A` 에 사유가 붙어 있다
 - [x] 모호어 0건 — G9 #10 금지어 목록(판정 불가 부사·조건어 6종)을 본문에서 1건도 쓰지 않았다
 - [x] §3의 `[서버]` = O 요소가 §5에 전부 요약됐다. 현재는 provider(localStorage)가 처리하며 어댑터 부재를 §5 각주에 명시
-- [x] 엔드포인트·HTTP 메서드·에러코드·DB 스키마를 쓰지 않았다 (A63의 영역). TODO 주석의 경로는 연동 지점 표기로만 인용
+- [x] 엔드포인트·HTTP 메서드·에러코드·DB 스키마를 쓰지 않았다 (백엔드 명세의 영역). TODO 주석의 경로는 연동 지점 표기로만 인용
 - [x] **프론트 권한이 보안 경계가 아님**을 §1.1 · §4.1 에 명시했다 (보안 판정은 BE-006)
-- [ ] `confirmedAt` — 구현이 리포지토리에 커밋된 일자(2026-07-14)를 컨펌일로 기록했다. A00 의 Task Graph 기록과 대조가 필요하다
+- [ ] `confirmedAt` — 구현이 리포지토리에 커밋된 일자(2026-07-14)를 컨펌일로 기록했다. 오케스트레이터 의 Task Graph 기록과 대조가 필요하다
 
-## 7. 미결 사항 (A11 / A01 / A63 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **대응 SCR 문서 부재** — `docs/plan/ui/` 에 권한 관리 SCR 이 없다 | A11 (SCR 작성) / A01 (번호 판정) |
-| 2 | **권한이 `localStorage` 에만 있다 — 서버 SSOT 가 없다** | 관리자 앱은 여러 사람이 쓰는데, 현재 권한은 **브라우저마다 다르다.** A 관리자가 켠 권한을 B 관리자는 볼 수 없고, 다른 기기에서 로그인하면 기본 역할로 시작한다. 서버가 SSOT 가 돼야 한다(BE-006) | A63 · A01 |
-| 3 | **서버 연동 시 필요한 로딩·실패·중복 제출·경합 처리가 없다** — 현재 모든 저장이 즉시 끝나므로 진행 표시·실패 통지·낙관적 갱신 롤백이 없다. `activateRole`·`setScope`·매트릭스 저장이 서버 호출이 되면 이 경로들이 필요하다 | A11 / A63 |
-| 4 | **역할 수·목록 가상화 상한이 없다** — 역할이 많아지면 좌측 목록이 세로로 늘어난다 | A11 change_request |
-| 5 | **이 화면 자체의 접근·저장 권한 강제가 프론트에 없다** — 권한 관리 화면을 아무 관리자나 열고 저장할 수 있다(로컬 기준). 서버가 이 화면의 리소스(`권한 관리` read/update)에 대한 권한을 강제해야 한다(BE-006) | A63 |
-| 6 | **의존 규칙·시스템 역할 잠금이 서버에서도 강제돼야 한다** — 프론트 모델(`enforceMatrix`·`normalizeRole`)이 강제하는 규칙은 UI 편의다. 서버가 crafted 요청(read=false + update=true, 시스템 역할 편집)을 거절해야 한다 | A63 (보안 판정) |
-| 7 | ★ **DS Modal 일방향 latch — 미저장 가드(FS-006-EL-006.6)의 '취소' 경로가 역할 추가/수정 모달을 영구히 닫히지 않게 만든다 (FEEDBACK-06 재판정 · 신규 발견 2026-07-17)**. 재현: FS-006-EL-006.1 에 역할명을 입력(= `name !== initialName` → dirty) → Esc → ① `Modal` 이 `closingRef=true, closing=true` 로 **latch**(`Modal.tsx:122-126`) → ② `--closing` 이 오버레이를 `pointer-events:none` 으로 만들고 dialog exit 애니메이션이 `forwards` 로 `opacity:0` 을 고정 → ③ `onAnimationEnd` 가 `onClose()` 발사(`Modal.tsx:216-218`) → ④ 그 `onClose` 는 가드의 `requestClose` 라 dirty 이므로 `setAsking(true)` 만 하고 **부모(`PermissionsPage.tsx:145`·`:158`)가 언마운트하지 않는다** → ⑤ 사용자가 '취소'(머무르기) 선택 → `setAsking(false)` → **종착: 모달은 마운트된 채 `closing` 이 true 로 남고, dialog 는 `opacity:0` 이라 보이지 않으며, 오버레이는 `pointer-events:none` 이고, 이후 모든 Esc/딤/× 는 `Modal.tsx:123` 에서 즉시 return 한다 — 영구히 닫히지 않고 보이지도 않으며 입력한 역할명이 갇힌다.** `closingRef` 를 되돌리는 코드가 어디에도 없다. reduced-motion 환경은 경로만 다르고(`Modal.tsx:129-132`) 같은 latch 에 빠지며, 이때 dialog 는 *보이지만* 완전 무반응이다. 근인: `Modal.tsx:19-25` 가 'onClose() → 부모가 언마운트' 를 설계 전제로 문서화하는데 dirty 가드가 그 전제를 깨고, 깨졌을 때 latch 를 되돌릴 신호가 없다(`onClose` 가 `void` 반환). **기존 테스트가 못 잡는 이유**: `useModalDirtyGuard.test.tsx` 의 `Harness`(`:17-31`)가 실제 `Modal` 이 아니라 평범한 `<button>` 으로 4경로를 *흉내* 낸다. 폭발 반경은 **거부(veto) 가능한 requestClose 를 Modal.onClose 로 넘기는 9곳** — `useModalDirtyGuard` 소비자 7곳(`CreateGroupModal:154` · `PasswordChangeModal:103` · `RoleFormModal:68` · `LogoFormModal:126` · `PortfolioCategoryFormModal:104` · `ProductCategoryFormModal:104` · `CategoryFormModal:106`) + 훅을 쓰지 않고 **같은 거부 모양을 손으로 구현한 2곳**(`CreateApiKeyModal:161-168` `setConfirmingDiscard(true)` · `RevealKeyModal:113-119` `setConfirmingClose(true)`) — 이며 이 화면은 그중 `RoleFormModal.tsx:68` 이다. FS-006-EL-007(삭제 확인)은 입력이 없어 가드를 쓰지 않으므로 **영향받지 않는다**. ⚠ 이 항목은 **BE 판정이 아니라 DS 결함**이므로 아래 BE-006 정본 주석의 적용 대상이 아니다 | A40 (DS Modal 소유) / A01 |
+| 1 | **대응 SCR 문서 부재** — `docs/plan/ui/` 에 권한 관리 SCR 이 없다 | UI 기획 (SCR 작성) / 아키텍처 (번호 판정) |
+| 2 | **권한이 `localStorage` 에만 있다 — 서버 SSOT 가 없다** | 관리자 앱은 여러 사람이 쓰는데, 현재 권한은 **브라우저마다 다르다.** A 관리자가 켠 권한을 B 관리자는 볼 수 없고, 다른 기기에서 로그인하면 기본 역할로 시작한다. 서버가 SSOT 가 돼야 한다(BE-006) | 백엔드 명세 · 아키텍처 |
+| 3 | **서버 연동 시 필요한 로딩·실패·중복 제출·경합 처리가 없다** — 현재 모든 저장이 즉시 끝나므로 진행 표시·실패 통지·낙관적 갱신 롤백이 없다. `activateRole`·`setScope`·매트릭스 저장이 서버 호출이 되면 이 경로들이 필요하다 | UI 기획 / 백엔드 명세 |
+| 4 | **역할 수·목록 가상화 상한이 없다** — 역할이 많아지면 좌측 목록이 세로로 늘어난다 | UI 기획 쪽 변경 요청 |
+| 5 | **이 화면 자체의 접근·저장 권한 강제가 프론트에 없다** — 권한 관리 화면을 아무 관리자나 열고 저장할 수 있다(로컬 기준). 서버가 이 화면의 리소스(`권한 관리` read/update)에 대한 권한을 강제해야 한다(BE-006) | 백엔드 명세 |
+| 6 | **의존 규칙·시스템 역할 잠금이 서버에서도 강제돼야 한다** — 프론트 모델(`enforceMatrix`·`normalizeRole`)이 강제하는 규칙은 UI 편의다. 서버가 crafted 요청(read=false + update=true, 시스템 역할 편집)을 거절해야 한다 | 백엔드 명세 (보안 판정) |
+| 7 | ★ **DS Modal 일방향 latch — 미저장 가드(FS-006-EL-006.6)의 '취소' 경로가 역할 추가/수정 모달을 영구히 닫히지 않게 만든다 (FEEDBACK-06 재판정 · 신규 발견 2026-07-17)**. 재현: FS-006-EL-006.1 에 역할명을 입력(= `name !== initialName` → dirty) → Esc → ① `Modal` 이 `closingRef=true, closing=true` 로 **latch**(`Modal.tsx:122-126`) → ② `--closing` 이 오버레이를 `pointer-events:none` 으로 만들고 dialog exit 애니메이션이 `forwards` 로 `opacity:0` 을 고정 → ③ `onAnimationEnd` 가 `onClose()` 발사(`Modal.tsx:216-218`) → ④ 그 `onClose` 는 가드의 `requestClose` 라 dirty 이므로 `setAsking(true)` 만 하고 **부모(`PermissionsPage.tsx:145`·`:158`)가 언마운트하지 않는다** → ⑤ 사용자가 '취소'(머무르기) 선택 → `setAsking(false)` → **종착: 모달은 마운트된 채 `closing` 이 true 로 남고, dialog 는 `opacity:0` 이라 보이지 않으며, 오버레이는 `pointer-events:none` 이고, 이후 모든 Esc/딤/× 는 `Modal.tsx:123` 에서 즉시 return 한다 — 영구히 닫히지 않고 보이지도 않으며 입력한 역할명이 갇힌다.** `closingRef` 를 되돌리는 코드가 어디에도 없다. reduced-motion 환경은 경로만 다르고(`Modal.tsx:129-132`) 같은 latch 에 빠지며, 이때 dialog 는 *보이지만* 완전 무반응이다. 근인: `Modal.tsx:19-25` 가 'onClose() → 부모가 언마운트' 를 설계 전제로 문서화하는데 dirty 가드가 그 전제를 깨고, 깨졌을 때 latch 를 되돌릴 신호가 없다(`onClose` 가 `void` 반환). **기존 테스트가 못 잡는 이유**: `useModalDirtyGuard.test.tsx` 의 `Harness`(`:17-31`)가 실제 `Modal` 이 아니라 평범한 `<button>` 으로 4경로를 *흉내* 낸다. 폭발 반경은 **거부(veto) 가능한 requestClose 를 Modal.onClose 로 넘기는 9곳** — `useModalDirtyGuard` 소비자 7곳(`CreateGroupModal:154` · `PasswordChangeModal:103` · `RoleFormModal:68` · `LogoFormModal:126` · `PortfolioCategoryFormModal:104` · `ProductCategoryFormModal:104` · `CategoryFormModal:106`) + 훅을 쓰지 않고 **같은 거부 모양을 손으로 구현한 2곳**(`CreateApiKeyModal:161-168` `setConfirmingDiscard(true)` · `RevealKeyModal:113-119` `setConfirmingClose(true)`) — 이며 이 화면은 그중 `RoleFormModal.tsx:68` 이다. FS-006-EL-007(삭제 확인)은 입력이 없어 가드를 쓰지 않으므로 **영향받지 않는다**. ⚠ 이 항목은 **BE 판정이 아니라 DS 결함**이므로 아래 BE-006 정본 주석의 적용 대상이 아니다 | 프론트 구현 (DS Modal 소유) / 아키텍처 |
 
 > **⚠ 이 화면의 보안 판정 전부는 BE-006 §3·§7 이 정본이다.** FS 는 화면 동작만 기술하며, 권한 강제·은닉·서버 재검증은 BE-006 이 확정한다.

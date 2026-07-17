@@ -3,8 +3,8 @@ id: FS-045
 title: "쿠폰 (목록·등록·수정)"
 screen: SCR-045               # ⚠ 상품 관리 SCR 미작성 — §7 미결 사항 참조
 route: /products/coupons
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -189,7 +189,7 @@ date: 2026-07-17
 | FS-045-EL-013 | 쿠폰 삭제(단건) | W | 쿠폰 id | `couponAdapter.remove(id, { signal })` (`crud.ts:133-145`) | **멱등키를 넘기지 않는다**(`crud.ts:330`). 이미 없으면 409 |
 | FS-045-EL-014 | 쿠폰 삭제(일괄) | W | 쿠폰 id 배열 | `settleAll(ids, (id) => adapter.remove(id, { signal }))` (`crud.ts:349-350`) | **실패 건수만 돌려준다** — 실패 id 를 알 수 없다(§7 #8) |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `couponAdapter` 는 공용 `createCrudAdapter`(`shared/crud/crud.ts:86-147`)에 `COUPON_SEED` 4건을 넣어 브라우저 안 mutable 배열에 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('coupons', op)`)를 얹어 CRUD 를 흉내 낸다 — 실제 네트워크 0건. `fetchAll` 은 `sortCoupons` 로 시작일 내림차순 정렬한 전량, `fetchOne` 은 없으면 `HttpError(404, '항목을 찾을 수 없습니다.')`, `create`/`update`/`remove` 는 **멱등키 원장**(`createIdempotencyLedger` — `:62-72`)을 거쳐 같은 키의 재시도를 재생하고, `update`/`remove` 는 없는 id 에 **`HttpError(409)`** 를 던진다(`:126-128,139-141`). `build` 는 `cpn-<seq>` 로 채번한다(`data-source.ts:78-81`). 새로고침하면 시드로 되돌아간다. `data-source.ts:74` 의 `// TODO(backend): GET/POST /api/coupons · GET/PUT/DELETE /api/coupons/:id` 가 **이 화면의 유일한 연동 지점**이며 5개 CRUD 를 전부 덮는다. 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드는 없다. `couponAdapter` 는 공용 `createCrudAdapter`(`shared/crud/crud.ts:86-147`)에 `COUPON_SEED` 4건을 넣어 브라우저 안 mutable 배열에 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('coupons', op)`)를 얹어 CRUD 를 흉내 낸다 — 실제 네트워크 0건. `fetchAll` 은 `sortCoupons` 로 시작일 내림차순 정렬한 전량, `fetchOne` 은 없으면 `HttpError(404, '항목을 찾을 수 없습니다.')`, `create`/`update`/`remove` 는 **멱등키 원장**(`createIdempotencyLedger` — `:62-72`)을 거쳐 같은 키의 재시도를 재생하고, `update`/`remove` 는 없는 id 에 **`HttpError(409)`** 를 던진다(`:126-128,139-141`). `build` 는 `cpn-<seq>` 로 채번한다(`data-source.ts:78-81`). 새로고침하면 시드로 되돌아간다. `data-source.ts:74` 의 `// TODO(backend): GET/POST /api/coupons · GET/PUT/DELETE /api/coupons/:id` 가 **이 화면의 유일한 연동 지점**이며 5개 CRUD 를 전부 덮는다. 위 표는 백엔드 연결 후 의도된 동작이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -202,34 +202,34 @@ date: 2026-07-17
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-045 영역)
 - [x] §7 의 미결 항목이 BE-045 §7.9 후속 이관 · NFR-045 §5 와 일치한다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **발급 대상(EL-023)이 유형만 고르고 대상을 지정할 입력이 없다** — '회원등급'·'특정 카테고리'·'특정 상품' 을 골라도 어느 등급·카테고리·상품인지 비어 있다. `Coupon` 타입에 그 필드 자체가 없다(`types.ts:14-36`). 지금 이 셋은 '전체 회원'과 **동작상 구분되지 않는다** | **A01 (도메인 경계 — 선행)** · A63 (BE-045 §7.1) · A11 |
-| 2 | **페이지네이션이 없다** — `CrudListShell` 이 `Pagination` 을 렌더하지 않는다(`<Pagination` grep: 앱 11파일 중 이 경로 0건). 쿠폰은 누적되며 `SeqCell seq={index + 1}`(`CrudTable.tsx:179`)도 도입 시 `startIndex + index + 1` 로 바뀌어야 한다(quality-bar IA-04 P0 · COMP-07 P2) | A11 · A63 (BE-045 §7.6) |
-| 3 | 폼이 **자체 `<h1>쿠폰 등록/수정</h1>`(`:235`) 를 그리고 AppHeader 도 `<h1>` 을 그린다** — `findCoveringLeaf` 덕에 AppHeader 는 잎 라벨 '쿠폰'을 옳게 보이지만, 결과적으로 **`<h1>` 이 2개**다. 목록은 in-content h1 이 없어 title 소스 모델이 화면 타입마다 모순이다(quality-bar IA-02 P0) | A40 · A11 |
-| 4 | **쓰기 권한 게이팅이 배선돼 있지 않다** — `useRouteWritePermissions` 를 소비하지 않아 read 전용 역할도 '쿠폰 등록'(EL-003)·발급 토글(EL-009.10)·수정/삭제(EL-009.11)·일괄 삭제(EL-008)·제출(EL-033)을 본다. **같은 섹션의 `products/items/ProductListPage.tsx:119` 와 `products/returns/ReturnDetailPage.tsx:110` 은 이미 배선했다**(quality-bar EXC-03 P0) | A11 change_request |
-| 5 | 이탈 가드(EL-035)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-016)·'취소'(EL-032)를 누르면 미저장 입력이 조용히 사라진다 | A11 change_request |
-| 6 | 스켈레톤 행 수가 하드코딩 `Array.from({ length: 5 })`(`CrudTable.tsx:144`)다 — 페이지네이션이 없어 'PAGE_SIZE 와 같음'을 만족시킬 기준값 자체가 없다(quality-bar COMP-06 P2) | A11 (#2 와 함께) |
-| 7 | 빈 상태(EL-011)의 **진짜 0건 분기에 생성 CTA 가 없다** — `CrudTable` 이 `empty.createAction` 을 받는데(`CrudTable.tsx:162`) 이 화면이 넘기지 않는다. '새로 추가하면 여기에 표시됩니다.' 라고만 하고 버튼은 툴바에만 있다(quality-bar STATE-05 P1) | A11 change_request |
-| 8 | 일괄 삭제(EL-014)가 **실패 id 를 모른다** — `settleAll` 이 건수만 준다. 재시도가 전건을 재실행(성공분 재요청)하고, 임계값 초과 시 강화 확인·진행률·취소가 없으며 Shift-click 범위 선택도 없다(quality-bar EXC-10 · EXC-18 P1) | A11 change_request |
-| 9 | 쿠폰명 셀이 **링크가 아니다** — 키보드 상세 도달 경로가 `RowActions` 의 연필 버튼(EL-009.11)뿐이다. `ReturnsListPage.tsx:240-246` 은 같은 자리에서 식별자를 `<Link>` 로 승격했다(quality-bar A11Y-08 P1 · COMP-08 P2) | A11 change_request |
-| 10 | 쿠폰명 셀에 truncate 가 없어 긴 값이 표 열을 넓힌다. `ReviewListPage.tsx:78-84` 가 같은 문제를 `contentStyle` 로 풀었다(quality-bar COMP-09 P2) | A11 change_request |
-| 11 | **'중지'와 '만료'가 같은 톤(neutral)** 이라(`types.ts:113-118`) 배지 색으로 구분되지 않는다 — 라벨을 읽어야 안다. 두 상태의 복구 수단이 다르다(중지는 토글, 만료는 기간 수정) | A11 change_request |
-| 12 | **`issuedCount` 가 폼 값으로 왕복한다**(EL-040) — 화면이 조회 시점 스냅샷을 되돌려 보낸다. 그 사이 발급이 나갔으면 저장이 그것을 되돌린다 | A63 (BE-045 §7.2) · A11 |
-| 13 | **발급 수량(EL-028)을 `issuedCount` 보다 작게 저장하는 것을 막지 않는다** — 소진율이 100% 를 넘어야 하는데 `usageRate` 가 `Math.min(100, …)`(`types.ts:92`)로 깎아 **초과 발급을 숨긴다** | A01 (도메인) · A63 · A11 |
-| 14 | 대응 SCR 문서 부재 (상품 관리 SCR 미작성) | A11 / A01 |
-| 15 | **쿠폰 코드 중복 검사가 클라이언트에 없다** — 스키마가 형식만 본다(`validation.ts:32-40`). 서버 응답(409/422)으로만 알 수 있는데 그 경로가 검증되지 않았다 | A63 (BE-045 §7.3) · A11 |
-| 16 | **선택 상태가 두 벌 존재한다** — `useCrudList` 의 `useRowSelection`(`useCrudList.tsx:59`)과 `useListState` 의 `selectedIds`(`useListState.ts:186`). 이 화면은 전자만 쓰고 후자는 마운트만 된 채 방치된다 — `useListState` 의 '뷰 서명이 바뀌면 선택 해제'(`:205-213`)가 이 화면의 선택에 걸리지 않아 EL-015 가 그 일을 **손으로 다시 한다** | A11 change_request |
-| 17 | **`maxDiscount`(EL-026)·`minOrderAmount`(EL-027)·`totalQuantity`(EL-028) 세 입력이 `error` 를 FormField 에 넘겨 `<p role="alert">` 를 그리면서도 자신에게 `aria-invalid`·`aria-describedby` 를 세우지 않는다** — 형제 필드(`coupon-name`·`coupon-code`·`coupon-discount-value`)는 세운다. 같은 파일 안에서 계약이 갈린다. `minOrderAmount`/`totalQuantity` 는 `intString` 이 실제로 오류를 내므로 이 경로는 실재한다. hint 도 `hintIdOf` 로 연결되지 않는다 — `settings/_shared/fields.tsx:22` 는 그 배선을 갖고 있다(quality-bar A11Y-11 P0) | A11 change_request |
-| 18 | 사용 기간(EL-029)에 **프리셋('오늘/최근 7일/이번 달/지난 달')이 없다**(quality-bar COMP-11 P1) | A11 change_request |
-| 19 | 미리보기(EL-031)가 **검증 전 값을 그린다** — `toNum` 이 `'1,000'` 의 콤마를 지워 1000 으로 보이게 하는데(`replace(/\D/g, '')`), 저장은 `Number('1,000'.trim() \|\| '0')` = `NaN` 이다(`:120`). 실제로는 스키마가 먼저 막지만 **미리보기와 검증이 다른 규칙을 쓴다** | A11 change_request |
-| 20 | 미리보기의 꺼짐 표현이 `opacity: 0.55` **리터럴**이다(`CouponCardPreview.tsx:129`) — `ReviewPreview.tsx:139` 도 같은 값을 쓴다. quality-bar TOKEN-07 이 'coupon/review preview-disabled' 를 appliesTo 에 명시 지목한다(P1) | A11 change_request |
-| 21 | 제출 버튼(EL-033)이 진행 상태를 **`loading` prop 이 아니라 손으로 쓴 '저장 중…' 라벨**로 표현한다(`:446`). 같은 섹션의 `ReturnDetailPage.tsx:355` 는 `loading={saving}` 을 쓴다(quality-bar COMP-01 P1) | A11 change_request |
-| 22 | 사용기간 셀(EL-009.7)이 날짜 문자열을 **포맷 함수 없이 그대로** 잇는다 — 값이 'YYYY-MM-DD' 가 아니면 그대로 새어 나온다(quality-bar ERP-08 P2) | A11 change_request |
-| 23 | **토글(EL-009.10) 실패가 409 를 error 토스트로 뭉갠다** — 폼은 충돌 다이얼로그를 갖는데(EL-034) 토글은 `useCrudRowUpdate` 를 쓰므로 그 경로가 없다. 같은 화면 안에서 같은 오류의 UX 가 갈린다 | A11 change_request |
-| 24 | 토글을 여러 행에 잇달아 누르면 **이전 요청이 abort 된다**(`useCrudRowUpdate.ts:39` — controllerRef 가 1개다). 사용자는 두 행을 껐는데 하나만 반영될 수 있고, abort 는 실패로 통지되지 않아 **조용히 사라진다** | A11 change_request |
-| 25 | 조회·저장·토글 실패가 **403/429/5xx 를 같은 문구로 뭉갠다.** `isForbidden`(`http-error.ts:93-95`)이 존재하는데 쓰지 않는다(quality-bar EXC-06 P1) | A11 change_request |
-| 26 | 쿠폰명(EL-021)·코드(EL-022)에 **글자수 카운터가 없다** — `maxLength` 가 조용히 자른다. `TextareaField` 는 카운터를 갖는데 `<input>` 경로에는 없다(quality-bar COMP-12 P2) | A11 change_request |
-| 27 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다(가드 미발화) | A11 · A40 (quality-bar EXC-05 · EXC-11 · EXC-19 P1) |
+| 1 | **발급 대상(EL-023)이 유형만 고르고 대상을 지정할 입력이 없다** — '회원등급'·'특정 카테고리'·'특정 상품' 을 골라도 어느 등급·카테고리·상품인지 비어 있다. `Coupon` 타입에 그 필드 자체가 없다(`types.ts:14-36`). 지금 이 셋은 '전체 회원'과 **동작상 구분되지 않는다** | **아키텍처 (도메인 경계 — 선행)** · 백엔드 명세 (BE-045 §7.1) · UI 기획 |
+| 2 | **페이지네이션이 없다** — `CrudListShell` 이 `Pagination` 을 렌더하지 않는다(`<Pagination` grep: 앱 11파일 중 이 경로 0건). 쿠폰은 누적되며 `SeqCell seq={index + 1}`(`CrudTable.tsx:179`)도 도입 시 `startIndex + index + 1` 로 바뀌어야 한다(quality-bar IA-04 P0 · COMP-07 P2) | UI 기획 · 백엔드 명세 (BE-045 §7.6) |
+| 3 | 폼이 **자체 `<h1>쿠폰 등록/수정</h1>`(`:235`) 를 그리고 AppHeader 도 `<h1>` 을 그린다** — `findCoveringLeaf` 덕에 AppHeader 는 잎 라벨 '쿠폰'을 옳게 보이지만, 결과적으로 **`<h1>` 이 2개**다. 목록은 in-content h1 이 없어 title 소스 모델이 화면 타입마다 모순이다(quality-bar IA-02 P0) | 프론트 구현 · UI 기획 |
+| 4 | **쓰기 권한 게이팅이 배선돼 있지 않다** — `useRouteWritePermissions` 를 소비하지 않아 read 전용 역할도 '쿠폰 등록'(EL-003)·발급 토글(EL-009.10)·수정/삭제(EL-009.11)·일괄 삭제(EL-008)·제출(EL-033)을 본다. **같은 섹션의 `products/items/ProductListPage.tsx:119` 와 `products/returns/ReturnDetailPage.tsx:110` 은 이미 배선했다**(quality-bar EXC-03 P0) | UI 기획 쪽 변경 요청 |
+| 5 | 이탈 가드(EL-035)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-016)·'취소'(EL-032)를 누르면 미저장 입력이 조용히 사라진다 | UI 기획 쪽 변경 요청 |
+| 6 | 스켈레톤 행 수가 하드코딩 `Array.from({ length: 5 })`(`CrudTable.tsx:144`)다 — 페이지네이션이 없어 'PAGE_SIZE 와 같음'을 만족시킬 기준값 자체가 없다(quality-bar COMP-06 P2) | UI 기획 (#2 와 함께) |
+| 7 | 빈 상태(EL-011)의 **진짜 0건 분기에 생성 CTA 가 없다** — `CrudTable` 이 `empty.createAction` 을 받는데(`CrudTable.tsx:162`) 이 화면이 넘기지 않는다. '새로 추가하면 여기에 표시됩니다.' 라고만 하고 버튼은 툴바에만 있다(quality-bar STATE-05 P1) | UI 기획 쪽 변경 요청 |
+| 8 | 일괄 삭제(EL-014)가 **실패 id 를 모른다** — `settleAll` 이 건수만 준다. 재시도가 전건을 재실행(성공분 재요청)하고, 임계값 초과 시 강화 확인·진행률·취소가 없으며 Shift-click 범위 선택도 없다(quality-bar EXC-10 · EXC-18 P1) | UI 기획 쪽 변경 요청 |
+| 9 | 쿠폰명 셀이 **링크가 아니다** — 키보드 상세 도달 경로가 `RowActions` 의 연필 버튼(EL-009.11)뿐이다. `ReturnsListPage.tsx:240-246` 은 같은 자리에서 식별자를 `<Link>` 로 승격했다(quality-bar A11Y-08 P1 · COMP-08 P2) | UI 기획 쪽 변경 요청 |
+| 10 | 쿠폰명 셀에 truncate 가 없어 긴 값이 표 열을 넓힌다. `ReviewListPage.tsx:78-84` 가 같은 문제를 `contentStyle` 로 풀었다(quality-bar COMP-09 P2) | UI 기획 쪽 변경 요청 |
+| 11 | **'중지'와 '만료'가 같은 톤(neutral)** 이라(`types.ts:113-118`) 배지 색으로 구분되지 않는다 — 라벨을 읽어야 안다. 두 상태의 복구 수단이 다르다(중지는 토글, 만료는 기간 수정) | UI 기획 쪽 변경 요청 |
+| 12 | **`issuedCount` 가 폼 값으로 왕복한다**(EL-040) — 화면이 조회 시점 스냅샷을 되돌려 보낸다. 그 사이 발급이 나갔으면 저장이 그것을 되돌린다 | 백엔드 명세 (BE-045 §7.2) · UI 기획 |
+| 13 | **발급 수량(EL-028)을 `issuedCount` 보다 작게 저장하는 것을 막지 않는다** — 소진율이 100% 를 넘어야 하는데 `usageRate` 가 `Math.min(100, …)`(`types.ts:92`)로 깎아 **초과 발급을 숨긴다** | 아키텍처 (도메인) · 백엔드 명세 · UI 기획 |
+| 14 | 대응 SCR 문서 부재 (상품 관리 SCR 미작성) | UI 기획 / 아키텍처 |
+| 15 | **쿠폰 코드 중복 검사가 클라이언트에 없다** — 스키마가 형식만 본다(`validation.ts:32-40`). 서버 응답(409/422)으로만 알 수 있는데 그 경로가 검증되지 않았다 | 백엔드 명세 (BE-045 §7.3) · UI 기획 |
+| 16 | **선택 상태가 두 벌 존재한다** — `useCrudList` 의 `useRowSelection`(`useCrudList.tsx:59`)과 `useListState` 의 `selectedIds`(`useListState.ts:186`). 이 화면은 전자만 쓰고 후자는 마운트만 된 채 방치된다 — `useListState` 의 '뷰 서명이 바뀌면 선택 해제'(`:205-213`)가 이 화면의 선택에 걸리지 않아 EL-015 가 그 일을 **손으로 다시 한다** | UI 기획 쪽 변경 요청 |
+| 17 | **`maxDiscount`(EL-026)·`minOrderAmount`(EL-027)·`totalQuantity`(EL-028) 세 입력이 `error` 를 FormField 에 넘겨 `<p role="alert">` 를 그리면서도 자신에게 `aria-invalid`·`aria-describedby` 를 세우지 않는다** — 형제 필드(`coupon-name`·`coupon-code`·`coupon-discount-value`)는 세운다. 같은 파일 안에서 계약이 갈린다. `minOrderAmount`/`totalQuantity` 는 `intString` 이 실제로 오류를 내므로 이 경로는 실재한다. hint 도 `hintIdOf` 로 연결되지 않는다 — `settings/_shared/fields.tsx:22` 는 그 배선을 갖고 있다(quality-bar A11Y-11 P0) | UI 기획 쪽 변경 요청 |
+| 18 | 사용 기간(EL-029)에 **프리셋('오늘/최근 7일/이번 달/지난 달')이 없다**(quality-bar COMP-11 P1) | UI 기획 쪽 변경 요청 |
+| 19 | 미리보기(EL-031)가 **검증 전 값을 그린다** — `toNum` 이 `'1,000'` 의 콤마를 지워 1000 으로 보이게 하는데(`replace(/\D/g, '')`), 저장은 `Number('1,000'.trim() \|\| '0')` = `NaN` 이다(`:120`). 실제로는 스키마가 먼저 막지만 **미리보기와 검증이 다른 규칙을 쓴다** | UI 기획 쪽 변경 요청 |
+| 20 | 미리보기의 꺼짐 표현이 `opacity: 0.55` **리터럴**이다(`CouponCardPreview.tsx:129`) — `ReviewPreview.tsx:139` 도 같은 값을 쓴다. quality-bar TOKEN-07 이 'coupon/review preview-disabled' 를 appliesTo 에 명시 지목한다(P1) | UI 기획 쪽 변경 요청 |
+| 21 | 제출 버튼(EL-033)이 진행 상태를 **`loading` prop 이 아니라 손으로 쓴 '저장 중…' 라벨**로 표현한다(`:446`). 같은 섹션의 `ReturnDetailPage.tsx:355` 는 `loading={saving}` 을 쓴다(quality-bar COMP-01 P1) | UI 기획 쪽 변경 요청 |
+| 22 | 사용기간 셀(EL-009.7)이 날짜 문자열을 **포맷 함수 없이 그대로** 잇는다 — 값이 'YYYY-MM-DD' 가 아니면 그대로 새어 나온다(quality-bar ERP-08 P2) | UI 기획 쪽 변경 요청 |
+| 23 | **토글(EL-009.10) 실패가 409 를 error 토스트로 뭉갠다** — 폼은 충돌 다이얼로그를 갖는데(EL-034) 토글은 `useCrudRowUpdate` 를 쓰므로 그 경로가 없다. 같은 화면 안에서 같은 오류의 UX 가 갈린다 | UI 기획 쪽 변경 요청 |
+| 24 | 토글을 여러 행에 잇달아 누르면 **이전 요청이 abort 된다**(`useCrudRowUpdate.ts:39` — controllerRef 가 1개다). 사용자는 두 행을 껐는데 하나만 반영될 수 있고, abort 는 실패로 통지되지 않아 **조용히 사라진다** | UI 기획 쪽 변경 요청 |
+| 25 | 조회·저장·토글 실패가 **403/429/5xx 를 같은 문구로 뭉갠다.** `isForbidden`(`http-error.ts:93-95`)이 존재하는데 쓰지 않는다(quality-bar EXC-06 P1) | UI 기획 쪽 변경 요청 |
+| 26 | 쿠폰명(EL-021)·코드(EL-022)에 **글자수 카운터가 없다** — `maxLength` 가 조용히 자른다. `TextareaField` 는 카운터를 갖는데 `<input>` 경로에는 없다(quality-bar COMP-12 P2) | UI 기획 쪽 변경 요청 |
+| 27 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다(가드 미발화) | UI 기획 · 프론트 구현 (quality-bar EXC-05 · EXC-11 · EXC-19 P1) |

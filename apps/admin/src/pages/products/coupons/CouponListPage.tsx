@@ -1,4 +1,4 @@
-// CouponListPage — 쿠폰 목록 (라우트: /products/coupons) · A41 소유
+// CouponListPage — 쿠폰 목록 (라우트: /products/coupons)
 //
 // 승격된 CRUD 프레임워크(useCrudList + CrudListShell) 위에 발급유형 필터 + 검색 + 소진율 + 상태 배지
 // + 발급 상태 인라인 토글 + 삭제팝업을 얹는다.

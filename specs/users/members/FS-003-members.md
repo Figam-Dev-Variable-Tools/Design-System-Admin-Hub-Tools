@@ -3,8 +3,8 @@ id: FS-003
 title: "회원 관리 목록"
 screen: SCR-003               # ⚠ 회원 관리 SCR(D2)이 아직 없다 — SCR-003 번호는 product-registration 이 점유 중. §7 미결 사항 참조
 route: /users/members
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-15
@@ -196,7 +196,7 @@ date: 2026-07-15
 | 중복 제출 | 그룹 생성(FS-003-EL-016.11) · 회원 삭제(FS-003-EL-017.4) · 내보내기(FS-003-EL-009) · 일괄 알림 발송(FS-003-EL-018)은 요청 중 해당 버튼이 비활성되어 차단된다. 행 단위 알림 발송(FS-003-EL-011.12.2)은 **진행 중인 회원 id 단위로** 그 행의 메뉴 항목이 '발송 중…' 으로 잠겨 차단된다 — 같은 회원에게 두 번 보내지 않되, 다른 행의 발송은 막지 않는다 |
 | 실패 통지의 자리 | 실패를 어디에 띄우는지는 **사용자가 지금 무엇을 보고 있는가**로 정한다(`shared/ui/README.md`) — ① 쓰기 실패(내보내기·알림 발송)는 **토스트**(FS-003-EL-002): 자동으로 사라지지 않고 '다시 시도'가 붙는다 ② **조회** 실패는 **인라인 배너**(FS-003-EL-014): 화면이 비어 있고 할 일이 '다시 시도' 하나뿐이라 사라지면 안 된다 ③ 모달이 떠 있는 동안의 실패(회원 삭제)는 **다이얼로그 안 배너**(FS-003-EL-017.5): 토스트는 모달 뒤로 밀려 시선 밖이다 |
 | 동시 조회 | 목록 조회는 동시에 1건만 유지된다. 조건이 바뀌면 진행 중이던 요청을 abort 하므로, 늦게 도착한 이전 응답이 최신 결과를 덮어쓰지 않는다 |
-| 권한 없음 | **이 화면의 구현에는 역할 기반 분기가 없다.** 요소가 역할에 따라 숨거나 비활성되지 않으며, 전용 403 화면도 없다. 서버가 권한 부족을 응답하면 조회는 FS-003-EL-014 로, 쓰기는 각 요소의 실패 처리로 떨어진다. 은닉 정책(403 vs 404)은 A63(BE 명세)이 확정한다 — §7 미결 사항 |
+| 권한 없음 | **이 화면의 구현에는 역할 기반 분기가 없다.** 요소가 역할에 따라 숨거나 비활성되지 않으며, 전용 403 화면도 없다. 서버가 권한 부족을 응답하면 조회는 FS-003-EL-014 로, 쓰기는 각 요소의 실패 처리로 떨어진다. 은닉 정책(403 vs 404)은 백엔드 명세가 확정한다 — §7 미결 사항 |
 | 행 선택의 수명 | 선택(FS-003-EL-011.1 · FS-003-EL-011.2)은 화면 로컬 상태이며 서버로 전송되지 않는다. 등급·그룹·키워드·페이지 중 하나라도 바뀌면 전부 해제된다 |
 
 ## 5. 서버 연동 지점
@@ -220,7 +220,7 @@ date: 2026-07-15
 | FS-003-EL-016.11 | '그룹 만들기' 버튼 | W | 그룹명(문자열, 최대 30자) · 그룹 유형(`member` \| `staff`) · 배송비 혜택(`none` \| `free` \| `conditional`) | `createGroup(input, signal)` | 성공 후 `fetchGroups(signal)` 를 다시 호출한다 |
 | FS-003-EL-017.4 | 삭제 확인 '회원 삭제' 버튼 | W | 회원 id | `deleteMember(id)` | 성공 후 목록을 현재 조건 그대로 재조회한다 |
 
-> **현재 구현 상태 (A63 참고)**: `data-source.ts` 의 쓰기 함수(`createGroup` · `deleteMember` · `sendNotification`)는 지연 후 resolve 만 하고 **아무것도 저장하지 않는다**(백엔드 미구현). 화면은 이 resolve 를 성공으로 간주해 안내 배너를 띄운다. 위 표는 백엔드 연결 후의 **의도된 동작**을 기술한 것이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: `data-source.ts` 의 쓰기 함수(`createGroup` · `deleteMember` · `sendNotification`)는 지연 후 resolve 만 하고 **아무것도 저장하지 않는다**(백엔드 미구현). 화면은 이 resolve 를 성공으로 간주해 안내 배너를 띄운다. 위 표는 백엔드 연결 후의 **의도된 동작**을 기술한 것이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -232,20 +232,20 @@ date: 2026-07-15
 - [x] §4 예외 7축에 빈칸 0건. 모든 `N/A` 에 사유가 붙어 있다
 - [x] 모호어 0건 — G9 #10 금지어 목록(판정 불가 부사·조건어 6종)을 본문에서 1건도 쓰지 않았다
 - [x] §3의 `[서버]` = O 요소가 §5에 전부 요약됐다
-- [x] 엔드포인트·HTTP 메서드·에러코드·DB 스키마를 쓰지 않았다 (A63의 영역)
-- [ ] `confirmedAt` — 구현이 리포지토리에 커밋된 일자(2026-07-14)를 컨펌일로 기록했다. A00 의 Task Graph 기록과 대조가 필요하다
+- [x] 엔드포인트·HTTP 메서드·에러코드·DB 스키마를 쓰지 않았다 (백엔드 명세의 영역)
+- [ ] `confirmedAt` — 구현이 리포지토리에 커밋된 일자(2026-07-14)를 컨펌일로 기록했다. 오케스트레이터 의 Task Graph 기록과 대조가 필요하다
 
-## 7. 미결 사항 (A11 / A01 / A63 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **대응 SCR 문서 부재** — `docs/plan/ui/` 에 회원 관리 SCR 이 없다. SCR-003 번호는 `SCR-003-product-registration.md` 가 점유 중이라 `FS 번호 = SCR 번호` 규칙(G9 #12)을 현재 만족할 수 없다 | A11 (SCR 작성) / A01 (번호 판정) |
-| 2 | 내보내기(FS-003-EL-009)에 행 수 상한이 없다 | A11 / A63 |
-| 3 | 그룹명 중복 검사 정책이 정해지지 않았다 | A11 / A63 |
-| 4 | 세션 만료 처리·요청 타임아웃 상한·권한 은닉 정책(403 vs 404)이 정해지지 않았다 | A63 (BE 명세) |
-| 5 | 그룹 수 상한이 없어 사이드바 길이가 그룹 수에 비례해 늘어난다 | A11 change_request |
-| 6 | 전체 선택(FS-003-EL-011.1)은 **현재 페이지 10건까지만** 선택한다. 조건에 걸린 전체를 한 번에 선택하는 경로가 없다 | A11 change_request |
-| 7 | ★ **DS Modal 일방향 latch — 미저장 가드의 '취소' 경로가 모달을 영구히 닫히지 않게 만든다 (FEEDBACK-06 재판정 · 신규 발견 2026-07-17)**. 재현: FS-003-EL-016 에 값을 입력(dirty) → Esc → ① `Modal` 이 `closingRef=true, closing=true` 로 **latch**(`Modal.tsx:122-126`) → ② `--closing` 이 오버레이를 `pointer-events:none` 으로 만들고 dialog exit 애니메이션이 `forwards` 로 `opacity:0` 을 고정 → ③ `onAnimationEnd` 가 `onClose()` 발사(`Modal.tsx:216-218`) → ④ 그 `onClose` 는 가드의 `requestClose` 라 dirty 이므로 `setAsking(true)` 만 하고 **부모가 언마운트하지 않는다** → ⑤ 사용자가 '취소'(머무르기) 선택 → `setAsking(false)` → **종착: 모달은 마운트된 채 `closing` 이 true 로 남고, dialog 는 `opacity:0` 이라 보이지 않으며, 오버레이는 `pointer-events:none` 이고, 이후 모든 Esc/딤/× 는 `Modal.tsx:123` 에서 즉시 return 한다 — 영구히 닫히지 않고 보이지도 않으며 입력한 데이터가 갇힌다.** `closingRef` 를 되돌리는 코드가 어디에도 없다(`setClosing(false)`·리셋 effect 전무). reduced-motion 환경은 경로만 다르고(`Modal.tsx:129-132` 가 `onClose()` 를 동기 발사) 같은 latch 에 빠지며, 이때 dialog 는 *보이지만* 오버레이가 `pointer-events:none` 이고 latch 라 **보이는데 완전 무반응**이다. 근인: `Modal.tsx:19-25` 가 'onClose() → 부모가 언마운트' 를 설계 전제로 문서화하는데 dirty 가드가 그 전제를 깨고, 깨졌을 때 latch 를 되돌릴 신호가 없다(`onClose` 가 `void` 반환). **기존 테스트가 못 잡는 이유**: `useModalDirtyGuard.test.tsx` 의 `Harness`(`:17-31`)가 실제 `Modal` 이 아니라 평범한 `<button>` 으로 4경로를 *흉내* 내므로 `closingRef` 가 관여하지 않는다. 폭발 반경은 **거부(veto) 가능한 requestClose 를 Modal.onClose 로 넘기는 9곳** — `useModalDirtyGuard` 소비자 7곳(`CreateGroupModal:154` · `PasswordChangeModal:103` · `RoleFormModal:68` · `LogoFormModal:126` · `PortfolioCategoryFormModal:104` · `ProductCategoryFormModal:104` · `CategoryFormModal:106`) + 훅을 쓰지 않고 **같은 거부 모양을 손으로 구현한 2곳**(`CreateApiKeyModal:161-168` `setConfirmingDiscard(true)` · `RevealKeyModal:113-119` `setConfirmingClose(true)`) — 이며 이 화면은 그중 `CreateGroupModal.tsx:154` 다 | A40 (DS Modal 소유) / A01 |
+| 1 | **대응 SCR 문서 부재** — `docs/plan/ui/` 에 회원 관리 SCR 이 없다. SCR-003 번호는 `SCR-003-product-registration.md` 가 점유 중이라 `FS 번호 = SCR 번호` 규칙(G9 #12)을 현재 만족할 수 없다 | UI 기획 (SCR 작성) / 아키텍처 (번호 판정) |
+| 2 | 내보내기(FS-003-EL-009)에 행 수 상한이 없다 | UI 기획 / 백엔드 명세 |
+| 3 | 그룹명 중복 검사 정책이 정해지지 않았다 | UI 기획 / 백엔드 명세 |
+| 4 | 세션 만료 처리·요청 타임아웃 상한·권한 은닉 정책(403 vs 404)이 정해지지 않았다 | 백엔드 명세 (BE 명세) |
+| 5 | 그룹 수 상한이 없어 사이드바 길이가 그룹 수에 비례해 늘어난다 | UI 기획 쪽 변경 요청 |
+| 6 | 전체 선택(FS-003-EL-011.1)은 **현재 페이지 10건까지만** 선택한다. 조건에 걸린 전체를 한 번에 선택하는 경로가 없다 | UI 기획 쪽 변경 요청 |
+| 7 | ★ **DS Modal 일방향 latch — 미저장 가드의 '취소' 경로가 모달을 영구히 닫히지 않게 만든다 (FEEDBACK-06 재판정 · 신규 발견 2026-07-17)**. 재현: FS-003-EL-016 에 값을 입력(dirty) → Esc → ① `Modal` 이 `closingRef=true, closing=true` 로 **latch**(`Modal.tsx:122-126`) → ② `--closing` 이 오버레이를 `pointer-events:none` 으로 만들고 dialog exit 애니메이션이 `forwards` 로 `opacity:0` 을 고정 → ③ `onAnimationEnd` 가 `onClose()` 발사(`Modal.tsx:216-218`) → ④ 그 `onClose` 는 가드의 `requestClose` 라 dirty 이므로 `setAsking(true)` 만 하고 **부모가 언마운트하지 않는다** → ⑤ 사용자가 '취소'(머무르기) 선택 → `setAsking(false)` → **종착: 모달은 마운트된 채 `closing` 이 true 로 남고, dialog 는 `opacity:0` 이라 보이지 않으며, 오버레이는 `pointer-events:none` 이고, 이후 모든 Esc/딤/× 는 `Modal.tsx:123` 에서 즉시 return 한다 — 영구히 닫히지 않고 보이지도 않으며 입력한 데이터가 갇힌다.** `closingRef` 를 되돌리는 코드가 어디에도 없다(`setClosing(false)`·리셋 effect 전무). reduced-motion 환경은 경로만 다르고(`Modal.tsx:129-132` 가 `onClose()` 를 동기 발사) 같은 latch 에 빠지며, 이때 dialog 는 *보이지만* 오버레이가 `pointer-events:none` 이고 latch 라 **보이는데 완전 무반응**이다. 근인: `Modal.tsx:19-25` 가 'onClose() → 부모가 언마운트' 를 설계 전제로 문서화하는데 dirty 가드가 그 전제를 깨고, 깨졌을 때 latch 를 되돌릴 신호가 없다(`onClose` 가 `void` 반환). **기존 테스트가 못 잡는 이유**: `useModalDirtyGuard.test.tsx` 의 `Harness`(`:17-31`)가 실제 `Modal` 이 아니라 평범한 `<button>` 으로 4경로를 *흉내* 내므로 `closingRef` 가 관여하지 않는다. 폭발 반경은 **거부(veto) 가능한 requestClose 를 Modal.onClose 로 넘기는 9곳** — `useModalDirtyGuard` 소비자 7곳(`CreateGroupModal:154` · `PasswordChangeModal:103` · `RoleFormModal:68` · `LogoFormModal:126` · `PortfolioCategoryFormModal:104` · `ProductCategoryFormModal:104` · `CategoryFormModal:106`) + 훅을 쓰지 않고 **같은 거부 모양을 손으로 구현한 2곳**(`CreateApiKeyModal:161-168` `setConfirmingDiscard(true)` · `RevealKeyModal:113-119` `setConfirmingClose(true)`) — 이며 이 화면은 그중 `CreateGroupModal.tsx:154` 다 | 프론트 구현 (DS Modal 소유) / 아키텍처 |
 
 ### 7.1 종결된 미결 사항 (구현 확인 후 닫음 — 2026-07-15)
 

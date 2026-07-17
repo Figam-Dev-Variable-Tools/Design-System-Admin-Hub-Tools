@@ -1,4 +1,4 @@
-// 계약서 요약 미리보기 (A41 소유 — apps/admin/src/pages/sales/**)
+// 계약서 요약 미리보기
 //
 // 입력한 계약 정보를 계약서 표제부처럼 요약해 보여준다. 계약 폼 1곳만 쓰므로 페이지 전용이다.
 import type { CSSProperties } from 'react';

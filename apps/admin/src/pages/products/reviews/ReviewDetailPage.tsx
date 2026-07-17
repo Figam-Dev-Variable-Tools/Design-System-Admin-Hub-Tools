@@ -1,4 +1,4 @@
-// ReviewDetailPage — 리뷰 상세 (라우트: /products/reviews/:id) · A41 소유
+// ReviewDetailPage — 리뷰 상세 (라우트: /products/reviews/:id)
 //
 // 왼쪽: 리뷰 메타(상품·작성자·별점·신고사유) + 노출/숨김 토글 + 관리자 답변 편집.
 // 오른쪽: 고객 화면 렌더 미리보기. 저장은 프레임워크 저수준 훅(useCrudUpdate), 삭제는 useCrudDelete.

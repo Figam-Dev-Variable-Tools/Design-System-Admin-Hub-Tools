@@ -1,4 +1,4 @@
-// NoticesPage — 공지사항 목록 (라우트: /content/notices) · A41 소유
+// NoticesPage — 공지사항 목록 (라우트: /content/notices)
 //
 // 좌: 분류 + 상태 필터 / 우: 검색 + 등록 + 표 + 페이지네이션.
 // 배치·스타일·패턴은 회원 관리(MembersPage)를 그대로 따른다 — 콘텐츠 목록의 정본이 된다.

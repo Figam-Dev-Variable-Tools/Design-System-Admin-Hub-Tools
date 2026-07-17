@@ -1,4 +1,4 @@
-// Vitest 셋업 (@tds/admin) — 소유: A80
+// Vitest 셋업 (@tds/admin)
 //
 // toBeInTheDocument / toHaveAttribute 등 DOM 매처를 등록한다.
 // 이것 없이는 `expect(el).toBeInTheDocument()` 가 런타임 에러이지 실패가 아니다.

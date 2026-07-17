@@ -4,8 +4,8 @@
 doc: D8
 id: TDS-GL-NNN
 title: "<가이드라인 제목>"
-owner: A60
-reviewer: A61
+owner: TDS 문서
+reviewer: 문서 리뷰
 gate: G8
 category: pattern         # pattern | best-practice | component-usage
 status: draft             # draft | in_review | approved
@@ -16,11 +16,11 @@ relatedContracts: []      # 관련 계약 (예: [contracts/Button.contract.json]
 <!--
 [작성 지침]
 - API 표(props/events)는 수기로 작성하지 않는다 — 계약에서 자동 생성된 문서를
-  참조·링크한다 (pnpm codegen, agents.json A60 note). 수기 API 표는 G8 반려 사유.
+  참조·링크한다 (pnpm codegen). 수기 API 표는 G8 반려 사유.
 - 코드 예제는 실제 빌드·실행 가능해야 한다 (G8 체크리스트 "문서 코드 예제가
   실제 빌드/실행됨"). import 경로는 public entry만 사용한다.
 - Do/Don't는 반드시 쌍으로, 이유와 함께 쓴다. "하지 마세요"만 있고 대안이 없으면 반려.
-- 용어는 TDS 표준 용어집을 따른다 — 동일 개념에 복수 용어 사용 금지 (A61 검수 항목).
+- 용어는 TDS 표준 용어집을 따른다 — 동일 개념에 복수 용어 사용 금지 (문서 리뷰 검수 항목).
 -->
 
 # <가이드라인 제목>

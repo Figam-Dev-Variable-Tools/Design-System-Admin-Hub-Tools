@@ -3,8 +3,8 @@ id: FS-001
 title: "로그인"
 screen: SCR-001
 route: /login
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-14
@@ -130,4 +130,4 @@ date: 2026-07-15
 - [x] §4 예외 7축에 빈칸 0건. 모든 `N/A` 에 사유가 붙어 있다
 - [x] 모호어 0건
 - [x] §3의 `[서버]` = O 요소(FS-001-EL-016)가 §5에 요약됐다
-- [x] 엔드포인트·요청 메서드·에러코드·DB 스키마를 쓰지 않았다 (A63의 영역)
+- [x] 엔드포인트·요청 메서드·에러코드·DB 스키마를 쓰지 않았다 (백엔드 명세의 영역)

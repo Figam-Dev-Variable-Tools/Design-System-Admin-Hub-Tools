@@ -4,8 +4,8 @@ title: "고객노출 FAQ 큐레이션 비기능 명세"
 functionalSpec: FS-029
 backendSpec: BE-029
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -142,20 +142,20 @@ date: 2026-07-17
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
 | ~~1~~ | ~~**STATE-01**~~ | ~~P0~~ | **해소됨(F3b)** — `CustomerFaqPage.tsx:72` `firstLoading = isFetching && data === undefined` · `:74` `refreshing = isFetching && data !== undefined` 를 파생하고 표에 `loading={firstLoading}` 만 넘긴다(`:219`). 요약(`:209-213`)은 건수를 유지한 채 '· 새로고침 중…' 만 덧붙이고 `aria-busy={refreshing}` 를 건다. **'동일 패턴이 5개 화면에 더 있다'고 적었던 화면들도 함께 고쳐졌다** — `CategoriesPage.tsx:176-178` · `PortfolioCategoriesPage.tsx:175-177` · `TicketListPage.tsx:163-165` 를 직접 확인했다 | — | — |
-| 2 | **IA-04** | **P0** | 툴바 행이 없고 페이지네이션·상한이 없어 발행 FAQ 전량을 한 화면에 렌더한다 | 이 화면 | A41 · A11(전량 렌더 결정) · A63(상한 — BE-029 §7.3) |
-| 3 | **EXC-08** | **P0** | 토글 재진입 가드가 state 기반이라 동기 락이 아니다(`:53`·`:125`·`:155`) — 같은 틱의 두 번째 클릭이 중복 요청을 만든다. PATCH 가 멱등이라 피해는 제한적. **F3b 가 정본과 자리를 만들어 뒀다** — `submitLockRef`(`useCrudForm.ts:103,201-203`, ref 라 렌더를 기다리지 않는다) · `WriteContext.idempotencyKey`(`crud.ts:30-42`). 이 화면은 자체 `useMutation`(`:118-122`·`:148-152`)을 써 둘 다 물려받지 못했고, 어댑터(`setCustomerFaqVisible`/`setCustomerFaqPinned`)도 `signal`·키를 받지 않는다 | 이 화면 | A41 |
+| 2 | **IA-04** | **P0** | 툴바 행이 없고 페이지네이션·상한이 없어 발행 FAQ 전량을 한 화면에 렌더한다 | 이 화면 | 프론트 리팩터 · UI 기획(전량 렌더 결정) · 백엔드 명세(상한 — BE-029 §7.3) |
+| 3 | **EXC-08** | **P0** | 토글 재진입 가드가 state 기반이라 동기 락이 아니다(`:53`·`:125`·`:155`) — 같은 틱의 두 번째 클릭이 중복 요청을 만든다. PATCH 가 멱등이라 피해는 제한적. **F3b 가 정본과 자리를 만들어 뒀다** — `submitLockRef`(`useCrudForm.ts:103,201-203`, ref 라 렌더를 기다리지 않는다) · `WriteContext.idempotencyKey`(`crud.ts:30-42`). 이 화면은 자체 `useMutation`(`:118-122`·`:148-152`)을 써 둘 다 물려받지 못했고, 어댑터(`setCustomerFaqVisible`/`setCustomerFaqPinned`)도 `signal`·키를 받지 않는다 | 이 화면 | 프론트 리팩터 |
 | ~~4~~ | ~~STATE-03~~ | ~~P1~~ | **해소됨(F3b)** — #1 과 같은 한 줄의 효과. 재조회 중 이전 행이 유지되고 요약에 `· 새로고침 중…` 만 덧붙는다(`:74`·`:209`·`:213`) | — | — |
-| 5 | STATE-05 | P1 | 빈 상태에 복구 CTA·`Empty` 컴포넌트 미사용 | 이 화면 | A41 |
-| 6 | A11Y-16 | P1 | 목록 상태 지속 live region 부재(`CrudListShell` 이 가진 것을 자체 표라 못 받는다) | 이 화면 | A41 |
-| 7 | — | — | **큐레이션 변경 감사 로그 부재**(§4.3) — 고객 노출에 직접 영향을 주는 조작의 이력이 없다 | 이 화면 · 백엔드 | A63 · A11 |
-| 8 | EXC-05 | P1 | 프론트 타임아웃 상한 없음. 토글 어댑터에 `signal` 인자 부재 | 앱 전역 + 이 화면 | A40 · A41 |
-| 9 | EXC-06 | P1 | status 별 실패 UX 분기 없음(403·404·500 동일 문구) | 앱 전역 | A40 · A63 |
-| 10 | EXC-11 | P1 | offline 감지·배너 없음 | 앱 전역 | A40 |
-| 11 | MOTION-04 | P1 | 행 재정렬 FLIP motion 없음 | 이 화면 · DS | A41 · A40 |
-| 12 | ERP-13 | P1 | 토스트 조사 헬퍼 미적용(`'…' 를` 고정) | 이 화면 | A41 |
-| 13 | COMP-06 | P2 | 스켈레톤 행 수 `length: 5` 하드코딩 | 이 화면 | A41 |
+| 5 | STATE-05 | P1 | 빈 상태에 복구 CTA·`Empty` 컴포넌트 미사용 | 이 화면 | 프론트 리팩터 |
+| 6 | A11Y-16 | P1 | 목록 상태 지속 live region 부재(`CrudListShell` 이 가진 것을 자체 표라 못 받는다) | 이 화면 | 프론트 리팩터 |
+| 7 | — | — | **큐레이션 변경 감사 로그 부재**(§4.3) — 고객 노출에 직접 영향을 주는 조작의 이력이 없다 | 이 화면 · 백엔드 | 백엔드 명세 · UI 기획 |
+| 8 | EXC-05 | P1 | 프론트 타임아웃 상한 없음. 토글 어댑터에 `signal` 인자 부재 | 앱 전역 + 이 화면 | 프론트 구현 · 프론트 리팩터 |
+| 9 | EXC-06 | P1 | status 별 실패 UX 분기 없음(403·404·500 동일 문구) | 앱 전역 | 프론트 구현 · 백엔드 명세 |
+| 10 | EXC-11 | P1 | offline 감지·배너 없음 | 앱 전역 | 프론트 구현 |
+| 11 | MOTION-04 | P1 | 행 재정렬 FLIP motion 없음 | 이 화면 · DS | 프론트 리팩터 · 프론트 구현 |
+| 12 | ERP-13 | P1 | 토스트 조사 헬퍼 미적용(`'…' 를` 고정) | 이 화면 | 프론트 리팩터 |
+| 13 | COMP-06 | P2 | 스켈레톤 행 수 `length: 5` 하드코딩 | 이 화면 | 프론트 리팩터 |
 | ~~14~~ | ~~MOTION-03~~ | ~~종속~~ | **해소됨(`a5c2639` · PR #26)** — `ToggleSwitch.css:79-84` 가 `.tds-toggle__track`·`.tds-toggle__knob` 의 transition 을 `none` 으로 끈다(`:32`·`:56` 두 선언 모두 덮음, 근거 주석 `:76-78`). 이 화면이 행당 2개를 소비해 노출이 가장 조밀했으나 더 이상 gap 이 아니다 | — | — |
-| 15 | — | — | **FS-029 §7 #1 / BE-029 §7.1 — `/support/faq` 와 `/content/faq` 의 FAQ 데이터가 완전히 분리돼 있다.** quality-bar 축이 아니라 정합 결함이라 §2 에 행이 없으나 **이 화면 최대의 문제**다 | 이 화면 · `/content/faq` · 백엔드 | A63 · A11 |
+| 15 | — | — | **FS-029 §7 #1 / BE-029 §7.1 — `/support/faq` 와 `/content/faq` 의 FAQ 데이터가 완전히 분리돼 있다.** quality-bar 축이 아니라 정합 결함이라 §2 에 행이 없으나 **이 화면 최대의 문제**다 | 이 화면 · `/content/faq` · 백엔드 | 백엔드 명세 · UI 기획 |
 
 ## 6. 측정 도구 · 재현 스위치
 

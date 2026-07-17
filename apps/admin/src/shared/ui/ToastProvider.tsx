@@ -1,4 +1,4 @@
-// 토스트 provider + useToast() 훅 (A40 소유 — apps/admin/src/shared/ui/**)
+// 토스트 provider + useToast() 훅
 //
 // [왜 공통 모듈인가] 예전에는 페이지마다 성공/실패 배너 상태(notice)를 따로 들고 있었다.
 // 같은 코드가 화면 수만큼 복제됐고, 배너가 레이아웃을 밀어 표가 아래로 튀었다.

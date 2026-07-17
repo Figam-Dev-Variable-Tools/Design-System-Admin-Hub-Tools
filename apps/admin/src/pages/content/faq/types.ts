@@ -1,4 +1,4 @@
-// FAQ 화면 **전용** 타입 (A41 소유 — apps/admin/src/pages/content/faq/**)
+// FAQ 화면 **전용** 타입
 //
 // 공지사항과 같은 결: 도메인 모델은 여기(페이지 전용)에 두고, 공통으로 승격한 것은 도메인을
 // 모르는 UI(StatusBadge·FormField·TextareaField…)뿐이다.

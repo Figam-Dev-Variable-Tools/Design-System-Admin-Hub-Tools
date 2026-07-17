@@ -6,9 +6,9 @@
   "status": "beta",
   "description": "표면 컨테이너 — 서피스 배경 + 테두리 + 라운드 + 내부 패딩을 제공하는 최소 단위 surface. 출처: apps/admin/src/pages/dashboard/components/Card.tsx 의 Card(<section>). 헤더/본문 구조나 도메인 데이터는 이 계약에 없다 — 조립은 organism(StatsCard/TodoCard/ListCard)이 한다 (ADR-0003).\n\n[1.1.0 — elevation] flat(기본, 그림자 없음) / raised(강조 카드 — shadow.raised 로 배경 위에 부드럽게 부상). Toss 급 depth 는 border 가 아니라 layered shadow 에서 온다 (TOKEN-04).",
   "owner": {
-    "code": "A30",
-    "design": "A14",
-    "figma": "A51"
+    "code": "component-eng",
+    "design": "ui-design",
+    "figma": "figma-eng"
   },
   "props": {
     "children": {

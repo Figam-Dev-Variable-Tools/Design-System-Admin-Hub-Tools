@@ -1,11 +1,11 @@
 /**
- * 에스컬레이션 봉투 — `orchestration/schemas/handoff.v1.json` 규격 (P2 계약 우선: 산문 전달 금지).
+ * 에스컬레이션 봉투 — 인계 규격 (계약 우선: 산문 전달 금지).
  *
- * SKILL 절차 6: 차단 시 봉투를 작성해 **소유자(A30/A40/A85) · approver(A33/A42) · A00** 에 전달한다.
+ * 차단 시 봉투를 작성해 **소유자(컴포넌트 엔지니어/프론트 구현/E2E 테스트) · approver(스토리북 리뷰/코드 리뷰) · 오케스트레이터** 에 전달한다.
  *
- * 파일은 `reports/test-coverage/` 에 쓴다 — `orchestration/tasks/` 는 **A00 소유**이므로
- * A77이 직접 쓰지 않는다 (P1 단일 소유권). A00이 이 봉투를 Task Graph 로 흡수한다.
- * 감사 발견 9: change_request 29건이 "명세 문서 안의 표"로만 존재해 아무도 읽지 않았다 —
+ * 파일은 `reports/test-coverage/` 에 쓴다 — 작업 큐는 오케스트레이터 소유이므로
+ * 테스트 커버리지 도구가 직접 쓰지 않는다 (단일 소유권). 오케스트레이터가 이 봉투를 Task Graph 로 흡수한다.
+ * 교훈: 변경 요청이 "명세 문서 안의 표"로만 존재하면 아무도 읽지 않는다 —
  * 그래서 이 봉투는 **파일**이어야 한다.
  */
 import fs from 'node:fs';
@@ -16,7 +16,7 @@ import type { Report } from './report.ts';
 export interface Envelope {
   id: string;
   type: 'escalation';
-  from: 'A77';
+  from: 'test-coverage-guard';
   to: string;
   gate: 'G5' | 'G6';
   subject: string;
@@ -43,42 +43,42 @@ interface Recipient {
 /** 누가 무엇을 고쳐야 하는가 — 축 → 소유자 매핑 (레지스트리 owns 기준) */
 const RECIPIENTS: Recipient[] = [
   {
-    to: 'A30',
+    to: 'storybook-component-engineer',
     gate: 'G5',
     role: '소유자 (packages/ui/src/** — 컴포넌트 렌더 테스트 · Story play function)',
     axes: ['contract-states', 'contract-blocked-when'],
     sla: 8,
   },
   {
-    to: 'A33',
+    to: 'storybook-reviewer',
     gate: 'G5',
     role: 'approver (G5) — 이 리포트를 검수 evidence 로 인용한다',
     axes: ['test-existence', 'contract-states', 'contract-blocked-when'],
     sla: 8,
   },
   {
-    to: 'A40',
+    to: 'react-engineer',
     gate: 'G6',
     role: '소유자 (apps/*/src/**/*.test.* — 화면 단위 렌더 테스트)',
     axes: ['test-existence'],
     sla: 8,
   },
   {
-    to: 'A85',
+    to: 'e2e-test-engineer',
     gate: 'G6',
     role: '소유자 (e2e/** — FS 예외 7축 시나리오)',
     axes: ['fs-exception-axes'],
     sla: 24,
   },
   {
-    to: 'A42',
+    to: 'code-reviewer',
     gate: 'G6',
     role: 'approver (G6) — 체크리스트 #7 "계약의 모든 상태에 대한 렌더 테스트"의 evidence',
     axes: ['test-existence', 'contract-states', 'contract-blocked-when'],
     sla: 8,
   },
   {
-    to: 'A00',
+    to: 'orchestrator',
     gate: 'G6',
     role: 'orchestrator — Task Graph 흡수 · 게이트 전이 판정',
     axes: ['test-existence', 'contract-states', 'contract-blocked-when', 'fs-exception-axes'],
@@ -105,9 +105,9 @@ export function buildEnvelopes(report: Report, runDate: string, seq: number): En
     checks[s.id] = `${s.covered}/${s.total} 커버 · 미커버 ${s.gaps}건 — ${s.status}`;
   }
 
-  // 봉투를 받을 사람 = 자기 축에 blocker 든 major 든 **할 일이 있는** 사람 + 항상 A00(orchestrator).
-  // major 만 있는 A85(FS 예외 7축 713칸)도 반드시 받아야 한다 — 경고라고 통보를 생략하면
-  // 감사 발견 9(change_request 29건이 아무에게도 전달되지 않음)를 그대로 반복한다.
+  // 봉투를 받을 사람 = 자기 축에 blocker 든 major 든 **할 일이 있는** 사람 + 항상 오케스트레이터.
+  // major 만 있는 E2E 테스트(FS 예외 7축 713칸)도 반드시 받아야 한다 — 경고라고 통보를 생략하면
+  // 변경 요청이 아무에게도 전달되지 않던 실패를 그대로 반복한다.
   const workFor = (r: Recipient, sev: 'blocker' | 'major') =>
     report.gaps.filter(
       (g) => r.axes.includes(g.id) && g.gates.includes(r.gate) && g.severity === sev,
@@ -115,7 +115,8 @@ export function buildEnvelopes(report: Report, runDate: string, seq: number): En
 
   let n = seq;
   return RECIPIENTS.filter(
-    (r) => r.to === 'A00' || workFor(r, 'blocker').length > 0 || workFor(r, 'major').length > 0,
+    (r) =>
+      r.to === 'orchestrator' || workFor(r, 'blocker').length > 0 || workFor(r, 'major').length > 0,
   ).map((r) => {
     const mine = workFor(r, 'blocker');
     const majors = workFor(r, 'major');
@@ -123,7 +124,7 @@ export function buildEnvelopes(report: Report, runDate: string, seq: number): En
     return {
       id: `TASK-${taskDate}-${String(n).padStart(3, '0')}`,
       type: 'escalation' as const,
-      from: 'A77' as const,
+      from: 'test-coverage-guard' as const,
       to: r.to,
       gate: r.gate,
       subject:
@@ -168,7 +169,7 @@ export function buildEnvelopes(report: Report, runDate: string, seq: number): En
  * 발생일(벽시계)을 담으며, (3) 커밋된 기준선 + 계약/명세로부터 **매 실행 재현 가능**하다.
  * 즉 래칫 기준선처럼 영속될 이유가 없다 — 커밋하면 실패가 지속되는 동안 날짜만 churn 한다.
  * tmp/ 는 `.gitignore` 의 "reports 하위 tmp 디렉터리" 규칙으로 무시되므로 커밋 트리를 더럽히지 않는다.
- * A00 은 이 파일을 **그 실행에서** 읽어 Task Graph 로 흡수한다(감사 발견 9의 교훈 유지 —
+ * 오케스트레이터는 이 파일을 **그 실행에서** 읽어 Task Graph 로 흡수한다(교훈 유지 —
  * 산문이 아니라 파일이다. 다만 영속이 아니라 실행 산출물이다).
  */
 export function writeEnvelopes(root: string, report: Report, runDate: string): string {
@@ -180,8 +181,8 @@ export function writeEnvelopes(root: string, report: Report, runDate: string): s
     path.join(dir, `${report.scope}-escalations.json`),
     `${JSON.stringify(
       {
-        $schema: '../../../orchestration/schemas/handoff.v1.json',
-        note: 'handoff.v1 봉투 배열. gitignore 되는 실행 산출물이다(커밋되지 않는다). orchestration/tasks/ 는 A00 소유이므로 A77은 여기에 쓰고 A00이 그 실행에서 흡수한다.',
+        $schema: '인계.v1',
+        note: '인계 봉투 배열. gitignore 되는 실행 산출물이다(커밋되지 않는다). 작업 큐는 오케스트레이터 소유이므로 테스트 커버리지 도구는 여기에 쓰고 오케스트레이터가 그 실행에서 흡수한다.',
         generatedAt: new Date().toISOString(),
         envelopes,
       },

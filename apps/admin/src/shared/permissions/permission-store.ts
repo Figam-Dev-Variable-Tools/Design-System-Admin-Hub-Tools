@@ -1,4 +1,4 @@
-// 권한 상태 전역 스토어 (A41 소유 — apps/admin/src/**)
+// 권한 상태 전역 스토어
 //
 // [왜 Zustand 인가]
 // 권한은 이 앱의 **유일한 진짜 전역 클라이언트 상태**다 — roles/activeRole/selectedRole 와

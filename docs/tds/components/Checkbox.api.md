@@ -14,7 +14,7 @@
 | 버전 | `1.1.0` |
 | 레벨 | `atom` |
 | 상태 | `beta` |
-| 소유 | code `A30` · design `A14` · figma `A51` |
+| 소유 | code `component-eng` · design `ui-design` · figma `figma-eng` |
 
 ## Props
 
@@ -37,7 +37,7 @@
 `default` · `hover` · `focus-visible` · `disabled` · `checked`
 
 > Story 커버리지는 enum prop 값 곱 × boolean prop 당 2 조합 100%가 요구됩니다 (`combinationMatrix` 참조).
-> states 는 이 행렬에 포함되지 않습니다 — state 커버리지는 A77(축2)이 **단언을 가진 테스트**로 따로 강제합니다.
+> states 는 이 행렬에 포함되지 않습니다 — state 커버리지는 커버리지 축2(contract-states)가 **단언을 가진 테스트**로 따로 강제합니다.
 
 ## A11y
 

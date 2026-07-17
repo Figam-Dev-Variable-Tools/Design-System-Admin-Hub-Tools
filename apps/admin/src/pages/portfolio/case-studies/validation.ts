@@ -1,4 +1,4 @@
-// 성공 사례 폼 검증 규칙 (A41 — 검증의 정본은 이 zod 스키마다)
+// 성공 사례 폼 검증 규칙 (검증의 정본은 이 zod 스키마다)
 import * as z from 'zod/mini';
 
 import { requiredImage, requiredText } from '../../../shared/crud';

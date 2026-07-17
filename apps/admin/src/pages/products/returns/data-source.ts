@@ -1,4 +1,4 @@
-// 교환/반품 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/products/**)
+// 교환/반품 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 프레임워크 createCrudAdapter 에 시드를 넣는다. 목록/상세는 fetchAll/fetchOne,
 // 상태·메모 저장은 update 를 쓴다(생성·삭제 UI 는 없다 — 요청은 고객이 만들고 관리자는 처리만 한다).

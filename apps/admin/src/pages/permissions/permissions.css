@@ -1,4 +1,4 @@
-/* 권한 관리 화면 **전용** 스타일 (A40 소유)
+/* 권한 관리 화면 **전용** 스타일
  *
  * 인라인 style 로 표현 불가한 상태(:hover, :focus-within, :disabled, position:sticky 조합)만 둔다.
  * 버튼·행·포커스 링·체크박스는 공통 모듈의 클래스(tds-ui-*, shared/ui/ui.css)를 그대로 쓴다 —

@@ -1,4 +1,4 @@
-// FS-003 회원 목록 — 예외 7축 E2E (A85 소유 — e2e/**)
+// FS-003 회원 목록 — 예외 7축 E2E (담당: E2E 테스트 — e2e/**)
 //
 // 명세: specs/users/members/FS-003-members.md  ·  구현: apps/admin/src/pages/members/**
 //

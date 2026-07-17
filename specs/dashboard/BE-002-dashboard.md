@@ -2,8 +2,8 @@
 id: BE-002
 title: "대시보드 백엔드 기능 명세"
 functionalSpec: FS-002
-owner: A63
-reviewer: A64
+owner: 백엔드 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 version: 1.0
@@ -19,7 +19,7 @@ date: 2026-07-15
 | 대상 화면 | FS-002 대시보드 (`/dashboard`) |
 | 범위 | 읽기 전용 조회 2건 — (1) 업무 탭(상품·문의·영업)별 데이터(오늘의 할일 + 리스트 카드 2장), (2) 기간(일·주·월)별 통계(방문자 계열 + 기간별 분석 표 + 합계 행). 두 조회 모두 **서버가 위젯 권한을 재판정**한다(§3.4) |
 | 범위 밖 | (1) 기능 권한(feature key) 조회·변경 엔드포인트 — FS-002 §5에 서버 연동 요소가 없다(EL-007 · EL-042는 브라우저 저장소 판정). 판단과 후속 경로는 §7.1. (2) 쓰기 요청 — 이 화면은 읽기 전용이다(FS-002 §4.1 '중복 제출'). (3) 사이드바 메뉴 구성 — 정적 구성(`nav-config`)이며 서버가 내려주지 않는다. (4) 헤더의 로그인 계정 표시(FS-002-EL-011) — 현재 구현이 상수값이며 `[서버]` 요소가 아니다 |
-| 전제 | 모든 경로는 `/api` 프리픽스. 응답 본문은 `application/json; charset=utf-8`. **두 엔드포인트 모두 유효한 세션 자격 증명을 요구한다** — 자격 증명의 전달 방식(HttpOnly 쿠키 vs `Authorization` 헤더)은 BE-001 §7.1의 미확정 항목이며 A01 판정 대상이다. 401 판정은 전달 방식과 무관하게 '유효한 자격 증명 없음'으로 성립한다 |
+| 전제 | 모든 경로는 `/api` 프리픽스. 응답 본문은 `application/json; charset=utf-8`. **두 엔드포인트 모두 유효한 세션 자격 증명을 요구한다** — 자격 증명의 전달 방식(HttpOnly 쿠키 vs `Authorization` 헤더)은 BE-001 §7.1의 미확정 항목이며 아키텍처 판정 대상이다. 401 판정은 전달 방식과 무관하게 '유효한 자격 증명 없음'으로 성립한다 |
 | 프론트 어댑터 | `apps/admin/src/pages/dashboard/api.ts` (`fetchTabData`, `ApiError`) · `apps/admin/src/pages/dashboard/stats-api.ts` (`fetchStats`) |
 | 도메인 타입 | **전송 타입은 손으로 쓰지 않는다** — `openapi/openapi.yaml`(그 원천이 이 문서다)에서 `pnpm openapi:types` 가 생성한 `components['schemas']` 를 그대로 참조한다(ADR-0008 §3.5). `types.ts:40-41` (`ListCardData`, `TabData`) · `stats-types.ts:30-33` (`VisitorPoint`, `PeriodRow`, `PeriodSummary`, `StatsData`) — 전부 `DeepReadonly<…>` 로 감싼다. 화면 전용 개념만 손으로 남는다: `types.ts:6,18,24` (`TabId`, `TABS`, `DEFAULT_TAB`) · `stats-types.ts:6,13,19` (`StatsRange`, `STATS_RANGES`, `DEFAULT_STATS_RANGE`). `TodoItem`·`ListRow` 는 **별도 별칭이 없다** — `ListRow` 는 `ListCardData.rows` 안에서만 쓰이므로 별칭을 두지 않는다(`types.ts:37`). 스키마가 바뀌면 재생성만으로 따라오고 어긋나면 `tsc` 가 깨진다 |
 | 권한 키 원천 | `apps/admin/src/shared/permissions/feature-registry.ts` (`FeatureKey` — `dashboard.tab.products` · `dashboard.tab.inquiries` · `dashboard.tab.sales` · `dashboard.todo` · `dashboard.lists` · `dashboard.stats.visitors` · `dashboard.stats.period`) |
@@ -334,7 +334,7 @@ date: 2026-07-15
 | `TABS` · `DEFAULT_TAB` (`types.ts`) | — | N/A — 탭 목록·기본 탭은 프론트 정적 구성이며 서버가 내려주지 않는다 | — | — | N/A |
 | `STATS_RANGES` · `DEFAULT_STATS_RANGE` (`stats-types.ts`) | — | N/A — 기간 선택지·기본 기간은 프론트 정적 구성이다 | — | — | N/A |
 | `useTabDataQuery(tab, enabled)` · `useStatsQuery(range, enabled)` (`queries.ts:24,34`) | 파일 헤더: "화면은 useQuery 를 직접 부르지 않는다 — 여기 도메인 훅만 부른다" | N/A — 조회 훅이며 서버 호출 어댑터가 아니다. `enabled=false` 로 권한 OFF 위젯의 요청을 막는다(FS-002-EL-042) | — | — | N/A — 손으로 만든 `useAsyncData` 를 대체한 TanStack Query 훅이다(ADR-0008 §7.1) |
-| `loadPermissions()` · `savePermissions()` (`shared/permissions/PermissionProvider.tsx`) | 파일 헤더: "백엔드가 붙으면 loadPermissions/savePermissions 두 함수만 API 호출로 교체하면 되고, 화면 코드는 건드릴 필요가 없다" | **엔드포인트 없음** — FS-002 §5에 서버 연동 요소가 없다 | — | `PermissionMap` = `Record<FeatureKey, boolean>` | **X** — §7.1 (A62 change_request 대상) |
+| `loadPermissions()` · `savePermissions()` (`shared/permissions/PermissionProvider.tsx`) | 파일 헤더: "백엔드가 붙으면 loadPermissions/savePermissions 두 함수만 API 호출로 교체하면 되고, 화면 코드는 건드릴 필요가 없다" | **엔드포인트 없음** — FS-002 §5에 서버 연동 요소가 없다 | — | `PermissionMap` = `Record<FeatureKey, boolean>` | **X** — §7.1 (기능 명세 쪽 변경 요청 대상) |
 
 ### 6.2 응답 필드 대조 — `TabData` (`types.ts`)
 
@@ -386,18 +386,18 @@ date: 2026-07-15
 |---|---|
 | 필요한 이유 | §3.4-4 — 서버가 권한을 판정하는 순간, 프론트의 `localStorage` 권한과 서버 권한이 어긋날 수 있다. 프론트가 ON 으로 알고 요청 → 서버 403 → 사용자에게 '권한 없음'이 아니라 '조회 실패'(FS-002-EL-041)로 보인다. 이 불일치는 권한을 서버에서 조회해야만 사라진다. 프론트 어댑터도 교체 지점을 이미 표시해 뒀다(`PermissionProvider.tsx` 헤더 주석) |
 | 만들지 않는 이유 1 | **FS-002 §5(서버 연동 지점)에 해당 요소가 없다.** `[서버]` = O 요소는 FS-002-EL-014 · FS-002-EL-027 2건뿐이고, 권한 요소(FS-002-EL-007 · FS-002-EL-042)는 브라우저 저장소 판정으로 명세돼 있다. 근거 없는 엔드포인트는 유령 기능이 된다 |
-| 만들지 않는 이유 2 | **프론트를 바꿔야 한다.** `loadPermissions(): PermissionMap` 은 **동기** 함수다(`useState(loadPermissions)` 로 초기 상태를 만든다). API 호출로 바꾸면 비동기가 되고, 권한 로딩 중의 화면 상태(스켈레톤·기본값 렌더 여부)라는 **새 요소**가 필요하다. 이는 FS-002 개정 사항이며 A63 이 임의로 확정할 수 없다 |
-| 후속 경로 | **A62 에 change_request** — FS-002 에 (a) 권한 조회 서버 연동 지점, (b) 권한 로딩 중 화면 상태 요소를 추가 요청한다. FS 개정 후 BE-002 v1.1 에서 엔드포인트를 확정한다 |
+| 만들지 않는 이유 2 | **프론트를 바꿔야 한다.** `loadPermissions(): PermissionMap` 은 **동기** 함수다(`useState(loadPermissions)` 로 초기 상태를 만든다). API 호출로 바꾸면 비동기가 되고, 권한 로딩 중의 화면 상태(스켈레톤·기본값 렌더 여부)라는 **새 요소**가 필요하다. 이는 FS-002 개정 사항이며 백엔드 명세 이 임의로 확정할 수 없다 |
+| 후속 경로 | **기능 명세 에 변경 요청** — FS-002 에 (a) 권한 조회 서버 연동 지점, (b) 권한 로딩 중 화면 상태 요소를 추가 요청한다. FS 개정 후 BE-002 v1.1 에서 엔드포인트를 확정한다 |
 | 그때까지의 보안 | **BE-002-EP-01 · EP-02 의 서버 측 권한 재판정(§3.4)은 v1.0 에서 이미 확정된다.** 데이터 유출 경로는 이 두 엔드포인트뿐이므로, 권한 조회 엔드포인트가 없어도 **보안 경계는 성립한다.** 남는 문제는 보안이 아니라 사용자에게 보이는 오류 문구의 정확도다 |
 
 ### 7.2 프론트 변경 필요 (임의로 다른 모양을 확정하지 않고 기록만 한다)
 
 | # | 내용 | 영향 | 권고 |
 |---|---|---|---|
-| 1 | **401 처리 경로가 없다.** `fetchTabData` · `fetchStats` 는 모든 실패를 `ApiError` 로 던지고, 대시보드에는 세션 검사·만료 처리 요소가 없다(FS-002 §4.1 '세션 만료') | 세션이 만료되면 사용자는 '대시보드 데이터를 불러오지 못했습니다.'(FS-002-EL-041)를 보고, 다시 로그인해야 한다는 사실을 알 수 없다. FS-001-EL-023(`?reason=session_expired` 안내)으로 가는 트리거가 대시보드에 없다 | 401 `UNAUTHENTICATED` 수신 시 `/login?returnUrl=<현재경로>&reason=session_expired` 로 이동하는 요소를 FS-002 에 추가 → **A62 change_request** (FS-001-EL-023 · EL-026 이 이미 수신 측을 정의하고 있다) |
-| 2 | **`error.code` 별 분기가 없다.** `ApiError` 는 메시지 문자열만 갖는다 | 403(권한 없음) · 429(재시도 대기) · 500(서버 오류)이 모두 같은 문구로 표시된다. `Retry-After` 안내를 할 수 없다 | `ApiError` 에 `status` · `code` · `retryAfterSec` 필드 추가 → A40 change_request. 현행 계약은 단일 문구로 동작한다 |
-| 3 | **`todos[].to` · `cards[].moreTo` 가 프론트 라우트 경로 문자열이다.** 서버가 프론트 라우팅을 알아야 한다(결합) | 프론트 라우트가 바뀌면 서버 응답도 바꿔야 한다 | **현행 유지한다** — 프론트가 이미 기대하는 모양이고(`TodoItem.to` · `ListCardData.moreTo` 가 `string`), 임의로 바꾸지 않는다. 결합을 끊으려면 서버가 키(예: `new-order`)만 주고 프론트가 경로로 매핑해야 하며, 이는 A40 change_request 사항이다 |
-| 4 | **프론트 요청 타임아웃 상한이 없다** (FS-002 §4.1) | 네트워크가 끊기면 스켈레톤(FS-002-EL-020 · EL-026 · EL-034 · EL-039)이 영구히 고정된다. 서버 상한 3초로는 해결되지 않는다 | `fetchTabData` · `fetchStats` 호출부에 상한(10초 — FS-001 의 `LOGIN_TIMEOUT_MS` 와 동일 값) 도입 → A40 change_request + FS-002 예외 명세 개정(A62) |
+| 1 | **401 처리 경로가 없다.** `fetchTabData` · `fetchStats` 는 모든 실패를 `ApiError` 로 던지고, 대시보드에는 세션 검사·만료 처리 요소가 없다(FS-002 §4.1 '세션 만료') | 세션이 만료되면 사용자는 '대시보드 데이터를 불러오지 못했습니다.'(FS-002-EL-041)를 보고, 다시 로그인해야 한다는 사실을 알 수 없다. FS-001-EL-023(`?reason=session_expired` 안내)으로 가는 트리거가 대시보드에 없다 | 401 `UNAUTHENTICATED` 수신 시 `/login?returnUrl=<현재경로>&reason=session_expired` 로 이동하는 요소를 FS-002 에 추가 → **기능 명세 쪽 변경 요청** (FS-001-EL-023 · EL-026 이 이미 수신 측을 정의하고 있다) |
+| 2 | **`error.code` 별 분기가 없다.** `ApiError` 는 메시지 문자열만 갖는다 | 403(권한 없음) · 429(재시도 대기) · 500(서버 오류)이 모두 같은 문구로 표시된다. `Retry-After` 안내를 할 수 없다 | `ApiError` 에 `status` · `code` · `retryAfterSec` 필드 추가 → 프론트 구현 쪽 변경 요청. 현행 계약은 단일 문구로 동작한다 |
+| 3 | **`todos[].to` · `cards[].moreTo` 가 프론트 라우트 경로 문자열이다.** 서버가 프론트 라우팅을 알아야 한다(결합) | 프론트 라우트가 바뀌면 서버 응답도 바꿔야 한다 | **현행 유지한다** — 프론트가 이미 기대하는 모양이고(`TodoItem.to` · `ListCardData.moreTo` 가 `string`), 임의로 바꾸지 않는다. 결합을 끊으려면 서버가 키(예: `new-order`)만 주고 프론트가 경로로 매핑해야 하며, 이는 프론트 구현 쪽 변경 요청 사항이다 |
+| 4 | **프론트 요청 타임아웃 상한이 없다** (FS-002 §4.1) | 네트워크가 끊기면 스켈레톤(FS-002-EL-020 · EL-026 · EL-034 · EL-039)이 영구히 고정된다. 서버 상한 3초로는 해결되지 않는다 | `fetchTabData` · `fetchStats` 호출부에 상한(10초 — FS-001 의 `LOGIN_TIMEOUT_MS` 와 동일 값) 도입 → 프론트 구현 쪽 변경 요청 + FS-002 예외 명세 개정(기능 명세) |
 
 ## 8. 자기 점검 (제출 전 확인)
 

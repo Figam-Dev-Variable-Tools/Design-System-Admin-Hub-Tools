@@ -1,4 +1,4 @@
-// CustomerFaqPage — 고객노출 FAQ 큐레이션 (라우트: /support/faq) · A41 소유
+// CustomerFaqPage — 고객노출 FAQ 큐레이션 (라우트: /support/faq)
 //
 // [콘텐츠 FAQ 와의 관계] 작성·관리(등록/수정/삭제·카테고리)는 콘텐츠 관리 FAQ 소관이라 여기엔 없다.
 // 이 화면은 발행된 FAQ 를 고객센터에서 어떻게 보여줄지만 큐레이션한다: 표시 순서(DnD)·노출·BEST 고정.

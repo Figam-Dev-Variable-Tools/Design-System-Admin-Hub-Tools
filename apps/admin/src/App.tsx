@@ -1,4 +1,4 @@
-// TDS Admin Hub 라우트 구성 (A40 소유, 게이트 G6, 검수 A42)
+// TDS Admin Hub 라우트 구성 (게이트 G6)
 //
 // [import 규칙] 컴포넌트는 반드시 @tds/ui public entry에서만 import한다.
 //   허용: import { Button } from '@tds/ui';                  ← G3 계약 승인 + G5 통과 후 활성화
@@ -8,7 +8,7 @@
 // [하드코딩 스타일 금지] 색상 hex / px 값을 코드에 직접 쓰지 않는다.
 //   토큰 파이프라인(tokens.json → generated CSS 변수 var(--tds-*)) 참조만 허용 — eslint no-restricted-syntax가 차단.
 //
-// [라우트 ↔ Screen Spec 매핑] (SCR 문서는 A11 UI Planner 산출물 — 작성 중이면 경로 참조만 유지)
+// [라우트 ↔ Screen Spec 매핑] (SCR 문서는 UI 기획 산출물 — 작성 중이면 경로 참조만 유지)
 //   /login         → docs/plan/ui/SCR-001-login.md
 //   /dashboard     → docs/plan/ui/SCR-002-dashboard.md (기본 리다이렉트 대상)
 //   /products      → 상품 관리(목록·등록·수정·카테고리) — SCR-003 상품 등록을 이 체계로 통합했다

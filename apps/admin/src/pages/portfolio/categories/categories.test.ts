@@ -1,4 +1,4 @@
-// 포트폴리오 카테고리 동작 회귀 테스트 (A41) — 사용 중 삭제 차단 + 사용량 문구 + 폼 검증
+// 포트폴리오 카테고리 동작 회귀 테스트 — 사용 중 삭제 차단 + 사용량 문구 + 폼 검증
 import { describe, expect, it } from 'vitest';
 
 import { addCategory, listCategoryUsage, removeCategory } from '../_shared/store';

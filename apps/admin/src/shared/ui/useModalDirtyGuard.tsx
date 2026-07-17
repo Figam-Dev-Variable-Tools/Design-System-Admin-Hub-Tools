@@ -1,4 +1,4 @@
-// 모달 미저장 이탈 가드 (A40 소유 — apps/admin/src/shared/ui/**)
+// 모달 미저장 이탈 가드
 //
 // [왜 필요한가 — FEEDBACK-06 (P0)]
 // `useUnsavedChangesDialog` 는 **페이지 폼**의 세 이탈 경로(unload·링크·뒤로가기)를 막는다. 그런데

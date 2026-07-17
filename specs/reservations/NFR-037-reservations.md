@@ -4,8 +4,8 @@ title: "예약 관리 비기능 명세"
 functionalSpec: FS-037
 backendSpec: BE-037
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.1
@@ -149,7 +149,7 @@ date: 2026-07-17
 
 | 항목 | 예산 | 현재 | 근거 |
 |---|---|---|---|
-| 목록 응답 p95 | **미정** — 백엔드 부재 | 픽스처 고정 400ms | ⚠ **`LATENCY_MS = 400`(`shared/crud/dev.ts:12`)은 개발용 지연이며 성능 예산이 아니다.** 로딩 상태를 화면에서 볼 수 있게 하려고 넣은 상수다. 실제 예산은 BE-037-EP-01 의 응답 크기(전량 조회)가 정해지면 A63 이 확정한다 |
+| 목록 응답 p95 | **미정** — 백엔드 부재 | 픽스처 고정 400ms | ⚠ **`LATENCY_MS = 400`(`shared/crud/dev.ts:12`)은 개발용 지연이며 성능 예산이 아니다.** 로딩 상태를 화면에서 볼 수 있게 하려고 넣은 상수다. 실제 예산은 BE-037-EP-01 의 응답 크기(전량 조회)가 정해지면 백엔드 명세 이 확정한다 |
 | 첫 렌더(목록) | 미정 | — | 측정 미실시 |
 | 재조회 횟수 | 화면 진입당 **최대 1회 / 30초** | `staleTime: 30_000` · `refetchOnWindowFocus: false` · `retry: false`(`shared/query/queryClient.ts`) | 목록↔폼↔달력을 오가도 30초 안에는 재조회하지 않는다 — 세 화면이 `['reservations','list']` 키 하나를 공유한다 |
 | 쓰기 후 재조회 | 등록·수정 = 목록 1회(+상세 1회) · 삭제 = 목록 1회 · 일괄 삭제 = **전원 성공 시에만** 목록 1회 | `crud.ts:179-181,198-201,217-219,237-240` | 부분 실패는 무효화하지 않는다 — 실패분이 남은 목록을 다시 그릴 이유가 없다 |
@@ -188,30 +188,30 @@ date: 2026-07-17
 | ~~—~~ | ~~**COMP-10**~~ | ~~P0~~ | **해소됨(F3b) — 이관 목록에서 내린다.** 이 화면이 `useListState` 를 소비하게 됐고(`ReservationListPage.tsx:83`) 그 훅이 `useDebouncedSearch` 를 배선한다(`useListState.ts:227-230`). 입력창이 `{...list.searchInputProps}` 로 IME 가드를 받는다(`:156`) | — | **닫힘** |
 | ~~—~~ | ~~**IA-13**~~ | ~~P0~~ | **해소됨(F3b) — 이관 목록에서 내린다.** 상태·검색어의 단일 원천이 URL 이다(`ReservationListPage.tsx:83-89,161`). F5·Back·링크 공유가 필터를 보존한다 | — | **닫힘** |
 | ~~1~~ | ~~**A11Y-11**~~ | ~~P0~~ | **해소됨(PR #30) — 1.1 이 '미정'으로 남긴 두 선택지 중 하나가 채택됐다.** 1.1 은 '필수 7필드 중 6건 해소 · 남은 1건은 복합 필드 **'이용 시간'**(자식이 래퍼 `<div>` 라 `isRequirableChild` 가 거부 — **`FormField` 의 결함이 아니라 호출부 구조 문제**)' 이라 적고 해소 방향을 **미정**으로 남겼다. **채택된 것은 '시작/종료를 각자의 `FormField` 로 쪼개기'** — `ReservationFormPage.tsx:265`(`label="시작 시각"`) · `:277`(`label="종료 시각"`). 자식이 네이티브 `<input type="time">` 이 되어 `withAriaRequired`(`FormField.tsx:50-56`)가 주입하고, **required 7/7 이 AT 에 닿는다.** 호출부가 `aria-required` 를 직접 주는 대안은 **쓰이지 않았다** — 근거 `:256-258`: 래퍼에 얹는 것은 '거짓 시맨틱이므로 답이 아니다 — 라벨을 컨트롤마다 하나씩 두는 것이 답이다'. **부수 효과로 오류 id 공유도 해소**(각 입력이 자기 `aria-describedby` — `:272`·`:286`). 회귀 테스트 `ReservationFormPage.a11y.test.tsx:73,74,81,90,91,112`. **이관 불필요** | — | — |
-| 2 | **IA-02** | **P0** | **가지 폴백은 해소됐다**(`findCoveringLeaf` — `nav-config.ts:269-279,297-299`). **남은 것: `<h1>` 이 둘**(AppHeader `:101` + `FormPageShell.tsx:160`) → '단일 title 메커니즘' 미충족. 부수적으로 '등록/수정' 행위가 AppHeader 제목에 반영되지 않는다(`nav-config.ts:293-295` — 의도) | **앱 전역**(`FormPageShell` 을 쓰는 모든 폼 화면이 같다) | A40 · A11 |
-| 3 | **IA-04** | **P0** | Pagination 이 없다 — 무한 증가하는 트랜잭션 데이터를 전량 렌더한다. 순번·전체선택·성능·일괄 안전장치가 전부 여기서 파생된다. **1.0 과 사유·판정이 모두 같다.** 다만 `useListState` 의 `page`·`clampPage` 가 이미 있어 배선 비용이 내려갔고, `Pagination` 의 범위/page-size 도 opt-in 으로 준비돼 있다(§3 ERP-05) | 이 화면 | A11 (FS-037 §7 #2) |
-| 4 | **EXC-03** | **P0** | 쓰기 권한 게이팅 미소비. **1.0 의 '`pages/**` 전체가 쓰지 않는다'는 이제 틀렸다** — 소비처가 **7곳**(products 3 · settings 4)인데 **`pages/reservations/**` 는 grep 0** 이다. 조회 전용 역할에게 등록·수정·삭제가 그대로 보인다 | **이 섹션**(앱 전역 아님 — 프레임워크는 돌아가고 있다) | A11 · A63 (FS-037 §7 #9) |
-| 5 | **EXC-04** | **P0** | **낙관적 동시성 토큰 없음(핵심은 그대로)** — `Reservation` 에 `version`/`updatedAt` 이 없고 `WriteContext`(`crud.ts:30-42`)에 `If-Match` 자리가 없다. **둘 다 존재하는 항목의 동시 수정은 마지막 쓰기 승리**(전체 치환이라 남의 변경을 되돌린다), 동시 생성은 더블부킹이 그대로 저장된다. **해소된 부분(혼동 금지)**: 대상이 **삭제된** 경우의 409(`crud.ts:126-128`)로 **유령 저장은 막혔다** — 그러나 그것은 '존재 여부' 게이트지 버전 토큰이 아니다 | 이 화면 + `shared/crud` 계약 | A63 (BE-037 §7.3 · §7.8 #7) · A41 |
-| 6 | COMP-11 | P1 | 기간 필터가 없다 — 예약의 1급 축인 날짜로 목록을 좁힐 수 없다 | 이 화면 | A11 |
-| 7 | A11Y-05 | P1 | 자원 배정·상태 `<select>` 에 `aria-invalid`/`aria-describedby` 미배선. **`withAriaRequired` 는 `aria-required` 만 주입하므로 이 축은 그대로다** | 이 화면 | A11 (FS-037 §7 #12) |
-| 8 | IA-03 | P1 | breadcrumb 없음. **AppHeader 제목이 틀린 것은 아니다**(`findCoveringLeaf` 가 '예약'을 준다) — 위치 trail 이 없을 뿐 | 앱 전역 | A40 · A11 |
-| 9 | IA-14 | P1 | 11열 표의 가로 스크롤 전략·최소 지원 폭 선언 없음 | 앱 전역 + 이 화면 | A11 · A41 |
-| 10 | ERP-04 | P1 | 정렬 가능 헤더 없음(방문일시 내림차순 고정). **`useListState.sort`(`:163-168`)가 URL 축을 이미 갖고 있다** — 배선만 없다 | 이 화면 | A11 |
-| 11 | ERP-12 | P1 | 엑셀/CSV 내보내기 없음(권한 모델엔 `export` 액션이 이미 있다) | 이 화면 | A11 |
+| 2 | **IA-02** | **P0** | **가지 폴백은 해소됐다**(`findCoveringLeaf` — `nav-config.ts:269-279,297-299`). **남은 것: `<h1>` 이 둘**(AppHeader `:101` + `FormPageShell.tsx:160`) → '단일 title 메커니즘' 미충족. 부수적으로 '등록/수정' 행위가 AppHeader 제목에 반영되지 않는다(`nav-config.ts:293-295` — 의도) | **앱 전역**(`FormPageShell` 을 쓰는 모든 폼 화면이 같다) | 프론트 구현 · UI 기획 |
+| 3 | **IA-04** | **P0** | Pagination 이 없다 — 무한 증가하는 트랜잭션 데이터를 전량 렌더한다. 순번·전체선택·성능·일괄 안전장치가 전부 여기서 파생된다. **1.0 과 사유·판정이 모두 같다.** 다만 `useListState` 의 `page`·`clampPage` 가 이미 있어 배선 비용이 내려갔고, `Pagination` 의 범위/page-size 도 opt-in 으로 준비돼 있다(§3 ERP-05) | 이 화면 | UI 기획 (FS-037 §7 #2) |
+| 4 | **EXC-03** | **P0** | 쓰기 권한 게이팅 미소비. **1.0 의 '`pages/**` 전체가 쓰지 않는다'는 이제 틀렸다** — 소비처가 **7곳**(products 3 · settings 4)인데 **`pages/reservations/**` 는 grep 0** 이다. 조회 전용 역할에게 등록·수정·삭제가 그대로 보인다 | **이 섹션**(앱 전역 아님 — 프레임워크는 돌아가고 있다) | UI 기획 · 백엔드 명세 (FS-037 §7 #9) |
+| 5 | **EXC-04** | **P0** | **낙관적 동시성 토큰 없음(핵심은 그대로)** — `Reservation` 에 `version`/`updatedAt` 이 없고 `WriteContext`(`crud.ts:30-42`)에 `If-Match` 자리가 없다. **둘 다 존재하는 항목의 동시 수정은 마지막 쓰기 승리**(전체 치환이라 남의 변경을 되돌린다), 동시 생성은 더블부킹이 그대로 저장된다. **해소된 부분(혼동 금지)**: 대상이 **삭제된** 경우의 409(`crud.ts:126-128`)로 **유령 저장은 막혔다** — 그러나 그것은 '존재 여부' 게이트지 버전 토큰이 아니다 | 이 화면 + `shared/crud` 계약 | 백엔드 명세 (BE-037 §7.3 · §7.8 #7) · 프론트 리팩터 |
+| 6 | COMP-11 | P1 | 기간 필터가 없다 — 예약의 1급 축인 날짜로 목록을 좁힐 수 없다 | 이 화면 | UI 기획 |
+| 7 | A11Y-05 | P1 | 자원 배정·상태 `<select>` 에 `aria-invalid`/`aria-describedby` 미배선. **`withAriaRequired` 는 `aria-required` 만 주입하므로 이 축은 그대로다** | 이 화면 | UI 기획 (FS-037 §7 #12) |
+| 8 | IA-03 | P1 | breadcrumb 없음. **AppHeader 제목이 틀린 것은 아니다**(`findCoveringLeaf` 가 '예약'을 준다) — 위치 trail 이 없을 뿐 | 앱 전역 | 프론트 구현 · UI 기획 |
+| 9 | IA-14 | P1 | 11열 표의 가로 스크롤 전략·최소 지원 폭 선언 없음 | 앱 전역 + 이 화면 | UI 기획 · 프론트 리팩터 |
+| 10 | ERP-04 | P1 | 정렬 가능 헤더 없음(방문일시 내림차순 고정). **`useListState.sort`(`:163-168`)가 URL 축을 이미 갖고 있다** — 배선만 없다 | 이 화면 | UI 기획 |
+| 11 | ERP-12 | P1 | 엑셀/CSV 내보내기 없음(권한 모델엔 `export` 액션이 이미 있다) | 이 화면 | UI 기획 |
 | ~~—~~ | ~~ERP-13~~ | ~~P1~~ | **해소됨(통합).** 조사 헬퍼가 `shared/format.ts:306,311,321` 로 승격됐고 `useCrudList.tsx:108,158` · `useCrudForm.ts:222` 가 소비한다. **이 화면 전용 파일·앱 전역 모두 사용자 대상 `을(를)` 리터럴 0건** | — | **닫힘** |
-| 12 | ERP-14 | P1 | 연락처·예약금 마스킹/정규화 없음 | 이 화면 + 공용 field adapter | A11 |
-| 13 | ERP-15 | P1 | 대형 list 계약 없음 + 더블부킹 배지 O(n²)(`ReservationListPage.tsx:141`) + `columns` 매 렌더 재생성(`:111-145`). **COMP-10 해소로 '자모마다 곱해지는' 관계는 끊겼으나 결함 자체는 그대로** | 이 화면 | A11 · A41 |
-| 14 | EXC-05 | P1 | 클라이언트 타임아웃 없음 | 앱 전역 | A40 · A41 |
-| 15 | EXC-06 | P1 | 목록·삭제 실패가 status 를 보지 않고 한 문구로 붕괴 | 앱 전역(`CrudListShell`·`useCrudList`) | A41 · A11 |
-| 16 | EXC-10 | P1 | 일괄 실패 id 미반환 — 실패분만 재시도 불가 | 앱 전역(`shared/bulk.ts`) | A41 |
-| 17 | EXC-11 | P1 | 오프라인 감지 없음 | 앱 전역 | A40 |
-| 18 | EXC-18 | P1 | selection scope 미정의 · Shift-range 없음 · 대량 confirm 강화·진행률·취소 없음 | 이 화면 + `useCrudList` | A11 · A41 |
-| 19 | EXC-19 | P1 | 세션 만료 전 경고·dirty draft 스냅샷 없음 | 앱 전역 | A40 · A11 |
-| 20 | COMP-12 | P2 | 길이 제한 5필드에 실시간 카운터 없음(`FormField` 는 `counter` 를 지원한다 — `FormField.tsx:104`) | 이 화면 | A11 |
-| 21 | ERP-07 | P2 | 금액·인원 단위가 숫자에 붙어 자릿수 정렬이 깨진다 | 이 화면 | A11 |
-| 22 | ERP-08 | P2 | 일시 셀이 포매터를 거치지 않고 원본 문자열을 잇는다(`ReservationListPage.tsx:118`) | 이 화면 | A11 |
-| 23 | ERP-09 | P2 | `_shared/calendar.ts` 가 전부 browser-local getter — 표시 TZ 정책 없음. 관리자 TZ 에 따라 '과거 일시' 경고·'오늘' 판정이 달라진다. ⚠ **F3b 가 `shared/format.ts:33-45` 를 UTC 정오 앵커로 수렴시켰고 `logs`·`stats` 사본이 정렬됐다 — `_shared/calendar.ts` 만 합류하지 않아 이 섹션이 사실상 마지막 잔여지다**(1.0 의 '앱 전역(`shared/format.ts`)' 범위 표기는 이제 틀렸다) | **섹션 공용(`_shared/calendar.ts`) — 앱 전역 아님** | A63 · A11 |
-| 24 | — | P1 | **`useListState` 의 선택 축이 이 화면에서 죽은 코드다** — 선택은 `useCrudList` 의 `useRowSelection`(`useCrudList.tsx:59`)이 쥐고, `useListState` 도 자기 `selectedIds`/`clearSelection`/`viewSignature` effect(`useListState.ts:186-213`)를 갖는데 이 화면은 후자를 소비하지 않는다. 대신 화면이 수동 effect 로 같은 일을 한다(`ReservationListPage.tsx:102-104`). **결과는 옳으나 같은 책임이 두 곳에 있다** — 통합이 남긴 이음매다 | 이 화면 + `shared/crud` | A41 |
+| 12 | ERP-14 | P1 | 연락처·예약금 마스킹/정규화 없음 | 이 화면 + 공용 field adapter | UI 기획 |
+| 13 | ERP-15 | P1 | 대형 list 계약 없음 + 더블부킹 배지 O(n²)(`ReservationListPage.tsx:141`) + `columns` 매 렌더 재생성(`:111-145`). **COMP-10 해소로 '자모마다 곱해지는' 관계는 끊겼으나 결함 자체는 그대로** | 이 화면 | UI 기획 · 프론트 리팩터 |
+| 14 | EXC-05 | P1 | 클라이언트 타임아웃 없음 | 앱 전역 | 프론트 구현 · 프론트 리팩터 |
+| 15 | EXC-06 | P1 | 목록·삭제 실패가 status 를 보지 않고 한 문구로 붕괴 | 앱 전역(`CrudListShell`·`useCrudList`) | 프론트 리팩터 · UI 기획 |
+| 16 | EXC-10 | P1 | 일괄 실패 id 미반환 — 실패분만 재시도 불가 | 앱 전역(`shared/bulk.ts`) | 프론트 리팩터 |
+| 17 | EXC-11 | P1 | 오프라인 감지 없음 | 앱 전역 | 프론트 구현 |
+| 18 | EXC-18 | P1 | selection scope 미정의 · Shift-range 없음 · 대량 confirm 강화·진행률·취소 없음 | 이 화면 + `useCrudList` | UI 기획 · 프론트 리팩터 |
+| 19 | EXC-19 | P1 | 세션 만료 전 경고·dirty draft 스냅샷 없음 | 앱 전역 | 프론트 구현 · UI 기획 |
+| 20 | COMP-12 | P2 | 길이 제한 5필드에 실시간 카운터 없음(`FormField` 는 `counter` 를 지원한다 — `FormField.tsx:104`) | 이 화면 | UI 기획 |
+| 21 | ERP-07 | P2 | 금액·인원 단위가 숫자에 붙어 자릿수 정렬이 깨진다 | 이 화면 | UI 기획 |
+| 22 | ERP-08 | P2 | 일시 셀이 포매터를 거치지 않고 원본 문자열을 잇는다(`ReservationListPage.tsx:118`) | 이 화면 | UI 기획 |
+| 23 | ERP-09 | P2 | `_shared/calendar.ts` 가 전부 browser-local getter — 표시 TZ 정책 없음. 관리자 TZ 에 따라 '과거 일시' 경고·'오늘' 판정이 달라진다. ⚠ **F3b 가 `shared/format.ts:33-45` 를 UTC 정오 앵커로 수렴시켰고 `logs`·`stats` 사본이 정렬됐다 — `_shared/calendar.ts` 만 합류하지 않아 이 섹션이 사실상 마지막 잔여지다**(1.0 의 '앱 전역(`shared/format.ts`)' 범위 표기는 이제 틀렸다) | **섹션 공용(`_shared/calendar.ts`) — 앱 전역 아님** | 백엔드 명세 · UI 기획 |
+| 24 | — | P1 | **`useListState` 의 선택 축이 이 화면에서 죽은 코드다** — 선택은 `useCrudList` 의 `useRowSelection`(`useCrudList.tsx:59`)이 쥐고, `useListState` 도 자기 `selectedIds`/`clearSelection`/`viewSignature` effect(`useListState.ts:186-213`)를 갖는데 이 화면은 후자를 소비하지 않는다. 대신 화면이 수동 effect 로 같은 일을 한다(`ReservationListPage.tsx:102-104`). **결과는 옳으나 같은 책임이 두 곳에 있다** — 통합이 남긴 이음매다 | 이 화면 + `shared/crud` | 프론트 리팩터 |
 
 ## 6. 측정 도구 · 재현 스위치
 
@@ -253,7 +253,7 @@ date: 2026-07-17
 /reservations/new?status=save:500       500 → EXC-20 참조 코드
 ```
 
-⚠ **422 의 필드 경로(EXC-07)는 현재 스위치로 재현할 수 없다.** `?status=save:422` 는 `new HttpError(422, '입력값을 확인해 주세요.')` 를 **`violations` 없이** 던지고(`dev.ts:84`), `useCrudForm.ts:176` 의 `cause.violations.length > 0` 가드에 걸려 필드 인라인이 아니라 generic 배너로 떨어진다. BE-037 이 정의한 422(`RESERVATION_SLOT_CONFLICT` · `INVALID_STATUS_TRANSITION` · `PARTY_SIZE_EXCEEDS_CAPACITY`)의 UX 를 검증하려면 **`?status=` 에 `error.fields` 를 실을 수단이 필요하다** — §5 #추가 이관: A41.
+⚠ **422 의 필드 경로(EXC-07)는 현재 스위치로 재현할 수 없다.** `?status=save:422` 는 `new HttpError(422, '입력값을 확인해 주세요.')` 를 **`violations` 없이** 던지고(`dev.ts:84`), `useCrudForm.ts:176` 의 `cause.violations.length > 0` 가드에 걸려 필드 인라인이 아니라 generic 배너로 떨어진다. BE-037 이 정의한 422(`RESERVATION_SLOT_CONFLICT` · `INVALID_STATUS_TRANSITION` · `PARTY_SIZE_EXCEEDS_CAPACITY`)의 UX 를 검증하려면 **`?status=` 에 `error.fields` 를 실을 수단이 필요하다** — §5 #추가 이관: 프론트 리팩터.
 
 ### 6.3 코드 대조 지점 (판정 재확인용)
 

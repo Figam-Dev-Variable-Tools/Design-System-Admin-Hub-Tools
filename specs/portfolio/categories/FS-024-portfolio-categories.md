@@ -3,8 +3,8 @@ id: FS-024
 title: "포트폴리오 카테고리 관리 (목록·등록/수정 모달·삭제)"
 screen: SCR-024               # ⚠ 포트폴리오 SCR 미작성 — §7 미결 사항 참조
 route: /portfolio/categories
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -124,7 +124,7 @@ date: 2026-07-17
 | FS-024-EL-003.4 / EL-008 / EL-009 | 카테고리 삭제 | W | 카테고리 id | `portfolioCategoryAdapter.remove(id, signal)` → `removeCategory(id)` | 사용 중이면 저장소가 던진다(안전 기본값) |
 | — | 카테고리 단건 조회 | R | 카테고리 id | `portfolioCategoryAdapter.fetchOne(id, signal)` → `getCategoryUsage(id)` | **소비자 없음** — 어댑터 계약(`CrudAdapter`)을 채우려 배선만 돼 있다. 수정 모달은 행 데이터를 그대로 받는다(§7) |
 
-> **현재 구현 상태 (A63 참고 · 2026-07-17 · HEAD = `4b805ad`)**: 백엔드가 없다. `portfolioCategoryAdapter` 는 `createStoreAdapter` 로 만들어져(`data-source.ts:21-30`) `pages/portfolio/_shared/store.ts` 의 **브라우저 안 mutable 배열**(`categories`·`items`)을 읽고 쓴다 — 실제 네트워크 0건. 각 함수는 `wait(LATENCY_MS=400, signal)` 로 지연을 흉내 내고 `failIfRequested(scope, op)` 로 실패를 재현한다. `removeCategory` 는 사용 중이면 던진다(안전 기본값). **`data-source.ts:20` 의 `// TODO(backend): GET/POST /api/portfolio/categories · PUT/DELETE /api/portfolio/categories/:id (사용 중이면 409)` 주석이 유일한 연동 지점**이다. 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고 · 2026-07-17 · HEAD = `4b805ad`)**: 백엔드가 없다. `portfolioCategoryAdapter` 는 `createStoreAdapter` 로 만들어져(`data-source.ts:21-30`) `pages/portfolio/_shared/store.ts` 의 **브라우저 안 mutable 배열**(`categories`·`items`)을 읽고 쓴다 — 실제 네트워크 0건. 각 함수는 `wait(LATENCY_MS=400, signal)` 로 지연을 흉내 내고 `failIfRequested(scope, op)` 로 실패를 재현한다. `removeCategory` 는 사용 중이면 던진다(안전 기본값). **`data-source.ts:20` 의 `// TODO(backend): GET/POST /api/portfolio/categories · PUT/DELETE /api/portfolio/categories/:id (사용 중이면 409)` 주석이 유일한 연동 지점**이다. 위 표는 백엔드 연결 후 의도된 동작이다.
 >
 > **F3b 가 `createStoreAdapter` 의 조용한 성공을 닫았다** — `shared/crud/crud.ts:171` 의 `exists()` 가 세 곳을 막는다: `fetchOne` 없는 id → `HttpError(404)`(`:192-194`) · `update` 없는 id → `HttpError(409, '다른 사용자가 먼저 삭제한 항목입니다.')`(`:219-221`) · `remove` 없는 id → `HttpError(409, '이미 삭제된 항목입니다.')`(`:232-234`). store 의 `updateCategory`(`map`)·`removeCategory`(`filter`)가 없는 id 를 조용히 지나치던 구멍이 **어댑터 경계에서 닫혔다** — 유령 저장/삭제는 해소됐다. **남은 것은 ① 낙관적 동시성 토큰**(`PortfolioCategory` 에 `updatedAt`/`version` 없음 → 동시 편집 last-write-wins) **② 이 모달의 409 복구 UI**(저수준 훅을 직접 써 `useCrudForm` 의 충돌 다이얼로그를 물려받지 못했고 409 가 generic 배너로 뭉개진다) — §7 #5. |
 
@@ -139,21 +139,21 @@ date: 2026-07-17
 - [x] 발견한 실제 결함(동기 제출 락 부재·쓰기 권한 게이팅 부재·동시성 토큰 부재·모달의 409 복구 UI 부재)을 §4·§7 에 정직하게 남겼다
 - [x] **`2026-07-17 · HEAD = 4b805ad`(F3a·F3b·통합 머지 후) 코드로 재검증했다** — F2 기준 판정 중 **재조회 로딩 혼동(§7 #2)** 과 **유령 저장/삭제(§7 #5 의 일부)** 는 해소되어 갱신했다. 남은 것만 적었다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 | A11 / A01 |
+| 1 | 대응 SCR 문서 부재 | UI 기획 / 아키텍처 |
 | 2 | ~~재조회가 first-load 로 표시된다~~ **— 해소됨(F3b)**: `PortfolioCategoriesPage.tsx:175-177` 이 `firstLoading`/`refreshing` 을 파생하고 요약(`:224`)·빈 상태(`:245`)가 `firstLoading` 만 읽는다. 재조회 중 `전체 N개` 가 유지되고 '· 새로고침 중…' 만 덧붙는다(STATE-01 pass) | — (해소) |
-| 3 | **동기 제출 락·멱등키 부재** — 모달이 `useCrudCreate`/`useCrudUpdate` 저수준 훅을 직접 쓰고(`PortfolioCategoryFormModal.tsx:57-58`) `disabled={saving}` 렌더 가드에만 의존하며, `mutate` 호출(`:85-94`)이 `idempotencyKey` 를 비운 채 보낸다. **F3b 가 자리를 만들어 뒀다** — `WriteContext.idempotencyKey`(`crud.ts:30-42`) + 어댑터 ledger(`:168`·`:201-203`)가 실재하고 `useCrudForm` 이 `submitLockRef`(`:103`)+키(`:118-123,211`)로 그것을 쓴다. 이 모달만 물려받지 못했다(EXC-08 P0) | A11 change_request |
-| 4 | **쓰기 권한 게이팅 부재** — `useRouteWritePermissions()` 를 **앱의 7개 화면이 소비하는데**(products 3 · settings 4) 이 화면은 그 밖이다. 읽기 전용 역할이 추가·수정·삭제 버튼을 그대로 보고 누른다. 최근접 선례: 같은 taxonomy+모달 패턴인 `products/categories/ProductCategoriesPage.tsx:181`(EXC-03 P0) | A11 change_request (이 화면) |
-| 5 | **동시성 토큰 부재 + 모달의 409 복구 UI 부재** *(유령 저장/삭제는 F3b 의 `createStoreAdapter` 존재 검사 — `crud.ts:219-221`·`:232-234` — 로 해소됨)*. 남은 것: ① `PortfolioCategory`(`_shared/store.ts:13-16`)에 `updatedAt`/`version` 이 없어 낙관적 토큰을 실을 수 없다 → **둘 다 존재하는 동시 편집은 last-write-wins** ② 어댑터가 던지는 409 를 모달이 `onError`(`PortfolioCategoryFormModal.tsx:80-83`)에서 generic '저장하지 못했습니다…' 배너로 뭉갠다 — '다른 사용자가 먼저 삭제했다'는 사실도, 재조회 경로도 사용자에게 닿지 않는다(EXC-04 P0) | A11 · A63 (BE-024 §7.3) |
-| 6 | 카테고리명 중복 검사가 프론트에 없다 — 동명 카테고리 둘이 만들어질 수 있고 필터·선택지가 구분되지 않는다. 서버 판정에 위임 | A63 (BE-024 §7.2) |
-| 7 | 저장 실패가 코드별로 갈리지 않는다 — 중복(409)·상태위반(422)·서버 오류(500)가 모두 '저장하지 못했습니다…' 한 문구 | A11 change_request |
-| 8 | 카테고리 수 상한이 없어 목록이 전량 렌더된다(페이지네이션 없음) — 카테고리가 늘면 화면이 그만큼 길어지고, 포트폴리오 폼의 분류 선택지도 함께 늘어난다 | A63 (BE-024 §7.5) · A11 |
-| 9 | 목록 첫 조회에 전용 스켈레톤이 없다 — '불러오는 중…' 텍스트 1줄로만 표현한다(빈 상태 자리를 빌려 쓴다) | A11 change_request |
-| 10 | 삭제 차단 안내 문구의 조사(助詞)가 깨진다 — `PortfolioCategoriesPage.tsx:141` 의 접근 이름이 `'<라벨> — 3개 사용 중라 삭제할 수 없습니다'`(→ '사용 중**이라**'). **조사 헬퍼는 통합에서 `shared/format.ts:269+` 로 승격됐지만 계사 '이라/라' 는 없다**(`objectParticle`·`topicParticle`·`directionParticle` 3종뿐) — 헬퍼 확장이 선행돼야 한다. 같은 파일 `:144` 의 `title` 은 조사를 피해 가 파손이 없다. `support/categories/CategoriesPage.tsx:142` 가 같은 문구를 복제한다(ERP-13 P1) | A40 · A11 |
-| 11 | 세션 만료 경고·프론트 타임아웃 상한·오프라인 감지·권한 은닉(403 vs 404)이 미정 | A63 (BE-024) · A40 |
-| 12 | 어댑터의 `fetchOne`(`GET :id`)이 배선만 되고 소비자가 없다 — 수정 모달이 행 데이터를 그대로 쓰므로 열린 사이의 원격 변경을 반영하지 않는다 | A63 (BE-024 §7.6) |
-| 13 | 이름 입력에 실시간 글자 수 카운터가 없다(`maxLength=40` 이 조용히 자른다 — COMP-12 P2) | A11 change_request |
-| 14 | 모달이 dirty 인 채 **브라우저 뒤로가기·새로고침**을 하면 가드가 걸리지 않는다 — `useModalDirtyGuard` 는 모달 4경로만 덮고, 페이지 폼용 `useUnsavedChangesDialog`(unload·링크·popstate)는 이 화면에 없다 | A11 change_request |
+| 3 | **동기 제출 락·멱등키 부재** — 모달이 `useCrudCreate`/`useCrudUpdate` 저수준 훅을 직접 쓰고(`PortfolioCategoryFormModal.tsx:57-58`) `disabled={saving}` 렌더 가드에만 의존하며, `mutate` 호출(`:85-94`)이 `idempotencyKey` 를 비운 채 보낸다. **F3b 가 자리를 만들어 뒀다** — `WriteContext.idempotencyKey`(`crud.ts:30-42`) + 어댑터 ledger(`:168`·`:201-203`)가 실재하고 `useCrudForm` 이 `submitLockRef`(`:103`)+키(`:118-123,211`)로 그것을 쓴다. 이 모달만 물려받지 못했다(EXC-08 P0) | UI 기획 쪽 변경 요청 |
+| 4 | **쓰기 권한 게이팅 부재** — `useRouteWritePermissions()` 를 **앱의 7개 화면이 소비하는데**(products 3 · settings 4) 이 화면은 그 밖이다. 읽기 전용 역할이 추가·수정·삭제 버튼을 그대로 보고 누른다. 최근접 선례: 같은 taxonomy+모달 패턴인 `products/categories/ProductCategoriesPage.tsx:181`(EXC-03 P0) | UI 기획 쪽 변경 요청 (이 화면) |
+| 5 | **동시성 토큰 부재 + 모달의 409 복구 UI 부재** *(유령 저장/삭제는 F3b 의 `createStoreAdapter` 존재 검사 — `crud.ts:219-221`·`:232-234` — 로 해소됨)*. 남은 것: ① `PortfolioCategory`(`_shared/store.ts:13-16`)에 `updatedAt`/`version` 이 없어 낙관적 토큰을 실을 수 없다 → **둘 다 존재하는 동시 편집은 last-write-wins** ② 어댑터가 던지는 409 를 모달이 `onError`(`PortfolioCategoryFormModal.tsx:80-83`)에서 generic '저장하지 못했습니다…' 배너로 뭉갠다 — '다른 사용자가 먼저 삭제했다'는 사실도, 재조회 경로도 사용자에게 닿지 않는다(EXC-04 P0) | UI 기획 · 백엔드 명세 (BE-024 §7.3) |
+| 6 | 카테고리명 중복 검사가 프론트에 없다 — 동명 카테고리 둘이 만들어질 수 있고 필터·선택지가 구분되지 않는다. 서버 판정에 위임 | 백엔드 명세 (BE-024 §7.2) |
+| 7 | 저장 실패가 코드별로 갈리지 않는다 — 중복(409)·상태위반(422)·서버 오류(500)가 모두 '저장하지 못했습니다…' 한 문구 | UI 기획 쪽 변경 요청 |
+| 8 | 카테고리 수 상한이 없어 목록이 전량 렌더된다(페이지네이션 없음) — 카테고리가 늘면 화면이 그만큼 길어지고, 포트폴리오 폼의 분류 선택지도 함께 늘어난다 | 백엔드 명세 (BE-024 §7.5) · UI 기획 |
+| 9 | 목록 첫 조회에 전용 스켈레톤이 없다 — '불러오는 중…' 텍스트 1줄로만 표현한다(빈 상태 자리를 빌려 쓴다) | UI 기획 쪽 변경 요청 |
+| 10 | 삭제 차단 안내 문구의 조사(助詞)가 깨진다 — `PortfolioCategoriesPage.tsx:141` 의 접근 이름이 `'<라벨> — 3개 사용 중라 삭제할 수 없습니다'`(→ '사용 중**이라**'). **조사 헬퍼는 통합에서 `shared/format.ts:269+` 로 승격됐지만 계사 '이라/라' 는 없다**(`objectParticle`·`topicParticle`·`directionParticle` 3종뿐) — 헬퍼 확장이 선행돼야 한다. 같은 파일 `:144` 의 `title` 은 조사를 피해 가 파손이 없다. `support/categories/CategoriesPage.tsx:142` 가 같은 문구를 복제한다(ERP-13 P1) | 프론트 구현 · UI 기획 |
+| 11 | 세션 만료 경고·프론트 타임아웃 상한·오프라인 감지·권한 은닉(403 vs 404)이 미정 | 백엔드 명세 (BE-024) · 프론트 구현 |
+| 12 | 어댑터의 `fetchOne`(`GET :id`)이 배선만 되고 소비자가 없다 — 수정 모달이 행 데이터를 그대로 쓰므로 열린 사이의 원격 변경을 반영하지 않는다 | 백엔드 명세 (BE-024 §7.6) |
+| 13 | 이름 입력에 실시간 글자 수 카운터가 없다(`maxLength=40` 이 조용히 자른다 — COMP-12 P2) | UI 기획 쪽 변경 요청 |
+| 14 | 모달이 dirty 인 채 **브라우저 뒤로가기·새로고침**을 하면 가드가 걸리지 않는다 — `useModalDirtyGuard` 는 모달 4경로만 덮고, 페이지 폼용 `useUnsavedChangesDialog`(unload·링크·popstate)는 이 화면에 없다 | UI 기획 쪽 변경 요청 |

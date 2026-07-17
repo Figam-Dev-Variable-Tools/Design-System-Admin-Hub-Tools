@@ -1,4 +1,4 @@
-// 자료 카드 미리보기 (A41 소유 — apps/admin/src/pages/support/downloads/**)
+// 자료 카드 미리보기
 //
 // 폼 입력을 고객센터 자료실에 보일 카드 모양으로 실시간 반영한다. 도메인 값을 그대로 받아 표시만 한다.
 import type { CSSProperties } from 'react';

@@ -1,4 +1,4 @@
-// 렌더 예외 경계 (A41 소유 — apps/admin/src/shared/errors/**)
+// 렌더 예외 경계
 //
 // [왜 필요한가 — EXC-01]
 // 이 앱에는 ErrorBoundary 가 **0건**이었다. React 는 렌더 중 throw 를 잡지 못하면 트리 전체를

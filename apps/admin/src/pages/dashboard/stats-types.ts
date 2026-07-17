@@ -1,4 +1,4 @@
-// 통계 섹션 도메인 타입 (A40 소유 · A41 이 전송 타입을 생성 타입으로 교체)
+// 통계 섹션 도메인 타입 (전송 타입을 생성 타입으로 교체)
 import type { DeepReadonly } from '../../shared/api/immutable';
 import type { components } from '../../shared/api/schema';
 
@@ -26,7 +26,7 @@ export const DEFAULT_STATS_RANGE: StatsRange = 'day';
  *
  * ※ 화면 전용 개념(StatsRange · STATS_RANGES · DEFAULT_STATS_RANGE)은 전송 타입이 아니다 — 위에 남는다.
  */
-// DeepReadonly 로 감싸는 이유는 shared/api/immutable.ts 참조 (생성기가 mutable 을 낸다 — A80 handoff)
+// DeepReadonly 로 감싸는 이유는 shared/api/immutable.ts 참조 (생성기가 mutable 을 낸다 — 의존성 관리 쪽 후속 과제)
 export type VisitorPoint = DeepReadonly<components['schemas']['VisitorPoint']>;
 export type PeriodRow = DeepReadonly<components['schemas']['PeriodRow']>;
 export type PeriodSummary = DeepReadonly<components['schemas']['PeriodSummary']>;

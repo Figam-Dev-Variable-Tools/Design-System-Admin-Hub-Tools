@@ -1,4 +1,4 @@
-// SmsFormPage — SMS 발송 등록/수정 (라우트: /marketing/sms/new · /:id/edit) · A41 소유
+// SmsFormPage — SMS 발송 등록/수정 (라우트: /marketing/sms/new · /:id/edit)
 //
 // 데이터 배선은 공용 CRUD 프레임워크(useCrudForm)를 재사용하고, 화면은 입력 카드(발송정보·수신자·메시지·
 // 예약) + 우측 휴대폰 말풍선 미리보기 2단으로 구성한다. 검증(발신번호·바이트·광고요건·야간·과거예약)의

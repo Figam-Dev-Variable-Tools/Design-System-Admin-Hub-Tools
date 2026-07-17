@@ -1,4 +1,4 @@
-// 로고 목록 페이지 — 파트너사·고객사 공유 (A41 소유 — apps/admin/src/pages/company/logo-list/**)
+// 로고 목록 페이지 — 파트너사·고객사 공유
 //
 // 목록 + 추가/수정 모달 + 삭제팝업. 배치·패턴은 콘텐츠 목록(FAQ)을 따른다: 검색 + 등록 버튼 + 선택
 // 일괄 삭제(SelectionBar) + 표 + 확인 다이얼로그. 파트너사/고객사는 config(resource·라벨·adapter)만 다르다.

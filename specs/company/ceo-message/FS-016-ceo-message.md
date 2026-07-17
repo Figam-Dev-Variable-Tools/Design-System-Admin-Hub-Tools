@@ -3,8 +3,8 @@ id: FS-016
 title: "CEO 인사말 (단일 문서 편집 폼)"
 screen: SCR-016               # ⚠ 기업 관리 SCR 미작성 — §7 미결 사항 참조
 route: /company/ceo-message
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -147,7 +147,7 @@ FS-015 §4.1 과 **동일한 규칙**이 성립한다(같은 골격·같은 훅)
 | FS-016-EL-011 / EL-015 / EL-016 | CEO 인사말 저장 | W | `CeoMessage` **전체**(부분 갱신 아님) | `ceoMessageStore.save(input, signal)` — `useSaveDocument(ceoMessageKey, ceoMessageStore)` | 전체 치환. 성공 시 `invalidateQueries(['company','ceo-message'])` |
 | FS-016-EL-008.7 | 사진 파일 업로드 | — | (있어야 할 것) 파일 바이트 → 영구 URL | **없다** — 어댑터에 업로드 함수가 없다. `URL.createObjectURL` 결과가 그대로 `photoUrl` 이 된다 | **미구현.** BE-016 §4 BE-016-EP-03 '심 없음(미정)' · §7.6 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드가 없다. `createDocumentStore('ceo-message', CEO_MESSAGE_SEED)` 가 브라우저 안 mutable 픽스처 1건을 들고 `fetch`/`save` 를 흉내 낸다 — `save` 는 모듈 변수를 덮어쓰므로 **새로고침하면 초기 seed 로 돌아간다**. 두 연산 모두 `wait(LATENCY_MS=400, signal)` 로 지연을 흉내 내고 `failIfRequested('ceo-message', 'load'\|'save')` 로 실패를 재현한다. 연동 지점은 `data-source.ts:19` 의 `// TODO(backend): GET /api/company/ceo-message · PUT /api/company/ceo-message` 주석 **2건뿐이며, 업로드 심은 없다.** 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드가 없다. `createDocumentStore('ceo-message', CEO_MESSAGE_SEED)` 가 브라우저 안 mutable 픽스처 1건을 들고 `fetch`/`save` 를 흉내 낸다 — `save` 는 모듈 변수를 덮어쓰므로 **새로고침하면 초기 seed 로 돌아간다**. 두 연산 모두 `wait(LATENCY_MS=400, signal)` 로 지연을 흉내 내고 `failIfRequested('ceo-message', 'load'\|'save')` 로 실패를 재현한다. 연동 지점은 `data-source.ts:19` 의 `// TODO(backend): GET /api/company/ceo-message · PUT /api/company/ceo-message` 주석 **2건뿐이며, 업로드 심은 없다.** 위 표는 백엔드 연결 후 의도된 동작이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -160,16 +160,16 @@ FS-015 §4.1 과 **동일한 규칙**이 성립한다(같은 골격·같은 훅)
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-016 영역)
 - [x] 지어내지 않았다 — `?delay=` 스위치·업로드 엔드포인트·역할 분기 등 코드에 없는 것을 쓰지 않았다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **사진이 저장되지 않는다.** `ImageUploadField` 가 만든 `blob:` URL 이 그대로 `photoUrl` 로 저장된다 — 업로드 심이 없어 파일이 서버에 도달하지 않고, 저장 후 새로고침하면 사진이 깨진다(FS-016-EL-008.7). `validation.ts:16` 의 `photoUrl: z.string()` 이 형식을 강제하지 않아 이 값을 막지도 못한다. `shared/crud/validation.ts:22` 의 `optionalHttpUrl()` 헬퍼가 이미 존재한다. **FS-015 §7 #1 과 같은 사안 — 함께 고쳐야 한다** | A11 change_request · A63 (BE-016 §7.2·§7.6) |
-| 2 | **중복 제출 방어가 불완전하다.** 이 화면은 `useCrudForm` 을 우회하고 `useSaveDocument` 를 직접 쓴다 — F2 가 `useCrudForm` 에 넣은 `submitLockRef`·멱등키가 이 화면에 **적용되지 않는다**(FS-016-EL-011 경합 열). **FS-015 §7 #2 와 같은 사안** — 고칠 자리는 `shared/crud/document.ts` 다(단일 문서형 4종이 함께 덮인다) | A11 change_request |
-| 3 | **쓰기 권한 게이팅이 없다** — 저장 버튼이 `update` 권한과 무관하게 렌더된다. **FS-015 §7 #3 과 같은 사안.** **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | A11 change_request |
-| 4 | **저장 실패의 갈래가 없다.** 403·409·422·500 이 한 문구로 수렴한다 — 충돌 다이얼로그·필드 인라인 에러·오류 참조 코드가 전부 없다. **FS-015 §7 #4 와 같은 사안** | A11 change_request · A63 (BE-016 §7.4) |
-| 5 | 조회 실패에서 404(문서 미생성)와 5xx 를 구분하지 않는다 — `loadFailed={error !== null}`(FS-016-EL-012). **FS-015 §7 #5 와 같은 사안** | A63 (BE-016 §7.3) · A11 |
-| 6 | **본문 글자수 계수 기준이 명시되지 않았다.** 카운터·검증이 `value.length`(UTF-16 code unit)를 쓴다 — 이모지·일부 한자가 2로 세어진다. 서버 검증이 같은 기준이어야 5000자 경계에서 프론트 통과/서버 거절이 갈리지 않는다. `maxLength` 가 먼저 막아 스키마의 초과 문구가 사실상 도달 불가한 점도 함께 정리 필요 | A63 (BE-016 §7.3) · A11 |
-| 7 | 프론트 타임아웃 상한이 없다(`AbortSignal.timeout` 미사용). 저장 중 사용자가 스스로 취소할 수단도 없다. **본문 5000자 저장이 무한 대기에 걸리면 손실이 크다** | A63 (BE-016) · A40 |
-| 8 | **본문이 서식 없는 plain textarea 다.** 인사말은 문단·강조가 필요한 콘텐츠인데 `\n` 만으로 표현한다(seed 가 `\n\n` 으로 문단을 나눈다) — 고객 화면의 렌더 규약(개행 보존 여부)이 프론트에 명시돼 있지 않다. 로드맵의 HTML 에디터 도입 시 이 필드가 대상이며, 그때 BE-016 §7.1 의 정제 정책이 '전체 마크업 제거' 에서 '허용 태그 화이트리스트' 로 바뀐다 | A11 change_request · A63 (BE-016 §7.1) |
-| 9 | 대응 SCR 문서 부재 — 기업 관리 섹션 SCR 미작성 | A11 / A01 |
+| 1 | **사진이 저장되지 않는다.** `ImageUploadField` 가 만든 `blob:` URL 이 그대로 `photoUrl` 로 저장된다 — 업로드 심이 없어 파일이 서버에 도달하지 않고, 저장 후 새로고침하면 사진이 깨진다(FS-016-EL-008.7). `validation.ts:16` 의 `photoUrl: z.string()` 이 형식을 강제하지 않아 이 값을 막지도 못한다. `shared/crud/validation.ts:22` 의 `optionalHttpUrl()` 헬퍼가 이미 존재한다. **FS-015 §7 #1 과 같은 사안 — 함께 고쳐야 한다** | UI 기획 쪽 변경 요청 · 백엔드 명세 (BE-016 §7.2·§7.6) |
+| 2 | **중복 제출 방어가 불완전하다.** 이 화면은 `useCrudForm` 을 우회하고 `useSaveDocument` 를 직접 쓴다 — F2 가 `useCrudForm` 에 넣은 `submitLockRef`·멱등키가 이 화면에 **적용되지 않는다**(FS-016-EL-011 경합 열). **FS-015 §7 #2 와 같은 사안** — 고칠 자리는 `shared/crud/document.ts` 다(단일 문서형 4종이 함께 덮인다) | UI 기획 쪽 변경 요청 |
+| 3 | **쓰기 권한 게이팅이 없다** — 저장 버튼이 `update` 권한과 무관하게 렌더된다. **FS-015 §7 #3 과 같은 사안.** **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | UI 기획 쪽 변경 요청 |
+| 4 | **저장 실패의 갈래가 없다.** 403·409·422·500 이 한 문구로 수렴한다 — 충돌 다이얼로그·필드 인라인 에러·오류 참조 코드가 전부 없다. **FS-015 §7 #4 와 같은 사안** | UI 기획 쪽 변경 요청 · 백엔드 명세 (BE-016 §7.4) |
+| 5 | 조회 실패에서 404(문서 미생성)와 5xx 를 구분하지 않는다 — `loadFailed={error !== null}`(FS-016-EL-012). **FS-015 §7 #5 와 같은 사안** | 백엔드 명세 (BE-016 §7.3) · UI 기획 |
+| 6 | **본문 글자수 계수 기준이 명시되지 않았다.** 카운터·검증이 `value.length`(UTF-16 code unit)를 쓴다 — 이모지·일부 한자가 2로 세어진다. 서버 검증이 같은 기준이어야 5000자 경계에서 프론트 통과/서버 거절이 갈리지 않는다. `maxLength` 가 먼저 막아 스키마의 초과 문구가 사실상 도달 불가한 점도 함께 정리 필요 | 백엔드 명세 (BE-016 §7.3) · UI 기획 |
+| 7 | 프론트 타임아웃 상한이 없다(`AbortSignal.timeout` 미사용). 저장 중 사용자가 스스로 취소할 수단도 없다. **본문 5000자 저장이 무한 대기에 걸리면 손실이 크다** | 백엔드 명세 (BE-016) · 프론트 구현 |
+| 8 | **본문이 서식 없는 plain textarea 다.** 인사말은 문단·강조가 필요한 콘텐츠인데 `\n` 만으로 표현한다(seed 가 `\n\n` 으로 문단을 나눈다) — 고객 화면의 렌더 규약(개행 보존 여부)이 프론트에 명시돼 있지 않다. 로드맵의 HTML 에디터 도입 시 이 필드가 대상이며, 그때 BE-016 §7.1 의 정제 정책이 '전체 마크업 제거' 에서 '허용 태그 화이트리스트' 로 바뀐다 | UI 기획 쪽 변경 요청 · 백엔드 명세 (BE-016 §7.1) |
+| 9 | 대응 SCR 문서 부재 — 기업 관리 섹션 SCR 미작성 | UI 기획 / 아키텍처 |

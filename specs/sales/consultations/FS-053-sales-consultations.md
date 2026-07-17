@@ -3,8 +3,8 @@ id: FS-053
 title: "상담 이력 (영업 — 목록·읽기 전용 상세)"
 screen: SCR-053               # ⚠ 영업 관리 SCR 미작성 — §7 미결 사항 참조
 route: /sales/consultations
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -154,7 +154,7 @@ date: 2026-07-17
 | (범위 밖) | 상담 수정 | — | — | `consultationAdapter.update(id, input, context?)` — **동작하지만 호출부 0건** | 위와 동일 |
 | (범위 밖) | 상담 삭제 | — | — | `consultationAdapter.remove(id, context?)` — **동작하지만 호출부 0건** | 위와 동일 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `consultationAdapter` 는 공용 `createCrudAdapter`(`shared/crud/crud.ts:86-147`)에 시드 3건(`CONSULTATION_SEED`)을 넣어 만든 것으로, 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('sales-consultations', op)`)를 얹어 CRUD 를 흉내 낸다 — 실제 네트워크 0건. **화면이 도달하는 것은 `fetchAll`·`fetchOne` 뿐**이며, `build`/`patch` 는 `data-source.ts:4` 가 밝히듯 '프레임워크 계약상' 존재한다. 팩토리 덕에 `fetchOne` 의 404 는 발현되지만 **화면이 그것을 소비하지 않는다**(§7 #13). `data-source.ts:61` 의 `// TODO(backend): GET /api/sales/consultations · GET /api/sales/consultations/:id (읽기 전용)` 가 유일한 연동 지점이며 — **심 자체가 '(읽기 전용)' 이라 못 박고 쓰기 경로를 담지 않는다.** 새로고침하면 시드로 되돌아간다. 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드는 없다. `consultationAdapter` 는 공용 `createCrudAdapter`(`shared/crud/crud.ts:86-147`)에 시드 3건(`CONSULTATION_SEED`)을 넣어 만든 것으로, 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('sales-consultations', op)`)를 얹어 CRUD 를 흉내 낸다 — 실제 네트워크 0건. **화면이 도달하는 것은 `fetchAll`·`fetchOne` 뿐**이며, `build`/`patch` 는 `data-source.ts:4` 가 밝히듯 '프레임워크 계약상' 존재한다. 팩토리 덕에 `fetchOne` 의 404 는 발현되지만 **화면이 그것을 소비하지 않는다**(§7 #13). `data-source.ts:61` 의 `// TODO(backend): GET /api/sales/consultations · GET /api/sales/consultations/:id (읽기 전용)` 가 유일한 연동 지점이며 — **심 자체가 '(읽기 전용)' 이라 못 박고 쓰기 경로를 담지 않는다.** 새로고침하면 시드로 되돌아간다. 위 표는 백엔드 연결 후 의도된 동작이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -168,27 +168,27 @@ date: 2026-07-17
 - [x] **실재 결함을 발견해 기록했다** — '후속조치 대기만' 체크박스에 `tds-ui-focusable` 이 없어 **DS 포커스 링이 안 걸린다**(§7 #4). 앱의 다른 `checkboxStyle` 소비처 4곳(`AdminsTable.tsx:135` · `TierCriteriaCard.tsx:112` · `MembersTable.tsx:164` · `DashboardWidgetsCard.tsx:137`)은 그 클래스를 붙인다
 - [x] §7 의 미결 항목이 BE-053 §7.6 후속 이관 · NFR-053 §5 와 일치한다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 (영업 관리 SCR 미작성) | A11 / A01 |
-| 2 | **페이지네이션이 없다** — `visible.map`(`:244`)이 전량을 렌더한다. **상담 이력은 append-only 감사 컬렉션이라 상한 없이 매일 쌓인다** — 이 섹션에서 증가 속도가 가장 빠를 수 있다(거래처 1곳당 여러 건)(quality-bar IA-04 P0 · ERP-15 P1) | A11 · A63 (BE-053 §7.3) |
-| 3 | 빈 상태(EL-009)가 **'상담 이력이 없습니다.' 한 문구**뿐이다 — 공유 `Empty`(3분기 copy + 복구 액션)를 쓰지 않아 검색 0건·필터 0건·진짜 0건이 구분되지 않고 '검색 지우기'/'필터 초기화' 가 없다. **같은 섹션의 FS-051·FS-052 는 `Empty` 를 쓴다** — 셋 중 이 화면만 빠졌다(quality-bar STATE-05 P1) | A11 change_request |
-| 4 | **'후속조치 대기만' 체크박스에 `tds-ui-focusable` 이 없다**(`:179-186`) — 포커스 링이 DS 토큰(`ui.css:14-17` — 2px `border-width-medium` + `border-focus`)이 아니라 **브라우저 기본값**이다. 이 화면의 유일한 포커스 표면 이탈이며, 앱의 다른 `checkboxStyle` 소비처 4곳은 그 클래스를 붙인다(quality-bar TOKEN-02 P0) | A11 change_request (**저비용**) |
-| 5 | 목록의 유형 배지(EL-007.4)가 **라벨=유형 · 톤=결과**로 두 축을 겹쳐 인코딩한다 — 상담 결과가 **색으로만** 표현돼 색맹·흑백에서 소실되고, 같은 유형 값이 상세(EL-016)에서는 info 로 보여 **한 값이 두 화면에서 다른 색**이다. **FS-051 의 유형 배지와 같은 병**이다(quality-bar A11Y-16 P1 · ERP-01 P1) | A11 change_request |
-| 6 | 주제 셀(EL-007.5)이 **링크가 아니고** '상세' 버튼(EL-007.8)이 행 클릭과 **같은 목적지를 중복 제공**한다(quality-bar COMP-08 P2). 다만 그 버튼이 **유일한 키보드 도달 경로**라 단순 제거하면 A11Y-08 이 깨진다 — **주제를 링크로 승격하는 것이 선행돼야 한다.** **FS-051 은 제목을 링크로 만들어 둘 다 pass 다** — 같은 섹션에서 갈렸다 | A11 change_request (한 묶음) |
-| 7 | **후속조치를 완료 처리할 수단이 이 화면에 없다** — '후속조치 대기만' 필터로 대기 건을 찾아낼 수는 있지만 **찾아낸 뒤 할 수 있는 일이 없다.** 완료 체크·조치 기록 추가가 전부 범위 밖이라 그 배지는 다른 경로(백오피스·DB)로만 바뀐다. **트리아지 화면인데 트리아지 결과를 남길 자리가 없다** — 읽기 전용 결정 자체가 재검토 대상이다 | **A01 (범위 결정)** · A11 |
-| 8 | 거래처(EL-007.3)·담당자(EL-007.6)·관련(EL-017)이 **전부 자유 텍스트**다 — `/sales/accounts` 레코드·운영자 계정·견적/계약/문의 레코드와 연결되지 않는다. `related` 가 '견적 Q-20260710-001'·'문의 INQ-20260711-002' 라 **사람은 무엇을 가리키는지 아는데 링크가 없어 갈 수 없다.** 거래처별 상담 이력 집계도 문자열 매칭에 의존한다. **FS-051(문의)이 `quoteId` 로 양방향 링크를 만든 것과 대조**된다 | **A01 (도메인 경계)** · A63 |
-| 9 | 검색(EL-001)이 **거래처·주제·담당자만** 훑고 **상담 내용(`content`)을 훑지 않는다**(`types.ts:89-94`) — '보상안'·'단가 인상' 같은 본문 키워드로 과거 상담을 찾을 수 없다. 감사 이력의 주 용도가 '그때 뭐라고 했더라'인데 그것이 안 된다 | A11 change_request |
-| 10 | 후속조치 컬럼(EL-007.7)이 **조건에 따라 다른 축을 보인다** — 대기면 '후속조치 상태'('대기'), 아니면 **'상담 결과'**(긍정/보통/부정)를 그린다. 컬럼 헤더는 '후속조치' 하나인데 값이 두 종류라 **표를 스캔하는 운영자가 오독한다**('긍정' 이 후속조치 상태로 읽힌다) | A11 change_request |
-| 11 | 상세가 **자체 `<h1>상담 이력</h1>`(`:119`)을 그리고 AppHeader 도 `<h1>` 을 그리는데, `findCoveringLeaf`(`nav-config.ts:269-279`)가 잎 `/sales/consultations` 를 찾아 **똑같이 '상담 이력'** 을 보인다 → **같은 문구의 `<h1>` 이 화면에 2개다.** 통합이 브랜치 폴백('영업 관리')은 해소했지만 이 화면에서는 그 결과가 **완전 중복**으로 나타난다. 어느 h1 도 **어느 상담인지 말하지 않는다**(quality-bar IA-02 P0) | A40 · A11 |
-| 12 | 스켈레톤(EL-008)의 행 수(`length: 5`)와 **셀 수(`COLUMN_COUNT = 8`)가 둘 다 하드코딩**이다 — FS-051 은 셀 수를 `COLUMNS.length + 1` 로 파생하고(`InquiryListPage.tsx:97,229`) FS-052 의 셸은 `columns.length + 3` 으로 파생한다(`CrudTable.tsx:113`). **컬럼을 추가하면 이 화면의 스켈레톤만 어긋난다.** `SeqCell seq={index + 1}`(`:246`)에 `startIndex` 도 없다(quality-bar COMP-06 · COMP-07 P2) | A11 (#2 와 함께) |
-| 13 | 상세 조회 실패 배너(EL-014)에 **'다시 시도'가 없고**, 어댑터가 `HttpError(404)` 를 정확히 던지는데도 **화면이 status 로 분기하지 않아** 404 와 5xx 가 같은 문구다. **같은 섹션의 FS-052 는 그 둘을 정확히 가른다**(`ProjectFormPage.tsx:242-264` — `useCrudForm` 의 `loadFailure`)(quality-bar STATE-02 P0 · EXC-12 P1) | A11 change_request |
-| 14 | 후속 예정일(EL-020)이 **원본 'YYYY-MM-DD' 문자열 그대로**다 — `shared/format` 을 경유하지 않아 유효하지 않은 값의 폴백이 없고, 상담일시(EL-007.2·EL-017)가 `formatDateTime` 을 쓰는 것과 **한 화면 안에서 규칙이 갈렸다**(quality-bar ERP-08 P2) | A11 change_request |
-| 15 | 후속조치 대기 판정(EL-022)이 `followUpAction.trim() !== '' && !followUpDone` 이라 **'후속조치를 아예 안 잡은 상담'과 '잡고 끝낸 상담'이 같은 축('대기 아님')에 떨어진다.** 시드 `cs-3` 은 `followUpAction: ''` + `followUpDone: true` 라 **두 상태가 겹쳐 있다** — `followUpDone` 이 true 인데 조치가 없다. 데이터 모델이 '조치 없음'과 '조치 완료'를 구분할 필드를 갖고도 그것을 쓰지 않는다 | A01 (도메인) · A11 |
-| 16 | 거래처·주제 셀에 truncate 가 없어 긴 값이 표 열을 넓힌다(quality-bar COMP-09 P2). 상담 내용(EL-018)에도 길이 상한·접기가 없어 긴 상담록이 카드를 세로로 무한히 늘린다 | A11 change_request |
-| 17 | 목록 조회 실패(EL-010)·상세 조회 실패(EL-014)가 **403·429·500 을 한 문구로 뭉갠다** — `HttpError` 는 status 를 실어 오는데 화면이 보지 않는다(quality-bar EXC-06 P1) | A11 change_request |
-| 18 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건)(quality-bar EXC-05 · EXC-11 P1). **단 이 화면은 미저장 내용이 없어 세션 만료 유실 문제(EXC-19)가 없다** | A11 · A40 |
-| 19 | '상세' 버튼(EL-007.8)이 DS `<Button>` 이 아니라 `buttonStyle('secondary')` + `tds-ui-btn-*` 손조립이다 — **quality-bar COMP-01 P1 이 `ConsultationListPage` 를 appliesTo 에 명시 지목**한다. **같은 섹션의 FS-051·FS-052 는 grep 0건이다** — 셋 중 이 화면만 남았다 | A11 change_request |
-| 20 | '후속조치 대기만' 체크박스(EL-003)가 다른 필터와 달리 **`parseFilter` 를 거치지 않는다**(`:124` 단순 비교) — 결과적으로 안전하나(`?pending=거짓말` → false) 되돌림 규칙이 화면 안에서 갈렸다 | A11 (경미) |
+| 1 | 대응 SCR 문서 부재 (영업 관리 SCR 미작성) | UI 기획 / 아키텍처 |
+| 2 | **페이지네이션이 없다** — `visible.map`(`:244`)이 전량을 렌더한다. **상담 이력은 append-only 감사 컬렉션이라 상한 없이 매일 쌓인다** — 이 섹션에서 증가 속도가 가장 빠를 수 있다(거래처 1곳당 여러 건)(quality-bar IA-04 P0 · ERP-15 P1) | UI 기획 · 백엔드 명세 (BE-053 §7.3) |
+| 3 | 빈 상태(EL-009)가 **'상담 이력이 없습니다.' 한 문구**뿐이다 — 공유 `Empty`(3분기 copy + 복구 액션)를 쓰지 않아 검색 0건·필터 0건·진짜 0건이 구분되지 않고 '검색 지우기'/'필터 초기화' 가 없다. **같은 섹션의 FS-051·FS-052 는 `Empty` 를 쓴다** — 셋 중 이 화면만 빠졌다(quality-bar STATE-05 P1) | UI 기획 쪽 변경 요청 |
+| 4 | **'후속조치 대기만' 체크박스에 `tds-ui-focusable` 이 없다**(`:179-186`) — 포커스 링이 DS 토큰(`ui.css:14-17` — 2px `border-width-medium` + `border-focus`)이 아니라 **브라우저 기본값**이다. 이 화면의 유일한 포커스 표면 이탈이며, 앱의 다른 `checkboxStyle` 소비처 4곳은 그 클래스를 붙인다(quality-bar TOKEN-02 P0) | UI 기획 쪽 변경 요청 (**저비용**) |
+| 5 | 목록의 유형 배지(EL-007.4)가 **라벨=유형 · 톤=결과**로 두 축을 겹쳐 인코딩한다 — 상담 결과가 **색으로만** 표현돼 색맹·흑백에서 소실되고, 같은 유형 값이 상세(EL-016)에서는 info 로 보여 **한 값이 두 화면에서 다른 색**이다. **FS-051 의 유형 배지와 같은 병**이다(quality-bar A11Y-16 P1 · ERP-01 P1) | UI 기획 쪽 변경 요청 |
+| 6 | 주제 셀(EL-007.5)이 **링크가 아니고** '상세' 버튼(EL-007.8)이 행 클릭과 **같은 목적지를 중복 제공**한다(quality-bar COMP-08 P2). 다만 그 버튼이 **유일한 키보드 도달 경로**라 단순 제거하면 A11Y-08 이 깨진다 — **주제를 링크로 승격하는 것이 선행돼야 한다.** **FS-051 은 제목을 링크로 만들어 둘 다 pass 다** — 같은 섹션에서 갈렸다 | UI 기획 쪽 변경 요청 (한 묶음) |
+| 7 | **후속조치를 완료 처리할 수단이 이 화면에 없다** — '후속조치 대기만' 필터로 대기 건을 찾아낼 수는 있지만 **찾아낸 뒤 할 수 있는 일이 없다.** 완료 체크·조치 기록 추가가 전부 범위 밖이라 그 배지는 다른 경로(백오피스·DB)로만 바뀐다. **트리아지 화면인데 트리아지 결과를 남길 자리가 없다** — 읽기 전용 결정 자체가 재검토 대상이다 | **아키텍처 (범위 결정)** · UI 기획 |
+| 8 | 거래처(EL-007.3)·담당자(EL-007.6)·관련(EL-017)이 **전부 자유 텍스트**다 — `/sales/accounts` 레코드·운영자 계정·견적/계약/문의 레코드와 연결되지 않는다. `related` 가 '견적 Q-20260710-001'·'문의 INQ-20260711-002' 라 **사람은 무엇을 가리키는지 아는데 링크가 없어 갈 수 없다.** 거래처별 상담 이력 집계도 문자열 매칭에 의존한다. **FS-051(문의)이 `quoteId` 로 양방향 링크를 만든 것과 대조**된다 | **아키텍처 (도메인 경계)** · 백엔드 명세 |
+| 9 | 검색(EL-001)이 **거래처·주제·담당자만** 훑고 **상담 내용(`content`)을 훑지 않는다**(`types.ts:89-94`) — '보상안'·'단가 인상' 같은 본문 키워드로 과거 상담을 찾을 수 없다. 감사 이력의 주 용도가 '그때 뭐라고 했더라'인데 그것이 안 된다 | UI 기획 쪽 변경 요청 |
+| 10 | 후속조치 컬럼(EL-007.7)이 **조건에 따라 다른 축을 보인다** — 대기면 '후속조치 상태'('대기'), 아니면 **'상담 결과'**(긍정/보통/부정)를 그린다. 컬럼 헤더는 '후속조치' 하나인데 값이 두 종류라 **표를 스캔하는 운영자가 오독한다**('긍정' 이 후속조치 상태로 읽힌다) | UI 기획 쪽 변경 요청 |
+| 11 | 상세가 **자체 `<h1>상담 이력</h1>`(`:119`)을 그리고 AppHeader 도 `<h1>` 을 그리는데, `findCoveringLeaf`(`nav-config.ts:269-279`)가 잎 `/sales/consultations` 를 찾아 **똑같이 '상담 이력'** 을 보인다 → **같은 문구의 `<h1>` 이 화면에 2개다.** 통합이 브랜치 폴백('영업 관리')은 해소했지만 이 화면에서는 그 결과가 **완전 중복**으로 나타난다. 어느 h1 도 **어느 상담인지 말하지 않는다**(quality-bar IA-02 P0) | 프론트 구현 · UI 기획 |
+| 12 | 스켈레톤(EL-008)의 행 수(`length: 5`)와 **셀 수(`COLUMN_COUNT = 8`)가 둘 다 하드코딩**이다 — FS-051 은 셀 수를 `COLUMNS.length + 1` 로 파생하고(`InquiryListPage.tsx:97,229`) FS-052 의 셸은 `columns.length + 3` 으로 파생한다(`CrudTable.tsx:113`). **컬럼을 추가하면 이 화면의 스켈레톤만 어긋난다.** `SeqCell seq={index + 1}`(`:246`)에 `startIndex` 도 없다(quality-bar COMP-06 · COMP-07 P2) | UI 기획 (#2 와 함께) |
+| 13 | 상세 조회 실패 배너(EL-014)에 **'다시 시도'가 없고**, 어댑터가 `HttpError(404)` 를 정확히 던지는데도 **화면이 status 로 분기하지 않아** 404 와 5xx 가 같은 문구다. **같은 섹션의 FS-052 는 그 둘을 정확히 가른다**(`ProjectFormPage.tsx:242-264` — `useCrudForm` 의 `loadFailure`)(quality-bar STATE-02 P0 · EXC-12 P1) | UI 기획 쪽 변경 요청 |
+| 14 | 후속 예정일(EL-020)이 **원본 'YYYY-MM-DD' 문자열 그대로**다 — `shared/format` 을 경유하지 않아 유효하지 않은 값의 폴백이 없고, 상담일시(EL-007.2·EL-017)가 `formatDateTime` 을 쓰는 것과 **한 화면 안에서 규칙이 갈렸다**(quality-bar ERP-08 P2) | UI 기획 쪽 변경 요청 |
+| 15 | 후속조치 대기 판정(EL-022)이 `followUpAction.trim() !== '' && !followUpDone` 이라 **'후속조치를 아예 안 잡은 상담'과 '잡고 끝낸 상담'이 같은 축('대기 아님')에 떨어진다.** 시드 `cs-3` 은 `followUpAction: ''` + `followUpDone: true` 라 **두 상태가 겹쳐 있다** — `followUpDone` 이 true 인데 조치가 없다. 데이터 모델이 '조치 없음'과 '조치 완료'를 구분할 필드를 갖고도 그것을 쓰지 않는다 | 아키텍처 (도메인) · UI 기획 |
+| 16 | 거래처·주제 셀에 truncate 가 없어 긴 값이 표 열을 넓힌다(quality-bar COMP-09 P2). 상담 내용(EL-018)에도 길이 상한·접기가 없어 긴 상담록이 카드를 세로로 무한히 늘린다 | UI 기획 쪽 변경 요청 |
+| 17 | 목록 조회 실패(EL-010)·상세 조회 실패(EL-014)가 **403·429·500 을 한 문구로 뭉갠다** — `HttpError` 는 status 를 실어 오는데 화면이 보지 않는다(quality-bar EXC-06 P1) | UI 기획 쪽 변경 요청 |
+| 18 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건)(quality-bar EXC-05 · EXC-11 P1). **단 이 화면은 미저장 내용이 없어 세션 만료 유실 문제(EXC-19)가 없다** | UI 기획 · 프론트 구현 |
+| 19 | '상세' 버튼(EL-007.8)이 DS `<Button>` 이 아니라 `buttonStyle('secondary')` + `tds-ui-btn-*` 손조립이다 — **quality-bar COMP-01 P1 이 `ConsultationListPage` 를 appliesTo 에 명시 지목**한다. **같은 섹션의 FS-051·FS-052 는 grep 0건이다** — 셋 중 이 화면만 남았다 | UI 기획 쪽 변경 요청 |
+| 20 | '후속조치 대기만' 체크박스(EL-003)가 다른 필터와 달리 **`parseFilter` 를 거치지 않는다**(`:124` 단순 비교) — 결과적으로 안전하나(`?pending=거짓말` → false) 되돌림 규칙이 화면 안에서 갈렸다 | UI 기획 (경미) |

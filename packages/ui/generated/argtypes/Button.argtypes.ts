@@ -19,7 +19,7 @@ export const ButtonArgTypes = {
     },
   },
   type: {
-    description: '네이티브 button type. 허용 값은 button · submit · reset 이며 그 외 값은 구현이 button 으로 좁힌다. **기본값 button 은 HTML 기본값(submit) 을 의도적으로 뒤집은 DS 결정이다** — 폼 안의 보조 버튼이 실수로 제출하지 않게 한다. submit 을 주면 폼을 제출한다 (실사용: LoginForm · RoleFormModal · CreateGroupModal · PasswordChangeModal · PointsCard 의 폼 5개). [enum 이 아닌 이유] type 은 시각 변형이 아니라 HTML 시맨틱이라 Figma Component Property 대응이 없다. enum 으로 선언하면 스키마가 figmaProperty 를 강제해(G3) 시각차 0인 3값 Figma Variant 축이 생기고, contract-test 의 조합 커버리지 요구가 3배로 뛴다. 허용 값은 values 로 기술하되 Figma/Variant 축은 만들지 않는다 (스키마 확장 제안: CR-2026-0715-008)',
+    description: '네이티브 button type. 허용 값은 button · submit · reset 이며 그 외 값은 구현이 button 으로 좁힌다. **기본값 button 은 HTML 기본값(submit) 을 의도적으로 뒤집은 DS 결정이다** — 폼 안의 보조 버튼이 실수로 제출하지 않게 한다. submit 을 주면 폼을 제출한다 (실사용: LoginForm · RoleFormModal · CreateGroupModal · PasswordChangeModal · PointsCard 의 폼 5개). [enum 이 아닌 이유] type 은 시각 변형이 아니라 HTML 시맨틱이라 Figma Component Property 대응이 없다. enum 으로 선언하면 스키마가 figmaProperty 를 강제해(G3) 시각차 0인 3값 Figma Variant 축이 생기고, contract-test 의 조합 커버리지 요구가 3배로 뛴다. 허용 값은 values 로 기술하되 Figma/Variant 축은 만들지 않는다 (스키마 확장은 후속 변경 요청으로 제안)',
     control: {
       type: 'text',
     },
@@ -136,7 +136,7 @@ export const ButtonArgTypes = {
  * 총 96개 조합. Story 커버리지는 이 행렬 대비 100%여야 G5 통과.
  *
  * **states 는 여기 없다** — contract-test 의 combinationMatrixSize() 와 같은 식이어야 하고,
- * state 커버리지는 A77 축2(contract-states)가 단언 있는 테스트로 따로 강제한다.
+ * state 커버리지는 커버리지 축2(contract-states)가 단언 있는 테스트로 따로 강제한다.
  */
 export const combinationMatrix = [
   { variant: 'primary', size: 'sm', loading: 'false', disabled: 'false', isFullWidth: 'false' },

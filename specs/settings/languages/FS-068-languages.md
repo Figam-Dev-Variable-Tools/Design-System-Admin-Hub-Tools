@@ -3,8 +3,8 @@ id: FS-068
 title: "언어 관리"
 screen: SCR-068               # ⚠ 시스템 설정 SCR 미작성 — §7 미결 사항 참조
 route: /settings/languages
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -164,7 +164,7 @@ date: 2026-07-17
 | FS-068-EL-022.2 | 최신 내용 재조회 | R | 위와 동일 | `refetch()` (react-query) | 충돌 해소 경로 |
 | FS-068-EL-004 / EL-004.2 | 언어 후보 목록 | — | — | **없음 — `LANGUAGE_META` 코드 상수**(`validation.ts:34-39`) | **서버를 거치지 않는다.** 후보 4종(`ko`·`en`·`ja`·`zh-CN`)은 빌드 시점에 고정되며, 새 언어를 추가하려면 코드를 고쳐야 한다. **이것은 누락이 아니라 의도** — 번역할 두 번째 언어가 아직 없다(§1 범위 밖 · BE-068 §7.6) |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `languageSettingsStore` 는 `createRevisionedStore('languages', DEFAULT_LANGUAGE_SETTINGS, { updatedBy: '박관리', updatedAt: '2026-06-28T05:40:00.000Z' })`(`data-source.ts:23-27`)로 만든 **브라우저 안 mutable 클로저 1건**에 400ms 지연(`LATENCY_MS`)과 실패 스위치(`failIfRequested('languages', op)`)를 얹은 것이다 — 실제 네트워크 0건. 픽스처는 **한국어 하나만 켜져 있다**(`{ defaultLanguage: 'ko', supported: ['ko'], fallback: 'ko' }`) — `data-source.ts:11-13` 이 그 이유를 밝힌다: '이 앱의 사실을 그대로 반영한 픽스처다(영어를 켜 두면 화면은 "지원함" 이라 말하는데 번역이 없어 거짓말이 된다)'. 저장 주체는 하드코딩 `CURRENT_ADMIN = '김운영'`(`store.ts:84`). 새로고침하면 시드로 돌아간다. 연동 심은 `data-source.ts:20-22` 의 `// TODO(backend): GET /api/settings/languages · PUT /api/settings/languages` 하나이며 **`If-Match: <revision>` 헤더·바디·응답(200/409·412/422)까지 명시돼 있다** — BE-068 §4 는 이 심을 그대로 계약으로 옮긴 것이며 발명한 엔드포인트가 없다. 위 표는 백엔드 연결 후 의도된 동작이다. |
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드는 없다. `languageSettingsStore` 는 `createRevisionedStore('languages', DEFAULT_LANGUAGE_SETTINGS, { updatedBy: '박관리', updatedAt: '2026-06-28T05:40:00.000Z' })`(`data-source.ts:23-27`)로 만든 **브라우저 안 mutable 클로저 1건**에 400ms 지연(`LATENCY_MS`)과 실패 스위치(`failIfRequested('languages', op)`)를 얹은 것이다 — 실제 네트워크 0건. 픽스처는 **한국어 하나만 켜져 있다**(`{ defaultLanguage: 'ko', supported: ['ko'], fallback: 'ko' }`) — `data-source.ts:11-13` 이 그 이유를 밝힌다: '이 앱의 사실을 그대로 반영한 픽스처다(영어를 켜 두면 화면은 "지원함" 이라 말하는데 번역이 없어 거짓말이 된다)'. 저장 주체는 하드코딩 `CURRENT_ADMIN = '김운영'`(`store.ts:84`). 새로고침하면 시드로 돌아간다. 연동 심은 `data-source.ts:20-22` 의 `// TODO(backend): GET /api/settings/languages · PUT /api/settings/languages` 하나이며 **`If-Match: <revision>` 헤더·바디·응답(200/409·412/422)까지 명시돼 있다** — BE-068 §4 는 이 심을 그대로 계약으로 옮긴 것이며 발명한 엔드포인트가 없다. 위 표는 백엔드 연결 후 의도된 동작이다. |
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -177,22 +177,22 @@ date: 2026-07-17
 - [x] **'번역이 적용되지 않는다'가 결함이 아니라 명세된 동작**임을 §1 범위 밖 + EL-010 에 고정했다
 - [x] §7 의 미결 항목이 BE-068 §7.6 · NFR-068 §5 와 일치한다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 (시스템 설정 SCR 미작성) | A11 / A01 |
-| 2 | **검증 실패 시 첫 오류 필드로 포커스가 가지 않는다** — `handleSubmit(onValid)`(`:296`)에 `onInvalid` 가 없다(quality-bar A11Y-13 P1). 설정 4화면 공통 | A11 change_request |
-| 3 | **지원 언어 그룹 오류(EL-006)가 어느 컨트롤의 것인지 프로그램적으로 연결되지 않는다** — `errorIdOf('lang-supported')` id 를 만들지만 `lang-supported` 라는 id 의 요소가 **존재하지 않고**(체크박스는 `lang-supported-ko` 등), 어떤 컨트롤도 이 오류를 `aria-describedby` 로 참조하지 않는다. `role="alert"` 라 announce 는 되나 필드 연결은 끊겨 있다. `<fieldset>` 에 `aria-describedby` 를 물리는 것이 옳은 해법 | A11 change_request |
-| 4 | **잠긴 체크박스(EL-004.1)와 잠금 사유(EL-004.3)가 연결돼 있지 않다** — `disabled` 체크박스에 `aria-describedby` 가 없어 **왜 끌 수 없는지 AT 가 알 수 없다.** 시각 사용자만 이탤릭 문구를 본다 | A11 change_request |
-| 5 | **nav 라벨('언어 관리')과 카드 제목('언어 설정')이 다르다** — AppHeader `<h1>` 은 '언어 관리', 카드는 '언어 설정'. 같은 화면을 두 이름으로 부른다. 다른 3화면은 일치한다(사이트 설정·API Key·OAuth 설정) | A11 change_request · A01 |
-| 6 | 저장 확인 문구(EL-019)가 **고정 문구라 무엇이 바뀌는지 말하지 않는다** — '이후 사이트가 노출하는 언어 목록이 바뀝니다'까지만이고 어느 언어를 켜고 끄는지 이름으로 말하지 않는다. **OAuth 화면은 말한다**(`OAuthPage.tsx:48-74` `saveConfirmMessage` — '카카오 로그인을 끕니다…'). 같은 섹션 안에서 확인 문구의 구체성이 갈렸다 | A11 change_request |
-| 7 | 저장에 **멱등키가 없다** — 동기 잠금(EL-020.1)은 연타를 막지만 응답 유실 후 재시도는 새 요청이 된다. `expectedRevision` 덕에 중복 적용이 아니라 **409** 가 되나 사용자는 영문 모를 충돌 다이얼로그를 본다. 선례: `members/components/PointsCard.tsx:103,162-173`(quality-bar EXC-08 P0) | A11 · A63 (BE-068 §7.4) |
-| 8 | 데이터 도착 시 `reset(data.value)` 하는 효과(EL-024)가 **편집 중 재조회에서도 돈다** — 입력이 덮인다. 설정 4화면 공통 | A11 change_request |
-| 9 | **`selectable` 이 비면 기본/폴백 select 가 빈 `<option>` 목록이 된다**(EL-007) — 잠금 규칙(EL-004.4) 덕에 현재는 도달 불가하나, 잠금이 드래프트 기준이라 **기본·폴백을 같은 언어로 몰아 둔 채 그 언어를 끄는 경로가 없음을 보장하는 것은 잠금 하나뿐**이다. select 가 비면 사용자는 아무것도 고를 수 없고 오류 문구도 없다 — 방어가 한 겹이다 | A11 change_request |
-| 10 | 조회 실패(EL-016)·저장 실패(EL-018)가 **status 를 구분하지 않는다** — 401/403/404/500 이 한 문구다. `createRevisionedStore` 가 `HttpError`(status 보유)를 던지지 않아 화면이 분기할 근거가 없다(quality-bar EXC-06 · EXC-12 P1) | A11 · A63 |
-| 11 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다 · 이탈 시 abort 가 서버 도달 여부를 보장하지 않는다(quality-bar EXC-05 · EXC-11 · EXC-19 P1) | A11 · A40 · A63 |
-| 12 | `Checkbox` 를 앱 배럴이 아니라 `@tds/ui` 에서 직접 가져온다(`:16-18`) — **의도된 우회**(배럴은 F2 소유)이나 배럴 일관성이 깨져 있다. `CreateApiKeyModal.tsx:15` 도 같다 — 두 곳이다 | A11 (배럴 확장은 F2) |
-| 13 | 스켈레톤 행 수가 하드코딩 `[0, 1, 2, 3]`(`SettingsFormShell.tsx:154`) — 이 화면의 실제 필드 수(체크박스 4 + select 2)와 무관(quality-bar COMP-06 P2) | A11 change_request |
-| 14 | **i18n 미도입이 이 화면 전체를 '저장은 되지만 아무 일도 일어나지 않는' 상태로 둔다**(§1 범위 밖 · EL-010). 화면이 정직하게 밝히므로 결함은 아니나, **소비자가 생기기 전까지 이 계약은 죽은 데이터를 쌓는다.** `validation.ts:12-18` 의 `// TODO(lib): i18n` 이 도입 조건(두 번째 로케일이 실제로 필요해지는 시점)과 선행 조건(EXC-17 문자열 추출)을 밝힌다 | A01 (도메인 경계) · A11 |
+| 1 | 대응 SCR 문서 부재 (시스템 설정 SCR 미작성) | UI 기획 / 아키텍처 |
+| 2 | **검증 실패 시 첫 오류 필드로 포커스가 가지 않는다** — `handleSubmit(onValid)`(`:296`)에 `onInvalid` 가 없다(quality-bar A11Y-13 P1). 설정 4화면 공통 | UI 기획 쪽 변경 요청 |
+| 3 | **지원 언어 그룹 오류(EL-006)가 어느 컨트롤의 것인지 프로그램적으로 연결되지 않는다** — `errorIdOf('lang-supported')` id 를 만들지만 `lang-supported` 라는 id 의 요소가 **존재하지 않고**(체크박스는 `lang-supported-ko` 등), 어떤 컨트롤도 이 오류를 `aria-describedby` 로 참조하지 않는다. `role="alert"` 라 announce 는 되나 필드 연결은 끊겨 있다. `<fieldset>` 에 `aria-describedby` 를 물리는 것이 옳은 해법 | UI 기획 쪽 변경 요청 |
+| 4 | **잠긴 체크박스(EL-004.1)와 잠금 사유(EL-004.3)가 연결돼 있지 않다** — `disabled` 체크박스에 `aria-describedby` 가 없어 **왜 끌 수 없는지 AT 가 알 수 없다.** 시각 사용자만 이탤릭 문구를 본다 | UI 기획 쪽 변경 요청 |
+| 5 | **nav 라벨('언어 관리')과 카드 제목('언어 설정')이 다르다** — AppHeader `<h1>` 은 '언어 관리', 카드는 '언어 설정'. 같은 화면을 두 이름으로 부른다. 다른 3화면은 일치한다(사이트 설정·API Key·OAuth 설정) | UI 기획 쪽 변경 요청 · 아키텍처 |
+| 6 | 저장 확인 문구(EL-019)가 **고정 문구라 무엇이 바뀌는지 말하지 않는다** — '이후 사이트가 노출하는 언어 목록이 바뀝니다'까지만이고 어느 언어를 켜고 끄는지 이름으로 말하지 않는다. **OAuth 화면은 말한다**(`OAuthPage.tsx:48-74` `saveConfirmMessage` — '카카오 로그인을 끕니다…'). 같은 섹션 안에서 확인 문구의 구체성이 갈렸다 | UI 기획 쪽 변경 요청 |
+| 7 | 저장에 **멱등키가 없다** — 동기 잠금(EL-020.1)은 연타를 막지만 응답 유실 후 재시도는 새 요청이 된다. `expectedRevision` 덕에 중복 적용이 아니라 **409** 가 되나 사용자는 영문 모를 충돌 다이얼로그를 본다. 선례: `members/components/PointsCard.tsx:103,162-173`(quality-bar EXC-08 P0) | UI 기획 · 백엔드 명세 (BE-068 §7.4) |
+| 8 | 데이터 도착 시 `reset(data.value)` 하는 효과(EL-024)가 **편집 중 재조회에서도 돈다** — 입력이 덮인다. 설정 4화면 공통 | UI 기획 쪽 변경 요청 |
+| 9 | **`selectable` 이 비면 기본/폴백 select 가 빈 `<option>` 목록이 된다**(EL-007) — 잠금 규칙(EL-004.4) 덕에 현재는 도달 불가하나, 잠금이 드래프트 기준이라 **기본·폴백을 같은 언어로 몰아 둔 채 그 언어를 끄는 경로가 없음을 보장하는 것은 잠금 하나뿐**이다. select 가 비면 사용자는 아무것도 고를 수 없고 오류 문구도 없다 — 방어가 한 겹이다 | UI 기획 쪽 변경 요청 |
+| 10 | 조회 실패(EL-016)·저장 실패(EL-018)가 **status 를 구분하지 않는다** — 401/403/404/500 이 한 문구다. `createRevisionedStore` 가 `HttpError`(status 보유)를 던지지 않아 화면이 분기할 근거가 없다(quality-bar EXC-06 · EXC-12 P1) | UI 기획 · 백엔드 명세 |
+| 11 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다 · 이탈 시 abort 가 서버 도달 여부를 보장하지 않는다(quality-bar EXC-05 · EXC-11 · EXC-19 P1) | UI 기획 · 프론트 구현 · 백엔드 명세 |
+| 12 | `Checkbox` 를 앱 배럴이 아니라 `@tds/ui` 에서 직접 가져온다(`:16-18`) — **의도된 우회**(배럴은 F2 소유)이나 배럴 일관성이 깨져 있다. `CreateApiKeyModal.tsx:15` 도 같다 — 두 곳이다 | UI 기획 (배럴 확장은 F2) |
+| 13 | 스켈레톤 행 수가 하드코딩 `[0, 1, 2, 3]`(`SettingsFormShell.tsx:154`) — 이 화면의 실제 필드 수(체크박스 4 + select 2)와 무관(quality-bar COMP-06 P2) | UI 기획 쪽 변경 요청 |
+| 14 | **i18n 미도입이 이 화면 전체를 '저장은 되지만 아무 일도 일어나지 않는' 상태로 둔다**(§1 범위 밖 · EL-010). 화면이 정직하게 밝히므로 결함은 아니나, **소비자가 생기기 전까지 이 계약은 죽은 데이터를 쌓는다.** `validation.ts:12-18` 의 `// TODO(lib): i18n` 이 도입 조건(두 번째 로케일이 실제로 필요해지는 시점)과 선행 조건(EXC-17 문자열 추출)을 밝힌다 | 아키텍처 (도메인 경계) · UI 기획 |
 </content>

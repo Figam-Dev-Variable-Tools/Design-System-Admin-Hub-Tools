@@ -3,12 +3,10 @@ id: ADR-0001
 title: "부트스트랩 튜닝 — 설계서 v2를 실행 가능한 조직으로 옮기며 내린 9개 결정"
 status: accepted
 date: 2026-07-14
-author: A01
+author: 아키텍처
 supersededBy: null
 relates:
   - docs/architecture/org-design-v2.md
-  - orchestration/registry/agents.json
-  - orchestration/registry/gates.json
 ---
 
 # ADR-0001. 부트스트랩 튜닝
@@ -18,70 +16,70 @@ relates:
 설계서(docs/architecture/org-design-v2.md)를 레지스트리·스킬·게이트로 구현하는 부트스트랩
 과정에서, 원문을 문자 그대로 옮기면 소유권 충돌·검수 불가·병목이 발생하는 지점이 확인됐다.
 본 ADR은 원문에서 이탈하거나 원문이 비워둔 부분을 채운 결정 전부를 기록한다.
-이 결정들은 `orchestration/registry/agents.json`·`gates.json`·`contracts/schemas/component.v1.json`에
+이 결정들은 레지스트리·게이트 정의·`contracts/schemas/component.v1.json`에
 이미 반영되어 있으며, 본 문서가 그 근거의 정본이다.
 
 ## 결정 1. '35 Agents' 표기 vs 카탈로그 실측 39개 → 카탈로그를 정본으로 39개 전부 생성
 
 - **결정**: 설계서 §3 제목의 "35 Agents" 표기를 무시하고, 카탈로그 실측 39개
   (L0: 4 + L1: 10 + L2: 18 + L3: 7)를 전부 레지스트리에 등록하고 스킬을 생성한다.
-- **근거**: 표 제목은 요약 수치이고 카탈로그 표는 각 에이전트의 소유·산출물·게이트를 정의한
+- **근거**: 표 제목은 요약 수치이고 카탈로그 표는 각 역할의 소유·산출물·게이트를 정의한
   실체다. 수치에 맞춰 4개를 임의 삭제하면 소유 경로에 공백이 생겨 P1(단일 소유권)이 깨진다.
   둘이 충돌하면 더 구체적인 쪽(카탈로그)이 정본이다.
-- **대안**: (a) 35개에 맞춰 유사 에이전트 통합(예: A15+A16, A53+A54) → 소유 경로와 검수
-  책임이 섞여 CODEOWNERS 자동 생성이 모호해짐. 기각. (b) 설계서 원문 수정 → 원문은 외부
+- **대안**: (a) 35개에 맞춰 유사 역할 통합(예: 아이콘 디자인+일러스트 디자인, Figma UI+Figma UX) → 소유 경로와 검수
+  책임이 섞여 경로 소유자 목록 자동 생성이 모호해짐. 기각. (b) 설계서 원문 수정 → 원문은 외부
   입력 문서로 불변 유지, 이탈은 ADR로 기록하는 것이 추적성이 높음. 기각.
 
-## 결정 2. CODEOWNERS는 agents.json에서 자동 생성 — last-match-wins 순서 규칙
+## 결정 2. 경로 소유자 목록은 레지스트리에서 자동 생성 — last-match-wins 순서 규칙
 
-- **결정**: `.github/CODEOWNERS`는 손으로 쓰지 않고 `tools/boundary`가
-  `orchestration/registry/agents.json`에서 생성한다 (`pnpm boundary:codeowners`).
-  생성 순서는 GitHub CODEOWNERS의 **last-match-wins** 의미론에 맞춰
+- **결정**: 경로 소유자 목록은 손으로 쓰지 않고 `tools/boundary`가
+  레지스트리에서 생성한다.
+  생성 순서는 GitHub 경로 소유자 목록의 **last-match-wins** 의미론에 맞춰
   레이어(넓은 경로 먼저) · 특이도(구체 경로 나중) 순으로 정렬한다. 이로써
-  `docs/plan/**`(A10/A11) 뒤에 `docs/plan/review/**`(A12)가 오는 식으로
+  `docs/plan/**`(UX 기획/UI 기획) 뒤에 `docs/plan/review/**`(기획 리뷰)가 오는 식으로
   review 하위 경로가 carve-out되어, 생산자 경로 안의 검수 경로가 검수자 소유로 남는다.
-- **근거**: 소유권 매트릭스를 두 곳(레지스트리 + CODEOWNERS)에 수기 유지하면 반드시
+- **근거**: 소유권 매트릭스를 두 곳(레지스트리 + 경로 소유자 목록)에 수기 유지하면 반드시
   드리프트한다. 레지스트리 단일 원천 + 생성이 P1을 기계적으로 보장한다. last-match-wins를
   고려하지 않고 알파벳순으로 나열하면 review 하위 경로가 상위 생산자 규칙에 삼켜진다.
-- **대안**: (a) CODEOWNERS 수기 관리 → 레지스트리와 불일치 시 감지 수단이 없음. 기각.
+- **대안**: (a) 경로 소유자 목록 수기 관리 → 레지스트리와 불일치 시 감지 수단이 없음. 기각.
   (b) review 경로를 생산자 경로 밖으로 전부 이동(예: 전사 reviews/ 루트) → 설계서 §6의
   파일 규칙(`/**/review/RR-*`)과 어긋나고 division 응집도가 깨짐. 기각.
 
-## 결정 3. A61 docs-reviewer 소유를 docs/**/review/** → docs/tds/review/**로 축소
+## 결정 3. 문서 리뷰 소유를 docs/**/review/** → docs/tds/review/**로 축소
 
-- **결정**: 설계서 원문의 A61 소유 `docs/**/review/**`를 `docs/tds/review/**`로 축소한다.
-- **근거**: 원문대로면 `docs/plan/review/**`(A12 소유)와 `docs/design/review/**`(A17 소유)가
-  A61 소유와 겹쳐 P1(하나의 경로 = 정확히 하나의 쓰기 소유자)을 위반한다. A61의 실제 검수
+- **결정**: 설계서 원문의 문서 리뷰 소유 `docs/**/review/**`를 `docs/tds/review/**`로 축소한다.
+- **근거**: 원문대로면 `docs/plan/review/**`(기획 리뷰 소유)와 `docs/design/review/**`(디자인 리뷰 소유)가
+  문서 리뷰 소유와 겹쳐 P1(하나의 경로 = 정확히 하나의 쓰기 소유자)을 위반한다. 문서 리뷰의 실제 검수
   대상은 G8의 TDS 문서이므로 스코프를 담당 산출물 경로로 좁히는 것이 역할 정의와도 일치한다.
-- **대안**: (a) A12/A17 소유를 A61 하위로 편입 → G1/G2 승인권과 소유가 분리되어 검수
-  리포트를 승인자가 못 쓰는 모순 발생. 기각. (b) glob 우선순위로 겹침 허용 → CODEOWNERS는
+- **대안**: (a) 기획 리뷰/디자인 리뷰 소유를 문서 리뷰 하위로 편입 → G1/G2 승인권과 소유가 분리되어 검수
+  리포트를 승인자가 못 쓰는 모순 발생. 기각. (b) glob 우선순위로 겹침 허용 → 경로 소유자 목록은
   표현 가능하나 레지스트리의 소유 검증(boundary:check)이 다중 소유를 허용해야 해서 P1
   원칙 자체가 무력화됨. 기각.
 
-## 결정 4. A42 code-reviewer에 docs/review/code/** 물리 경로 부여
+## 결정 4. 코드 리뷰에 docs/review/code/** 물리 경로 부여
 
-- **결정**: 원문에서 "PR 코멘트 전용"이던 A42(Code Reviewer)에 물리 소유 경로
+- **결정**: 원문에서 "PR 코멘트 전용"이던 코드 리뷰(Code Reviewer)에 물리 소유 경로
   `docs/review/code/**`를 부여한다. RR-G6-* 리포트는 이 경로에 파일로 남기고,
   요약만 PR 코멘트로 병기한다.
 - **근거**: D5 Review Report는 오케스트레이터가 기계 파싱하는 게이트 입력값이다
   (review-report.v1.json). G6만 리포트가 PR 코멘트에 있으면 상태머신이 게이트 판정을
-  일관되게 읽을 수 없고, `orchestration/state/`의 `reportPath` 필드가 G6에서만 비게 된다.
+  일관되게 읽을 수 없고, 게이트 상태의 `reportPath` 필드가 G6에서만 비게 된다.
   전 게이트 D5 파이프라인 통일이 P2(계약 우선)에 부합한다.
 - **대안**: (a) PR 코멘트를 API로 수집해 파싱 → GitHub 의존이 게이트 판정의 단일 장애점이
-  되고, 로컬 재현이 불가능. 기각. (b) A42를 리포트 없이 승인만 하게 함 → 판정 근거가
+  되고, 로컬 재현이 불가능. 기각. (b) 코드 리뷰를 리포트 없이 승인만 하게 함 → 판정 근거가
   기록되지 않아 P3(게이트 통과)의 감사 가능성이 사라짐. 기각.
 
-## 결정 5. Figma 파일 에이전트(A51~A55)는 figma:// 가상 소유 + docs/figma/specs/ 미러 기록 의무
+## 결정 5. Figma 파일 역할(Figma 컴포넌트·변수·UI·UX·아이콘)은 figma:// 가상 소유 + docs/figma/specs/ 미러 기록 의무
 
-- **결정**: A51~A55의 소유는 가상 경로(`figma://file/<area>`)로 표기하되, 각 에이전트는
+- **결정**: Figma 컴포넌트·변수·UI·UX·아이콘의 소유는 가상 경로(`figma://file/<area>`)로 표기하되, 각 역할은
   자기 영역의 스펙 미러를 `docs/figma/specs/<area>/**`에 기록할 의무를 진다. VRT 기준
   PNG는 `docs/figma/specs/exports/`에 둔다 (규격: docs/figma/specs/README.md).
-- **근거**: Figma 파일은 리포 밖에 있어 그대로는 CODEOWNERS·게이트·리뷰가 닿지 않는다.
-  미러를 리포 안에 강제하면 A56의 G7 검수와 A70의 VRT가 리포 내 evidence로 판정 가능해지고,
+- **근거**: Figma 파일은 리포 밖에 있어 그대로는 경로 소유자 목록·게이트·리뷰가 닿지 않는다.
+  미러를 리포 안에 강제하면 Figma 리뷰의 G7 검수와 비주얼 회귀의 VRT가 리포 내 evidence로 판정 가능해지고,
   Figma 쪽 변경도 PR 이력으로 남는다.
 - **대안**: (a) Figma REST API 실시간 조회로 검수 → 검수 시점마다 외부 상태가 달라져
   재현 불가, evidence를 리포에 남길 수 없음. 기각. (b) Figma 소유를 레지스트리에서 생략 →
-  A51~A55가 소유 없는 에이전트가 되어 P1 모델이 깨지고 CODEOWNERS 생성에서 누락됨. 기각.
+  다섯 Figma 역할이 소유 없는 역할이 되어 P1 모델이 깨지고 경로 소유자 목록 생성에서 누락됨. 기각.
 
 ## 결정 6. reports/ 루트 신설 — Layer 3 검증 산출물을 human docs와 분리
 
@@ -89,7 +87,7 @@ relates:
   (`reports/{vrt,drift,a11y,perf,contract-test,reuse,naming,boundary}/**`)을 여기에 둔다.
   사람이 쓰는 문서(`docs/`)와 기계가 생성하는 게이트 입력값을 물리적으로 분리한다.
 - **근거**: 검증 리포트는 게이트 체크리스트의 evidence 경로로 참조되는 기계 산출물이며
-  생성 주기(매 PR·nightly)가 문서와 다르다. docs/에 섞이면 A61의 문서 검수 범위가 오염되고,
+  생성 주기(매 PR·nightly)가 문서와 다르다. docs/에 섞이면 문서 리뷰의 문서 검수 범위가 오염되고,
   보존 정책(리포트는 주기 삭제 가능)도 달리 가져갈 수 없다.
 - **대안**: (a) `docs/reports/`로 편입 → docs 소유 규칙과 충돌하고 문서 최신성 검수 대상이
   불필요하게 늘어남. 기각. (b) CI 아티팩트로만 보존 → 체크리스트 evidence 경로가 리포 밖을
@@ -97,11 +95,11 @@ relates:
 
 ## 결정 7. 스킬 폴더 내 스크립트 복제 금지 — tools/* 공유 패키지 참조
 
-- **결정**: 스킬 폴더(`skills/<agent>/scripts/`)에 실행 스크립트를 복제하지 않는다.
+- **결정**: 각 스킬 폴더 안에 실행 스크립트를 복제하지 않는다.
   모든 자동화는 `tools/*` 공유 패키지에 두고, 스킬·체크리스트·문서는 루트 `package.json`에
   실존하는 pnpm 명령(예: `pnpm codegen`, `pnpm contract-test`)만 인용한다.
 - **근거**: 설계서 §9 예시는 스킬 폴더 안 스크립트를 보여주지만, 39개 스킬에 스크립트가
-  복제되면 같은 검증 로직이 에이전트 수만큼 분기해 드리프트한다. 검증 로직의 드리프트는
+  복제되면 같은 검증 로직이 역할 수만큼 분기해 드리프트한다. 검증 로직의 드리프트는
   게이트 판정 자체를 신뢰 불가능하게 만들므로 SSOT 원칙을 코드에도 적용한다.
 - **대안**: (a) 설계서 §9 그대로 스킬별 스크립트 → 위 드리프트 문제. 기각.
   (b) 스킬 폴더에 심볼릭 링크 → Windows 환경(개발 환경이 win32)에서 권한·Git 설정 이슈로
@@ -109,9 +107,9 @@ relates:
 
 ## 결정 8. 병목 튜닝 — fastPath · SLA 단축 · 병렬화 · codegen 자동 실행
 
-- **결정**: 다음 4개 튜닝을 gates.json에 반영한다.
-  1. **G1/G2 EXTEND fastPath**: A75 판정이 EXTEND이고 기존 Screen Spec/시각 변경이
-     불필요하면 G1/G2 생략 가능 — A00이 Task Graph에 skip 사유 기록 필수.
+- **결정**: 다음 4개 튜닝을 게이트 정의에 반영한다.
+  1. **G1/G2 EXTEND fastPath**: 재사용 가드 판정이 EXTEND이고 기존 Screen Spec/시각 변경이
+     불필요하면 G1/G2 생략 가능 — 오케스트레이터가 Task Graph에 skip 사유 기록 필수.
   2. **G3 additive-MINOR SLA 4h → 2h**: prop 추가 등 additive-only MINOR 계약 변경은
      우선순위 큐로 처리.
   3. **G4 조건부 완전 병렬**: 신규 토큰 0건이면 G4는 G5~G7과 완전 병렬. 신규 토큰이
@@ -133,20 +131,20 @@ relates:
 - **근거**: 원문은 역방향 의존(Atom → Organism)을 dependency-cruiser로 코드에서만 잡는다
   (G6). 그러나 G6은 병렬 생산의 마지막 단계라 그 시점의 위반 발견은 재작업 비용이 크다.
   계약에 의존을 선언하게 하면 G3(Frozen 전)에서 구조 위반을 잡을 수 있고, Storybook·Figma의
-  조립 구조 검증(A74 4자 일치)에도 같은 데이터를 쓸 수 있다.
+  조립 구조 검증(계약 테스트 4자 일치)에도 같은 데이터를 쓸 수 있다.
 - **대안**: (a) 코드 레벨 검출만 유지 → 위반 발견 시점이 늦어 병렬 산출물 전체가 재작업.
   기각. (b) 별도 의존 매니페스트 파일 → 계약과 이원화되어 P2(계약 = SSOT) 위반. 기각.
 
 ## 결과 (Consequences)
 
-- agents.json(39개)·gates.json(fastPath·SLA·병렬 규칙)·component.v1.json(dependencies)은
-  본 ADR을 근거로 유지되며, 변경은 후속 ADR + A01 승인이 필요하다.
-- 신설 경로: `reports/**`(Layer 3 산출물), `docs/review/code/**`(A42),
-  `docs/figma/specs/**`(A51~A55 미러). CODEOWNERS 생성기(`pnpm boundary:codeowners`)가
+- 레지스트리(역할 정의 39개)·게이트 정의(fastPath·SLA·병렬 규칙)·component.v1.json(dependencies)은
+  본 ADR을 근거로 유지되며, 변경은 후속 ADR + 아키텍처 승인이 필요하다.
+- 신설 경로: `reports/**`(Layer 3 산출물), `docs/review/code/**`(코드 리뷰),
+  `docs/figma/specs/**`(Figma 역할 미러). 경로 소유자 목록 생성기가
   이 경로들을 레지스트리에서 읽어 반영한다.
-- 부채·후속 작업: (1) fastPath 남용 감시 — A00이 skip 사유 없는 생략을 분기별 감사,
-  (2) 미러 스펙 ↔ 실제 Figma 파일 불일치는 도구로 강제되지 않으므로 A71 드리프트 감시
+- 부채·후속 작업: (1) fastPath 남용 감시 — 오케스트레이터가 skip 사유 없는 생략을 분기별 감사,
+  (2) 미러 스펙 ↔ 실제 Figma 파일 불일치는 도구로 강제되지 않으므로 디자인 드리프트 감시
   범위에 미러 동기 검사를 추가하는 티켓 발행, (3) 게이트 1회 통과율·리드타임 메트릭으로
   결정 8의 효과를 2026-Q4에 재평가한다.
-- 재검토 조건: 카탈로그 에이전트 수가 변하는 조직 개편, GitHub 외 SCM 이전(결정 2·4),
+- 재검토 조건: 카탈로그 역할 수가 변하는 조직 개편, GitHub 외 SCM 이전(결정 2·4),
   Figma REST 기반 검증 도구 도입(결정 5).

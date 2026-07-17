@@ -33,7 +33,7 @@ export function checkComplexity(files: ParsedFile[]): AxisResult {
         threshold: COMPLEXITY.threshold,
         message: `함수 '${fn.name}' 의 순환 복잡도가 ${fn.complexity} 이다 (상한 ${COMPLEXITY_MAX}).`,
         suggestion:
-          '분기를 조기 반환·룩업 테이블·하위 함수로 분해한다. 상한 조정은 A01의 ADR 사안이다.',
+          '분기를 조기 반환·룩업 테이블·하위 함수로 분해한다. 상한 조정은 아키텍처의 ADR 사안이다.',
       });
     }
   }

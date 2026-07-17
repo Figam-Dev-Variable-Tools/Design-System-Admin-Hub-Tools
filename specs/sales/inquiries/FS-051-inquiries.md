@@ -3,8 +3,8 @@ id: FS-051
 title: "문의 (목록·상세 처리·견적 발행)"
 screen: SCR-051               # ⚠ 영업 관리 SCR 미작성 — §7 미결 사항 참조
 route: /sales/inquiries
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -172,7 +172,7 @@ date: 2026-07-17
 | (범위 밖) | 문의 등록 | — | — | `inquiryAdapter.create(input, context?)` — **동작하지만 호출부 0건** | 화면에 진입점이 없다. BE-051 §1·§7.6 범위 밖 |
 | (범위 밖) | 문의 삭제 | — | — | `inquiryAdapter.remove(id, context?)` — **동작하지만 호출부 0건** | 화면에 진입점이 없다. BE-051 §1·§7.6 범위 밖 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `inquiryAdapter` 는 공용 `createCrudAdapter`(`shared/crud/crud.ts:86-147`)에 시드 3건(`INQUIRY_SEED`)을 넣어 만든 것으로, 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('sales-inquiries', op)`)를 얹어 CRUD 를 흉내 낸다 — 실제 네트워크 0건. 팩토리를 쓴 덕에 **① 없는 id 의 `fetchOne` 은 `HttpError(404)`**(`crud.ts:105-107`), **② 없는 id 의 `update` 는 `HttpError(409, '다른 사용자가 먼저 삭제한 항목입니다.')`**(`:126-128`) — **유령 저장이 구조적으로 불가능하다**(FS-026 의 손조립 티켓 어댑터와 갈리는 지점이다). **③ 멱등 원장**(`createIdempotencyLedger` — `:62-72`)이 이미 연결돼 있어 `context.idempotencyKey` 만 실으면 재생이 성립한다. `patch` 는 `issueQuoteIfRequested` 라 견적 발행 부수효과가 저장과 한 덩이다. 새로고침하면 시드로 되돌아간다. `data-source.ts:153-155` 의 `// TODO(backend): GET /api/sales/inquiries · GET/PUT /api/sales/inquiries/:id (답변·상태·담당 저장) · '견적 발행' 전이는 견적 생성을 동반한다 — 서버는 문의 갱신 + 견적 생성 + 양방향 링크를 한 트랜잭션으로 처리하고, 이미 발행된 문의의 재발행은 기존 견적을 돌려준다(멱등)` 가 이 화면의 연동 지점이며, 견적 발행 쪽 심은 `quotes/data-source.ts:132-133` 에 따로 있다. 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드는 없다. `inquiryAdapter` 는 공용 `createCrudAdapter`(`shared/crud/crud.ts:86-147`)에 시드 3건(`INQUIRY_SEED`)을 넣어 만든 것으로, 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('sales-inquiries', op)`)를 얹어 CRUD 를 흉내 낸다 — 실제 네트워크 0건. 팩토리를 쓴 덕에 **① 없는 id 의 `fetchOne` 은 `HttpError(404)`**(`crud.ts:105-107`), **② 없는 id 의 `update` 는 `HttpError(409, '다른 사용자가 먼저 삭제한 항목입니다.')`**(`:126-128`) — **유령 저장이 구조적으로 불가능하다**(FS-026 의 손조립 티켓 어댑터와 갈리는 지점이다). **③ 멱등 원장**(`createIdempotencyLedger` — `:62-72`)이 이미 연결돼 있어 `context.idempotencyKey` 만 실으면 재생이 성립한다. `patch` 는 `issueQuoteIfRequested` 라 견적 발행 부수효과가 저장과 한 덩이다. 새로고침하면 시드로 되돌아간다. `data-source.ts:153-155` 의 `// TODO(backend): GET /api/sales/inquiries · GET/PUT /api/sales/inquiries/:id (답변·상태·담당 저장) · '견적 발행' 전이는 견적 생성을 동반한다 — 서버는 문의 갱신 + 견적 생성 + 양방향 링크를 한 트랜잭션으로 처리하고, 이미 발행된 문의의 재발행은 기존 견적을 돌려준다(멱등)` 가 이 화면의 연동 지점이며, 견적 발행 쪽 심은 `quotes/data-source.ts:132-133` 에 따로 있다. 위 표는 백엔드 연결 후 의도된 동작이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -186,35 +186,35 @@ date: 2026-07-17
 - [x] `/support/tickets`(FS-026)와 **다른 화면**임을 §1 에 명시했다
 - [x] §7 의 미결 항목이 BE-051 §7.8 후속 이관 · NFR-051 §5 와 일치한다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 (영업 관리 SCR 미작성) | A11 / A01 |
-| 2 | **페이지네이션이 없다** — `visible.map`(`:251`)이 전량을 렌더한다. 문의는 상한 없이 매일 쌓이는 컬렉션이라 'page size 초과 가능'이 확실하다(quality-bar IA-04 P0 · ERP-15 P1) | A11 · A63 (BE-051 §7.7) |
-| 3 | 상세가 **자체 `<h1>문의 처리</h1>`(`:238`)를 그리고 AppHeader 도 `<h1>` 을 그린다**(`AppHeader.tsx:101`). 통합의 `findCoveringLeaf`(`nav-config.ts:269-279`) 덕에 AppHeader 는 이제 가지 라벨('영업 관리')이 아니라 **잎 라벨 '문의'** 를 보인다 — 그 절반은 해소됐다. 그러나 **`<h1>` 이 2개**이고 primary title 이 어느 문의인지·무슨 행위인지 말하지 않는다(quality-bar IA-02 P0) | A40 · A11 |
-| 4 | 상세 조회 실패 배너(EL-015)에 **'다시 시도'가 없고**, 어댑터가 `HttpError(404)` 를 정확히 던지는데도 **화면이 status 로 분기하지 않아** 404 와 5xx 가 같은 문구다. 공용 `useCrudForm`/`FormPageShell` 은 이를 정확히 가르는데(`useCrudForm.ts:144-149`) 이 화면이 그 셸을 쓰지 않아 상속하지 못했다(quality-bar STATE-02 P0 · EXC-12 P1) | A11 change_request |
-| 5 | 저장 실패가 **403·409·422·500 을 한 문구로 뭉갠다**(`:206`) — `HttpError` 는 status 를 실어 오는데 화면이 보지 않는다(quality-bar EXC-06 P1) | A11 change_request |
-| 6 | 5xx 실패 시 **복사 가능한 참조 코드가 없다** — `useCrudForm` 은 `errorReference` 로 노출하는데(`useCrudForm.ts:195`) 이 화면은 고정 문구뿐이다(quality-bar EXC-20 P1) | A11 change_request |
-| 7 | 문의 본문(EL-019)에 `pre-wrap` 이 없어 **고객이 쓴 줄바꿈이 한 문단으로 뭉친다**. **같은 섹션의 FS-053(상담 이력 상세)은 같은 자리에 `pre-wrap` + `overflow-wrap: anywhere` 를 쓴다**(`ConsultationDetailPage.tsx:72-73`) — 규칙이 갈렸다 | A11 change_request |
-| 8 | 담당자가 **선택지가 아니라 자유 텍스트**다(EL-020) — 오타가 곧 새 담당자가 되고 표기 흔들림('이영업'/'이 영업')을 막을 수단이 없다. 운영자 계정과 연결되지 않는다 | A01 (도메인 경계) · A63 |
-| 9 | **상태 전이 규칙이 어느 층에도 없다**(EL-021) — 7개 상태 아무 곳으로나 갈 수 있어 '종결 → 접수', '접수 → 완료' 가 통과한다. 특히 **'견적 발행' → 다른 상태 → '견적 발행'** 을 오갈 수 있는데, 두 번째 발행은 `quoteId` 멱등 키가 막으므로(EL-030) **상태는 '견적 발행'인데 이번 저장으로는 아무 견적도 만들어지지 않는** 조합이 정상 경로로 존재한다. FS-026 의 `STATUS_FLOW`/`canSetStatus` 에 대응하는 것이 이 도메인에 없다 | A01 (도메인 규칙 확정) · A63 (BE-051 §7.2) · A11 |
-| 10 | 목록의 유형 배지(EL-008.2)가 **라벨=유형 · 톤=우선순위**로 두 축을 겹쳐 인코딩한다 — 우선순위가 **색으로만** 표현돼 색맹·흑백에서 소실되고, 같은 유형 값이 상세(EL-018)에서는 neutral 로 보여 **한 값이 두 화면에서 다른 색**이다(quality-bar A11Y-16 P1 '이중(비색상) state 인코딩' · ERP-01 P1) | A11 change_request |
-| 11 | 제목·고객/거래처 셀에 truncate 가 없어 긴 값이 표 열을 넓힌다(quality-bar COMP-09 P2) | A11 change_request |
-| 12 | 이탈 가드(EL-031)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-012 · EL-026)·'발행된 견적 보기'(EL-022)를 누르면 미저장 처리 내용이 조용히 사라진다. 훅이 가로채는 것은 `<a>` 클릭이다 | A11 change_request |
-| 13 | 상태 select 의 힌트(EL-021.1)가 **`aria-describedby` 로 이어지지 않아 AT 에 닿지 않는다** — '‘견적 발행’으로 바꾸면 견적이 자동 생성됩니다' 는 **비가역 부수효과의 유일한 예고**인데 스크린리더 사용자는 듣지 못한다. `TextareaField` 는 같은 일을 내부에서 정확히 한다(`TextareaField.tsx:67`)(quality-bar A11Y-11 P0) | A11 change_request |
-| 14 | 답변/메모 유형 토글(EL-024)의 선택 상태가 **버튼 variant(색)로만 인코딩**된다 — `aria-pressed` 가 없어 보조기기가 어느 쪽이 선택됐는지 모른다(quality-bar A11Y-16 P1) | A11 change_request |
-| 15 | '처리 저장'(EL-027)이 `loading` prop 대신 손으로 쓴 '저장 중…' 라벨을 쓴다(quality-bar COMP-01 P1) | A11 change_request |
-| 16 | 저장에 **동기 제출 락·멱등키가 없다** — 이 화면이 `useCrudForm` 을 쓰지 않아 그 훅의 `submitLockRef`·`idempotencyKeyRef` 를 상속하지 못했다. **어댑터·`useCrudUpdate` 쪽은 이미 키를 받을 준비가 돼 있다**(`crud.ts:296-316` `UpdateVars.idempotencyKey` · `:121` 원장) — 호출부(`:186-191`)가 넘기지 않을 뿐이다. 연타 시 늘어나는 것은 **타임라인 답변 이벤트**이며, 견적은 `quoteId` 멱등 키가 막는다(quality-bar EXC-08 P0) | A11 change_request |
-| 17 | **담당 변경이 타임라인에 남지 않는다**(EL-028) — FS-026 은 `assign` 이벤트를 덧붙이는데 이 화면은 상태·본문만 남긴다. 누가 언제 배정을 옮겼는지 이력에 없다 | A11 change_request |
-| 18 | 스켈레톤 행 수가 하드코딩 `SKELETON_ROWS = 5`(`:108`)이고 `SeqCell seq={index + 1}`(`:253`)에 `startIndex` 가 없다 — 페이지네이션(#2) 도입 시 2페이지 첫 행이 1로 리셋된다(quality-bar COMP-06 · COMP-07 P2) | A11 (#2 와 함께) |
-| 19 | 타임라인(EL-029)에 상한·접기·페이징이 없어 이벤트가 쌓이면 카드가 무한히 늘어나고, 저장 요청도 함께 커진다 | A11 change_request |
-| 20 | 상세 도착 시 담당·상태를 원본으로 되돌리는 효과(`useEffect([inquiry])` — `:138-142`)가 **편집 중 재조회에서도 돈다** — 저장 후 재조회는 정상이나, 그 밖의 재조회가 오면 입력이 덮인다 | A11 change_request |
-| 21 | 견적 역링크(EL-008.9)가 **끊어질 수 있다** — 견적이 삭제돼도 문의의 `quoteId` 는 남아 '견적 보기'가 404 로 간다. 반대로 문의는 `quoteId` 가 남아 있어 **재발행도 막힌다**(EL-030) — 견적을 잃은 문의는 영원히 견적을 가질 수 없다 | A63 (BE-051 §7.5) · A11 |
-| 22 | 저장 성공 직후 상세 재조회가 실패하면 **처리 카드 전체가 실패 배너로 대체**된다(#4 와 같은 뿌리) | A11 change_request |
-| 23 | **409 를 해소할 UI 가 없다** — 어댑터가 409 를 정확히 던지는데(`crud.ts:126-128`) 이 화면이 `useCrudForm` 을 쓰지 않아 그 훅의 conflict 다이얼로그(`useCrudForm.ts:166-179`, 입력 보존 + reload/dismiss)를 상속하지 못했다. **같은 섹션의 FS-052(프로젝트 폼)는 그것을 갖고 있다**(`ProjectFormPage.tsx:532`)(quality-bar EXC-04 P0) | A11 change_request |
-| 24 | 답변 상한 근접 경고가 없고 counting 기준(UTF-16 code unit)이 정의되지 않았다(quality-bar COMP-12 P2) | A11 change_request |
-| 25 | 이탈 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장(그리고 **이미 생성된 견적**)이 화면에 안 보일 수 있다 | A63 (BE-051 §7.5) |
-| 26 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 처리 내용을 버린다(가드 미발화)(quality-bar EXC-05 · EXC-11 · EXC-19 P1) | A11 · A40 |
-| 27 | **쓰기 권한 게이팅이 배선돼 있지 않다** — `useRouteWritePermissions` 소비자 7곳(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) 안에 이 화면이 없다. read 전용 역할도 '처리 저장'을 보고 누른다. **특히 이 화면의 쓰기는 견적 생성을 동반한다**(quality-bar EXC-03 P0) | A11 change_request |
-| 28 | **타임라인 배열 전체를 클라이언트가 조립해 보내고**(EL-028) `author` 가 하드코딩 '관리자', `at`·`id` 가 클라이언트 값이다 — 감사 무결성과 동시 답변 시 lost update 위험. 낙관적 동시성 **토큰**(If-Match/version)이 없어 두 관리자가 동시에 편집하면 나중 저장이 이긴다(409 는 '존재 여부' 기반이라 이 경합을 잡지 못한다) | A63 (BE-051 §7.2 · §7.3) · A11 |
+| 1 | 대응 SCR 문서 부재 (영업 관리 SCR 미작성) | UI 기획 / 아키텍처 |
+| 2 | **페이지네이션이 없다** — `visible.map`(`:251`)이 전량을 렌더한다. 문의는 상한 없이 매일 쌓이는 컬렉션이라 'page size 초과 가능'이 확실하다(quality-bar IA-04 P0 · ERP-15 P1) | UI 기획 · 백엔드 명세 (BE-051 §7.7) |
+| 3 | 상세가 **자체 `<h1>문의 처리</h1>`(`:238`)를 그리고 AppHeader 도 `<h1>` 을 그린다**(`AppHeader.tsx:101`). 통합의 `findCoveringLeaf`(`nav-config.ts:269-279`) 덕에 AppHeader 는 이제 가지 라벨('영업 관리')이 아니라 **잎 라벨 '문의'** 를 보인다 — 그 절반은 해소됐다. 그러나 **`<h1>` 이 2개**이고 primary title 이 어느 문의인지·무슨 행위인지 말하지 않는다(quality-bar IA-02 P0) | 프론트 구현 · UI 기획 |
+| 4 | 상세 조회 실패 배너(EL-015)에 **'다시 시도'가 없고**, 어댑터가 `HttpError(404)` 를 정확히 던지는데도 **화면이 status 로 분기하지 않아** 404 와 5xx 가 같은 문구다. 공용 `useCrudForm`/`FormPageShell` 은 이를 정확히 가르는데(`useCrudForm.ts:144-149`) 이 화면이 그 셸을 쓰지 않아 상속하지 못했다(quality-bar STATE-02 P0 · EXC-12 P1) | UI 기획 쪽 변경 요청 |
+| 5 | 저장 실패가 **403·409·422·500 을 한 문구로 뭉갠다**(`:206`) — `HttpError` 는 status 를 실어 오는데 화면이 보지 않는다(quality-bar EXC-06 P1) | UI 기획 쪽 변경 요청 |
+| 6 | 5xx 실패 시 **복사 가능한 참조 코드가 없다** — `useCrudForm` 은 `errorReference` 로 노출하는데(`useCrudForm.ts:195`) 이 화면은 고정 문구뿐이다(quality-bar EXC-20 P1) | UI 기획 쪽 변경 요청 |
+| 7 | 문의 본문(EL-019)에 `pre-wrap` 이 없어 **고객이 쓴 줄바꿈이 한 문단으로 뭉친다**. **같은 섹션의 FS-053(상담 이력 상세)은 같은 자리에 `pre-wrap` + `overflow-wrap: anywhere` 를 쓴다**(`ConsultationDetailPage.tsx:72-73`) — 규칙이 갈렸다 | UI 기획 쪽 변경 요청 |
+| 8 | 담당자가 **선택지가 아니라 자유 텍스트**다(EL-020) — 오타가 곧 새 담당자가 되고 표기 흔들림('이영업'/'이 영업')을 막을 수단이 없다. 운영자 계정과 연결되지 않는다 | 아키텍처 (도메인 경계) · 백엔드 명세 |
+| 9 | **상태 전이 규칙이 어느 층에도 없다**(EL-021) — 7개 상태 아무 곳으로나 갈 수 있어 '종결 → 접수', '접수 → 완료' 가 통과한다. 특히 **'견적 발행' → 다른 상태 → '견적 발행'** 을 오갈 수 있는데, 두 번째 발행은 `quoteId` 멱등 키가 막으므로(EL-030) **상태는 '견적 발행'인데 이번 저장으로는 아무 견적도 만들어지지 않는** 조합이 정상 경로로 존재한다. FS-026 의 `STATUS_FLOW`/`canSetStatus` 에 대응하는 것이 이 도메인에 없다 | 아키텍처 (도메인 규칙 확정) · 백엔드 명세 (BE-051 §7.2) · UI 기획 |
+| 10 | 목록의 유형 배지(EL-008.2)가 **라벨=유형 · 톤=우선순위**로 두 축을 겹쳐 인코딩한다 — 우선순위가 **색으로만** 표현돼 색맹·흑백에서 소실되고, 같은 유형 값이 상세(EL-018)에서는 neutral 로 보여 **한 값이 두 화면에서 다른 색**이다(quality-bar A11Y-16 P1 '이중(비색상) state 인코딩' · ERP-01 P1) | UI 기획 쪽 변경 요청 |
+| 11 | 제목·고객/거래처 셀에 truncate 가 없어 긴 값이 표 열을 넓힌다(quality-bar COMP-09 P2) | UI 기획 쪽 변경 요청 |
+| 12 | 이탈 가드(EL-031)가 **`navigate()` 프로그램 이동을 가로채지 못한다** — '목록으로'(EL-012 · EL-026)·'발행된 견적 보기'(EL-022)를 누르면 미저장 처리 내용이 조용히 사라진다. 훅이 가로채는 것은 `<a>` 클릭이다 | UI 기획 쪽 변경 요청 |
+| 13 | 상태 select 의 힌트(EL-021.1)가 **`aria-describedby` 로 이어지지 않아 AT 에 닿지 않는다** — '‘견적 발행’으로 바꾸면 견적이 자동 생성됩니다' 는 **비가역 부수효과의 유일한 예고**인데 스크린리더 사용자는 듣지 못한다. `TextareaField` 는 같은 일을 내부에서 정확히 한다(`TextareaField.tsx:67`)(quality-bar A11Y-11 P0) | UI 기획 쪽 변경 요청 |
+| 14 | 답변/메모 유형 토글(EL-024)의 선택 상태가 **버튼 variant(색)로만 인코딩**된다 — `aria-pressed` 가 없어 보조기기가 어느 쪽이 선택됐는지 모른다(quality-bar A11Y-16 P1) | UI 기획 쪽 변경 요청 |
+| 15 | '처리 저장'(EL-027)이 `loading` prop 대신 손으로 쓴 '저장 중…' 라벨을 쓴다(quality-bar COMP-01 P1) | UI 기획 쪽 변경 요청 |
+| 16 | 저장에 **동기 제출 락·멱등키가 없다** — 이 화면이 `useCrudForm` 을 쓰지 않아 그 훅의 `submitLockRef`·`idempotencyKeyRef` 를 상속하지 못했다. **어댑터·`useCrudUpdate` 쪽은 이미 키를 받을 준비가 돼 있다**(`crud.ts:296-316` `UpdateVars.idempotencyKey` · `:121` 원장) — 호출부(`:186-191`)가 넘기지 않을 뿐이다. 연타 시 늘어나는 것은 **타임라인 답변 이벤트**이며, 견적은 `quoteId` 멱등 키가 막는다(quality-bar EXC-08 P0) | UI 기획 쪽 변경 요청 |
+| 17 | **담당 변경이 타임라인에 남지 않는다**(EL-028) — FS-026 은 `assign` 이벤트를 덧붙이는데 이 화면은 상태·본문만 남긴다. 누가 언제 배정을 옮겼는지 이력에 없다 | UI 기획 쪽 변경 요청 |
+| 18 | 스켈레톤 행 수가 하드코딩 `SKELETON_ROWS = 5`(`:108`)이고 `SeqCell seq={index + 1}`(`:253`)에 `startIndex` 가 없다 — 페이지네이션(#2) 도입 시 2페이지 첫 행이 1로 리셋된다(quality-bar COMP-06 · COMP-07 P2) | UI 기획 (#2 와 함께) |
+| 19 | 타임라인(EL-029)에 상한·접기·페이징이 없어 이벤트가 쌓이면 카드가 무한히 늘어나고, 저장 요청도 함께 커진다 | UI 기획 쪽 변경 요청 |
+| 20 | 상세 도착 시 담당·상태를 원본으로 되돌리는 효과(`useEffect([inquiry])` — `:138-142`)가 **편집 중 재조회에서도 돈다** — 저장 후 재조회는 정상이나, 그 밖의 재조회가 오면 입력이 덮인다 | UI 기획 쪽 변경 요청 |
+| 21 | 견적 역링크(EL-008.9)가 **끊어질 수 있다** — 견적이 삭제돼도 문의의 `quoteId` 는 남아 '견적 보기'가 404 로 간다. 반대로 문의는 `quoteId` 가 남아 있어 **재발행도 막힌다**(EL-030) — 견적을 잃은 문의는 영원히 견적을 가질 수 없다 | 백엔드 명세 (BE-051 §7.5) · UI 기획 |
+| 22 | 저장 성공 직후 상세 재조회가 실패하면 **처리 카드 전체가 실패 배너로 대체**된다(#4 와 같은 뿌리) | UI 기획 쪽 변경 요청 |
+| 23 | **409 를 해소할 UI 가 없다** — 어댑터가 409 를 정확히 던지는데(`crud.ts:126-128`) 이 화면이 `useCrudForm` 을 쓰지 않아 그 훅의 conflict 다이얼로그(`useCrudForm.ts:166-179`, 입력 보존 + reload/dismiss)를 상속하지 못했다. **같은 섹션의 FS-052(프로젝트 폼)는 그것을 갖고 있다**(`ProjectFormPage.tsx:532`)(quality-bar EXC-04 P0) | UI 기획 쪽 변경 요청 |
+| 24 | 답변 상한 근접 경고가 없고 counting 기준(UTF-16 code unit)이 정의되지 않았다(quality-bar COMP-12 P2) | UI 기획 쪽 변경 요청 |
+| 25 | 이탈 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장(그리고 **이미 생성된 견적**)이 화면에 안 보일 수 있다 | 백엔드 명세 (BE-051 §7.5) |
+| 26 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 처리 내용을 버린다(가드 미발화)(quality-bar EXC-05 · EXC-11 · EXC-19 P1) | UI 기획 · 프론트 구현 |
+| 27 | **쓰기 권한 게이팅이 배선돼 있지 않다** — `useRouteWritePermissions` 소비자 7곳(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) 안에 이 화면이 없다. read 전용 역할도 '처리 저장'을 보고 누른다. **특히 이 화면의 쓰기는 견적 생성을 동반한다**(quality-bar EXC-03 P0) | UI 기획 쪽 변경 요청 |
+| 28 | **타임라인 배열 전체를 클라이언트가 조립해 보내고**(EL-028) `author` 가 하드코딩 '관리자', `at`·`id` 가 클라이언트 값이다 — 감사 무결성과 동시 답변 시 lost update 위험. 낙관적 동시성 **토큰**(If-Match/version)이 없어 두 관리자가 동시에 편집하면 나중 저장이 이긴다(409 는 '존재 여부' 기반이라 이 경합을 잡지 못한다) | 백엔드 명세 (BE-051 §7.2 · §7.3) · UI 기획 |

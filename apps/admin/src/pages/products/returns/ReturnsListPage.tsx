@@ -1,4 +1,4 @@
-// ReturnsListPage — 교환/반품 요청 목록 (라우트: /products/returns) · A41 소유
+// ReturnsListPage — 교환/반품 요청 목록 (라우트: /products/returns)
 //
 // 요청은 감사 성격이라 삭제·일괄작업이 없다(고객이 만들고 관리자는 처리만 한다). 그래서 CrudListShell
 // 대신 읽기 전용 표를 쓴다: 유형·상태 필터 + 검색 + 행 → 상세(상태 처리). 데이터는 프레임워크

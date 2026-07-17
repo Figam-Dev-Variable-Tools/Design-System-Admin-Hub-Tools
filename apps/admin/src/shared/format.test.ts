@@ -1,4 +1,4 @@
-// shared/format 의 규칙 고정 (A40 소유 · apps/admin/src/shared/format.ts)
+// shared/format 의 규칙 고정 (apps/admin/src/shared/format.ts)
 //
 // [왜 이 파일이 있나] 여기 있는 규칙들은 전부 **여러 사본이 각자 구현하던 것**이 수렴한 결과다.
 // 조사(ERP-13)는 세 곳이, 시각 표기·달력 산술(ERP-09)은 세 곳이 각자 갖고 있었다. 수렴하면서

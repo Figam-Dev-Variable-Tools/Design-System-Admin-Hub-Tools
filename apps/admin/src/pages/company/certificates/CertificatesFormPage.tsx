@@ -1,4 +1,4 @@
-// CertificatesFormPage — 인증서/특허 등록/수정 (라우트: /company/certificates/new · /:id/edit) · A41 소유
+// CertificatesFormPage — 인증서/특허 등록/수정 (라우트: /company/certificates/new · /:id/edit)
 import type { CSSProperties } from 'react';
 
 import {

@@ -1,4 +1,4 @@
-// TemplateFormPage — 발송 템플릿 등록/수정 (라우트: /marketing/templates/new · /:id/edit) · A41 소유
+// TemplateFormPage — 발송 템플릿 등록/수정 (라우트: /marketing/templates/new · /:id/edit)
 //
 // 데이터 배선은 공용 CRUD 프레임워크(useCrudForm + FormPageShell)를 재사용한다. 채널(SMS/이메일/알림톡)에
 // 따라 필드가 갈린다: 이메일/알림톡은 제목, 알림톡은 승인상태·반려사유. 본문은 치환변수(#{...})를 지원한다.

@@ -1,4 +1,4 @@
-// RepliesPage — 답변 템플릿 목록 (라우트: /support/replies) · A41 소유
+// RepliesPage — 답변 템플릿 목록 (라우트: /support/replies)
 //
 // 목록 + 등록/수정(폼 페이지) + 삭제·일괄 삭제. 데이터·선택·삭제 배선은 공용 CRUD 프레임워크
 // (useCrudList + CrudListShell). 화면은 검색 툴바와 컬럼(제목·유형 태그·본문 미리보기)만 주입한다.

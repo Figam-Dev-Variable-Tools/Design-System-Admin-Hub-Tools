@@ -1,4 +1,4 @@
-// PromotionFormPage — 프로모션 등록/수정 (라우트: /marketing/promotions/new · /:id/edit) · A41 소유
+// PromotionFormPage — 프로모션 등록/수정 (라우트: /marketing/promotions/new · /:id/edit)
 //
 // 공용 CRUD 프레임워크(useCrudForm + FormPageShell)를 재사용한다. 필드: 프로모션명·기간·상태·대상·할인
 // (정률/정액)·최소주문금액·쿠폰 연동·설명. 검증 정본은 ./validation.

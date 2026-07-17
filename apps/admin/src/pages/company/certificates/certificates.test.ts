@@ -1,4 +1,4 @@
-// 인증서/특허 화면의 동작 회귀 테스트 (A41) — 정렬·필터(순수) + 폼 검증
+// 인증서/특허 화면의 동작 회귀 테스트 — 정렬·필터(순수) + 폼 검증
 import { describe, expect, it } from 'vitest';
 
 import { certKindLabel, certKindTone, filterCertificates, sortCertificates } from './types';

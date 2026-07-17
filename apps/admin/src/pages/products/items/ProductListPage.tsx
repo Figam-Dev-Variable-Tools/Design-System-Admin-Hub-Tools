@@ -1,4 +1,4 @@
-// ProductListPage — 상품 목록 (라우트: /products) · A41 소유
+// ProductListPage — 상품 목록 (라우트: /products)
 //
 // 승격된 CRUD 프레임워크(useCrudList + CrudListShell) 위에 **좌측 카테고리·판매상태 필터** + 검색 +
 // 재고/상태 배지 + 전시상태 인라인 토글을 얹는다. 목록엔 이미지 열을 넣지 않는다(전 섹션 규칙).

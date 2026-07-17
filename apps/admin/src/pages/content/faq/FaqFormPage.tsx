@@ -1,4 +1,4 @@
-// FaqFormPage — FAQ 등록/수정 (라우트: /content/faq/new · /content/faq/:id/edit) · A41 소유
+// FaqFormPage — FAQ 등록/수정 (라우트: /content/faq/new · /content/faq/:id/edit)
 //
 // 하나의 폼이 등록과 수정을 겸한다(:id 유무로 갈린다). 폼 = RHF + zod/mini.
 // 답변은 리치 텍스트를 도입하지 않는다 — 제어 textarea(TextareaField, 카운터 포함).

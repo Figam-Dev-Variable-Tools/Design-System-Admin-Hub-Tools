@@ -1,7 +1,7 @@
 # @tds/figma-plugin — TDS Sync
 
-contracts/tokens 산출물을 Figma에 동기화하는 플러그인. 소유: A50 (Figma Plugin
-Engineer), 검수: A56 (G7). 모든 입력은 UI의 파일 적재로만 유입된다
+contracts/tokens 산출물을 Figma에 동기화하는 플러그인. 담당: Figma 플러그인,
+검수: Figma 리뷰 (G7). 모든 입력은 UI의 파일 적재로만 유입된다
 (manifest `networkAccess: none`).
 
 ## 기능
@@ -76,7 +76,7 @@ TDS 문서의 페이지 구성·치수·바인딩 규칙은 **docs/figma/specs/t
    ```
 
 6. (선택) **계약 → Variant Property 동기화** — 대상(전체 또는 개별)을 고르고 실행.
-   Component Set을 만들고, A51이 🧩 Components 페이지의 'Variant 매트릭스 자리'를 채운다.
+   Component Set을 만들고, Figma 컴포넌트가 🧩 Components 페이지의 'Variant 매트릭스 자리'를 채운다.
 
 7. **Detached 스타일 스캔** — 입력이 필요 없는 읽기 전용 액션. 결과 위반 0건이어야 G7 통과.
    문서 생성기의 허용 예외(line-height/font-family, 헤어라인)는 tds-doc-style.md §10 참조.

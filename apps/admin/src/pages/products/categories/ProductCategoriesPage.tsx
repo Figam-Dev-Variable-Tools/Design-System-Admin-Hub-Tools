@@ -1,4 +1,4 @@
-// ProductCategoriesPage — 상품 카테고리 관리 (라우트: /products/categories) · A41 소유
+// ProductCategoriesPage — 상품 카테고리 관리 (라우트: /products/categories)
 //
 // **좌측 사용 여부 필터** + 목록 + 추가/수정 모달 + 삭제팝업. **사용 중 차단**: 카테고리를 쓰는
 // 상품이 1건이라도 있으면 삭제 버튼을 잠그고 'N개 상품'을 알린다(고아 상품 방지 — 포트폴리오

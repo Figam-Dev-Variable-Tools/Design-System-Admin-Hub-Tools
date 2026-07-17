@@ -1,4 +1,4 @@
-// SMS 발송 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/marketing/**)
+// SMS 발송 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 프레임워크 createCrudAdapter 에 시드를 넣는다. 파생값(발신번호 라벨·대상 수·유형)은
 // 저장 시 _shared 레지스트리로 비정규화한다 — 실연동 시 서버가 계산한다.

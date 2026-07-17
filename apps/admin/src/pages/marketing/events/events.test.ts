@@ -1,4 +1,4 @@
-// 이벤트 회귀 테스트 (A41) — 필터·검색·정렬(순수) + 폼 검증(기간·혜택·배너)
+// 이벤트 회귀 테스트 — 필터·검색·정렬(순수) + 폼 검증(기간·혜택·배너)
 import { describe, expect, it } from 'vitest';
 
 import { filterEvents, searchEvents, sortEvents, toEventInput } from './types';

@@ -28,7 +28,7 @@ function nowIso(): string {
  *
  * 이메일·SMS 템플릿은 필드만 다르고(제목 유무) 저장 방식이 같다: 가변 배열 + 일련번호 +
  * 목록(트리거순 정렬)·단건(없으면 throw)·추가·수정·삭제. 두 벌을 복사하면 한쪽만 고치는 사고가 난다
- * (A83 축3 중복) — 골격은 여기 한 벌, 타입별로 다른 것(정규화·필드)만 build/patch 로 주입한다.
+ * (클린코드 점검 축3 중복) — 골격은 여기 한 벌, 타입별로 다른 것(정규화·필드)만 build/patch 로 주입한다.
  * 모양은 공용 createCrudAdapter 의 spec(seed·build·patch)을 그대로 따른다 — 새 패턴을 만들지 않는다. */
 
 interface TemplateShape {

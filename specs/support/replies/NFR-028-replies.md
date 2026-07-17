@@ -4,8 +4,8 @@ title: "문의 답변 — 답변 템플릿 관리 비기능 명세"
 functionalSpec: FS-028
 backendSpec: BE-028
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -192,30 +192,30 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | STATE-04 · EXC-18 | P0 · P1 | **검색어 변경 시 행 선택이 해제되지 않아 보이지 않는 행이 일괄 삭제된다.** **F3b 이후 오히려 더 눈에 띈다** — 이 화면은 `useListState`(`:76`, 자기 선택 상태를 갖고 view 서명 변경 시 비운다 — `useListState.ts:205-213`)와 `useCrudList`(`:79-84`, `useRowSelection` 소유)를 **둘 다** 쓰면서 표에는 후자의 선택을 넘긴다(`:110-123`). 즉 **선택 상태가 두 벌인데 검색어와 연결된 쪽(`list.selectedIds`)이 쓰이지 않는다.** `useRowSelection` 이 '호출부가 clear() 로 비운다'고 계약을 명시하는데 어긴다. **이 화면에서 유일하게 데이터를 잃는 결함이며 한 줄로 고쳐진다**(`controller.clear()` 를 keyword 에 연결하거나 `list.selectedIds` 로 일원화) | 이 화면 | **A11 change_request (최우선)** |
+| 1 | STATE-04 · EXC-18 | P0 · P1 | **검색어 변경 시 행 선택이 해제되지 않아 보이지 않는 행이 일괄 삭제된다.** **F3b 이후 오히려 더 눈에 띈다** — 이 화면은 `useListState`(`:76`, 자기 선택 상태를 갖고 view 서명 변경 시 비운다 — `useListState.ts:205-213`)와 `useCrudList`(`:79-84`, `useRowSelection` 소유)를 **둘 다** 쓰면서 표에는 후자의 선택을 넘긴다(`:110-123`). 즉 **선택 상태가 두 벌인데 검색어와 연결된 쪽(`list.selectedIds`)이 쓰이지 않는다.** `useRowSelection` 이 '호출부가 clear() 로 비운다'고 계약을 명시하는데 어긴다. **이 화면에서 유일하게 데이터를 잃는 결함이며 한 줄로 고쳐진다**(`controller.clear()` 를 keyword 에 연결하거나 `list.selectedIds` 로 일원화) | 이 화면 | **UI 기획 쪽 변경 요청 (최우선)** |
 | ~~2~~ | ~~COMP-10~~ | ~~P0~~ | **해소됨(F3b)** — `RepliesPage.tsx:93-99` 이 `list.searchInputProps` 를 `SearchField` 에 스프레드하고, `useListState`(`:76`)가 내부에서 `useDebouncedSearch`(`useListState.ts:227-230`)를 소비한다: 조합 중 커밋 금지(`useDebouncedSearch.ts:87`) · 조합 중 Enter 차단(`:121-124`) · 250ms 디바운스(`:23,93-95`) | — | — |
-| 3 | IA-02 | P0 | **`<h1>` 이 2개**(AppHeader `:101` '문의 답변' ↔ `FormPageShell.tsx:160` '답변 템플릿 등록') — '단일 title 메커니즘' 미충족. 목록/폼의 title 소스가 갈리고, '행위'가 AppHeader 제목에 없다(`nav-config.ts:294-296` 이 의도로 명시). *(브랜치 라벨 '고객센터' 폴백은 `findCoveringLeaf`(`:260-278`)로 해소 — 이제 '문의 답변')* | **앱 전역**(`AppHeader`·`FormPageShell`·title 모델) | A40 · A11 |
-| 4 | IA-04 · ERP-15 | P0 · P1 | 페이지네이션 없음 — 전량 렌더 | 이 화면 + BE 계약 | A11 · A63 (BE-028 §7.9 — **1:1 문의 상세가 전량을 필요로 하므로 두 표현 필요**) |
+| 3 | IA-02 | P0 | **`<h1>` 이 2개**(AppHeader `:101` '문의 답변' ↔ `FormPageShell.tsx:160` '답변 템플릿 등록') — '단일 title 메커니즘' 미충족. 목록/폼의 title 소스가 갈리고, '행위'가 AppHeader 제목에 없다(`nav-config.ts:294-296` 이 의도로 명시). *(브랜치 라벨 '고객센터' 폴백은 `findCoveringLeaf`(`:260-278`)로 해소 — 이제 '문의 답변')* | **앱 전역**(`AppHeader`·`FormPageShell`·title 모델) | 프론트 구현 · UI 기획 |
+| 4 | IA-04 · ERP-15 | P0 · P1 | 페이지네이션 없음 — 전량 렌더 | 이 화면 + BE 계약 | UI 기획 · 백엔드 명세 (BE-028 §7.9 — **1:1 문의 상세가 전량을 필요로 하므로 두 표현 필요**) |
 | ~~5~~ | ~~IA-13~~ | ~~P0~~ | **해소됨(F3b)** — `RepliesPage.tsx:76` `useListState()` 가 검색어를 URL(`?q=`)로 옮겼다. `replace` 갱신(`useListState.ts:125`)이라 history 가 쌓이지 않고, 수정 화면에서 Back 하면 검색어가 복원되며 링크 공유도 된다 | — | — |
-| 6 | EXC-03 | P0 | write 액션 게이팅 미배선 — **`useRouteWritePermissions` 는 이제 7곳이 소비하지만**(products 3 · settings 4) `pages/support/**` 는 그 밖이다. 최근접 선례는 같은 `useCrudList`+`CrudListShell` 목록인 `products/items/ProductListPage.tsx:119`. **이 화면은 등록·수정·행 삭제·일괄 삭제를 모두 가져 요구가 사실상 명시 지목**한다. read 게이팅은 pass | **이 화면**(공용 훅 + 7곳 선례 존재) | A11 change_request |
-| 7 | EXC-04 | P0 | **낙관적 동시성 토큰 부재** — `ReplyTemplate` 에 `updatedAt`/`version` 이 없어 If-Match 로 보낼 값이 없다. 어댑터의 409 는 '대상이 아직 존재하는가' 로만 판정하므로 **둘 다 존재하는 동시 편집은 last-write-wins**. *(유령 저장·유령 삭제와 404 미도달은 F3b 의 `createStoreAdapter` 가드로 **해소** — `crud.ts:171` `exists()` → `update`/`remove` 409(`:219-221`·`:232-234`) · `fetchOne` 404(`:192-194`). 이 화면은 `useCrudForm` 의 충돌 다이얼로그·404 화면을 이미 갖고 있어 **화면 코드 0줄로 복구 경로가 열렸다** — EXC-06·EXC-12 도 함께 pass 가 됐다)* | 이 화면 + 도메인 모델 | A63 (BE-028 §7.5 — 응답에 `version`/`ETag` 필요) · A11 |
-| 8 | COMP-04 | P1 | **본문에 필수 마커(`*`)가 없다** — zod 는 필수인데 `TextareaField` 에 `required` prop 미전달. 제목은 마커가 있어 **같은 폼 안에서 필수 표기가 갈린다** | 이 화면 | A11 change_request |
-| 9 | ERP-13 | P1 | 삭제 확인·토스트·404 문구의 리터럴 조사 폴백(`을(를)`) — `useCrudList`·`useCrudForm`·`FormPageShell` 이 소유한 공용 문구. 요구가 `useCrudList` 를 명시 지목 | **공용 프레임워크** | A11 (공용 수정) |
-| 10 | EXC-10 · EXC-18 | P1 | 일괄 삭제 부분 실패 후 **실패 id 를 반환하지 않아** 재시도가 성공분까지 재요청. Shift-range 선택·대량 progress·cancel·상한 없음 | 공용(`settleAll`·`useCrudBulkDelete`) + 이 화면 | A11 change_request |
-| 11 | COMP-12 | P2 | 제목(60자)에 카운터 없음 · 두 필드 모두 상한 근접 경고 없음 · counting 기준 미정의 | 이 화면 | A11 |
-| 12 | COMP-06 · COMP-07 | P2 | 스켈레톤 `length: 5` 하드코딩 · `SeqCell` 에 `startIndex` 없음(페이지네이션 도입 시 발현) — **둘 다 공용 `CrudTable`** | **공용 프레임워크** | A11 (#4 와 함께) |
-| 13 | COMP-09 | P2 | 본문 미리보기가 truncate 는 하나 **hover/expand 로 전체 값을 볼 수단이 없다**(`title` 속성도 없음) | 이 화면 | A11 |
-| 14 | STATE-05 | P1 | 진짜 0건에 **등록 CTA 가 없다** — `Empty` 가 `createAction` 을 지원하는데 넘기지 않는다. 툴바에 등록 버튼이 있어 경미 | 이 화면 | A11 |
-| 15 | A11Y-13 | P1 | 폼 open 시 첫 편집 필드 자동 포커스 없음(검증 실패 시 포커스 이동은 pass) | 공용(`useCrudForm`) | A11 |
-| 16 | EXC-20 | P1 | 삭제 실패(다이얼로그 배너)에 reference code 없음 — 저장 실패에는 있다 | 공용(`useCrudList`) | A11 |
-| 17 | EXC-05 · EXC-11 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 · 세션 만료가 미저장 입력을 버린다(EXC-19) | **앱 전역** | A40 · A11 |
-| 18 | (BE-028 §7.10) | — | **제목 중복을 409 로 두면 충돌 다이얼로그가 잘못 뜬다** — 422 + `error.fields` 로 반환하면 `useCrudForm` 의 422 경로가 제목에 인라인 에러를 준다(화면 코드 0줄 변경) | BE 계약 | **A63 (계약 확정 필요)** |
-| 19 | (BE-028 §7.2) | — | `categoryId` 가 `z.string()` 이라 없는 유형 id 도 통과 — 서버 422 참조 무결성 필요 | BE 계약 | A63 |
-| 20 | (BE-028 §7.3) | — | 유형 목록 조회가 어댑터 없는 동기 store 직접 호출이고, **필요보다 무거운 사용량 집계 API 를 쓴다** — 연동 시 **화면 코드가 함께 바뀐다** | 이 화면 | A11 (연동 산정에 포함) |
-| 21 | (§4.3) | — | **템플릿 변경 이력이 없다**(`updatedAt`·`updatedBy` 부재) — 조직 표준 문구가 언제 누구에 의해 바뀌었는지 추적 불가 | BE 계약 + 이 화면 | A63 · A11 |
-| 22 | (§4.1) | — | 목록이 `body` 전문(1000자)을 전량 담는데 화면은 60자 미리보기만 쓴다. `bodyPreview` 가 `useMemo` 없이 렌더마다 전 행에 정규식을 돌린다 | BE 계약 + 이 화면 | A63 (BE-028 §7.9) · A11 |
-| 23 | (FS-028 §7 #1) | — | **화면명('문의 답변')이 도메인('답변 템플릿')과 어긋난다** — 운영자가 '여기서 고객에게 답장하는 화면'으로 오해할 수 있다 | 앱 IA | A01 |
-| 24 | (FS-028 §7 #24) | — | 목록에 **유형 태그 필터가 없다** — 검색만 있다 | 이 화면 | A11 (#4 의 `?categoryId=` 쿼리가 함께 해소) |
+| 6 | EXC-03 | P0 | write 액션 게이팅 미배선 — **`useRouteWritePermissions` 는 이제 7곳이 소비하지만**(products 3 · settings 4) `pages/support/**` 는 그 밖이다. 최근접 선례는 같은 `useCrudList`+`CrudListShell` 목록인 `products/items/ProductListPage.tsx:119`. **이 화면은 등록·수정·행 삭제·일괄 삭제를 모두 가져 요구가 사실상 명시 지목**한다. read 게이팅은 pass | **이 화면**(공용 훅 + 7곳 선례 존재) | UI 기획 쪽 변경 요청 |
+| 7 | EXC-04 | P0 | **낙관적 동시성 토큰 부재** — `ReplyTemplate` 에 `updatedAt`/`version` 이 없어 If-Match 로 보낼 값이 없다. 어댑터의 409 는 '대상이 아직 존재하는가' 로만 판정하므로 **둘 다 존재하는 동시 편집은 last-write-wins**. *(유령 저장·유령 삭제와 404 미도달은 F3b 의 `createStoreAdapter` 가드로 **해소** — `crud.ts:171` `exists()` → `update`/`remove` 409(`:219-221`·`:232-234`) · `fetchOne` 404(`:192-194`). 이 화면은 `useCrudForm` 의 충돌 다이얼로그·404 화면을 이미 갖고 있어 **화면 코드 0줄로 복구 경로가 열렸다** — EXC-06·EXC-12 도 함께 pass 가 됐다)* | 이 화면 + 도메인 모델 | 백엔드 명세 (BE-028 §7.5 — 응답에 `version`/`ETag` 필요) · UI 기획 |
+| 8 | COMP-04 | P1 | **본문에 필수 마커(`*`)가 없다** — zod 는 필수인데 `TextareaField` 에 `required` prop 미전달. 제목은 마커가 있어 **같은 폼 안에서 필수 표기가 갈린다** | 이 화면 | UI 기획 쪽 변경 요청 |
+| 9 | ERP-13 | P1 | 삭제 확인·토스트·404 문구의 리터럴 조사 폴백(`을(를)`) — `useCrudList`·`useCrudForm`·`FormPageShell` 이 소유한 공용 문구. 요구가 `useCrudList` 를 명시 지목 | **공용 프레임워크** | UI 기획 (공용 수정) |
+| 10 | EXC-10 · EXC-18 | P1 | 일괄 삭제 부분 실패 후 **실패 id 를 반환하지 않아** 재시도가 성공분까지 재요청. Shift-range 선택·대량 progress·cancel·상한 없음 | 공용(`settleAll`·`useCrudBulkDelete`) + 이 화면 | UI 기획 쪽 변경 요청 |
+| 11 | COMP-12 | P2 | 제목(60자)에 카운터 없음 · 두 필드 모두 상한 근접 경고 없음 · counting 기준 미정의 | 이 화면 | UI 기획 |
+| 12 | COMP-06 · COMP-07 | P2 | 스켈레톤 `length: 5` 하드코딩 · `SeqCell` 에 `startIndex` 없음(페이지네이션 도입 시 발현) — **둘 다 공용 `CrudTable`** | **공용 프레임워크** | UI 기획 (#4 와 함께) |
+| 13 | COMP-09 | P2 | 본문 미리보기가 truncate 는 하나 **hover/expand 로 전체 값을 볼 수단이 없다**(`title` 속성도 없음) | 이 화면 | UI 기획 |
+| 14 | STATE-05 | P1 | 진짜 0건에 **등록 CTA 가 없다** — `Empty` 가 `createAction` 을 지원하는데 넘기지 않는다. 툴바에 등록 버튼이 있어 경미 | 이 화면 | UI 기획 |
+| 15 | A11Y-13 | P1 | 폼 open 시 첫 편집 필드 자동 포커스 없음(검증 실패 시 포커스 이동은 pass) | 공용(`useCrudForm`) | UI 기획 |
+| 16 | EXC-20 | P1 | 삭제 실패(다이얼로그 배너)에 reference code 없음 — 저장 실패에는 있다 | 공용(`useCrudList`) | UI 기획 |
+| 17 | EXC-05 · EXC-11 | P1 | `AbortSignal.timeout` 0건 · `navigator.onLine` 0건 · 세션 만료가 미저장 입력을 버린다(EXC-19) | **앱 전역** | 프론트 구현 · UI 기획 |
+| 18 | (BE-028 §7.10) | — | **제목 중복을 409 로 두면 충돌 다이얼로그가 잘못 뜬다** — 422 + `error.fields` 로 반환하면 `useCrudForm` 의 422 경로가 제목에 인라인 에러를 준다(화면 코드 0줄 변경) | BE 계약 | **백엔드 명세 (계약 확정 필요)** |
+| 19 | (BE-028 §7.2) | — | `categoryId` 가 `z.string()` 이라 없는 유형 id 도 통과 — 서버 422 참조 무결성 필요 | BE 계약 | 백엔드 명세 |
+| 20 | (BE-028 §7.3) | — | 유형 목록 조회가 어댑터 없는 동기 store 직접 호출이고, **필요보다 무거운 사용량 집계 API 를 쓴다** — 연동 시 **화면 코드가 함께 바뀐다** | 이 화면 | UI 기획 (연동 산정에 포함) |
+| 21 | (§4.3) | — | **템플릿 변경 이력이 없다**(`updatedAt`·`updatedBy` 부재) — 조직 표준 문구가 언제 누구에 의해 바뀌었는지 추적 불가 | BE 계약 + 이 화면 | 백엔드 명세 · UI 기획 |
+| 22 | (§4.1) | — | 목록이 `body` 전문(1000자)을 전량 담는데 화면은 60자 미리보기만 쓴다. `bodyPreview` 가 `useMemo` 없이 렌더마다 전 행에 정규식을 돌린다 | BE 계약 + 이 화면 | 백엔드 명세 (BE-028 §7.9) · UI 기획 |
+| 23 | (FS-028 §7 #1) | — | **화면명('문의 답변')이 도메인('답변 템플릿')과 어긋난다** — 운영자가 '여기서 고객에게 답장하는 화면'으로 오해할 수 있다 | 앱 IA | 아키텍처 |
+| 24 | (FS-028 §7 #24) | — | 목록에 **유형 태그 필터가 없다** — 검색만 있다 | 이 화면 | UI 기획 (#4 의 `?categoryId=` 쿼리가 함께 해소) |
 
 ## 6. 측정 도구 · 재현 스위치
 

@@ -1,12 +1,12 @@
 /**
- * 하드코딩 검출 정규식 — tools/contract-test(A74)와 동일하게 유지해야 하는 규칙.
+ * 하드코딩 검출 정규식 — tools/contract-test(계약 테스트)와 동일하게 유지해야 하는 규칙.
  *
- * ⚠ 이 목록을 변경하려면 A01(Architecture AI) 승인 후 tools/contract-test 쪽 규칙과
+ * ⚠ 이 목록을 변경하려면 아키텍처(Architecture AI) 승인 후 tools/contract-test 쪽 규칙과
  *   반드시 동시에 수정한다. 두 도구가 서로 다른 규칙으로 스캔하면 게이트 판정이 갈라진다.
  *
- * 차이점: contract-test(A74)는 위반을 blocker(게이트 차단)로 판정하지만,
- *         drift(A71)는 상시 감시 관점에서 severity "warning"으로 수집만 한다
- *         (차단 없음 — 알림 + 자동 Fix PR 트리거, agents.json A71 blockCondition 참조).
+ * 차이점: contract-test(계약 테스트)는 위반을 blocker(게이트 차단)로 판정하지만,
+ *         drift(디자인 드리프트)는 상시 감시 관점에서 severity "warning"으로 수집만 한다
+ *         (차단 없음 — 알림 + 자동 Fix PR 트리거, 레지스트리 디자인 드리프트 blockCondition 참조).
  */
 
 export interface HardcodeRule {
@@ -36,7 +36,7 @@ export const HARDCODE_RULES: HardcodeRule[] = [
 
 /**
  * 스캔 예외 마커 — 이 문자열을 포함한 줄은 검출에서 제외한다.
- * (정당한 예외는 코드 리뷰에서 A42가 확인하며, 남용 시 A71이 리포트에 집계)
+ * (정당한 예외는 코드 리뷰에서 코드 리뷰가 확인하며, 남용 시 디자인 드리프트이 리포트에 집계)
  */
 export const IGNORE_MARKER = 'tds-ignore-hardcode';
 

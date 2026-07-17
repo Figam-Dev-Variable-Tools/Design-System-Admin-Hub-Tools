@@ -79,7 +79,7 @@ export function collectContractTokenRefs(contractsDir: string): Set<string> {
         }
       }
     } catch {
-      // 계약 파싱 실패는 A74/A19 관할 — 여기서는 조용히 건너뛴다
+      // 계약 파싱 실패는 계약 테스트/계약 리뷰 관할 — 여기서는 조용히 건너뛴다
     }
   }
   return refs;

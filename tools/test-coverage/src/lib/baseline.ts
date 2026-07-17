@@ -1,5 +1,5 @@
 /**
- * 축 4 래칫(ratchet) — **후퇴 금지 장치** (A00/A01 판정 2).
+ * 축 4 래칫(ratchet) — **후퇴 금지 장치** (오케스트레이터/아키텍처 판정 2).
  *
  * 축 4(FS 예외 7축)는 major 로 유지한다. 713칸 미커버 상태에서 blocker 로 승격하면
  * 리포 전체가 무기한 RED 가 되고, **상시 RED 는 상시 GREEN 만큼 무용하다** — 사람이 게이트를
@@ -30,14 +30,14 @@ export interface Baseline {
    * 조용히 사라지고 RED 가 GREEN 이 된다. 테스트는 한 줄도 늘지 않았는데.
    *
    * 실제로 이번 실행에서 계약 states 총수가 48 → 46 으로 줄었다(DataTable · LineAreaChart 가
-   * 각각 `loading` 상실). 대조 결과 A18이 `loading` **prop 자체를 제거**하고 버전을 1.0.1로
+   * 각각 `loading` 상실). 대조 결과 계약 엔지니어이 `loading` **prop 자체를 제거**하고 버전을 1.0.1로
    * 올린 **정당한 계약 변경**이었다 — 세탁이 아니었다. 그러나 **도구는 그 둘을 구분하지 못한 채
-   * 통과시켰다.** 만약 A18이 prop 은 남기고 states 한 줄만 지웠다면 결과는 똑같이 GREEN 이었다.
+   * 통과시켰다.** 만약 계약 엔지니어이 prop 은 남기고 states 한 줄만 지웠다면 결과는 똑같이 GREEN 이었다.
    *
    * 그래서 분모 축소를 **major 로 신고**한다. 차단하지는 않는다 — 정당한 계약 축소가 실재하고,
-   * 도구가 레지스트리에 없는 blocker 를 발명해선 안 된다(A01 판정 3에서 확인된 원칙).
-   * 대신 **사람(A19 계약 리뷰어 · A42)이 반드시 눈으로 확인하게 만든다.**
-   * blocker 승격은 A01의 ADR 사안으로 올린다.
+   * 도구가 레지스트리에 없는 blocker 를 발명해선 안 된다(아키텍처 판정 3에서 확인된 원칙).
+   * 대신 **사람(계약 리뷰 계약 리뷰어 · 코드 리뷰)이 반드시 눈으로 확인하게 만든다.**
+   * blocker 승격은 아키텍처의 ADR 사안으로 올린다.
    */
   contractStatesTotal: number;
   contractBlockedTotal: number;
@@ -66,7 +66,7 @@ const EMPTY = (source: string): Baseline => ({
  * **마이그레이션**: 안정 파일이 아직 없으면(이 개편 이전의 리포만 있으면) 레거시
  * `YYYY-MM-DD-<scope>.json` 중 최신을 폴백으로 읽어 기준선 연속성을 지킨다. 폴백은 읽기 전용 —
  * 다음 실행이 `<scope>.json` 을 쓰면 레거시 파일은 고아가 되며, 도구는 그 목록을 콘솔에 알려
- * 사람이 지우게 한다(A77이 자기 소유 경로에서 정리).
+ * 사람이 지우게 한다(테스트 커버리지이 자기 소유 경로에서 정리).
  */
 export function readBaseline(root: string, scope: string): Baseline {
   const dir = path.join(root, 'reports', 'test-coverage');
@@ -158,12 +158,12 @@ export function surfaceShrinkGap(args: {
       severity: 'major' as const,
       source: 'contracts/*.contract.json',
       item: `**계약 표면 축소** — ${args.label} 총수 ${args.baseline} → ${args.current} (${lost}건 감소)`,
-      expectedTest: '(테스트가 아니라 **계약 리뷰**가 필요하다 — A19)',
+      expectedTest: '(테스트가 아니라 **계약 리뷰**가 필요하다 — 계약 리뷰)',
       evidence:
         `**분모가 줄면 커버리지는 저절로 오른다.** 계약에서 항목 한 줄을 지우면 미커버 ${lost}건이 ` +
         `조용히 사라지고 RED 가 GREEN 이 된다 — 테스트는 한 줄도 늘지 않았는데. ` +
         `이것이 정당한 계약 변경(동작·prop 자체가 제거됨)인지, 아니면 **분모 세탁**인지 ` +
-        `A19(Contract Reviewer)가 확인해야 한다. 확인 기준: 제거된 항목의 **prop·동작이 구현에서도 사라졌는가.** ` +
+        `계약 리뷰(Contract Reviewer)가 확인해야 한다. 확인 기준: 제거된 항목의 **prop·동작이 구현에서도 사라졌는가.** ` +
         `기준선: ${args.baselineSource}`,
       gates: args.gates,
     },

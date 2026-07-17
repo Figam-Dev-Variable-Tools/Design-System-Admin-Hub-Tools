@@ -270,7 +270,7 @@ export interface GeneratedFile {
  * 모든 생성 TS 파일의 첫 줄 헤더.
  *
  * version 을 넘기면 `contracts/<Name>.contract.json@<semver>` 형태로 원천과 세대를 한 줄에 박는다.
- * A74(contract-test)의 세대 일치 검사가 '같은 줄의 contract + semver'로 생성물 세대를 판별하므로,
+ * contract-test 의 세대 일치 검사가 '같은 줄의 contract + semver'로 생성물 세대를 판별하므로,
  * 이 형식이 깨지면 Contract ↔ React 축이 FAIL 처리된다 (tools/contract-test/src/axes/react.ts).
  */
 export function generatedHeader(contractName: string, version?: string): string {

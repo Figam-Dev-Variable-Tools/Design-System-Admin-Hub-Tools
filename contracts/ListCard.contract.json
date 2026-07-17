@@ -5,7 +5,7 @@
   "level": "organism",
   "status": "beta",
   "description": "제목 + 카운트 뱃지 + 행 목록 카드. Card + Badge + ListRow 를 조립한 업무 위젯 (ADR-0003 organism). rows 는 데이터 prop 이라 Figma 대응이 없다 — 최근 주문·최근 문의·최근 상담 등 도메인별 목록을 같은 껍데기로 렌더한다.\n\n[2.0.0 — SPA 내비게이션 탈출구] onRowClick 이 MouseEvent 를 함께 넘긴다. 1.x 는 row.id 문자열만 넘겨 preventDefault() 가 불가능했고, 그래서 href 를 주면 전체 페이지 새로고침, 안 주면 <button> 이 되어 새탭/가운데클릭/URL 미리보기를 잃었다 — react-router 로 SPA 내비를 하는 화면(대시보드)을 **어떤 prop 조합으로도 만들 수 없었다**. 호출부는 이제 href 로 진짜 <a> 를 유지한 채, 좌클릭만 preventDefault 하고 navigate() 로 가로챌 수 있다 (수식키/가운데클릭은 브라우저에 맡긴다).",
-  "owner": { "code": "A30", "design": "A14", "figma": "A51" },
+  "owner": { "code": "component-eng", "design": "ui-design", "figma": "figma-eng" },
 
   "props": {
     "title": {

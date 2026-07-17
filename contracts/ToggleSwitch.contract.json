@@ -5,7 +5,7 @@
   "level": "atom",
   "status": "beta",
   "description": "ON/OFF 토글 스위치 — 이진 노출 상태를 목록/폼에서 바로 켜고 끈다. 출처: apps/admin/src/shared/ui/ToggleSwitch.tsx (소비 30곳: FAQ 노출·팝업/배너 ON/OFF·상품 전시·리뷰 노출·계정 거래 등). 도메인을 모른다 — 무엇을 켜는지 알지 못하고 checked 불리언과 콜백·접근성 라벨만 받는다. role=\"switch\" + aria-checked 이며 <button> 이라 Space/Enter 로 토글된다(버튼 기본 동작). 보이는 ON/OFF 문구로 상태를 색과 글자로 이중 전달한다(WCAG 1.4.1).\n\n[busy = 낙관적 업데이트 잠금] 요청 진행 중에는 잠그고(disabled) aria-busy 로 진행을 알리며 흐리게 표시한다 — disabled 와 같은 시각 잠금이라 별도 Figma Variant 축을 만들지 않아도 되지만, 스키마가 boolean 에 figmaProperty 를 요구하므로 Busy 로 매핑한다.",
-  "owner": { "code": "A30", "design": "A14", "figma": "A51" },
+  "owner": { "code": "component-eng", "design": "ui-design", "figma": "figma-eng" },
 
   "props": {
     "checked": {

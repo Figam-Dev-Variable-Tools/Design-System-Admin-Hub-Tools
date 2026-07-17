@@ -1,4 +1,4 @@
-// a11y 정적 가드 (A41 소유 — apps/admin/src/**)
+// a11y 정적 가드
 //
 // [왜 정적 스캔인가]
 // A11Y-11/12 는 **부재(不在)** 를 요구한다: 'aria-describedby 없는 aria-invalid 가 0건', '필터에

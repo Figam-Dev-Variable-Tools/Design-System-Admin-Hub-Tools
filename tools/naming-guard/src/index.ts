@@ -1,5 +1,5 @@
 /**
- * @tds/naming-guard — 네이밍 규칙 강제 진입점 (A76 Naming Convention AI)
+ * @tds/naming-guard — 네이밍 규칙 강제 진입점 (네이밍 가드 Naming Convention AI)
  *
  * 실행:
  *   pnpm naming:check                               # 전체 스캔

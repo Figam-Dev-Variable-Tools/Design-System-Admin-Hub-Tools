@@ -1,4 +1,4 @@
-// 자료 파일 업로드 필드 (A41 소유 — apps/admin/src/pages/support/downloads/**)
+// 자료 파일 업로드 필드
 //
 // [왜 페이지 전용인가] 공통 업로드(shared/ui ImageUploadField)는 이미지 전용(image/*)이다. 자료실은
 // 문서·이미지·압축을 모두 받으므로 검증 규칙(downloadFileError)이 다르고, 미리보기 대신 파일명·용량 칩을

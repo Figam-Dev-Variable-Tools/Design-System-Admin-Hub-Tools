@@ -3,8 +3,8 @@ id: FS-022
 title: "ESG 활동 관리 (목록·분류 필터·등록/수정)"
 screen: SCR-022               # ⚠ 기업 관리 SCR 미작성 — §7 미결 사항 참조
 route: /company/esg
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -166,7 +166,7 @@ date: 2026-07-17
 | FS-022-EL-005.1 / EL-016 | ESG 삭제(일괄) | W | 선택된 id 배열 | `esgAdapter.remove(id, signal)` × N (`settleAll`) | 전원 성공일 때만 목록 무효화 |
 | FS-022-EL-012.5 / EL-012.6 | 이미지 업로드 | W | 이미지 파일 | **없음 — 심 없음(미정)** | `URL.createObjectURL` 로 `blob:` URL 을 만들 뿐 서버로 보내지 않는다. §7 #9 · BE-022 §4 EP-06 |
 
-> **현재 구현 상태 (A63 참고)**: `esgAdapter` 는 `createCrudAdapter<EsgItem, EsgInput>({ scope: 'esg', seed: ESG_SEED, ... })` 로 만든 **브라우저 안 mutable 픽스처**다(`data-source.ts:49-58`). 다섯 함수 전부 400ms 지연 후 메모리 배열을 읽고 쓴다 — 실제 네트워크 호출은 없다. `data-source.ts:48` 의 `// TODO(backend): GET/POST /api/company/esg · GET/PUT/DELETE /api/company/esg/:id` 주석이 유일한 연동 지점이며, 위 표는 백엔드 연결 후 의도된 동작이다. **저장한 값은 새로고침하면 시드로 돌아간다**(영속 없음). 어댑터는 안전 기본값을 지킨다: `update`·`remove` 가 **없는 id 를 조용히 통과시키지 않고 409 로 던진다**(`crud.ts:71-74,82-85` — 유령 저장 방지). **이미지 업로드는 어떤 형태로도 존재하지 않는다.**
+> **현재 구현 상태 (백엔드 명세 참고)**: `esgAdapter` 는 `createCrudAdapter<EsgItem, EsgInput>({ scope: 'esg', seed: ESG_SEED, ... })` 로 만든 **브라우저 안 mutable 픽스처**다(`data-source.ts:49-58`). 다섯 함수 전부 400ms 지연 후 메모리 배열을 읽고 쓴다 — 실제 네트워크 호출은 없다. `data-source.ts:48` 의 `// TODO(backend): GET/POST /api/company/esg · GET/PUT/DELETE /api/company/esg/:id` 주석이 유일한 연동 지점이며, 위 표는 백엔드 연결 후 의도된 동작이다. **저장한 값은 새로고침하면 시드로 돌아간다**(영속 없음). 어댑터는 안전 기본값을 지킨다: `update`·`remove` 가 **없는 id 를 조용히 통과시키지 않고 409 로 던진다**(`crud.ts:71-74,82-85` — 유령 저장 방지). **이미지 업로드는 어떤 형태로도 존재하지 않는다.**
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -178,25 +178,25 @@ date: 2026-07-17
 - [x] **없는 것을 지어내지 않았다** — 상세 조회 화면·검색 입력·페이지네이션·카테고리 관리·이미지 업로드 심은 존재하지 않으며 그렇게 적었다
 - [x] 검증 문구를 `validation.ts` 원문대로 옮겼다 — **조사는 fallback 리터럴이 아니라 `objectParticle`/`topicParticle` 파생이다**(`shared/crud/validation.ts:17,21,24` → `shared/format.ts:269+`) — 실제 렌더 문구다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **분류 필터가 URL 에 없다** — `useState` 로만 산다. '사회'로 좁혀 행을 열고 '목록으로' 를 누르면 '전체'로 되돌아간다. F5·링크 공유로 필터 view 를 재현할 수 없다. 앱에 `useListState`(URL 직렬화)가 있으나 이 화면이 소비하지 않는다 | A41 · A11 |
-| 2 | **쓰기 권한 게이팅이 없다** — 등록·수정·삭제·일괄삭제 버튼이 권한과 무관하게 렌더된다. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | A11 change_request |
-| 3 | **페이지네이션이 없다** — 어댑터가 전량을 돌려주고 화면이 전량을 DOM 에 그린다. ESG 활동이 쌓이면 표가 무한히 길어지고 '전체 선택'이 그 전부를 선택한다 | A11 · A40 |
-| 4 | 제목 열에 truncate 가 없어 긴 제목이 표 폭을 민다. 내용 열은 ellipsis 지만 **전문을 보는 수단이 행 클릭(수정 폼 진입)뿐**이다 — 읽기 전용 상세 화면이 없다 | A11 change_request |
-| 5 | 일자를 `shared/format` 을 거치지 않고 `item.date` 원문으로 렌더한다 — 앱의 다른 화면과 날짜 표기가 갈릴 수 있다 | A41 |
-| 6 | 스켈레톤 행 수가 5 고정이다 — 페이지 크기·실제 행 수와 무관해 로딩 → 로드 완료에서 표 높이가 튄다 | A40 (`CrudTable`) |
-| 7 | 폼의 **'취소'·'목록으로' 버튼이 미저장 가드를 통과한다** — 두 버튼 모두 `navigate(listPath)`(프로그램적 push)라 링크 가로채기(앵커 대상)에도, popstate sentinel 에도 걸리지 않는다. 반쯤 채운 폼이 확인 없이 사라진다 | A40 (`FormPageShell`) · A11 |
-| 8 | **폼 화면에 `<h1>` 이 2개다** — AppHeader 가 `findNavLabel('/company/esg/new')` → branch 폴백으로 '기업 관리' 를 그리고, `FormPageShell` 이 'ESG 활동 등록' 을 그린다. 상위 제목이 화면을 지목하지 못한다. 목록 화면에는 in-content 제목이 없어 title 소스가 화면 타입마다 다르다 | A40 (`AppHeader`/`findNavLabel`) · A11 |
-| 9 | **이미지가 저장되지 않는다** — 업로드 심이 없어 `blob:` URL 이 값으로 들어가고, 폼을 떠나면 `revokeObjectURL` 로 그 URL 이 죽는다. 목록으로 돌아온 직후부터 이미 무효이며 새로고침하면 더욱 그렇다. **업로드 엔드포인트·저장 형식·최대 용량이 전부 미정** | A63 (BE-022) · A11 · A01 |
-| 10 | 분류 배지가 미도착·조회 실패·진짜 0건을 전부 '0' 으로 표시한다(FAQ 필터는 '—' 로 구분한다) | A11 change_request |
-| 11 | 대량 작업 안전장치가 없다 — Shift-click 범위 선택 없음, '전체 선택'의 scope(현재 보이는 행)가 라벨에 드러나지 않음, 큰 건수 삭제에 강화 confirm·진행률·취소 없음 | A11 · A40 |
-| 12 | 목록 조회 실패가 403/404/500 을 구분하지 않는다 — `CrudListShell` 이 `error !== null` 하나로 뭉갠다. 저장 실패 배너도 403 과 500 이 같은 문구다 | A40 (`CrudListShell`) · A11 |
-| 13 | 일자에 범위 제약이 없다 — 미래 일자·1900년 이전을 막지 않는다. ESG **활동** 일자가 미래인 것이 정당한지 미정 | A63 (BE-022) · A11 |
-| 14 | 제목(120자)·내용(1000자)에 글자 수 카운터가 없다 — 상한에 닿으면 예고 없이 입력이 멈춘다. `FormField`/`TextareaField` 가 `counter` 를 지원하나 넘기지 않는다 | A41 |
-| 15 | 이미 삭제된 항목의 삭제가 409('이미 삭제된 항목입니다.')로 실패한다 — 다른 관리자가 먼저 지운 경우 운영자에게는 '삭제하지 못했습니다' 로 보인다. DELETE 를 멱등으로 볼지 결정 필요 | A63 (BE-022) |
-| 16 | 일괄 삭제 부분 실패 후 재시도가 **전량을 재실행**한다 — 성공분을 다시 요청한다. 실패한 id 를 돌려주지 않아 '실패분만 재시도' 가 불가능하다 | A40 (`bulk.ts`/`useCrudList`) |
+| 1 | **분류 필터가 URL 에 없다** — `useState` 로만 산다. '사회'로 좁혀 행을 열고 '목록으로' 를 누르면 '전체'로 되돌아간다. F5·링크 공유로 필터 view 를 재현할 수 없다. 앱에 `useListState`(URL 직렬화)가 있으나 이 화면이 소비하지 않는다 | 프론트 리팩터 · UI 기획 |
+| 2 | **쓰기 권한 게이팅이 없다** — 등록·수정·삭제·일괄삭제 버튼이 권한과 무관하게 렌더된다. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | UI 기획 쪽 변경 요청 |
+| 3 | **페이지네이션이 없다** — 어댑터가 전량을 돌려주고 화면이 전량을 DOM 에 그린다. ESG 활동이 쌓이면 표가 무한히 길어지고 '전체 선택'이 그 전부를 선택한다 | UI 기획 · 프론트 구현 |
+| 4 | 제목 열에 truncate 가 없어 긴 제목이 표 폭을 민다. 내용 열은 ellipsis 지만 **전문을 보는 수단이 행 클릭(수정 폼 진입)뿐**이다 — 읽기 전용 상세 화면이 없다 | UI 기획 쪽 변경 요청 |
+| 5 | 일자를 `shared/format` 을 거치지 않고 `item.date` 원문으로 렌더한다 — 앱의 다른 화면과 날짜 표기가 갈릴 수 있다 | 프론트 리팩터 |
+| 6 | 스켈레톤 행 수가 5 고정이다 — 페이지 크기·실제 행 수와 무관해 로딩 → 로드 완료에서 표 높이가 튄다 | 프론트 구현 (`CrudTable`) |
+| 7 | 폼의 **'취소'·'목록으로' 버튼이 미저장 가드를 통과한다** — 두 버튼 모두 `navigate(listPath)`(프로그램적 push)라 링크 가로채기(앵커 대상)에도, popstate sentinel 에도 걸리지 않는다. 반쯤 채운 폼이 확인 없이 사라진다 | 프론트 구현 (`FormPageShell`) · UI 기획 |
+| 8 | **폼 화면에 `<h1>` 이 2개다** — AppHeader 가 `findNavLabel('/company/esg/new')` → branch 폴백으로 '기업 관리' 를 그리고, `FormPageShell` 이 'ESG 활동 등록' 을 그린다. 상위 제목이 화면을 지목하지 못한다. 목록 화면에는 in-content 제목이 없어 title 소스가 화면 타입마다 다르다 | 프론트 구현 (`AppHeader`/`findNavLabel`) · UI 기획 |
+| 9 | **이미지가 저장되지 않는다** — 업로드 심이 없어 `blob:` URL 이 값으로 들어가고, 폼을 떠나면 `revokeObjectURL` 로 그 URL 이 죽는다. 목록으로 돌아온 직후부터 이미 무효이며 새로고침하면 더욱 그렇다. **업로드 엔드포인트·저장 형식·최대 용량이 전부 미정** | 백엔드 명세 (BE-022) · UI 기획 · 아키텍처 |
+| 10 | 분류 배지가 미도착·조회 실패·진짜 0건을 전부 '0' 으로 표시한다(FAQ 필터는 '—' 로 구분한다) | UI 기획 쪽 변경 요청 |
+| 11 | 대량 작업 안전장치가 없다 — Shift-click 범위 선택 없음, '전체 선택'의 scope(현재 보이는 행)가 라벨에 드러나지 않음, 큰 건수 삭제에 강화 confirm·진행률·취소 없음 | UI 기획 · 프론트 구현 |
+| 12 | 목록 조회 실패가 403/404/500 을 구분하지 않는다 — `CrudListShell` 이 `error !== null` 하나로 뭉갠다. 저장 실패 배너도 403 과 500 이 같은 문구다 | 프론트 구현 (`CrudListShell`) · UI 기획 |
+| 13 | 일자에 범위 제약이 없다 — 미래 일자·1900년 이전을 막지 않는다. ESG **활동** 일자가 미래인 것이 정당한지 미정 | 백엔드 명세 (BE-022) · UI 기획 |
+| 14 | 제목(120자)·내용(1000자)에 글자 수 카운터가 없다 — 상한에 닿으면 예고 없이 입력이 멈춘다. `FormField`/`TextareaField` 가 `counter` 를 지원하나 넘기지 않는다 | 프론트 리팩터 |
+| 15 | 이미 삭제된 항목의 삭제가 409('이미 삭제된 항목입니다.')로 실패한다 — 다른 관리자가 먼저 지운 경우 운영자에게는 '삭제하지 못했습니다' 로 보인다. DELETE 를 멱등으로 볼지 결정 필요 | 백엔드 명세 (BE-022) |
+| 16 | 일괄 삭제 부분 실패 후 재시도가 **전량을 재실행**한다 — 성공분을 다시 요청한다. 실패한 id 를 돌려주지 않아 '실패분만 재시도' 가 불가능하다 | 프론트 구현 (`bulk.ts`/`useCrudList`) |
 | ~~17~~ | **해소됨(통합) — 이관 취소.** `requiredText` 와 `esgSchema` 가 이제 josa 헬퍼를 쓴다 — 조사 헬퍼가 `shared/format.ts:269+` 로 승격되고 `shared/crud/validation.ts:17,21,24` 가 `objectParticle`/`topicParticle` 로 조립한다 → '제목을 입력하세요.' · 'ESG 활동을 등록했습니다.' `pages/company/` 의 사용자 대상 조사 리터럴 **0건**(ERP-13) | **이관 취소** |
-| 18 | 대응 SCR 문서 부재 (기업 관리 섹션 공통 사안) | A11 / A01 |
+| 18 | 대응 SCR 문서 부재 (기업 관리 섹션 공통 사안) | UI 기획 / 아키텍처 |

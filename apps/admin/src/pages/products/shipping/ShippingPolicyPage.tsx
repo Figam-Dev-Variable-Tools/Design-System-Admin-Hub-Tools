@@ -1,4 +1,4 @@
-// ShippingPolicyPage — 배송 정책 (라우트: /products/shipping) · A41 소유
+// ShippingPolicyPage — 배송 정책 (라우트: /products/shipping)
 //
 // 목록형이 아니라 정책 설정형: 문서 1건을 불러와 고치고 저장한다(회사 정보 화면과 같은 단일 문서형
 // 껍데기 재사용). 저장은 토스트, 필드 오류는 인라인, 저장하지 않은 이탈은 가드가 막는다.

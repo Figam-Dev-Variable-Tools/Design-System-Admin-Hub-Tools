@@ -1,4 +1,4 @@
-// 배너 목록 표 (A41 소유)
+// 배너 목록 표
 //
 // 수정 연필은 별도 폼 페이지(/content/banners/:id/edit)로 이동한다(RowActions onEdit → 라우팅).
 //

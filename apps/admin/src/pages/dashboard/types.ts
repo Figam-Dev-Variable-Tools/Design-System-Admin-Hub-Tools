@@ -1,4 +1,4 @@
-// 대시보드 도메인 타입 (A40 소유 · A41 이 전송 타입을 생성 타입으로 교체)
+// 대시보드 도메인 타입 (전송 타입을 생성 타입으로 교체)
 import type { DeepReadonly } from '../../shared/api/immutable';
 import type { components } from '../../shared/api/schema';
 
@@ -36,6 +36,6 @@ export const DEFAULT_TAB: TabId = 'products';
  * ※ 화면 전용 개념(TabId · TABS · DEFAULT_TAB)은 전송 타입이 아니다 — 위에 그대로 남는다.
  * ※ ListRow 는 ListCardData.rows 안에서만 쓰여 별도 별칭을 두지 않는다.
  */
-// DeepReadonly 로 감싸는 이유는 shared/api/immutable.ts 참조 (생성기가 mutable 을 낸다 — A80 handoff)
+// DeepReadonly 로 감싸는 이유는 shared/api/immutable.ts 참조 (생성기가 mutable 을 낸다 — 의존성 관리 쪽 후속 과제)
 export type ListCardData = DeepReadonly<components['schemas']['ListCardData']>;
 export type TabData = DeepReadonly<components['schemas']['TabData']>;

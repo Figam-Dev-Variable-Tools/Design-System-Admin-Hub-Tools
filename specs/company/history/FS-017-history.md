@@ -3,8 +3,8 @@ id: FS-017
 title: "연혁 관리 (목록·등록/수정)"
 screen: SCR-017               # ⚠ 기업 관리 SCR 미작성 — §7 미결 사항 참조
 route: /company/history
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -146,7 +146,7 @@ date: 2026-07-17
 | FS-017-EL-005.7 / EL-009 | 연혁 삭제(단건) | W | id | `historyAdapter.remove(id, signal)` | 이미 삭제됐으면 409 |
 | FS-017-EL-004.2 / EL-010 | 연혁 일괄 삭제 | W | 선택된 id 배열 | `historyAdapter.remove(id, signal)` × N (`settleAll`) | 전원 성공일 때만 목록 무효화 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드가 없다. `historyAdapter` 는 `createCrudAdapter` 가 만든 **브라우저 안 mutable 픽스처**(`HISTORY_SEED` 5건)를 CRUD 한다. 모든 함수는 `wait(LATENCY_MS=400, signal)` 로 지연을 흉내 낸 뒤 `failIfRequested('history', op)` 로 개발용 실패 스위치를 통과한다. `update`·`remove` 는 대상 id 가 없으면 **409 를 던진다**(예전에는 조용히 성공을 반환해 '유령 저장'이 발생했다). `data-source.ts:19` 의 `// TODO(backend): GET/POST /api/company/history · GET/PUT/DELETE /api/company/history/:id` 주석이 유일한 연동 지점이며, 위 표는 백엔드 연결 후 의도된 동작이다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드가 없다. `historyAdapter` 는 `createCrudAdapter` 가 만든 **브라우저 안 mutable 픽스처**(`HISTORY_SEED` 5건)를 CRUD 한다. 모든 함수는 `wait(LATENCY_MS=400, signal)` 로 지연을 흉내 낸 뒤 `failIfRequested('history', op)` 로 개발용 실패 스위치를 통과한다. `update`·`remove` 는 대상 id 가 없으면 **409 를 던진다**(예전에는 조용히 성공을 반환해 '유령 저장'이 발생했다). `data-source.ts:19` 의 `// TODO(backend): GET/POST /api/company/history · GET/PUT/DELETE /api/company/history/:id` 주석이 유일한 연동 지점이며, 위 표는 백엔드 연결 후 의도된 동작이다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -158,20 +158,20 @@ date: 2026-07-17
 - [x] 화면에 없는 것(검색·필터·페이지네이션·상세 라우트·재정렬·낙관적 반영)을 §1 에 명시하고 지어내지 않았다
 - [x] 발견한 실제 결함(연도 천 단위 구분·일괄 부분 실패 무효화 누락·쓰기 권한 게이팅 부재·AppHeader 폴백)을 §3 비고와 §7 에 남겼다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **연도에 천 단위 구분이 붙는다 — 실제 결함.** `HistoryListPage.tsx:25,37` 이 `formatNumber(item.year)` 를 써서 연도가 '2,018년' 으로 보인다. `nameOf` 를 타고 행 선택 접근 이름·행 액션 접근 이름·삭제 확인 문구·삭제 성공 토스트까지 전파된다. 연도는 수량이 아니므로 `String(item.year)` 여야 한다 | A11 change_request (A41 수정) |
-| 2 | **페이지네이션이 없다.** `CrudListShell`/`CrudTable` 에 Pagination 이 없어 등록된 전 행을 한 번에 렌더한다. 연혁은 해마다 늘어나는 누적 데이터라 상한이 없다 | A11 change_request (IA-04 · ERP-15) |
-| 3 | **일괄 삭제 부분 실패 시 삭제된 행이 표에 남는다.** `shared/crud/crud.ts:239` 가 `failed === 0` 일 때만 목록을 무효화한다. 게다가 선택이 유지된 채 재클릭하면 **성공분까지 다시 삭제 요청**되어 409 로 떨어지고 실패 건수가 늘어난다. 실패 id 를 돌려주지 않아 '실패분만 재시도'가 불가능하다 | A11 change_request (EXC-10) |
-| 4 | 빈 상태에 생성 CTA 가 없다 — `CrudListShell` 이 `empty.createAction` 을 넘기지 않아 '등록된 연혁이 없습니다' 만 보이고 등록 버튼은 툴바에만 있다 | A11 change_request (STATE-05) |
-| 5 | **쓰기 액션이 권한으로 게이팅되지 않는다** — 읽기 전용 역할도 '연혁 등록'·행 수정/삭제·일괄 삭제를 그대로 보고 누른다(서버 403 으로만 막힌다). **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | A11 change_request (EXC-03) |
-| 6 | 행 클릭 이동에 키보드 등가물이 없다 — 행 안에 수정 화면으로 가는 focusable 링크가 없고 `useRowNavigation` 은 마우스 전용이다. 키보드 사용자는 행 액션의 연필 버튼으로만 도달한다 | A11 change_request (A11Y-08) |
-| 7 | **폼에서 `<h1>` 이 둘 보인다.** AppHeader 가 `findNavLabel('/company/history/new')` → 가지 라벨 '기업 관리' 로 폴백하고, FormPageShell 이 '연혁 등록' 을 그린다. 목록은 반대로 본문 `<h1>` 이 없다 — 제목의 원천이 화면 종류마다 다르다 | A11 / A40 (IA-02) |
-| 8 | 일괄 삭제에 건수 상한·진행률·중단이 없다. 전 행 선택 후 확인하면 항목 수만큼 요청이 동시에 나간다 | A11 change_request (EXC-18) |
-| 9 | 월 미선택 오류 문구가 '월을 입력하세요.' 다 — **`SelectField` 인데 '입력' 을 권한다**(`requiredText` 가 동사를 '입력' 으로 고정 — `shared/crud/validation.ts:17`). 고르는 컨트롤에는 '선택하세요' 가 맞다. **⚠ 같은 항목의 '조사 리터럴' 절은 해소됐다** — 조사 헬퍼가 `shared/format.ts:269+` 로 승격돼 `requiredText` 가 `objectParticle` 로 조립한다(ERP-13) | A11 change_request (ERP-06) |
-| 10 | 세션 만료 경고·프론트 타임아웃 상한·오프라인 감지가 없다 | A63 (BE-017) · A40 |
-| 11 | 대응 SCR 문서 부재 | A11 / A01 |
-| 12 | 같은 연·월 연혁의 중복 등록을 프론트가 막지 않는다 — 유니크 여부가 미정이다 | A63 (BE-017) |
-| 13 | 연혁 내용은 고객 화면에 노출되는 관리자 입력이다 — 저장 시 정제 정책이 미정 | A63 (BE-017) |
+| 1 | **연도에 천 단위 구분이 붙는다 — 실제 결함.** `HistoryListPage.tsx:25,37` 이 `formatNumber(item.year)` 를 써서 연도가 '2,018년' 으로 보인다. `nameOf` 를 타고 행 선택 접근 이름·행 액션 접근 이름·삭제 확인 문구·삭제 성공 토스트까지 전파된다. 연도는 수량이 아니므로 `String(item.year)` 여야 한다 | UI 기획 쪽 변경 요청 (프론트 리팩터 수정) |
+| 2 | **페이지네이션이 없다.** `CrudListShell`/`CrudTable` 에 Pagination 이 없어 등록된 전 행을 한 번에 렌더한다. 연혁은 해마다 늘어나는 누적 데이터라 상한이 없다 | UI 기획 쪽 변경 요청 (IA-04 · ERP-15) |
+| 3 | **일괄 삭제 부분 실패 시 삭제된 행이 표에 남는다.** `shared/crud/crud.ts:239` 가 `failed === 0` 일 때만 목록을 무효화한다. 게다가 선택이 유지된 채 재클릭하면 **성공분까지 다시 삭제 요청**되어 409 로 떨어지고 실패 건수가 늘어난다. 실패 id 를 돌려주지 않아 '실패분만 재시도'가 불가능하다 | UI 기획 쪽 변경 요청 (EXC-10) |
+| 4 | 빈 상태에 생성 CTA 가 없다 — `CrudListShell` 이 `empty.createAction` 을 넘기지 않아 '등록된 연혁이 없습니다' 만 보이고 등록 버튼은 툴바에만 있다 | UI 기획 쪽 변경 요청 (STATE-05) |
+| 5 | **쓰기 액션이 권한으로 게이팅되지 않는다** — 읽기 전용 역할도 '연혁 등록'·행 수정/삭제·일괄 삭제를 그대로 보고 누른다(서버 403 으로만 막힌다). **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | UI 기획 쪽 변경 요청 (EXC-03) |
+| 6 | 행 클릭 이동에 키보드 등가물이 없다 — 행 안에 수정 화면으로 가는 focusable 링크가 없고 `useRowNavigation` 은 마우스 전용이다. 키보드 사용자는 행 액션의 연필 버튼으로만 도달한다 | UI 기획 쪽 변경 요청 (A11Y-08) |
+| 7 | **폼에서 `<h1>` 이 둘 보인다.** AppHeader 가 `findNavLabel('/company/history/new')` → 가지 라벨 '기업 관리' 로 폴백하고, FormPageShell 이 '연혁 등록' 을 그린다. 목록은 반대로 본문 `<h1>` 이 없다 — 제목의 원천이 화면 종류마다 다르다 | UI 기획 / 프론트 구현 (IA-02) |
+| 8 | 일괄 삭제에 건수 상한·진행률·중단이 없다. 전 행 선택 후 확인하면 항목 수만큼 요청이 동시에 나간다 | UI 기획 쪽 변경 요청 (EXC-18) |
+| 9 | 월 미선택 오류 문구가 '월을 입력하세요.' 다 — **`SelectField` 인데 '입력' 을 권한다**(`requiredText` 가 동사를 '입력' 으로 고정 — `shared/crud/validation.ts:17`). 고르는 컨트롤에는 '선택하세요' 가 맞다. **⚠ 같은 항목의 '조사 리터럴' 절은 해소됐다** — 조사 헬퍼가 `shared/format.ts:269+` 로 승격돼 `requiredText` 가 `objectParticle` 로 조립한다(ERP-13) | UI 기획 쪽 변경 요청 (ERP-06) |
+| 10 | 세션 만료 경고·프론트 타임아웃 상한·오프라인 감지가 없다 | 백엔드 명세 (BE-017) · 프론트 구현 |
+| 11 | 대응 SCR 문서 부재 | UI 기획 / 아키텍처 |
+| 12 | 같은 연·월 연혁의 중복 등록을 프론트가 막지 않는다 — 유니크 여부가 미정이다 | 백엔드 명세 (BE-017) |
+| 13 | 연혁 내용은 고객 화면에 노출되는 관리자 입력이다 — 저장 시 정제 정책이 미정 | 백엔드 명세 (BE-017) |

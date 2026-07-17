@@ -5,7 +5,7 @@
   "level": "molecule",
   "status": "beta",
   "description": "표 헤더의 전체선택 칸 — 보이지 않는 라벨 + 3상태 체크박스(TriStateCheckbox)를 담은 <th>. 이 페이지의 행이 전부 선택됐으면 on, 일부면 mixed, 아니면 off. 회원·운영자·콘텐츠 목록이 같은 규칙으로 쓴다. 도메인을 모른다 — 라벨 문구(label)·라벨 id(labelId)·선택 상태(selection)·전체토글 콜백만 받는다. 출처: apps/admin/src/shared/ui/TableSelection.tsx 의 SelectAllHeaderCell. selection 은 동반 유틸 tableSelectionState(rows, selectedIds) 가 계산한 {allSelected, someSelected} 다 — 보이지 않는 행은 세지 않는다(다른 페이지의 선택이 남아 있어도 이 페이지 상태만 본다). 보이는 라벨이 없으므로 숨긴 문구를 labelId 로 두고 TriStateCheckbox 의 labelledBy 로 잇는다.",
-  "owner": { "code": "A41", "design": "A14", "figma": "A51" },
+  "owner": { "code": "react-refactor", "design": "ui-design", "figma": "figma-eng" },
 
   "props": {
     "label": {

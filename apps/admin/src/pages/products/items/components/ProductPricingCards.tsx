@@ -1,4 +1,4 @@
-// ProductPricingCards — 상품 폼의 '가격·할인'·'적립금'·'배송' 섹션 카드 (A41 소유)
+// ProductPricingCards — 상품 폼의 '가격·할인'·'적립금'·'배송' 섹션 카드
 //
 // ProductFormPage 에서 분리한 도메인 필드 조각이다(순환복잡도 완화 · 단일 책임). 페이지가 쥔 RHF
 // register/errors/setValue 와 watch 값(할인 방식·과세·적립 방식·배송비 정책)을 props 로 받아 그대로

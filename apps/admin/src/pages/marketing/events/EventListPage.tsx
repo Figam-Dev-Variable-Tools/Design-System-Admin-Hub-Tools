@@ -1,4 +1,4 @@
-// EventListPage — 이벤트 목록 (라우트: /marketing/events) · A41 소유
+// EventListPage — 이벤트 목록 (라우트: /marketing/events)
 //
 // CRUD 프레임워크(useCrudList + CrudListShell) 위에 상태 필터 + 검색 + 기간·대상·혜택·상태 배지 + 삭제팝업.
 // 관리자가 지정한 상태가 기간과 어긋나면 '기간상 XX' 힌트 배지로 알린다. 목록엔 이미지 열이 없다.

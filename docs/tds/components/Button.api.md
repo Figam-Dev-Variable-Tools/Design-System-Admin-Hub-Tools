@@ -5,7 +5,7 @@
 > ⚠️ **자동 생성 문서** — 이 파일은 계약에서 생성됩니다. 직접 수정하지 마세요.
 > 변경이 필요하면 `contracts/Button.contract.json` 을 수정한 뒤 `pnpm codegen` 을 실행하세요.
 
-기본 액션 버튼. 이 계약에서 React Props 타입, Storybook argTypes, Figma Component Properties, Docs가 자동 생성된다 (tools/codegen). G3 승인 시 Frozen — 변경은 change_request → G3 재진입 + SemVer 재판정.
+기본 액션 버튼. 이 계약에서 React Props 타입, Storybook argTypes, Figma Component Properties, Docs가 자동 생성된다 (tools/codegen). G3 승인 시 Frozen — 변경은 변경 요청 → G3 재진입 + SemVer 재판정.
 
 [네이티브 속성 패스스루 — 계약 prop 이 아니다] 계약 props 외의 표준 HTML/ARIA 속성(aria-label · aria-describedby · aria-busy · title …)은 구현이 <button> 으로 그대로 전달한다 (Card 선례: CardProps & Omit<HTMLAttributes,'style'|'children'|'className'>). 이 속성들은 시각 변형이 아니고 Figma Component Property 대응도 없으므로 계약 prop 으로 열거하지 않는다. 실사용: RolePanel(aria-describedby·title) · PointsCard(aria-label) · ConfirmDialog(aria-busy). className/style 은 토큰 규칙 보호를 위해 차단한다.
 
@@ -16,14 +16,14 @@
 | 버전 | `1.1.0` |
 | 레벨 | `atom` |
 | 상태 | `beta` |
-| 소유 | code `A30` · design `A14` · figma `A51` |
+| 소유 | code `component-eng` · design `ui-design` · figma `figma-eng` |
 
 ## Props
 
 | 이름 | 타입 | 기본값 | 필수 | Figma Property | 설명 |
 |---|---|---|---|---|---|
 | `variant` | `'primary'` \| `'secondary'` \| `'ghost'` \| `'danger'` | `"primary"` | — | `Variant` | 시각 위계. 디자인 스펙(DS)의 variant 목록과 완전 일치해야 함. 기본값 primary 는 유지한다 — apps/admin 의 <Button> 호출부는 전수 감사 결과 100% variant 를 명시하고 있어(무지정 호출부 0건) 기본값 차이로 시각이 뒤집히는 호출부가 없다 |
-| `type` | `string` | `"button"` | — | — | 네이티브 button type. 허용 값은 button · submit · reset 이며 그 외 값은 구현이 button 으로 좁힌다. **기본값 button 은 HTML 기본값(submit) 을 의도적으로 뒤집은 DS 결정이다** — 폼 안의 보조 버튼이 실수로 제출하지 않게 한다. submit 을 주면 폼을 제출한다 (실사용: LoginForm · RoleFormModal · CreateGroupModal · PasswordChangeModal · PointsCard 의 폼 5개). [enum 이 아닌 이유] type 은 시각 변형이 아니라 HTML 시맨틱이라 Figma Component Property 대응이 없다. enum 으로 선언하면 스키마가 figmaProperty 를 강제해(G3) 시각차 0인 3값 Figma Variant 축이 생기고, contract-test 의 조합 커버리지 요구가 3배로 뛴다. 허용 값은 values 로 기술하되 Figma/Variant 축은 만들지 않는다 (스키마 확장 제안: CR-2026-0715-008) |
+| `type` | `string` | `"button"` | — | — | 네이티브 button type. 허용 값은 button · submit · reset 이며 그 외 값은 구현이 button 으로 좁힌다. **기본값 button 은 HTML 기본값(submit) 을 의도적으로 뒤집은 DS 결정이다** — 폼 안의 보조 버튼이 실수로 제출하지 않게 한다. submit 을 주면 폼을 제출한다 (실사용: LoginForm · RoleFormModal · CreateGroupModal · PasswordChangeModal · PointsCard 의 폼 5개). [enum 이 아닌 이유] type 은 시각 변형이 아니라 HTML 시맨틱이라 Figma Component Property 대응이 없다. enum 으로 선언하면 스키마가 figmaProperty 를 강제해(G3) 시각차 0인 3값 Figma Variant 축이 생기고, contract-test 의 조합 커버리지 요구가 3배로 뛴다. 허용 값은 values 로 기술하되 Figma/Variant 축은 만들지 않는다 (스키마 확장은 후속 변경 요청으로 제안) |
 | `size` | `'sm'` \| `'md'` \| `'lg'` | `"md"` | — | `Size` | — |
 | `loading` | `boolean` | `false` | — | `Loading` | 로딩 중 스피너 표시 + onClick 차단 + aria-busy |
 | `disabled` | `boolean` | `false` | — | `Disabled` | 비활성. onClick 차단 + aria-disabled |
@@ -42,7 +42,7 @@
 `default` · `hover` · `active` · `focus-visible` · `disabled` · `loading`
 
 > Story 커버리지는 enum prop 값 곱 × boolean prop 당 2 조합 100%가 요구됩니다 (`combinationMatrix` 참조).
-> states 는 이 행렬에 포함되지 않습니다 — state 커버리지는 A77(축2)이 **단언을 가진 테스트**로 따로 강제합니다.
+> states 는 이 행렬에 포함되지 않습니다 — state 커버리지는 커버리지 축2(contract-states)가 **단언을 가진 테스트**로 따로 강제합니다.
 
 ## A11y
 

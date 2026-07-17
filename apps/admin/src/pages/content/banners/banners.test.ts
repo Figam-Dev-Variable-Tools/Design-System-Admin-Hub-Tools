@@ -1,4 +1,4 @@
-// 배너 관리 화면의 동작 회귀 테스트 (A41)
+// 배너 관리 화면의 동작 회귀 테스트
 import { describe, expect, it } from 'vitest';
 
 import { applyQuery, BANNERS, nextOrder, reorderByIds, setEnabledById } from './data-source';

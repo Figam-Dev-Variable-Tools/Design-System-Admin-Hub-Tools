@@ -4,8 +4,8 @@ title: "CEO 인사말 비기능 명세"
 functionalSpec: FS-016
 backendSpec: BE-016
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -166,20 +166,20 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | **A11Y-11** | **P0** | required 가 AT 에 노출되지 않는다 — 제목 `<input>`·본문 `<textarea>` 둘 다 `required`/`aria-required` 없음(`*` 마커는 `aria-hidden`). **`FormField`/`TextareaField` 가 `required` prop 을 받고도 native/ARIA semantics 로 내리지 않는 DS 계층 gap** 이라 화면 수정만으로 닫히지 않는다. hint 연결·`aria-invalid`↔`aria-describedby` 페어링은 충족 | **DS**(+ 손수 배선 폼 전반) | A11 change_request · DS 소유자 |
-| 2 | **EXC-03** | **P0** | 쓰기 권한 게이팅 없음 — 저장 버튼이 `can('update')` 를 보지 않는다. **NFR-015 §5 #2 와 같은 사안.** **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | **기업 관리 섹션 전체**(앱 전역 아님) | A11 change_request |
-| 3 | **EXC-04** | **P0** | 낙관적 동시성 없음 — 타입에 `updatedAt`/`version` 이 없어 `If-Match` 를 실을 수 없다. 409 충돌 다이얼로그도 없다. **본문 5000자 손실 위험이 커 단일 문서형 4종 중 우선순위가 가장 높다**(BE-016 §7.4) | 앱 전역(단일 문서형 4종 공통) | A63(BE-016 §7.4) · A11 |
-| 4 | **EXC-08** | **P0** | 중복 제출 방어 없음 — `submitLockRef`·멱등키가 `useSaveDocument` 계층에 없다. **고칠 자리는 `shared/crud/document.ts` 이며 한 번 고치면 단일 문서형 4종이 함께 덮인다**(NFR-015 §5 #4 와 같은 수정) | 앱 전역(단일 문서형 4종 공통) | A11 change_request · A63 |
-| 5 | EXC-06 · EXC-07 · EXC-20 | P1 | 저장 실패의 갈래 없음 — status 분기·422 필드 매핑·참조 코드 표시 셋 다 없다. **본문 길이/정제 거절이 어느 필드인지 알 수 없다** | 앱 전역(단일 문서형 4종) | A11 change_request |
-| 6 | EXC-12 | P1 | 404/5xx 미구분(`loadFailed = error !== null`) — quality-bar 가 `DocumentFormShell` 을 appliesTo 로 명시 | 앱 전역(DocumentFormShell) | A11 change_request |
-| 7 | EXC-15 | P1 | **사진이 저장되지 않는다** — `blob:` URL 이 서버로 나간다. progress/cancel 없음, `role=img` fallback 없음. **NFR-015 §5 #7 과 하나의 수정으로 묶인다** | 이 화면 + 회사 정보 | A63(BE-016 §7.6) · A11 |
-| 8 | **EXC-19** | P1 | dirty draft 보존 없음 — **본문 5000자가 세션 만료로 전량 소실된다. quality-bar 가 이 요구의 근거로 든 '긴 폼' 에 이 화면이 정확히 해당한다** — 앱 전역 P1 중 이 화면에서 가장 아프다 | 앱 전역(우선순위: 이 화면) | A40 · A11 |
-| 9 | EXC-05 · EXC-11 | P1 | client timeout · offline 감지 없음 | 앱 전역 | A40 · A11 |
+| 1 | **A11Y-11** | **P0** | required 가 AT 에 노출되지 않는다 — 제목 `<input>`·본문 `<textarea>` 둘 다 `required`/`aria-required` 없음(`*` 마커는 `aria-hidden`). **`FormField`/`TextareaField` 가 `required` prop 을 받고도 native/ARIA semantics 로 내리지 않는 DS 계층 gap** 이라 화면 수정만으로 닫히지 않는다. hint 연결·`aria-invalid`↔`aria-describedby` 페어링은 충족 | **DS**(+ 손수 배선 폼 전반) | UI 기획 쪽 변경 요청 · DS 소유자 |
+| 2 | **EXC-03** | **P0** | 쓰기 권한 게이팅 없음 — 저장 버튼이 `can('update')` 를 보지 않는다. **NFR-015 §5 #2 와 같은 사안.** **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | **기업 관리 섹션 전체**(앱 전역 아님) | UI 기획 쪽 변경 요청 |
+| 3 | **EXC-04** | **P0** | 낙관적 동시성 없음 — 타입에 `updatedAt`/`version` 이 없어 `If-Match` 를 실을 수 없다. 409 충돌 다이얼로그도 없다. **본문 5000자 손실 위험이 커 단일 문서형 4종 중 우선순위가 가장 높다**(BE-016 §7.4) | 앱 전역(단일 문서형 4종 공통) | 백엔드 명세(BE-016 §7.4) · UI 기획 |
+| 4 | **EXC-08** | **P0** | 중복 제출 방어 없음 — `submitLockRef`·멱등키가 `useSaveDocument` 계층에 없다. **고칠 자리는 `shared/crud/document.ts` 이며 한 번 고치면 단일 문서형 4종이 함께 덮인다**(NFR-015 §5 #4 와 같은 수정) | 앱 전역(단일 문서형 4종 공통) | UI 기획 쪽 변경 요청 · 백엔드 명세 |
+| 5 | EXC-06 · EXC-07 · EXC-20 | P1 | 저장 실패의 갈래 없음 — status 분기·422 필드 매핑·참조 코드 표시 셋 다 없다. **본문 길이/정제 거절이 어느 필드인지 알 수 없다** | 앱 전역(단일 문서형 4종) | UI 기획 쪽 변경 요청 |
+| 6 | EXC-12 | P1 | 404/5xx 미구분(`loadFailed = error !== null`) — quality-bar 가 `DocumentFormShell` 을 appliesTo 로 명시 | 앱 전역(DocumentFormShell) | UI 기획 쪽 변경 요청 |
+| 7 | EXC-15 | P1 | **사진이 저장되지 않는다** — `blob:` URL 이 서버로 나간다. progress/cancel 없음, `role=img` fallback 없음. **NFR-015 §5 #7 과 하나의 수정으로 묶인다** | 이 화면 + 회사 정보 | 백엔드 명세(BE-016 §7.6) · UI 기획 |
+| 8 | **EXC-19** | P1 | dirty draft 보존 없음 — **본문 5000자가 세션 만료로 전량 소실된다. quality-bar 가 이 요구의 근거로 든 '긴 폼' 에 이 화면이 정확히 해당한다** — 앱 전역 P1 중 이 화면에서 가장 아프다 | 앱 전역(우선순위: 이 화면) | 프론트 구현 · UI 기획 |
+| 9 | EXC-05 · EXC-11 | P1 | client timeout · offline 감지 없음 | 앱 전역 | 프론트 구현 · UI 기획 |
 | ~~10~~ | ~~ERP-13~~ | P1 | **해소됨(통합) — 이관 취소.** 조사 헬퍼가 `shared/format.ts:269+` 로 승격돼 `requiredText`(`shared/crud/validation.ts:17,21,24`) · `useCrudForm.ts:222` · `useCrudList.tsx:108,158` 이 전부 그것을 소비한다. `pages/company/` 의 사용자 대상 조사 리터럴 **0건** — 제목·본문이 이제 같은 경로를 지나 '같은 화면에서 갈린다' 가 해소됐다. `ceo-message.test.ts:31` 이 `'제목을 입력하세요.'` 를 단언한다 | — | **이관 취소** |
-| 11 | A11Y-13 | P1 | 폼 진입 시 첫 필드 포커스 없음. **본문·사진이 `setValue` 배선이라 RHF 자동 에러 포커스 대상이 아니다** — 빈 본문 제출 시 포커스 착지점 미검증 | 이 화면 | A11 change_request |
-| 12 | COMP-01 · COMP-12(제목) | P1/P2 | 저장 버튼이 `loading` prop 대신 손수 쓴 '저장 중…'. 제목(120자)에 카운터 없음(`FormField.counter` 미사용 — 본문은 있다) | DocumentFormShell · 이 화면 | A11 change_request |
-| 13 | A11Y-14 | P2 | 업로드 완료 announce 없음 | DS | A11 (후속) |
-| 14 | (quality-bar 밖) | — | **본문 정제 결과가 즉시 보이지 않는다** — `save` 가 `Promise<void>` 라 서버 정제본을 읽지 못하고 `reset(values)` 가 제출 원본으로 되돌린다(§4.2). 관리자가 자기 입력이 바뀐 사실을 모른다 | 이 화면 + `document.ts` 계약 | A63(BE-016 §4 EP-02) · A11 |
+| 11 | A11Y-13 | P1 | 폼 진입 시 첫 필드 포커스 없음. **본문·사진이 `setValue` 배선이라 RHF 자동 에러 포커스 대상이 아니다** — 빈 본문 제출 시 포커스 착지점 미검증 | 이 화면 | UI 기획 쪽 변경 요청 |
+| 12 | COMP-01 · COMP-12(제목) | P1/P2 | 저장 버튼이 `loading` prop 대신 손수 쓴 '저장 중…'. 제목(120자)에 카운터 없음(`FormField.counter` 미사용 — 본문은 있다) | DocumentFormShell · 이 화면 | UI 기획 쪽 변경 요청 |
+| 13 | A11Y-14 | P2 | 업로드 완료 announce 없음 | DS | UI 기획 (후속) |
+| 14 | (quality-bar 밖) | — | **본문 정제 결과가 즉시 보이지 않는다** — `save` 가 `Promise<void>` 라 서버 정제본을 읽지 못하고 `reset(values)` 가 제출 원본으로 되돌린다(§4.2). 관리자가 자기 입력이 바뀐 사실을 모른다 | 이 화면 + `document.ts` 계약 | 백엔드 명세(BE-016 §4 EP-02) · UI 기획 |
 
 > **§5 ↔ FS-016 §7 ↔ BE-016 §7.7 대조**: #1→(신규, FS 미기재 · DS 사안) · #2→FS §7 #3 · #3→FS §7 #2·BE §7.7 #4 · #4→FS §7 #2·BE §7.7 #3 · #5→FS §7 #4·BE §7.7 #2 · #6→FS §7 #5 · #7→FS §7 #1·BE §7.7 #5 · #8·#9→FS §7 #7·BE §7.7 #7 · #14→FS §7 #8·BE §7.1.
 

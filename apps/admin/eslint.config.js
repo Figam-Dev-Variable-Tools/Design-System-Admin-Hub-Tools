@@ -1,4 +1,4 @@
-// @tds/admin ESLint flat config (eslint 9) — 소유: A81 (Lint & Format Engineer)
+// @tds/admin ESLint flat config (eslint 9)
 //
 // [배치 순서는 계약이다 — flat config 는 뒤에 오는 객체가 앞의 rules 를 통째로 덮어쓴다]
 //   ① ignores → ② 프리셋 → ③ eslint-config-prettier → ④ **우리 커스텀 룰(맨 마지막)**
@@ -66,7 +66,7 @@ export default tseslint.config(
       // Airbnb 의 실질 ③: React 관용구
       react.configs.flat.recommended,
       react.configs.flat['jsx-runtime'],
-      // Airbnb 의 실질 ④: 접근성 — A72(a11y 게이트)의 정적 1차 방어선
+      // Airbnb 의 실질 ④: 접근성 — 접근성 감사(a11y 게이트)의 정적 1차 방어선
       jsxA11y.flatConfigs.recommended,
     ],
     languageOptions: {
@@ -82,7 +82,7 @@ export default tseslint.config(
     plugins: {
       // react-hooks v7 의 configs['recommended-latest'] 는 React Compiler 규칙군(15종)을 함께 켠다.
       // 그것은 별도 결정 사항이므로(ADR-0008 §5 승격 계획) 여기서는 플러그인만 등록하고
-      // 규칙 2종을 명시적으로 켠다 — 우리가 켠 규칙을 우리가 설명할 수 있어야 한다(A81의 존재 이유).
+      // 규칙 2종을 명시적으로 켠다 — 우리가 켠 규칙을 우리가 설명할 수 있어야 한다(린트·포맷 담당의 존재 이유).
       'react-hooks': reactHooks,
     },
     rules: {
@@ -107,7 +107,7 @@ export default tseslint.config(
 
   /* ── ③-b 단계적 도입 (warn) — ADR-0008 §5 ─────────────────────────────
    * 아래 규칙들은 이번 프리셋 도입으로 **새로 켜졌고, 기존 코드에 위반이 존재한다.**
-   * 위반 코드(apps/admin/src/**)의 수정은 A41 의 소유 영역이므로 A81 이 고치지 않는다.
+   * 위반 코드(apps/admin/src/**)의 수정은 프론트 구현 쪽 소유 영역이므로 여기서 고치지 않는다.
    * `// eslint-disable` 로 덮지 않는다 — 규칙은 그대로 두고 **심각도만 warn 으로 두어** 위반을
    * 가시화하고, 소유자가 해소한 뒤 error 로 승격한다. 승격 조건·기한은 ADR-0008 §5 에 확정돼 있다.
    * 위반이 0건이 되면 이 블록을 통째로 삭제한다 (프리셋의 기본 심각도 error 로 복귀).

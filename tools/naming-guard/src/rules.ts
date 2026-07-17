@@ -1,7 +1,7 @@
 /**
- * 네이밍 규칙 정의 및 검사 구현 (A76 Naming Convention AI)
+ * 네이밍 규칙 정의 및 검사 구현 (네이밍 가드 Naming Convention AI)
  *
- * 규칙 목록 (설계서 §3 A76 · §8 G3 체크리스트):
+ * 규칙 목록 (설계서 §3 네이밍 가드 · §8 G3 체크리스트):
  *  - component-dir   : packages/ui/src/** 컴포넌트 폴더 PascalCase
  *                      (atomic 레벨 폴더 + 문서 전용 폴더는 화이트리스트 — ADR-0002)
  *  - component-file  : 컴포넌트 파일 <Name>.tsx (PascalCase) + 허용 보조 파일 패턴
@@ -33,7 +33,7 @@ export const BOOL_PREFIX_RE = /^(?:is|has|can)[A-Z][A-Za-z0-9]*$/;
  *
  * `showLegend`, `hideWhenZero`, `dimZero` 처럼 **무엇을 보여줄지**를 켜고 끄는 boolean 은
  * React 생태계의 사실상 표준 관례이고, 규칙 의도(불리언이 술어로 읽힐 것)를 이미 만족한다.
- * 접두 3개는 **열거 가능한 전체 집합**이다 — 늘리려면 A01 승인(ADR)이 필요하다.
+ * 접두 3개는 **열거 가능한 전체 집합**이다 — 늘리려면 아키텍처 승인(ADR)이 필요하다.
  * 이 목록을 열어두면 결국 모든 동사 접두가 통과해 규칙이 무의미해진다.
  */
 export const BOOL_DISPLAY_PREFIX_RE = /^(?:show|hide|dim)[A-Z][A-Za-z0-9]*$/;

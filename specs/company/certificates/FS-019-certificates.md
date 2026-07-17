@@ -3,8 +3,8 @@ id: FS-019
 title: "인증서/특허 관리 (목록·구분 필터·등록/수정)"
 screen: SCR-019               # ⚠ 기업 관리 SCR 미작성 — §7 미결 사항 참조
 route: /company/certificates
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -163,7 +163,7 @@ date: 2026-07-17
 | FS-019-EL-005.2 / EL-011 | 일괄 삭제 | W | 선택된 id 배열 | `certificatesAdapter.remove(id, signal)` × N (`settleAll`) | 전원 성공일 때만 목록 무효화 |
 | **FS-019-EL-019** | **이미지 업로드** | **W (미구현)** | 이미지 파일 → 영구 URL | **없다 — 심 자체가 없다** | `ImageUploadField` 가 `URL.createObjectURL` 로 `blob:` URL 을 만들 뿐 파일을 전송하지 않는다. **저장되는 `imageUrl` 은 그 탭에서만 유효한 `blob:` 문자열이다** — §7 #1 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드가 없다. `certificatesAdapter` 는 `createCrudAdapter` 가 만든 **브라우저 안 mutable 픽스처**(`CERT_SEED` 3건, 이미지는 `https://cdn.example.com/certs/*.png` 가상 URL)를 CRUD 한다. 모든 함수는 `wait(LATENCY_MS=400, signal)` 뒤 `failIfRequested('certificates', op)` 를 통과한다. `update`·`remove` 는 대상 id 가 없으면 **409 를 던진다**. `data-source.ts:38` 의 `// TODO(backend): GET/POST /api/company/certificates · GET/PUT/DELETE /api/company/certificates/:id` 주석이 유일한 연동 지점이며, **이미지 업로드 엔드포인트는 그 주석에 없다** — BE-019 가 '심 없음(미정)'으로 다룬다.
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드가 없다. `certificatesAdapter` 는 `createCrudAdapter` 가 만든 **브라우저 안 mutable 픽스처**(`CERT_SEED` 3건, 이미지는 `https://cdn.example.com/certs/*.png` 가상 URL)를 CRUD 한다. 모든 함수는 `wait(LATENCY_MS=400, signal)` 뒤 `failIfRequested('certificates', op)` 를 통과한다. `update`·`remove` 는 대상 id 가 없으면 **409 를 던진다**. `data-source.ts:38` 의 `// TODO(backend): GET/POST /api/company/certificates · GET/PUT/DELETE /api/company/certificates/:id` 주석이 유일한 연동 지점이며, **이미지 업로드 엔드포인트는 그 주석에 없다** — BE-019 가 '심 없음(미정)'으로 다룬다.
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -175,26 +175,26 @@ date: 2026-07-17
 - [x] 화면에 없는 것(검색·페이지네이션·상세 라우트·업로드 엔드포인트·진행률·cancel)을 §1 에 명시하고 지어내지 않았다
 - [x] 발견한 실제 결함(`blob:` 저장·필터 URL 미반영·'전체 N건' 오표기·설명 문구 불일치·일괄 부분 실패·쓰기 권한 게이팅 부재·AppHeader 폴백)을 §3 비고와 §7 에 남겼다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **이미지가 저장되지 않는다 — 실제 결함.** `ImageUploadField` 가 파일을 서버로 보내지 않고 `URL.createObjectURL(file)` 의 `blob:` URL 을 폼 값에 넣는다(`ImageUploadField.tsx:178-181`). 업로드 심이 없어(§5) 저장된 `imageUrl` 은 **그 탭에서만·그 세션에서만** 유효하다. 새로고침하면 목록 썸네일이 전부 placeholder 로 떨어지고(FS-019-EL-006.4), 수정 폼은 '이미지를 불러오지 못했습니다'(FS-019-EL-019.1)로 떨어진다. 게다가 컴포넌트가 언마운트되며 `URL.revokeObjectURL` 로 그 URL 을 **스스로 무효화한다**(`ImageUploadField.tsx:156-161`) — 저장 직후 목록으로 돌아가는 순간 이미 깨져 있다 | **A11 change_request + A63 (BE-019)** — 업로드 엔드포인트 계약 필요 |
-| 2 | **페이지네이션이 없다.** `CrudListShell`/`CrudTable` 에 Pagination 이 없어 필터된 전 행을 한 번에 렌더한다. 이미지 썸네일이 행마다 있어 행 수에 비례해 이미지 요청이 늘어난다 | A11 change_request (IA-04 · ERP-15) |
-| 3 | **구분 필터가 URL 에 반영되지 않는다.** `CertificatesListPage.tsx:51` 이 `useState` 로 들고 있어 새로고침·뒤로가기·링크 공유로 '전체'가 된다. '특허만 보이는 화면'의 링크를 만들 수 없다. `shared/crud/useListState.ts`(URL 직렬화 보유)를 쓰지 않는다 | A11 change_request (IA-13) |
-| 4 | **일괄 삭제 부분 실패 시 삭제된 행이 표에 남는다.** `shared/crud/crud.ts:239` 가 `failed === 0` 일 때만 목록을 무효화한다. 선택이 유지된 채 재클릭하면 **성공분까지 다시 삭제 요청**되어 409 로 떨어지고 실패 건수가 늘어난다. 실패 id 를 돌려주지 않아 '실패분만 재시도'가 불가능하다 | A11 change_request (EXC-10) |
-| 5 | 조회 요약이 '전체 N건'인데 **N 은 필터 적용 후 건수**다(`CrudListShell.tsx:119` 가 `visibleItems.length` 를 쓴다). '특허' 필터에서 '전체 1건'이 보인다 — 전체와 필터 결과를 구분하지 못한다 | A11 change_request |
-| 6 | **쓰기 액션이 권한으로 게이팅되지 않는다** — 읽기 전용 역할도 등록·수정·삭제·일괄 삭제를 그대로 보고 누른다. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | A11 change_request (EXC-03) |
-| 7 | 행 클릭 이동에 키보드 등가물이 없다 — 행 안에 수정 화면으로 가는 focusable 링크가 없다 | A11 change_request (A11Y-08) |
-| 8 | 발급일이 `shared/format` 을 거치지 않고 저장 문자열 그대로 렌더된다(`CertificatesListPage.tsx:78`) — 앱의 날짜 표기 규칙(ko-KR)을 따르지 않는다 | A11 change_request (ERP-08) |
-| 9 | 빈 상태(진짜 비어있음)에 생성 CTA 가 없다 — `createAction` 을 넘기지 않아 '등록된 인증서/특허가 없습니다' 만 보인다. 필터 0건의 '필터 초기화'는 정상 동작 | A11 change_request (STATE-05) |
-| 10 | **폼 설명 문구가 UI 와 어긋난다.** '이미지 URL 로 인증서/특허 이미지를 등록합니다.'(`CertificatesFormPage.tsx:78`)라고 안내하지만 URL 입력란은 없고 드래그드롭 업로드 필드다 | A11 change_request |
-| 11 | 명칭·발급기관에 글자수 카운터가 없다(`maxLength` 가 조용히 입력을 멈춘다) — 내용 필드가 있는 형제 화면(연혁)은 카운터를 보인다 | A11 change_request (COMP-12) |
-| 12 | 발급일에 상·하한이 없다 — 2999년·1800년이 통과한다. 미래 발급일 허용 여부가 미정 | A63 (BE-019) |
-| 13 | **폼에서 `<h1>` 이 둘 보인다.** AppHeader 가 `findNavLabel('/company/certificates/new')` → 가지 라벨 '기업 관리' 로 폴백하고, FormPageShell 이 '인증서/특허 등록' 을 그린다. 목록은 반대로 본문 `<h1>` 이 없다 | A11 / A40 (IA-02) |
-| 14 | 일괄 삭제에 건수 상한·진행률·중단이 없다 | A11 change_request (EXC-18) |
-| 15 | 세션 만료 경고·프론트 타임아웃 상한·오프라인 감지가 없다 | A63 (BE-019) · A40 |
+| 1 | **이미지가 저장되지 않는다 — 실제 결함.** `ImageUploadField` 가 파일을 서버로 보내지 않고 `URL.createObjectURL(file)` 의 `blob:` URL 을 폼 값에 넣는다(`ImageUploadField.tsx:178-181`). 업로드 심이 없어(§5) 저장된 `imageUrl` 은 **그 탭에서만·그 세션에서만** 유효하다. 새로고침하면 목록 썸네일이 전부 placeholder 로 떨어지고(FS-019-EL-006.4), 수정 폼은 '이미지를 불러오지 못했습니다'(FS-019-EL-019.1)로 떨어진다. 게다가 컴포넌트가 언마운트되며 `URL.revokeObjectURL` 로 그 URL 을 **스스로 무효화한다**(`ImageUploadField.tsx:156-161`) — 저장 직후 목록으로 돌아가는 순간 이미 깨져 있다 | **UI 기획 쪽 변경 요청 + 백엔드 명세 (BE-019)** — 업로드 엔드포인트 계약 필요 |
+| 2 | **페이지네이션이 없다.** `CrudListShell`/`CrudTable` 에 Pagination 이 없어 필터된 전 행을 한 번에 렌더한다. 이미지 썸네일이 행마다 있어 행 수에 비례해 이미지 요청이 늘어난다 | UI 기획 쪽 변경 요청 (IA-04 · ERP-15) |
+| 3 | **구분 필터가 URL 에 반영되지 않는다.** `CertificatesListPage.tsx:51` 이 `useState` 로 들고 있어 새로고침·뒤로가기·링크 공유로 '전체'가 된다. '특허만 보이는 화면'의 링크를 만들 수 없다. `shared/crud/useListState.ts`(URL 직렬화 보유)를 쓰지 않는다 | UI 기획 쪽 변경 요청 (IA-13) |
+| 4 | **일괄 삭제 부분 실패 시 삭제된 행이 표에 남는다.** `shared/crud/crud.ts:239` 가 `failed === 0` 일 때만 목록을 무효화한다. 선택이 유지된 채 재클릭하면 **성공분까지 다시 삭제 요청**되어 409 로 떨어지고 실패 건수가 늘어난다. 실패 id 를 돌려주지 않아 '실패분만 재시도'가 불가능하다 | UI 기획 쪽 변경 요청 (EXC-10) |
+| 5 | 조회 요약이 '전체 N건'인데 **N 은 필터 적용 후 건수**다(`CrudListShell.tsx:119` 가 `visibleItems.length` 를 쓴다). '특허' 필터에서 '전체 1건'이 보인다 — 전체와 필터 결과를 구분하지 못한다 | UI 기획 쪽 변경 요청 |
+| 6 | **쓰기 액션이 권한으로 게이팅되지 않는다** — 읽기 전용 역할도 등록·수정·삭제·일괄 삭제를 그대로 보고 누른다. **⚠ 범위 정정(F3b 이후)**: `useRouteWritePermissions` 소비자는 이제 **7곳**이다(`products/{categories,items,returns}` · `settings/{api-keys,languages,oauth,site}`) — **`pages/company/**` 만 그 목록에 없다**(`grep -rn "useRouteWritePermissions\|useRouteCan" pages/company/` → **0건**). '앱 전역 미구현'이 아니라 **이 섹션의 미적용**이며 배선 선례가 이미 앱 안에 있다(`settings/site/SiteSettingsPage`) | UI 기획 쪽 변경 요청 (EXC-03) |
+| 7 | 행 클릭 이동에 키보드 등가물이 없다 — 행 안에 수정 화면으로 가는 focusable 링크가 없다 | UI 기획 쪽 변경 요청 (A11Y-08) |
+| 8 | 발급일이 `shared/format` 을 거치지 않고 저장 문자열 그대로 렌더된다(`CertificatesListPage.tsx:78`) — 앱의 날짜 표기 규칙(ko-KR)을 따르지 않는다 | UI 기획 쪽 변경 요청 (ERP-08) |
+| 9 | 빈 상태(진짜 비어있음)에 생성 CTA 가 없다 — `createAction` 을 넘기지 않아 '등록된 인증서/특허가 없습니다' 만 보인다. 필터 0건의 '필터 초기화'는 정상 동작 | UI 기획 쪽 변경 요청 (STATE-05) |
+| 10 | **폼 설명 문구가 UI 와 어긋난다.** '이미지 URL 로 인증서/특허 이미지를 등록합니다.'(`CertificatesFormPage.tsx:78`)라고 안내하지만 URL 입력란은 없고 드래그드롭 업로드 필드다 | UI 기획 쪽 변경 요청 |
+| 11 | 명칭·발급기관에 글자수 카운터가 없다(`maxLength` 가 조용히 입력을 멈춘다) — 내용 필드가 있는 형제 화면(연혁)은 카운터를 보인다 | UI 기획 쪽 변경 요청 (COMP-12) |
+| 12 | 발급일에 상·하한이 없다 — 2999년·1800년이 통과한다. 미래 발급일 허용 여부가 미정 | 백엔드 명세 (BE-019) |
+| 13 | **폼에서 `<h1>` 이 둘 보인다.** AppHeader 가 `findNavLabel('/company/certificates/new')` → 가지 라벨 '기업 관리' 로 폴백하고, FormPageShell 이 '인증서/특허 등록' 을 그린다. 목록은 반대로 본문 `<h1>` 이 없다 | UI 기획 / 프론트 구현 (IA-02) |
+| 14 | 일괄 삭제에 건수 상한·진행률·중단이 없다 | UI 기획 쪽 변경 요청 (EXC-18) |
+| 15 | 세션 만료 경고·프론트 타임아웃 상한·오프라인 감지가 없다 | 백엔드 명세 (BE-019) · 프론트 구현 |
 | ~~16~~ | **해소됨(통합) — 이관 취소.** 조사 헬퍼가 `shared/format.ts:269+` 로 승격돼 `requiredText`(`shared/crud/validation.ts:17,21,24`) · `useCrudForm.ts:222` · `useCrudList.tsx:108` 이 전부 그것을 소비한다 → **'인증서/특허를 등록했습니다.'**('특허'는 받침이 없어 `를`). `pages/company/` 의 사용자 대상 조사 리터럴 **0건** | **이관 취소** (ERP-13) |
-| 17 | 대응 SCR 문서 부재 | A11 / A01 |
-| 18 | 동일 명칭 인증서의 중복 등록을 프론트가 막지 않는다 — 유니크 여부가 미정 | A63 (BE-019) |
-| 19 | 인증서 명칭·발급기관은 고객 화면에 노출되는 관리자 입력이고 이미지 URL 은 `<img src>` 로 렌더된다 — 저장 시 정제·스킴 화이트리스트 정책이 미정 | A63 (BE-019 §7 보안 판정) |
+| 17 | 대응 SCR 문서 부재 | UI 기획 / 아키텍처 |
+| 18 | 동일 명칭 인증서의 중복 등록을 프론트가 막지 않는다 — 유니크 여부가 미정 | 백엔드 명세 (BE-019) |
+| 19 | 인증서 명칭·발급기관은 고객 화면에 노출되는 관리자 입력이고 이미지 URL 은 `<img src>` 로 렌더된다 — 저장 시 정제·스킴 화이트리스트 정책이 미정 | 백엔드 명세 (BE-019 §7 보안 판정) |

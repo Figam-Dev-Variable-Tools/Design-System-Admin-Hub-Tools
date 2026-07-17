@@ -5,7 +5,7 @@
  * 값 하드코딩 0건: tokenVars 맵 순회 + tokens.css(CSSOM) 런타임 해석 (_shared.tsx 참고).
  *
  * 현재 tokens/tokens.json 에는 shadow/elevation 토큰이 아직 없다 — 이 스토리는 맵을 동적
- * 순회하므로 A20(Token Engineer)이 토큰을 추가하고 G4 승인 + codegen 이 돌면 자동으로 채워진다.
+ * 순회하므로 토큰 엔지니어가 토큰을 추가하고 G4 승인 + codegen 이 돌면 자동으로 채워진다.
  */
 import type { Meta, StoryObj } from '@storybook/react';
 import {
@@ -63,8 +63,8 @@ export const Elevation: Story = {
         {entries.length === 0 ? (
           <EmptyNote>
             아직 정의된 shadow/elevation 토큰이 없습니다. <Code>tokens/tokens.json</Code> 에 토큰이
-            추가되고(소유: A20, 승인: G4) <Code>pnpm codegen</Code> 이 실행되면 이 페이지는 자동으로
-            채워집니다 — 스토리가 토큰 맵을 동적 순회하기 때문에 코드 수정은 필요 없습니다.
+            추가되고 <Code>pnpm codegen</Code> 이 실행되면 이 페이지는 자동으로 채워집니다 —
+            스토리가 토큰 맵을 동적 순회하기 때문에 코드 수정은 필요 없습니다.
           </EmptyNote>
         ) : (
           <TokenTable

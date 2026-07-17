@@ -1,4 +1,4 @@
-// PortfolioListPage — 포트폴리오 목록 (라우트: /portfolio/items) · A41 소유
+// PortfolioListPage — 포트폴리오 목록 (라우트: /portfolio/items)
 //
 // 승격된 CRUD 프레임워크(useCrudList + CrudListShell) 위에 분류 필터 + 노출 인라인 토글을 얹는다.
 // 목록엔 이미지 열을 넣지 않는다(전 섹션 규칙) — 이미지는 상세/등록/수정 폼에서만 다룬다.

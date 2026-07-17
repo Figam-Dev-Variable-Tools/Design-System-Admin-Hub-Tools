@@ -1,4 +1,4 @@
-// ProjectListPage — 프로젝트(영업 기회) 목록 (라우트: /sales/projects) · A41 소유
+// ProjectListPage — 프로젝트(영업 기회) 목록 (라우트: /sales/projects)
 //
 // CRUD 프레임워크(useCrudList + CrudListShell) 위에 단계 필터 + 검색 + 진척률 + 단계 배지 + 삭제팝업을
 // 얹는다. 목록엔 이미지 열이 없다.

@@ -5,7 +5,7 @@
   "level": "molecule",
   "status": "beta",
   "description": "범용 데이터 표 — 컬럼 정의 + 행 데이터 + 합계(요약) 행. 도메인 중립: '기간별 분석' 같은 도메인 의미는 컬럼/행 데이터를 주입하는 organism 이 소유한다 (ADR-0003). 행의 첫 컬럼(rowKey)은 th[scope=row] 로 렌더하고 나머지는 td 다. 출처 구현: apps/admin/src/pages/dashboard/components/PeriodTable.tsx 를 도메인 제거해 일반화\n\n[rowKey 는 tbody 와 tfoot 에 함께 적용된다] 요약 행도 rowKey 컬럼의 값을 th[scope=row] 로 렌더한다. 본문 행의 키 필드(예: date)와 요약 행의 표시 필드(예: label)가 다르면 **호출부가 어댑터에서 같은 키로 맞춘다** (예: summaries.map(s => ({ date: s.label, ...s }))). 별도의 summaryRowKey prop 을 두지 않는다 — 데이터 정형화는 데이터를 소유한 쪽의 일이고, 표에 키 필드를 두 개 두면 스코프/헤더 연결 규칙이 두 갈래로 갈라진다",
-  "owner": { "code": "A30", "design": "A14", "figma": "A51" },
+  "owner": { "code": "component-eng", "design": "ui-design", "figma": "figma-eng" },
 
   "props": {
     "columns": {

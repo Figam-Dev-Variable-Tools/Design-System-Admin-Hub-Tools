@@ -1,4 +1,4 @@
-// AccountFormPage — 거래처 등록/수정 (라우트: /sales/accounts/new · /:id/edit) · A41 소유
+// AccountFormPage — 거래처 등록/수정 (라우트: /sales/accounts/new · /:id/edit)
 //
 // 데이터 배선은 공용 CRUD 프레임워크(useCrudForm)를 재사용하고, 화면은 입력 카드(사업자정보·거래조건·
 // 담당자) + 우측 사업자 정보 미리보기 2단으로 구성한다. 검증의 정본은 ./validation 의 zod 스키마다.

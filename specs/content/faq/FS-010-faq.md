@@ -3,8 +3,8 @@ id: FS-010
 title: "FAQ 관리 (목록·카테고리 모달·상세·등록/수정)"
 screen: SCR-010               # ⚠ 콘텐츠 SCR(D2) 미작성 — §7 미결 사항 참조
 route: /content/faq
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-15
@@ -204,7 +204,7 @@ date: 2026-07-15
 | FS-010-EL-032 (등록) | FAQ 등록 | W | 질문·카테고리·답변·노출·정렬 순서 | `createFaq(input, signal)` | 성공 후 목록 이동 |
 | FS-010-EL-032 (수정) | FAQ 수정 | W | id + 위 입력 | `updateFaq(id, input, signal)` | 성공 후 상세 이동 |
 
-> **현재 구현 상태 (A63 참고)**: `createFaq`·`updateFaq`·`deleteFaq` 는 resolve 만 하고 저장하지 않는다(백엔드 미구현). `setFaqVisibility`·`reorderFaqs`·`createFaqCategory`·`deleteFaqCategory` 는 브라우저 안 mutable 픽스처(`FAQS`·`FAQ_CATEGORIES`)를 갱신한다 — 백엔드가 붙으면 서버 상태가 정본. `deleteFaqCategory` 는 사용 중이면 던진다(안전 기본값). `// TODO(backend)` 주석이 연동 지점. 위 표는 백엔드 연결 후 의도된 동작이다. |
+> **현재 구현 상태 (백엔드 명세 참고)**: `createFaq`·`updateFaq`·`deleteFaq` 는 resolve 만 하고 저장하지 않는다(백엔드 미구현). `setFaqVisibility`·`reorderFaqs`·`createFaqCategory`·`deleteFaqCategory` 는 브라우저 안 mutable 픽스처(`FAQS`·`FAQ_CATEGORIES`)를 갱신한다 — 백엔드가 붙으면 서버 상태가 정본. `deleteFaqCategory` 는 사용 중이면 던진다(안전 기본값). `// TODO(backend)` 주석이 연동 지점. 위 표는 백엔드 연결 후 의도된 동작이다. |
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -215,15 +215,15 @@ date: 2026-07-15
 - [x] `[서버]` = O 요소가 §5 에 전부 요약됐다
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-010 영역)
 
-## 7. 미결 사항 (A11 / A01 / A63 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 (§FS-009 #1 과 동일 사안) | A11 / A01 |
-| 2 | 카테고리 목록(모달·필터) 조회 실패 시 전용 재시도 배너가 없다 — 목록이 조용히 비어 보인다 | A11 change_request |
-| 3 | 카테고리명 중복 검사·정렬 순서 유니크 여부가 프론트에 없다 — 서버 판정에 위임 | A63 (BE-010) |
-| 4 | 카테고리 생성 실패가 코드별로 갈리지 않는다 — 이름 중복과 일반 오류가 같은 문구 | A11 change_request |
-| 5 | 카테고리 수 상한이 없어 필터 사이드바가 카테고리 수에 비례해 늘어난다 | A11 change_request |
-| 6 | 세션 만료·타임아웃 상한·권한 은닉(403 vs 404)·답변 XSS 정제가 미정 | A63 (BE-010) |
-| 7 | 낙관적 토글/재정렬 실패 후 롤백은 되지만, 여러 관리자가 동시에 재정렬하면 마지막 저장이 이긴다(충돌 감지 없음) | A63 (BE-010) |
-| 8 | ★ **카테고리 관리 모달(FS-010-EL-016)에 미저장 이탈 가드가 없다 — FEEDBACK-06 잔여 gap (신규 발견 2026-07-17)**. 새 카테고리 이름을 입력하던 중 빗나간 딤 클릭이나 반사적 Esc 하나가 입력을 조용히 지운다. `ManageFaqCategoriesModal.tsx` 는 `onClose={onClose}`(`:231`)·닫기 버튼 `onClick={onClose}`(`:240`)로 **가드를 거치지 않고 직행**하며, RHF 를 쓰면서도 `isDirty` 를 구독하지 않는다(`:119` `formState: { errors }` 만). **이 화면은 폼을 담은 모달 중 `useModalDirtyGuard` 를 쓰지 않는 유일한 곳이다** — 같은 모양의 형제 7곳은 전부 붙였다(`members/CreateGroupModal:93` · `members/PasswordChangeModal:64` · `permissions/RoleFormModal:51` · `support/categories/CategoryFormModal:66` · `products/categories/ProductCategoryFormModal:65` · `portfolio/categories/PortfolioCategoryFormModal:65` · `company/logo-list/LogoFormModal:79` — 전부 `useModalDirtyGuard(isDirty && !saving, onClose)`). 특히 **`support/categories/CategoryFormModal` 은 거의 같은 '카테고리 만들기' 모달인데 가드가 있다** — 대칭이 깨져 있다. 가드 훅의 헤더(`shared/ui/useModalDirtyGuard.tsx:7-8`)가 '폼을 담은 모달 8개 **전부**' 를 대상으로 선언했으나 이 모달이 누락됐다 — 선언과 적용 범위가 어긋난 것이므로 '의도적 제외'로 볼 근거가 없다. ※ 부수 효과로 이 모달은 **DS Modal 의 일방향 latch 결함(§FS-003 §7 #7)에서는 자유롭다** — 거부(veto)하는 `onClose` 가 없어 latch 가 성립하지 않는다. 가드를 붙일 때 그 결함을 함께 밟지 않도록 A40 의 Modal 수정과 순서를 맞춰야 한다 | A40 / A11 |
+| 1 | 대응 SCR 문서 부재 (§FS-009 #1 과 동일 사안) | UI 기획 / 아키텍처 |
+| 2 | 카테고리 목록(모달·필터) 조회 실패 시 전용 재시도 배너가 없다 — 목록이 조용히 비어 보인다 | UI 기획 쪽 변경 요청 |
+| 3 | 카테고리명 중복 검사·정렬 순서 유니크 여부가 프론트에 없다 — 서버 판정에 위임 | 백엔드 명세 (BE-010) |
+| 4 | 카테고리 생성 실패가 코드별로 갈리지 않는다 — 이름 중복과 일반 오류가 같은 문구 | UI 기획 쪽 변경 요청 |
+| 5 | 카테고리 수 상한이 없어 필터 사이드바가 카테고리 수에 비례해 늘어난다 | UI 기획 쪽 변경 요청 |
+| 6 | 세션 만료·타임아웃 상한·권한 은닉(403 vs 404)·답변 XSS 정제가 미정 | 백엔드 명세 (BE-010) |
+| 7 | 낙관적 토글/재정렬 실패 후 롤백은 되지만, 여러 관리자가 동시에 재정렬하면 마지막 저장이 이긴다(충돌 감지 없음) | 백엔드 명세 (BE-010) |
+| 8 | ★ **카테고리 관리 모달(FS-010-EL-016)에 미저장 이탈 가드가 없다 — FEEDBACK-06 잔여 gap (신규 발견 2026-07-17)**. 새 카테고리 이름을 입력하던 중 빗나간 딤 클릭이나 반사적 Esc 하나가 입력을 조용히 지운다. `ManageFaqCategoriesModal.tsx` 는 `onClose={onClose}`(`:231`)·닫기 버튼 `onClick={onClose}`(`:240`)로 **가드를 거치지 않고 직행**하며, RHF 를 쓰면서도 `isDirty` 를 구독하지 않는다(`:119` `formState: { errors }` 만). **이 화면은 폼을 담은 모달 중 `useModalDirtyGuard` 를 쓰지 않는 유일한 곳이다** — 같은 모양의 형제 7곳은 전부 붙였다(`members/CreateGroupModal:93` · `members/PasswordChangeModal:64` · `permissions/RoleFormModal:51` · `support/categories/CategoryFormModal:66` · `products/categories/ProductCategoryFormModal:65` · `portfolio/categories/PortfolioCategoryFormModal:65` · `company/logo-list/LogoFormModal:79` — 전부 `useModalDirtyGuard(isDirty && !saving, onClose)`). 특히 **`support/categories/CategoryFormModal` 은 거의 같은 '카테고리 만들기' 모달인데 가드가 있다** — 대칭이 깨져 있다. 가드 훅의 헤더(`shared/ui/useModalDirtyGuard.tsx:7-8`)가 '폼을 담은 모달 8개 **전부**' 를 대상으로 선언했으나 이 모달이 누락됐다 — 선언과 적용 범위가 어긋난 것이므로 '의도적 제외'로 볼 근거가 없다. ※ 부수 효과로 이 모달은 **DS Modal 의 일방향 latch 결함(§FS-003 §7 #7)에서는 자유롭다** — 거부(veto)하는 `onClose` 가 없어 latch 가 성립하지 않는다. 가드를 붙일 때 그 결함을 함께 밟지 않도록 프론트 구현 의 Modal 수정과 순서를 맞춰야 한다 | 프론트 구현 / UI 기획 |

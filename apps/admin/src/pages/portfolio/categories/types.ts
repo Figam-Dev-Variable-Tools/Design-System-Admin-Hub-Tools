@@ -1,4 +1,4 @@
-// 포트폴리오 카테고리 화면 전용 타입 + 뷰 헬퍼 (A41 소유 — apps/admin/src/pages/portfolio/**)
+// 포트폴리오 카테고리 화면 전용 타입 + 뷰 헬퍼
 //
 // 카테고리 정본(픽스처·사용 중 판정)은 ../_shared/store 다. 여기는 입력 타입과 사용량 문구만 둔다.
 import { formatNumber } from '../../../shared/format';

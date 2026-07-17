@@ -1,4 +1,4 @@
-// LoginPage — 로그인 화면 (라우트: /login) · A40 소유 — apps/admin/src/pages/login/**
+// LoginPage — 로그인 화면 (라우트: /login)
 //
 // 대응 Screen Spec: docs/plan/ui/SCR-001-login.md (§3 CRUD 상태 · §5 비즈니스 규칙 전수 반영)
 //
@@ -85,7 +85,7 @@ const pageStyle: CSSProperties = {
 };
 
 // 왼쪽 — 비주얼/브랜드 패널.
-// 이미지 에셋은 A16(Illustration Designer) 산출물이 들어올 자리다. 지금은 토큰 색만으로
+// 이미지 에셋은 일러스트 디자인 산출물이 들어올 자리다. 지금은 토큰 색만으로
 // 그라디언트를 깔아 자리를 잡아두고, 에셋이 생기면 backgroundImage 만 교체하면 된다.
 const visualPanelStyle: CSSProperties = {
   position: 'relative',

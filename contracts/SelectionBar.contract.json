@@ -5,7 +5,7 @@
   "level": "molecule",
   "status": "beta",
   "description": "선택 일괄 액션 바 — '선택 개수 + 일괄 액션(삭제·ON/OFF)'. 콘텐츠 목록 6종(공지·FAQ·팝업·배너·약관·개인정보)이 행을 체크박스로 고르면 상단에 뜬다. 도메인을 모른다 — 무엇을 골랐는지 알지 못하며 선택 개수(count)·단위 문구(noun)·해제 콜백(onClear)·액션 버튼(children)만 받는다. 출처: apps/admin/src/shared/ui/SelectionBar.tsx (소비 7곳). count 가 0 이면 아무것도 렌더하지 않는다(선택이 없으면 바가 없다).",
-  "owner": { "code": "A41", "design": "A14", "figma": "A51" },
+  "owner": { "code": "react-refactor", "design": "ui-design", "figma": "figma-eng" },
 
   "props": {
     "count": {

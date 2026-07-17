@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "A74 Contract Test AI — Contract ↔ React ↔ Storybook ↔ Figma ↔ Token 4자 일치 검증 도구 (불일치 1건 → G5/G6/G7 동시 차단)",
+  "description": "계약 테스트 — Contract ↔ React ↔ Storybook ↔ Figma ↔ Token 4자 일치 검증 도구 (불일치 1건 → G5/G6/G7 동시 차단)",
   "scripts": {
     "test": "tsx src/index.ts"
   },

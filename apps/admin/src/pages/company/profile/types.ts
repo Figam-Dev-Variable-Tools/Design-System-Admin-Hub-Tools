@@ -1,4 +1,4 @@
-// 회사 정보 화면 전용 타입 (A41 소유 — apps/admin/src/pages/company/profile/**)
+// 회사 정보 화면 전용 타입
 
 /** 회사 기본 정보 — 단일 문서(회사당 1건) */
 export interface CompanyProfile {

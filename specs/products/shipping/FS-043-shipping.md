@@ -3,8 +3,8 @@ id: FS-043
 title: "배송 정책 (단일 문서 설정)"
 screen: SCR-043               # ⚠ 상품 관리 SCR 미작성 — §7 미결 사항 참조
 route: /products/shipping
-owner: A62
-reviewer: A64
+owner: 기능 명세
+reviewer: 명세 리뷰
 gate: G9
 status: draft
 confirmedAt: 2026-07-17
@@ -125,7 +125,7 @@ date: 2026-07-17
 | EL-002 / EL-015 / EL-016 / EL-019 / EL-020 | 배송 정책 조회 | R | 정책 문서 1건 전체 | `shippingPolicyStore.fetch(signal)` (`useDocumentQuery(['shipping-policy'], …)` 경유) | **문서가 '없음'인 경우가 없다** — `createDocumentStore` 가 seed 를 든다. 서버는 미설정 상태를 어떻게 표현할지 정해야 한다(BE-043 §7.2) |
 | EL-004~EL-011 / EL-013 / EL-014 | 배송 정책 저장 | W | 정책 문서 1건 **전체** | `shippingPolicyStore.save(input, signal)` (`useSaveDocument` 경유) | **부분 갱신(PATCH)이 아니라 전체 치환**(`document.ts:34` `doc = input`). **멱등키·`If-Match` 를 싣지 않는다**(`SaveVars` 에 그 자리가 없다 — `document.ts:48-51`). 성공 시 `['shipping-policy']` 무효화 + `reset(values)` |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `shippingPolicyStore` 는 `shared/crud/document.ts:22-36` 의 **`createDocumentStore('shipping-policy', DEFAULT_SHIPPING_POLICY)`** 로 만들어진 **모듈 클로저 변수 1개**(`let doc = seed`)다 — 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('shipping-policy', op)`)를 얹어 fetch/save 를 흉내 낸다. 실제 네트워크 0건. **`createStoreAdapter`(상품·카테고리)와 달리 이 팩토리는 404·409·멱등 원장을 주지 않는다** — 단일 문서에는 '존재 여부'가 개념적으로 없기 때문이다(`fetch` 가 언제나 seed 또는 마지막 저장본을 돌려준다). 그래서 **이 화면의 EXC-04 는 상품·카테고리보다 넓게 열려 있다**(§7 #16). 새로고침하면 시드로 되돌아간다. 연동 지점은 `data-source.ts:11` `// TODO(backend): GET/PUT /api/shipping-policy` **한 줄**이다. 위 표는 백엔드 연결 후 의도된 동작이다. **`types.ts:5` 가 '실제 백엔드가 붙으면 숫자로 매핑한다(`// TODO(backend)`)' 를 명시** — 현재 금액이 전부 문자열인 것은 임시 형태다(BE-043 §7.3).
+> **현재 구현 상태 (백엔드 명세 참고)**: 백엔드는 없다. `shippingPolicyStore` 는 `shared/crud/document.ts:22-36` 의 **`createDocumentStore('shipping-policy', DEFAULT_SHIPPING_POLICY)`** 로 만들어진 **모듈 클로저 변수 1개**(`let doc = seed`)다 — 400ms 지연(`LATENCY_MS`)과 개발용 실패 스위치(`failIfRequested('shipping-policy', op)`)를 얹어 fetch/save 를 흉내 낸다. 실제 네트워크 0건. **`createStoreAdapter`(상품·카테고리)와 달리 이 팩토리는 404·409·멱등 원장을 주지 않는다** — 단일 문서에는 '존재 여부'가 개념적으로 없기 때문이다(`fetch` 가 언제나 seed 또는 마지막 저장본을 돌려준다). 그래서 **이 화면의 EXC-04 는 상품·카테고리보다 넓게 열려 있다**(§7 #16). 새로고침하면 시드로 되돌아간다. 연동 지점은 `data-source.ts:11` `// TODO(backend): GET/PUT /api/shipping-policy` **한 줄**이다. 위 표는 백엔드 연결 후 의도된 동작이다. **`types.ts:5` 가 '실제 백엔드가 붙으면 숫자로 매핑한다(`// TODO(backend)`)' 를 명시** — 현재 금액이 전부 문자열인 것은 임시 형태다(BE-043 §7.3).
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -140,34 +140,34 @@ date: 2026-07-17
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-043 영역)
 - [x] §7 의 미결 항목이 BE-043 §7 후속 이관 · NFR-043 §5 와 일치한다
 
-## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
+## 7. 미결 사항 (UI 기획 / 아키텍처 / 백엔드 명세 / 프론트 구현 이관)
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | 대응 SCR 문서 부재 (상품 관리 SCR 미작성) | A11 / A01 |
-| 2 | **⚠ 실재 결함 — `baseFee` 검증이 무조건인데 필드는 조건부 렌더다.** `validation.ts:28` `baseFee: intString('기본 배송비')` 는 **언제나** 비어 있지 않은 정수를 요구하는데, 그 입력은 `feeType !== 'free'` 일 때만 렌더된다(`ShippingPolicyPage.tsx:130`). RHF 는 언마운트된 필드의 값을 **유지**하므로(`shouldUnregister` 기본 false), **'유료배송' 에서 기본 배송비를 지우고 '무료배송'으로 바꾼 뒤 저장하면 → 검증 실패 → 오류가 *렌더되지 않는 필드*에 붙는다 → 화면에 아무 일도 일어나지 않는다.** 저장 버튼을 눌러도 조용히 실패한다(quality-bar FEEDBACK-03 P1 의 'no-op state 금지' 위반). **대조**: FS-041 의 같은 필드는 `.check` 안에서 `feeType !== 'free'` 를 확인한다(`items/validation.ts:186-196`) — **같은 섹션의 두 스키마가 갈려 있어 설계가 아니라 오류임이 드러난다.** `shipping.test.ts:39-43` 이 '무료배송이면 기준 금액이 없어도 통과한다' 만 검증하고 **`baseFee: ''` + `feeType: 'free'` 를 검증하지 않아** 회귀 테스트가 이것을 놓쳤다 | **A11 change_request (우선)** |
-| 3 | **쓰기 게이팅이 전혀 없다.** 이 화면은 `useRouteWritePermissions` 를 **import 조차 하지 않는다**(`ShippingPolicyPage.tsx:1-25`). 상품(FS-041)·카테고리(FS-042)가 최소한 '등록/추가' 버튼은 게이팅하는 것과 달리 **여기는 0건**이다 — read 권한만 있는 역할이 '저장' 버튼을 보고 누르며, 서버 403 이 '저장하지 못했습니다. **잠시 후 다시 시도해 주세요**' 로 뭉개진다(quality-bar EXC-03 P0) | A11 change_request |
-| 4 | **동기 제출 락·멱등키가 없다.** 이 화면이 `useCrudForm` 을 쓰지 않아 그 훅의 `submitLockRef`(`useCrudForm.ts:103`)·`idempotencyKeyRef`(`:118-123`)를 상속하지 못했고, `useSaveDocument` 의 `SaveVars`(`document.ts:48-51`)에 **멱등키 자리 자체가 없다**. 방어는 `disabled={!dirty \|\| saving \|\| loading}` 하나뿐인데 `type="submit"` + RHF `handleSubmit` 이 **비동기**라 연타 창이 열려 있다. **완화 요인**: 저장이 전체 문서 치환이라 같은 body 두 번은 결과가 같다 — **데이터 손상은 없고 요청 수만 는다**(quality-bar EXC-08 P0 — acceptanceCheck 의 '정확히 1개 요청' 은 실패한다) | A11 · A63 |
-| 5 | **저장 실패가 status 를 구분하지 않는다.** `onError`(`:82-85`)가 `isAbort` 만 보고 400·403·409·422·429·500 을 전부 '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.' 로 뭉갠다. **403·429 에 그 문구는 거짓 안내**다. `useCrudForm` 의 네 갈래를 상속하지 못했다(quality-bar EXC-06 · EXC-07 P1) | A11 change_request |
-| 6 | **5xx 에 복사 가능한 오류 코드가 없다.** `HttpError.reference` 가 존재하고(`http-error.ts:59`) `FormServerError` 가 그것을 렌더하는데(`FormFeedback.tsx:44`), 이 화면은 `setServerError('저장하지 못했습니다…')` 고정 문구만 쓴다 — `DocumentFormShell` 이 `serverError: string \| null` 만 받아(`:77`) reference 를 실을 자리가 없다(quality-bar EXC-20 P1) | A11 change_request |
-| 7 | 택배사 입력에 **`maxLength` 가 없다**(`:105-115`) — 41자를 칠 수 있고 **제출 시에야** '40자를 넘을 수 없습니다' 로 막힌다. 이 화면의 다른 필드도, 상품 화면의 텍스트 입력도 전부 `maxLength` 를 두는데(`ProductFormPage.tsx:388,411,428`) 여기만 없다. 카운터도 없다(quality-bar COMP-12 P2) | A11 change_request |
-| 8 | 저장 버튼(EL-013)이 **`loading` prop 대신 손으로 쓴 '저장 중…' 라벨**을 쓴다(`DocumentFormShell.tsx:151`) — quality-bar COMP-01 P1 이 '진행 상태는 `loading` prop 으로(손수 쓴 저장 중… 금지)' 를 명시한다. **공용 `DocumentFormShell` 소관** | A11 (공용 껍데기) |
-| 9 | **택배사가 선택지가 아니라 자유 텍스트**다 — 오타가 곧 새 택배사가 되고('가상택배'/'가상 택배'), 송장 추적·운임 계산 연동의 키가 될 수 없다. 배송사 코드 체계가 없다 | A01 (도메인 경계) · A63 |
-| 10 | **권역이 제주·도서산간 2축 고정**이다 — 임의 권역(예: 울릉도 별도 요금)을 추가할 경로가 없다. 국내 커머스는 보통 **우편번호 기반 권역 테이블**을 갖는다. 의도된 단순화인지 미구현인지 확정 필요 | A01 (도메인 경계) |
-| 11 | **반품 배송비(EL-010)를 반품 화면이 읽지 않는다.** `/products/returns` 의 코드에 `shippingPolicyStore` 소비가 0건이다 — 두 화면의 반품 배송비가 어긋날 수 있다. 정책이 정본이라면 반품 처리가 이 값을 참조해야 한다 | A01 · A11 |
-| 12 | **묶음배송의 실제 계산 규칙이 어디에도 없다.** `bundleShipping: boolean` 하나만 저장되고, '묶음' 의 단위(같은 판매자? 같은 배송 방식? 같은 주문?)·배송비 산정(최대값? 대표 상품?)이 정의되지 않았다. 토글이 아무것도 지배하지 않는다 | A01 (도메인 경계) · A63 |
-| 13 | **재조회가 편집 중 입력을 덮는다.** `useEffect(() => { if (data === undefined) return; reset(data); }, [data, reset])`(`:61-64`)가 `data` 참조가 바뀔 때마다 돈다 — `staleTime` 30초 경과 후 재조회가 오면 **작성 중이던 값이 서버 값으로 되돌아간다.** dirty 여부를 보지 않는다 | A11 change_request |
-| 14 | **`onSuccess` 에 `aborted` 가드가 없다**(`:78-81`). `useCrudForm`(`:218`)·`useCrudList`(`:105`)·`useCrudRowUpdate`(`:48`)·`ProductCategoriesPage` 의 삭제(`:233`)는 전부 `if (controller.signal.aborted) return;` 를 두는데 이 화면만 없다 → **이탈 후 완료된 저장이 언마운트된 컴포넌트에서 `reset`·토스트를 부른다** | A11 change_request |
-| 15 | 조회 실패 배너(EL-020)의 문구가 **'내용을 불러오지 못했습니다.'** 로 도메인을 지칭하지 않는다 — `DocumentFormShell` 이 도메인을 모르기 때문이다(`:9` '도메인을 모른다'). 게다가 **화면 전체를 대체**해 안내문(EL-001)까지 사라진다. 상품·카테고리는 '상품/카테고리를 불러오지 못했습니다' 로 지칭한다 | A11 (공용 껍데기) |
-| 16 | **낙관적 동시성이 전혀 없다 — 상품·카테고리보다 넓게 열려 있다.** ① `ShippingPolicyValues` 에 `version`/`updatedAt` 이 없다 ② `SaveVars` 에 `If-Match` 자리가 없다 ③ **`createDocumentStore` 는 `HttpError` 를 아예 던지지 않는다**(`document.ts:22-36` — 404·409 가드가 없다). `createStoreAdapter` 가 F3b 에서 얻은 409 가드를 **이 팩토리는 받지 못했다** — 단일 문서에 '존재 여부' 개념이 없기 때문이다. 결과: **두 관리자가 배송 정책을 동시에 고치면 나중 저장이 앞선 것을 조용히 덮는다.** 그것도 **전체 치환**이라 한 필드를 고친 사람이 상대의 모든 변경을 되돌린다(quality-bar EXC-04 P0) | A63 (BE-043 §7.1) · A11 |
-| 17 | 택배사 값을 **trim 하지 않고 보낸다** — 스키마가 `value.trim() !== ''` 로 검사만 하고(`validation.ts:22`) 변환하지 않으며, `onValid` 가 `values` 를 그대로 넘긴다(`:75`). `' 가상택배 '` 가 그대로 저장된다. 상품 폼은 `toInput` 에서 trim 한다(`ProductFormPage.tsx:174`) | A11 change_request |
-| 18 | **무료배송 기준과 기본 배송비의 관계를 검증하지 않는다** — 기준 1,000원 · 배송비 3,000원 같은 모순이 통과한다. 추가배송비에 상한도 없다(10,000,000원이 통과) | A11 change_request |
-| 19 | 저장 성공 시 `reset(values)`(`:79`) — **서버 응답이 아니라 보낸 값**이 새 기준선이 된다(`save` 가 `Promise<void>` 라 응답 본문이 없다). 서버가 값을 정규화하면(trim·반올림) 화면이 그것을 모른 채 낡은 값을 기준선으로 삼는다 | A63 (BE-043 §7.4) · A11 |
-| 20 | 이탈 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장이 화면에 안 보일 수 있다 | A63 (BE-043) |
-| 21 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다(가드 미발화) — quality-bar EXC-05 · EXC-11 · EXC-19 P1 | A11 · A40 |
-| 22 | 금액 필드 5종에 **실시간 천단위 마스킹·붙여넣기 정규화가 없다** — 붙여넣은 '3,000' 이 '기본 배송비는 0 이상의 정수만 입력할 수 있습니다' 로 거절된다(quality-bar ERP-14 P1) | A11 change_request |
-| 23 | 묶음배송 토글(EL-011)이 **`FormField` 가 아니라 bare 라벨 span** 이다(`:248-258`) — 필수가 아니라 COMP-04 위반은 아니지만 표준 오류 슬롯이 없다. FS-041 의 전시상태·과세 토글도 같은 형태다 | A11 change_request |
-| 24 | 로딩 스켈레톤(EL-019)이 **4줄 고정**이다(`DocumentFormShell.tsx:129`) — 실제 필드가 8~10개라 로딩 shape 이 실제와 다르고, 도착 시 layout shift 가 난다. **공용 껍데기 소관** | A11 (공용 껍데기) |
-| 25 | footer 상태 문구(EL-012)에 **`aria-live` 가 없다** — '저장하지 않은 변경 사항이 있습니다' ↔ '변경 사항이 없습니다' 전환이 AT 에 들리지 않는다. **공용 껍데기 소관** | A11 (공용 껍데기) |
-| 26 | **금액이 전부 문자열이다**(`ShippingPolicyValues`) — `types.ts:4-5` 가 '실제 백엔드가 붙으면 숫자로 매핑한다(`// TODO(backend)`)' 를 명시한다. 즉 **현재 계약은 임시 형태이며 연동 시 타입·`reset(data)` 경로가 함께 바뀐다** — 어댑터 본문만 바꿔 끝나지 않는다 | A63 (BE-043 §7.3) · A11 |
+| 1 | 대응 SCR 문서 부재 (상품 관리 SCR 미작성) | UI 기획 / 아키텍처 |
+| 2 | **⚠ 실재 결함 — `baseFee` 검증이 무조건인데 필드는 조건부 렌더다.** `validation.ts:28` `baseFee: intString('기본 배송비')` 는 **언제나** 비어 있지 않은 정수를 요구하는데, 그 입력은 `feeType !== 'free'` 일 때만 렌더된다(`ShippingPolicyPage.tsx:130`). RHF 는 언마운트된 필드의 값을 **유지**하므로(`shouldUnregister` 기본 false), **'유료배송' 에서 기본 배송비를 지우고 '무료배송'으로 바꾼 뒤 저장하면 → 검증 실패 → 오류가 *렌더되지 않는 필드*에 붙는다 → 화면에 아무 일도 일어나지 않는다.** 저장 버튼을 눌러도 조용히 실패한다(quality-bar FEEDBACK-03 P1 의 'no-op state 금지' 위반). **대조**: FS-041 의 같은 필드는 `.check` 안에서 `feeType !== 'free'` 를 확인한다(`items/validation.ts:186-196`) — **같은 섹션의 두 스키마가 갈려 있어 설계가 아니라 오류임이 드러난다.** `shipping.test.ts:39-43` 이 '무료배송이면 기준 금액이 없어도 통과한다' 만 검증하고 **`baseFee: ''` + `feeType: 'free'` 를 검증하지 않아** 회귀 테스트가 이것을 놓쳤다 | **UI 기획 쪽 변경 요청 (우선)** |
+| 3 | **쓰기 게이팅이 전혀 없다.** 이 화면은 `useRouteWritePermissions` 를 **import 조차 하지 않는다**(`ShippingPolicyPage.tsx:1-25`). 상품(FS-041)·카테고리(FS-042)가 최소한 '등록/추가' 버튼은 게이팅하는 것과 달리 **여기는 0건**이다 — read 권한만 있는 역할이 '저장' 버튼을 보고 누르며, 서버 403 이 '저장하지 못했습니다. **잠시 후 다시 시도해 주세요**' 로 뭉개진다(quality-bar EXC-03 P0) | UI 기획 쪽 변경 요청 |
+| 4 | **동기 제출 락·멱등키가 없다.** 이 화면이 `useCrudForm` 을 쓰지 않아 그 훅의 `submitLockRef`(`useCrudForm.ts:103`)·`idempotencyKeyRef`(`:118-123`)를 상속하지 못했고, `useSaveDocument` 의 `SaveVars`(`document.ts:48-51`)에 **멱등키 자리 자체가 없다**. 방어는 `disabled={!dirty \|\| saving \|\| loading}` 하나뿐인데 `type="submit"` + RHF `handleSubmit` 이 **비동기**라 연타 창이 열려 있다. **완화 요인**: 저장이 전체 문서 치환이라 같은 body 두 번은 결과가 같다 — **데이터 손상은 없고 요청 수만 는다**(quality-bar EXC-08 P0 — acceptanceCheck 의 '정확히 1개 요청' 은 실패한다) | UI 기획 · 백엔드 명세 |
+| 5 | **저장 실패가 status 를 구분하지 않는다.** `onError`(`:82-85`)가 `isAbort` 만 보고 400·403·409·422·429·500 을 전부 '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.' 로 뭉갠다. **403·429 에 그 문구는 거짓 안내**다. `useCrudForm` 의 네 갈래를 상속하지 못했다(quality-bar EXC-06 · EXC-07 P1) | UI 기획 쪽 변경 요청 |
+| 6 | **5xx 에 복사 가능한 오류 코드가 없다.** `HttpError.reference` 가 존재하고(`http-error.ts:59`) `FormServerError` 가 그것을 렌더하는데(`FormFeedback.tsx:44`), 이 화면은 `setServerError('저장하지 못했습니다…')` 고정 문구만 쓴다 — `DocumentFormShell` 이 `serverError: string \| null` 만 받아(`:77`) reference 를 실을 자리가 없다(quality-bar EXC-20 P1) | UI 기획 쪽 변경 요청 |
+| 7 | 택배사 입력에 **`maxLength` 가 없다**(`:105-115`) — 41자를 칠 수 있고 **제출 시에야** '40자를 넘을 수 없습니다' 로 막힌다. 이 화면의 다른 필드도, 상품 화면의 텍스트 입력도 전부 `maxLength` 를 두는데(`ProductFormPage.tsx:388,411,428`) 여기만 없다. 카운터도 없다(quality-bar COMP-12 P2) | UI 기획 쪽 변경 요청 |
+| 8 | 저장 버튼(EL-013)이 **`loading` prop 대신 손으로 쓴 '저장 중…' 라벨**을 쓴다(`DocumentFormShell.tsx:151`) — quality-bar COMP-01 P1 이 '진행 상태는 `loading` prop 으로(손수 쓴 저장 중… 금지)' 를 명시한다. **공용 `DocumentFormShell` 소관** | UI 기획 (공용 껍데기) |
+| 9 | **택배사가 선택지가 아니라 자유 텍스트**다 — 오타가 곧 새 택배사가 되고('가상택배'/'가상 택배'), 송장 추적·운임 계산 연동의 키가 될 수 없다. 배송사 코드 체계가 없다 | 아키텍처 (도메인 경계) · 백엔드 명세 |
+| 10 | **권역이 제주·도서산간 2축 고정**이다 — 임의 권역(예: 울릉도 별도 요금)을 추가할 경로가 없다. 국내 커머스는 보통 **우편번호 기반 권역 테이블**을 갖는다. 의도된 단순화인지 미구현인지 확정 필요 | 아키텍처 (도메인 경계) |
+| 11 | **반품 배송비(EL-010)를 반품 화면이 읽지 않는다.** `/products/returns` 의 코드에 `shippingPolicyStore` 소비가 0건이다 — 두 화면의 반품 배송비가 어긋날 수 있다. 정책이 정본이라면 반품 처리가 이 값을 참조해야 한다 | 아키텍처 · UI 기획 |
+| 12 | **묶음배송의 실제 계산 규칙이 어디에도 없다.** `bundleShipping: boolean` 하나만 저장되고, '묶음' 의 단위(같은 판매자? 같은 배송 방식? 같은 주문?)·배송비 산정(최대값? 대표 상품?)이 정의되지 않았다. 토글이 아무것도 지배하지 않는다 | 아키텍처 (도메인 경계) · 백엔드 명세 |
+| 13 | **재조회가 편집 중 입력을 덮는다.** `useEffect(() => { if (data === undefined) return; reset(data); }, [data, reset])`(`:61-64`)가 `data` 참조가 바뀔 때마다 돈다 — `staleTime` 30초 경과 후 재조회가 오면 **작성 중이던 값이 서버 값으로 되돌아간다.** dirty 여부를 보지 않는다 | UI 기획 쪽 변경 요청 |
+| 14 | **`onSuccess` 에 `aborted` 가드가 없다**(`:78-81`). `useCrudForm`(`:218`)·`useCrudList`(`:105`)·`useCrudRowUpdate`(`:48`)·`ProductCategoriesPage` 의 삭제(`:233`)는 전부 `if (controller.signal.aborted) return;` 를 두는데 이 화면만 없다 → **이탈 후 완료된 저장이 언마운트된 컴포넌트에서 `reset`·토스트를 부른다** | UI 기획 쪽 변경 요청 |
+| 15 | 조회 실패 배너(EL-020)의 문구가 **'내용을 불러오지 못했습니다.'** 로 도메인을 지칭하지 않는다 — `DocumentFormShell` 이 도메인을 모르기 때문이다(`:9` '도메인을 모른다'). 게다가 **화면 전체를 대체**해 안내문(EL-001)까지 사라진다. 상품·카테고리는 '상품/카테고리를 불러오지 못했습니다' 로 지칭한다 | UI 기획 (공용 껍데기) |
+| 16 | **낙관적 동시성이 전혀 없다 — 상품·카테고리보다 넓게 열려 있다.** ① `ShippingPolicyValues` 에 `version`/`updatedAt` 이 없다 ② `SaveVars` 에 `If-Match` 자리가 없다 ③ **`createDocumentStore` 는 `HttpError` 를 아예 던지지 않는다**(`document.ts:22-36` — 404·409 가드가 없다). `createStoreAdapter` 가 F3b 에서 얻은 409 가드를 **이 팩토리는 받지 못했다** — 단일 문서에 '존재 여부' 개념이 없기 때문이다. 결과: **두 관리자가 배송 정책을 동시에 고치면 나중 저장이 앞선 것을 조용히 덮는다.** 그것도 **전체 치환**이라 한 필드를 고친 사람이 상대의 모든 변경을 되돌린다(quality-bar EXC-04 P0) | 백엔드 명세 (BE-043 §7.1) · UI 기획 |
+| 17 | 택배사 값을 **trim 하지 않고 보낸다** — 스키마가 `value.trim() !== ''` 로 검사만 하고(`validation.ts:22`) 변환하지 않으며, `onValid` 가 `values` 를 그대로 넘긴다(`:75`). `' 가상택배 '` 가 그대로 저장된다. 상품 폼은 `toInput` 에서 trim 한다(`ProductFormPage.tsx:174`) | UI 기획 쪽 변경 요청 |
+| 18 | **무료배송 기준과 기본 배송비의 관계를 검증하지 않는다** — 기준 1,000원 · 배송비 3,000원 같은 모순이 통과한다. 추가배송비에 상한도 없다(10,000,000원이 통과) | UI 기획 쪽 변경 요청 |
+| 19 | 저장 성공 시 `reset(values)`(`:79`) — **서버 응답이 아니라 보낸 값**이 새 기준선이 된다(`save` 가 `Promise<void>` 라 응답 본문이 없다). 서버가 값을 정규화하면(trim·반올림) 화면이 그것을 모른 채 낡은 값을 기준선으로 삼는다 | 백엔드 명세 (BE-043 §7.4) · UI 기획 |
+| 20 | 이탈 시 abort 는 **클라이언트만 결과를 버릴 뿐** 서버 도달 여부를 보장하지 않는다 — 이미 반영된 저장이 화면에 안 보일 수 있다 | 백엔드 명세 (BE-043) |
+| 21 | 프론트 타임아웃 상한 없음(`AbortSignal.timeout` 0건) · 오프라인 감지 없음(`navigator.onLine` 0건) · 세션 만료 리다이렉트가 미저장 입력을 버린다(가드 미발화) — quality-bar EXC-05 · EXC-11 · EXC-19 P1 | UI 기획 · 프론트 구현 |
+| 22 | 금액 필드 5종에 **실시간 천단위 마스킹·붙여넣기 정규화가 없다** — 붙여넣은 '3,000' 이 '기본 배송비는 0 이상의 정수만 입력할 수 있습니다' 로 거절된다(quality-bar ERP-14 P1) | UI 기획 쪽 변경 요청 |
+| 23 | 묶음배송 토글(EL-011)이 **`FormField` 가 아니라 bare 라벨 span** 이다(`:248-258`) — 필수가 아니라 COMP-04 위반은 아니지만 표준 오류 슬롯이 없다. FS-041 의 전시상태·과세 토글도 같은 형태다 | UI 기획 쪽 변경 요청 |
+| 24 | 로딩 스켈레톤(EL-019)이 **4줄 고정**이다(`DocumentFormShell.tsx:129`) — 실제 필드가 8~10개라 로딩 shape 이 실제와 다르고, 도착 시 layout shift 가 난다. **공용 껍데기 소관** | UI 기획 (공용 껍데기) |
+| 25 | footer 상태 문구(EL-012)에 **`aria-live` 가 없다** — '저장하지 않은 변경 사항이 있습니다' ↔ '변경 사항이 없습니다' 전환이 AT 에 들리지 않는다. **공용 껍데기 소관** | UI 기획 (공용 껍데기) |
+| 26 | **금액이 전부 문자열이다**(`ShippingPolicyValues`) — `types.ts:4-5` 가 '실제 백엔드가 붙으면 숫자로 매핑한다(`// TODO(backend)`)' 를 명시한다. 즉 **현재 계약은 임시 형태이며 연동 시 타입·`reset(data)` 경로가 함께 바뀐다** — 어댑터 본문만 바꿔 끝나지 않는다 | 백엔드 명세 (BE-043 §7.3) · UI 기획 |
 </content>

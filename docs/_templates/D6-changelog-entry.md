@@ -2,7 +2,7 @@
 # ── D6 · Changelog Entry 템플릿 ─────────────────────────────────────────
 # 대상 파일: CHANGELOG.md (이 템플릿은 단위 항목 형식)
 doc: D6
-owner: A03
+owner: 릴리스 담당
 gate: G8
 ---
 

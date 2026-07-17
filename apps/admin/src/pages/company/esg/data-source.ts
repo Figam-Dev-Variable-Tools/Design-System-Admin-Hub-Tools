@@ -1,4 +1,4 @@
-// ESG 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/company/esg/**)
+// ESG 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 공용 CRUD 어댑터에 시드를 넣는다. 실제 연동 시 // TODO(backend) 로 교체.
 import { createCrudAdapter } from '../../../shared/crud';

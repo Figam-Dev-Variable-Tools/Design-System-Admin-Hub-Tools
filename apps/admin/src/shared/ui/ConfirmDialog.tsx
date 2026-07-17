@@ -1,4 +1,4 @@
-// 확인 다이얼로그 — 앱 어댑터 (A40/A41 소유 — apps/admin/src/shared/ui/**)
+// 확인 다이얼로그 — 앱 어댑터
 //
 // [왜 앱에 남는가] 다이얼로그의 렌더링·의도(intent) 톤·busy 잠금·error 배너·포커스/Esc 는 전부
 // **@tds/ui ConfirmDialog(organism)** 의 것이다 (B4 승격). 이 파일에 남는 것은 **취소 토스트 배선**뿐이다:

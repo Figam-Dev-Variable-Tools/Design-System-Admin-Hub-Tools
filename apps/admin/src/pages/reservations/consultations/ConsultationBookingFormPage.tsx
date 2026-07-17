@@ -1,4 +1,4 @@
-// ConsultationBookingFormPage — 상담 예약 등록/수정 (라우트: /reservations/consultations/new · /:id/edit) · A41 소유
+// ConsultationBookingFormPage — 상담 예약 등록/수정 (라우트: /reservations/consultations/new · /:id/edit)
 //
 // 공용 CRUD 프레임워크(useCrudForm + FormPageShell)를 재사용한다. 필드: 고객·상담유형·주제·희망일시·담당·
 // 상태·메모. 상태는 전이 규칙(_shared/booking)이 허용하는 후보로만 좁혀 강제한다(영업/CS 상태전이 패턴 재사용).

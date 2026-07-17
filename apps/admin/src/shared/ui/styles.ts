@@ -1,4 +1,4 @@
-// 공통 스타일 토큰 조합 (A40 소유 — apps/admin/src/shared/ui/**)
+// 공통 스타일 토큰 조합
 //
 // [이 파일의 자리] 두 개 이상의 페이지가 쓰는 스타일만 여기 산다. 페이지 한 곳에서만 쓰는
 // 레이아웃/치수는 그 페이지에 남긴다. 규칙은 shared/ui/README.md 를 따른다.
@@ -191,7 +191,7 @@ export function buttonStyle(variant: ButtonVariant, disabled = false): CSSProper
 /* ── 좌측 필터 패널 (제목 · 목록 · 항목) ─────────────────────────────────── */
 //
 // [승격 이력] 이 세 조각은 `TierFilter` · `GroupFilter` · `AdminGroupPanel` · `RolePanel` 에
-// **네 벌이 글자 하나 다르지 않게 복사돼** 있었다 (A83 축3 중복). 로그인 이력 화면의 필터가
+// **네 벌이 글자 하나 다르지 않게 복사돼** 있었다 (클린코드 점검 축3 중복). 로그인 이력 화면의 필터가
 // 다섯 번째 소비자가 되는 자리에서 다섯 벌로 늘리는 대신 여기로 올렸다.
 // 한 벌만 남았으므로, 선택 강조를 바꾸면 네 화면이 함께 바뀐다.
 //
@@ -201,7 +201,7 @@ export function buttonStyle(variant: ButtonVariant, disabled = false): CSSProper
  * 좌측 패널 껍데기 — 제목 + 목록 + 하단 안내문을 세로로 쌓는다.
  *
  * [승격 이력] `AdminGroupPanel` 과 `RolePanel` 에 **두 벌이 글자 하나 다르지 않게 복사**돼 있었다
- * (A83 축3 `clone:ba83801c796d0f33`). 여기로 올려 한 벌만 남긴다.
+ * (클린코드 점검 축3 `clone:ba83801c796d0f33`). 여기로 올려 한 벌만 남긴다.
  *
  * ⚠ 같은 클론 윈도에 걸렸던 `RolePanel.actionsStyle`(상단 액션바 · border-bottom)은 **여기 없다** —
  * 하단 안내문(`filterNoticeStyle` · border-top)과 토큰 모양만 닮았을 뿐 변경 축이 다르다. 합치지 않는다.

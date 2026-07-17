@@ -1,6 +1,6 @@
-// 앱 공용 인라인 SVG 아이콘 (A40 소유 — apps/admin/src/**).
+// 앱 공용 인라인 SVG 아이콘.
 //
-// 정식 아이콘 자산은 A15(Icon Designer)의 assets/icons/** 이다. @tds/ui 에는 아직 범용 <Icon>
+// 정식 아이콘 자산은 아이콘 디자인 쪽 assets/icons/** 이다. @tds/ui 에는 아직 범용 <Icon>
 // 모듈이 없어(현재 shipped 15종은 아이콘을 ReactNode 슬롯으로 주입받는다) 앱이 인라인 SVG 로 갖는다.
 // 여러 화면이 쓰는 것만 여기 두고, 한 화면 전용은 그 화면 폴더의 icons.tsx 에 남긴다.
 //

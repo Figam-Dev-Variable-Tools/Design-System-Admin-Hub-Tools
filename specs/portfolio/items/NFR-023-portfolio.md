@@ -4,8 +4,8 @@ title: "포트폴리오 비기능 명세"
 functionalSpec: FS-023
 backendSpec: BE-023
 qualityBar: specs/quality-bar.md
-owner: A64
-reviewer: A62
+owner: 명세 리뷰
+reviewer: 기능 명세
 gate: G9
 status: draft
 version: 1.0
@@ -189,30 +189,30 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | STATE-02 | **P0** | 분류 선택지 조회 실패에 인라인 배너·재시도가 없다 — `categoriesQuery.data ?? []` 로만 읽는다. 폼에서는 필수 필드를 못 채워 저장이 영구 불가 | 이 화면 | A11 (FS-023 §7 #10 · BE-023 §7.6) |
-| 2 | IA-13 | **P0** | 분류 필터가 URL 에 직렬화되지 않는다(`useState` 뿐). `shared/crud/useListState` 미소비 | 이 화면 | A11 (FS-023 §7 #1) |
-| 3 | EXC-04 | **P0** | **동시성 토큰 부재** — `PortfolioItem` 에 `updatedAt`/`version` 이 없어 If-Match/ETag 로 보낼 값이 없다. 동시 편집(둘 다 존재)은 **last-write-wins**. *(유령 저장·유령 삭제는 F3b 의 `createStoreAdapter` 409 게이트(`crud.ts:219-221`·`:232-234`)로 해소 — 충돌 다이얼로그가 실사용 경로에서 열린다)* | 이 화면 + 도메인 모델 | A63 (BE-023 §7.3 · §7.10 #2 — 응답에 `version`/`ETag` 를 실어야 프론트가 보낼 수 있다) · A11 |
-| 4 | EXC-03 | **P0** | 쓰기 액션 권한 게이팅 부재 — **`useRouteWritePermissions` 는 이제 7곳이 소비하지만**(products 3 · settings 4) `pages/portfolio/**` 는 그 밖이다. read 게이팅은 성립 | **이 화면**(공용 훅 + 7곳 선례 존재) | A11 change_request (FS-023 §7 #2) |
-| 5 | IA-04 | **P0** | Pagination 부재 — `CrudListShell` 이 전량을 렌더한다. 항목 수 상한 없음 | **앱 전역**(shared/crud) | A11 change_request (FS-023 §7 #3) |
-| 6 | IA-02 | **P0** | **`<h1>` 이 2개**(AppHeader `:101` ↔ `FormPageShell.tsx:160`) — '단일 title 메커니즘' 미충족. 그리고 '등록/수정' **행위가 AppHeader 제목에 없다**(`nav-config.ts:294-296` 이 의도로 명시). *(가지 라벨 폴백은 `findCoveringLeaf`(`:260-278`)로 해소 — 이제 '포트폴리오 관리' 가 아니라 '포트폴리오')* | **앱 전역**(AppHeader · FormPageShell · nav-config) | A11 change_request · A40 (FS-023 §7 #12) |
+| 1 | STATE-02 | **P0** | 분류 선택지 조회 실패에 인라인 배너·재시도가 없다 — `categoriesQuery.data ?? []` 로만 읽는다. 폼에서는 필수 필드를 못 채워 저장이 영구 불가 | 이 화면 | UI 기획 (FS-023 §7 #10 · BE-023 §7.6) |
+| 2 | IA-13 | **P0** | 분류 필터가 URL 에 직렬화되지 않는다(`useState` 뿐). `shared/crud/useListState` 미소비 | 이 화면 | UI 기획 (FS-023 §7 #1) |
+| 3 | EXC-04 | **P0** | **동시성 토큰 부재** — `PortfolioItem` 에 `updatedAt`/`version` 이 없어 If-Match/ETag 로 보낼 값이 없다. 동시 편집(둘 다 존재)은 **last-write-wins**. *(유령 저장·유령 삭제는 F3b 의 `createStoreAdapter` 409 게이트(`crud.ts:219-221`·`:232-234`)로 해소 — 충돌 다이얼로그가 실사용 경로에서 열린다)* | 이 화면 + 도메인 모델 | 백엔드 명세 (BE-023 §7.3 · §7.10 #2 — 응답에 `version`/`ETag` 를 실어야 프론트가 보낼 수 있다) · UI 기획 |
+| 4 | EXC-03 | **P0** | 쓰기 액션 권한 게이팅 부재 — **`useRouteWritePermissions` 는 이제 7곳이 소비하지만**(products 3 · settings 4) `pages/portfolio/**` 는 그 밖이다. read 게이팅은 성립 | **이 화면**(공용 훅 + 7곳 선례 존재) | UI 기획 쪽 변경 요청 (FS-023 §7 #2) |
+| 5 | IA-04 | **P0** | Pagination 부재 — `CrudListShell` 이 전량을 렌더한다. 항목 수 상한 없음 | **앱 전역**(shared/crud) | UI 기획 쪽 변경 요청 (FS-023 §7 #3) |
+| 6 | IA-02 | **P0** | **`<h1>` 이 2개**(AppHeader `:101` ↔ `FormPageShell.tsx:160`) — '단일 title 메커니즘' 미충족. 그리고 '등록/수정' **행위가 AppHeader 제목에 없다**(`nav-config.ts:294-296` 이 의도로 명시). *(가지 라벨 폴백은 `findCoveringLeaf`(`:260-278`)로 해소 — 이제 '포트폴리오 관리' 가 아니라 '포트폴리오')* | **앱 전역**(AppHeader · FormPageShell · nav-config) | UI 기획 쪽 변경 요청 · 프론트 구현 (FS-023 §7 #12) |
 | ~~7~~ | ~~A11Y-11~~ | ~~P0~~ | **해소 (PR #30 · `a5c2639`)** — 마지막 하나였던 `ImageUploadField` 의 required 가 AT 에 닿는다. **다만 이 행이 요구하던 해법(`aria-required`)이 틀렸고 DS 는 더 정확한 길을 골랐다**: 드롭존은 `<button>` 이라 `aria-required` 가 **미지원 속성**(ARIA 1.2)이고 얹으면 거짓 시맨틱 + axe `aria-allowed-attr` 위반이며, hidden file input 은 `aria-hidden`+`tabIndex={-1}` 이라 그쪽에 줘도 **아무에게도 닿지 않는다**(근거 `ImageUploadField.tsx:44-54`). 정답은 **접근가능 이름** — `requiredNameSuffix(required)`(`:55`)가 `:250` 의 `aria-label` 에 실려 '대표 이미지 (필수) 이미지 업로드 — …' 가 된다. 소비 `PortfolioMediaFields.tsx:51-59`. 시각 `*` 마커는 그대로 | — | **닫힘** |
 | ~~8~~ | ~~MOTION-03~~ | ~~P0~~ | **해소 (PR #26 · `a5c2639`)** — `ToggleSwitch.css:79-84` 가 `@media (prefers-reduced-motion: reduce)` 에서 `.tds-toggle__track`·`.tds-toggle__knob` 의 transition 을 끈다. quality-bar 가 지목한 `:32`·`:56` 두 선언이 **둘 다** 덮인다. 이 화면의 두 표면(`publishColumn.tsx:20` · `PortfolioMediaFields.tsx:73`)에 그대로 적용된다. ⚠ quality-bar 의 MOTION-03 요구문은 요구 정본이라 그대로 둔다 | — | **닫힘** |
 | 9 | ~~EXC-12~~ | ~~P1~~ | **해소됨(F3b)** — `createStoreAdapter.fetchOne`(`crud.ts:192-194`)이 `HttpError(404)` 를 던져 셸의 not-found 분기가 실사용 경로에서 발현된다 | — | — |
-| 10 | FEEDBACK-04(부분) | P1 | '취소'·'목록으로' 버튼이 `<button>`+`navigate()` 라 미저장 가드를 우회한다(3경로 자체는 pass) | 공용(shared/crud `FormPageShell`) | A11 (FS-023 §7 #11) |
-| 11 | EXC-14 | P1 | 노출 토글이 비관적 — 낙관 반영·롤백·재시도 toast 없음 | 공용(shared/crud `useCrudRowUpdate`) | A11 (FS-023 §7 #6) |
-| 12 | EXC-06 / EXC-07(부분) | P1 | `?fail=` 가 status 없는 generic Error 를 던져 class 별 분기가 죽는다. `dev.ts` 의 422 가 `violations` 를 싣지 않아 필드 매핑 경로를 재현할 수 없다 | 공용(shared/crud `dev.ts`) · 이 화면 어댑터 | A63 (BE-023 §7.10 #7) · A11 |
-| 13 | STATE-06 | P1 | 카테고리 화면의 변경이 `['portfolio','category-options']` 를 무효화하지 않는다(키가 다른 리소스) | 이 화면 + FS-024 | A11 (FS-023 §7 #18) |
-| 14 | STATE-05(부분) | P1 | '진짜 비어있음' 분기에 생성 CTA 없음(`empty.createAction` 미전달). 3분기 copy 는 F2 에서 성립 | 이 화면 | A11 (FS-023 §7 #9) |
-| 15 | EXC-15(부분) | P1 | 업로드 progress/cancel 경로 없음 — **업로드 자체가 없기 때문**. `blob:` 값이 저장된다. **이것은 결함이 아니라 근거와 함께 남긴 '알려진 빚'이다** — `shared/crud/validation.ts:41-63` 이 판정을 적는다(도달 가능한 값이 `blob:`/`''` 뿐이라 http(s) 강제 시 5개 폼이 제출 불가 → 막다른 길). 고칠 곳은 검증이 아니라 업로드 이음매(`TODO(backend): POST /api/uploads`). 빚을 고정하는 테스트 3곳: `company/{certificates.test.ts:106-107, logo-list.test.ts:98-99, profile.test.ts:71}`. client 검증은 성립 | 이 화면 + 계약 미정 | A63 (BE-023 §7.2 · §7.10 #1) · A11 |
-| 16 | A11Y-08 | P1 | 행 안에 keyboard-focusable 이름 링크 없음(제목이 평문, 행 클릭은 마우스 전용) | 공용(shared/crud `CrudTable`) | A11 (FS-023 §7 #4) |
+| 10 | FEEDBACK-04(부분) | P1 | '취소'·'목록으로' 버튼이 `<button>`+`navigate()` 라 미저장 가드를 우회한다(3경로 자체는 pass) | 공용(shared/crud `FormPageShell`) | UI 기획 (FS-023 §7 #11) |
+| 11 | EXC-14 | P1 | 노출 토글이 비관적 — 낙관 반영·롤백·재시도 toast 없음 | 공용(shared/crud `useCrudRowUpdate`) | UI 기획 (FS-023 §7 #6) |
+| 12 | EXC-06 / EXC-07(부분) | P1 | `?fail=` 가 status 없는 generic Error 를 던져 class 별 분기가 죽는다. `dev.ts` 의 422 가 `violations` 를 싣지 않아 필드 매핑 경로를 재현할 수 없다 | 공용(shared/crud `dev.ts`) · 이 화면 어댑터 | 백엔드 명세 (BE-023 §7.10 #7) · UI 기획 |
+| 13 | STATE-06 | P1 | 카테고리 화면의 변경이 `['portfolio','category-options']` 를 무효화하지 않는다(키가 다른 리소스) | 이 화면 + FS-024 | UI 기획 (FS-023 §7 #18) |
+| 14 | STATE-05(부분) | P1 | '진짜 비어있음' 분기에 생성 CTA 없음(`empty.createAction` 미전달). 3분기 copy 는 F2 에서 성립 | 이 화면 | UI 기획 (FS-023 §7 #9) |
+| 15 | EXC-15(부분) | P1 | 업로드 progress/cancel 경로 없음 — **업로드 자체가 없기 때문**. `blob:` 값이 저장된다. **이것은 결함이 아니라 근거와 함께 남긴 '알려진 빚'이다** — `shared/crud/validation.ts:41-63` 이 판정을 적는다(도달 가능한 값이 `blob:`/`''` 뿐이라 http(s) 강제 시 5개 폼이 제출 불가 → 막다른 길). 고칠 곳은 검증이 아니라 업로드 이음매(`TODO(backend): POST /api/uploads`). 빚을 고정하는 테스트 3곳: `company/{certificates.test.ts:106-107, logo-list.test.ts:98-99, profile.test.ts:71}`. client 검증은 성립 | 이 화면 + 계약 미정 | 백엔드 명세 (BE-023 §7.2 · §7.10 #1) · UI 기획 |
+| 16 | A11Y-08 | P1 | 행 안에 keyboard-focusable 이름 링크 없음(제목이 평문, 행 클릭은 마우스 전용) | 공용(shared/crud `CrudTable`) | UI 기획 (FS-023 §7 #4) |
 | 17 | ~~EXC-08(부분)~~ | ~~P1~~ | **해소됨(F3b)** — `WriteContext.idempotencyKey`(`crud.ts:30-42`)가 생겨 키가 어댑터까지 도달하고, `createStoreAdapter` 의 멱등 ledger(`:168,201-203,208`)가 재생을 처리한다. `Idempotency-Key` 헤더 심은 `crud.ts:39` | — | — |
 | 18 | ~~ERP-13~~ | ~~P1~~ | **해소됨(통합)** — 조사 헬퍼가 `shared/format.ts:269+` 로 승격되고 이 화면의 모든 사용자 대상 문구가 경유한다. 사용자 대상 `'을(를)'` 리터럴 앱 전역 0건 | — | — |
-| 19 | EXC-10(부분) | P1 | 일괄 삭제가 실패 id 를 반환하지 않아 '실패분만 재시도' 불가. 진행률·취소 없음 | 공용(shared/bulk) | A11 (FS-023 §7 #20) |
-| 20 | A11Y-13(부분) | P1 | 폼 진입 시 첫 필드 자동 포커스 없음(검증 실패 포커스는 pass) | 공용(shared/crud) | A11 |
-| 21 | EXC-05 · EXC-11 · EXC-19 | P1 | 프론트 타임아웃 상한·오프라인 감지·세션 만료 draft 보존 앱 전역 부재 | **앱 전역** | A40 · A11 (FS-023 §7 #22) |
-| 22 | A11Y-14 | P2 | 업로드 완료 안내가 live region 아님 | **앱 전역**(@tds/ui) | A11 (FS-023 §7 #16) |
-| 23 | COMP-01(부분) · COMP-06 · COMP-09 · COMP-12 | P2 | 손수 쓴 '저장 중…'(loading prop 미사용) · skeleton `length: 5` 하드코딩 · 제목 truncate 부재 · 제목/고객사 카운터 부재 | 공용 + 이 화면 | A11 (FS-023 §7 #8 · #5 · #21) |
-| 24 | IA-03 · IA-14 · MOTION-04 · ERP-08 · ERP-12 · ERP-15 · EXC-18 | P1/P2 | breadcrumb 부재 · 반응형 미선언 · 행 FLIP 부재 · 일자 포맷터 미경유 · export 부재 · 대형 리스트 계약 부재 · Shift-range/진행률 부재 | 공용 + 앱 전역 | A11 |
+| 19 | EXC-10(부분) | P1 | 일괄 삭제가 실패 id 를 반환하지 않아 '실패분만 재시도' 불가. 진행률·취소 없음 | 공용(shared/bulk) | UI 기획 (FS-023 §7 #20) |
+| 20 | A11Y-13(부분) | P1 | 폼 진입 시 첫 필드 자동 포커스 없음(검증 실패 포커스는 pass) | 공용(shared/crud) | UI 기획 |
+| 21 | EXC-05 · EXC-11 · EXC-19 | P1 | 프론트 타임아웃 상한·오프라인 감지·세션 만료 draft 보존 앱 전역 부재 | **앱 전역** | 프론트 구현 · UI 기획 (FS-023 §7 #22) |
+| 22 | A11Y-14 | P2 | 업로드 완료 안내가 live region 아님 | **앱 전역**(@tds/ui) | UI 기획 (FS-023 §7 #16) |
+| 23 | COMP-01(부분) · COMP-06 · COMP-09 · COMP-12 | P2 | 손수 쓴 '저장 중…'(loading prop 미사용) · skeleton `length: 5` 하드코딩 · 제목 truncate 부재 · 제목/고객사 카운터 부재 | 공용 + 이 화면 | UI 기획 (FS-023 §7 #8 · #5 · #21) |
+| 24 | IA-03 · IA-14 · MOTION-04 · ERP-08 · ERP-12 · ERP-15 · EXC-18 | P1/P2 | breadcrumb 부재 · 반응형 미선언 · 행 FLIP 부재 · 일자 포맷터 미경유 · export 부재 · 대형 리스트 계약 부재 · Shift-range/진행률 부재 | 공용 + 앱 전역 | UI 기획 |
 
 ## 6. 측정 도구 · 재현 스위치
 

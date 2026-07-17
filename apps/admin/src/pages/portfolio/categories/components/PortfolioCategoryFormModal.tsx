@@ -1,4 +1,4 @@
-// 포트폴리오 카테고리 등록/수정 모달 (A41 소유 — apps/admin/src/pages/portfolio/**)
+// 포트폴리오 카테고리 등록/수정 모달
 //
 // 껍데기(포커스 트랩·Esc·딤·포커스 복귀)는 공통 Modal 을 재사용한다. 하나의 모달이 등록과 수정을
 // 겸한다(editing 유무로 갈린다). 쓰기 배선은 승격된 CRUD 프레임워크의 저수준 훅(useCrudCreate/Update)이다.

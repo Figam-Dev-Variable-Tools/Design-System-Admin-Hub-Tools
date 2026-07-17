@@ -1,4 +1,4 @@
-// EsgListPage — ESG 목록 (라우트: /company/esg) · A41 소유
+// EsgListPage — ESG 목록 (라우트: /company/esg)
 //
 // 카테고리별(환경/사회/지배구조) 좌측 필터 + 목록 + 등록/수정 폼(별도 라우트) + 삭제팝업.
 import { useEffect, useMemo, useState } from 'react';

@@ -1,4 +1,4 @@
-// 활동 정보 카드 (A40 소유) — 전부 읽기 전용.
+// 활동 정보 카드 — 전부 읽기 전용.
 import { Card, CardTitle, ddStyle, dlStyle, dtStyle } from '../../../shared/ui';
 import { formatDateTime, formatNumber, formatRelativeOrDate } from '../../../shared/format';
 import type { MemberDetail } from '../types';

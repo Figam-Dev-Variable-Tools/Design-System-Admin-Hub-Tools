@@ -4,7 +4,7 @@
 # MAJOR 릴리스에는 이 문서가 반드시 존재해야 한다 — 없으면 G8에서 릴리스 차단.
 doc: D7
 id: vX-to-vY
-owner: A03
+owner: 릴리스 담당
 from: X.0.0
 to: Y.0.0
 date: YYYY-MM-DD

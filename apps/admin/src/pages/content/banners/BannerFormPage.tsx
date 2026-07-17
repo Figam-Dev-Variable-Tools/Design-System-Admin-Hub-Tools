@@ -1,4 +1,4 @@
-// BannerFormPage — 배너 등록/수정 (라우트: /content/banners/new · /content/banners/:id/edit) · A41 소유
+// BannerFormPage — 배너 등록/수정 (라우트: /content/banners/new · /content/banners/:id/edit)
 //
 // [별도 상세 페이지 — 오너 피드백 ⑥] 목록+인라인 폼을 없애고 별도 폼 라우트로 옮겼다(:id 유무로 갈린다).
 // [오른쪽 실시간 미리보기 — 오너 피드백 ⑤] 왼쪽 입력 / 오른쪽 미리보기 2단. 좁으면 세로로 쌓인다.

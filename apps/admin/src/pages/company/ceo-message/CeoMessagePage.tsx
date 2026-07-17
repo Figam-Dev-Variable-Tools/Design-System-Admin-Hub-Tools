@@ -1,4 +1,4 @@
-// CeoMessagePage — CEO 인사말 (라우트: /company/ceo-message) · A41 소유
+// CeoMessagePage — CEO 인사말 (라우트: /company/ceo-message)
 //
 // 단일 문서 폼(제목 + 본문 textarea + 사진 URL). 단일 문서형 공통 껍데기(DocumentFormShell)를 쓴다.
 import { useEffect, useRef, useState } from 'react';

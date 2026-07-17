@@ -1,4 +1,4 @@
-// 배송 정책 폼 검증 회귀 테스트 (A41)
+// 배송 정책 폼 검증 회귀 테스트
 import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_SHIPPING_POLICY } from './types';

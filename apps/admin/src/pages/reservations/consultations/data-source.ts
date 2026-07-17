@@ -1,4 +1,4 @@
-// 상담 예약 데이터 소스 어댑터 (A41 소유 — apps/admin/src/pages/reservations/**)
+// 상담 예약 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] 프레임워크 createCrudAdapter 에 시드를 넣는다.
 //   // TODO(backend): GET/POST /api/reservations/consultations · GET/PUT/DELETE /api/reservations/consultations/:id

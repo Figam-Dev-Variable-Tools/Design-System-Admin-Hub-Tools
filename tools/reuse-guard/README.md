@@ -1,7 +1,7 @@
 # @tds/reuse-guard — 중복 컴포넌트 차단 + 모듈 추출 스캐너
 
-> 담당 에이전트: **A75 Component Reuse AI** (Layer 3 · Verification)
-> 근거: `docs/architecture/org-design-v2.md` §3(A75) · §7.2 · §13, `orchestration/registry/agents.json` (A75),
+> 담당: 재사용 가드 (Layer 3 · Verification)
+> 근거: `docs/architecture/org-design-v2.md` §3 · §7.2 · §13,
 > `docs/tds/guidelines/page-module-pipeline.md` §2-②
 > 차단 규칙: **유사도 >= 85% → 신규 생성 차단(EXTEND 강제)**. G0에서 사전 조회 필수 — 판정 없이 신규 계약 생성 금지
 
@@ -48,7 +48,7 @@ props 유사도 = |A ∩ B| / |A ∪ B|                                 (집합 
 
 | 종합 유사도 | 판정 | 의미 |
 |---|---|---|
-| >= 85% | `CREATE_BLOCKED` | 신규 생성 차단 — 기존 컴포넌트 **EXTEND 강제**. A18에 change_request 발행 (G3 재진입) |
+| >= 85% | `CREATE_BLOCKED` | 신규 생성 차단 — 기존 컴포넌트 **EXTEND 강제**. 계약 엔지니어에 변경 요청 발행 (G3 재진입) |
 | 60% ~ 85% | `EXTEND_RECOMMENDED` | 확장 우선 검토. 신규 생성하려면 근거를 Screen Spec 에 기록 |
 | < 60% | `CREATE_OK` | 신규 계약 생성 진행 가능 |
 
@@ -110,7 +110,7 @@ pnpm --filter @tds/reuse-guard run scan --min 3
 | 계약 유사도 | 권고 | 의미 |
 |---|---|---|
 | >= 85% | `REUSE` | 기존 컴포넌트 소비로 교체 — 페이지 사본 잔존은 중복률 SLO(<= 3%) 위반 |
-| 60% ~ 85% | `EXTEND` | 기존 계약 확장 검토 — A18에 change_request (G3 재진입) |
+| 60% ~ 85% | `EXTEND` | 기존 계약 확장 검토 — 계약 엔지니어에 변경 요청 (G3 재진입) |
 | < 60% | `CREATE` | 신규 모듈 후보 — 후보 1건 = 1 Task 로 G0 접수 후 check 모드로 정밀 판정 |
 
 스캔 후보의 속성 키는 계약 props 만큼 정제되어 있지 않으므로 이름 단독 유사도를 하한으로
@@ -137,10 +137,10 @@ pnpm --filter @tds/reuse-guard run scan --min 3
 - children 표현식(`{list.map(...)}` 등) 내부의 JSX 는 부모 시그니처에 포함하지 않고
   **독립 구조**로 집계한다 (조건부/반복 렌더링은 출현 횟수가 가변이므로).
 - 후보명은 구조(커스텀 컴포넌트명 → 정적 className 최빈 토큰 → 태그 조합) 기반 **제안**일 뿐
-  확정 명칭이 아니다 — G0 접수 시 A76(Naming Guard) 규칙에 따라 재검토한다.
+  확정 명칭이 아니다 — G0 접수 시 네이밍 가드 규칙에 따라 재검토한다.
 
 ## 경계 (Hard Boundary)
 
 - 본 도구는 **판정/제안만** 한다 — 계약/코드를 생성·수정하지 않는다 (P1 단일 소유권).
-- 리포트 경로 `reports/reuse/**` 는 A75 소유.
-- 판정에 대한 이의는 CEO AI(A00) 에스컬레이션으로만 해소한다 — 가드 우회 금지 (§13: 유사도 85% 이상은 확장 강제).
+- 리포트 경로 `reports/reuse/**` 는 재사용 가드 소유.
+- 판정에 대한 이의는 오케스트레이터 에스컬레이션으로만 해소한다 — 가드 우회 금지 (§13: 유사도 85% 이상은 확장 강제).

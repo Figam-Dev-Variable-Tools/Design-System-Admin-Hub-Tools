@@ -1,4 +1,4 @@
-// ReservationFormPage — 예약 등록/수정 (라우트: /reservations/new · /:id/edit) · A41 소유
+// ReservationFormPage — 예약 등록/수정 (라우트: /reservations/new · /:id/edit)
 //
 // 공용 CRUD 프레임워크(useCrudForm + FormPageShell)를 재사용한다. 필드: 고객·일시(슬롯)·인원·자원배정·
 // 담당·예약금·요청사항·상태. 검증 정본은 ./reservation-validation.
