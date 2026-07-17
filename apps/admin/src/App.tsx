@@ -12,9 +12,20 @@
 //   /login         → docs/plan/ui/SCR-001-login.md
 //   /dashboard     → docs/plan/ui/SCR-002-dashboard.md (기본 리다이렉트 대상)
 //   /products      → 상품 관리(목록·등록·수정·카테고리) — SCR-003 상품 등록을 이 체계로 통합했다
+//
+// [코드 분할] 화면은 라우트 단위 lazy 청크다 (아래 lazy 선언 블록 참조).
+//   화면을 추가할 때도 `const X = lazy(() => import('./pages/...'))` 로 적는다 —
+//   **정적 import 를 하나 되살리면 그 화면은 다시 진입 번들에 실린다.** 그것이 이 분할이 조용히
+//   풀리는 유일한 경로다.
+//   실측 (vite build · gzip · 같은 파이프라인 기준):
+//     진입 번들  347.15 kB → 117.69 kB  (-229.46 kB · -66.1%)   raw 1,245.76 → 372.46 kB
+//     청크        1개 → 212개. 화면당 대개 1~8 kB 를 그때 받는다.
+//   남은 117.69 kB 는 프레임워크 코어(react·react-dom·react-router·@tanstack/query)+셸이다 —
+//   이건 어느 화면을 열든 필요하므로 진입에 있는 것이 맞다.
 import type { ReactNode } from 'react';
+import { lazy, Suspense } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { RequireAuth } from './shared/auth/RequireAuth';
 import { ErrorBoundary } from './shared/errors/ErrorBoundary';
 import { RouteErrorScreen } from './shared/errors/ErrorScreens';
@@ -25,115 +36,154 @@ import { ToastProvider } from './shared/ui';
 import LoginPage from './pages/login/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import PlaceholderPage from './pages/placeholder/PlaceholderPage';
-import PermissionsPage from './pages/permissions/PermissionsPage';
-import MembersPage from './pages/members/MembersPage';
-import MemberDetailPage from './pages/members/MemberDetailPage';
-import AdminsPage from './pages/admins/AdminsPage';
-import CustomerSettingsPage from './pages/customer-settings/CustomerSettingsPage';
-import LoginHistoryPage from './pages/login-history/LoginHistoryPage';
 import { fetchAdminDetail } from './pages/admins/data-source';
-import NoticesPage from './pages/content/notices/NoticesPage';
-import NoticeDetailPage from './pages/content/notices/NoticeDetailPage';
-import NoticeFormPage from './pages/content/notices/NoticeFormPage';
-import FaqPage from './pages/content/faq/FaqPage';
-import FaqDetailPage from './pages/content/faq/FaqDetailPage';
-import FaqFormPage from './pages/content/faq/FaqFormPage';
-import PopupsPage from './pages/content/popups/PopupsPage';
-import PopupFormPage from './pages/content/popups/PopupFormPage';
-import BannersPage from './pages/content/banners/BannersPage';
-import BannerFormPage from './pages/content/banners/BannerFormPage';
-import TermsPage from './pages/content/terms/TermsPage';
-import TermsDetailPage from './pages/content/terms/TermsDetailPage';
-import TermsFormPage from './pages/content/terms/TermsFormPage';
-import PrivacyPage from './pages/content/privacy/PrivacyPage';
-import PrivacyDetailPage from './pages/content/privacy/PrivacyDetailPage';
-import PrivacyFormPage from './pages/content/privacy/PrivacyFormPage';
-import CompanyProfilePage from './pages/company/profile/CompanyProfilePage';
-import CeoMessagePage from './pages/company/ceo-message/CeoMessagePage';
-import DirectionsPage from './pages/company/directions/DirectionsPage';
-import PartnersPage from './pages/company/partners/PartnersPage';
-import ClientsPage from './pages/company/clients/ClientsPage';
-import HistoryListPage from './pages/company/history/HistoryListPage';
-import HistoryFormPage from './pages/company/history/HistoryFormPage';
-import CertificatesListPage from './pages/company/certificates/CertificatesListPage';
-import CertificatesFormPage from './pages/company/certificates/CertificatesFormPage';
-import EsgListPage from './pages/company/esg/EsgListPage';
-import EsgFormPage from './pages/company/esg/EsgFormPage';
-import PortfolioListPage from './pages/portfolio/items/PortfolioListPage';
-import PortfolioFormPage from './pages/portfolio/items/PortfolioFormPage';
-import PortfolioCategoriesPage from './pages/portfolio/categories/PortfolioCategoriesPage';
-import CaseStudyListPage from './pages/portfolio/case-studies/CaseStudyListPage';
-import CaseStudyFormPage from './pages/portfolio/case-studies/CaseStudyFormPage';
-import ProductListPage from './pages/products/items/ProductListPage';
-import ProductFormPage from './pages/products/items/ProductFormPage';
-import ProductCategoriesPage from './pages/products/categories/ProductCategoriesPage';
-import CouponListPage from './pages/products/coupons/CouponListPage';
-import CouponFormPage from './pages/products/coupons/CouponFormPage';
-import ReviewListPage from './pages/products/reviews/ReviewListPage';
-import ReviewDetailPage from './pages/products/reviews/ReviewDetailPage';
-import ReturnsListPage from './pages/products/returns/ReturnsListPage';
-import ReturnDetailPage from './pages/products/returns/ReturnDetailPage';
-import ShippingPolicyPage from './pages/products/shipping/ShippingPolicyPage';
-import PointsPolicyPage from './pages/products/points/PointsPolicyPage';
-import AccountListPage from './pages/sales/accounts/AccountListPage';
-import AccountFormPage from './pages/sales/accounts/AccountFormPage';
-import ContractListPage from './pages/sales/contracts/ContractListPage';
-import ContractFormPage from './pages/sales/contracts/ContractFormPage';
-import QuoteListPage from './pages/sales/quotes/QuoteListPage';
-import QuoteFormPage from './pages/sales/quotes/QuoteFormPage';
-import InquiryListPage from './pages/sales/inquiries/InquiryListPage';
-import InquiryDetailPage from './pages/sales/inquiries/InquiryDetailPage';
-import ProjectListPage from './pages/sales/projects/ProjectListPage';
-import ProjectFormPage from './pages/sales/projects/ProjectFormPage';
-import ConsultationListPage from './pages/sales/consultations/ConsultationListPage';
-import ConsultationDetailPage from './pages/sales/consultations/ConsultationDetailPage';
-import TicketListPage from './pages/support/tickets/TicketListPage';
-import TicketDetailPage from './pages/support/tickets/TicketDetailPage';
-import CategoriesPage from './pages/support/categories/CategoriesPage';
-import RepliesPage from './pages/support/replies/RepliesPage';
-import ReplyFormPage from './pages/support/replies/ReplyFormPage';
-import CustomerFaqPage from './pages/support/faq/CustomerFaqPage';
-import DownloadListPage from './pages/support/downloads/DownloadListPage';
-import DownloadFormPage from './pages/support/downloads/DownloadFormPage';
-import EventListPage from './pages/marketing/events/EventListPage';
-import EventFormPage from './pages/marketing/events/EventFormPage';
-import PromotionListPage from './pages/marketing/promotions/PromotionListPage';
-import PromotionFormPage from './pages/marketing/promotions/PromotionFormPage';
-import NewsletterListPage from './pages/marketing/newsletters/NewsletterListPage';
-import NewsletterFormPage from './pages/marketing/newsletters/NewsletterFormPage';
-import SmsListPage from './pages/marketing/sms/SmsListPage';
-import SmsFormPage from './pages/marketing/sms/SmsFormPage';
-import EmailListPage from './pages/marketing/email/EmailListPage';
-import EmailFormPage from './pages/marketing/email/EmailFormPage';
-import TemplateListPage from './pages/marketing/templates/TemplateListPage';
-import TemplateFormPage from './pages/marketing/templates/TemplateFormPage';
-import AdminLogPage from './pages/logs/admin/AdminLogPage';
-import MemberActivityPage from './pages/logs/member-activity/MemberActivityPage';
-import ApiLogPage from './pages/logs/api/ApiLogPage';
-import ErrorLogPage from './pages/logs/errors/ErrorLogPage';
-import RuleListPage from './pages/notifications/send/RuleListPage';
-import RuleFormPage from './pages/notifications/send/RuleFormPage';
-import EmailTemplateListPage from './pages/notifications/email-templates/EmailTemplateListPage';
-import EmailTemplateFormPage from './pages/notifications/email-templates/EmailTemplateFormPage';
-import SmsTemplateListPage from './pages/notifications/sms-templates/SmsTemplateListPage';
-import SmsTemplateFormPage from './pages/notifications/sms-templates/SmsTemplateFormPage';
-import ReservationListPage from './pages/reservations/ReservationListPage';
-import ReservationFormPage from './pages/reservations/ReservationFormPage';
-import ApplicationListPage from './pages/reservations/applications/ApplicationListPage';
-import ApplicationDetailPage from './pages/reservations/applications/ApplicationDetailPage';
-import ConsultationBookingListPage from './pages/reservations/consultations/ConsultationBookingListPage';
-import ConsultationBookingFormPage from './pages/reservations/consultations/ConsultationBookingFormPage';
-import ScheduleCalendarPage from './pages/reservations/schedule/ScheduleCalendarPage';
-import VisitorStatsPage from './pages/stats/visitors/VisitorStatsPage';
-import MemberStatsPage from './pages/stats/members/MemberStatsPage';
-import RevenueStatsPage from './pages/stats/revenue/RevenueStatsPage';
-import OrderStatsPage from './pages/stats/orders/OrderStatsPage';
-import TrafficStatsPage from './pages/stats/traffic/TrafficStatsPage';
-import KeywordStatsPage from './pages/stats/keywords/KeywordStatsPage';
-import SiteSettingsPage from './pages/settings/site/SiteSettingsPage';
-import LanguagesPage from './pages/settings/languages/LanguagesPage';
-import ApiKeysPage from './pages/settings/api-keys/ApiKeysPage';
-import OAuthPage from './pages/settings/oauth/OAuthPage';
+
+/**
+ * [코드 분할] 화면 모듈은 라우트 단위로 lazy 로 나눈다 — 오너 확정 스택의 Lazy Loading·Code Splitting.
+ * 사이드바에서 한 화면을 열 때 그 화면의 코드만 받는다: 130여 화면을 전부 담은 단일 번들을 첫
+ * 진입에 내려받게 하지 않는다.
+ *
+ * 즉시 로드로 남기는 셋 — 나누는 것이 손해인 것들이다:
+ *   LoginPage       진입 화면. 쪼개면 첫 페인트 앞에 왕복이 하나 더 붙는다.
+ *   DashboardPage   / 의 리다이렉트 대상(랜딩). 같은 이유로 LCP 를 지킨다.
+ *   PlaceholderPage 미구현 라우트용 한 줄짜리 화면. 청크로 나눌 실익이 없다.
+ */
+const PermissionsPage = lazy(() => import('./pages/permissions/PermissionsPage'));
+const MembersPage = lazy(() => import('./pages/members/MembersPage'));
+const MemberDetailPage = lazy(() => import('./pages/members/MemberDetailPage'));
+const AdminsPage = lazy(() => import('./pages/admins/AdminsPage'));
+const CustomerSettingsPage = lazy(() => import('./pages/customer-settings/CustomerSettingsPage'));
+const LoginHistoryPage = lazy(() => import('./pages/login-history/LoginHistoryPage'));
+const NoticesPage = lazy(() => import('./pages/content/notices/NoticesPage'));
+const NoticeDetailPage = lazy(() => import('./pages/content/notices/NoticeDetailPage'));
+const NoticeFormPage = lazy(() => import('./pages/content/notices/NoticeFormPage'));
+const FaqPage = lazy(() => import('./pages/content/faq/FaqPage'));
+const FaqDetailPage = lazy(() => import('./pages/content/faq/FaqDetailPage'));
+const FaqFormPage = lazy(() => import('./pages/content/faq/FaqFormPage'));
+const PopupsPage = lazy(() => import('./pages/content/popups/PopupsPage'));
+const PopupFormPage = lazy(() => import('./pages/content/popups/PopupFormPage'));
+const BannersPage = lazy(() => import('./pages/content/banners/BannersPage'));
+const BannerFormPage = lazy(() => import('./pages/content/banners/BannerFormPage'));
+const TermsPage = lazy(() => import('./pages/content/terms/TermsPage'));
+const TermsDetailPage = lazy(() => import('./pages/content/terms/TermsDetailPage'));
+const TermsFormPage = lazy(() => import('./pages/content/terms/TermsFormPage'));
+const PrivacyPage = lazy(() => import('./pages/content/privacy/PrivacyPage'));
+const PrivacyDetailPage = lazy(() => import('./pages/content/privacy/PrivacyDetailPage'));
+const PrivacyFormPage = lazy(() => import('./pages/content/privacy/PrivacyFormPage'));
+const CompanyProfilePage = lazy(() => import('./pages/company/profile/CompanyProfilePage'));
+const CeoMessagePage = lazy(() => import('./pages/company/ceo-message/CeoMessagePage'));
+const DirectionsPage = lazy(() => import('./pages/company/directions/DirectionsPage'));
+const PartnersPage = lazy(() => import('./pages/company/partners/PartnersPage'));
+const ClientsPage = lazy(() => import('./pages/company/clients/ClientsPage'));
+const HistoryListPage = lazy(() => import('./pages/company/history/HistoryListPage'));
+const HistoryFormPage = lazy(() => import('./pages/company/history/HistoryFormPage'));
+const CertificatesListPage = lazy(
+  () => import('./pages/company/certificates/CertificatesListPage'),
+);
+const CertificatesFormPage = lazy(
+  () => import('./pages/company/certificates/CertificatesFormPage'),
+);
+const EsgListPage = lazy(() => import('./pages/company/esg/EsgListPage'));
+const EsgFormPage = lazy(() => import('./pages/company/esg/EsgFormPage'));
+const PortfolioListPage = lazy(() => import('./pages/portfolio/items/PortfolioListPage'));
+const PortfolioFormPage = lazy(() => import('./pages/portfolio/items/PortfolioFormPage'));
+const PortfolioCategoriesPage = lazy(
+  () => import('./pages/portfolio/categories/PortfolioCategoriesPage'),
+);
+const CaseStudyListPage = lazy(() => import('./pages/portfolio/case-studies/CaseStudyListPage'));
+const CaseStudyFormPage = lazy(() => import('./pages/portfolio/case-studies/CaseStudyFormPage'));
+const ProductListPage = lazy(() => import('./pages/products/items/ProductListPage'));
+const ProductFormPage = lazy(() => import('./pages/products/items/ProductFormPage'));
+const ProductCategoriesPage = lazy(
+  () => import('./pages/products/categories/ProductCategoriesPage'),
+);
+const CouponListPage = lazy(() => import('./pages/products/coupons/CouponListPage'));
+const CouponFormPage = lazy(() => import('./pages/products/coupons/CouponFormPage'));
+const ReviewListPage = lazy(() => import('./pages/products/reviews/ReviewListPage'));
+const ReviewDetailPage = lazy(() => import('./pages/products/reviews/ReviewDetailPage'));
+const ReturnsListPage = lazy(() => import('./pages/products/returns/ReturnsListPage'));
+const ReturnDetailPage = lazy(() => import('./pages/products/returns/ReturnDetailPage'));
+const ShippingPolicyPage = lazy(() => import('./pages/products/shipping/ShippingPolicyPage'));
+const PointsPolicyPage = lazy(() => import('./pages/products/points/PointsPolicyPage'));
+const AccountListPage = lazy(() => import('./pages/sales/accounts/AccountListPage'));
+const AccountFormPage = lazy(() => import('./pages/sales/accounts/AccountFormPage'));
+const ContractListPage = lazy(() => import('./pages/sales/contracts/ContractListPage'));
+const ContractFormPage = lazy(() => import('./pages/sales/contracts/ContractFormPage'));
+const QuoteListPage = lazy(() => import('./pages/sales/quotes/QuoteListPage'));
+const QuoteFormPage = lazy(() => import('./pages/sales/quotes/QuoteFormPage'));
+const InquiryListPage = lazy(() => import('./pages/sales/inquiries/InquiryListPage'));
+const InquiryDetailPage = lazy(() => import('./pages/sales/inquiries/InquiryDetailPage'));
+const ProjectListPage = lazy(() => import('./pages/sales/projects/ProjectListPage'));
+const ProjectFormPage = lazy(() => import('./pages/sales/projects/ProjectFormPage'));
+const ConsultationListPage = lazy(() => import('./pages/sales/consultations/ConsultationListPage'));
+const ConsultationDetailPage = lazy(
+  () => import('./pages/sales/consultations/ConsultationDetailPage'),
+);
+const TicketListPage = lazy(() => import('./pages/support/tickets/TicketListPage'));
+const TicketDetailPage = lazy(() => import('./pages/support/tickets/TicketDetailPage'));
+const CategoriesPage = lazy(() => import('./pages/support/categories/CategoriesPage'));
+const RepliesPage = lazy(() => import('./pages/support/replies/RepliesPage'));
+const ReplyFormPage = lazy(() => import('./pages/support/replies/ReplyFormPage'));
+const CustomerFaqPage = lazy(() => import('./pages/support/faq/CustomerFaqPage'));
+const DownloadListPage = lazy(() => import('./pages/support/downloads/DownloadListPage'));
+const DownloadFormPage = lazy(() => import('./pages/support/downloads/DownloadFormPage'));
+const EventListPage = lazy(() => import('./pages/marketing/events/EventListPage'));
+const EventFormPage = lazy(() => import('./pages/marketing/events/EventFormPage'));
+const PromotionListPage = lazy(() => import('./pages/marketing/promotions/PromotionListPage'));
+const PromotionFormPage = lazy(() => import('./pages/marketing/promotions/PromotionFormPage'));
+const NewsletterListPage = lazy(() => import('./pages/marketing/newsletters/NewsletterListPage'));
+const NewsletterFormPage = lazy(() => import('./pages/marketing/newsletters/NewsletterFormPage'));
+const SmsListPage = lazy(() => import('./pages/marketing/sms/SmsListPage'));
+const SmsFormPage = lazy(() => import('./pages/marketing/sms/SmsFormPage'));
+const EmailListPage = lazy(() => import('./pages/marketing/email/EmailListPage'));
+const EmailFormPage = lazy(() => import('./pages/marketing/email/EmailFormPage'));
+const TemplateListPage = lazy(() => import('./pages/marketing/templates/TemplateListPage'));
+const TemplateFormPage = lazy(() => import('./pages/marketing/templates/TemplateFormPage'));
+const AdminLogPage = lazy(() => import('./pages/logs/admin/AdminLogPage'));
+const MemberActivityPage = lazy(() => import('./pages/logs/member-activity/MemberActivityPage'));
+const ApiLogPage = lazy(() => import('./pages/logs/api/ApiLogPage'));
+const ErrorLogPage = lazy(() => import('./pages/logs/errors/ErrorLogPage'));
+const RuleListPage = lazy(() => import('./pages/notifications/send/RuleListPage'));
+const RuleFormPage = lazy(() => import('./pages/notifications/send/RuleFormPage'));
+const EmailTemplateListPage = lazy(
+  () => import('./pages/notifications/email-templates/EmailTemplateListPage'),
+);
+const EmailTemplateFormPage = lazy(
+  () => import('./pages/notifications/email-templates/EmailTemplateFormPage'),
+);
+const SmsTemplateListPage = lazy(
+  () => import('./pages/notifications/sms-templates/SmsTemplateListPage'),
+);
+const SmsTemplateFormPage = lazy(
+  () => import('./pages/notifications/sms-templates/SmsTemplateFormPage'),
+);
+const ReservationListPage = lazy(() => import('./pages/reservations/ReservationListPage'));
+const ReservationFormPage = lazy(() => import('./pages/reservations/ReservationFormPage'));
+const ApplicationListPage = lazy(
+  () => import('./pages/reservations/applications/ApplicationListPage'),
+);
+const ApplicationDetailPage = lazy(
+  () => import('./pages/reservations/applications/ApplicationDetailPage'),
+);
+const ConsultationBookingListPage = lazy(
+  () => import('./pages/reservations/consultations/ConsultationBookingListPage'),
+);
+const ConsultationBookingFormPage = lazy(
+  () => import('./pages/reservations/consultations/ConsultationBookingFormPage'),
+);
+const ScheduleCalendarPage = lazy(
+  () => import('./pages/reservations/schedule/ScheduleCalendarPage'),
+);
+const VisitorStatsPage = lazy(() => import('./pages/stats/visitors/VisitorStatsPage'));
+const MemberStatsPage = lazy(() => import('./pages/stats/members/MemberStatsPage'));
+const RevenueStatsPage = lazy(() => import('./pages/stats/revenue/RevenueStatsPage'));
+const OrderStatsPage = lazy(() => import('./pages/stats/orders/OrderStatsPage'));
+const TrafficStatsPage = lazy(() => import('./pages/stats/traffic/TrafficStatsPage'));
+const KeywordStatsPage = lazy(() => import('./pages/stats/keywords/KeywordStatsPage'));
+const SiteSettingsPage = lazy(() => import('./pages/settings/site/SiteSettingsPage'));
+const LanguagesPage = lazy(() => import('./pages/settings/languages/LanguagesPage'));
+const ApiKeysPage = lazy(() => import('./pages/settings/api-keys/ApiKeysPage'));
+const OAuthPage = lazy(() => import('./pages/settings/oauth/OAuthPage'));
 
 /**
  * AppShell(사이드바) 안에서 인증 후 렌더하는 라우트 — 선언 배열의 **단일 원천**이다.
@@ -348,6 +398,29 @@ const IMPLEMENTED = new Set(
   APP_ROUTES.filter((route) => route.implemented === true).map((route) => route.path),
 );
 
+/**
+ * 화면 코드가 도착하기를 기다리는 동안의 자리표시 (lazy 청크 1회 로드).
+ *
+ * **일부러 aria-hidden 이다.** 이것은 '조회 중'이 아니라 '코드 오는 중'이고, 그 둘은 다른 사실이다.
+ * 화면이 도착하면 화면 자신이 자기 조회 상태를 aria-busy·스켈레톤으로 다시 알린다 (STATE-01·FS-002).
+ * 여기서 또 하나의 로딩을 announce 하면 같은 전이를 두 번 말하게 된다.
+ */
+function RouteFallback() {
+  return <div style={{ minBlockSize: 'var(--tds-space-10)' }} aria-hidden="true" />;
+}
+
+/**
+ * 라우트 청크 경계 — 셸(사이드바) **안쪽**이다.
+ * 바깥에 두면 화면을 옮길 때마다 사이드바까지 자리표시로 바뀐다. 셸은 남고 본문만 기다려야 한다.
+ */
+function SuspendedOutlet() {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <Outlet />
+    </Suspense>
+  );
+}
+
 export default function App() {
   // 사이드바에 있는데 아직 화면이 없는 경로 — 죽은 링크 방지
   const pendingRoutes = collectNavRoutes().filter((leaf) => !IMPLEMENTED.has(leaf.to));
@@ -386,16 +459,21 @@ export default function App() {
               }
             >
               <Route index element={<Navigate to="/dashboard" replace />} />
-              {/* 설정 배열(APP_ROUTES) 을 그대로 렌더한다 — 경로·element·순서의 단일 원천.
-                준비 중 화면(pendingRoutes)은 아래에서 이어 붙인다. */}
-              {APP_ROUTES.map((route) => (
-                <Route key={route.path} path={route.path} element={route.element} />
-              ))}
 
-              {/* 사이드바 정의는 있으나 미구현 — 화면을 만들 때마다 위로 옮긴다 */}
-              {pendingRoutes.map((leaf) => (
-                <Route key={leaf.to} path={leaf.to} element={<PlaceholderPage />} />
-              ))}
+              {/* [코드 분할] 화면은 lazy 청크라 도착을 기다려야 한다 — 그 경계가 여기다.
+                index 리다이렉트는 코드가 없으므로 이 바깥에 남는다. */}
+              <Route element={<SuspendedOutlet />}>
+                {/* 설정 배열(APP_ROUTES) 을 그대로 렌더한다 — 경로·element·순서의 단일 원천.
+                  준비 중 화면(pendingRoutes)은 아래에서 이어 붙인다. */}
+                {APP_ROUTES.map((route) => (
+                  <Route key={route.path} path={route.path} element={route.element} />
+                ))}
+
+                {/* 사이드바 정의는 있으나 미구현 — 화면을 만들 때마다 위로 옮긴다 */}
+                {pendingRoutes.map((leaf) => (
+                  <Route key={leaf.to} path={leaf.to} element={<PlaceholderPage />} />
+                ))}
+              </Route>
             </Route>
 
             {/* 정의되지 않은 경로 — 대시보드로 기본 리다이렉트 */}
