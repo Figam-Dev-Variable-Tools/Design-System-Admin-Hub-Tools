@@ -19,10 +19,12 @@ import {
 import { FormConflictDialog, FormServerError } from './FormFeedback';
 import type { ConflictState, LoadFailure } from './useCrudForm';
 
+/* 제목 블록과 폼 사이의 section gap — space.6(24px). 제목/설명과 입력 영역이
+   서로 다른 덩어리로 읽히도록 띄운다 (TOKEN-08). */
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: 'var(--tds-space-6)',
 };
 
 const descriptionStyle: CSSProperties = {

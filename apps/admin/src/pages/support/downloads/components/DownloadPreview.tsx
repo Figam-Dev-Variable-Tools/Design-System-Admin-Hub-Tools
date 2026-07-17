@@ -31,9 +31,9 @@ const headStyle: CSSProperties = {
 const titleStyle: CSSProperties = {
   margin: 0,
   color: 'var(--tds-color-text-default)',
-  fontSize: 'var(--tds-typography-title-sm-font-size)',
-  fontWeight: 'var(--tds-typography-title-sm-font-weight)',
-  lineHeight: 'var(--tds-typography-title-sm-line-height)',
+  fontSize: 'var(--tds-typography-title-md-font-size)',
+  fontWeight: 'var(--tds-typography-title-md-font-weight)',
+  lineHeight: 'var(--tds-typography-title-md-line-height)',
   overflowWrap: 'anywhere',
 };
 

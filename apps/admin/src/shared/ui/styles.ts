@@ -357,11 +357,14 @@ export const tableStyle: CSSProperties = {
   lineHeight: 'var(--tds-typography-body-md-line-height)',
 };
 
+/* 셀 여백·구분선은 component.table 토큰이 정본이다 (ERP-02). 여기서 px 를 세지 않는다 —
+   밀도를 바꾸려면 tokens.json 의 component.table.* 한 곳만 고치면 DataTable 과 함께 움직인다.
+   thead 밑줄만 border.default 를 유지한다: 머리/몸통을 가르는 구조선이라 행 divider(subtle)보다 진해야 한다. */
 export const thStyle: CSSProperties = {
   paddingTop: 'var(--tds-space-3)',
   paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
+  paddingLeft: 'var(--tds-component-table-cell-padding-x)',
+  paddingRight: 'var(--tds-component-table-cell-padding-x)',
   borderBottomStyle: 'solid',
   borderBottomWidth: 'var(--tds-border-width-thin)',
   borderBottomColor: 'var(--tds-color-border-default)',
@@ -375,13 +378,13 @@ export const thStyle: CSSProperties = {
 };
 
 export const tdStyle: CSSProperties = {
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
+  paddingTop: 'var(--tds-component-table-cell-padding-y)',
+  paddingBottom: 'var(--tds-component-table-cell-padding-y)',
+  paddingLeft: 'var(--tds-component-table-cell-padding-x)',
+  paddingRight: 'var(--tds-component-table-cell-padding-x)',
   borderBottomStyle: 'solid',
   borderBottomWidth: 'var(--tds-border-width-thin)',
-  borderBottomColor: 'var(--tds-color-border-default)',
+  borderBottomColor: 'var(--tds-component-table-divider)',
   color: 'var(--tds-color-text-default)',
   verticalAlign: 'middle',
 };

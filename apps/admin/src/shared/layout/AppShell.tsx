@@ -231,12 +231,15 @@ const contentColumnStyle: CSSProperties = {
   background: 'var(--tds-color-surface-default)',
 };
 
+/* 본문 여백은 space.7(32px) — 넉넉한 여백은 Toss 의 하중 특성이고, 24px 에서 멈춘
+   스케일로는 만들 수 없어 F3a 가 space.7~10 을 냈다 (TOKEN-08). 화면 130여 개가
+   이 <main> 안에 들어오므로 여기 한 곳이 전역 page padding 의 정본이다. */
 const mainStyle: CSSProperties = {
   flexGrow: 1,
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
-  paddingLeft: 'var(--tds-space-6)',
-  paddingRight: 'var(--tds-space-6)',
+  paddingTop: 'var(--tds-space-7)',
+  paddingBottom: 'var(--tds-space-7)',
+  paddingLeft: 'var(--tds-space-7)',
+  paddingRight: 'var(--tds-space-7)',
 };
 
 /** <main> 의 앵커 id — skip link 의 목적지이자 라우트 이동 시 포커스 착지점 */
