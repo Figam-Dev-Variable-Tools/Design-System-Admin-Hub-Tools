@@ -90,6 +90,32 @@ const columnStyle: CSSProperties = {
   minWidth: 0,
 };
 
+/** 미리보기 카드 머리 — 제목과 인쇄 버튼을 한 줄에 */
+const previewHeadStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 'var(--tds-space-3)',
+};
+
+/**
+ * 견적서를 종이/PDF 로 낸다 (ERP-10).
+ *
+ * [왜 브라우저 인쇄인가 — react-pdf 를 쓰지 않은 이유]
+ * PDF 렌더러(@react-pdf/renderer)는 자체 폰트를 임베드하므로 **한글 글리프가 있는 TTF 를 함께
+ * 배포해야** 한다. 등록하지 않으면 기본 Helvetica 로 떨어지고 '견적서'가 코드포인트 하위 바이트로
+ * 잘려 깨진 라틴 글자로 찍힌다(실측). 한글 폰트는 자유 배포본(Noto Sans KR)도 gzip 수 MB 라
+ * 앱 진입 번들(131 kB)의 수십 배다 — 견적서 한 장을 위해 치를 값이 아니다.
+ * 브라우저 인쇄는 그 문제가 없다: 시스템 폰트로 한글을 정확히 찍고, CSS 변수를 그대로 읽으므로
+ * print 토큰이 **원값 export 없이** 바로 소비된다. 추가 번들은 0 바이트다.
+ * (측정치와 근거는 배치 보고서에 있다.)
+ *
+ * 인쇄 대상 지정은 ../quotes.css 의 `@media print` 가 한다 — 여기서는 인쇄를 부르기만 한다.
+ */
+function printQuote(): void {
+  window.print();
+}
+
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 4), 1fr))',
@@ -446,7 +472,12 @@ export default function QuoteFormPage() {
           </div>
 
           <Card>
-            <CardTitle>미리보기</CardTitle>
+            <div style={previewHeadStyle}>
+              <CardTitle>미리보기</CardTitle>
+              <Button type="button" variant="secondary" size="sm" onClick={printQuote}>
+                인쇄 · PDF 저장
+              </Button>
+            </div>
             <QuotePreview
               quoteNo={watch('quoteNo')}
               accountName={watch('accountName')}

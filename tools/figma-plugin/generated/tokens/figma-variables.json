@@ -1971,6 +1971,18 @@
       }
     },
     {
+      "name": "print/document/figure-font-family",
+      "type": "STRING",
+      "values": {
+        "light": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+        "dark": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+      },
+      "alias": {
+        "light": "primitive/typography/font-family/mono",
+        "dark": "primitive/typography/font-family/mono"
+      }
+    },
+    {
       "name": "component/button/background",
       "type": "COLOR",
       "values": {

@@ -372,6 +372,18 @@ function tokenToVariableSpecs(table: TokenTable, token: FlatToken): FigmaVariabl
   ];
 }
 
+/**
+ * 물리 단위(mm/cm/in/pt/pc) 값인가 — 종이 좌표계의 토큰.
+ *
+ * CSS 는 이 단위들을 **출력 장치의 물리 치수**로 해석한다. 화면 px 스케일인 Figma Variable 로
+ * 옮길 방법이 없다(위 generateFigmaVariables 의 제외 사유 참조).
+ */
+const PHYSICAL_UNIT_RE = /^-?\d*\.?\d+(mm|cm|in|pt|pc)$/;
+
+function isPhysicalDimension(raw: unknown): boolean {
+  return typeof raw === 'string' && PHYSICAL_UNIT_RE.test(raw.trim());
+}
+
 // ---------------------------------------------------------------------------
 // 엔트리
 // ---------------------------------------------------------------------------
@@ -384,6 +396,15 @@ export function generateFigmaVariables(doc: Record<string, unknown>): GeneratedF
     // 그림자(elevation)는 Figma 에서 Variable 이 아니라 Effect Style 로 표현한다 —
     // box-shadow 합성값은 Variable 스펙에 대응이 없으므로 Variables 생성에서 제외한다.
     if (token.type === 'shadow') continue;
+
+    // 물리 단위(mm) 토큰 — 같은 이유로 제외한다 (ERP-10 print.page.*).
+    //
+    // Figma Variable 의 FLOAT 는 **px 스케일**이다(위 toFloat 참조). 210mm 를 넣으려면 96dpi 를
+    // 가정해 793.7px 로 바꿔야 하는데, 그 순간 이 변수는 자기 단위에 대해 거짓말을 한다:
+    // CSS 는 210mm 를 프린터 해상도로 해석하고 Figma 는 793.7px 를 화면 픽셀로 해석하므로
+    // **두 값이 같은 것을 가리키지 않는다.** 게다가 디자이너는 프레임 폭을 페이지 크기 변수에
+    // 바인딩하지 않는다 — A4 아트보드를 만들 뿐이다. 대응 개념이 없으면 만들지 않는다.
+    if (isPhysicalDimension(token.value)) continue;
     variables.push(...tokenToVariableSpecs(table, token));
   }
 

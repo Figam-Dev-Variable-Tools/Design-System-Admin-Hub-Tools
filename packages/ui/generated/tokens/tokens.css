@@ -209,6 +209,10 @@
   --tds-motion-easing-standard: var(--tds-primitive-motion-easing-standard);
   --tds-motion-easing-decelerate: var(--tds-primitive-motion-easing-decelerate);
   --tds-motion-easing-accelerate: var(--tds-primitive-motion-easing-accelerate);
+  --tds-print-page-width: 210mm;
+  --tds-print-page-height: 297mm;
+  --tds-print-page-margin: 15mm;
+  --tds-print-document-figure-font-family: var(--tds-primitive-typography-font-family-mono);
   --tds-component-button-background: var(--tds-color-action-primary-default);
   --tds-component-button-background-hover: var(--tds-color-action-primary-hover);
   --tds-component-button-background-active: var(--tds-color-action-primary-active);
