@@ -1,13 +1,14 @@
 // CalendarGrid — 예약 일정 시간슬롯 격자 (A41 소유 — apps/admin/src/pages/reservations/schedule/**)
 //
 // 라이브러리 없이 직접 그린 달력 격자다: 행=시간 슬롯, 열=날짜(일 뷰 1열·주 뷰 7열). 각 셀은 걸치는
-// 유효 예약을 배지 칩으로 보여주고, 예약 수/수용량과 '마감'을 알린다. 셀 클릭·Enter → 슬롯 선택(상세 패널).
+// 유효 예약을 배지 칩으로 보여주고, 점유 자원 수/전체 자원 수와 '마감'·'중복'을 알린다.
+// 셀 클릭·Enter → 슬롯 선택(상세 패널).
 //
 // [왜 라이브러리가 아닌가 — A80 절차 실측]
 //   이 격자는 '이벤트를 시간축에 얹은 것'이 아니라 **슬롯별 수용량 행렬**이다: 셀이 말하는 것은
-//   '예약 N건 / 수용 M건'이고 M 은 배정 가능한 **자원 수**다 (schedule-data.ts). FullCalendar 는
+//   '자원 N/M 사용'이고 N·M 모두 **자원 수(개)**다 (schedule-data.ts). FullCalendar 는
 //   수용량 개념이 아예 없는 이벤트 모델이라 이 셀을 1급으로 표현하지 못한다 — 옮기면 이 화면의
-//   유일한 사실(N/M·마감)을 커스텀 렌더로 되만들거나 버려야 한다. 게다가 아래 격자 의미론과
+//   유일한 사실(N/M·마감·중복)을 커스텀 렌더로 되만들거나 버려야 한다. 게다가 아래 격자 의미론과
 //   화살표 이동은 FullCalendar 가 주지 않는다(그쪽도 슬롯 간 화살표 이동이 없다).
 //   그래서 여기서는 **접근성 결함을 직접 고쳤다** — 번들 +0 kB.
 //
@@ -31,6 +32,11 @@ import type { Slot } from '../schedule-data';
 const COMPLETED_LABEL = '방문완료';
 /** 오늘 열 머리의 텍스트 표식 — 색(파랑)만으로 오늘을 말하지 않기 위한 두 번째 부호 (WCAG 1.4.1) */
 const TODAY_MARK = '오늘';
+/**
+ * 더블부킹 표식 — 목록 화면의 '중복' 배지와 **같은 낱말**을 쓴다(ReservationListPage).
+ * 색(빨강)은 두 번째 부호일 뿐이고 뜻은 이 글자가 진다 (WCAG 1.4.1).
+ */
+const OVERBOOKED_MARK = '중복';
 
 const scrollStyle: CSSProperties = { overflowX: 'auto' };
 
@@ -153,23 +159,42 @@ const fullStyle: CSSProperties = {
   fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
 };
 
+/** 숫자 줄 — 점유 수와 '중복' 표식이 나란히 선다 */
+const statusRowStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 'var(--tds-space-1)',
+  flexWrap: 'wrap',
+};
+
+/** '중복' — 글자가 뜻을 지고 색은 거들기만 한다 */
+const overbookedStyle: CSSProperties = {
+  ...capacityStyle,
+  color: 'var(--tds-color-feedback-danger-text)',
+  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+};
+
 /**
  * 셀의 접근 가능한 이름 — 버튼의 aria-label 은 **자기 안쪽을 통째로 덮는다.**
- * 그래서 예전엔 스크린리더가 칩(누가 예약했는지)도 '마감'도 듣지 못하고 'N건/M건'만 들었다.
+ * 그래서 예전엔 스크린리더가 칩(누가 예약했는지)도 '마감'도 듣지 못하고 숫자만 들었다.
  * 눈으로 읽을 수 있는 것은 귀로도 읽을 수 있어야 한다 — 칩의 상태·시각·이름을 이름에 싣는다.
  *
- * 앞부분 `예약 N건 / 수용 M건` 은 그대로 둔다 — 이 화면의 사실 자체이고, 테스트가 이 문구로 셀을 찾는다.
+ * 앞부분은 셀의 숫자가 뜻하는 바를 **그대로** 읽는다: 이 숫자는 예약 건수가 아니라 **점유된 자원 수**다
+ * (schedule-data 참조). 예전 문구 '예약 N건 / 수용 M건' 은 자원별 점유로 바로잡은 뒤로는 거짓이 된다 —
+ * 상담룸 B 에 4건이 몰린 슬롯을 '예약 1건'이라 읽어 버린다. 숫자는 1/4 가 맞고(자원 하나를 쓴다),
+ * 그 슬롯에 예약이 4건이라는 사실은 칩과 '중복'이 말한다.
  */
 function cellLabel(
   day: string,
   slot: Slot,
-  booked: number,
-  capacity: number,
+  occupiedResources: number,
+  totalResources: number,
   full: boolean,
+  overbooked: boolean,
   list: readonly Reservation[],
 ): string {
-  const head = `${formatDayLabel(day)} ${slot.label} — 예약 ${String(booked)}건 / 수용 ${String(capacity)}건`;
-  const state = full ? ' · 마감' : '';
+  const head = `${formatDayLabel(day)} ${slot.label} — 자원 ${String(occupiedResources)}/${String(totalResources)} 사용`;
+  const state = `${full ? ' · 마감' : ''}${overbooked ? ` · ${OVERBOOKED_MARK}` : ''}`;
   if (list.length === 0) return `${head}${state}`;
   const detail = list
     .map((r) => `${r.startTime} ${r.customerName} ${bookingStatusLabel(r.status, COMPLETED_LABEL)}`)
@@ -315,9 +340,10 @@ export function CalendarGrid({
                     aria-label={cellLabel(
                       day,
                       slot,
-                      cell.booked,
-                      cell.capacity,
+                      cell.occupiedResources,
+                      cell.totalResources,
                       cell.full,
+                      cell.overbooked,
                       cell.reservations,
                     )}
                     aria-pressed={selected}
@@ -346,8 +372,18 @@ export function CalendarGrid({
                         ))}
                       </span>
                     )}
-                    <span style={cell.full ? fullStyle : capacityStyle}>
-                      {cell.full ? '마감' : `${String(cell.booked)}/${String(cell.capacity)}`}
+                    {/*
+                      숫자는 **점유된 자원 수 / 전체 자원 수**다. 자원별 점유로 세면 한 자원에 몰린
+                      예약이 이 숫자를 밀어올리지 않으므로(그게 옳다), 더블부킹은 숫자만 봐서는
+                      보이지 않는다 — 그래서 '중복'을 숫자 옆에 따로 세운다. 색이 아니라 글자가 뜻이다.
+                    */}
+                    <span style={statusRowStyle}>
+                      <span style={cell.full ? fullStyle : capacityStyle}>
+                        {cell.full
+                          ? '마감'
+                          : `${String(cell.occupiedResources)}/${String(cell.totalResources)}`}
+                      </span>
+                      {cell.overbooked && <span style={overbookedStyle}>{OVERBOOKED_MARK}</span>}
                     </span>
                   </button>
                 </div>

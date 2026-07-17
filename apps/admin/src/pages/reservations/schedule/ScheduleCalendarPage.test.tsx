@@ -2,7 +2,7 @@
 //
 // ─────────────────────────────────────────────────────────────────────────────
 // [무엇을 지키나]
-// 이 화면의 셀은 '<예약 수>/<수용량>' 이라는 **사실 진술**이다. 그런데 격자가 `data ?? []` 만
+// 이 화면의 셀은 '<점유 자원 수>/<전체 자원 수>' 라는 **사실 진술**이다. 그런데 격자가 `data ?? []` 만
 // 받으면 '아직 안 왔다'와 '예약이 0건이다'가 둘 다 빈 배열이라, 응답 도착 전부터 셀 77개가
 // 전부 '0/4' 로 **완성된 사실처럼** 렌더됐다.
 //
@@ -43,24 +43,25 @@ const TODAY = formatDate(new Date());
  */
 const CHIP_TEXT = '10:00 김도현 · 확정';
 
-const FIXTURE: readonly Reservation[] = [
-  {
-    id: 'rsv-1',
-    code: 'RSV-TEST-001',
-    customerName: '김도현',
-    customerPhone: '010-1234-**56',
-    date: TODAY,
-    startTime: '10:00',
-    endTime: '11:00',
-    partySize: 3,
-    resourceId: 'room-b',
-    staffId: 'staff-kim',
-    deposit: 30000,
-    request: '',
-    status: 'confirmed',
-    memo: '',
-  },
-];
+/** 시드 예약 한 벌 — 수용량 테스트가 이걸 바탕으로 자원·인원만 갈아 끼운다 */
+const SEED_RESERVATION: Reservation = {
+  id: 'rsv-1',
+  code: 'RSV-TEST-001',
+  customerName: '김도현',
+  customerPhone: '010-1234-**56',
+  date: TODAY,
+  startTime: '10:00',
+  endTime: '11:00',
+  partySize: 3,
+  resourceId: 'room-b',
+  staffId: 'staff-kim',
+  deposit: 30000,
+  request: '',
+  status: 'confirmed',
+  memo: '',
+};
+
+const FIXTURE: readonly Reservation[] = [SEED_RESERVATION];
 
 // 어댑터의 fetchAll 만 바꾼다 — 슬롯 정의·수용량·라벨은 진짜를 그대로 쓴다(importOriginal).
 // 이 테스트의 주제는 '데이터가 오기 전/오는 중에 격자가 무엇을 말하는가' 이지 픽스처가 아니다.
@@ -93,14 +94,14 @@ function skeletonCount(): number {
   return document.querySelectorAll('.tds-ui-skeleton').length;
 }
 
-/** 격자가 사실로 단정하는 '<예약 수>/<수용량>' 셀 전부 — '0/4' · '1/4' … */
+/** 격자가 사실로 단정하는 '<점유 자원 수>/<전체 자원 수>' 셀 전부 — '0/4' · '1/4' … */
 function countCells(): readonly HTMLElement[] {
   return screen.queryAllByText(/^\d+\/\d+$/);
 }
 
-/** 슬롯 셀 버튼(접근 이름 '<날짜> <슬롯> — 예약 N건 / 수용 M건') */
+/** 슬롯 셀 버튼(접근 이름 '<날짜> <슬롯> — 자원 N/M 사용') */
 function slotButtons(): readonly HTMLElement[] {
-  return screen.queryAllByRole('button', { name: /예약 \d+건 \/ 수용 \d+건/ });
+  return screen.queryAllByRole('button', { name: /자원 \d+\/\d+ 사용/ });
 }
 
 /** 응답을 우리가 풀어 줄 때까지 pending 으로 붙잡는다 — '도는 동안'이 없으면 버그가 숨는다 */
@@ -296,11 +297,12 @@ describe('ScheduleCalendarPage — 격자 접근성 (WAI-ARIA Grid)', () => {
       expect(screen.getByText('1/4')).not.toBeNull();
     });
 
-    // 버튼의 aria-label 은 자기 안쪽을 통째로 덮는다 — 예전엔 SR 이 'N건/M건'만 듣고
+    // 버튼의 aria-label 은 자기 안쪽을 통째로 덮는다 — 예전엔 SR 이 숫자만 듣고
     // 누가 예약했는지도 '마감'인지도 듣지 못했다.
     const booked = screen.getByRole('button', { name: /김도현/ });
     const label = booked.getAttribute('aria-label') ?? '';
-    expect(label).toContain('예약 1건 / 수용 4건'); // 이 화면의 사실 자체는 그대로 앞에 남는다
+    // 이 화면의 사실 자체는 그대로 앞에 남는다 — 숫자가 뜻하는 바(점유 자원 수)를 그대로 읽는다
+    expect(label).toContain('자원 1/4 사용');
     expect(label).toContain('10:00 김도현');
     expect(label).toContain('확정'); // 상태는 색이 아니라 글자로도
   });
@@ -323,5 +325,69 @@ describe('ScheduleCalendarPage — 격자 접근성 (WAI-ARIA Grid)', () => {
     // 일 뷰는 1열이므로 칸도 11개로 줄어든다 — 토글이 실제로 격자를 바꿨다는 확인
     const grid = screen.getByRole('grid', { name: '예약 일정 달력' });
     expect(within(grid).getAllByRole('gridcell')).toHaveLength(DAY_SLOTS.length);
+  });
+});
+
+/**
+ * [수용량 모델] 셀의 숫자는 **점유된 자원 수**다 — 예약 건수가 아니다.
+ *
+ * 예전엔 분자가 `reservations.length` 였다. 건수(건)와 자원 수(개)는 **다른 양**인데 그 둘을
+ * 비교했으니(비둘기집), 상담룸 B 한 곳에 4건이 몰리면 room-a·room-c·seat-1 이 텅 비었는데도
+ * 격자가 '마감'이라 단언했다 — 그리고 같은 순간 폼은 room-a 신규 예약을 충돌 0건으로 통과시켰다.
+ * 운영자는 달력을 보고 '자리가 없다'며 손님을 돌려보내지만 실제로는 방이 셋 비어 있었다.
+ */
+describe('ScheduleCalendarPage — 셀은 자원 점유를 센다', () => {
+  /** 같은 자원(room-b)·같은 슬롯에 몰린 예약 n건 */
+  function pileOnRoomB(count: number): readonly Reservation[] {
+    return Array.from({ length: count }, (_, index) => ({
+      ...SEED_RESERVATION,
+      id: `rsv-pile-${String(index)}`,
+      code: `RSV-PILE-${String(index)}`,
+      resourceId: 'room-b',
+    }));
+  }
+
+  it('한 자원에 4건이 몰려도 마감이 아니다 — 자원 3개는 그대로 비어 있다', async () => {
+    fetchAll.mockResolvedValue(pileOnRoomB(4));
+    renderPage();
+
+    // 점유한 자원은 room-b 하나뿐 — 예전엔 여기가 '마감'이었다
+    await waitFor(() => {
+      expect(screen.getByText('1/4')).not.toBeNull();
+    });
+    expect(screen.queryByText('마감')).toBeNull();
+  });
+
+  it('한 자원에 예약이 겹치면 셀이 중복을 알린다 — 숫자만으로는 보이지 않으므로', async () => {
+    fetchAll.mockResolvedValue(pileOnRoomB(4));
+    renderPage();
+    await waitFor(() => {
+      expect(screen.getByText('1/4')).not.toBeNull();
+    });
+
+    // 색이 아니라 **글자**로 말한다 (WCAG 1.4.1) — 목록 화면의 '중복' 배지와 같은 낱말이다
+    expect(screen.getByText('중복')).not.toBeNull();
+    // 눈에 보이는 것은 귀에도 들린다 — 셀 이름에도 실린다
+    const cell = screen.getByRole('button', { name: /자원 1\/4 사용/ });
+    expect(cell.getAttribute('aria-label') ?? '').toContain('중복');
+  });
+
+  it('자원마다 1건씩이면 진짜 마감이다 — 중복은 아니다', async () => {
+    fetchAll.mockResolvedValue(
+      ['room-a', 'room-b', 'room-c', 'seat-1'].map((resourceId, index) => ({
+        ...SEED_RESERVATION,
+        id: `rsv-${resourceId}`,
+        code: `RSV-FULL-${String(index)}`,
+        partySize: 1,
+        resourceId,
+      })),
+    );
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('마감')).not.toBeNull();
+    });
+    // 정상 만실은 중복이 아니다 — 예전엔 이 경우와 'room-b 4건'이 똑같이 보였다
+    expect(screen.queryByText('중복')).toBeNull();
   });
 });
