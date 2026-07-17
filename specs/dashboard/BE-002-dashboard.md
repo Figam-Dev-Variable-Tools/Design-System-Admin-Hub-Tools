@@ -21,7 +21,7 @@ date: 2026-07-15
 | 범위 밖 | (1) 기능 권한(feature key) 조회·변경 엔드포인트 — FS-002 §5에 서버 연동 요소가 없다(EL-007 · EL-042는 브라우저 저장소 판정). 판단과 후속 경로는 §7.1. (2) 쓰기 요청 — 이 화면은 읽기 전용이다(FS-002 §4.1 '중복 제출'). (3) 사이드바 메뉴 구성 — 정적 구성(`nav-config`)이며 서버가 내려주지 않는다. (4) 헤더의 로그인 계정 표시(FS-002-EL-011) — 현재 구현이 상수값이며 `[서버]` 요소가 아니다 |
 | 전제 | 모든 경로는 `/api` 프리픽스. 응답 본문은 `application/json; charset=utf-8`. **두 엔드포인트 모두 유효한 세션 자격 증명을 요구한다** — 자격 증명의 전달 방식(HttpOnly 쿠키 vs `Authorization` 헤더)은 BE-001 §7.1의 미확정 항목이며 A01 판정 대상이다. 401 판정은 전달 방식과 무관하게 '유효한 자격 증명 없음'으로 성립한다 |
 | 프론트 어댑터 | `apps/admin/src/pages/dashboard/api.ts` (`fetchTabData`, `ApiError`) · `apps/admin/src/pages/dashboard/stats-api.ts` (`fetchStats`) |
-| 도메인 타입 | `apps/admin/src/pages/dashboard/types.ts` (`TabId`, `TodoItem`, `ListRow`, `ListCardData`, `TabData`) · `stats-types.ts` (`StatsRange`, `VisitorPoint`, `PeriodRow`, `PeriodSummary`, `StatsData`) |
+| 도메인 타입 | **전송 타입은 손으로 쓰지 않는다** — `openapi/openapi.yaml`(그 원천이 이 문서다)에서 `pnpm openapi:types` 가 생성한 `components['schemas']` 를 그대로 참조한다(ADR-0008 §3.5). `types.ts:40-41` (`ListCardData`, `TabData`) · `stats-types.ts:30-33` (`VisitorPoint`, `PeriodRow`, `PeriodSummary`, `StatsData`) — 전부 `DeepReadonly<…>` 로 감싼다. 화면 전용 개념만 손으로 남는다: `types.ts:6,18,24` (`TabId`, `TABS`, `DEFAULT_TAB`) · `stats-types.ts:6,13,19` (`StatsRange`, `STATS_RANGES`, `DEFAULT_STATS_RANGE`). `TodoItem`·`ListRow` 는 **별도 별칭이 없다** — `ListRow` 는 `ListCardData.rows` 안에서만 쓰이므로 별칭을 두지 않는다(`types.ts:37`). 스키마가 바뀌면 재생성만으로 따라오고 어긋나면 `tsc` 가 깨진다 |
 | 권한 키 원천 | `apps/admin/src/shared/permissions/feature-registry.ts` (`FeatureKey` — `dashboard.tab.products` · `dashboard.tab.inquiries` · `dashboard.tab.sales` · `dashboard.todo` · `dashboard.lists` · `dashboard.stats.visitors` · `dashboard.stats.period`) |
 
 ## 2. 공통 에러 봉투
@@ -289,7 +289,7 @@ date: 2026-07-15
 
 ### 4.1 레이트리밋 규칙 (두 엔드포인트 공통)
 
-**문제**: 탭 전환(FS-002-EL-013)과 기간 토글(FS-002-EL-029)을 빠르게 반복하면 요청이 쏟아진다. 프론트는 이전 요청을 `AbortController` 로 중단하지만(`useAsyncData.ts` 의 cleanup — `return () => controller.abort()`), **서버는 이미 요청을 받았다.** abort 는 클라이언트가 응답을 버리는 것이지 서버 처리를 취소하는 것이 아니다.
+**문제**: 탭 전환(FS-002-EL-013)과 기간 토글(FS-002-EL-029)을 빠르게 반복하면 요청이 쏟아진다. 프론트는 이전 요청을 중단하지만(이제 react-query 가 `queryFn({ signal })` 로 내려주는 `AbortSignal` 을 `fetchTabData`/`fetchStats` 에 그대로 넘긴다 — `queries.ts:27,40`. 손으로 만든 `useAsyncData.ts` 의 cleanup 은 삭제됐다), **서버는 이미 요청을 받았다.** abort 는 클라이언트가 응답을 버리는 것이지 서버 처리를 취소하는 것이 아니다.
 
 | 기준 | 상한 | 초과 시 |
 |---|---|---|
@@ -333,7 +333,7 @@ date: 2026-07-15
 | `ApiError` (`api.ts`) | — | BE-002-EP-01 · EP-02 공통 실패 타입 | — | — | O — 모든 4xx/5xx 를 `ApiError` 로 던진다. **상태코드·`error.code` 별 분기가 없다** (§7.2-1 · §7.2-2) |
 | `TABS` · `DEFAULT_TAB` (`types.ts`) | — | N/A — 탭 목록·기본 탭은 프론트 정적 구성이며 서버가 내려주지 않는다 | — | — | N/A |
 | `STATS_RANGES` · `DEFAULT_STATS_RANGE` (`stats-types.ts`) | — | N/A — 기간 선택지·기본 기간은 프론트 정적 구성이다 | — | — | N/A |
-| `useAsyncData(fetcher, deps, enabled)` (`useAsyncData.ts`) | — | N/A — 조회 훅이며 서버 호출 어댑터가 아니다. `enabled=false` 로 권한 OFF 위젯의 요청을 막는다(FS-002-EL-042) | — | — | N/A |
+| `useTabDataQuery(tab, enabled)` · `useStatsQuery(range, enabled)` (`queries.ts:24,34`) | 파일 헤더: "화면은 useQuery 를 직접 부르지 않는다 — 여기 도메인 훅만 부른다" | N/A — 조회 훅이며 서버 호출 어댑터가 아니다. `enabled=false` 로 권한 OFF 위젯의 요청을 막는다(FS-002-EL-042) | — | — | N/A — 손으로 만든 `useAsyncData` 를 대체한 TanStack Query 훅이다(ADR-0008 §7.1) |
 | `loadPermissions()` · `savePermissions()` (`shared/permissions/PermissionProvider.tsx`) | 파일 헤더: "백엔드가 붙으면 loadPermissions/savePermissions 두 함수만 API 호출로 교체하면 되고, 화면 코드는 건드릴 필요가 없다" | **엔드포인트 없음** — FS-002 §5에 서버 연동 요소가 없다 | — | `PermissionMap` = `Record<FeatureKey, boolean>` | **X** — §7.1 (A62 change_request 대상) |
 
 ### 6.2 응답 필드 대조 — `TabData` (`types.ts`)
