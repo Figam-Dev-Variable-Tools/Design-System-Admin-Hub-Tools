@@ -82,9 +82,9 @@ Four **vacuous passes** found in practice — all of them were showing green, an
 
 | What | How it lied | Resolution |
 | --- | --- | --- |
-| `pnpm test` | `--passWithNoTests` → **green on 0 tests** | Flag removed — **149** tests today |
+| `pnpm test` | `--passWithNoTests` → **green on 0 tests** | Flag removed — **152** tests today |
 | **62** Storybook play functions | **0** `expect` · **0** spies → **a check that cannot fail** | Assertions injected |
-| `bundle-size` CI job | Green with no dist | Job **removed** ([ADR-0009](docs/adr/0009-ci-and-code-quality-gates.md)) |
+| `bundle-size` CI job | Green with no dist | **Removed** rather than revived → **restored** once it could actually measure, and folded into `verify:all` (`perf:gate`) ([ADR-0009](docs/adr/0009-ci-and-code-quality-gates.md)) |
 | `tools/vrt` | 0 baseline images → "0 failures out of 0 comparisons → **PASS**" | `NOT_VERIFIED` (exit 2) when premises are missing — **501** baselines registered, so it now actually compares pixels |
 
 **A proposition that is true over the empty set proves nothing.** Not measurable is not a pass — without premises, the tool emits `NOT_VERIFIED` instead of green.
@@ -100,7 +100,7 @@ pnpm quality:check        # 6 clean-code axes (1 blocker → PR blocked)
 pnpm naming:check         # naming rules
 pnpm lint && pnpm format:check
 pnpm test                 # only tests with assertions count as tests
-pnpm verify:all           # all of the above + codegen reproducibility + tsc --noEmit
+pnpm verify:all           # all of the above + codegen reproducibility + tsc --noEmit + bundle budget
 pnpm verify:full          # verify:all + E2E
 ```
 
@@ -159,6 +159,7 @@ There is one selection criterion — **don't build it yourself.** Problems with 
 | `zustand` | ^5.0 | Client global state | A minimal store with no boilerplate — its scope is narrow because Query owns server state |
 | `react-hook-form` | ^7.81 | Form state | Uncontrolled by default, minimal re-renders on large forms |
 | `zod` | ^4.4 | Schema validation | RHF resolver + runtime boundary validation. Types are inferred from the schema |
+| `axios` | ^1.18 | HTTP client (instance + interceptors) | Real network calls: **zero** — fixtures are plugged into the `adapter` extension point so the **interceptors carry load**. Left as scaffolding it would be dead code. The day a backend lands, one `adapter` line goes away |
 
 ### Design system — `packages/ui`
 

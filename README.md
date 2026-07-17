@@ -82,9 +82,9 @@ pnpm sb                   # Storybook (:6006)
 
 | 무엇이 | 어떻게 거짓말했나 | 처리 |
 | --- | --- | --- |
-| `pnpm test` | `--passWithNoTests` → **테스트 0건에 초록불** | 플래그 제거 — 지금 테스트 **149건** |
+| `pnpm test` | `--passWithNoTests` → **테스트 0건에 초록불** | 플래그 제거 — 지금 테스트 **152건** |
 | Storybook play function **62건** | `expect` **0개** · 스파이 **0개** → **실패할 수 없는 검사** | 단언 주입 |
-| `bundle-size` CI job | dist 없이 초록불 | job **제거** ([ADR-0009](docs/adr/0009-ci-and-code-quality-gates.md)) |
+| `bundle-size` CI job | dist 없이 초록불 | 되살리지 않고 **제거** → 실제로 잴 수 있게 된 뒤 **복원**해 `verify:all`(`perf:gate`)에 편입 ([ADR-0009](docs/adr/0009-ci-and-code-quality-gates.md)) |
 | `tools/vrt` | 기준 이미지 0건 → "비교 0건 중 실패 0건 → **PASS**" | 전제 부재 시 `NOT_VERIFIED`(exit 2) — 기준 이미지 **501건**을 등록해 실제로 픽셀을 비교한다 |
 
 **공집합 위에서 참인 명제는 아무것도 증명하지 않는다.** 측정 불가는 통과가 아니다 — 전제가 없으면 도구는 초록불 대신 `NOT_VERIFIED`를 낸다.
@@ -100,7 +100,7 @@ pnpm quality:check        # 클린코드 6축 (blocker 1건 → PR 차단)
 pnpm naming:check         # 네이밍 규칙
 pnpm lint && pnpm format:check
 pnpm test                 # 단언 있는 테스트만 테스트로 센다
-pnpm verify:all           # 위 전체 + codegen 재현성 + tsc --noEmit
+pnpm verify:all           # 위 전체 + codegen 재현성 + tsc --noEmit + 번들 예산
 pnpm verify:full          # verify:all + E2E
 ```
 
@@ -159,6 +159,7 @@ pnpm workspace: `packages/*` · `apps/*` · `tools/*` · `e2e`.
 | `zustand` | ^5.0 | 클라이언트 전역 상태 | 보일러플레이트 없는 최소 스토어 — 서버 상태는 Query가 가져가므로 범위가 좁다 |
 | `react-hook-form` | ^7.81 | 폼 상태 | 비제어 기반, 대형 폼에서 리렌더 최소 |
 | `zod` | ^4.4 | 스키마 검증 | RHF resolver + 런타임 경계 검증. 타입은 스키마에서 추론 |
+| `axios` | ^1.18 | HTTP 클라이언트 (인스턴스 + 인터셉터) | 실제 네트워크 호출은 **0건**이다 — `adapter` 확장점에 픽스처를 꽂아 **인터셉터가 하중을 받게** 했다. 스캐폴드로 두면 죽은 코드가 된다. 백엔드가 붙는 날 `adapter` 한 줄만 지운다 |
 
 ### 디자인 시스템 — `packages/ui`
 

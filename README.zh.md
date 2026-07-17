@@ -82,9 +82,9 @@ pnpm sb                   # Storybook (:6006)
 
 | 什么 | 怎么撒的谎 | 处理 |
 | --- | --- | --- |
-| `pnpm test` | `--passWithNoTests` → **测试 0 件也亮绿灯** | 移除该 flag —— 现有测试 **149 件** |
+| `pnpm test` | `--passWithNoTests` → **测试 0 件也亮绿灯** | 移除该 flag —— 现有测试 **152 件** |
 | Storybook play function **62 件** | `expect` **0 个** · spy **0 个** → **不可能失败的检查** | 注入断言 |
-| `bundle-size` CI job | 没有 dist 也亮绿灯 | **移除** job ([ADR-0009](docs/adr/0009-ci-and-code-quality-gates.md)) |
+| `bundle-size` CI job | 没有 dist 也亮绿灯 | 不复活而是先**移除** → 等到真的能测量之后再**恢复**，并纳入 `verify:all`(`perf:gate`) ([ADR-0009](docs/adr/0009-ci-and-code-quality-gates.md)) |
 | `tools/vrt` | 基准图 0 张 → 「0 次比较中 0 次失败 → **PASS**」 | 前提缺失时 `NOT_VERIFIED` (exit 2) —— 已登记 **501 张**基准图，现在真的在比对像素 |
 
 **在空集上为真的命题什么也证明不了。** 无法测量不等于通过 —— 前提不存在时，工具给出的不是绿灯，而是 `NOT_VERIFIED`。
@@ -100,7 +100,7 @@ pnpm quality:check        # 整洁代码 6 轴 (blocker 1 件 → 阻断 PR)
 pnpm naming:check         # 命名规则
 pnpm lint && pnpm format:check
 pnpm test                 # 只有带断言的测试才算测试
-pnpm verify:all           # 以上全部 + codegen 可复现性 + tsc --noEmit
+pnpm verify:all           # 以上全部 + codegen 可复现性 + tsc --noEmit + 包体积预算
 pnpm verify:full          # verify:all + E2E
 ```
 
@@ -159,6 +159,7 @@ pnpm workspace：`packages/*` · `apps/*` · `tools/*` · `e2e`。
 | `zustand` | ^5.0 | 客户端全局状态 | 无样板代码的极小 store —— 服务端状态由 Query 接管，因此作用域很窄 |
 | `react-hook-form` | ^7.81 | 表单状态 | 基于非受控，大型表单下重渲染最少 |
 | `zod` | ^4.4 | Schema 验证 | RHF resolver + 运行时边界验证。类型从 Schema 推导 |
+| `axios` | ^1.18 | HTTP 客户端 (实例 + 拦截器) | 真实网络调用 **0 次** —— 把 fixture 插进 `adapter` 扩展点，让**拦截器真正承载负荷**。若留作脚手架就成了死代码。后端接上那天，只删掉 `adapter` 那一行 |
 
 ### 设计系统 —— `packages/ui`
 
