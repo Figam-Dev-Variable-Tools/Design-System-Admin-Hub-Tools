@@ -31,8 +31,12 @@ const RESOURCE = 'reservations';
 const RESERVATION_PATH = '/reservations';
 const COMPLETED_LABEL = '방문완료';
 
+/**
+ * 셀의 숫자는 **예약 건수가 아니라 점유된 자원 수**다 (schedule-data). 한 자원에 예약이 몰려도
+ * 숫자는 자원 하나로 세므로, 그 사실을 '중복'이 따로 알린다 — 읽는 법을 여기서 정확히 말해 둔다.
+ */
 const READ_HINT =
-  '셀의 숫자는 예약 수/수용량입니다. 슬롯을 클릭하면 아래에서 예약을 확인·수정할 수 있습니다.';
+  "셀의 숫자는 사용 중인 자원 수/전체 자원 수입니다. '중복'은 한 자원에 시간이 겹치는 예약이 있다는 뜻입니다. 슬롯을 클릭하면 아래에서 예약을 확인·수정할 수 있습니다.";
 /** 앱 전역의 최초 로드 문구와 **글자까지 같게** 둔다 (CrudListShell·MembersPage 등과 동일) */
 const FIRST_LOADING_HINT = '불러오는 중…';
 const REFETCHING_HINT = '최신 예약을 확인하는 중…';

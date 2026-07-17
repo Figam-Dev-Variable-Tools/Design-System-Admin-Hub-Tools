@@ -52,6 +52,7 @@
     "vitest": "^2.1.9"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "1.1.19",
     "@tiptap/core": "3.28.0",
     "@tiptap/extension-image": "3.28.0",
     "@tiptap/pm": "3.28.0",
