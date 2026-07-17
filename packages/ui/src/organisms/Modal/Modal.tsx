@@ -20,10 +20,15 @@
 //   호출부는 전부 `{열림 && <Modal/>}` 로 조건부 마운트한다. 그래서 부모가 언마운트하는 순간
 //   DOM 이 즉시 사라진다 — AnimatePresence 를 Modal **안**에 두어도 자기 언마운트는 못 막는다
 //   (AnimatePresence 는 조건부 렌더의 **상위**에 있어야 한다).
-//   대신 Modal 이 이미 소유한 **onClose 의 호출 시점**을 늦춘다: Esc·딤·닫기 버튼 →
+//   대신 Modal 이 이미 소유한 **onClose 의 호출 시점**을 늦춘다: Esc·딤·닫기(×) →
 //   퇴장 애니메이션 재생 → 끝나면 그때 onClose() → 부모가 언마운트.
 //   결과적으로 "exit 완료 후에만 DOM 제거"가 성립하며, 호출부 13곳과 계약을 **한 줄도 바꾸지 않는다**.
-//   ConfirmDialog 는 onCancel 을 onClose 로 넘기므로 그대로 상속한다.
+//
+//   [범위 — 정확히 말한다] 퇴장을 타는 것은 **Modal 이 소유한 닫기 경로**뿐이다: Esc · 딤 클릭 · 닫기(×).
+//   푸터 버튼(ConfirmDialog 의 '취소', 폼 모달의 '확인')은 조립하는 쪽이 만든 버튼이라 onClose 가 아니라
+//   호출부 콜백을 직접 부르고, 호출부가 곧바로 언마운트한다 — 그 경로는 여전히 즉시 사라진다.
+//   푸터까지 덮으려면 Modal 이 requestClose 를 context 로 내리고 ConfirmDialog/폼 모달이 그것을 쓰도록
+//   해야 한다(별도 배치 — ConfirmDialog·호출부 소유 영역). 지금은 **가장 흔한 닫기 제스처 3종**을 덮는다.
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { RefObject } from 'react';
