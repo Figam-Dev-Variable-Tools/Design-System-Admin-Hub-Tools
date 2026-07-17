@@ -23,7 +23,8 @@ date: 2026-07-17
 | 이 문서의 역할 | quality-bar 의 각 요구가 **이 화면에서 어떻게 충족되는가 / 무엇을 재현하면 판정되는가** 만 기록한다. 요구 문구는 ID 로만 참조한다 |
 | 함께 읽는 문서 | FS-067(요소·예외) · BE-067(계약·보안 판정) · `specs/quality-bar.md`(요구 정본) |
 | 갱신 규칙 | quality-bar 가 바뀌면 이 문서의 판정을 다시 매긴다. 이 문서가 quality-bar 를 바꾸지 않는다. gap 은 §5 를 거쳐 이관되며 FS-067 §7 · BE-067 §7.6 과 번호가 일치해야 한다 |
-| 판정 근거 | **판정 기준일 2026-07-17 · `HEAD = 4b805ad`. E2E 미실행 — 판정 근거는 코드 대조다**(§6) |
+| 판정 근거 | **판정 기준일 2026-07-17 · `HEAD = a5c2639`. E2E 미실행 — 판정 근거는 코드 대조다**(§6) |
+| 이번 기준 갱신으로 뒤집힌 판정 | **MOTION-02 `gap` → `pass`** · **MOTION-03 `gap` → `pass`** · **MOTION-01 `gap` → `종속`** — 전부 **PR #26**(오버레이 모션 CSS-only 구현 · `Toast.css:32-37,121-131` exit · **`ToggleSwitch.css:79-84` reduced-motion 게이트 신설**). 이전 배치가 든 gap 사유가 코드로 해소됐다. **P0 gap 4 → 1**(EXC-08 만 남는다) |
 
 ### 1.1 표기 규약
 
@@ -51,7 +52,7 @@ date: 2026-07-17
 | STATE-04 | STATE | N/A | **표면이 없다.** 이 화면에 ① **페이지네이션이 없다** ② **행 선택이 없다** ③ 목록 자체가 없다 — 단일 문서 폼이다(§1.2). 'total 축소 시 page clamp' · '필터/page 변경 시 selection 리셋' 이 걸릴 표면이 존재하지 않는다. 페이지네이션 부재는 이 화면에서 **결함이 아니라 화면 성격**이다(IA-04 도 같은 이유로 N/A) | 목록·선택이 도입되면 이 판정을 다시 매긴다 | **n-a** |
 | TOKEN-01 | TOKEN | 직접 | **충족.** `grep -rnE "#[0-9a-fA-F]{3,6}\b\|[0-9]+px\|'(thin\|medium\|thick)'" apps/admin/src/pages/settings/` → **0건**(2026-07-17 확인). 이 화면의 모든 스타일 객체가 `var(--tds-*)` 만 참조한다. 파생 치수도 토큰 배수로만 표현한다 — `gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 7), 1fr))'`(`SiteSettingsPage.tsx:92`). border-width 도 토큰(`--tds-border-width-thin`) | 위 grep → **0건이어야 한다.** ESLint/stylelint 0 warning | **pass** |
 | TOKEN-02 | TOKEN | 상속 | 이 화면의 포커스 가능 표면은 전부 DS/공유 클래스를 소비한다: `tds-ui-input tds-ui-focusable`(`_shared/fields.tsx:74`) · DS `<Button>`·`<SelectField>`·`<ToggleSwitch>`(자체 `:focus-visible` 이 `--tds-border-width-medium` 을 쓴다 — `ToggleSwitch.css:17-21`). **이 화면이 focus ring 을 직접 선언하지 않는다**(로컬 `:focus-visible` 0건) | DS 토큰 문서 판정을 따른다. 이 화면에서는 `:focus-visible` outline 을 선언하는 로컬 CSS 가 0건임만 확인 | **종속** |
-| TOKEN-03 | TOKEN | 상속 | easing 토큰 소비 표면: 스켈레톤 펄스(`tds-ui-skeleton` — `SettingsFormShell.tsx:155`) · Toast(`Toast.css:25` `var(--tds-motion-easing-decelerate)`) · DS `<Button>`·`<ToggleSwitch>` transition. **이 화면이 animation/transition 을 직접 선언하지 않는다**(`grep -rniE "transition\|animation\|transform" pages/settings/` → 0건) | tokens codegen · `Toast.css` 판정에 종속 | **종속** |
+| TOKEN-03 | TOKEN | 상속 | easing 토큰 소비 표면: 스켈레톤 펄스(`tds-ui-skeleton` — `SettingsFormShell.tsx:155`) · **Toast enter/exit**(`Toast.css:26-27` — enter 가 `var(--tds-component-overlay-enter-easing)` · `:32-37` — exit) · **Modal enter/exit**(`Modal.css:20-21,30-38,58-59` — 같은 recipe). ⚠ **PR #26 으로 이 화면이 상속하는 easing 소비 표면이 늘었다** — `component.overlay.{enter,exit}-easing`(`tokens/tokens.json:1293-1307`)이 신설 소비자이고 `Toast`·`Modal` 이 **같은 recipe 를 함께 쓴다**(`tokens.json:1287` — '오버레이는 한 몸처럼 움직인다') · DS `<Button>`·`<ToggleSwitch>` transition. **이 화면이 animation/transition 을 직접 선언하지 않는다**(`grep -rniE "transition\|animation\|transform" pages/settings/` → 0건) | tokens codegen · `Toast.css` 판정에 종속 | **종속** |
 | TOKEN-04 | TOKEN | 상속 | shadow 토큰 소비 표면: `<Card>`(`SettingsFormShell.tsx:145`) · Modal(확인·충돌 다이얼로그 — `Modal.css:20` `box-shadow: var(--tds-shadow-overlay)`) · Toast. **이 화면이 `box-shadow` 를 직접 선언하지 않는다**(grep 0건) | Card/Modal/Toast 토큰 판정에 종속 | **종속** |
 | TOKEN-05 | TOKEN | 상속 | **이 화면에 in-content `<h1>` 이 없다**(`grep -rn "h1" apps/admin/src/pages/settings/` → **0건**). 화면 제목은 **AppHeader 가 소유**하며(`AppHeader.tsx:101` `<h1 style={titleStyle}>`) nav 잎 라벨 '사이트 설정'을 렌더한다(FS-067-EL-001). 그 `titleStyle` 의 title tier 계약은 layout 이 소유한다. 카드 제목(`CardTitle` — `:146`)은 `<h1>` 이 아니라 카드 시맨틱이다. **이 화면이 title 타이포를 직접 선언하지 않는다** | AppHeader `titleStyle` 이 `--tds-typography-title-*`(>18px tier + weight 600)를 참조하는지 확인. 이 화면에서는 로컬 title 스타일 선언이 0건임만 확인 | **종속** |
 | COMP-10 | COMP | N/A | **표면이 없다.** 이 화면에 **검색 입력이 없다** — `grep -rn "SearchField\|useDebouncedSearch" pages/settings/` → **0건**. 단일 문서 폼이라 조회할 query 자체가 없다(§1.2). 'IME 조합 중 커밋 금지 + 디바운스 + stale 응답 무효'가 걸릴 자리가 존재하지 않는다. **텍스트 입력은 있지만 서버 query 를 발화하지 않는다** — 폼 값일 뿐이다 | 검색 입력이 도입되면 이 판정을 다시 매긴다 | **n-a** |
@@ -62,9 +63,9 @@ date: 2026-07-17
 | A11Y-02 | A11Y | 상속 | 이 화면의 dialog 표면 3건 모두 `aria-describedby` 가 배선돼 있다: ① **저장 확인** — DS `ConfirmDialog` 가 `useId` 로 message id 를 만들어 `Modal describedBy` 로 넘긴다(`ConfirmDialog.tsx:129,135`) ② **충돌** — `ConflictDialog.tsx:88` `const messageId = useId()` → `:94` `describedBy={messageId}` → `:107` `<p id={messageId}>` (섹션 자체 컴포넌트이나 DS `Modal` 의 계약을 정확히 소비한다) ③ **이탈 가드** — 훅이 `ConfirmDialog` 를 렌더한다. `Modal.tsx:158` 이 `aria-describedby={describedBy}` 를 dialog 노드에 건다 | DS 판정에 종속. 이 화면에서는 충돌 다이얼로그 open 시 본문 문구가 title 과 함께 읽히는지 확인 | **종속** |
 | A11Y-11 | A11Y | 직접 | **충족. 이 화면의 폼 컨트롤 9개를 전수 확인했다.** **① required 노출** — required FormField 6개의 자식 타입을 직접 확인: 사이트명·기본 URL·대표 이메일·대표 전화번호·유지보수 안내 문구는 `TextInputField` 를 거쳐 자식이 **네이티브 `<input>`**(`_shared/fields.tsx:71`)이고, 표시 시간대는 자식이 **DS `SelectField`**(`SiteSettingsPage.tsx:354`)다. 둘 다 `FormField.tsx:36-41` `isRequirableChild` 를 통과하므로 `withAriaRequired`(`:50-56`)가 **런타임 `cloneElement` 로 `aria-required` 를 주입**한다. **래퍼(`<span>`/`<div>`)로 감싼 required 자식이 이 화면에 0건**이다 — OAuth 화면(NFR-070)이 겪는 결함이 여기엔 없다. ⚠ **`aria-required` grep 이 0건인 것으로 판정하면 안 된다** — 주입은 런타임이다 **② aria-invalid without describedby = 0건** — 이 화면의 `aria-invalid` 는 `fields.tsx:77` 한 곳뿐이고 바로 다음 줄(`:78`)이 `aria-describedby={describedBy(id, error, hint)}` 를 짝으로 세운다. `describedBy`(`:16-24`)는 오류가 있으면 `errorIdOf(id)`, 없고 힌트가 있으면 `hintIdOf(id)`, 둘 다 없으면 `undefined` 를 준다 — `FormField` 가 같은 id 로 `<p id={errorIdOf(htmlFor)} role="alert">`(`FormField.tsx:110`)를 렌더하므로 id 가 일치한다. `fields.tsx:7-9` 가 이 배선을 **모듈 계약으로 못박아** 호출부가 잊을 자리를 없앴다. **ToggleSwitch 2개는 오류 상태가 없다**(불리언이라 위반 값이 존재하지 않는다) → 짝 요구가 발생하지 않는다 | `grep -rn "aria-invalid" apps/admin/src/pages/settings/site apps/admin/src/pages/settings/_shared` → 각 히트마다 같은 요소에 `aria-describedby` 가 있는지 확인. RTL: 사이트명을 비우고 저장 → `input.getAttribute('aria-required') === 'true'` **와** `input.getAttribute('aria-describedby') === screen.getByRole('alert').id` 를 assert | **pass** |
 | A11Y-12 | A11Y | N/A | **표면이 없다.** 이 화면에 **필터가 없다**(단일 문서 폼 — §1.2). `aria-pressed` 를 쓸 toggle 필터 list item 이 존재하지 않으며, 이 화면 전체에 `aria-current` **0건**. **ToggleSwitch(FS-067-EL-009·EL-010)는 필터가 아니라 폼 값**이며 DS 가 `aria-checked` 로 상태를 노출한다(`ToggleSwitch.css:35` 셀렉터가 그것을 증명한다 — 색이 아니라 aria 속성이 상태를 소유한다) — 이 요구의 appliesTo 가 아니다 | 좌측 토글 필터가 도입되면 이 판정을 다시 매긴다 | **n-a** |
-| MOTION-01 | MOTION | 상속 | **미충족.** Modal 표면이 실재한다(저장 확인 · 충돌 · 이탈 가드 — 3종). 그러나 **DS `Modal` 에 backdrop fade 도 dialog scale 도 exit 애니메이션도 없다**: `packages/ui/src/organisms/Modal/Modal.css` 전체에서 motion 관련 선언은 `:86` `transition: background-color`(닫기 버튼 호버) 하나뿐이고 `opacity`/`scale`/`@keyframes`/`prefers-reduced-motion` 가 **0건**이다. 앱·DS 전체에 Motion 라이브러리 소비가 **0건**(`grep -rln "AnimatePresence\|framer-motion\|from 'motion" packages/ui/src/` → 0건)이라 'exit 후 unmount' 를 표현할 수단 자체가 없다. **이 화면이 애니메이션을 선언하지 않으므로 앱 코드로 해소 불가** — 이관 대상은 DS 다 | `/settings/site` 에서 저장 확인 다이얼로그를 연다. **backdrop 이 즉시 나타나고(fade 없음) dialog 가 scale 없이 튀어나오면 gap.** 닫을 때 exit 없이 즉시 사라지는 것도 확인 | **gap** |
-| MOTION-02 | MOTION | 상속 | **미충족.** Toast 표면이 실재한다(저장 성공 · 최신 불러오기 — `:180,233`). `Toast.css:25` 에 **entrance 애니메이션만** 있다(`animation: tds-toast-in var(--tds-motion-duration-normal) var(--tds-motion-easing-decelerate)`) — **exit 애니메이션이 없다.** 토스트는 자동소멸 시 애니메이션 없이 즉시 unmount 된다(`@keyframes tds-toast-in` 만 정의돼 있고 out 이 없다). reduced-motion 게이트는 있다(`:110-112` `animation: none`) — 그 절은 충족. queue/ARIA 유지는 `ToastProvider` 가 소유 | 저장 성공 → 토스트가 뜬 뒤 자동소멸을 관찰. **fade/slide out 없이 즉시 사라지면 gap** | **gap** |
-| MOTION-03 | MOTION | 상속 | **미충족 — 이 화면에 구체적 위반이 실재한다.** reduced-motion 게이트가 걸려야 할 이 화면의 표면: **`ToggleSwitch` 2개**(FS-067-EL-009 회원가입 허용 · EL-010 유지보수 모드) · 스켈레톤 펄스 · Toast · Modal · Button. **`ToggleSwitch.css` 에 `prefers-reduced-motion` 블록이 없다**(파일 전체 74줄 확인) 그런데 `:56` `transition: transform var(--tds-motion-duration-fast)` + `:60` `transform: translateX(calc(var(--tds-space-5) * 0.75))` 로 **손잡이가 실제로 움직인다** → **reduced-motion 에서 move 가 0 이 되지 않는다.** 요구가 `ToggleSwitch` 를 명시적으로 지목하는데(‘ToggleSwitch off 존재’) 그 컴포넌트가 게이트를 갖지 않는다. **전역 duration 치환도 없다**: 앱의 유일한 reduced-motion 블록은 `shared/ui/ui.css:110-114` 인데 `.tds-ui-skeleton { animation-name: none }` 만 끈다. (`Motion.stories.tsx:8` 이 '런타임 규칙상 reduced-motion 시 duration 은 0ms 로 치환된다'고 적으나 **그 치환을 구현한 CSS/JS 가 없다** — 문서와 코드가 어긋난다). 스켈레톤·Toast·Button·ListRow 등은 각자 게이트를 갖는다(grep 확인) — **ToggleSwitch·Modal 만 빠졌다** | OS 를 reduced-motion 으로 두고 `/settings/site` 에서 유지보수 스위치를 토글. **손잡이가 미끄러지듯 움직이면 gap**(즉시 점프해야 한다). `grep -n "prefers-reduced-motion" packages/ui/src/atoms/ToggleSwitch/ToggleSwitch.css` → **0건이면 gap** | **gap** |
+| MOTION-01 | MOTION | 상속 | **PR #26 에서 구현됐다 — 다만 라이브러리가 아니라 CSS-only 다.** Modal 표면이 실재한다(저장 확인 · 충돌 · 이탈 가드 — 3종). backdrop fade + dialog scale 이 실재한다: backdrop enter `Modal.css:20-21`→`@keyframes tds-modal-backdrop-in :126-134` · exit `:30-33`→`tds-modal-backdrop-out :136-144` · dialog enter `:58-59`→`tds-modal-dialog-in :146-156`(opacity 0→1 · `scale(0.96)→scale(1)`) · exit `:35-38`→`tds-modal-dialog-out :158-168`(`forwards`). reduced-motion 게이트 `:173-180`. `component.overlay` recipe 소비(`tokens/tokens.json:1286-1308`). **`AnimatePresence` 는 없고**(`packages/ui/src` Motion/framer-motion 소비 **0건** — 라이브러리 미도입) 요구문의 'exit 완료 후에만 unmount' 를 **네이티브 `onAnimationEnd`**(`Modal.tsx:216-218`, keyframe 이름 상수 `:43`)로 동등 달성한다. **잔여**: 애니메이션되는 닫힘은 Modal 소유 3경로(Esc `Modal.tsx:167-171` · 딤 `:204` · × `:227-232`)뿐이고 **footer 버튼은 즉시 언마운트**(`Modal.tsx:27-31`) — **이 화면의 다이얼로그 3종은 footer 가 주 닫기 수단이다**. **라이브러리 부재를 gap 으로 볼지는 DS 소유 문서의 몫** — 이 화면이 애니메이션을 선언하지 않으므로 앱 코드로 결정할 수 없다 | `/settings/site` 에서 저장 확인 다이얼로그를 연다. **backdrop 이 fade in 하고 dialog 가 `scale(0.96)→1` 로 들어오면 enter 는 충족.** Esc 로 닫아 exit 를 관찰하고, **footer '취소' 로 닫으면 exit 없이 즉시 사라지는 것**을 대조한다 | **종속** |
+| MOTION-02 | MOTION | 상속 | **충족 — PR #26 에서 해소됐다(이전 배치 판정 `gap` 을 뒤집는다).** Toast 표면이 실재한다(저장 성공 · 최신 불러오기 — `:180,233`). exit 애니메이션이 실재한다: `.tds-toast--exiting` `Toast.css:32-37`(`tds-toast-out … forwards` + `pointer-events: none`) → `@keyframes tds-toast-out :121-131`(opacity 1→0 · `translateY(0)→translateY(var(--tds-space-3))`). enter `:26-27`/`:109-119`. **요구가 명시한 'exit duration fast~normal · easing accelerate' 를 정확히 충족** — `component.overlay.exit-duration` = `{motion.duration.fast}`(150ms) · `exit-easing` = `{motion.easing.accelerate}`(`tokens/tokens.json:1298-1307`, primitive `:486` = `cubic-bezier(0.4, 0, 1, 1)`). exit 완료 후 unmount 는 `TOAST_EXIT_ANIMATION` 대조 `onAnimationEnd` 로 달성. reduced-motion 게이트 `Toast.css:136-141`(주석 `:133-135`: `--exiting` 을 명시 나열한 이유는 특이도가 같아 소스순서 의존이 조용히 깨지기 때문). queue/ARIA 유지는 `ToastProvider` 가 소유 | 저장 성공 → 토스트 자동소멸 관찰. **opacity fade + 아래로 translate 후 사라지면 pass** | **pass** |
+| MOTION-03 | MOTION | 상속 | **충족 — PR #26 에서 해소됐다(이전 배치 판정 `gap` 을 뒤집는다).** reduced-motion 게이트가 걸려야 할 이 화면의 표면: **`ToggleSwitch` 2개**(FS-067-EL-009 회원가입 허용 · EL-010 유지보수 모드) · 스켈레톤 펄스 · Toast · Modal · Button. **요구가 명시 지목한 `ToggleSwitch` 의 게이트가 실재한다** — `ToggleSwitch.css:79-84` `@media (prefers-reduced-motion: reduce) { .tds-toggle__track, .tds-toggle__knob { transition: none; } }`. 남아 있는 transition 선언 2건(`:32` `background-color` · `:56` `transform`)을 **둘 다 이 게이트가 끈다** → 손잡이가 즉시 최종 위치로 스냅한다. 근거 주석 `:76-78`: 손잡이 transform 은 **움직임**이라 vestibular 장애에 직접 영향이고, 상태(on/off)는 색·위치·`aria-checked` 로 이미 전달되므로 전환을 없애도 **정보 손실이 0** 이다. **나머지 표면도 각자 게이트를 갖는다** — Modal `Modal.css:173-180` · Toast `Toast.css:136-141` · 스켈레톤 `shared/ui/ui.css:110-114`. **이전 배치가 든 gap 사유('ToggleSwitch·Modal 만 빠졌다')는 둘 다 해소됐다** | OS 를 reduced-motion 으로 두고 `/settings/site` 에서 유지보수 스위치를 토글. **손잡이가 즉시 점프하면 pass.** `grep -n "prefers-reduced-motion" packages/ui/src/atoms/ToggleSwitch/ToggleSwitch.css` → **`:79` 히트** | **pass** |
 | IA-01 | IA | 직접 | **충족.** 라우트가 AppShell layout route 아래에 등록된다(`App.tsx:337` `{ path: '/settings/site', element: <SiteSettingsPage />, implemented: true }` — `APP_ROUTES`). **이 화면은 자체 outer frame/sidebar/top bar 를 도입하지 않는다** — 최상위가 평범한 `<div style={pageStyle}>`(`SettingsFormShell.tsx:141`, `flexDirection: column` + gap 뿐)이다. `App.tsx:335-336` 주석이 이 구조를 스스로 밝힌다: '403 게이팅은 이 섹션이 따로 하지 않는다 — AppShell 이 `<Outlet>` 을 RequirePermission 으로 감싸 모든 라우트를 한 번에 덮는다' | `/settings/site` 진입 시 사이드바·AppHeader 가 유지되고, 화면이 자체 nav/header 를 그리지 않는지 확인 | **pass** |
 | IA-02 | IA | 직접 | **충족.** `/settings/site` 는 **nav 잎**이다(`nav-config.ts:227` `['사이트 설정', '/settings/site']`) — 하위 라우트가 없다. `findCoveringLeaf('/settings/site')`(`nav-config.ts:270-278`)가 **자기 자신을 정확히 찾고**, `findNavLabel`(`:297-299`)이 `'사이트 설정'` 을 반환한다. AppHeader 가 그것을 `<h1>` 으로 렌더한다(`AppHeader.tsx:101`). **이 화면은 in-content `<h1>` 을 그리지 않는다** — `grep -rn "h1" apps/admin/src/pages/settings/` → **0건**(2026-07-17 확인). 따라서 **`<h1>` 이 정확히 1개이고 title 메커니즘이 단일하다.** GROUND-TRUTH §7 이 남긴 gap 두 갈래(가지 라벨 폴백 · h1 이중)가 **여기엔 둘 다 없다**: 잎이라 폴백이 걸리지 않고, 자체 h1 이 없어 중복이 없다. 요구의 'sub-route 가 구체 title' 절은 하위 라우트가 없어 발생하지 않는다 | `/settings/site` 진입. **AppHeader 의 가시 `<h1>` 이 '사이트 설정'이고 `document.querySelectorAll('h1').length === 1` 이면 pass** | **pass** |
 | IA-04 | IA | N/A | **표면이 없다.** 이 화면은 **list 화면이 아니다** — 단일 문서 폼이다(§1.2). 표·결과 count·우상단 목록 action·SelectionBar·Pagination 이 **하나도 없고**, 있어야 할 이유도 없다(문서가 1건이다). 요구의 appliesTo('list 템플릿')가 성립하지 않는다. **이것은 페이지네이션 누락이 아니라 목록 부재다** — FS-026 계열이 IA-04 gap 인 것과 성격이 다르다 | 이 라우트에 목록이 도입되면 이 판정을 다시 매긴다 | **n-a** |
@@ -81,19 +82,19 @@ date: 2026-07-17
 
 | 판정 | 건수 | 요구 ID |
 |---|---|---|
-| `pass` | **11** | STATE-01 · STATE-02 · TOKEN-01 · FEEDBACK-02 · FEEDBACK-04 · A11Y-11 · IA-01 · IA-02 · EXC-03 · EXC-04 · EXC-09 |
-| `종속` | **8** | TOKEN-02 · TOKEN-03 · TOKEN-04 · TOKEN-05 · A11Y-01 · A11Y-02 · EXC-01 · EXC-02 |
+| `pass` | **13** | STATE-01 · STATE-02 · TOKEN-01 · FEEDBACK-02 · FEEDBACK-04 · A11Y-11 · **MOTION-02** · **MOTION-03** · IA-01 · IA-02 · EXC-03 · EXC-04 · EXC-09 |
+| `종속` | **9** | TOKEN-02 · TOKEN-03 · TOKEN-04 · TOKEN-05 · A11Y-01 · A11Y-02 · **MOTION-01** · EXC-01 · EXC-02 |
 | `n-a` | **7** | STATE-04 · COMP-10 · FEEDBACK-06 · A11Y-12 · IA-04 · IA-05 · IA-13 |
-| `gap` | **4** | MOTION-01 · MOTION-02 · MOTION-03 · EXC-08 |
-| **합계** | **30** | 11 + 8 + 7 + 4 = **30** ✓ |
+| `gap` | **1** | EXC-08 |
+| **합계** | **30** | 13 + 9 + 7 + 1 = **30** ✓ |
 
 **검산 (P0 30건 전수 · 지정 순서대로 나열해 셈)**
 
 | # | 요구 ID | 판정 | # | 요구 ID | 판정 |
 |---|---|---|---|---|---|
-| 1 | STATE-01 | pass | 16 | MOTION-01 | gap |
-| 2 | STATE-02 | pass | 17 | MOTION-02 | gap |
-| 3 | STATE-04 | n-a | 18 | MOTION-03 | gap |
+| 1 | STATE-01 | pass | 16 | MOTION-01 | 종속 |
+| 2 | STATE-02 | pass | 17 | MOTION-02 | pass |
+| 3 | STATE-04 | n-a | 18 | MOTION-03 | pass |
 | 4 | TOKEN-01 | pass | 19 | IA-01 | pass |
 | 5 | TOKEN-02 | 종속 | 20 | IA-02 | pass |
 | 6 | TOKEN-03 | 종속 | 21 | IA-04 | n-a |
@@ -107,9 +108,11 @@ date: 2026-07-17
 | 14 | A11Y-02 | 종속 | 29 | EXC-09 | pass |
 | 15 | A11Y-11 | pass | 30 | A11Y-12 | n-a |
 
-> 30행 전수 · `pass` 11 + `종속` 8 + `n-a` 7 + `gap` 4 = **30** ✓
+> 30행 전수 · `pass` 13 + `종속` 9 + `n-a` 7 + `gap` 1 = **30** ✓
 
-> **P0 gap 4건 — quality-bar '배치 실패' 사유.** 그중 **MOTION-01·02·03 은 앱 코드로 해소 불가**다(Motion 라이브러리 미도입 · DS 소유 — §5). **화면 코드로 해소 가능한 P0 gap 은 EXC-08 의 멱등키 1건뿐**이며, 그마저 `If-Match` 가 데이터 안전을 이미 보장해 **잔여 위험은 UX 다**(BE-067 §7.4).
+> **P0 gap 1건 — 이번 기준(`a5c2639`) 갱신으로 4건에서 줄었다.** 뒤집힌 3건은 전부 **PR #26** 이다: **MOTION-02**(Toast exit 신설 — `Toast.css:32-37,121-131`) · **MOTION-03**(**요구가 명시 지목한 `ToggleSwitch` 의 게이트 신설** — `ToggleSwitch.css:79-84`) 은 **`pass` 로**, **MOTION-01** 은 오버레이 모션이 구현됐으나 **CSS-only** 라(라이브러리 부재는 여전하다) **`종속` 으로** 바뀌었다. **이전 배치가 든 gap 사유가 코드로 해소된 것이지 판정 기준이 느슨해진 것이 아니다.**
+>
+> **잔여 P0 gap 은 EXC-08 의 멱등키 1건뿐**이며, 그마저 `If-Match` 가 데이터 안전을 이미 보장해 **잔여 위험은 UX 다**(BE-067 §7.4). ⚠ **같은 섹션의 API Key 화면은 이번 기준에서 EXC-08 이 pass 로 뒤집혔다**(발급에 멱등키가 붙었다 — `api-keys/data-source.ts:107-141`) — **선례가 둘로 늘었다**(`members/components/PointsCard.tsx` · `api-keys/ApiKeysPage.tsx:96,122-123`).
 >
 > **이 화면이 해소한 앱 전역 gap 2건 (기록)**: **EXC-03** — 기존 문서가 '`useRouteWritePermissions` 소비자 앱 전체 0건'으로 gap 판정했으나 이 화면이 소비자다(`SiteSettingsPage.tsx:109`). **EXC-04** — 기존 문서가 '유령 저장 · 토큰 없음'으로 gap 판정했으나 이 섹션은 revision 토큰을 쓴다(`store.ts:124-126`). 두 판정은 **화면별로 다시 매겨야 하며** 앱 전역 결론으로 일반화하면 틀린다.
 
@@ -192,7 +195,7 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | MOTION-01 · MOTION-02 · MOTION-03 | P0 ×3 | **Motion 라이브러리 미도입**(`packages/ui` 전체 소비 0건). Modal 에 fade/scale/exit 없음(`Modal.css`) · Toast 에 exit 없음(`Toast.css:25` — entrance 만) · **`ToggleSwitch.css` 에 `prefers-reduced-motion` 블록이 없는데 `:56,60` 이 `transform: translateX` 로 실제로 움직인다**(요구가 ToggleSwitch 를 명시 지목) · 전역 duration 치환 없음(`ui.css:110-114` 는 스켈레톤만 끈다 — `Motion.stories.tsx:8` 의 '런타임 규칙' 이 구현되지 않았다) | **`packages/ui`(DS) — 앱 코드로 해소 불가** | **A41 / DS (별도 단계)** |
+| 1 | MOTION-01 | P0 → **종속** | **~~Motion 라이브러리 미도입으로 Modal 에 fade/scale/exit 이 없다~~ — 이 사유는 PR #26 으로 해소됐다.** 오버레이 모션이 구현됐고(`Modal.css:20-21,30-38,58-59` + keyframes `:126-168` · reduced-motion 게이트 `:173-180`) **Toast exit**(`Toast.css:32-37,121-131`)과 **`ToggleSwitch` reduced-motion 게이트**(`ToggleSwitch.css:79-84`)도 신설돼 **MOTION-02·03 은 pass 로 뒤집혔다.** **라이브러리는 여전히 미도입**(`packages/ui/src` Motion/AnimatePresence 0건)이나 'exit 후 unmount' 는 `onAnimationEnd`(`Modal.tsx:216-218`)로 동등 달성했다. **잔여**: footer 버튼 경로는 즉시 언마운트(`Modal.tsx:27-31`)이고 **이 화면의 다이얼로그 3종은 footer 가 주 닫기 수단**이다. **라이브러리 부재/footer 경로를 gap 으로 볼지는 DS 소유 문서가 정한다** | **`packages/ui`(DS)** | **A41 / DS (판정 대기)** |
 | 2 | EXC-08 | P0 | 저장에 **멱등키 없음**(`grep Idempotency pages/settings/` = 0건). 동기 잠금(`useSubmitLock`)은 있어 연타는 막힌다. **`If-Match` 가 중복 적용을 막아 데이터는 안전** — 잔여 위험은 '자기 저장에 대해 거짓 충돌 다이얼로그를 보는' UX. 선례: `members/components/PointsCard.tsx:103,162-173` | 이 화면 + BE 계약 | A11 · A63 (BE-067 §7.4) |
 | 3 | STATE-03 | P1 | `useEffect([data, reset])`(`:139-142`)가 **편집 중 재조회에서도 `reset`** 을 돌려 입력을 덮는다 | 이 화면(설정 4화면 공통 패턴) | A11 change_request |
 | 4 | EXC-06 · EXC-12 | P1 | 조회·저장 실패가 status 를 구분하지 않는다. 근본 원인은 `createRevisionedStore` 가 **`HttpError`(status 보유)를 던지지 않는 것** — 409 만 `SettingsConflictError` 로 갈린다 | 이 화면 + `_shared/store.ts` + 어댑터 | A11 · A63 |
@@ -212,7 +215,7 @@ date: 2026-07-17
 
 ## 6. 측정 도구 · 재현 스위치
 
-> **E2E 미실행 — 이 문서의 모든 판정 근거는 코드 대조다**(기준일 2026-07-17 · `HEAD = 4b805ad`). 아래 스위치는 판정을 재현·검증할 때 쓰는 수단이며, 이 문서가 그것을 실행해 얻은 결과를 적은 것이 아니다.
+> **E2E 미실행 — 이 문서의 모든 판정 근거는 코드 대조다**(기준일 2026-07-17 · `HEAD = a5c2639`). 아래 스위치는 판정을 재현·검증할 때 쓰는 수단이며, 이 문서가 그것을 실행해 얻은 결과를 적은 것이 아니다.
 
 **이 화면의 `?fail=` scope 와 op (코드 확인)**
 
@@ -244,7 +247,7 @@ date: 2026-07-17
 | EXC-08 (연타) | 확인 버튼 2연타 — 요청 1건이면 ① pass. `grep Idempotency` = 0건이면 ② gap |
 | EXC-09 (abort) | 저장 중 '취소' — 실패 배너·토스트가 없으면 pass |
 | EXC-06 (status별 surface) | `?status=save:422` · `save:500` — 전부 같은 배너면 gap |
-| MOTION-03 (reduced-motion) | OS reduced-motion + 유지보수 스위치 토글 — **손잡이가 미끄러지면 gap** |
+| MOTION-03 (reduced-motion) | OS reduced-motion + 유지보수 스위치 토글 — **손잡이가 즉시 점프하면 pass**(`ToggleSwitch.css:79-84`) |
 
 **LATENCY_MS 주의**: `LATENCY_MS = 400`(`dev.ts:12`)은 **개발용 지연이며 성능 예산이 아니다**(§4.1). 실제 네트워크는 0건이므로 이 값으로 응답 시간을 판정하면 안 된다.
 
@@ -257,7 +260,7 @@ date: 2026-07-17
 - [x] 모든 `pass` 에 코드 근거(파일:라인)를 댔다
 - [x] 모든 `gap` 에 재현 가능한 측정 기준을 댔다
 - [x] 모든 `N/A` 에 사유를 댔다 (STATE-04·IA-04 목록 부재 · COMP-10 검색 부재 · FEEDBACK-06 폼 modal 부재 · A11Y-12 토글 필터 부재 · IA-05 폼 라우트 쌍 부재 · IA-13 list state 부재)
-- [x] **§2.1 산수 검산 — 11 pass + 8 종속 + 7 n-a + 4 gap = 30 ✓** (요약표 + 30행 전수 나열 2중 검산)
+- [x] **§2.1 산수 검산 — 13 pass + 9 종속 + 7 n-a + 1 gap = 30 ✓** (요약표 + 30행 전수 나열 2중 검산)
 - [x] **A11Y-11 의 '전수' 가 진짜 전수임을 확인했다** — `grep -rn "required" apps/admin/src/pages/settings/` 히트를 전건 분류한 결과 **설정 4화면의 모든 `required` 는 `FormField` prop 이거나 zod 헬퍼 이름(`requiredText`/`requiredEmail`/`requiredPhone`)이며, `FormField` 를 거치지 않는 required 표면이 0건**이다. `ImageUploadField`·`ImageGalleryField`·`SegmentPicker`·`TextField`·`PasswordField`(전부 `required` 를 AT 에 잇지 않는 컴포넌트)의 소비가 **이 섹션에 0건**이다(유일한 grep 히트 `_shared/fields.tsx:4` 는 'TextField 를 쓰지 않는 이유'를 적은 주석이다). 이 섹션의 `@tds/ui` 직접 import 는 `Empty`·`Checkbox` 뿐이고 **둘 다 `required` 를 받지 않는다** — 따라서 `FormField` 주입 경로만 판정하면 충분하다
 - [x] `상속` 항목은 **이 화면에 그 표면이 실재하는 것만** 적고, 어느 표면이 계약을 상속하는지 못 박았다
 - [x] **`상속` + `gap` 조합의 근거를 §1.1 에 규약으로 명시**했다 — MOTION 3건은 DS 소유이나 상태가 코드로 확정돼 `종속` 이 아니라 `gap` 이다
@@ -265,7 +268,7 @@ date: 2026-07-17
 - [x] §4.1 에 **`LATENCY_MS = 400` 이 개발용 지연이며 예산이 아님**을 명시했다
 - [x] §6 의 `?fail=` scope(`site`)와 op 2종을 **`createRevisionedStore` 호출부에서 확인**했고, **이 섹션 고유의 `?fail=conflict` 스위치**(`store.ts:60-65`)를 별도로 기록했으며, **`?delay=` 를 쓰지 않았다**(이 화면에 존재하지 않음)
 - [x] 'E2E 미실행 — 판정 근거는 코드 대조' 를 §1 과 §6 에 명시했다
-- [x] **기준일 2026-07-17 · `HEAD = 4b805ad`** 를 §1 에 명시했다
+- [x] **기준일 2026-07-17 · `HEAD = a5c2639`** 를 §1 에 명시했다
 - [x] §5 의 gap 이 FS-067 §7 · BE-067 §7.6 과 일치한다
 - [x] **EXC-03 · EXC-04 가 이 화면에서 pass 이며 그것이 기존 배치의 앱 전역 gap 판정을 뒤집는다는 사실**을 §2.1 하단에 기록했다
 </content>

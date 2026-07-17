@@ -23,7 +23,8 @@ date: 2026-07-17
 | 이 문서의 역할 | quality-bar 의 각 요구가 **이 화면에서 어떻게 충족되는가 / 무엇을 재현하면 판정되는가** 만 기록한다. 요구 문구는 ID 로만 참조한다 |
 | 함께 읽는 문서 | FS-051(요소·예외) · BE-051(계약·보안 판정) · `specs/quality-bar.md`(요구 정본) |
 | 갱신 규칙 | quality-bar 가 바뀌면 이 문서의 판정을 다시 매긴다. 이 문서가 quality-bar 를 바꾸지 않는다. gap 은 §5 를 거쳐 이관되며 FS-051 §7 · BE-051 §7.8 과 번호가 일치해야 한다 |
-| 판정 근거 | **기준일 2026-07-17 · `HEAD = 4b805ad`. E2E 미실행 — 판정 근거는 코드 대조다**(§6) |
+| 판정 근거 | **기준일 2026-07-17 · `HEAD = a5c2639`. E2E 미실행 — 판정 근거는 코드 대조다**(§6) |
+| 이번 기준 갱신으로 뒤집힌 판정 | **없음 — 이 화면의 P0 30건 판정은 하나도 뒤집히지 않았다.** 다만 **`종속` 2건(MOTION-01·02)의 낡은 근거를 교체**했다 — 이전 배치가 '라이브러리 미도입이라 소유 문서에서 gap 일 것' 이라 추정했으나 **PR #26 이 CSS-only 로 구현했다**(§2). **판정(`종속`)은 그대로이고 종속 대상의 상태가 바뀌었다.** 이 화면에 `ToggleSwitch` 는 없으므로 MOTION-03 의 게이트 신설은 근거에만 반영했다 |
 
 ### 1.1 표기 규약
 
@@ -62,8 +63,8 @@ date: 2026-07-17
 | A11Y-02 | A11Y | 상속 | 이 화면의 dialog 표면: 이탈 가드 `ConfirmDialog`(FEEDBACK-02 와 같은 노드). `aria-describedby`→message 배선은 DS `Modal`/`ConfirmDialog` 가 소유한다 | DS 판정에 종속. 이 화면에서는 discard 다이얼로그 open 시 message 가 읽히는지만 확인 | **종속** |
 | A11Y-11 | A11Y | 직접 | **미충족.** 이 화면의 폼 컨트롤 3개를 전수 확인했다. ① **담당 배정 input**(`:279-290`) — `FormField htmlFor="inquiry-assignee"`, required 아님, 오류 상태 없음 → `aria-invalid` 를 세우지 않으므로 짝 요구가 발생하지 않는다 ✔ ② **답변 textarea** — `TextareaField` 가 `aria-invalid`/`aria-describedby`/`aria-required` 를 내부에서 짝으로 배선하고 **hint 까지 잇는다**(`TextareaField.tsx:62-67`) ✔ ③ **처리 상태 SelectField**(`:291-314`) — **여기가 gap 이다.** `FormField hint={…}`(`:294-298`)가 `<p id={hintIdOf('inquiry-status')}>` 를 렌더하는데(`FormField.tsx:114-118`) **호출부가 `SelectField` 에 `aria-describedby` 를 주지 않는다** → 힌트가 AT 에 영원히 닿지 않는다. **하필 그 힌트가 '‘견적 발행’으로 바꾸면 견적이 자동 생성됩니다' — 비가역 부수효과의 유일한 예고**다(FS-051-EL-021.1). 요구의 문언이 정확히 이 절('hint는 valid일 때만 hintIdOf로 연결')을 규정하고, 형제 컴포넌트 `TextareaField` 는 같은 일을 내부에서 옳게 한다. **완화 요인**: 'aria-describedby 없는 aria-invalid grep = 0' 절은 충족(aria-invalid 자체가 0건), required 절도 충족(required 필드 0건 — 담당·본문 모두 선택적) | `grep -n "aria-describedby" apps/admin/src/pages/sales/inquiries -r` → **0건**(현재). RTL 로 상세를 렌더해 `screen.getByLabelText('처리 상태').getAttribute('aria-describedby')` 가 `'inquiry-status-hint'` 인지 assert — **null 이면 gap.** 스크린리더로 상태 select 에 포커스해 힌트가 읽히는지 확인 | **gap** |
 | A11Y-12 | A11Y | N/A | **표면이 없다.** 이 화면의 필터는 **좌측 필터 list item(토글 버튼)이 아니라 `<select>` 3개**다(`:163-204`). `aria-pressed`/`aria-current` 를 쓸 toggle 필터가 존재하지 않으며, 이 화면 전체에 `aria-current` **0건**(grep). (답변/메모 유형 토글(`:341-358`)이 `aria-pressed` 를 빠뜨린 것은 사실이나 그것은 **좌측 필터 list item 이 아니다** — A11Y-16 P1 이 그 표면을 잡는다. 요구를 그 표면에 억지로 걸지 않는다) | 좌측 토글 필터가 도입되면 이 판정을 다시 매긴다 | **n-a** |
-| MOTION-01 | MOTION | 상속 | Modal 표면: 이탈 가드 `ConfirmDialog`. enter/exit transition 은 DS `Modal` organism 이 소유한다 — 이 화면은 애니메이션을 선언하지 않는다 | DS Modal 판정에 종속. (참고: Motion 라이브러리가 아직 도입되지 않아 소유 문서에서 gap 일 가능성이 높다 — **그 판정은 이 문서의 몫이 아니다**) | **종속** |
-| MOTION-02 | MOTION | 상속 | Toast 표면: 저장 성공 토스트. exit 애니메이션은 `ToastProvider`/`Toast` 가 소유한다 | DS Toast 판정에 종속 | **종속** |
+| MOTION-01 | MOTION | 상속 | Modal 표면: 이탈 가드 `ConfirmDialog`. enter/exit transition 은 DS `Modal` organism 이 소유한다 — 이 화면은 애니메이션을 선언하지 않는다 | DS Modal 판정에 종속. **PR #26 에서 구현됐다 — 다만 라이브러리가 아니라 CSS-only 다**: backdrop fade(`Modal.css:20-21,30-33` → keyframes `:126-144`) + dialog scale(`:58-59,35-38` → `:146-168`, exit 는 `forwards`) · reduced-motion 게이트 `:173-180` · `component.overlay` recipe 소비(`tokens/tokens.json:1286-1308`). **Motion/framer-motion 은 여전히 미도입**(`packages/ui/src` 소비 0건)이나 요구문의 'AnimatePresence 로 exit 완료 후에만 unmount' 는 **네이티브 `onAnimationEnd`**(`Modal.tsx:216-218`)로 동등 달성했다 — **'라이브러리가 없으니 소유 문서에서 gap 일 것' 이라는 이전 배치의 추정은 더 이상 성립하지 않는다.** 잔여: 애니메이션되는 닫힘은 Modal 소유 3경로(Esc `Modal.tsx:167-171` · 딤 `:204` · × `:227-232`)뿐이고 **footer 버튼은 즉시 언마운트**(`:27-31`) — 이 화면의 다이얼로그는 footer 가 주 닫기 수단이다. **라이브러리 부재/footer 경로를 gap 으로 볼지는 여전히 이 문서의 몫이 아니다** | **종속** |
+| MOTION-02 | MOTION | 상속 | Toast 표면: 저장 성공 토스트. exit 애니메이션은 `ToastProvider`/`Toast` 가 소유한다. **PR #26 에서 구현됐다** — `.tds-toast--exiting`(`Toast.css:32-37`, `tds-toast-out … forwards` + `pointer-events:none`) → `@keyframes tds-toast-out :121-131`(opacity 1→0 · `translateY(0)→translateY(var(--tds-space-3))`), **요구가 명시한 'exit duration fast~normal · easing accelerate' 를 정확히 충족**(`component.overlay.exit-duration` = `{motion.duration.fast}` 150ms · `exit-easing` = `{motion.easing.accelerate}` — `tokens/tokens.json:1298-1307`). exit 완료 후 unmount 는 `onAnimationEnd` 대조로 달성. reduced-motion 게이트 `Toast.css:136-141` | DS Toast 판정에 종속(이 화면은 텍스트만 주입한다) | **종속** |
 | MOTION-03 | MOTION | 상속 | reduced-motion 게이트가 걸릴 이 화면의 표면: 스켈레톤 펄스(`tds-ui-skeleton` — `:231`) · Toast · Modal · DS Button transition. **이 화면이 transform/transition 을 직접 선언하지 않는다**(grep 0건) — **ToggleSwitch 는 이 화면에 없다**(요구가 명시 지목한 그 컴포넌트는 FS-052 의 마일스톤 편집기에 있다) | 전역 motion config·`ui.css`·`ToggleSwitch.css` 판정에 종속. 이 화면에서는 로컬 transition 선언이 0건임만 확인 | **종속** |
 | IA-01 | IA | 직접 | 두 라우트 모두 AppShell layout route 아래에 등록된다(`App.tsx:250-251` — `APP_ROUTES` 의 `/sales/inquiries` · `/sales/inquiries/:id`). **두 화면 모두 자체 outer frame/sidebar/top bar 를 도입하지 않는다** — 최상위가 평범한 `<div style={columnStyle}>`(`:154`) · `<div style={pageStyle}>`(`InquiryDetailPage.tsx:226`)다 | 두 라우트 진입 시 사이드바·AppHeader 가 유지되고, 화면이 자체 nav/header 를 그리지 않는지 확인 | **pass** |
 | IA-02 | IA | 직접 | **부분 미충족 — 사유가 통합 이후 바뀌었다.** 해소된 절: `/sales/inquiries/:id` 는 nav 잎이 아니지만 `findCoveringLeaf`(`nav-config.ts:269-279`)가 '자기를 감싸는 가장 긴 잎'인 `/sales/inquiries` 를 찾아 **AppHeader 가 잎 라벨 '문의'를 보인다**(`findNavLabel` `:297-299` → `AppHeader.tsx:92,101`) — **요구가 금지한 '브랜치 라벨(영업 관리)' 폴백은 더 이상 발생하지 않는다.** 남은 절 둘: ① **`<h1>` 이 2개다** — AppHeader 의 `<h1>{title}</h1>`(`AppHeader.tsx:101`)와 상세의 `<h1 style={pageTitleStyle}>문의 처리</h1>`(`InquiryDetailPage.tsx:238`) ② **primary title 이 행위·레코드를 반영하지 않는다** — AppHeader 는 '문의'라 말하지 요구가 예시로 든 '공지 등록' 류의 구체적 title 이 아니다(`nav-config.ts:293-295` 가 '등록/수정 행위는 제목에 넣지 않는다'를 **의도로 선언**한다). 게다가 목록은 in-content `<h1>` 이 없어 **title 소스 모델이 화면 타입마다 여전히 모순**이다 — 요구의 본문이 지적하는 바로 그 상태 | `/sales/inquiries/inq-1` 진입. `document.querySelectorAll('h1').length === 2` 이면 gap. AppHeader 의 가시 `<h1>` 이 '문의'(잎 라벨)인지 확인 — **'영업 관리'면 회귀다.** 목록 `/sales/inquiries` 는 잎이라 h1 1개 · '문의' 로 정상 — 이 gap 은 sub-route 에서만 발생 | **gap** |
@@ -217,7 +218,7 @@ date: 2026-07-17
 
 ## 6. 측정 도구 · 재현 스위치
 
-> **기준일 2026-07-17 · `HEAD = 4b805ad`. E2E 미실행 — 이 문서의 모든 판정 근거는 코드 대조다.** 아래 스위치는 판정을 재현·검증할 때 쓰는 수단이며, 이 문서가 그것을 실행해 얻은 결과를 적은 것이 아니다.
+> **기준일 2026-07-17 · `HEAD = a5c2639`. E2E 미실행 — 이 문서의 모든 판정 근거는 코드 대조다.** 아래 스위치는 판정을 재현·검증할 때 쓰는 수단이며, 이 문서가 그것을 실행해 얻은 결과를 적은 것이 아니다.
 
 **이 화면의 `?fail=` scope 와 op (코드 확인)**
 
@@ -266,6 +267,6 @@ date: 2026-07-17
 - [x] **IA-02 의 사유 전환**(가지 폴백 해소 → h1 이중 + 행위 미반영)을 명시했다
 - [x] §4.1 에 **`LATENCY_MS = 400` 이 개발용 지연이며 예산이 아님**을 명시했다
 - [x] §6 의 `?fail=` scope(`sales-inquiries`)와 op 3종을 **어댑터·프레임워크 코드에서 확인**했고, **`?delay=` 를 쓰지 않았으며**(이 화면에 존재하지 않음), **견적 발행 실패를 재현할 스위치가 없다는 사실**까지 적었다
-- [x] '기준일 2026-07-17 · `HEAD = 4b805ad` · E2E 미실행 — 판정 근거는 코드 대조' 를 §1 과 §6 에 명시했다
+- [x] '기준일 2026-07-17 · `HEAD = a5c2639` · E2E 미실행 — 판정 근거는 코드 대조' 를 §1 과 §6 에 명시했다
 - [x] §5 의 gap 이 FS-051 §7 · BE-051 §7.8 과 일치한다
 - [x] **`/support/tickets`(FS-026)와 다른 화면**임을 §1.2 에 명시하고, 판정이 갈리는 이유(F3b 롤아웃 도달 여부)를 밝혔다
