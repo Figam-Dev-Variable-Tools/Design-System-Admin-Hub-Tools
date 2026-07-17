@@ -7,6 +7,7 @@
 import type { CSSProperties } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { isRichTextEmpty, sanitizeRichText } from '@tds/ui';
 
 import {
   Alert,
@@ -23,8 +24,8 @@ import {
   ImageGalleryField,
   ImageUploadField,
   pageTitleStyle,
+  RichTextField,
   SelectField,
-  TextareaField,
   ToggleSwitch,
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
@@ -194,7 +195,11 @@ function toInput(values: ProductFormValues): ProductInput {
     variants: values.variants,
     coverImageUrl: values.coverImageUrl,
     imageUrls: values.imageUrls,
-    description: values.description.trim(),
+    // **저장 지점 sanitize** — 필드가 이미 걸러 내보내지만 여기서 한 번 더 건다. 폼 값은 필드
+    // 말고도 닿을 수 있는 자리(setValue·리셋·복원)라, 저장으로 나가는 마지막 길목에서 확인한다.
+    // trim() 하지 않는다 — HTML 이라 앞뒤 공백은 마크업 사이의 것이고, 빈 본문('<p></p>')은
+    // 문자열 비교가 아니라 isRichTextEmpty 가 판정한다.
+    description: isRichTextEmpty(values.description) ? '' : sanitizeRichText(values.description),
     tags: values.tags,
   };
 }
@@ -571,13 +576,17 @@ export default function ProductFormPage() {
             {/* ── 상세설명 · 검색태그 ── */}
             <Card>
               <CardTitle>상세설명 · 검색태그</CardTitle>
-              <TextareaField
+              {/* 상세설명은 서식이 필요한 본문이라 RichTextField(Tiptap) 다 — value/onChange 계약은
+                  TextareaField 와 같아 배선은 그대로다. 나가는 값은 이미 sanitize 된 HTML 이고,
+                  들어오는 값도 필드가 렌더 지점에서 다시 sanitize 한다. */}
+              <RichTextField
                 label="상세설명"
                 value={description}
                 onChange={(value) => setValue('description', value, { shouldDirty: true })}
                 maxLength={PRODUCT_DESCRIPTION_MAX}
                 disabled={disabled}
                 error={errors.description?.message}
+                hint="굵게·기울임·제목·목록·링크·이미지를 쓸 수 있습니다. 글자 수는 서식을 빼고 셉니다."
                 placeholder="상품의 소재·핏·관리법 등 상세 정보를 입력하세요."
                 rows={6}
               />

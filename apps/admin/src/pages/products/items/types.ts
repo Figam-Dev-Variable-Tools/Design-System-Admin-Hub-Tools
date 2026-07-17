@@ -2,6 +2,8 @@
 //
 // 도메인 모델·픽스처·순수 규칙의 정본은 ../_shared/store 다. 여기는 목록 표시(상태 배지 색·문구)와
 // 항목 → 폼 입력 변환처럼 이 화면에만 필요한 뷰 헬퍼만 둔다.
+import { ensureRichText } from '@tds/ui';
+
 import type { StatusTone } from '../../../shared/ui';
 import { PRODUCT_FILTER_ALL } from '../_shared/store';
 import type { PointsEarnMode, Product, ProductInput, ProductSaleStatus } from '../_shared/store';
@@ -61,7 +63,13 @@ export const POINTS_MODE_OPTIONS: readonly {
   { id: 'none', label: '적립 미적용' },
 ];
 
-/** 항목 → 폼/쓰기 입력(id·비정규화 라벨 제외). 목록 인라인 토글과 폼이 함께 쓴다. */
+/**
+ * 항목 → 폼/쓰기 입력(id·비정규화 라벨 제외). 목록 인라인 토글과 폼이 함께 쓴다.
+ *
+ * [상세설명 마이그레이션 지점] description 은 이제 HTML 이다. textarea 시절에 저장된 평문이
+ * 남아 있을 수 있으므로 여기서 ensureRichText 로 승격한다 — 값을 읽는 모든 경로가 이 함수를
+ * 지나므로 여기 한 곳이면 된다. 이미 HTML 인 값에는 멱등이라 인라인 토글이 반복해 불러도 안전하다.
+ */
 export function toProductInput(product: Product): ProductInput {
   return {
     name: product.name,
@@ -80,7 +88,7 @@ export function toProductInput(product: Product): ProductInput {
     })),
     coverImageUrl: product.coverImageUrl,
     imageUrls: [...product.imageUrls],
-    description: product.description,
+    description: ensureRichText(product.description),
     tags: [...product.tags],
   };
 }

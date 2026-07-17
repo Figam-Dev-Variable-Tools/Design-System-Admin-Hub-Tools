@@ -131,6 +131,14 @@ export interface Product {
   readonly coverImageUrl: string;
   /** 상세 이미지 다중 */
   readonly imageUrls: readonly string[];
+  /**
+   * 상세설명 — **sanitize 된 HTML** 이다(평문 아님). 폼이 RichTextField(Tiptap)로 받고
+   * 저장 지점에서 sanitizeRichText 를 지난 값만 여기 들어온다.
+   *
+   * textarea 시절의 평문 값이 남아 있을 수 있다 — 읽는 쪽은 ensureRichText 로 승격해서
+   * 쓴다(toProductInput 이 그렇게 한다). 길이 상한(PRODUCT_DESCRIPTION_MAX)은 마크업이
+   * 아니라 **평문 길이**에 건다 — richTextLength 참조.
+   */
   readonly description: string;
   /** 검색 태그 */
   readonly tags: readonly string[];
@@ -466,7 +474,8 @@ let products: Product[] = [
     points: { mode: 'rate', rate: 2, amount: 0 },
     coverImageUrl: 'https://cdn.example.com/products/lumien-padding-cover.jpg',
     imageUrls: ['https://cdn.example.com/products/lumien-padding-1.jpg'],
-    description: '가벼운 충전재로 보온성과 활동성을 모두 잡은 데일리 패딩입니다.',
+    description:
+      '<p>가벼운 충전재로 <strong>보온성</strong>과 활동성을 모두 잡은 데일리 패딩입니다.</p><ul><li>초경량 충전재</li><li>발수 가공 원단</li></ul>',
     tags: ['패딩', '겨울', '경량'],
   },
   {
@@ -502,7 +511,7 @@ let products: Product[] = [
     points: { mode: 'rate', rate: 1, amount: 0 },
     coverImageUrl: 'https://cdn.example.com/products/nova-tee-cover.jpg',
     imageUrls: [],
-    description: '두께감 있는 코튼 원단으로 사계절 입기 좋은 기본 티셔츠입니다.',
+    description: '<p>두께감 있는 코튼 원단으로 사계절 입기 좋은 기본 티셔츠입니다.</p>',
     tags: ['티셔츠', '베이직'],
   },
   {
@@ -547,7 +556,7 @@ let products: Product[] = [
     points: { mode: 'fixed', rate: 0, amount: 2000 },
     coverImageUrl: 'https://cdn.example.com/products/terra-sneakers-cover.jpg',
     imageUrls: [],
-    description: '가벼운 쿠셔닝으로 데일리 착화감이 좋은 스니커즈입니다.',
+    description: '<p>가벼운 쿠셔닝으로 데일리 착화감이 좋은 스니커즈입니다.</p>',
     tags: ['신발', '스니커즈'],
   },
   {
@@ -591,7 +600,7 @@ let products: Product[] = [
     points: { mode: 'rate', rate: 1, amount: 0 },
     coverImageUrl: 'https://cdn.example.com/products/camil-denim-cover.jpg',
     imageUrls: [],
-    description: '자연스러운 워싱과 편안한 핏의 데님 팬츠입니다.',
+    description: '<p>자연스러운 워싱과 편안한 핏의 데님 팬츠입니다.</p>',
     tags: ['데님', '팬츠'],
   },
   {
@@ -611,7 +620,7 @@ let products: Product[] = [
     points: { mode: 'none', rate: 0, amount: 0 },
     coverImageUrl: 'https://cdn.example.com/products/obje-bag-cover.jpg',
     imageUrls: [],
-    description: '가벼운 외출에 어울리는 미니멀한 크로스백입니다.',
+    description: '<p>가벼운 외출에 어울리는 미니멀한 크로스백입니다.</p>',
     tags: ['가방', '크로스백'],
   },
 ];

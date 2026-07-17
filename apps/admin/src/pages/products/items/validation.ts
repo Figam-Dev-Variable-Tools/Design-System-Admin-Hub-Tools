@@ -2,6 +2,7 @@
 //
 // 문자열 숫자 필드(판매가·할인값)는 입력 중 원값을 보존하려 문자열로 받고 여기서 정수 형식을 판정한다.
 // 옵션/SKU(variants)는 매트릭스 컴포넌트가 숫자로 관리하므로 배열·범위만 확인한다.
+import { richTextLength } from '@tds/ui';
 import * as z from 'zod/mini';
 
 import { requiredImage, requiredText } from '../../../shared/crud';
@@ -99,8 +100,12 @@ export const productSchema = z
         error: `상세 이미지는 최대 ${String(MAX_PRODUCT_IMAGES)}장까지 등록할 수 있습니다.`,
       }),
     ),
+    // 상세설명은 RichTextField 가 받는 **HTML** 이다 — 상한은 마크업이 아니라 평문 길이에 건다.
+    // value.length 로 재면 '굵게' 한 번에 <strong></strong> 17자가 붙어 사용자가 쓰지도 않은
+    // 글자수로 제출이 막힌다. 카운터(RichTextField)와 같은 함수(richTextLength)로 판정해야
+    // 화면의 'N/2000' 과 검증이 어긋나지 않는다.
     description: z.string().check(
-      z.refine((value) => value.length <= PRODUCT_DESCRIPTION_MAX, {
+      z.refine((value) => richTextLength(value) <= PRODUCT_DESCRIPTION_MAX, {
         error: `상세설명은 ${String(PRODUCT_DESCRIPTION_MAX)}자를 넘을 수 없습니다.`,
       }),
     ),

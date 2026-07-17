@@ -40,6 +40,16 @@ export default defineConfig({
       //   여기에 'zod' 를 적으면 아무도 import 하지 않는 것을 번들하고, 정작 늦게 발견되는
       //   'zod/mini' 는 그대로 남는다. **적는 이름은 소스가 쓰는 그 이름이어야 한다.**
       'zod/mini',
+      // 상세설명 에디터(@tds/ui RichTextField)가 쓰는 것들.
+      // ⚠ Tiptap 은 **동적 import** 로 들어온다(RichTextField 가 에디터 본체를 React.lazy 로
+      //   분할한다). 정적 크롤링이 닿지 않는 자리라 늦은 발견의 표적이 정확히 이것이다 —
+      //   상품 폼을 여는 순간 재최적화 + full page reload 가 나면 그 시점의 e2e 가 통째로 날아간다.
+      //   빌드의 코드 분할과는 무관하다: 여기 적는 것은 dev 서버의 사전 번들일 뿐이다.
+      '@tiptap/react',
+      '@tiptap/starter-kit',
+      '@tiptap/extension-image',
+      // sanitize 는 지연 로드하지 않는다(저장 경로가 동기) — 껍데기와 함께 즉시 로드된다.
+      'dompurify',
     ],
   },
 });

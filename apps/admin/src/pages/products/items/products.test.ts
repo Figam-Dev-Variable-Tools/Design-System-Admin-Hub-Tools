@@ -12,6 +12,7 @@ import {
   filterProducts,
   finalPrice,
   isLowStock,
+  PRODUCT_DESCRIPTION_MAX,
   searchProducts,
   sortProducts,
   totalStock,
@@ -230,6 +231,26 @@ describe('toProductInput — 항목 → 폼 입력', () => {
     expect(input).not.toHaveProperty('categoryLabel');
     expect(input.name).toBe('패딩');
   });
+
+  // [상세설명 마이그레이션] description 은 이제 HTML 이다(RichTextField). textarea 시절에 저장된
+  // 평문이 남아 있어도 폼이 그대로 먹으면 서식이 없는 한 덩어리가 되므로 여기서 승격한다.
+  it('상세설명이 평문이면(textarea 시절 값) <p> 로 승격한다', () => {
+    const input = toProductInput(productOf({ id: 'a', description: '가벼운 패딩입니다.' }));
+    expect(input.description).toBe('<p>가벼운 패딩입니다.</p>');
+  });
+
+  it('상세설명이 이미 HTML 이면 그대로 둔다 — 읽을 때마다 불러도 안전하다(멱등)', () => {
+    const html = '<p>이미 <strong>서식</strong>이 있는 본문</p>';
+    expect(toProductInput(productOf({ id: 'a', description: html })).description).toBe(html);
+  });
+
+  it('상세설명에 섞인 script 는 승격 과정에서 지워진다', () => {
+    const input = toProductInput(
+      productOf({ id: 'a', description: '<p>본문</p><script>alert(1)</script>' }),
+    );
+    expect(input.description).not.toContain('script');
+    expect(input.description).toContain('본문');
+  });
 });
 
 function valuesOf(overrides: Partial<ProductFormValues> = {}): ProductFormValues {
@@ -267,6 +288,22 @@ function messageFor(values: ProductFormValues, path: string): string | undefined
 describe('productSchema — 폼 검증', () => {
   it('정상 입력은 통과한다', () => {
     expect(productSchema.safeParse(valuesOf()).success).toBe(true);
+  });
+
+  // [상세설명 상한은 평문 길이다] value.length 로 재면 '굵게' 한 번에 <strong></strong> 17자가
+  // 붙어 사용자가 쓰지도 않은 글자수로 제출이 막힌다 — 화면 카운터('N/2000')와도 어긋난다.
+  it('상세설명 상한은 마크업이 아니라 평문 길이로 판정한다', () => {
+    // 평문 2000자를 서식으로 감싸 마크업 길이는 상한을 한참 넘긴 값
+    const wrapped = `<p><strong>${'가'.repeat(PRODUCT_DESCRIPTION_MAX)}</strong></p>`;
+    expect(wrapped.length).toBeGreaterThan(PRODUCT_DESCRIPTION_MAX);
+    expect(productSchema.safeParse(valuesOf({ description: wrapped })).success).toBe(true);
+  });
+
+  it('상세설명 평문이 상한을 넘으면 막는다', () => {
+    const tooLong = `<p>${'가'.repeat(PRODUCT_DESCRIPTION_MAX + 1)}</p>`;
+    expect(messageFor(valuesOf({ description: tooLong }), 'description')).toContain(
+      String(PRODUCT_DESCRIPTION_MAX),
+    );
   });
 
   it('상품명·상품코드가 비면 막는다', () => {

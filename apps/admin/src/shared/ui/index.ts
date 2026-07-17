@@ -38,6 +38,7 @@ export {
   ReorderGripCell,
   ReorderGripHeaderCell,
   ReorderMoveButtons,
+  RichTextField,
   RowActions,
   RowSelectCell,
   SearchField,
@@ -87,6 +88,12 @@ export type { TimelineEvent } from '@tds/ui';
 
 /* FormField · errorIdOf · hintIdOf · TextareaField · SearchField 는 @tds/ui 의 것이다 (상단 재수출).
  * 예전에는 이 이름들이 shared/ui 안의 사본을 가리켰다. 그 사본들은 삭제됐다 (B2 승격). */
+
+/* RichTextField 는 TextareaField 의 형제다 — 평문이 아니라 **sanitize 된 HTML** 을 value 로 받는다
+ * (서식이 필요한 본문: 상품 상세설명). value/onChange(string) 계약이 같아 필드만 갈아끼우면 된다.
+ * 함께 나오는 순수 유틸(sanitizeRichText·richTextLength·ensureRichText)은 컴포넌트가 아니라
+ * 저장·검증 경로가 쓰는 것이라 이 배럴에 재노출하지 않는다 — 필요한 곳이 '@tds/ui' 에서 직접
+ * 가져간다(validation.ts·types.ts). 죽은 공개 표면 0 — imageFileError 와 같은 판단이다. */
 
 /* ImageUploadField · ImageGalleryField 는 **@tds/ui 의 것**이다 (media 승격 · B5).
  * 예전엔 shared/ui 안의 사본을 가리켰다 — 그 사본들(+ imageFile.ts)은 삭제됐다. imageFileError(순수 검증
