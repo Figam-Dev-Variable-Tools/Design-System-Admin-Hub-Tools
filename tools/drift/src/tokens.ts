@@ -48,7 +48,18 @@ export function collectAliasReferences(node: unknown, out = new Set<string>()): 
   return out;
 }
 
-/** contracts/*.contract.json 의 tokens 블록 값(dot-path)을 전부 수집한다. */
+/**
+ * contracts/*.contract.json 이 토큰을 가리키는 **모든 경로**를 수집한다.
+ *
+ * 채널 ①: `tokens` 블록 값 — dot-path 를 그대로 적는다.
+ * 채널 ②: `responsive.breakpoints` — `["sm","md","lg"]` 처럼 **이름만** 적고 `breakpoint.` 접두는
+ *   생략한다. 이 채널을 읽지 않으면 breakpoint.* 가 통째로 '미사용'으로 잡힌다.
+ *   그리고 breakpoint 는 **원리상 var() 채널로 구제될 수 없다** — CSS 스펙상 커스텀 프로퍼티는
+ *   media feature 값에 못 쓴다(`@media (max-width: var(--x))` 는 무효). 즉 이 채널이 없으면
+ *   breakpoint 토큰은 **영원히 미사용**으로 오계수된다. 실제로 38개 계약 전부가 이 채널을 쓴다.
+ *   근거: tokens.json 의 breakpoint $description — "계약(contract.responsive.breakpoints)의
+ *   sm/md/lg 가 가리키는 대상이다."
+ */
 export function collectContractTokenRefs(contractsDir: string): Set<string> {
   const refs = new Set<string>();
   if (!fs.existsSync(contractsDir)) return refs;
@@ -57,8 +68,16 @@ export function collectContractTokenRefs(contractsDir: string): Set<string> {
     try {
       const contract = JSON.parse(fs.readFileSync(path.join(contractsDir, entry), 'utf8')) as {
         tokens?: Record<string, string>;
+        responsive?: { breakpoints?: unknown };
       };
       for (const value of Object.values(contract.tokens ?? {})) refs.add(value);
+
+      const breakpoints = contract.responsive?.breakpoints;
+      if (Array.isArray(breakpoints)) {
+        for (const name of breakpoints) {
+          if (typeof name === 'string' && name !== '') refs.add(`breakpoint.${name}`);
+        }
+      }
     } catch {
       // 계약 파싱 실패는 A74/A19 관할 — 여기서는 조용히 건너뛴다
     }
@@ -84,6 +103,29 @@ export function normalizeTokenPath(tokenPath: string): string {
   return tokenPath.replace(/\./g, '-').toLowerCase();
 }
 
+/**
+ * 토큰이 var(--tds-*) 로 쓰였는지 판정한다 — **정확 일치 + 접두 일치**.
+ *
+ * 접두 일치가 필요한 이유: composite 토큰(`$type: "typography"` 등)은 codegen 이 **한 개의
+ * 변수로 내보내지 않고 하위 속성으로 펼친다.** `typography.title.lg` → `--tds-typography-title-lg-font-size`
+ * `-font-weight` `-line-height` `-font-family`. 정확 일치(`Set.has`)만 하면 `typography-title-lg`
+ * 라는 이름의 변수는 세상에 없으므로 **실제로 쓰이는데도 영원히 미사용**으로 잡힌다.
+ * (실측: `typography.title.lg` 는 ImageGalleryField.css:79,178 과 admin 6개 파일이 쓰는데
+ *  미사용으로 계수됐다.)
+ *
+ * 접두 경계로 `-` 를 요구해 오검출을 막는다: `color.red` 가 `--tds-color-reddish` 를 삼키지 않는다.
+ * 부모 노드는 flattenTokenPaths 가 leaf($value 보유)만 반환하므로 애초에 후보에 없다.
+ */
+export function isCssVarUsed(tokenPath: string, cssVarUsage: Set<string>): boolean {
+  const normalized = normalizeTokenPath(tokenPath);
+  if (cssVarUsage.has(normalized)) return true;
+  const prefix = `${normalized}-`;
+  for (const used of cssVarUsage) {
+    if (used.startsWith(prefix)) return true;
+  }
+  return false;
+}
+
 export interface UnusedTokenAnalysis {
   totalTokens: number;
   usedCount: number;
@@ -105,7 +147,7 @@ export function analyzeUnusedTokens(
   const unused = all.filter((tokenPath) => {
     if (contractRefs.has(tokenPath)) return false;
     if (aliasRefs.has(tokenPath)) return false;
-    if (cssVarUsage.has(normalizeTokenPath(tokenPath))) return false;
+    if (isCssVarUsed(tokenPath, cssVarUsage)) return false;
     return true;
   });
 
