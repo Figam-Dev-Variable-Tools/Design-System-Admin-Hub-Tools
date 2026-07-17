@@ -64,8 +64,8 @@ export function benefitNeedsDetail(type: BenefitType): boolean {
   return type !== 'none';
 }
 
-/** 실재 날짜(YYYY-MM-DD) 여부 — 기간 검증에 공유 */
-export function isRealDate(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  return !Number.isNaN(new Date(`${value}T00:00:00`).getTime());
-}
+// [날짜 검증은 shared/format 이 갖는다] 여기 있던 isRealDate 는 형식만 보고 **실재 여부를 보지
+// 않아** 2026-02-31 을 통과시켰다 — Date 가 3월 3일로 굴리므로 getTime() 이 NaN 이 아니다.
+// 같은 이름의 사본이 앱에 10벌 있었고 그중 5벌만 왕복 검사를 했다. 정본 isCalendarDate
+// (shared/format)는 UTC 정오 앵커로 왕복 검사를 하고 타입가드 + 테스트를 갖고 있다.
+// 소비자(events·promotions)는 그쪽을 직접 쓴다.

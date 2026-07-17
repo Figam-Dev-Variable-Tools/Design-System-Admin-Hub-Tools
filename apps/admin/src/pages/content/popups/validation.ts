@@ -3,15 +3,9 @@
 // **검증 규칙의 정본은 이 zod 스키마다.** 진입점은 `zod/mini`.
 import * as z from 'zod/mini';
 
-import { TITLE_MAX_LENGTH } from './types';
+import { isCalendarDate } from '../../../shared/format';
 
-function isRealDate(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const date = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return false;
-  const [y, m, d] = value.split('-').map(Number);
-  return date.getFullYear() === y && date.getMonth() + 1 === m && date.getDate() === d;
-}
+import { TITLE_MAX_LENGTH } from './types';
 
 /** URL 형식(http/https)인가 — 이미지·링크에 공통으로 쓴다 */
 function isHttpUrl(value: string): boolean {
@@ -49,7 +43,7 @@ export const popupSchema = z
     // 노출 기간 — 시작/종료 모두 실재하는 날짜여야 하고 종료 ≥ 시작이어야 한다.
     const start = ctx.value.startAt.trim();
     const end = ctx.value.endAt.trim();
-    if (!isRealDate(start)) {
+    if (!isCalendarDate(start)) {
       ctx.issues.push({
         code: 'custom',
         input: ctx.value.startAt,
@@ -58,7 +52,7 @@ export const popupSchema = z
       });
       return;
     }
-    if (!isRealDate(end)) {
+    if (!isCalendarDate(end)) {
       ctx.issues.push({
         code: 'custom',
         input: ctx.value.endAt,

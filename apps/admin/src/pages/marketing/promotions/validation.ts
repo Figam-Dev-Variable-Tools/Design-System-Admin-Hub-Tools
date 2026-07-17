@@ -5,7 +5,7 @@
 import * as z from 'zod/mini';
 
 import { requiredText } from '../../../shared/crud';
-import { isRealDate } from '../_shared/campaign';
+import { isCalendarDate } from '../../../shared/format';
 import { DISCOUNT_RATE_MAX, PROMOTION_DESC_MAX, PROMOTION_TITLE_MAX } from './types';
 
 const INT_RE = /^\d+$/;
@@ -31,7 +31,7 @@ export const promotionSchema = z
   .check((ctx) => {
     const start = ctx.value.startAt.trim();
     const end = ctx.value.endAt.trim();
-    if (!isRealDate(start) || !isRealDate(end)) {
+    if (!isCalendarDate(start) || !isCalendarDate(end)) {
       ctx.issues.push({
         code: 'custom',
         input: ctx.value.startAt,

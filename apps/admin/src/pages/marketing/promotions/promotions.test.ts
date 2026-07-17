@@ -99,4 +99,9 @@ describe('promotionSchema — 폼 검증', () => {
       '쿠폰',
     );
   });
+  // [회귀] 여기 있던 사본 isRealDate 는 형식만 보고 실재 여부를 보지 않아 2026-02-31 을
+  // 통과시켰다(Date 가 3/3 으로 굴린 뒤 !Number.isNaN 이 참). 정본 isCalendarDate 로 수렴해 막는다.
+  it('달력에 없는 날짜(2026-02-31)를 주면 막는다', () => {
+    expect(messageFor(valuesOf({ startAt: '2026-02-31' }), 'startAt')).toContain('YYYY-MM-DD');
+  });
 });

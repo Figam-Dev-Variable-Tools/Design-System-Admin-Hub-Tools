@@ -4,7 +4,8 @@
 import * as z from 'zod/mini';
 
 import { requiredText } from '../../../shared/crud';
-import { benefitNeedsDetail, isRealDate } from '../_shared/campaign';
+import { isCalendarDate } from '../../../shared/format';
+import { benefitNeedsDetail } from '../_shared/campaign';
 import { EVENT_DESC_MAX, EVENT_TITLE_MAX } from './types';
 
 export const eventSchema = z
@@ -28,7 +29,7 @@ export const eventSchema = z
     // 기간 — 실재 날짜 + 종료 ≥ 시작.
     const start = ctx.value.startAt.trim();
     const end = ctx.value.endAt.trim();
-    if (!isRealDate(start) || !isRealDate(end)) {
+    if (!isCalendarDate(start) || !isCalendarDate(end)) {
       ctx.issues.push({
         code: 'custom',
         input: ctx.value.startAt,

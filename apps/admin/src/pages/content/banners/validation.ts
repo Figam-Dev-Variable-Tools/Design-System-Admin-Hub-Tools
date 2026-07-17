@@ -4,15 +4,9 @@
 // 위치(placement)·정렬(order) 필드가 달라 각자 스키마를 갖는다(도메인은 페이지에 남긴다).
 import * as z from 'zod/mini';
 
-import { TITLE_MAX_LENGTH } from './types';
+import { isCalendarDate } from '../../../shared/format';
 
-function isRealDate(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const date = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return false;
-  const [y, m, d] = value.split('-').map(Number);
-  return date.getFullYear() === y && date.getMonth() + 1 === m && date.getDate() === d;
-}
+import { TITLE_MAX_LENGTH } from './types';
 
 function isHttpUrl(value: string): boolean {
   return /^https?:\/\/\S+$/.test(value.trim());
@@ -49,7 +43,7 @@ export const bannerSchema = z
   .check((ctx) => {
     const start = ctx.value.startAt.trim();
     const end = ctx.value.endAt.trim();
-    if (!isRealDate(start)) {
+    if (!isCalendarDate(start)) {
       ctx.issues.push({
         code: 'custom',
         input: ctx.value.startAt,
@@ -58,7 +52,7 @@ export const bannerSchema = z
       });
       return;
     }
-    if (!isRealDate(end)) {
+    if (!isCalendarDate(end)) {
       ctx.issues.push({
         code: 'custom',
         input: ctx.value.endAt,

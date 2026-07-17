@@ -3,15 +3,9 @@
 // **검증 규칙의 정본은 이 zod 스키마다.** 진입점은 `zod/mini`.
 import * as z from 'zod/mini';
 
-import { BODY_MAX_LENGTH, VERSION_MAX_LENGTH } from './types';
+import { isCalendarDate } from '../../../shared/format';
 
-function isRealDate(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const date = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return false;
-  const [y, m, d] = value.split('-').map(Number);
-  return date.getFullYear() === y && date.getMonth() + 1 === m && date.getDate() === d;
-}
+import { BODY_MAX_LENGTH, VERSION_MAX_LENGTH } from './types';
 
 export const termsVersionSchema = z.object({
   version: z.string().check(
@@ -22,7 +16,7 @@ export const termsVersionSchema = z.object({
   ),
   effectiveDate: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '시행일을 입력하세요.' }),
-    z.refine((value) => isRealDate(value.trim()), {
+    z.refine((value) => isCalendarDate(value.trim()), {
       error: '시행일을 YYYY-MM-DD 형식으로 입력하세요.',
     }),
   ),

@@ -4,16 +4,9 @@
 // 진입점은 `zod/mini` 다 (ADR-0008 §7.3 — classic zod +17.5 kB vs mini +4.6 kB).
 import * as z from 'zod/mini';
 
-import { BODY_MAX_LENGTH, TITLE_MAX_LENGTH } from './types';
+import { isCalendarDate } from '../../../shared/format';
 
-/** 'YYYY-MM-DD' 형식 + 실재하는 날짜인지 (Date 가 2026-02-31 을 3/3 으로 굴리는 것을 막는다) */
-function isRealDate(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const date = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return false;
-  const [y, m, d] = value.split('-').map(Number);
-  return date.getFullYear() === y && date.getMonth() + 1 === m && date.getDate() === d;
-}
+import { BODY_MAX_LENGTH, TITLE_MAX_LENGTH } from './types';
 
 /** 체크 순서 = 에러 우선순위 (resolver 가 필드당 첫 이슈만 싣는다) */
 export const noticeSchema = z
@@ -39,7 +32,7 @@ export const noticeSchema = z
     // 예약 상태일 때만 게시일이 필수이고, 미래여야 한다 — 임시저장/게시는 날짜를 강제하지 않는다.
     if (ctx.value.status !== 'scheduled') return;
     const raw = ctx.value.publishedAt.trim();
-    if (raw === '' || !isRealDate(raw)) {
+    if (raw === '' || !isCalendarDate(raw)) {
       ctx.issues.push({
         code: 'custom',
         input: ctx.value.publishedAt,

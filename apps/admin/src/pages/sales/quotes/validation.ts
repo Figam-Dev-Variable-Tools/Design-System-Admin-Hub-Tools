@@ -5,6 +5,7 @@
 import * as z from 'zod/mini';
 
 import { requiredText } from '../../../shared/crud';
+import { isCalendarDate } from '../../../shared/format';
 
 const lineItemSchema = z.object({
   id: z.string(),
@@ -13,11 +14,6 @@ const lineItemSchema = z.object({
   quantity: z.number(),
   unitPrice: z.number(),
 });
-
-function isRealDate(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  return !Number.isNaN(new Date(`${value}T00:00:00`).getTime());
-}
 
 export const quoteSchema = z
   .object({
@@ -92,7 +88,7 @@ export const quoteSchema = z
     // 유효기간 — 실재 날짜 + 견적일 이후.
     const issue = ctx.value.issueDate.trim();
     const valid = ctx.value.validUntil.trim();
-    if (!isRealDate(issue) || !isRealDate(valid)) {
+    if (!isCalendarDate(issue) || !isCalendarDate(valid)) {
       ctx.issues.push({
         code: 'custom',
         input: ctx.value.issueDate,

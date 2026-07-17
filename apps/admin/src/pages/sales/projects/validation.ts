@@ -3,17 +3,12 @@
 // 확률·진척은 0~100, 예상매출은 숫자, 기간 역전 금지, 실주 단계는 실주사유 필수, 마일스톤은 이름·목표일.
 import * as z from 'zod/mini';
 
-import { topicParticle } from '../../../shared/format';
+import { isCalendarDate, topicParticle } from '../../../shared/format';
 
 import { requiredText } from '../../../shared/crud';
 import { PROJECT_NAME_MAX } from './types';
 
 const INT_RE = /^\d+$/;
-
-function isRealDate(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  return !Number.isNaN(new Date(`${value}T00:00:00`).getTime());
-}
 
 const milestoneSchema = z.object({
   id: z.string(),
@@ -56,7 +51,7 @@ export const projectSchema = z
     // 기간 — 실재 날짜 + 종료 ≥ 시작.
     const start = ctx.value.startAt.trim();
     const end = ctx.value.endAt.trim();
-    if (!isRealDate(start) || !isRealDate(end)) {
+    if (!isCalendarDate(start) || !isCalendarDate(end)) {
       ctx.issues.push({
         code: 'custom',
         input: ctx.value.startAt,
@@ -97,7 +92,7 @@ export const projectSchema = z
       });
       return;
     }
-    if (milestones.some((milestone) => !isRealDate(milestone.dueDate))) {
+    if (milestones.some((milestone) => !isCalendarDate(milestone.dueDate))) {
       ctx.issues.push({
         code: 'custom',
         input: milestones,

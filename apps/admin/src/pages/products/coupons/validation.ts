@@ -3,18 +3,12 @@
 // 숫자 필드(할인값·최대할인·최소주문·발급수량)는 입력 원값 보존을 위해 문자열로 받고 정수 형식을 판정한다.
 import * as z from 'zod/mini';
 
-import { objectParticle, topicParticle } from '../../../shared/format';
+import { isCalendarDate, objectParticle, topicParticle } from '../../../shared/format';
 
 import { requiredText } from '../../../shared/crud';
 import { COUPON_CODE_MAX, COUPON_NAME_MAX } from './types';
 
 const INT_RE = /^\d+$/;
-
-function isRealDate(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const date = new Date(`${value}T00:00:00`);
-  return !Number.isNaN(date.getTime());
-}
 
 const intString = (label: string) =>
   z.string().check(
@@ -77,7 +71,7 @@ export const couponSchema = z
     // 사용 기간 — 실재 날짜 + 종료 ≥ 시작.
     const start = ctx.value.startAt.trim();
     const end = ctx.value.endAt.trim();
-    if (!isRealDate(start) || !isRealDate(end)) {
+    if (!isCalendarDate(start) || !isCalendarDate(end)) {
       ctx.issues.push({
         code: 'custom',
         input: ctx.value.startAt,
