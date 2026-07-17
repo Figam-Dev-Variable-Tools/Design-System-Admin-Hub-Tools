@@ -475,7 +475,10 @@ async function scanDetachedStyles(): Promise<{
 // 엔트리 — UI 기동 + 메시지 라우팅
 // ---------------------------------------------------------------------------
 
-figma.showUI(__html__, { width: 420, height: 600, themeColors: true });
+// 460 = 적재 리포트의 '누락 N개: …' 줄이 접히지 않는 최소 폭, 720 = 적재 리포트와
+// 첫 액션 카드가 스크롤 없이 함께 보이는 높이. themeColors: <html> 에 figma-dark 를
+// 붙여 UI 의 토큰 다크 모드([data-theme='dark'])를 켜는 스위치다.
+figma.showUI(__html__, { width: 460, height: 720, themeColors: true });
 
 figma.ui.onmessage = async (msg: UiMessage) => {
   try {
