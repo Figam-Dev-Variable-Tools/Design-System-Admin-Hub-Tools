@@ -22,7 +22,7 @@ date: 2026-07-15
 | 전제 | 모든 경로는 `/api` 프리픽스. 요청·응답 본문은 `application/json; charset=utf-8`. 이 엔드포인트는 미인증(익명) 호출 전용이다 |
 | 프론트 어댑터 | `apps/admin/src/pages/login/api.ts` (`login`, `normalizeEmail`, `LOGIN_TIMEOUT_MS`, `MAX_LOGIN_ATTEMPTS`, `LOCK_DURATION_MS`) |
 | 도메인 타입 | `apps/admin/src/pages/login/api.ts` (`LoginInput`, `LoginResult`, `AuthSession`, `UserRole`) |
-| 유효성 규칙 원천 | `apps/admin/src/pages/login/validation.ts` (`EMAIL_MAX_LENGTH=254`, `PASSWORD_MIN_LENGTH=8`, `PASSWORD_MAX_LENGTH=64`) |
+| 유효성 규칙 원천 | `apps/admin/src/pages/login/validation.ts` 의 **zod 스키마 `loginSchema`**(`:44`)가 정본이다. 길이 상수는 **모듈 사설**이며 export 되지 않는다 — `EMAIL_MAX_LENGTH=254`(`:16`) · `PASSWORD_MIN_LENGTH=8`(`:18`) · `PASSWORD_MAX_LENGTH=64`(`:19`). 값은 이 문서 §4 서버 제약과 짝을 이루며, 서버도 같은 값을 다시 검증한다 — 프론트 검증은 UX 이지 보증이 아니다(`validation.ts:10-12`) |
 
 ## 2. 공통 에러 봉투
 
@@ -210,7 +210,7 @@ date: 2026-07-15
 | `AuthSession` / `UserRole` / `LoginInput` / `LoginResult` (타입) | — | BE-001-EP-01 | — | — | O — §6.3 필드 대조 |
 | `LoginAbortError` | — | N/A — 클라이언트 abort 를 표현하는 프론트 전용 에러다. 서버 응답이 아니다 | — | — | N/A |
 | `session.ts` — `readSession` · `writeSession` · `readRememberedEmail` · `writeRememberedEmail` · `clearRememberedEmail` | — | N/A — 브라우저 저장소 접근이며 서버 호출이 아니다(FS-001-EL-015 · EL-025). 이 계약의 대상이 아니다 | — | — | N/A |
-| `validation.ts` — `validateEmail` · `validatePassword` · 길이 상수 | — | BE-001-EP-01 (400 제약과 동일 규칙) | — | — | O — 이메일 254자·비밀번호 8~64자·비밀번호 미trim 규칙이 서버 검증과 동일 |
+| `validation.ts` — `loginSchema`(zod) · 길이 상수(모듈 사설) | — | BE-001-EP-01 (400 제약과 동일 규칙) | `LoginFormValues` = `{ email, password, rememberEmail }` | — | O — 이메일 254자·비밀번호 8~64자·비밀번호 미trim 규칙이 서버 검증과 동일. **손으로 쓴 `validateEmail`/`validatePassword` 는 삭제됐다** — 규칙의 정본은 이제 zod 스키마 1벌뿐이다(`validation.ts:3-4`). `rememberEmail` 은 검증 대상이 아니며 서버로 보내지 않는다(폼 값이라 스키마에 함께 둔 것) |
 
 ### 6.2 HTTP 응답 ↔ `LoginResult` 매핑 (어댑터 내부 변환)
 

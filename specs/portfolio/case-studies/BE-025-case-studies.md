@@ -22,7 +22,7 @@ date: 2026-07-17
 | 프론트 어댑터 | `apps/admin/src/pages/portfolio/case-studies/data-source.ts` (`createCrudAdapter` + 자체 시드) |
 | 도메인 타입 | `apps/admin/src/pages/portfolio/case-studies/types.ts` (`CaseStudy` · `CaseStudyInput` · `CaseIndustry`) |
 | 검증 정본 | `apps/admin/src/pages/portfolio/case-studies/validation.ts` (`caseStudySchema`) |
-| 판정 기준일 | **2026-07-17 · HEAD = `4b805ad`** (F3a·F3b·통합 머지 후). 이전 판정은 F2(`3cd3078`) 기준이었다 — §1.1 · §7.3 · §7.8 이 그 사이 바뀐 프론트 사실을 반영해 갱신됐다 |
+| 판정 기준일 | **2026-07-17 · HEAD = `a5c2639`** (PR #22·#24·#26·#28·#30·#32·#34 머지 후). 직전 판정은 `4b805ad` 기준이었고 그때 §1.1 · §7.3 · §7.8 이 갱신됐다. **이번 기준 갱신으로 이 문서의 판정이 뒤집힌 것은 없다** — PR #26·#30·#32 는 DS·토큰 층 변경이라 이 문서가 다루는 엔드포인트·보안 계약에 닿지 않는다. 관련 프론트 변화는 NFR-025 §2 에 기록했다(A11Y-11 · MOTION-03 이 pass/종속 으로 뒤집혔다) |
 
 > **에러 봉투·권한 모델 상속**: BE-003 §2·§3 을 그대로 상속한다(BE-010 §2 · BE-023 §2 와 동일 선언). 아래는 성공 사례 고유 차이만 기술한다.
 

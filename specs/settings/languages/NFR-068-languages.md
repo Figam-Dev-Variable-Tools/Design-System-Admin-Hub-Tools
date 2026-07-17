@@ -23,7 +23,8 @@ date: 2026-07-17
 | 이 문서의 역할 | quality-bar 의 각 요구가 **이 화면에서 어떻게 충족되는가 / 무엇을 재현하면 판정되는가** 만 기록한다. 요구 문구는 ID 로만 참조한다 |
 | 함께 읽는 문서 | FS-068(요소·예외) · BE-068(계약·판정) · **NFR-067(형제 화면 — 공유 셸·저장소의 판정이 대부분 동일하다)** · `specs/quality-bar.md` |
 | 갱신 규칙 | quality-bar 가 바뀌면 이 문서의 판정을 다시 매긴다. 이 문서가 quality-bar 를 바꾸지 않는다. gap 은 §5 를 거쳐 이관되며 FS-068 §7 · BE-068 §7.6 과 번호가 일치해야 한다 |
-| 판정 근거 | **판정 기준일 2026-07-17 · `HEAD = 4b805ad`. E2E 미실행 — 판정 근거는 코드 대조다**(§6) |
+| 판정 근거 | **판정 기준일 2026-07-17 · `HEAD = a5c2639`. E2E 미실행 — 판정 근거는 코드 대조다**(§6) |
+| 이번 기준 갱신으로 뒤집힌 판정 | **MOTION-02 `gap` → `pass`** · **MOTION-03 `gap` → `pass`** · **MOTION-01 `gap` → `종속`** — 전부 **PR #26**(오버레이 모션 CSS-only 구현 · `Toast.css:32-37,121-131` exit 신설 · **`Modal.css:173-180` reduced-motion 게이트 신설**). 이전 배치가 든 gap 사유가 코드로 해소됐다. **P0 gap 5 → 2** — 남는 것은 **A11Y-11**(이 화면 고유 — 그룹 오류 미연결)과 **EXC-08**(멱등키 부재)이며 **둘 다 PR #26·#30 의 사정권 밖이라 그대로다** |
 
 ### 1.1 표기 규약
 
@@ -54,7 +55,7 @@ date: 2026-07-17
 | STATE-04 | STATE | N/A | **표면이 없다.** 페이지네이션·행 선택·목록이 하나도 없다 — 단일 문서 폼이다(§1.2). 'page clamp' · 'selection 리셋' 이 걸릴 표면이 존재하지 않는다. **체크박스 4개는 selection 이 아니라 폼 값**이다(URL·page 와 무관하며 필터가 아니다) | 목록·선택이 도입되면 다시 매긴다 | **n-a** |
 | TOKEN-01 | TOKEN | 직접 | **충족.** `grep -rnE "#[0-9a-fA-F]{3,6}\b\|[0-9]+px\|'(thin\|medium\|thick)'" apps/admin/src/pages/settings/` → **0건**(2026-07-17). 이 화면의 모든 스타일 객체가 `var(--tds-*)` 만 참조한다. 파생 치수도 토큰 배수 — `minmax(calc(var(--tds-space-6) * 7), 1fr)`(`:85`). `fieldset` 리셋도 `borderWidth: 0` 숫자 0(단위 없는 0 은 px 리터럴이 아니다 — `:94-95`) | 위 grep → **0건이어야 한다.** ESLint/stylelint 0 warning | **pass** |
 | TOKEN-02 | TOKEN | 상속 | 포커스 가능 표면이 전부 DS/공유 클래스를 소비한다: DS `<Checkbox>`·`<SelectField>`·`<Button>`. **이 화면이 focus ring 을 직접 선언하지 않는다**(로컬 `:focus-visible` 0건). ⚠ 이 화면은 `tds-ui-focusable` 을 직접 쓰지 않는다 — 텍스트 `<input>` 이 없기 때문(전 컨트롤이 DS 컴포넌트) | DS 토큰 문서 판정을 따른다. 로컬 `:focus-visible` 선언이 0건임만 확인 | **종속** |
-| TOKEN-03 | TOKEN | 상속 | easing 토큰 소비 표면: 스켈레톤 펄스(`tds-ui-skeleton` — `SettingsFormShell.tsx:155`) · Toast(`Toast.css:25`) · DS `<Button>`·`<Checkbox>` transition. **이 화면이 animation/transition 을 직접 선언하지 않는다**(grep 0건) | tokens codegen · `Toast.css` 판정에 종속 | **종속** |
+| TOKEN-03 | TOKEN | 상속 | easing 토큰 소비 표면: 스켈레톤 펄스(`tds-ui-skeleton` — `SettingsFormShell.tsx:155`) · **Toast enter/exit**(`Toast.css:26-27` · `:32-37`) · **Modal enter/exit**(`Modal.css:20-21,30-38,58-59` — 같은 recipe). ⚠ **PR #26 으로 이 화면이 상속하는 easing 소비 표면이 늘었다** — `component.overlay.{enter,exit}-easing`(`tokens/tokens.json:1293-1307`)이 신설 소비자이고 `Toast`·`Modal` 이 **같은 recipe 를 함께 쓴다**(`tokens.json:1287` — '오버레이는 한 몸처럼 움직인다') · DS `<Button>`·`<Checkbox>` transition. **이 화면이 animation/transition 을 직접 선언하지 않는다**(grep 0건) | tokens codegen · `Toast.css`·`Modal.css` 판정에 종속 | **종속** |
 | TOKEN-04 | TOKEN | 상속 | shadow 토큰 소비 표면: `<Card>`(`SettingsFormShell.tsx:145`) · Modal(확인·충돌 다이얼로그 — `Modal.css:20` `box-shadow: var(--tds-shadow-overlay)`) · Toast. **이 화면이 `box-shadow` 를 직접 선언하지 않는다**(grep 0건) | Card/Modal/Toast 토큰 판정에 종속 | **종속** |
 | TOKEN-05 | TOKEN | 상속 | **이 화면에 in-content `<h1>` 이 없다**(`grep -rn "h1" apps/admin/src/pages/settings/` → **0건**). 제목은 **AppHeader 가 소유**하며(`AppHeader.tsx:101`) nav 잎 라벨 '언어 관리'를 렌더한다. `CardTitle`('언어 설정' — `:278`)은 `<h1>` 이 아니라 카드 시맨틱이다. **이 화면이 title 타이포를 직접 선언하지 않는다.** ⚠ nav 라벨과 카드 제목이 다른 것은 타이포 문제가 아니라 **카피 일관성** 문제다(FS-068 §7 #5 — §3 ERP 축) | AppHeader `titleStyle` 이 title tier 를 참조하는지 확인. 로컬 title 스타일 선언이 0건임만 확인 | **종속** |
 | COMP-10 | COMP | N/A | **표면이 없다.** 검색 입력이 없다 — `grep -rn "SearchField\|useDebouncedSearch" pages/settings/` → **0건**. 단일 문서 폼이라 조회할 query 자체가 없다. 'IME 조합 중 커밋 금지 + 디바운스 + stale 응답 무효'가 걸릴 자리가 존재하지 않는다. **이 화면에는 텍스트 입력조차 없다** — 전 컨트롤이 체크박스·select 다 | 검색 입력이 도입되면 다시 매긴다 | **n-a** |
@@ -65,9 +66,9 @@ date: 2026-07-17
 | A11Y-02 | A11Y | 상속 | dialog 표면 3건 모두 `aria-describedby` 가 배선돼 있다: ① **저장 확인** — DS `ConfirmDialog` 가 `useId` 로 message id 를 만들어 `Modal describedBy` 로 넘긴다(`ConfirmDialog.tsx:129,135`) ② **충돌** — `ConflictDialog.tsx:88` `useId()` → `:94` `describedBy={messageId}` → `:107` `<p id={messageId}>` ③ **이탈 가드** — 훅이 `ConfirmDialog` 를 렌더. `Modal.tsx:158` 이 `aria-describedby={describedBy}` 를 dialog 노드에 건다 | DS 판정에 종속. 충돌 다이얼로그 open 시 본문이 title 과 함께 읽히는지 확인 | **종속** |
 | A11Y-11 | A11Y | 직접 | **부분 미충족 — 이 화면 고유의 결함이 있다.** **① required 노출 — 충족.** required FormField 2개(기본 언어 `:338-344` · 폴백 언어 `:364-370`)의 자식이 **DS `SelectField`**(`:345`,`:371`)라 `FormField.tsx:36-41` `isRequirableChild` 를 통과하고 `withAriaRequired`(`:50-56`)가 **런타임 `cloneElement` 로 `aria-required` 를 주입**한다. 래퍼로 감싼 required 자식이 **0건** — OAuth(NFR-070)가 겪는 결함이 여기엔 없다. **체크박스 4개는 `required` 가 아니다**(그룹 규칙이라 개별 필수가 아니다) → 주입 대상이 아니다. ⚠ **`aria-required` grep 이 0건인 것으로 판정하면 안 된다 — 주입은 런타임이다** **② aria-invalid without describedby = 0건 — 충족.** 이 화면의 `aria-invalid` 는 `SelectField` 의 `isInvalid` prop 경유 2건뿐이고(`:348`,`:374`) 호출부가 바로 다음 줄에서 `aria-describedby` 를 **조건 동일하게** 짝지운다(`:349-353`,`:375-377` — 둘 다 `errors.X?.message !== undefined` 를 조건으로 `errorIdOf('lang-default'\|'lang-fallback')`). `FormField` 가 같은 id 로 `<p id={errorIdOf(htmlFor)} role="alert">`(`FormField.tsx:110`)를 렌더하므로 **id 가 일치**한다 **③ ⚠ 그룹 오류가 어느 컨트롤의 것인지 연결되지 않는다 — 미충족.** `:331` 이 `<p id={errorIdOf('lang-supported')} role="alert">` 를 렌더하지만 **`lang-supported` 라는 id 의 요소가 존재하지 않고**(체크박스 id 는 `lang-supported-ko` 등 — `:311`), **어떤 컨트롤도 이 오류를 `aria-describedby` 로 참조하지 않는다.** 즉 '지원 언어를 하나 이상 선택하세요' 오류가 **떠 있는 id 를 가리키는 고아**다. `role="alert"` 라 announce 는 되므로 완전 침묵은 아니나, 요구의 'required 노출/오류 연결' 취지에 미달한다. **④ ⚠ 잠긴 체크박스가 이유를 말하지 않는다** — `disabled = disabled \|\| locked`(`:314`)인데 잠금 사유 문구(`:320-324` '기본 언어라 끌 수 없습니다')가 **형제 `<span>` 일 뿐 `aria-describedby` 로 연결돼 있지 않다.** 시각 사용자만 이유를 안다 | `grep -rn "aria-invalid\|errorIdOf" pages/settings/languages` → 각 히트마다 참조 대상 id 가 **실재하는지** 확인. RTL: 모든 언어를 끄려 시도(잠금 때문에 불가) → 대신 `defaultLanguage` 를 목록 밖으로 만들어 오류 유발 → `select.getAttribute('aria-describedby') === screen.getByRole('alert').id` assert. **`document.getElementById('lang-supported')` 가 `null` 이면 ③은 gap** | **gap** |
 | A11Y-12 | A11Y | N/A | **표면이 없다.** **필터가 없다**(단일 문서 폼 — §1.2). `aria-pressed` 를 쓸 toggle 필터 list item 이 존재하지 않으며, 이 화면 전체에 `aria-current` **0건**. **체크박스 4개는 필터가 아니라 폼 값**이며 네이티브 `checked` 로 상태를 노출한다(DS `Checkbox` 가 `<input type="checkbox">` 를 렌더) — 이 요구의 appliesTo(‘필터 selected=aria-pressed’)가 아니다 | 좌측 토글 필터가 도입되면 다시 매긴다 | **n-a** |
-| MOTION-01 | MOTION | 상속 | **미충족.** Modal 표면이 실재한다(저장 확인 · 충돌 · 이탈 가드 — 3종). **DS `Modal` 에 backdrop fade 도 dialog scale 도 exit 애니메이션도 없다**: `Modal.css` 전체에서 motion 선언은 `:86` `transition: background-color`(닫기 버튼 호버) 하나뿐이고 `opacity`/`scale`/`@keyframes`/`prefers-reduced-motion` 가 **0건**. 앱·DS 전체에 Motion 라이브러리 소비 **0건**(`grep -rln "AnimatePresence\|framer-motion\|from 'motion" packages/ui/src/` → 0건)이라 'exit 후 unmount' 를 표현할 수단이 없다. **이 화면이 애니메이션을 선언하지 않으므로 앱 코드로 해소 불가** — 이관 대상은 DS | 저장 확인 다이얼로그를 연다. **backdrop 이 즉시 나타나고(fade 없음) dialog 가 scale 없이 튀어나오면 gap.** 닫을 때 exit 없이 즉시 사라지는 것도 확인 | **gap** |
-| MOTION-02 | MOTION | 상속 | **미충족.** Toast 표면이 실재한다(`:209,252`). `Toast.css:25` 에 **entrance 애니메이션만** 있다(`animation: tds-toast-in …`) — **exit 애니메이션이 없다.** `@keyframes tds-toast-in` 만 정의돼 있고 out 이 없어 자동소멸 시 애니메이션 없이 즉시 unmount 된다. reduced-motion 게이트는 있다(`:110-112` `animation: none`) — 그 절은 충족. queue/ARIA 유지는 `ToastProvider` 소유 | 저장 성공 → 토스트 자동소멸 관찰. **fade/slide out 없이 즉시 사라지면 gap** | **gap** |
-| MOTION-03 | MOTION | 상속 | **미충족.** reduced-motion 게이트가 걸려야 할 이 화면의 표면: DS `Checkbox` · `SelectField` · `Button` · 스켈레톤 펄스 · Toast · Modal. **`ToggleSwitch` 는 이 화면에 없다**(사이트·OAuth 화면에만 있다) — 요구가 명시 지목하는 그 컴포넌트의 결함은 NFR-067 §2 · NFR-070 §2 가 기록한다. **이 화면에서의 위반**: ① **Modal 에 reduced-motion 블록이 없다**(`Modal.css` — 애초에 모션이 없어 무해하나 게이트도 없다) ② **전역 duration 치환이 없다** — 앱의 유일한 reduced-motion 블록은 `shared/ui/ui.css:110-114` 인데 `.tds-ui-skeleton { animation-name: none }` 만 끈다. `Motion.stories.tsx:8` 이 '런타임 규칙상 reduced-motion 시 duration 은 0ms 로 치환된다'고 적으나 **그 치환을 구현한 CSS/JS 가 없다 — 문서와 코드가 어긋난다.** Toast·Button·ListRow·Tabs 등은 각자 게이트를 갖는다(grep 확인). **이 화면이 transform/transition 을 직접 선언하지 않으므로**(grep 0건) 앱 코드로 해소 불가 | OS reduced-motion 으로 두고 `/settings/languages` 에서 체크박스·select 조작 · 다이얼로그 열기. `grep -rn "prefers-reduced-motion" packages/ui/src/organisms/Modal/` → **0건이면 gap** | **gap** |
+| MOTION-01 | MOTION | 상속 | **PR #26 에서 구현됐다 — 다만 라이브러리가 아니라 CSS-only 다.** Modal 표면이 실재한다(저장 확인 · 충돌 · 이탈 가드 — 3종). backdrop fade + dialog scale 이 실재한다: backdrop enter `Modal.css:20-21`→`@keyframes tds-modal-backdrop-in :126-134` · exit `:30-33`→`tds-modal-backdrop-out :136-144` · dialog enter `:58-59`→`tds-modal-dialog-in :146-156`(opacity 0→1 · `scale(0.96)→scale(1)`) · exit `:35-38`→`tds-modal-dialog-out :158-168`(`forwards`). reduced-motion 게이트 `:173-180`. `component.overlay` recipe 소비(`tokens/tokens.json:1286-1308`). **`AnimatePresence` 는 없고**(`packages/ui/src` Motion/framer-motion 소비 **0건** — 라이브러리 미도입) 요구문의 'exit 완료 후에만 unmount' 를 **네이티브 `onAnimationEnd`**(`Modal.tsx:216-218`)로 동등 달성한다. **잔여**: 애니메이션되는 닫힘은 Modal 소유 3경로(Esc `Modal.tsx:167-171` · 딤 `:204` · × `:227-232`)뿐이고 **footer 버튼은 즉시 언마운트**(`Modal.tsx:27-31`) — **이 화면의 다이얼로그 3종은 footer 가 주 닫기 수단이다**. **라이브러리 부재를 gap 으로 볼지는 DS 소유 문서의 몫** | 저장 확인 다이얼로그를 연다. **backdrop 이 fade in 하고 dialog 가 `scale(0.96)→1` 로 들어오면 enter 는 충족.** Esc 로 닫아 exit 를 관찰하고, **footer '취소' 로 닫으면 exit 없이 즉시 사라지는 것**을 대조한다 | **종속** |
+| MOTION-02 | MOTION | 상속 | **충족 — PR #26 에서 해소됐다(이전 배치 판정 `gap` 을 뒤집는다).** Toast 표면이 실재한다(`:209,252`). exit 애니메이션이 실재한다: `.tds-toast--exiting` `Toast.css:32-37`(`tds-toast-out … forwards` + `pointer-events: none`) → `@keyframes tds-toast-out :121-131`(opacity 1→0 · `translateY(0)→translateY(var(--tds-space-3))`). enter `:26-27`/`:109-119`. **요구가 명시한 'exit duration fast~normal · easing accelerate' 를 정확히 충족** — `component.overlay.exit-duration` = `{motion.duration.fast}`(150ms) · `exit-easing` = `{motion.easing.accelerate}`(`tokens/tokens.json:1298-1307`). exit 완료 후 unmount 는 `TOAST_EXIT_ANIMATION` 대조 `onAnimationEnd` 로 달성. reduced-motion 게이트 `Toast.css:136-141`. queue/ARIA 유지는 `ToastProvider` 소유 | 저장 성공 → 토스트 자동소멸 관찰. **opacity fade + 아래로 translate 후 사라지면 pass** | **pass** |
+| MOTION-03 | MOTION | 상속 | **충족 — PR #26 에서 해소됐다(이전 배치 판정 `gap` 을 뒤집는다).** reduced-motion 게이트가 걸려야 할 이 화면의 표면: DS `Checkbox` · `SelectField` · `Button` · 스켈레톤 펄스 · Toast · Modal. **`ToggleSwitch` 는 이 화면에 없다**(사이트·OAuth 화면에만 있다) — 요구가 명시 지목한 그 컴포넌트의 게이트도 이번 기준에서 신설됐고(`ToggleSwitch.css:79-84`) NFR-067 §2 · NFR-070 §2 가 그 해소를 기록한다. **이전 배치가 든 이 화면의 위반 2건이 해소됐다**: ① **Modal 에 reduced-motion 게이트가 생겼다** — `Modal.css:173-180` 이 `.tds-modal__backdrop, .tds-modal__dialog, .tds-modal__overlay--closing .tds-modal__backdrop, .tds-modal__overlay--closing .tds-modal__dialog { animation: none; }` 로 **enter 뿐 아니라 exit 도 끈다**(`--closing` 조합자를 명시 나열) ② 나머지 표면도 각자 게이트를 갖는다 — Toast `Toast.css:136-141` · 스켈레톤 `shared/ui/ui.css:110-114`. 설계가 단일 게이트다 — **CSS 가 유일 판정자이고 JS 는 결과를 읽기만 한다**(`willAnimate()` — `Modal.tsx:45-55` 주석). **이 화면이 transform/transition 을 직접 선언하지 않는다**(grep 0건) | OS reduced-motion 으로 두고 `/settings/languages` 에서 체크박스·select 조작 · 다이얼로그 열기. `grep -rn "prefers-reduced-motion" packages/ui/src/organisms/Modal/Modal.css` → **`:173` 히트** | **pass** |
 | IA-01 | IA | 직접 | **충족.** 라우트가 AppShell layout route 아래에 등록된다(`App.tsx:338` `{ path: '/settings/languages', element: <LanguagesPage />, implemented: true }`). **자체 outer frame/sidebar/top bar 를 도입하지 않는다** — 최상위가 평범한 `<div style={pageStyle}>`(`SettingsFormShell.tsx:141`). `App.tsx:335-336` 주석이 구조를 밝힌다: 'AppShell 이 `<Outlet>` 을 RequirePermission 으로 감싸 모든 라우트를 한 번에 덮는다' | `/settings/languages` 진입 시 사이드바·AppHeader 가 유지되고 화면이 자체 nav/header 를 그리지 않는지 확인 | **pass** |
 | IA-02 | IA | 직접 | **충족.** `/settings/languages` 는 **nav 잎**이다(`nav-config.ts:228` `['언어 관리', '/settings/languages']`) — 하위 라우트가 없다. `findCoveringLeaf('/settings/languages')`(`nav-config.ts:270-278`)가 **자기 자신을 정확히 찾고** `findNavLabel`(`:297-299`)이 `'언어 관리'` 를 반환한다. AppHeader 가 `<h1>` 으로 렌더(`AppHeader.tsx:101`). **이 화면은 in-content `<h1>` 을 그리지 않는다** — grep **0건**. 따라서 **`<h1>` 이 정확히 1개이고 title 메커니즘이 단일하다.** GROUND-TRUTH §7 의 gap 두 갈래(가지 라벨 폴백 · h1 이중)가 **여기엔 둘 다 없다.** 'sub-route 가 구체 title' 절은 하위 라우트가 없어 발생하지 않는다. ⚠ **카드 제목('언어 설정')이 nav 라벨('언어 관리')과 다른 것은 IA-02 위반이 아니다** — 카드 제목은 title 메커니즘이 아니라 카드 시맨틱이며 `<h1>` 이 아니다. 다만 카피 일관성 문제로 §3(ERP) · §5 #6 에 기록 | `/settings/languages` 진입. **AppHeader 의 가시 `<h1>` 이 '언어 관리'이고 `document.querySelectorAll('h1').length === 1` 이면 pass** | **pass** |
 | IA-04 | IA | N/A | **표면이 없다.** **list 화면이 아니다** — 단일 문서 폼이다(§1.2). 표·결과 count·우상단 목록 action·SelectionBar·Pagination 이 하나도 없고, 있어야 할 이유도 없다(문서가 1건이다). ⚠ **체크박스 4행이 `<ul>` 이지만 그것은 list 화면이 아니라 폼 컨트롤 그룹**이다(`<fieldset>` 안에 있다 — `:298-328`). 요구의 appliesTo('list 템플릿')가 성립하지 않는다 | 이 라우트에 목록이 도입되면 다시 매긴다 | **n-a** |
@@ -84,19 +85,19 @@ date: 2026-07-17
 
 | 판정 | 건수 | 요구 ID |
 |---|---|---|
-| `pass` | **10** | STATE-01 · STATE-02 · TOKEN-01 · FEEDBACK-02 · FEEDBACK-04 · IA-01 · IA-02 · EXC-03 · EXC-04 · EXC-09 |
-| `종속` | **8** | TOKEN-02 · TOKEN-03 · TOKEN-04 · TOKEN-05 · A11Y-01 · A11Y-02 · EXC-01 · EXC-02 |
+| `pass` | **12** | STATE-01 · STATE-02 · TOKEN-01 · FEEDBACK-02 · FEEDBACK-04 · **MOTION-02** · **MOTION-03** · IA-01 · IA-02 · EXC-03 · EXC-04 · EXC-09 |
+| `종속` | **9** | TOKEN-02 · TOKEN-03 · TOKEN-04 · TOKEN-05 · A11Y-01 · A11Y-02 · **MOTION-01** · EXC-01 · EXC-02 |
 | `n-a` | **7** | STATE-04 · COMP-10 · FEEDBACK-06 · A11Y-12 · IA-04 · IA-05 · IA-13 |
-| `gap` | **5** | **A11Y-11** · MOTION-01 · MOTION-02 · MOTION-03 · EXC-08 |
-| **합계** | **30** | 10 + 8 + 7 + 5 = **30** ✓ |
+| `gap` | **2** | **A11Y-11** · EXC-08 |
+| **합계** | **30** | 12 + 9 + 7 + 2 = **30** ✓ |
 
 **검산 (P0 30건 전수 · 지정 순서대로 나열해 셈)**
 
 | # | 요구 ID | 판정 | # | 요구 ID | 판정 |
 |---|---|---|---|---|---|
-| 1 | STATE-01 | pass | 16 | MOTION-01 | gap |
-| 2 | STATE-02 | pass | 17 | MOTION-02 | gap |
-| 3 | STATE-04 | n-a | 18 | MOTION-03 | gap |
+| 1 | STATE-01 | pass | 16 | MOTION-01 | 종속 |
+| 2 | STATE-02 | pass | 17 | MOTION-02 | pass |
+| 3 | STATE-04 | n-a | 18 | MOTION-03 | pass |
 | 4 | TOKEN-01 | pass | 19 | IA-01 | pass |
 | 5 | TOKEN-02 | 종속 | 20 | IA-02 | pass |
 | 6 | TOKEN-03 | 종속 | 21 | IA-04 | n-a |
@@ -110,9 +111,11 @@ date: 2026-07-17
 | 14 | A11Y-02 | 종속 | 29 | EXC-09 | pass |
 | 15 | **A11Y-11** | **gap** | 30 | A11Y-12 | n-a |
 
-> 30행 전수 · `pass` 10 + `종속` 8 + `n-a` 7 + `gap` 5 = **30** ✓
+> 30행 전수 · `pass` 12 + `종속` 9 + `n-a` 7 + `gap` 2 = **30** ✓
 
-> **P0 gap 5건 — quality-bar '배치 실패' 사유.** **MOTION-01·02·03 은 앱 코드로 해소 불가**(Motion 라이브러리 미도입 · DS 소유 — §5 #1). **화면 코드로 해소 가능한 P0 gap 은 2건**: **A11Y-11**(고아 오류 id + 잠금 사유 미연결 — **이 화면 고유**) · **EXC-08**(멱등키 — `If-Match` 가 데이터 안전을 이미 보장해 잔여는 UX).
+> **P0 gap 2건 — 이번 기준(`a5c2639`) 갱신으로 5건에서 줄었다.** 뒤집힌 3건은 전부 **PR #26** 이다: **MOTION-02**(Toast exit 신설 — `Toast.css:32-37,121-131`) · **MOTION-03**(Modal reduced-motion 게이트 신설 — `Modal.css:173-180`) 은 **`pass` 로**, **MOTION-01** 은 오버레이 모션이 구현됐으나 **CSS-only** 라(라이브러리 부재는 여전하다) **`종속` 으로** 바뀌었다. **이전 배치가 든 gap 사유가 코드로 해소된 것이지 판정 기준이 느슨해진 것이 아니다.**
+>
+> **잔여 P0 gap 2건은 전부 화면 코드로 해소 가능하며 이번 기준에서 바뀐 것이 없다**: **A11Y-11**(고아 오류 id + 잠금 사유 미연결 — **이 화면 고유**. PR #30 의 DS 층 작업은 `ImageUploadField`·`SegmentPicker`·`OAuthProviderCard` 를 손댔고 **이 화면의 표면은 그 셋에 없다** — 이 화면의 required 는 `SelectField` 경유라 이미 pass 였다) · **EXC-08**(멱등키 — `If-Match` 가 데이터 안전을 이미 보장해 잔여는 UX). ⚠ **같은 섹션의 API Key 화면은 이번 기준에서 EXC-08 이 pass 로 뒤집혔다**(`api-keys/data-source.ts:107-141`) — **선례가 둘로 늘었다**.
 >
 > **형제 화면과의 차이 (기록)**: NFR-067(사이트 설정)은 A11Y-11 이 **pass** 다 — 그 화면의 required FormField 자식이 전부 `input`/`SelectField` 이고 오류 id 가 전부 실재하는 컨트롤을 가리킨다. **이 화면만 체크박스 그룹이 있어** 그룹 오류의 연결 대상이 모호해졌고, 그 자리에서 고아 id 가 생겼다. **A11Y-11 은 화면마다 다시 매겨야 하며 섹션 단위로 일반화하면 틀린다** — NFR-070(OAuth)은 또 다른 이유로 gap 이다(래퍼 `<span>`).
 >
@@ -201,7 +204,7 @@ date: 2026-07-17
 
 | # | 요구 ID | P | 내용 | 범위 | 이관 |
 |---|---|---|---|---|---|
-| 1 | MOTION-01 · MOTION-02 · MOTION-03 | P0 ×3 | **Motion 라이브러리 미도입**(`packages/ui` 전체 소비 0건). Modal 에 fade/scale/exit·reduced-motion 게이트 없음(`Modal.css`) · Toast 에 exit 없음(`Toast.css:25` — entrance 만) · 전역 duration 치환 없음(`ui.css:110-114` 는 스켈레톤만 끈다 — `Motion.stories.tsx:8` 의 '런타임 규칙'이 구현되지 않았다) | **`packages/ui`(DS) — 앱 코드로 해소 불가** | **A41 / DS (별도 단계)** |
+| 1 | MOTION-01 | P0 → **종속** | **~~Motion 라이브러리 미도입으로 Modal 에 fade/scale/exit·reduced-motion 게이트가 없다~~ — 이 사유는 PR #26 으로 해소됐다.** 오버레이 모션이 구현됐고(`Modal.css:20-21,30-38,58-59` + keyframes `:126-168`) **reduced-motion 게이트**(`:173-180`)와 **Toast exit**(`Toast.css:32-37,121-131`)도 신설돼 **MOTION-02·03 은 pass 로 뒤집혔다.** **라이브러리는 여전히 미도입**(`packages/ui/src` Motion/AnimatePresence 0건)이나 'exit 후 unmount' 는 `onAnimationEnd`(`Modal.tsx:216-218`)로 동등 달성했다. **잔여**: footer 버튼 경로는 즉시 언마운트(`Modal.tsx:27-31`)이고 **이 화면의 다이얼로그 3종은 footer 가 주 닫기 수단**이다. **라이브러리 부재/footer 경로를 gap 으로 볼지는 DS 소유 문서가 정한다** | **`packages/ui`(DS)** | **A41 / DS (판정 대기)** |
 | 2 | **A11Y-11** · A11Y-16 | **P0** · P1 | **이 화면 고유 결함 2건.** ① **고아 오류 id** — `:331` 이 `<p id={errorIdOf('lang-supported')}>` 를 렌더하나 **`lang-supported` 라는 id 의 요소가 없고**(체크박스는 `lang-supported-ko` 등) 어떤 컨트롤도 이 오류를 `aria-describedby` 로 참조하지 않는다. **`<fieldset>` 에 `aria-describedby` 를 물리는 것이 옳은 해법** ② **잠긴 체크박스가 이유를 말하지 않는다** — 잠금 사유(`:320-324`)가 형제 `<span>` 일 뿐 연결되지 않아 시각 사용자만 안다. **required 노출·aria-invalid 짝은 pass**(select 자식이 `SelectField` 라 주입됨) | 이 화면 | A11 change_request |
 | 3 | EXC-08 | P0 | 저장에 **멱등키 없음**(`grep Idempotency pages/settings/` = 0건). 동기 잠금(`useSubmitLock`)은 있어 연타는 막힌다. **`If-Match` 가 중복 적용을 막아 데이터는 안전** — 잔여 위험은 '자기 저장에 대해 거짓 충돌 다이얼로그를 보는' UX. 선례: `members/components/PointsCard.tsx:103,162-173` | 이 화면 + BE 계약 | A11 · A63 (BE-068 §7.4) |
 | 4 | STATE-03 | P1 | `useEffect([data, reset])`(`:156-159`)가 **편집 중 재조회에서도 `reset`** 을 돌려 체크 상태를 덮는다. **설정 4화면 공통** | 이 화면(섹션 공통 패턴) | A11 change_request |
@@ -220,7 +223,7 @@ date: 2026-07-17
 
 ## 6. 측정 도구 · 재현 스위치
 
-> **E2E 미실행 — 이 문서의 모든 판정 근거는 코드 대조다**(기준일 2026-07-17 · `HEAD = 4b805ad`). 아래 스위치는 판정을 재현·검증할 때 쓰는 수단이며, 이 문서가 그것을 실행해 얻은 결과를 적은 것이 아니다.
+> **E2E 미실행 — 이 문서의 모든 판정 근거는 코드 대조다**(기준일 2026-07-17 · `HEAD = a5c2639`). 아래 스위치는 판정을 재현·검증할 때 쓰는 수단이며, 이 문서가 그것을 실행해 얻은 결과를 적은 것이 아니다.
 
 **이 화면의 `?fail=` scope 와 op (코드 확인)**
 
@@ -267,14 +270,14 @@ date: 2026-07-17
 - [x] 모든 `pass` 에 코드 근거(파일:라인)를 댔다
 - [x] 모든 `gap` 에 재현 가능한 측정 기준을 댔다 — **A11Y-11 ③ 은 `document.getElementById('lang-supported') === null` 이라는 결정적 재현을 댔다**
 - [x] 모든 `N/A` 에 사유를 댔다 (STATE-04·IA-04 목록 부재 · COMP-10 검색 부재 · FEEDBACK-06 폼 modal 부재 · A11Y-12 토글 필터 부재 · IA-05 폼 라우트 쌍 부재 · IA-13 list state 부재)
-- [x] **§2.1 산수 검산 — 10 pass + 8 종속 + 7 n-a + 5 gap = 30 ✓** (요약표 + 30행 전수 나열 2중 검산)
+- [x] **§2.1 산수 검산 — 12 pass + 9 종속 + 7 n-a + 2 gap = 30 ✓** (요약표 + 30행 전수 나열 2중 검산)
 - [x] **A11Y-11 의 '전수' 가 진짜 전수임을 확인했다** — `grep -rn "required" apps/admin/src/pages/settings/` 히트를 전건 분류한 결과 **설정 4화면의 모든 `required` 는 `FormField` prop 이거나 zod 헬퍼 이름이며, `FormField` 를 거치지 않는 required 표면이 0건**이다. `ImageUploadField`·`ImageGalleryField`·`SegmentPicker`·`TextField`(전부 `required` 를 AT 에 잇지 않는 컴포넌트)의 소비가 **이 섹션에 0건**이다. 이 화면의 `@tds/ui` 직접 import 는 `Checkbox` 뿐이고 **`required` 를 받지 않는다**(체크박스 4개는 그룹 규칙이라 개별 필수가 아니다 — §2 A11Y-11 ①)
 - [x] `상속` 항목은 **이 화면에 그 표면이 실재하는 것만** 적었다 — **MOTION-03 에서 `ToggleSwitch` 가 이 화면에 없음을 명시**하고 그 결함은 NFR-067·070 의 몫으로 넘겼다
 - [x] **`상속` + `gap` 조합의 근거를 §1.1 에 규약으로 명시**했다 — MOTION 3건은 DS 소유이나 상태가 코드로 확정돼 `종속` 이 아니라 `gap` 이다
 - [x] §3 은 표면이 실재하는 P1·P2 만 선별했다 — 없는 표면(목록·검색·업로드·CSV·시크릿·자유 텍스트)은 적지 않고 **COMP-12·STATE-05 는 표면 부재로 n-a** 처리했다
 - [x] §4.1 에 **`LATENCY_MS = 400` 이 개발용 지연이며 예산이 아님**을 명시했다
 - [x] §6 의 `?fail=` scope(`languages`)와 op 2종을 **`createRevisionedStore` 호출부에서 확인**했고, **이 섹션 고유의 `?fail=conflict` 스위치**(`store.ts:60-65`)를 별도로 기록했으며, **`?delay=` 를 쓰지 않았다**
-- [x] 'E2E 미실행 — 판정 근거는 코드 대조' 를 §1 과 §6 에 명시했다. **기준일 2026-07-17 · `HEAD = 4b805ad`** 를 §1 에 명시했다
+- [x] 'E2E 미실행 — 판정 근거는 코드 대조' 를 §1 과 §6 에 명시했다. **기준일 2026-07-17 · `HEAD = a5c2639`** 를 §1 에 명시했다
 - [x] §5 의 gap 이 FS-068 §7 · BE-068 §7.6 과 일치한다
 - [x] **A11Y-11 이 형제 화면(NFR-067 pass)과 갈리는 이유**(이 화면만 체크박스 그룹이 있다)를 §2.1 하단에 기록하고, **화면마다 다시 매겨야 함**을 못박았다
 - [x] **EXC-03 · EXC-04 가 이 화면에서 pass 이며 그것이 기존 배치의 앱 전역 gap 판정을 뒤집는다는 사실**을 §2.1 하단에 기록했다

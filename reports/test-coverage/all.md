@@ -4,7 +4,7 @@
 > 커밋되는 기준선이다 — **커버리지가 실제로 바뀔 때만 바뀐다.** 실행 시각은 여기 없다(콘솔/tmp 참조).
 > **커버리지는 라인 %가 아니다.** 계약이 정의한 상태 전부 + FS가 정의한 예외 축 전부다.
 
-- 판정: **WARN** (exit 0) — blocker 0건 · major 11976건
+- 판정: **WARN** (exit 0) — blocker 0건 · major 11981건
 - 입력: 계약 38종 · FS 70건 · 테스트 파일 153개 · 스토리 파일 48개
 - **단언을 가진 실행 단위(= 테스트): 1707건** / 단언 없는 실행 단위: 4건
 
@@ -15,7 +15,7 @@
 | 1 | 테스트 존재 (워크스페이스 스코프별 · 단언을 가진 실행 단위) | **blocker** | 2 | 2 | 0 | 스코프마다 >= 1건 | G5·G6 | PASS |
 | 2 | 계약 states 커버리지 (contracts/*.contract.json → states[]) | **blocker** | 113 | 113 | 0 | 미커버 상태 0건 (전수) | G5·G6 | PASS |
 | 3 | 계약 events.blockedWhen 커버리지 (금지 동작의 비발생 단언) | **blocker** | 18 | 18 | 0 | 미커버 차단 조건 0건 (전수) | G5·G6 | PASS |
-| 4 | FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) | major | 137 | 12111 | 11974 | 미커버 칸 0건 (major) · **커버 칸 수 후퇴 = blocker** | G6 | VIOLATED |
+| 4 | FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) | major | 137 | 12116 | 11979 | 미커버 칸 0건 (major) · **커버 칸 수 후퇴 = blocker** | G6 | VIOLATED |
 | 5 | 검증 도구의 골든 픽스처 (codegen · contract-test) | major | 0 | 2 | 2 | 도구당 골든 픽스처 >= 1건 | G5·G6 | VIOLATED |
 
 ### 축 1 — 스코프별 (워크스페이스 파생)
@@ -44,7 +44,7 @@
 | `apps/admin/src/shared/token-guard.test.ts` | 1건 |
 | `packages/ui/src/foundations/TokenGuard.test.ts` | 1건 |
 
-## 축 4 — FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) (11974건, major)
+## 축 4 — FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) (11979건, major)
 
 | 원천 | 덮이지 않은 항목 | 기대 테스트 이름 |
 |---|---|---|
@@ -60,7 +60,7 @@
 | `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-004 × 권한없음 | `FS-016-EL-004: 권한없음 — §4.1 공통 규칙 적용 — 권한 부족(403)도 같은 문구` |
 | `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-004 × 경합 | `FS-016-EL-004: 경합 — 409/412 도 같은 문구로 뭉개진다 — 충돌 다이얼로그 없음(§7 #2)` |
 | `specs/company/ceo-message/FS-016-ceo-message.md` | FS-016-EL-005 × 로딩 | `FS-016-EL-005: 로딩 — 이것이 로딩 표현. 막대 4개 고정(입력은 3종 — 수가 일치하지 않는다)` |
-| … 외 **11962건** | 전수 목록은 JSON 리포트 `gaps[]` 참조 | |
+| … 외 **11967건** | 전수 목록은 JSON 리포트 `gaps[]` 참조 | |
 
 ## 축 5 — 검증 도구의 골든 픽스처 (codegen · contract-test) (2건, major)
 

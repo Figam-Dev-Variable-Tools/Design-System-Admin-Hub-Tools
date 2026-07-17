@@ -52,6 +52,9 @@ date: 2026-07-17
 | `channel` | `enum(['visit','phone','video'])` | — (위반 불가) |
 | `topic` | `trim() !== ''` · `trim().length <= 80` | '상담 주제를 입력하세요.' / '상담 주제는 80자를 넘을 수 없습니다.' |
 | `preferredDate` | `isRealDate` — 'YYYY-MM-DD' **그리고 달력상 실재**. **과거를 막지 않는다** | '희망 날짜를 YYYY-MM-DD 형식으로 입력하세요.' |
+
+> **`isRealDate` 는 낡은 잔재가 아니라 의도적 잔존이다.** PR #28(`5e86a3c`)이 앱 전역의 날짜 검증 사본 11벌 중 **10벌을 삭제**하고 정본 `shared/format.isCalendarDate`(`:244-249`)로 수렴시켰는데(그중 5벌은 왕복 검사를 빠뜨려 `2026-02-31` 을 통과시키던 진짜 결함이었다), **예약 섹션의 이 1벌만 남겼다** — `pages/reservations/_shared/calendar.ts:62-66`. 커밋 메시지가 사유를 밝힌다: 이 구현은 **왕복을 올바로 하고**(`parseDate` → `toDateString(parsed) === date.trim()`) `parseDate`/`toDateString` 과 함께 **TZ 가 논증된 모듈**이라 손대지 않았다. 프로덕션 호출부는 **2곳뿐**이다 — `consultations/validation.ts:29`(이 계약) · `reservation-validation.ts:45`(BE-037). 즉 `isCalendarDate` 로 바꿔야 할 부채가 아니라 **정본과 동등한 별도 구현**이며, 서버 계약에는 영향이 없다(양쪽 모두 '달력상 실재' 를 뜻한다).
+
 | `preferredTime` | `/^\d{2}:\d{2}$/` — **영업시간·슬롯 단위 미강제** | '희망 시각을 HH:MM 형식으로 입력하세요.' |
 | `staffId` | `z.string()` — **아무 문자열이나 통과. 존재하지 않는 담당자 id 도 통과한다**(§7.7) | — |
 | `status` | `enum(['requested','confirmed','visited','noshow','cancelled'])` — **전이 규칙은 검사하지 않는다**(select 후보 축소가 대신한다 — §7.5) | — |

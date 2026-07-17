@@ -40,6 +40,9 @@ date: 2026-07-17
 | SKU 중복 검사는 **한 상품 안**에 갇혀 있다 | `items/validation.ts:88-94` |
 | 이미지 값은 `blob:` 아니면 `''` 뿐이고 http(s) 를 강제하지 않는다 | `shared/crud/validation.ts:39-71` `requiredImage` |
 | `GET /api/products/:id` 를 **다른 화면도 소비한다** | `products/returns/data-source.ts:193-195` `fetchReturnProduct` |
+| **`description` 이 평문이 아니라 sanitize 된 HTML 이다**(§3.1) | `ProductFormPage.tsx:582-592` `RichTextField` · 저장 sanitize `:202` |
+| 상세설명 상한이 **평문 기준**이다 | `items/validation.ts:6,107-111` `richTextLength(value) <= PRODUCT_DESCRIPTION_MAX` |
+| 평문 → HTML 승격이 **단일 지점·멱등**이다 | `items/types.ts:91` `ensureRichText(product.description)` (근거 주석 `:69-71`) |
 
 > **에러 봉투·권한 모델 상속**: BE-003 §2·§3 을 그대로 상속한다. 아래는 상품 도메인 고유 차이만 기술한다.
 
@@ -57,6 +60,7 @@ date: 2026-07-17
 |---|---|---|
 | `Product` | `id` · `name` · `code` · `categoryId` · `categoryLabel`(서버 조인·비정규화) · `brand` · `pricing` · `saleStatus` · `displayed` · `optionGroups[]` · `variants[]` · `shipping` · `points` · `coverImageUrl` · `imageUrls[]` · `description` · `tags[]` | 목록·상세가 **같은 타입**이다 — 목록도 옵션·이미지·설명 전문을 받는다(§7.6). **`version`/`updatedAt`/`createdAt` 이 없다**(§7.2) |
 | `ProductInput` | `Omit<Product, 'id' \| 'categoryLabel'>` | 저장 입력. **라벨은 서버가 조인하므로 제외.** 전체 치환이다 |
+| `Product.description` | **sanitize 된 HTML 문자열**(평문이 아니다 — §3.1) | 타입은 여전히 `string` 이나 **의미가 바뀌었다**. 서버는 이 값을 마크업으로 저장·반환해야 한다 |
 | `ProductPricing` | `price`(원) · `discountType` · `discountValue`(amount=원 \| percent=% \| none=0) · `taxable` | `taxable` 은 **최종가에 영향을 주지 않는다**(`store.ts:196-197`) |
 | `ProductOptionGroup` | `id` · `name` · `values[]` | 조합형 옵션의 축. 최대 3개(`MAX_OPTION_GROUPS`) |
 | `ProductVariant` | `id` · `sku` · `optionValues[]`(`optionGroups` 순서 정렬) · `addPrice`(원) · `stock` · `soldOut` | 데카르트 곱 한 칸. 옵션이 없으면 `optionValues: []` 단일 SKU. **`addPrice` 타입 주석은 음수를 허용하나 UI·스키마가 둘 다 막는다**(FS-041 §7 #20) |
@@ -83,10 +87,30 @@ date: 2026-07-17
 | `variants` | ≥1행 · `0 ≤ stock ≤ 999,999` · `addPrice ≥ 0` · **비어 있지 않은 SKU 끼리 유일** | 빈 SKU 는 유일성 검사에서 제외 |
 | `coverImageUrl` | **등록 여부만** — 형식 미강제 | §7.5 알려진 빚 |
 | `imageUrls` | ≤10장 | — |
-| `description` | ≤2000자 | — |
+| `description` | ≤2000자 — **단 세는 대상이 HTML 이 아니라 평문이다**: `richTextLength(value) <= 2000`(`items/validation.ts:107-111`). 마크업 길이는 상한에 들어가지 않는다 | **서버가 정본이려면 서버도 평문 기준으로 세야 한다** — `value.length` 로 재면 프론트가 통과시킨 값을 서버가 거절한다(§3.1) |
 | `tags` | ≤20개 | 개별 길이·중복 미검증 |
 
 **파생 규칙 (프론트 순수 함수 — 서버가 내려주지 않는다)**: `finalPrice`(할인 반영 최종가) · `discountRate`(할인율 환산) · `totalStock`(SKU 재고 합) · `isLowStock`(0 초과 10 미만 · 판매중지 제외) · `earnedPoints`(최종가 × 적립률, 원 단위 절사) · `buildVariantMatrix`(데카르트 곱 + 기존 조합 보존). **서버 계약에 이 필드들이 없다** — §7.11.
+
+### 3.1 `description` 이 평문에서 HTML 로 바뀌었다 — 계약의 의미 변경 【정합 판정】
+
+**타입은 그대로 `string` 인데 뜻이 달라졌다.** 상세설명 입력이 `TextareaField`(평문)에서 `RichTextField`(Tiptap)로 교체되면서(FS-041-EL-029.1) 이 필드가 실어 나르는 것은 **sanitize 된 HTML 마크업**이 됐다. 타입 시그니처가 안 바뀌었으므로 **컴파일러가 이 변경을 잡아주지 않는다** — 계약 문서가 유일한 경고다.
+
+| 항목 | 내용 |
+|---|---|
+| 저장으로 나가는 값 | 항상 sanitize 를 지난 HTML. 이중으로 건다 — 필드가 `onChange` 에서(`RichTextField.tsx:236`), 폼이 저장 직전에 한 번 더(`ProductFormPage.tsx:202` `isRichTextEmpty(values.description) ? '' : sanitizeRichText(values.description)`) |
+| 빈 값의 표현 | `'<p></p>'` 같은 빈 본문은 **`''` 로 눕혀 보낸다**(`ProductFormPage.tsx:202`) — 서버가 '빈 설명'을 마크업 쓰레기로 저장하지 않도록. 판정은 문자열 비교가 아니라 `isRichTextEmpty` |
+| 들어오는 값의 승격 | `toProductInput` 이 `ensureRichText(product.description)` 로 승격한다(`types.ts:91`). **단일 마이그레이션 지점**이며 이미 HTML 인 값에 **멱등**이다(근거 `:69-71`) — 값을 읽는 모든 경로가 이 함수를 지나므로 여기 한 곳이면 되고, 목록 인라인 토글이 반복 호출해도 안전하다 |
+| 길이 상한 | **평문 기준 2000자**. 마크업은 세지 않는다 |
+| 허용 마크업 | 태그 19개 · 속성 6개 · URI 스킴 `http: https: mailto: tel: blob:` + 상대경로 — 정본은 `RichTextField.tsx:35-55,62,74`. `data:` 는 차단된다 |
+
+**서버가 해야 할 일** — 이 계약이 요구하는 바:
+1. **서버도 sanitize 해야 한다.** 프론트 sanitize 는 **UX 이지 보안 경계가 아니다** — HTTP 클라이언트는 임의의 마크업을 `PUT` 할 수 있다. 프론트의 허용목록은 참고 사양일 뿐 서버의 방어를 대신하지 않는다.
+2. **길이 검증을 평문 기준으로 맞춰야 한다.** `value.length` 로 재면 프론트가 통과시킨 값(`<strong>` 한 번에 마크업 17자)을 서버가 2000자 초과로 거절해, 화면의 `N/2000` 카운터와 서버 판정이 어긋난다.
+3. **기존 평문 데이터의 이관.** 프론트는 `ensureRichText` 로 읽는 시점에 승격하지만 **저장된 값 자체는 승격되지 않는다** — 사용자가 그 상품을 열어 저장해야 비로소 HTML 이 된다. 서버 측 일괄 이관을 할지, 읽기 시점 승격에 맡길지는 **미정**이다(그렇게 정한 문서·이슈가 없다).
+4. **소비처 전파.** `GET /api/products/:id` 를 반품 화면도 소비한다(`products/returns/data-source.ts:195-199` `fetchReturnProduct` — 교환 옵션·재고 조회용). **오늘은 무해하다** — 반품 화면은 `description` 을 읽지도 그리지도 않는다(`pages/products/returns/` 에서 `description` grep = **0건**). 그러나 같은 `Product` 타입을 받으므로 **장래에 그쪽이 상세설명을 그리면 마크업을 평문으로 노출하게 된다** — 이 계약을 소비하는 화면은 `description` 을 `textContent` 로 다루면 안 된다.
+
+> **엔드포인트는 바뀌지 않는다** — 이 절은 §4 의 기존 계약에 필드 의미만 다시 못박는다. 새 엔드포인트를 요구하지 않는다.
 
 ## 4. 엔드포인트 명세
 

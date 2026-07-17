@@ -72,7 +72,7 @@ date: 2026-07-17
 | `stage` | `z.enum` 6개(`:39`). **전이 규칙 없음** | §3 의 `STAGE_FLOW` 를 **신설해 422 로 강제**(§7.2) |
 | `probability` | 문자열 · `^\d+$` · ≤100(`percentString('확률')` — `:25-33,40`) | 정수 0~100. 400 |
 | `expectedRevenue` | 문자열 · `^\d+$`(`:41-45`). **상한 없음** | 정수 0 ~ **1,000,000,000,000(1조)**. 초과 시 400 — §7.4 |
-| `startAt`·`endAt` | 실재 날짜(`isRealDate` — `:13-16`) · `endAt >= startAt`(`:55-76`) | 동일. 400(형식) / **422 `INVALID_PERIOD`**(역전) |
+| `startAt`·`endAt` | 실재 날짜(**`isCalendarDate`** — `validation.ts:54` ×2, 정본 정의 `shared/format.ts:244-249`) · `endAt >= startAt`(`:50-71`) | 동일. 400(형식) / **422 `INVALID_PERIOD`**(역전). ⚠ **이번 기준(PR #28 · `5e86a3c`)에서 프론트 동작이 바뀌었다** — 이 화면에 있던 사본 `isRealDate` 는 형식만 보고 실재 여부를 보지 않아 **`2026-02-31` 을 서버로 흘려보냈다**. 정본으로 수렴해 이제 프론트가 막는다(회귀 `projects.test.ts:129`). **서버 검증 요구는 그대로다** — 프론트 수렴은 서버 재검증을 대신하지 않는다 |
 | `ownerName` | `z.string()` — **검증 없음**(`:48`) | ≤30. 400 |
 | `progress` | 문자열 · `^\d+$` · ≤100(`:49`) | 정수 0~100. 400 |
 | `milestones` | 배열. 각 행 `name.trim() !== ''` · `dueDate` 실재 날짜(`:88-108`). **개수 상한이 스키마에 없다** — UI 만 12개에서 추가 버튼을 감춘다(`ProjectMilestonesField.tsx:86,142`) | **≤12 를 서버가 강제**(`PROJECT_MAX_MILESTONES`) · 각 `name` ≤60 · `dueDate` 실재 날짜. 초과 시 400 — §7.3 |

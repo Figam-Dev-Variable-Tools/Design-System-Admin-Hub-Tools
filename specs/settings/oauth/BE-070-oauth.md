@@ -34,7 +34,7 @@ date: 2026-07-17
 | PUT 요청 형태 | `data-source.ts:50` `PUT 요청: If-Match: <revision> + providers[] { provider, enabled, clientId, redirectUri, secret? }` | 헤더 + `secret?` **옵셔널**이 심에 명시 |
 | **빈 secret = 기존 유지** | `data-source.ts:51` `secret 이 없거나 빈 문자열이면 서버는 **기존 시크릿을 유지**한다(덮어쓰지 않는다).` | **§7.3 의 직접 근거** |
 | 응답 형태 | `data-source.ts:52` `응답: 200 → { value, revision, audit } / 409·412 → 동시 편집 충돌 / 422 → 검증 실패` | 200·409·412·422 가 심에 명시 |
-| **연결 테스트 엔드포인트** | `OAuthProviderCard.tsx:214-217` `// TODO(backend): POST /api/settings/oauth/:provider/test — 서버가 제공자에게 실제로 토큰 교환을 시도하고 결과를 돌려준다. 프론트가 흉내 낼 수 없다(시크릿은 서버에만 있고 CORS 도 막힌다). 백엔드가 붙으면 이 버튼이 활성화되고 결과는 인라인 배너로 표시한다` | **심이 실재한다** — EP-03 의 근거(§4). **어댑터는 없다**(§7.8) |
+| **연결 테스트 엔드포인트** | `OAuthProviderCard.tsx:228-231` `// TODO(backend): POST /api/settings/oauth/:provider/test — 서버가 제공자에게 실제로 토큰 교환을 시도하고 결과를 돌려준다. 프론트가 흉내 낼 수 없다(시크릿은 서버에만 있고 CORS 도 막힌다). 백엔드가 붙으면 이 버튼이 활성화되고 결과는 인라인 배너로 표시한다` | **심이 실재한다** — EP-03 의 근거(§4). **어댑터는 없다**(§7.8) |
 | 저장소가 평문을 모름 | `data-source.ts:3-5` '저장소는 **평문 시크릿을 갖지 않는다** — `hasSecret` 불리언만 안다. 조회 응답에도 시크릿은 실리지 않는다(서버가 준다 해도 화면이 쓸 일이 없다)' | §7.2 |
 | 낙관적 동시성 | `_shared/store.ts:124-126` | **토큰 기반**(BE-067 §7.2 와 동일 메커니즘) |
 | 감사 주체 | `_shared/store.ts:83-84` | §7.3(=BE-067 §7.3) |
@@ -164,7 +164,7 @@ date: 2026-07-17
 | 항목 | 내용 |
 |---|---|
 | 근거 (FS) | FS-070-EL-010, EL-010.1 |
-| 근거 (심) | `OAuthProviderCard.tsx:214-217` `// TODO(backend): POST /api/settings/oauth/:provider/test` |
+| 근거 (심) | `OAuthProviderCard.tsx:228-231` `// TODO(backend): POST /api/settings/oauth/:provider/test` |
 | 메서드·경로 | `POST /api/settings/oauth/:provider/test` |
 | 권한 | **`admin` 만** |
 | 멱등성 | 멱등(부작용이 없다 — 읽기 성격의 POST) |
@@ -339,7 +339,7 @@ BE-067 §6.1 을 상속한다(같은 `createRevisionedStore`). 요약 + **OAuth 
 
 ### 7.8 연결 테스트 — 서버만 할 수 있는 일이고, 어댑터가 없다 【연동 판정】
 
-**심이 있다**(`OAuthProviderCard.tsx:214-217`) — 그래서 이 문서가 EP-03 을 정의한다. **엔드포인트를 발명한 것이 아니다.**
+**심이 있다**(`OAuthProviderCard.tsx:228-231`) — 그래서 이 문서가 EP-03 을 정의한다. **엔드포인트를 발명한 것이 아니다.**
 
 **왜 서버여야 하는가** — 심이 답한다(`:216`): '**프론트가 흉내 낼 수 없다(시크릿은 서버에만 있고 CORS 도 막힌다)**'. 두 이유 모두 결정적이다:
 1. **시크릿이 서버에만 있다**(§7.2) — 프론트는 토큰 교환에 필요한 값을 갖지 못한다.
@@ -386,6 +386,6 @@ BE-067 §6.1 을 상속한다(같은 `createRevisionedStore`). 요약 + **OAuth 
 - [x] **§7 【보안 판정】이 문서의 중심** — **§7.2 시크릿 계약**(`secret` write-only · `hasSecret` read-only 를 코드로 확인해 표로 답하고, 서버 계약 4건 확정) · **§7.2.3 에서 API Key 와 결정적으로 다른 점(서버가 원문을 보관해야 한다)을 숨기지 않고 정직히 기록**하고 그 대가를 줄이는 요구 4건을 댔다 · §7.1 Redirect URI 가 보안 규칙임 + **우리 도메인 검사 부재(가장 전형적인 redirect 탈취)** · §7.6 403
 - [x] **낙관적 동시성이 revision 토큰 기반**임을 `store.ts:124-126` + `store.test.ts` 로 확인하고 §7.4 에 BE-067 상속으로 선언했다
 - [x] `validation.ts` 의 규칙(**꺼진 제공자는 검증하지 않음** · secret 3분기 · `redirectUriError` 6분기)을 §3 표와 §5 의 422 축에 정확히 반영했고, **`error.fields` 경로가 배열 인덱스를 포함함**(`providers.<i>.x`)을 명시했다
-- [x] **A11Y 결함(Client Secret `aria-required` 미주입)은 FS-070 §7 #2 · NFR-070 §2 의 몫**이며 이 문서의 계약 범위가 아님을 구분했다
+- [x] **A11Y 축(Client Secret 의 `aria-required`)은 FS-070 §7 #2 · NFR-070 §2 의 몫**이며 이 문서의 계약 범위가 아님을 구분했다 — 그 결함은 **PR #30 에서 해소됐고**(`OAuthProviderCard.tsx:113,114,186`) 이 문서의 계약에는 영향이 없다
 - [x] 서버 코드·저장소 설계를 쓰지 않았다 — 암호화는 **성질**(봉투 암호화·복호화 지점 최소화·감사)로만 규정하고 구현을 지정하지 않았다
 </content>

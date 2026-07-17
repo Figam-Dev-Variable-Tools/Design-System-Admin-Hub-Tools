@@ -203,7 +203,7 @@ date: 2026-07-17
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
-| 1 | **분류 필터가 URL 에 직렬화되지 않는다** — `PortfolioListPage.tsx:48` 이 `useState(PORTFOLIO_FILTER_ALL)` 뿐이라 새로고침·뒤로가기·링크 공유로 필터 view 가 복원되지 않는다. **F3b 가 `useListState`(URL 단일 원천)를 37개 화면에 롤아웃했지만 이 화면은 그 밖이다** — 같은 섹션의 `support/{downloads,replies,tickets}` 는 소비처인데 `portfolio/**` 는 3화면 모두 미소비다(`grep 'useListState' apps/admin/src/pages/portfolio/` = 0) (quality-bar **IA-13 P0**) | A11 change_request |
+| 1 | **분류 필터가 URL 에 직렬화되지 않는다** — `PortfolioListPage.tsx:48` 이 `useState(PORTFOLIO_FILTER_ALL)` 뿐이라 새로고침·뒤로가기·링크 공유로 필터 view 가 복원되지 않는다. **F3b 가 `useListState`(URL 단일 원천)를 34개 화면에 롤아웃했지만 이 화면은 그 밖이다** — 같은 섹션의 `support/{downloads,replies,tickets}` 는 소비처인데 `portfolio/**` 는 3화면 모두 미소비다(`grep 'useListState' apps/admin/src/pages/portfolio/` = 0) (quality-bar **IA-13 P0**) | A11 change_request |
 | 2 | **쓰기 컨트롤에 권한 게이팅이 없다** — `shared/permissions/RequirePermission.tsx:45` 의 `useRouteWritePermissions` 는 이제 **7곳이 소비한다**(`products/{categories,items,returns}` 3 · `settings/{api-keys,languages,oauth,site}` 4). **그러나 `portfolio/**` 는 그 7곳 밖이다.** 그래서 create/update/remove 권한이 없는 역할도 '포트폴리오 등록'(FS-023-EL-002)·행 액션(FS-023-EL-006.9)·일괄 삭제(FS-023-EL-005.2)·노출 토글(FS-023-EL-006.8)을 그대로 보고 누른다. 라우트 read 게이팅은 동작한다 (quality-bar **EXC-03 P0**) | A11 change_request (이 화면 — 선례 7곳 존재) |
 | 3 | **페이지네이션이 없다.** `CrudListShell` 은 필터에 걸린 전량을 한 번에 그린다 — 등록 수에 상한이 없어 목록이 무한히 길어진다 (quality-bar **IA-04 P0** · ERP-15). 도입 시 순번(FS-023-EL-006.3)을 `(page-1)*size + index + 1` 로 바꿔야 한다(COMP-07) | A11 change_request |
 | 4 | 행 안에 목적지로 가는 **키보드 도달 가능한 이름 링크가 없다** — 제목이 평문이고 행 클릭은 마우스 전용이다. 키보드 사용자는 행 액션의 '수정' 버튼으로만 갈 수 있다 (quality-bar A11Y-08) | A11 change_request |

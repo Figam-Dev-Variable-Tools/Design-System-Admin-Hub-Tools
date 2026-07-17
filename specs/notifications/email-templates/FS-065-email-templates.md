@@ -91,7 +91,7 @@ date: 2026-07-17
 | FS-065-EL-009 | FS-065-SEC-07 | 목록 로딩 스켈레톤 | 스켈레톤 | 비표시. `loading={firstLoading}` 일 때만 5행 × (열수+3)셀(`CrudTable.tsx:143-152`) | — | **재조회에서는 행을 덮지 않는다**. 행 수 하드코딩은 §7 #6 |
 | FS-065-EL-010 | FS-065-SEC-07 | 빈 상태 | 빈상태 | 비표시. 공유 `Empty` 3분기(`EmailTemplateListPage.tsx:120-131`): 검색 0건 → '검색 지우기' · 필터 0건 → '필터 초기화' · 진짜 0건 → '이메일 템플릿 등록' CTA | — | 조사(이/가)는 `Empty` 가 고른다(`:112` · `CrudTable.tsx:156`) |
 | FS-065-EL-011 | FS-065-SEC-07 | 목록 조회 실패 배너 | 배너 | 비표시. danger `Alert` '이메일 템플릿 목록을 불러오지 못했습니다.' + '다시 시도'(`CrudListShell.tsx:157-164`) | O | 툴바·필터는 남는다 |
-| FS-065-EL-012 | FS-065-SEC-08 | 단건 삭제 확인 다이얼로그 | 모달 | 비표시. `ConfirmDialog intent="delete"` 제목 '이메일 템플릿 삭제', 문구 `'<템플릿명>'{조사} 삭제합니다. 이 작업은 되돌릴 수 없습니다.`(`useCrudList.tsx:154-165`). `busy` → 확인 비활성 + '처리 중…'. 실패 시 다이얼로그 유지 + error 배너 | O | **⚠ 이 템플릿을 쓰는 발송 규칙이 있어도 경고하지 않는다** — `store.ts:383-385` 의 `rulesUsingTemplate` 이 그 용도로 존재하나 **소비처가 0건이다**(§7 #2) |
+| FS-065-EL-012 | FS-065-SEC-08 | 단건 삭제 확인 다이얼로그 | 모달 | 비표시. `ConfirmDialog intent="delete"` 제목 '이메일 템플릿 삭제', 문구 `'<템플릿명>'{조사} 삭제합니다. 이 작업은 되돌릴 수 없습니다.`(`useCrudList.tsx:154-165`). `busy` → 확인 비활성 + '처리 중…'. 실패 시 다이얼로그 유지 + error 배너 | O | **⚠ 이 템플릿을 쓰는 발송 규칙이 있어도 *미리* 경고하지 않는다** — 다만 **확인 후 삭제 자체는 막힌다**: `store.ts:95-101` 이 409 를 던진다. 그때 다이얼로그는 열린 채 error 배너를 그리나 **문구가 '삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.' 고정**이라(`useCrudList.tsx:112`) 진짜 사유('발송 규칙 N건이 쓰고 있다')를 버린다(§7 #2) |
 | FS-065-EL-013 | FS-065-SEC-08 | 일괄 삭제 확인 다이얼로그 | 모달 | 비표시. '선택한 이메일 템플릿 N건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.'(`useCrudList.tsx:166-177`). 부분 실패는 'N건 중 M건…' | O | 위와 같은 경고 부재 |
 | FS-065-EL-014 | — | URL 조회 상태 동기화 규칙 | 텍스트 | 비표시. `useListState({ filterDefaults: { cat: 'all' } })`(`EmailTemplateListPage.tsx:55`). 분류=`cat` · 검색어=`q`. 기본값과 같으면 URL 에서 제거(`useListState.ts:115-117`). `{ replace: true }`(`:125`). 모르는 `cat` 은 '전체'로(`notification.ts:436-439`) | — | `page`·`sort` 미사용 |
 | FS-065-EL-015 | — | 필터·검색 변경 시 선택 해제 규칙 | 텍스트 | 비표시. `useEffect(() => { clear(); }, [category, keyword, clear])`(`EmailTemplateListPage.tsx:68-70`) + `useListState.ts:205-213` | — | STATE-04-b |
@@ -203,9 +203,9 @@ date: 2026-07-17
 | FS-065-EL-032 (수정) / EL-033 | 이메일 템플릿 수정 | W | id + `EmailTemplateInput` + 멱등키 | `emailTemplateAdapter.update(id, input, { signal, idempotencyKey })` | 대상 부재 시 `HttpError(409)`(`crud.ts:219-221`) |
 | FS-065-EL-012 / EL-013 | 이메일 템플릿 삭제(단건·일괄) | W | id | `emailTemplateAdapter.remove(id, { signal })` | 일괄은 id 마다 병렬 호출(`settleAll`). 멱등키 없음(의도) |
 | FS-065-EL-027 / EL-029 / EL-030 | 트리거·변수 카탈로그 | R | 트리거 10종 + 변수 8종 + 표본값 | **없음 — 프론트 코드 상수**(`notification.ts:77-88,100-161,207-251`) | **연동 심이 없다.** 서버 소유 여부가 **미정**이다 — BE-065 §7.6 |
-| FS-065-EL-012 (경고 부재) | 이 템플릿을 쓰는 규칙 수 | R | templateId → 참조 규칙 수 | **없음 — `_shared/store.rulesUsingTemplate()` 이 있으나 소비처 0건**(grep) | **삭제 전 경고가 구현되지 않았다** — BE-065 §7.2 |
+| FS-065-EL-012 (경고 부재) | 이 템플릿을 쓰는 규칙 수 | R | templateId → 참조 규칙 수 | **`_shared/store.rulesUsingTemplate()`** — ⚠ **소비처가 생겼다**: `store.remove`(`:95`)가 삭제 차단에 쓴다. **그러나 다이얼로그는 여전히 부르지 않는다** | **삭제 *차단*은 구현됐다(409). *삭제 전 경고*는 여전히 없다** — BE-065 §7.2 |
 
-> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `emailTemplateAdapter` 는 공용 `createStoreAdapter`(`shared/crud/crud.ts:165-239`)로 `_shared/store.ts` 의 브라우저 안 mutable 배열 위에 배선된다. 그 배열은 **템플릿 저장소 골격**(`store.ts:61-86` `createTemplateStore`)이 관리하며, 이메일·SMS 가 **같은 골격에 build/patch 만 주입**해 쓴다(`:26-31` — '두 벌을 복사하면 한쪽만 고치는 사고가 난다'). 400ms 지연(`LATENCY_MS`)과 실패 스위치(`failIfRequested`)를 얹어 CRUD 를 흉내 낸다 — **실제 네트워크 0건 · 실제 발송 0건**(`store.ts:3`). 시드 7건(`store.ts:92-149`)은 **전부 정보성 문구다 — (광고) 표기·수신거부 문구가 하나도 없는 것이 마케팅 픽스처와의 차이다**(`:90`). 팩토리가 주는 것: 404(`:192-194`) · 멱등 재생(`:200-203,208,229`) · 409(`:219-221,232-234`). 새로고침하면 시드로 되돌아간다. `data-source.ts:18-20` 의 `// TODO(backend): GET/POST /api/notifications/email-templates · GET/PUT/DELETE /api/notifications/email-templates/:id` 가 유일한 연동 지점이며, **트리거·변수 카탈로그와 참조 규칙 수 조회에는 심이 없다.**
+> **현재 구현 상태 (A63 참고)**: 백엔드는 없다. `emailTemplateAdapter` 는 공용 `createStoreAdapter`(`shared/crud/crud.ts:165-239`)로 `_shared/store.ts` 의 브라우저 안 mutable 배열 위에 배선된다. 그 배열은 **템플릿 저장소 골격**(`store.ts:62-106` `createTemplateStore`)이 관리하며, 이메일·SMS 가 **같은 골격에 build/patch 만 주입**해 쓴다(`:27-32` — '두 벌을 복사하면 한쪽만 고치는 사고가 난다'). 400ms 지연(`LATENCY_MS`)과 실패 스위치(`failIfRequested`)를 얹어 CRUD 를 흉내 낸다 — **실제 네트워크 0건 · 실제 발송 0건**(`store.ts:3`). 시드 7건(`store.ts:112-169`)은 **전부 정보성 문구다 — (광고) 표기·수신거부 문구가 하나도 없는 것이 마케팅 픽스처와의 차이다**(`:108-110`). 팩토리가 주는 것: 404(`:192-194`) · 멱등 재생(`:200-203,208,229`) · 409(`:219-221,232-234`). 새로고침하면 시드로 되돌아간다. `data-source.ts:18-20` 의 `// TODO(backend): GET/POST /api/notifications/email-templates · GET/PUT/DELETE /api/notifications/email-templates/:id` 가 유일한 연동 지점이며, **트리거·변수 카탈로그와 참조 규칙 수 조회에는 심이 없다.**
 
 ## 6. 자기 점검 (제출 전 확인)
 
@@ -216,7 +216,7 @@ date: 2026-07-17
 - [x] §4 예외 7축 빈칸 0건. 모든 `N/A` 에 사유
 - [x] `[서버]` = O 요소가 §5 에 전부 요약됐다. **심이 없는 2건(트리거·변수 카탈로그 · 참조 규칙 수)을 '없음'으로 명시**했다
 - [x] **409 를 '존재 여부 기반'으로 정확히 기술**했다 — `version`/`ETag` 가 아니며 동시 편집은 last-write-wins 임을 EL-033 과 §7 #22 에 분리해 적었다
-- [x] **실재 결함을 기록했다** — `rulesUsingTemplate` 소비처 0건으로 **템플릿 삭제가 발송 규칙을 조용히 깨뜨린다**(§7 #2, grep 확인)
+- [x] **실재 결함을 기록했다** — **`a5c2639` 기준으로 '삭제가 조용히 깨뜨린다'는 해소됐다**(`store.ts:95-101` 409 · 회귀 `store.test.ts:69-98`). 남은 것만 §7 #2 에 적었다: **삭제 전 경고 부재** + **409 문구를 화면이 버림**(`useCrudList.tsx:112` — 신규 발현). 코드로 확인했다
 - [x] 엔드포인트·HTTP·에러코드·DB 스키마를 쓰지 않았다 (BE-065 영역)
 
 ## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
@@ -224,7 +224,7 @@ date: 2026-07-17
 | # | 내용 | 이관 대상 |
 |---|---|---|
 | 1 | 대응 SCR 문서 부재 (알림 관리 SCR 미작성) | A11 / A01 |
-| 2 | **템플릿 삭제가 발송 규칙을 조용히 깨뜨린다 — 실재 결함.** `_shared/store.ts:382-385` 의 `rulesUsingTemplate(templateId)` 이 **'템플릿 삭제 전 경고에 쓴다(끊어진 규칙 예방)'** 라는 주석과 함께 존재하나 **프로덕션 소비처가 0건이다**(grep: 정의 + `store.test.ts:11,48,49` 뿐). 삭제 다이얼로그(EL-012)는 공용 `useCrudList` 의 것이라 그 함수를 부르지 않는다. 결과: '주문 접수 안내'를 지우면 `ntf-rule-1` 이 가리킬 곳을 잃고 **`enabled: true` 인 채로 남아 주문 접수 메일이 나가지 않는다.** 발송 규칙 목록에 가야만 '템플릿 없음 — 발송되지 않습니다' 배지가 보인다(`RuleListPage.tsx:131`) | A11 change_request · A63 (BE-065 §7.2) |
+| 2 | **⚠ `a5c2639` 기준으로 뒤집혔다 — 삭제는 더 이상 조용히 깨뜨리지 않는다.** `_shared/store.ts:82-103` 의 `remove` 가 `rulesUsingTemplate(id)`(`:403-405`)를 **호출해** 참조 규칙이 있으면 `HttpError(409, '발송 규칙 N건이 이 템플릿을 쓰고 있어 삭제할 수 없습니다. 규칙에서 먼저 템플릿을 바꾸세요.')` 를 던진다(주석 `:83-93` — 인증번호 템플릿을 지우면 **로그인이 막힌다**). 회귀 `store.test.ts:69-98`. **남은 결함 2건**: ① **삭제 *전* 경고 부재** — 다이얼로그(EL-012)는 여전히 `rulesUsingTemplate` 을 부르지 않아 운영자가 확인을 누른 **뒤에야** 안다 ② **★ 신규 발현 — 409 문구를 화면이 버린다.** `useCrudList.tsx:112` 가 status 를 분기하지 않고 '삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.' 고정을 보인다 — **영원히 실패할 일에 재시도를 권한다.** 삭제가 막히기 시작하면서 비로소 드러난 결함 | A11 change_request · A63 (BE-065 §7.2) |
 | 3 | **페이지네이션이 없다** — 전량 렌더(quality-bar IA-04 P0). **FS-064 와 달리 상한이 없다** — 한 트리거에 템플릿을 여럿 둘 수 있어 무한 증가한다. `SeqCell` 이 `index + 1`(COMP-07 P2)이라 도입 시 함께 고쳐야 한다 | A11 · A41 change_request |
 | 4 | 목록의 제목 열(EL-008.6)이 **치환 전 원문**이라 `#{주문번호}` 가 그대로 보인다 — 운영자가 훑을 때 실제 발송 제목을 상상해야 한다. 미리보기(EL-029)는 폼에만 있다 | A11 change_request |
 | 5 | 수정일시(EL-008.7)가 `formatDateTime` 을 거치나 **브라우저 로컬 타임존 기준**이다(quality-bar ERP-09 P2). 통합이 달력 산술의 앵커를 UTC 정오로 수렴했으나(`shared/format.ts:33-45`) 표시 TZ 정책은 별개다 | A40 (`shared/format` 소관) |
@@ -233,7 +233,7 @@ date: 2026-07-17
 | 8 | **폼 화면에 `<h1>` 이 2개다** — AppHeader 가 `findCoveringLeaf` 로 '이메일 템플릿'을 그리고(`AppHeader.tsx:92,101` · `nav-config.ts:270-278`) `FormPageShell.tsx:160` 이 '이메일 템플릿 등록'을 또 그린다. `nav-config.ts:294-296` 이 밝히듯 **'등록/수정' 행위는 제목에 넣지 않는 것이 의도**다(quality-bar IA-02 P0). **목록은 nav 잎이고 in-content h1 이 없어 pass** — gap 은 `/new`·`/:id/edit` 에서만 | A40 · A11 |
 | 9 | **본문(EL-026)이 평문이다** — 리치 HTML 편집(굵게/링크/이미지)과 저장 전 새니타이즈가 미구현이며, `EmailTemplateFormPage.tsx:5-8` 이 그 계획을 **`TODO(lib): Tiptap + DOMPurify`** 로 명시한다('지금은 라이브러리를 새로 들이지 않는 것이 규칙이라 평문으로 두고, 치환변수·미리보기만 먼저 완성해 둔다'). `toInput` 에도 `// TODO(lib): Tiptap 도입 시 body 는 HTML 이 된다 — 여기서 DOMPurify.sanitize(values.body) 를 거쳐 보낸다'(`:77`). **지금은 평문이므로 관리자 화면이 안전하나, 이 본문은 고객 메일로 나간다** — 서버 정제 판정은 BE-065 §7.3 | A11 (전용 단계) · A63 |
 | 10 | **변수 삽입 바(EL-027)가 제목에 삽입할 수 없다** — `onInsert` 가 본문만 채운다(`EmailTemplateFormPage.tsx:137-138`). 그런데 **검증은 제목의 변수도 본다**(EL-030 ④ — `validation.ts:51-54`)고 시드 제목이 실제로 `#{주문번호}` 를 쓴다(`store.ts:97`). 운영자는 제목 변수를 **손으로 타이핑해야 한다** — 오타가 곧 '주지 않는 변수' 오류가 된다. 또한 삽입이 **커서 위치가 아니라 본문 끝**이다(`VariableInsertBar.tsx:8-9` 가 의도로 선언) | A11 change_request |
-| 11 | **광고성 문구 감지(EL-028·EL-030)가 단순 `includes` 라 오탐이 있다** — `AD_WORDS` 에 **'이벤트'** 가 있어(`notification.ts:292`) '이벤트가 발생하면 안내드립니다' 같은 **정상 트랜잭션 문구가 저장을 막힌다.** 시드 문구들은 그 낱말을 피해 갔으나(`store.ts:92-149`) 운영자가 자연스럽게 쓸 수 있는 말이다. **우회 수단이 없다** — 경고가 아니라 차단이다 | A11 change_request · A01 (낱말 목록 소유) |
+| 11 | **광고성 문구 감지(EL-028·EL-030)가 단순 `includes` 라 오탐이 있다** — `AD_WORDS` 에 **'이벤트'** 가 있어(`notification.ts:292`) '이벤트가 발생하면 안내드립니다' 같은 **정상 트랜잭션 문구가 저장을 막힌다.** 시드 문구들은 그 낱말을 피해 갔으나(`store.ts:112-169`) 운영자가 자연스럽게 쓸 수 있는 말이다. **우회 수단이 없다** — 경고가 아니라 차단이다 | A11 change_request · A01 (낱말 목록 소유) |
 | 12 | 변수 검증(EL-030 ④)이 **제목·본문을 합쳐 보되 오류를 body 에만 꽂는다**(`validation.ts:51-61` — `path: ['body']`). **제목에 잘못된 변수를 써도 본문 밑에 오류가 뜬다** — A11Y-13 의 '첫 오류 필드 포커스'가 엉뚱한 필드로 간다 | A11 change_request |
 | 13 | **쓰기 권한 게이팅이 배선돼 있지 않다** — `useRouteWritePermissions` 소비처 8곳에 알림 관리가 없다(grep). read 전용 역할도 등록·수정·삭제를 보고 누른다(quality-bar EXC-03 P0). 마케팅 링크(EL-001.1)도 대상 권한을 묻지 않는다 | A11 change_request |
 | 14 | 트리거 목록이 **코드 상수**(`notification.ts:77-88`)다. 서버가 새 이벤트를 추가하면 배지가 id 폴백으로 떨어지고(EL-008.4) 정렬 rank 가 `?? 0` 이라 맨 앞에 온다(EL-016). **변수 카탈로그도 같다**(`:207-251`) — 트리거가 주는 변수는 트리거의 속성인데 프론트가 소유한다. 소유자 미정 | A01 (도메인 경계) · A63 (BE-065 §7.6) |

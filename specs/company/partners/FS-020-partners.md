@@ -162,7 +162,13 @@ date: 2026-07-17
 
 ## 7. 미결 사항 (A11 / A01 / A63 / A40 이관)
 
-> **판정 기준일 2026-07-17 · HEAD `4b805ad`.** 직전 판정은 `3cd3078`(F2) 기준이었다. 이후 F3a·F3b·통합이 머지되며 **다음 항목이 해소되어 이 표에서 뺐다** — #1 STATE-01(`LogoListPage.tsx:123-125` 가 `firstLoading`/`refreshing` 을 가른다) · #2 IA-13·COMP-10(검색이 `useListState`→`useDebouncedSearch` 로 수렴 — `:89,264-269`) · #14 ERP-13(조사 헬퍼가 `shared/format.ts:269+` 로 승격, 사용자 대상 리터럴 0건). **번호는 재사용하지 않는다** — 이관 이력을 추적할 수 있게 남은 항목의 번호를 그대로 둔다.
+> **판정 기준일 2026-07-17 · HEAD `a5c2639`.** 직전 판정은 `4b805ad` 기준이었다.
+>
+> **`4b805ad` 이전(F3a·F3b·통합)에 해소되어 이 표에서 뺀 항목** — #1 STATE-01(`LogoListPage.tsx:123-125` 가 `firstLoading`/`refreshing` 을 가른다) · #2 IA-13·COMP-10(검색이 `useListState`→`useDebouncedSearch` 로 수렴 — `:89,264-269`) · #14 ERP-13(조사 헬퍼가 `shared/format.ts:269+` 로 승격, 사용자 대상 리터럴 0건).
+>
+> **이번 갱신(`4b805ad` → `a5c2639`)에서 바뀐 것** — **#7 해소됨**(PR #30 이 `ImageUploadField` 의 required 를 접근성 이름으로 AT 에 이었다 — 아래 행 참조). **⚠ 반대 방향의 신규 미결이 하나 생겼다**: PR #26 의 Modal exit 애니메이션이 **일방향 latch** 를 남겨 dirty 폼 모달에서 '머무르기' 를 고르면 `LogoFormModal` 이 보이지도 닫히지도 않는 상태로 굳는다 — 이 화면의 `LogoFormModal.tsx:126` 이 폭발 반경에 있다. 상세·이관은 **NFR-020 §2 FEEDBACK-06 · §5 #0** 이 소유한다(P0 판정 사안이라 이 표에 중복 기재하지 않는다).
+>
+> **번호는 재사용하지 않는다** — 이관 이력을 추적할 수 있게 남은 항목의 번호를 그대로 둔다.
 
 | # | 내용 | 이관 대상 |
 |---|---|---|
@@ -170,7 +176,7 @@ date: 2026-07-17
 | 4 | 페이지네이션·페이지 크기·목록 상한이 없다 — 파트너사가 늘면 전량이 한 표에 렌더된다(IA-04 P0). 재정렬을 전체 순서에서 다루기 위한 결정인지 미정 | A11 · A63 (BE-020 페이징) |
 | 5 | 빈 상태가 '검색 결과 없음'과 '진짜 등록 0건'을 구분하지 않는다 — 검색이 빗나가도 '등록된 파트너사가 없습니다.' 라 안내가 어긋난다. 공용 `Empty` 컴포넌트·생성 CTA·'검색 지우기' 없음(STATE-05 P1) | A11 change_request |
 | 6 | 저장 실패가 코드별로 갈리지 않는다 — 검증 거절(422)·권한(403)·충돌(409)·서버 오류(500)가 모두 '저장하지 못했습니다…' 한 문구다. 서버 필드 오류를 입력에 매핑하지 않는다(EXC-06 · EXC-07 P1) | A11 change_request · A63 (BE-020) |
-| 7 | **잔여 범위가 좁아졌다(A11Y-11 P0 의 required 절).** `<input id="logo-name">` 의 required 는 F3a 가 닫았다 — `FormField` 가 `withAriaRequired()` 로 `required` 를 **자식 컨트롤의 `aria-required` 에 런타임 주입**한다(`FormField.tsx:50-56,107`, 대상 판별 `:38-41`). **남은 것은 `ImageUploadField` 하나** — `required` 를 받고도(`LogoFormModal.tsx:170`) `aria-hidden` 인 `*` 마커로만 표현하고 그 컴포넌트 전체에 `aria-required` 가 **0건**이며(`ImageUploadField.tsx:223-230`), `FormField` 를 쓰지 않는 몰리큘이라 주입 경로 밖이다. 형제 `TextareaField.tsx:64-65` 가 정답 형태다. **DS 계층 사안 — 화면 수정으로 닫히지 않는다** | A41(DS) · A11 |
+| 7 | ~~**A11Y-11 P0 의 required 절**~~ — **해소됨(PR #30) · 이관 취소.** `<input id="logo-name">` 의 required 는 F3a 가 닫았고(`FormField` 가 `withAriaRequired()` 로 자식 컨트롤의 `aria-required` 에 **런타임 주입** — `FormField.tsx:50-56,107`, 대상 판별 `:38-41`), 마지막 남은 `ImageUploadField`(`LogoFormModal.tsx:170`)는 PR #30 이 **접근성 이름**으로 닫았다 — 드롭존 `<button>` 의 `aria-label` 이 `requiredNameSuffix(required)` 로 '(필수)' 를 싣는다(정의 `ImageUploadField.tsx:55`, 적용 `:250`). **직전 미결 사유였던 '`aria-required` 0건' 은 결함이 아니라 의도였다** — `aria-required` 는 `role=button` 이 지원하지 않는 속성이라(ARIA 1.2) 얹으면 거짓 시맨틱 + axe `aria-allowed-attr` 위반이고, 진짜 `<input type="file">` 은 `aria-hidden`+`tabIndex=-1` 이라 그쪽에 줘도 AT 에 닿지 않는다(근거 `ImageUploadField.tsx:44-54`). 회귀 방어선: `ImageUploadField.test.tsx:114` 가 `aria-required` **부재**를 단언한다 | — |
 | 8 | **로고 이미지 업로드 심이 없다 — 이것은 '고쳐야 할 결함'이 아니라 '알려진 빚(known debt)'이다.** `ImageUploadField` 가 파일을 서버로 보내지 않고 `URL.createObjectURL` 로 만든 `blob:` URL 을 값으로 넘기며, 그 필드가 언마운트될 때 그 URL 을 `revokeObjectURL` 하므로 **모달이 닫히는 순간 저장값이 죽는다**(`ImageUploadField.tsx:156-161,178-181`). **검증(`requiredImage`)이 형식을 강제하지 않는 것은 누락이 아니라 판정이다** — 그 필드에는 URL 을 칠 입력이 없어 도달 가능한 값이 `blob:…` 과 `''` 뿐이라, http(s) 를 요구하면 사용자가 그것을 만족시킬 방법이 없어 **폼이 영영 제출되지 않는다**(근거 전문: `shared/crud/validation.ts` 의 `requiredImage` 주석). 그래서 **깨질 것을 아는 채로 통과시키고, 테스트가 그 상태를 고정한다** — `logo-list.test.ts:98-99` (`TODO(backend): POST /api/uploads 가 붙으면 이 단언은 뒤집힌다(blob: 거절)`), `:90-97` 주석이 '이 단언을 설계로 읽지 말 것'이라 못 박는다. **고칠 곳은 검증이 아니라 업로드 이음매**이며 엔드포인트·저장 URL 규약이 미정이다 | A63 (BE-020) · A11 |
 | 9 | 모달 제출에 동기 제출 락·멱등키가 없다 — `LogoFormModal.tsx:88` 의 `onValid` 는 `disabled={saving}` 에만 의존한다. 비멱등 등록(POST)에서 비활성 렌더 전의 빠른 재클릭/Enter 연타가 두 건을 만들 수 있다(EXC-08 P0). 공용 `useCrudForm` 의 `submitLockRef` 패턴이 이 모달에 적용되지 않았다 | A11 change_request · A40 |
 | 10 | 일괄 삭제가 실패한 id 를 돌려주지 않는다 — `settleAll` 이 건수만 반환해 재시도가 **이미 삭제된 id 까지 재전송**한다. 부분 실패 시 목록을 무효화하지 않아(`queries.ts:84`) 이미 지워진 행이 표에 남는다(EXC-10 P1) | A11 change_request · A40 |

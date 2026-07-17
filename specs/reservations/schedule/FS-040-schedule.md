@@ -26,7 +26,7 @@ date: 2026-07-17
 | 대응 SCR | SCR-040 (미작성 — §7) |
 | 공통 컴포넌트 | `shared/crud/useCrudListQuery` · `shared/ui/{Alert,Button,Card,CardTitle,ChevronLeftIcon,ChevronRightIcon,StatusBadge,hintStyle}` · `shared/format.formatNumber` |
 | 섹션 공용 모듈 | `_shared/reservation-store.ts`(**예약 관리와 같은 어댑터**) · `_shared/reservation.ts`(`reservationsInSlot`) · `_shared/calendar.ts`(`addDays`·`weekDates`·`formatDayLabel`·`isToday`·`toDateString`) · `_shared/booking.ts`(상태 라벨·톤) · `_shared/resources.ts`(수용량 계산) |
-| 데이터 출처 | **전용 데이터 소스가 없다.** `ScheduleCalendarPage.tsx:135` 가 `useCrudListQuery('reservations', reservationAdapter)` 로 **예약 관리(FS-037)와 같은 쿼리 키(`['reservations','list']`)** 를 읽는다 — 이 화면은 예약 목록의 **다른 표현**이다 |
+| 데이터 출처 | **전용 데이터 소스가 없다.** `ScheduleCalendarPage.tsx:137` 이 `useCrudListQuery('reservations', reservationAdapter)` 로 **예약 관리(FS-037)와 같은 쿼리 키(`['reservations','list']`)** 를 읽는다 — 이 화면은 예약 목록의 **다른 표현**이다 |
 
 ### 1.1 슬롯 · 수용량 모델
 
@@ -34,13 +34,29 @@ date: 2026-07-17
 |---|---|---|
 | 영업시간 | 09:00–20:00 | `schedule-data.ts:13-14` (`OPEN_HOUR = 9` · `CLOSE_HOUR = 20`) |
 | 슬롯 | 1시간 단위 **11개**(09:00 … 19:00) | `schedule-data.ts:30-36` (`DAY_SLOTS`) |
-| 열(일 뷰) | 1열 — `anchor` 하루 | `ScheduleCalendarPage.tsx:124` |
-| 열(주 뷰) | 7열 — `anchor` 가 속한 주의 **월~일** | `_shared/calendar.ts:58-70` (`startOfWeek` 가 월요일 시작) |
+| 열(일 뷰) | 1열 — `anchor` 하루 | `ScheduleCalendarPage.tsx:159` |
+| 열(주 뷰) | 7열 — `anchor` 가 속한 주의 **월~일** | `ScheduleCalendarPage.tsx:159` → `_shared/calendar.ts:95` (`weekDates`) · `:86` (`startOfWeek` — 월요일 시작) |
 | 셀에 세는 예약 | 그 날짜에 그 슬롯 `[startMin, endMin)` 과 **시간이 겹치는 유효 예약**. 취소·노쇼는 자리를 비우므로 제외 | `_shared/reservation.ts:135-149` (`reservationsInSlot`) |
 | 수용량(capacity) | **자원의 개수**(`listResources().length` = 4) | `schedule-data.ts:39-41` (`slotCapacity`) |
 | 마감(full) | `booked >= capacity` | `schedule-data.ts:56` |
 
-> ⚠ **수용량 모델이 예약 도메인의 다른 모델과 어긋난다.** 여기서 수용량은 '**자원 개수**'(자리 4개)이고 세는 대상은 '**예약 건수**'다 — 즉 '자원 하나에 예약 하나'라는 배타 점유 모델이다. 그런데 같은 도메인의 `ReservationResource.capacity` 는 '**동시 수용 인원**'(세미나룸 A = 12명)이고 예약 폼은 그것으로 인원을 검증한다(FS-037-EL-023). **한 슬롯의 예약 4건이 전부 같은 방(room-b)에 몰려 있어도 '마감'으로 표시되고, 나머지 세 자원은 비어 있는데도 그렇다** — `schedule.test.ts:51-63` 이 그 동작을 그대로 고정한다(같은 `resourceId` 로 capacity 건을 만들고 `full === true` 를 기대). §7 #1
+> ⚠ **수용량 모델이 예약 도메인의 다른 모델과 어긋난다 — 같은 도메인에 '수용'이라는 이름의 개념이 셋이다**(둘이 아니다).
+>
+> | # | 개념 | 뜻 | 단위 | 코드 |
+> |---|---|---|---|---|
+> | ① | **달력 `capacity`** | 배정 가능한 **자원의 개수** = 4 | 건 | `schedule-data.ts:39-41` `slotCapacity() = listResources().length` · 자원 4개 `_shared/resources.ts:30-33` |
+> | ② | **자원 `capacity`** | 방별 **정원**(동시 수용 인원) — room-a 12명 · room-b 4명 · room-c 2명 · seat-1 1명 | 명 | `_shared/resources.ts:18` (주석: '정원(동시 수용 인원)') · `정원 N명` 렌더 `ReservationFormPage.tsx:302` |
+> | ③ | **`partySize`** | 그 예약의 **예약 인원** | 명 | `_shared/reservation.ts:26-27` · 폼 필드 `ReservationFormPage.tsx:307` (`label="예약 인원"`) |
+>
+> 달력이 말하는 '수용 M건'의 M 은 **①(자원 개수)**이고 ②·③(인원)과 무관하다 — 단위(`건` vs `명`)는 최소한 그와 일관된다. 이 화면의 모델은 '**자원 하나에 예약 하나**'(배타 점유)인 셈이다.
+>
+> **★ 확인된 결함 — 집계가 `resourceId` 를 전혀 보지 않는다.** `reservationsInSlot`(`_shared/reservation.ts:135-149`)은 날짜 + `isActive`(`:127-129`) + 시간 겹침만 거르고 **자원을 비교하지 않는다**. `slotCell`(`schedule-data.ts:52-57`)은 그 건수를 `booked` 로, `slotCapacity()` 를 `capacity` 로 놓는다. 그래서 **한 슬롯의 예약 4건이 전부 room-b(정원 4명)에 몰려 있어도 `booked=4, capacity=4` → `full=true` → '마감'** 이고(`CalendarGrid.tsx:350` · `cellLabel :172` 이 이름에도 '· 마감'을 붙인다), **room-a·room-c·seat-1 은 비어 있는데도 그렇다.**
+>
+> **보강 — 두 모델이 코드 수준에서 서로 반대다.** `findConflicts` 는 자원을 **비교한다**: `_shared/reservation.ts:78` `if (reservation.resourceId !== candidate.resourceId) return false;`. **같은 4건을 예약 폼은 room-b 더블부킹으로 잡고**(FS-037-EL-007.12 의 '중복' 배지) **달력은 서로 다른 자원 4개를 채운 것으로 취급한다.** 반대로 room-b 에 2건이 겹치면 달력은 '2/4' 로 **여유가 있는 것처럼** 보인다. 같은 사실을 두 화면이 반대로 말한다.
+>
+> `schedule.test.ts:51-63` 이 현재 동작을 고정한다 — 픽스처의 `resourceId` 기본값이 `'room-b'`(`:16`)라 4건이 **전부 같은 방**인데 `full === true` 를 기대한다. **테스트가 있다는 것은 의도라는 뜻이 아니라 '현재 동작이 고정됐다'는 뜻이다.**
+>
+> **이것은 화면 버그가 아니라 도메인 결정 필요 사안이다** — 어느 모델이 옳은지는 정책이 정한다(BE-040 §7.4 · BE-037 §7.8 #4). §7 #1
 
 ## 2. 영역 구성
 
@@ -56,19 +72,19 @@ date: 2026-07-17
 
 | 요소번호 | 영역 | 이름 | 유형 | 동작 | [서버] | 비고 |
 |---|---|---|---|---|---|---|
-| FS-040-EL-001 | FS-040-SEC-01 | '일' 버튼 | 버튼 | 일 뷰로 전환(열 1개 = `anchor`). 선택 중이면 primary, 아니면 secondary. 클릭 시 슬롯 선택 해제 | — | ⚠ 선택 상태를 **색상(variant)으로만** 표현한다 — `aria-pressed` 없음(§7 #2) |
-| FS-040-EL-002 | FS-040-SEC-01 | '주' 버튼 | 버튼 | 주 뷰로 전환(열 7개 = `anchor` 가 속한 주 월~일). **초기 뷰가 주다**. 클릭 시 슬롯 선택 해제 | — | FS-040-EL-001 과 동일한 색상-only 문제 |
+| FS-040-EL-001 | FS-040-SEC-01 | '일' 버튼 | 버튼 | 일 뷰로 전환(열 1개 = `anchor`). 선택 중이면 primary, 아니면 secondary. 클릭 시 슬롯 선택 해제 | — | ✔ 선택 상태를 **이중 인코딩**한다 — `aria-pressed={view === 'day'}`(`ScheduleCalendarPage.tsx:204`) + `variant` 색. 근거 주석 `:199`: '`aria-pressed` 로 눌린 상태를 사실로 말한다 — 색은 그 위에 얹는 두 번째 부호다 (WCAG 1.4.1)'. **구 기준의 '색상 only' 는 해소됐다**(§7 #2) |
+| FS-040-EL-002 | FS-040-SEC-01 | '주' 버튼 | 버튼 | 주 뷰로 전환(열 7개 = `anchor` 가 속한 주 월~일). **초기 뷰가 주다**. 클릭 시 슬롯 선택 해제 | — | FS-040-EL-001 과 동일 — `aria-pressed={view === 'week'}`(`ScheduleCalendarPage.tsx:214`). **해소됨** |
 | FS-040-EL-003 | FS-040-SEC-01 | '이전' 버튼 | 버튼 | `<ChevronLeftIcon/>`, 접근 이름 '이전'. 일 뷰 −1일 / 주 뷰 −7일. 슬롯 선택 해제 | — | 아이콘만 — 접근 이름은 `aria-label` |
 | FS-040-EL-004 | FS-040-SEC-01 | '오늘' 버튼 | 버튼 | `anchor` 를 오늘로 되돌리고 슬롯 선택 해제. **`anchor === today` 이면 비활성** | — | '오늘'은 브라우저 로컬 시각 기준(§7 #3) |
 | FS-040-EL-005 | FS-040-SEC-01 | '다음' 버튼 | 버튼 | `<ChevronRightIcon/>`, 접근 이름 '다음'. 일 뷰 +1일 / 주 뷰 +7일. 슬롯 선택 해제 | — | 미래 상한 없음 |
 | FS-040-EL-006 | FS-040-SEC-01 | 기간 범위 라벨 | 텍스트 | 일 뷰 `formatDayLabel(anchor)` → '7월 16일 (목)'. 주 뷰 `'<첫날> ~ <마지막날>'` → '2026-07-13 ~ 2026-07-19' | — | ⚠ **두 뷰의 날짜 표기 형식이 다르다** — 일 뷰는 사람이 읽는 표기, 주 뷰는 ISO 원본 문자열(§7 #4) |
 | FS-040-EL-007 | FS-040-SEC-02 | 안내 힌트 (로딩 겸용) | 텍스트 | `gridHint(firstLoading, refetching)`(`ScheduleCalendarPage.tsx:47-51`) 이 **세 갈래**로 갈린다 — 최초 로드 '불러오는 중…' · 재조회 중 '셀의 숫자는 …합니다. · 최신 예약을 확인하는 중…' · 그 외 읽는 법 안내만 | O | **격자와 같은 상태를 말한다**(한 화면이 두 가지를 말하지 않는다). 1.0 의 '이 한 줄이 유일한 로딩 표현' 은 더 이상 사실이 아니다 — 격자 자신이 스켈레톤을 갖는다(FS-040-EL-008) |
-| FS-040-EL-008 | FS-040-SEC-03 | 달력 격자 | 표 | `role="grid"`, 접근 이름 '예약 일정 달력', `aria-busy={loading}`(`CalendarGrid.tsx:137-139`). CSS grid — 1열(시간) + 날짜 수만큼. 행 = `DAY_SLOTS` 11개. **최초 로드 상태를 갖는다** — `loading` 이면 셀마다 스켈레톤(`:164-170`), 아니면 집계 셀 | O | **최초 로드 중과 '예약 0건'이 화면상 구별된다**(F3b — §7 #5 닫힘). 남은 것은 **빈 상태 전용 표면이 없다**는 사안뿐이다(0건이면 '0/4' 로만 말한다 — NFR-040 §3 STATE-05) |
+| FS-040-EL-008 | FS-040-SEC-03 | 달력 격자 | 표 | `role="grid"`, 접근 이름 '예약 일정 달력', `aria-busy={loading}`(`CalendarGrid.tsx:256`). **행 래퍼가 실재한다** — 헤더 행 `role="row"`(`:257`) + 슬롯마다 `role="row"`(`:279`) = **12행**. 각 행이 자체 grid 를 소유한다(`rowStyle:58-61`, 근거 `:14-20` — 구 기준의 `display:contents` 래퍼는 제거됐다). 행 = `DAY_SLOTS` 11개. **최초 로드 상태를 갖는다** — `loading` 이면 셀마다 스켈레톤(`:292-300`), 아니면 집계 셀 | O | **최초 로드 중과 '예약 0건'이 화면상 구별된다**(F3b — §7 #5 닫힘). **ARIA grid 구조도 성립한다**(PR #22 — §7 #6 대부분 닫힘). 남은 것은 **빈 상태 전용 표면이 없다**는 사안(0건이면 '0/4' 로만 말한다 — NFR-040 §3 STATE-05)과 **announce 부재**(§7 #6 잔여) |
 | FS-040-EL-008.1 | FS-040-SEC-03 | '시간' 헤더 셀 | 텍스트 | 좌상단 모서리. `role="columnheader"`, 문구 '시간' | — | — |
-| FS-040-EL-008.2 | FS-040-SEC-03 | 날짜 헤더 셀 | 텍스트 | `role="columnheader"`, `formatDayLabel(day)` → '7월 16일 (목)'. **오늘이면 primary 색** | — | ⚠ '오늘'을 **색상으로만** 표시한다 — 텍스트·아이콘 등 비색상 인코딩이 없다(§7 #2) |
-| FS-040-EL-008.3 | FS-040-SEC-03 | 시간 슬롯 행 헤더 | 텍스트 | `role="rowheader"`, 슬롯 라벨 'HH:00'. tabular-nums | — | ⚠ `role="row"` 안에 있지 않다(§7 #6) |
-| FS-040-EL-008.4 | FS-040-SEC-03 | 슬롯 셀 | 버튼 | `<button type="button" className="tds-ui-focusable">`. 접근 이름 `'<날짜 라벨> <슬롯 라벨> — 예약 N건 / 수용 M건'`. `aria-pressed={selected}`. 클릭 시 그 슬롯을 선택해 FS-040-SEC-04 를 편다. 선택된 셀은 info 배경 | — | ⚠ `role="gridcell"` 이 아니다. 주 뷰에서 **77개(11×7)가 전부 Tab 정지점**이다(§7 #6) |
-| FS-040-EL-008.5 | FS-040-SEC-03 | 예약 칩 | 배지 | 셀에 걸치는 유효 예약마다 `StatusBadge`. 라벨 `'<시작시각> <고객명>'`, 톤은 `bookingStatusTone(status)` | — | ⚠ **고객명이 격자에 노출된다**(개인정보 — BE-040 §7.3). ⚠ 상태를 **톤 색상으로만** 구분한다 — 라벨에 상태 문구가 없다(§7 #2). ⚠ **칩 클릭 핸들러가 없다** — 파일 헤더 주석은 '칩 클릭 → 해당 예약 수정으로 이동'이라 하지만 미구현이며 클릭은 셀 선택으로 흡수된다(§7 #7) |
+| FS-040-EL-008.2 | FS-040-SEC-03 | 날짜 헤더 셀 | 텍스트 | `role="columnheader"`(`CalendarGrid.tsx:264`), `formatDayLabel(day)` → '7월 16일 (목)'. **오늘이면** primary 색 + `aria-current="date"`(`:269`) + **눈에 보이는 '오늘' 표식**(`:272` — `TODAY_MARK` `:33`) | — | ✔ **이중 인코딩 해소됨** — 근거 주석 `:268`: '오늘은 색으로만 말하지 않는다 — `aria-current` 로 AT 에, 아래 표식으로 눈에'. 회귀 테스트가 `aria-current="date"` 를 **정확히 1개**로 고정한다(`ScheduleCalendarPage.test.tsx:279-291`) |
+| FS-040-EL-008.3 | FS-040-SEC-03 | 시간 슬롯 행 헤더 | 텍스트 | `role="rowheader"`(`CalendarGrid.tsx:280`), 슬롯 라벨 'HH:00'. tabular-nums | — | ✔ **이제 `role="row"`(`:279`) 안에 있다** — 구 기준의 '행 밖' 문제는 해소됐다(§7 #6) |
+| FS-040-EL-008.4 | FS-040-SEC-03 | 슬롯 셀 | 버튼 | **`<div role="gridcell">`(`CalendarGrid.tsx:307`)이 진짜 `<button className="tds-ui-focusable">`(`:308-313`)을 감싼다** — 의도적 구조다(`:100-104`: 버튼에 `role="gridcell"` 을 얹으면 button 역할을 잃는다). 접근 이름은 `cellLabel`(`:315` → `:172`) — `'<날짜> <슬롯> — 예약 N건 / 수용 M건'` + 마감이면 '· 마감' + **칩의 시각·고객명·상태까지**(근거 `:165-170`: '눈으로 읽을 수 있는 것은 귀로도 읽을 수 있어야 한다'). `aria-pressed={selected}`(`:323`). 클릭 시 그 슬롯을 선택해 FS-040-SEC-04 를 편다 | — | ✔ **로빙 tabindex — 격자 전체가 Tab 정지점 하나다**(`tabIndex={focusable ? 0 : -1}` `:325` · `focusable` `:305` · `onFocus` 재동기화 `:329-331`). 구 기준의 '77개가 전부 Tab 정지점' 은 해소됐다(**Tab 77회 → 1회**). 안에서는 화살표 8종으로 이동(`:233-252`) — Arrow 4 · `Home`(행 처음) · `End`(행 끝) · `PageUp`(첫 행) · `PageDown`(마지막 행), 가장자리 clamp(`:225-226`, wrap 없음). 회귀 테스트 `ScheduleCalendarPage.test.tsx:214`(gridcell 77) · `:225`(tabbable 1) · `:261-277`(clamp) |
+| FS-040-EL-008.5 | FS-040-SEC-03 | 예약 칩 | 배지 | 셀에 걸치는 유효 예약마다 `StatusBadge`. 라벨 `'<시작시각> <고객명> · <상태>'`(`CalendarGrid.tsx:344`), 톤은 `bookingStatusTone(status)` | — | ⚠ **고객명이 격자에 노출된다**(개인정보 — BE-040 §7.3). ✔ **상태의 색상-only 는 해소됐다** — 라벨에 상태 문구가 들어간다(근거 `:342-343`: 'tone 은 색, label 이 뜻이다 — `StatusBadge` 계약이 요구하는 바이기도 하다 (WCAG 1.4.1)'). ⚠ **칩 클릭 핸들러가 없다** — 파일 헤더 주석은 '칩 클릭 → 해당 예약 수정으로 이동'이라 하지만 미구현이며 클릭은 셀 선택으로 흡수된다(§7 #7) |
 | FS-040-EL-008.6 | FS-040-SEC-03 | 예약 수 / 수용량 | 텍스트 | 마감이 아니면 `'<booked>/<capacity>'`(muted), 마감이면 **'마감'**(danger 톤 + bold) | — | 이중 인코딩 O — 색상 + 문구가 함께 바뀐다 |
 | FS-040-EL-008.7 | FS-040-SEC-03 | 가로 스크롤 컨테이너 | 텍스트 | 격자를 `overflowX: 'auto'` 컨테이너가 감싼다. 격자 최소 폭 `calc(var(--tds-space-6) * 12)`, 셀 최소 폭 `calc(var(--tds-space-6) * 3)` | — | 비표시 규칙. 좁은 폭에서 페이지가 아니라 이 컨테이너가 스크롤된다 |
 | FS-040-EL-009 | FS-040-SEC-04 | 슬롯 상세 패널 | 카드 | 슬롯이 선택됐을 때만 렌더. 격자 아래에 나타난다. 뷰·기간 변경 시 닫힌다 | O | 비표시 기본. **포커스를 옮기지 않고 announce 하지도 않는다**(§7 #6) |
@@ -137,6 +153,8 @@ date: 2026-07-17
 - [x] 구현 소스를 전수 대조했다 — `ScheduleCalendarPage.tsx` · `components/CalendarGrid.tsx` · `schedule-data.ts` · `schedule.test.ts` · 소비하는 `_shared/**` 전부
 - [x] **`schedule-data.ts` 에 `// TODO(backend)` 심이 없음을 F2 기준으로 재확인**했고, `ScheduleCalendarPage.tsx:116-121` 이 `useCrudListQuery('reservations', reservationAdapter)` 로 예약 어댑터를 읽는다는 사실을 코드로 확인해 §5 에 기록했다
 - [x] 새 인터랙티브 표면(달력 격자·슬롯 셀·슬롯 패널)의 예외를 §4 에 채웠다. **1.1 갱신(`HEAD = 4b805ad`): '로딩 표현 부재·거짓 빈 상태'는 F3b 가 해소해 §7 #5 를 닫았고 EL-007·008·008.4·008.6·009.2 를 그에 맞춰 고쳤다.** '선택 미announce'(§7 #6)는 유지된다 — 코드로 재확인했다(`ScheduleCalendarPage.tsx:244` 가 `setSelected` 만 부른다)
+- [x] **1.2 갱신(`a5c2639`): 격자 a11y 를 코드·테스트로 재판정**했다. **§7 #2 는 해소로 닫고**(색상-only 3표면 전부 이중 인코딩됨) **§7 #6 은 4지적 중 3개만 닫고 `announce` 잔여를 남겼다** — `role="status"`·`aria-live` 가 이 화면에 **0건**임을 전수 grep 으로 확인했으므로 **낙관적으로 전부 닫지 않았다.** §3 의 EL-001·002·008·008.2·008.3·008.4·008.5 근거를 새 라인으로 갱신했다. **FullCalendar 는 여전히 미도입**(`package.json` 19개 전수 매치 0건)이며 — 라이브러리 없이 계약을 손으로 지킨 것이 이번 변화의 요점이다
+- [x] **수용량 모델을 '개념 셋'으로 정밀화**했다(§1.1) — 구 기준은 둘로 봤으나 ①달력 `capacity`(자원 개수·건) ②자원 `capacity`(정원·명) ③`partySize`(예약 인원·명)가 실재한다. **집계가 `resourceId` 를 보지 않는다**는 근인(`_shared/reservation.ts:135-149`)과 **`findConflicts` 는 자원을 비교한다**는 비대칭(`:78`)을 코드로 확인해 병기했다 — 두 모델이 한 모듈 안에서 서로를 반증한다. **도메인 결정 사안이지 화면 버그가 아니다**
 - [x] 보이지 않는 요소(가로 스크롤 컨테이너·패널 빈 상태·실패 대체 화면·슬롯 선택 해제 규칙)에 번호를 줬다
 - [x] §4 예외 7축 빈칸 0건. 모든 `N/A` 에 사유
 - [x] `[서버]` = O 요소가 §5 에 전부 요약됐다
@@ -148,11 +166,11 @@ date: 2026-07-17
 | # | 내용 | 이관 대상 |
 |---|---|---|
 | 1 | **수용량 모델이 도메인과 어긋난다.** 이 화면의 수용량 = **자원 개수**(자리 4개, 배타 점유)인데 예약 폼의 `capacity` = **동시 수용 인원**(세미나룸 A 12명). 같은 방에 몰린 예약 4건이 '마감'이 되고 빈 자원 3개는 무시된다. `schedule.test.ts:51-63` 이 이 동작을 고정한다 — 즉 **의도인지 결함인지 코드만으로 판정할 수 없다.** 도메인이 배타 점유를 택하면 `capacity`(인원)는 정원 검증에만 쓰이고 슬롯 수용량은 자원 수가 맞다. 인원 수용을 택하면 이 화면의 '마감'은 자원별로 계산돼야 한다 | **A11 · A01 (도메인 결정)** · A63 (BE-037 §7.8 #4) |
-| 2 | **선택·상태를 색상으로만 인코딩한 표면이 셋이다** — ① 일/주 토글이 `variant` 색상만 다르고 `aria-pressed` 가 없다(FS-040-EL-001·002) ② '오늘' 열 헤더가 primary 색만 다르다(FS-040-EL-008.2) ③ 격자의 예약 칩이 상태를 톤 색상으로만 구분한다(라벨은 '시각 + 고객명' — FS-040-EL-008.5). 슬롯 셀(`aria-pressed`)과 '마감'(색+문구)은 옳게 돼 있어 **한 화면 안에서 규칙이 갈린다** | A11 change_request |
+| ~~2~~ | ~~**선택·상태를 색상으로만 인코딩한 표면이 셋이다**~~ → **해소됨(PR #22 · `a5c2639`).** 셋 다 닫혔다: ① 일/주 토글에 `aria-pressed`(`ScheduleCalendarPage.tsx:204,214` — 근거 `:199`: '색은 그 위에 얹는 두 번째 부호다') ② '오늘' 열 헤더에 `aria-current="date"` + **눈에 보이는 '오늘' 표식**(`CalendarGrid.tsx:269,272` — 근거 `:268`) ③ 예약 칩 라벨에 상태 문구(`:344` — `'HH:mm 고객명 · <상태>'`, 근거 `:342-343`). **'한 화면 안에서 규칙이 갈린다' 던 지적이 해소됐다** — 이제 슬롯 셀(`aria-pressed`)·'마감'(색+문구)과 규칙이 같다 | — |
 | 3 | **'오늘'이 첫 렌더 시점에 고정되고 브라우저 로컬 TZ 기준이다.** `ScheduleCalendarPage.tsx:130` 이 `const today = toDateString(new Date())` 를 렌더 본문에서 계산하지만 `anchor` 초기값으로만 쓰이고 `'오늘' 버튼 비활성`(`anchor === today`)·`isToday()` 강조가 이에 의존한다 — 자정을 넘겨 화면을 열어 두면 '오늘'이 어제를 가리킨다. TZ 정책도 없다(`_shared/calendar.ts` 가 전부 browser-local getter — `:27-31,45-47,58-64,87-89`). ⚠ **`4b805ad` 재확인: 앱 전역은 `shared/format.ts:33-45` 의 UTC 정오 앵커 한 벌로 수렴했고(`pages/logs/time.ts`·`pages/stats/_shared/period.ts` 정렬) `_shared/calendar.ts` 만 합류하지 않았다 — 이 섹션이 사실상 마지막 잔여지다** | A11 · A63 |
 | 4 | **두 뷰의 날짜 표기 형식이 다르다** — 일 뷰 '7월 16일 (목)'(`formatDayLabel`) vs 주 뷰 '2026-07-13 ~ 2026-07-19'(ISO 원본 문자열 연결). 같은 자리에서 뷰만 바꿨을 뿐인데 표기 체계가 바뀐다 | A11 change_request |
 | ~~5~~ | ~~**격자에 로딩 표현이 없어 최초 로드 중이 '예약 0건'과 구별되지 않는다.**~~ → **해소됨(F3b · `HEAD = 4b805ad`).** 1.0 은 '`all = data ?? []` 라 도착 전에도 격자가 0/4 로 완성된 사실처럼 렌더되고, 그 사이 슬롯을 열면 「이 시간대에 예약이 없습니다」라는 거짓 빈 상태까지 보인다'고 적었다. 지금은 `ScheduleCalendarPage.tsx:151-152` 가 `firstLoading = isFetching && data === undefined` · `refetching = isFetching && data !== undefined` 를 파생해 `CalendarGrid` 에 `loading={firstLoading}` 으로 넘기고(`:241`), 격자가 최초 로드 중에는 **`slotCell` 을 아예 돌리지 않고 스켈레톤 셀을 그린다**(`CalendarGrid.tsx:164-170` · `aria-busy` `:139`). 스켈레톤 셀은 `<button>` 이 아니라 `<div>` 라 **클릭 경로 자체가 닫혀** 거짓 빈 상태에 도달할 수 없다. 힌트도 같은 상태를 말한다(`gridHint:47-51`) | **닫힘** — NFR-040 §2 STATE-01 = pass |
-| 6 | **격자의 ARIA 구조가 불완전하고 키보드 조작이 없다.** ① `role="grid"` 아래에 **`role="row"` 가 하나도 없다** — 각 슬롯 행을 감싸는 것은 `<div style={{display:'contents'}}>`(역할 없음)이고 `columnheader`/`rowheader` 가 행 안에 있지 않다 ② 셀이 `role="gridcell"` 이 아니라 그냥 `<button>` 이다 ③ **화살표 키 이동이 없다** — grid 패턴은 셀 하나만 Tab 정지점으로 두고 방향키로 이동하는데, 여기서는 주 뷰 **77개 버튼이 전부 Tab 정지점**이다(격자를 지나치려면 Tab 77번) ④ 슬롯을 선택해 패널이 열려도 포커스를 옮기지 않고 live region 으로 알리지도 않는다 — 스크린리더 사용자는 화면 어딘가에 카드가 생긴 것을 모른다 | A11 change_request (A11Y-16 P1 — NFR-040 §3) |
+| 6 | **격자 a11y — 4개 지적 중 3개 해소, `announce` 만 남았다**(PR #22 · `21de39b` '예약 일정 격자의 접근성 결함을 직접 고친다 — 행·셀·화살표 (FullCalendar 미도입)'). ~~① `role="grid"` 아래에 `role="row"` 가 하나도 없다~~ → **행 래퍼 실재**: 헤더 `:257` + 슬롯마다 `:279` = **12행**, `columnheader`(`:258,264`)·`rowheader`(`:280`)가 행 안에 있다. `display:contents` 래퍼는 제거되고 각 행이 자체 grid 를 소유한다(`rowStyle:58-61`, 근거 `:14-20`). ~~② 셀이 `role="gridcell"` 이 아니다~~ → **`<div role="gridcell">`(`:294` 스켈레톤 / `:307` 로드)이 `<button>` 을 감싼다 = 77개**(11×7). 버튼을 감싸는 구조는 의도적이다(`:100-104`). ~~③ 화살표 키 이동이 없다 · 주 뷰 Tab 77회~~ → **로빙 tabindex 로 Tab 정지점 1개**(`:325,305,329-331`) + **키 8종**(`:233-252` — Arrow 4 · Home/End 는 **행 범위** · PageUp/PageDown 은 열 범위, clamp `:225-226`, wrap 없음, `Ctrl+Home/End` 는 **없다**). **★ ④ 잔여 — 슬롯을 선택해 패널이 열려도 포커스를 옮기지 않고 live region 으로 알리지도 않는다.** 이 화면에 `role="status"`·`aria-live` 가 **0건**이다(`schedule/**` 전수 grep) — 재조회로 셀 숫자가 바뀌어도 침묵한다(`gridHint` 는 눈에만 말한다 — `ScheduleCalendarPage.tsx:47-51,245`). **이 절만 남는다.** 회귀 고정: `ScheduleCalendarPage.test.tsx:204`(12행) · `:214`(77 gridcell) · `:225`(tabbable 1) · `:226`(버튼 77) · `:261-277`(clamp) · `:279-291`(`aria-current` 1) | A11 change_request (A11Y-16 P1 잔여 — announce 만 · NFR-040 §3) |
 | 7 | **`CalendarGrid.tsx` 헤더 주석이 미구현 동작을 서술한다** — '칩 클릭 → 해당 예약 수정으로 이동'이라 적혀 있으나 칩(`StatusBadge`)에 클릭 핸들러가 없고, 칩이 셀 `<button>` 안에 있어 클릭은 슬롯 선택으로 흡수된다. 주석을 지우거나 동작을 구현해야 한다 | A11 change_request |
 | 8 | **달력에서 예약을 만들 수 없다.** 빈 슬롯을 클릭하면 '이 시간대에 예약이 없습니다'로 끝난다 — 그 슬롯을 미리 채운 등록 폼(`/reservations/new?date=…&start=…`)으로 보내는 것이 달력의 기본 기대인데 경로가 없다. 드래그로 예약을 옮기는 경로도 없다 | A11 change_request |
 | 9 | **'예약 상세' 버튼이 상세가 아니라 수정 폼으로 간다** — `/reservations/<id>/edit`. 예약 도메인에 상세 라우트(`/reservations/:id`)가 `APP_ROUTES` 에 존재하지 않는다. 라벨이 목적지를 잘못 알린다(FS-037 의 행 클릭도 같은 이유로 수정 폼으로 간다) | A11 change_request |
