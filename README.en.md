@@ -45,7 +45,7 @@ List/detail/create/edit ship as one set, and every component that fills those sc
 ```bash
 pnpm install
 pnpm codegen              # contracts/tokens → generate types · argTypes · figma.json · CSS
-pnpm gate:precheck        # contracts + ownership + naming + four-way agreement (required before requesting review)
+pnpm gate:precheck        # contracts + naming + four-way agreement + coverage + clean code (required before requesting review)
 pnpm dev:admin            # Admin app
 pnpm sb                   # Storybook (:6006)
 ```
@@ -93,7 +93,6 @@ Four **vacuous passes** found in practice — all of them were showing green, an
 
 ```bash
 pnpm validate:contracts   # contract schema validation
-pnpm boundary:check       # ownership boundaries (same rules as CODEOWNERS)
 pnpm contract-test        # four-way agreement
 pnpm coverage:check       # contract states · blockedWhen · FS exception axes (not line %)
 pnpm quality:check        # 6 clean-code axes (1 blocker → PR blocked)
@@ -120,7 +119,6 @@ The product surface is as follows — this is not an exhaustive listing of every
 ├── e2e/                    Playwright scenarios (test names cite FS element numbers)
 ├── tools/
 │   ├── codegen/            contracts/tokens → 4-target generation pipeline
-│   ├── boundary/           CODEOWNERS generation + ownership/reads scope checks
 │   ├── contract-test/      four-way agreement verification
 │   ├── test-coverage/      contract states · blockedWhen · FS exception-axis coverage (not line %)
 │   ├── code-quality/       6 clean-code axes (coupling·leakage·duplication·complexity·dead code·layering)

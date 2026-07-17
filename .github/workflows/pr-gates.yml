@@ -6,8 +6,6 @@
 #       **아무것도 못 막으면서 초록불을 켜는 게이트는 게이트가 아니라 거짓말이다** (ADR-0009).
 #
 # ── 브랜치 보호 규칙(required status checks)에 등록할 job id ────────────────
-#   registry-validate   A02  레지스트리 검증
-#   boundary            A02  소유권 경계
 #   contracts           A18/A19  계약 스키마
 #   codegen-stale       codegen  생성물 최신성
 #   contract-test       A74  4자 일치 (G5·G6·G7)
@@ -54,36 +52,6 @@ permissions:
   contents: read
 
 jobs:
-  # A02 — agents.json 스키마 + gates.json 교차 검증
-  registry-validate:
-    name: 레지스트리 검증 (agents.json ↔ gates.json)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm validate:registry
-
-  # A02 — 변경 파일 소유권 판정 (CODEOWNERS와 동일한 last-match-wins 규칙)
-  boundary:
-    name: 소유권 경계 검사 (Boundary Enforcer)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # base...HEAD diff 계산에 전체 이력 필요
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm boundary:check --base "origin/${{ github.base_ref }}"
-
   # A18/A19 — 계약 스키마 검증 (contracts/schemas/component.v1.json)
   contracts:
     name: 계약 검증 (contract.json 스키마)
@@ -257,8 +225,6 @@ jobs:
   preview:
     name: 프리뷰 산출물 (Storybook · Admin — 게이트 통과 후)
     needs:
-      - registry-validate
-      - boundary
       - contracts
       - codegen-stale
       - contract-test

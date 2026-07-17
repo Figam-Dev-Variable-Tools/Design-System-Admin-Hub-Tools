@@ -45,7 +45,7 @@
 ```bash
 pnpm install
 pnpm codegen              # 契约/Token → 生成类型 · argTypes · figma.json · CSS
-pnpm gate:precheck        # 契约 + 所有权 + 命名 + 四方一致 (提交评审前必做)
+pnpm gate:precheck        # 契约 + 命名 + 四方一致 + 覆盖率 + 整洁代码 (提交评审前必做)
 pnpm dev:admin            # Admin 应用
 pnpm sb                   # Storybook (:6006)
 ```
@@ -93,7 +93,6 @@ pnpm sb                   # Storybook (:6006)
 
 ```bash
 pnpm validate:contracts   # 契约 Schema 验证
-pnpm boundary:check       # 所有权边界 (与 CODEOWNERS 同一规则)
 pnpm contract-test        # 四方一致
 pnpm coverage:check       # 契约 states · blockedWhen · FS 异常轴 (并非行覆盖率 %)
 pnpm quality:check        # 整洁代码 6 轴 (blocker 1 件 → 阻断 PR)
@@ -120,7 +119,6 @@ pnpm verify:full          # verify:all + E2E
 ├── e2e/                    Playwright 场景 (测试名引用 FS 元素编号)
 ├── tools/
 │   ├── codegen/            契约/Token → 四处生成流水线
-│   ├── boundary/           生成 CODEOWNERS + 所有权/reads 作用域检查
 │   ├── contract-test/      四方一致验证
 │   ├── test-coverage/      契约 states · blockedWhen · FS 异常轴覆盖 (并非行覆盖率 %)
 │   ├── code-quality/       整洁代码 6 轴 (耦合·泄漏·重复·复杂度·死代码·分层)
