@@ -1,5 +1,5 @@
-// 계약 대상(ImageUploadField) + 함께 co-locate 한 순수 유틸(imageFileError) — ImageGalleryField 와 공유
-export { ImageUploadField, imageFileError } from './ImageUploadField';
+// 계약 대상(ImageUploadField) + 함께 co-locate 한 순수 유틸(imageFileError·requiredNameSuffix) — ImageGalleryField 와 공유
+export { ImageUploadField, imageFileError, requiredNameSuffix } from './ImageUploadField';
 export type {
   ImageUploadFieldProps,
   ImageUploadFieldState,

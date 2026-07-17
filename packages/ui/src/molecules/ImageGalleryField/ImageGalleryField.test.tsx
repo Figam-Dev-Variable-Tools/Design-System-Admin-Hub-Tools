@@ -96,3 +96,36 @@ describe('ImageGalleryField — 계약 states·onChange', () => {
     expect(dropzone.disabled).toBe(true);
   });
 });
+
+// required 를 AT 에 잇는다 (A11Y-11)
+//
+// 이 갤러리의 required 는 '최소 한 장' 이라는 **묶음 단위** 요구다. 그래서 꼬리표는 그 요구가 아직
+// 안 채워진 상태(빈 드롭존)에만 붙고, 이미 한 장 이상 있는 상태의 '추가' 버튼에는 붙지 않는다 —
+// 거기서 '필수' 라고 말하면 '더 넣어야 한다' 는 거짓말이 된다.
+// (aria-required 는 role=button 이 지원하지 않는다 — ImageUploadField 의 requiredNameSuffix 주석 참조)
+describe('ImageGalleryField — required 의 AT 경로', () => {
+  it('required 이고 아직 비었으면 드롭존 이름이 필수임을 밝힌다', () => {
+    render(<ImageGalleryField label="상세 이미지" values={[]} onChange={vi.fn()} required />);
+    expect(screen.getByRole('button', { name: /상세 이미지 \(필수\)/ })).toBeTruthy();
+  });
+
+  it('required 가 아니면 꼬리표가 붙지 않는다 (대조)', () => {
+    render(<ImageGalleryField label="상세 이미지" values={[]} onChange={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: /필수/ })).toBeNull();
+  });
+
+  it('이미 한 장 이상이면 요구가 충족됐다 — 추가 버튼은 필수라고 말하지 않는다', () => {
+    render(
+      <ImageGalleryField label="상세 이미지" values={['blob:a']} onChange={vi.fn()} required />,
+    );
+    expect(screen.getByRole('button', { name: '상세 이미지 이미지 추가' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /필수/ })).toBeNull();
+  });
+
+  it('aria-required 를 role=button 에 얹지 않는다 — 지원하지 않는 속성이다', () => {
+    const { container } = render(
+      <ImageGalleryField label="상세 이미지" values={[]} onChange={vi.fn()} required />,
+    );
+    expect(container.querySelectorAll('[aria-required]')).toHaveLength(0);
+  });
+});

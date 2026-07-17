@@ -11,7 +11,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent, SVGProps } from 'react';
 
 import { errorIdOf, hintIdOf } from '../FormField';
-import { imageFileError } from '../ImageUploadField';
+import { imageFileError, requiredNameSuffix } from '../ImageUploadField';
 import type { ImageGalleryFieldProps } from '../../../generated/types/ImageGalleryField.types';
 import './ImageGalleryField.css';
 
@@ -231,7 +231,10 @@ export function ImageGalleryField({
           type="button"
           className={zoneClass(false)}
           disabled={disabled}
-          aria-label={`${label} — 클릭하거나 이미지를 끌어다 놓으세요`}
+          // [A11Y-11] 이 갤러리의 required 는 '최소 한 장'이라는 뜻이고, 그 요구가 아직 안 채워진
+          // 상태가 바로 여기(values.length === 0)다. 그래서 필수 꼬리표는 이 빈 드롭존에만 붙인다.
+          // (aria-required 는 role=button 이 지원하지 않는다 — requiredNameSuffix 주석 참조)
+          aria-label={`${label}${requiredNameSuffix(required)} — 클릭하거나 이미지를 끌어다 놓으세요`}
           aria-describedby={describedBy}
           onClick={openPicker}
           {...dragHandlers}
@@ -269,6 +272,8 @@ export function ImageGalleryField({
               type="button"
               className={zoneClass(true)}
               disabled={disabled}
+              // 여기까지 왔다면 이미 한 장 이상 있다 — required('최소 한 장')는 충족됐다.
+              // '더 추가하는 것'은 필수가 아니므로 이 버튼에 필수 꼬리표를 붙이면 거짓말이 된다.
               aria-label={`${label} 이미지 추가`}
               aria-describedby={describedBy}
               onClick={openPicker}

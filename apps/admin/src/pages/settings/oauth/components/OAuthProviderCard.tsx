@@ -100,6 +100,19 @@ export function OAuthProviderCard({
   const secretInvalid = errors.secret !== undefined;
   const redirectInvalid = errors.redirectUri !== undefined;
 
+  /**
+   * 시크릿을 새로 넣어야만 켤 수 있다 — 이미 저장돼 있으면(②③) 비워 둬도 기존 값이 유지되므로 필수가 아니다.
+   *
+   * [A11Y-11] FormField 는 required 를 **단일 컨트롤 자식**의 aria-required 로 주입하는데(withAriaRequired),
+   * 이 필드의 자식은 입력과 '변경/취소' 버튼을 나란히 놓는 <span> 래퍼라 주입 대상이 아니다 —
+   * 래퍼에 aria-required 를 얹으면 거짓 시맨틱이 되므로 FormField 가 의도적으로 거부한다.
+   * 그래서 **호출부인 이 카드가 진짜 컨트롤인 <input> 에 직접 준다**(FormField 는 호출부 값을 우선한다).
+   * required 일 때 showMasked 는 반드시 false 이므로(!hasSecret) 그 <input> 은 항상 렌더된다.
+   * 값이 false 일 때는 속성을 남기지 않는다 — aria-invalid 를 짝지어 다루는 방식과 같다(DateRangeField 선례).
+   */
+  const secretRequired = value.enabled && !value.hasSecret;
+  const secretRequiredProps = secretRequired ? { 'aria-required': true } : {};
+
   const startChange = useCallback(() => {
     onChangeSecretStart();
   }, [onChangeSecretStart]);
@@ -143,7 +156,7 @@ export function OAuthProviderCard({
       <FormField
         htmlFor={`${idBase}-secret`}
         label="Client Secret"
-        required={value.enabled && !value.hasSecret}
+        required={secretRequired}
         error={errors.secret ?? ''}
         hint={
           showMasked
@@ -170,6 +183,7 @@ export function OAuthProviderCard({
               maxLength={CLIENT_SECRET_MAX}
               autoComplete="new-password"
               placeholder={value.hasSecret ? '비워 두면 기존 시크릿을 유지합니다' : ''}
+              {...secretRequiredProps}
               aria-invalid={secretInvalid}
               aria-describedby={secretInvalid ? errorIdOf(`${idBase}-secret`) : undefined}
               {...register(`providers.${String(index)}.secret` as `providers.${number}.secret`)}

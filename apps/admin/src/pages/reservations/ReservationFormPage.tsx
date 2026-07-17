@@ -153,7 +153,6 @@ export default function ReservationFormPage() {
     [all, id, date, startTime, endTime, resourceId, status],
   );
   const past = isPastDateTime(date, startTime);
-  const timeError = errors.startTime?.message ?? errors.endTime?.message;
 
   return (
     <FormPageShell
@@ -252,32 +251,42 @@ export default function ReservationFormPage() {
         />
       </FormField>
 
-      <FormField htmlFor="rsv-start" label="이용 시간" required error={timeError}>
-        <div style={rowStyle}>
+      {/* [A11Y-11 · 오류 지목] 시작/종료를 각자의 FormField 로 나눈다 (NFR-037 §2 의 해소 방향 ①).
+          하나의 FormField 가 래퍼 <div> 로 두 <input> 을 덮던 이전 구조는 두 결함을 낳았다:
+          ① 자식이 <div> 라 FormField 의 withAriaRequired 주입 대상이 아니었다 — '이용 시간' 의 필수
+             여부가 AT 에 닿는 경로가 0개였다(별표는 aria-hidden). 래퍼에 aria-required 를 얹는 것은
+             거짓 시맨틱이므로 답이 아니다 — 라벨을 컨트롤마다 하나씩 두는 것이 답이다.
+          ② 두 입력이 같은 errorIdOf('rsv-start') 를 가리켜, 종료 시각만 틀려도 시작 시각까지
+             aria-invalid 로 표시되고 남의 오류를 자기 설명으로 읽었다.
+          각자의 FormField 는 각자의 라벨·오류 <p>·aria-required 주입을 갖는다(희망 날짜/시각을 나눠
+          같은 함정을 피한 상담 예약 폼 FS-039 의 선례). 가시 라벨은 기존 aria-label 과 같은 문구라
+          접근성 이름은 그대로다. rowStyle 격자를 유지해 두 칸이 나란히 선다. */}
+      <div style={rowStyle}>
+        <FormField htmlFor="rsv-start" label="시작 시각" required error={errors.startTime?.message}>
           <input
             id="rsv-start"
             type="time"
             className="tds-ui-input tds-ui-focusable"
-            style={controlStyle(timeError !== undefined)}
+            style={controlStyle(errors.startTime !== undefined)}
             disabled={disabled}
-            aria-label="시작 시각"
-            aria-invalid={timeError !== undefined}
-            aria-describedby={timeError !== undefined ? errorIdOf('rsv-start') : undefined}
+            aria-invalid={errors.startTime !== undefined}
+            aria-describedby={errors.startTime !== undefined ? errorIdOf('rsv-start') : undefined}
             {...register('startTime')}
           />
+        </FormField>
+        <FormField htmlFor="rsv-end" label="종료 시각" required error={errors.endTime?.message}>
           <input
             id="rsv-end"
             type="time"
             className="tds-ui-input tds-ui-focusable"
-            style={controlStyle(timeError !== undefined)}
+            style={controlStyle(errors.endTime !== undefined)}
             disabled={disabled}
-            aria-label="종료 시각"
-            aria-invalid={timeError !== undefined}
-            aria-describedby={timeError !== undefined ? errorIdOf('rsv-start') : undefined}
+            aria-invalid={errors.endTime !== undefined}
+            aria-describedby={errors.endTime !== undefined ? errorIdOf('rsv-end') : undefined}
             {...register('endTime')}
           />
-        </div>
-      </FormField>
+        </FormField>
+      </div>
 
       <div style={rowStyle}>
         <FormField

@@ -42,6 +42,20 @@ export function imageFileError(file: File, maxSizeMB: number): string | null {
   return null;
 }
 
+// required 를 AT 에 잇는다 (A11Y-11 · 계약 비대상 순수 유틸 — ImageGalleryField 와 공유).
+//
+// [왜 aria-required 가 아닌가 — 이 필드에는 붙일 자리가 없다]
+// FormField 는 required 를 자식 컨트롤의 aria-required 로 주입하지만(withAriaRequired) 이 필드는
+// FormField 를 거치지 않고, 거칠 수도 없다: **AT 에 보이는 컨트롤이 <button>(드롭존)** 이기 때문이다.
+// aria-required 는 role=button 이 지원하는 속성이 아니다(ARIA 1.2 — textbox/checkbox/combobox/…).
+// 얹으면 거짓 시맨틱이자 axe aria-allowed-attr 위반이다. 진짜 <input type="file"> 은 aria-hidden +
+// tabIndex=-1 인 트리거라 AT 가 보지 못하므로 그쪽에 줘도 아무에게도 닿지 않는다.
+// 남는 정직한 경로는 **접근성 이름**뿐이다 — 마커(*)의 시각 표현은 그대로 두고 이름에만 더한다.
+/** 필수 필드의 접근성 이름에 붙일 꼬리표 — required 가 아니면 빈 문자열이라 이름이 그대로다. */
+export function requiredNameSuffix(required: boolean): string {
+  return required ? ' (필수)' : '';
+}
+
 type GlyphProps = Omit<SVGProps<SVGSVGElement>, 'children'>;
 
 const GLYPH_BASE = {
@@ -233,7 +247,7 @@ export function ImageUploadField({
         type="button"
         className={dropzoneClass}
         disabled={disabled}
-        aria-label={`${label} 이미지 업로드 — 클릭하거나 파일을 끌어다 놓으세요`}
+        aria-label={`${label}${requiredNameSuffix(required)} 이미지 업로드 — 클릭하거나 파일을 끌어다 놓으세요`}
         aria-describedby={describedBy}
         onClick={openPicker}
         onDragOver={(event) => {
