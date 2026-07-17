@@ -1,8 +1,14 @@
 // 구성비 막대 — 순위 + 점유율 (A40 소유 — apps/admin/src/pages/stats/**)
 //
-// [왜 파이/다계열 차트가 아닌가] 구분 가능한 계열 색이 2개뿐이다(chart.series-1/2). 유입경로
-// 5종을 색으로 나누면 3번째부터 색이 되돌아와 구분되지 않는다. 순위가 본질인 데이터는
-// **한 가지 색의 길이 비교**가 무지개 파이보다 읽기 쉽고 색각 이상에도 안전하다.
+// [왜 파이/다계열 차트가 아닌가] 순위가 본질인 데이터는 **한 가지 색의 길이 비교**가 무지개
+// 파이보다 읽기 쉽고 색각 이상에도 안전하다. 길이는 정렬된 채로 눈에 들어오지만, 색은 범례를
+// 오가며 대조해야 한다.
+//
+//   ⚠ 예전 이 자리엔 '구분 가능한 계열 색이 2개뿐(chart.series-1/2)'이라는 이유가 함께 적혀
+//   있었다. **그 전제는 지금 거짓이다** — TOKEN-13 이 chart.series-3..6 을 추가해 6계열까지
+//   서로 다른 hue 가 나온다(LineAreaChart 가 이미 그렇게 쓴다). 색이 모자라서 단색을 고른 게
+//   아니라, **이 데이터에는 단색 길이 비교가 맞아서** 고른 것이다. 색이 늘었다고 파이로
+//   되돌릴 이유가 되지 않는다.
 //
 // [막대는 장식이다] 점유율 수치를 글자로 이미 찍으므로 막대에 aria 를 달지 않는다 —
 // 스크린리더가 같은 값을 두 번 읽게 하지 않는다.
@@ -15,8 +21,9 @@
 // 갈라진다. 그래서 계약을 StatsTable 에 맞췄다.
 import type { CSSProperties, ReactNode } from 'react';
 
-import { deltaOf, formatDeltaPercent, formatMetric, formatPercentValue, shareOf } from './format';
-import type { DeltaTone, MetricUnit } from './format';
+import { DeltaText } from './DeltaText';
+import { deltaOf, formatMetric, formatPercentValue, shareOf } from './format';
+import type { MetricUnit } from './format';
 import type { ShareItem } from './types';
 
 const listStyle: CSSProperties = {
@@ -75,12 +82,6 @@ const shareStyle: CSSProperties = {
   fontVariantNumeric: 'tabular-nums',
 };
 
-const TONE_COLOR: Readonly<Record<DeltaTone, string>> = {
-  positive: 'var(--tds-color-feedback-success-text)',
-  negative: 'var(--tds-color-feedback-danger-text)',
-  neutral: 'var(--tds-color-text-muted)',
-};
-
 const skeletonRowStyle: CSSProperties = {
   display: 'block',
   blockSize: 'var(--tds-space-5)',
@@ -137,9 +138,7 @@ export function ShareBarList({ items, unit, loading, skeletonCount, empty }: Sha
               <span style={valueStyle}>
                 <span>{formatMetric(item.value, unit)}</span>
                 <span style={shareStyle}>{formatPercentValue(share)}%</span>
-                {delta === null ? null : (
-                  <span style={{ color: TONE_COLOR[delta.tone] }}>{formatDeltaPercent(delta)}</span>
-                )}
+                {delta === null ? null : <DeltaText delta={delta} unit={unit} />}
               </span>
             </div>
             <div style={trackStyle}>

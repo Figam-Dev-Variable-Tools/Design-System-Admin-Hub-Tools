@@ -11,8 +11,9 @@
 import type { CSSProperties } from 'react';
 import { StatsCard } from '@tds/ui';
 
-import { deltaOf, describeDelta, formatDeltaPercent, formatMetric } from './format';
-import type { Delta, DeltaTone } from './format';
+import { DeltaText } from './DeltaText';
+import { deltaOf, formatMetric } from './format';
+import type { Delta } from './format';
 import type { StatsKpi } from './types';
 
 /** 카드가 자동으로 줄바꿈되는 반응형 그리드 — 좁은 화면에서 1열로 접힌다 (IA-14) */
@@ -46,30 +47,10 @@ const hintStyle: CSSProperties = {
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
 
-const srOnlyStyle: CSSProperties = {
-  position: 'absolute',
-  inlineSize: 'var(--tds-border-width-thin)',
-  blockSize: 'var(--tds-border-width-thin)',
-  padding: 0,
-  margin: 'calc(var(--tds-border-width-thin) * -1)',
-  overflow: 'hidden',
-  clipPath: 'inset(50%)',
-  whiteSpace: 'nowrap',
-  border: 0,
-};
-
-const TONE_COLOR: Readonly<Record<DeltaTone, string>> = {
-  positive: 'var(--tds-color-feedback-success-text)',
-  negative: 'var(--tds-color-feedback-danger-text)',
-  neutral: 'var(--tds-color-text-muted)',
-};
-
 function DeltaLine({ kpi, delta }: { readonly kpi: StatsKpi; readonly delta: Delta }) {
   return (
-    <p style={{ ...deltaStyle, margin: 0, color: TONE_COLOR[delta.tone] }}>
-      {/* 화살표는 장식이 아니라 방향 신호다 — 다만 스크린리더에는 아래 문장으로 다시 전한다 */}
-      <span aria-hidden="true">{formatDeltaPercent(delta)}</span>
-      <span style={srOnlyStyle}>{describeDelta(delta, kpi.unit)}</span>
+    <p style={{ ...deltaStyle, margin: 0 }}>
+      <DeltaText delta={delta} unit={kpi.unit} />
     </p>
   );
 }
