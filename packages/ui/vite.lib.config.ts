@@ -1,5 +1,14 @@
 // @tds/ui — vite lib mode 빌드 (ADR-0009 승격 조건 ①)
 //
+// ⚠ **파일 이름이 `vite.config.ts` 가 아닌 이유 — 일부러다.**
+//   Storybook(@storybook/react-vite)은 `.storybook/main.ts` 에 viteFinal/configFile 이 없으면
+//   패키지 루트의 **`vite.config.*` 를 자동으로 읽어 자기 빌드에 병합한다.** 이 파일이
+//   `vite.config.ts` 였다면 여기 적힌 lib 엔트리·`external: react` 가 **Storybook 빌드에까지
+//   새어 들어간다** — VRT 501건과 a11y 게이트가 그 위에서 돈다. 측정하려고 만든 설정이
+//   측정 대상을 오염시키는 셈이다.
+//   vite 는 `vite.config.*` 만 자동 탐색하므로 이름을 비켜 두고 package.json 이
+//   `vite build --config vite.lib.config.ts` 로 **명시 호출**한다. 이름을 되돌리지 말 것.
+//
 // **이 빌드의 목적은 배포가 아니라 측정이다.**
 // 앱(@tds/admin)은 여전히 workspace 링크로 `src/index.ts` 를 직접 컴파일한다
 // (package.json 의 main/exports 를 dist 로 돌리지 않았다 — 소비 경로를 바꾸는 것은
