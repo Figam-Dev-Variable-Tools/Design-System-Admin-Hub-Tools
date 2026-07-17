@@ -13,7 +13,7 @@
   "scripts": {
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "build": "echo \"build via consuming app (vite lib mode 추후)\"",
+    "build": "vite build",
     "test": "vitest run",
     "lint": "eslint src"
   },
