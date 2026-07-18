@@ -35,7 +35,7 @@ function ControlledDateRangeField(args: ComponentProps<typeof DateRangeField>) {
 }
 
 const meta: Meta<typeof DateRangeField> = {
-  title: 'Molecules/DateRangeField',
+  title: 'Inputs/DateRangeField',
   component: DateRangeField,
   argTypes: { ...DateRangeFieldArgTypes },
   args: {

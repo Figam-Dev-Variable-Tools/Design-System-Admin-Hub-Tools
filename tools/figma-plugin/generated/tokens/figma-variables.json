@@ -431,6 +431,22 @@
       }
     },
     {
+      "name": "primitive/color/kakao/yellow",
+      "type": "COLOR",
+      "values": {
+        "light": "#FEE500",
+        "dark": "#FEE500"
+      }
+    },
+    {
+      "name": "primitive/color/kakao/ink",
+      "type": "COLOR",
+      "values": {
+        "light": "#191919",
+        "dark": "#191919"
+      }
+    },
+    {
       "name": "primitive/space/1",
       "type": "FLOAT",
       "values": {
@@ -1260,6 +1276,42 @@
       "alias": {
         "light": "primitive/color/gray/600",
         "dark": "primitive/color/gray/400"
+      }
+    },
+    {
+      "name": "color/channel/kakao/surface",
+      "type": "COLOR",
+      "values": {
+        "light": "#FEE500",
+        "dark": "#FEE500"
+      },
+      "alias": {
+        "light": "primitive/color/kakao/yellow",
+        "dark": "primitive/color/kakao/yellow"
+      }
+    },
+    {
+      "name": "color/channel/kakao/text",
+      "type": "COLOR",
+      "values": {
+        "light": "#191919",
+        "dark": "#191919"
+      },
+      "alias": {
+        "light": "primitive/color/kakao/ink",
+        "dark": "primitive/color/kakao/ink"
+      }
+    },
+    {
+      "name": "color/channel/kakao/chat-surface",
+      "type": "COLOR",
+      "values": {
+        "light": "#BFDBFE",
+        "dark": "#1F2937"
+      },
+      "alias": {
+        "light": "primitive/color/blue/200",
+        "dark": "primitive/color/gray/800"
       }
     },
     {

@@ -47,13 +47,55 @@ export interface TdsPageMeta {
   section?: string;
   /** 상위 메뉴 라벨 — 예: '사용자 관리'. 같은 menu 끼리 한 Figma 페이지로 묶인다 */
   menu?: string;
+  /**
+   * 실제 화면 스크린샷 참조 — 바이트는 cache-images 로 미리 올려 두고 key 로 가리킨다.
+   * 있으면 스켈레톤 대신 실물 렌더로 아트보드를 채운다(1:1 미러). w·h 는 (필요시 축소된) 실제 픽셀.
+   */
+  image?: { key: string; w: number; h: number };
+}
+
+/** 컴포넌트 한 스토리의 실사 참조 — 🧩 Components 문서의 Variant 매트릭스를 실물로 채운다(key→캐시 해시) */
+export interface DocRenderEntry {
+  story: string;
+  key: string;
+  w: number;
+  h: number;
+}
+
+/** 오너 정본 분류표(23모듈)의 한 항목 — component 가 null 이면 아직 미구현(로드맵) */
+export interface TdsTaxonomyItem {
+  key: string;
+  name: string;
+  /** 구현된 프로젝트 컴포넌트 이름. null/미지정 = 미구현 */
+  component?: string | null;
+}
+
+/** 오너 정본 분류표의 한 카테고리(모듈) — no 는 01~23 오너 번호 */
+export interface TdsTaxonomyCategory {
+  no: number;
+  /** 영문명 — COMPONENT_CATEGORIES 및 계약 category 와 1:1 */
+  name: string;
+  key: string;
+  /** 한글 라벨 (예: '액션') */
+  label: string;
+  description?: string;
+  items: TdsTaxonomyItem[];
+  /** 정본 밖 프로젝트 고유 컴포넌트 이름 */
+  extras?: string[];
 }
 
 export interface TdsDocPayload {
   tokens: TdsTokensPayload;
+  /**
+   * 오너 정본 분류표(23모듈 286항목). 없으면 카테고리 페이지의 체크리스트를 통째로 생략한다
+   * (기존 동작 유지) — generated/taxonomy.json 이 없어도 문서 생성은 정상 동작해야 한다.
+   */
+  taxonomy?: TdsTaxonomyCategory[];
   /** generated/<Name>.figma.json 원본 배열 — 두 형식 모두 수용 (normalizeComponentSpec) */
   components?: unknown[];
   pages?: TdsPageMeta[];
+  /** 컴포넌트 이름 → 스토리 실사 배열. 있으면 🧩 Components 문서에 실물 렌더를 넣는다(1:1) */
+  componentRenders?: Record<string, DocRenderEntry[]>;
   meta?: { version?: string; generatedAt?: string };
 }
 
@@ -129,6 +171,10 @@ interface DocPropertyRow {
 interface DocComponentSpec {
   name: string;
   version: string;
+  /** 원자단위 — atom·molecule·organism (디자인 시스템 내부 축) */
+  level: string;
+  /** 기능 카테고리 — Actions·Inputs·Feedback… 문서 페이지를 이 축으로 묶는다 */
+  category: string;
   properties: DocPropertyRow[];
   /** 계약 tokens 블록 — 키 → 토큰 경로(점 표기) */
   tokens: Record<string, string>;
@@ -184,6 +230,8 @@ function normalizeComponentSpec(raw: unknown): DocComponentSpec | null {
     return {
       name: asString(raw['component'] ?? raw['name'], 'Unknown'),
       version: asString(raw['version'], '-'),
+      level: asString(raw['level'], 'atom'),
+      category: asString(raw['category'], 'Utilities'),
       properties,
       tokens,
     };
@@ -206,6 +254,8 @@ function normalizeComponentSpec(raw: unknown): DocComponentSpec | null {
     return {
       name: asString(raw['name'], 'Unknown'),
       version: asString(raw['version'], '-'),
+      level: asString(raw['level'], 'atom'),
+      category: asString(raw['category'], 'Utilities'),
       properties,
       tokens: {},
     };
@@ -233,6 +283,8 @@ interface DocContext {
   fonts: { regular: FontName; medium: FontName; bold: FontName };
   /** 스펙시먼 폰트 로드 캐시 — 'family|style' → 성공한 FontName (실패 시 Inter 대체) */
   specimenFonts: Map<string, FontName>;
+  /** 이미지 캐시 — key → imageHash (main 이 cache-images 로 미리 createImage 해 둔 것). 실사 채움용 */
+  imageHash: Map<string, string>;
 }
 
 function warn(ctx: DocContext, line: string): void {
@@ -332,7 +384,15 @@ function groupHeader(ctx: DocContext, title: string): TextNode {
 // ---------------------------------------------------------------------------
 
 async function ensurePage(name: string): Promise<PageNode> {
-  let page = figma.root.children.find((p) => p.name === name);
+  // 식별은 표시명(순번 접두어 '5. ' 가 붙을 수 있음)이 아니라 tdsBase 키로 — 순번 부여와 멱등성 양립.
+  // 사용자가 페이지를 복제하면 pluginData 까지 복사돼 같은 키가 둘이 된다. 첫 장만 쓰고 나머지는
+  // 표식을 떼어 **사용자 페이지로 넘긴다** — 안 그러면 정리 단계가 사용자의 사본을 지운다.
+  const matches = figma.root.children.filter((p) => p.getPluginData('tdsBase') === name);
+  let page = matches[0];
+  for (const extra of matches.slice(1)) {
+    extra.setPluginData('tdsDoc', '');
+    extra.setPluginData('tdsBase', '');
+  }
   if (!page) {
     page = figma.createPage();
     page.name = name;
@@ -341,6 +401,7 @@ async function ensurePage(name: string): Promise<PageNode> {
   for (const child of [...page.children]) {
     child.remove();
   }
+  page.setPluginData('tdsBase', name); // 순번과 무관한 안정 식별자
   page.setPluginData('tdsDoc', '1'); // 우리가 만든 페이지 표식 — 재생성 시 옛 페이지 정리에 쓴다
   return page;
 }
@@ -812,6 +873,39 @@ function tableRow(ctx: DocContext, cells: DocPropertyRow, font: FontName): Frame
   return row;
 }
 
+/**
+ * 한 컴포넌트의 Variant 매트릭스 — 스토리 실사를 WRAP 그리드로 나열한다(각 칸 = 렌더 + 스토리 라벨).
+ * 넓은 렌더(예: Alert 1248px)는 표시 폭을 캡해 비율 유지 축소한다. createImage 실패 칸은 건너뛴다.
+ */
+function buildVariantMatrix(ctx: DocContext, name: string, renders: DocRenderEntry[]): FrameNode {
+  const grid = wrapRow(`Variants — ${name}`);
+  const CELL_MAX_W = GRID * 44; // 352 — 한 칸 최대 표시 폭
+  for (const r of renders) {
+    const hash = ctx.imageHash.get(r.key);
+    if (!hash) {
+      ctx.log.push(`[변형 이미지 미캐시] ${name}/${r.story} (${r.key})`);
+      continue;
+    }
+    const cell = stack('VERTICAL', SUB, `Variant — ${r.story}`);
+    const scale = r.w > CELL_MAX_W ? CELL_MAX_W / r.w : 1;
+    const dw = Math.max(1, Math.round(r.w * scale));
+    const dh = Math.max(1, Math.round(r.h * scale));
+    const shot = figma.createFrame();
+    shot.name = r.story;
+    shot.resize(dw, dh);
+    shot.fills = [{ type: 'IMAGE', imageHash: hash, scaleMode: 'FILL' }];
+    shot.strokes = [boundSolid(ctx.chrome.borderDefault)];
+    shot.strokeWeight = HAIRLINE;
+    shot.strokeAlign = 'INSIDE';
+    cell.appendChild(shot);
+    cell.appendChild(
+      makeText(ctx, r.story, { size: TYPE.caption, colorVar: ctx.chrome.textMuted }),
+    );
+    grid.appendChild(cell);
+  }
+  return grid;
+}
+
 function buildComponentsPage(ctx: DocContext, page: PageNode, payload: TdsDocPayload): void {
   const root = buildRoot(ctx, page);
   const specs = (payload.components ?? [])
@@ -830,74 +924,109 @@ function buildComponentsPage(ctx: DocContext, page: PageNode, payload: TdsDocPay
     return;
   }
 
+  // 레벨(atom·molecule·organism)로 묶어 그룹 헤더 아래 컴포넌트 시트를 배치한다.
+  const LEVEL_ORDER = ['atom', 'molecule', 'organism'];
+  const LEVEL_LABEL: Record<string, string> = {
+    atom: 'Atoms',
+    molecule: 'Molecules',
+    organism: 'Organisms',
+  };
+  const byLevel = new Map<string, DocComponentSpec[]>();
   for (const spec of specs) {
-    const section = stack('VERTICAL', CARD_GAP, `Component — ${spec.name}`);
-    section.appendChild(sectionHeader(ctx, `${spec.name} v${spec.version}`));
-
-    // Property 표
-    const table = stack('VERTICAL', GRID, 'Properties');
-    table.appendChild(
-      tableRow(
-        ctx,
-        { name: 'Property', type: 'Type', values: 'Values', defaultValue: 'Default' },
-        ctx.fonts.bold,
-      ),
-    );
-    table.appendChild(hairline(ctx, CONTENT_W));
-    for (const prop of spec.properties) {
-      table.appendChild(tableRow(ctx, prop, ctx.fonts.regular));
-    }
-    section.appendChild(table);
-
-    // Variant 매트릭스 자리 — 내용은 Figma 컴포넌트 소유 (여기서는 자리만)
-    const slot = figma.createFrame();
-    slot.name = `Variant Matrix Slot — ${spec.name}`;
-    slot.resize(CONTENT_W, GRID * 30);
-    slot.fills = [boundSolid(ctx.chrome.surfaceRaised)];
-    slot.strokes = [boundSolid(ctx.chrome.borderDefault)];
-    slot.strokeWeight = HAIRLINE;
-    slot.dashPattern = [SUB, SUB];
-    slot.layoutMode = 'VERTICAL';
-    slot.primaryAxisSizingMode = 'FIXED';
-    slot.counterAxisSizingMode = 'FIXED';
-    slot.primaryAxisAlignItems = 'CENTER';
-    slot.counterAxisAlignItems = 'CENTER';
-    slot.appendChild(
-      makeText(
-        ctx,
-        "Variant 매트릭스 — '계약 → Variant Property 동기화' 실행 후 Figma 컴포넌트이 채움",
-        {
-          size: TYPE.body,
-          colorVar: ctx.chrome.textMuted,
-        },
-      ),
-    );
-    section.appendChild(slot);
-
-    // 토큰 바인딩 표 — 키 / 토큰 경로 / Variable 이름 (미생성 표시)
-    const tokenEntries = Object.entries(spec.tokens);
-    if (tokenEntries.length > 0) {
-      const tokenTable = stack('VERTICAL', GRID, 'Tokens');
-      tokenTable.appendChild(groupHeader(ctx, '토큰 바인딩'));
-      for (const [key, path] of tokenEntries) {
-        const varName = path.split('.').join('/');
-        // 합성 토큰(typography 등)은 서브 Variable(…/font-size)로 전개되므로 프리픽스 일치도 인정
-        const exists =
-          ctx.vars.has(varName) ||
-          [...ctx.vars.keys()].some((name) => name.startsWith(`${varName}/`));
-        if (!exists) warn(ctx, `${spec.name}.tokens.${key}: Variable 미생성 — ${varName}`);
-        tokenTable.appendChild(
-          makeText(ctx, `${key} · ${path} · ${varName}${exists ? '' : ' (미생성)'}`, {
-            size: TYPE.caption,
-            colorVar: ctx.chrome.textMuted,
-          }),
-        );
-      }
-      section.appendChild(tokenTable);
-    }
-    root.appendChild(section);
+    const lvl = spec.level.length > 0 ? spec.level : 'atom';
+    const bucket = byLevel.get(lvl);
+    if (bucket) bucket.push(spec);
+    else byLevel.set(lvl, [spec]);
   }
-  ctx.log.push(`컴포넌트 페이지: ${specs.length}개 시트 렌더링`);
+  const levels = [
+    ...LEVEL_ORDER.filter((l) => byLevel.has(l)),
+    ...[...byLevel.keys()].filter((l) => !LEVEL_ORDER.includes(l)),
+  ];
+
+  for (const level of levels) {
+    const group = byLevel.get(level);
+    if (!group) continue;
+    root.appendChild(
+      makeText(ctx, `${LEVEL_LABEL[level] ?? level} — ${String(group.length)}개`, {
+        size: TYPE.title,
+        font: ctx.fonts.bold,
+      }),
+    );
+    for (const spec of group) {
+      const section = stack('VERTICAL', CARD_GAP, `Component — ${spec.name}`);
+      section.appendChild(sectionHeader(ctx, `${spec.name} v${spec.version}`));
+
+      // Property 표
+      const table = stack('VERTICAL', GRID, 'Properties');
+      table.appendChild(
+        tableRow(
+          ctx,
+          { name: 'Property', type: 'Type', values: 'Values', defaultValue: 'Default' },
+          ctx.fonts.bold,
+        ),
+      );
+      table.appendChild(hairline(ctx, CONTENT_W));
+      for (const prop of spec.properties) {
+        table.appendChild(tableRow(ctx, prop, ctx.fonts.regular));
+      }
+      section.appendChild(table);
+
+      // Variant 매트릭스 — 실사가 있으면 실물 렌더 그리드, 없으면 안내 자리표시
+      const renders = payload.componentRenders?.[spec.name] ?? [];
+      if (renders.length > 0) {
+        section.appendChild(groupHeader(ctx, `Variants — 스토리 ${String(renders.length)}개`));
+        section.appendChild(buildVariantMatrix(ctx, spec.name, renders));
+      } else {
+        const slot = figma.createFrame();
+        slot.name = `Variant Matrix Slot — ${spec.name}`;
+        slot.resize(CONTENT_W, GRID * 30);
+        slot.fills = [boundSolid(ctx.chrome.surfaceRaised)];
+        slot.strokes = [boundSolid(ctx.chrome.borderDefault)];
+        slot.strokeWeight = HAIRLINE;
+        slot.dashPattern = [SUB, SUB];
+        slot.layoutMode = 'VERTICAL';
+        slot.primaryAxisSizingMode = 'FIXED';
+        slot.counterAxisSizingMode = 'FIXED';
+        slot.primaryAxisAlignItems = 'CENTER';
+        slot.counterAxisAlignItems = 'CENTER';
+        slot.appendChild(
+          makeText(
+            ctx,
+            'Variant 매트릭스 — 실사 로드 후 채움 (내장 실사가 없으면 여기 안내가 남음)',
+            {
+              size: TYPE.body,
+              colorVar: ctx.chrome.textMuted,
+            },
+          ),
+        );
+        section.appendChild(slot);
+      }
+
+      // 토큰 바인딩 표 — 키 / 토큰 경로 / Variable 이름 (미생성 표시)
+      const tokenEntries = Object.entries(spec.tokens);
+      if (tokenEntries.length > 0) {
+        const tokenTable = stack('VERTICAL', GRID, 'Tokens');
+        tokenTable.appendChild(groupHeader(ctx, '토큰 바인딩'));
+        for (const [key, path] of tokenEntries) {
+          const varName = path.split('.').join('/');
+          // 합성 토큰(typography 등)은 서브 Variable(…/font-size)로 전개되므로 프리픽스 일치도 인정
+          const exists =
+            ctx.vars.has(varName) ||
+            [...ctx.vars.keys()].some((name) => name.startsWith(`${varName}/`));
+          if (!exists) warn(ctx, `${spec.name}.tokens.${key}: Variable 미생성 — ${varName}`);
+          tokenTable.appendChild(
+            makeText(ctx, `${key} · ${path} · ${varName}${exists ? '' : ' (미생성)'}`, {
+              size: TYPE.caption,
+              colorVar: ctx.chrome.textMuted,
+            }),
+          );
+        }
+        section.appendChild(tokenTable);
+      }
+      root.appendChild(section);
+    }
+  }
+  ctx.log.push(`컴포넌트 페이지: ${specs.length}개 시트 · ${levels.length}개 레벨 렌더링`);
 }
 
 // ---------------------------------------------------------------------------
@@ -999,7 +1128,31 @@ function screenSkeleton(ctx: DocContext, meta: TdsPageMeta): FrameNode {
   return board;
 }
 
-/** 한 메뉴(= nav 가지)의 화면들을 한 Figma 페이지에 DS 스켈레톤으로 나열한다 */
+/**
+ * 화면 한 장의 **실제 스크린샷** 아트보드 — meta.image 가 있으면 실물 렌더로 채운다(1:1).
+ * 바이트는 cache-images 로 미리 createImage 됐다. 캐시에 없으면 스켈레톤으로 안전 폴백한다.
+ */
+function screenImage(ctx: DocContext, meta: TdsPageMeta): FrameNode {
+  const img = meta.image;
+  if (!img) return screenSkeleton(ctx, meta);
+  const hash = ctx.imageHash.get(img.key);
+  if (!hash) {
+    ctx.log.push(`[페이지 이미지 미캐시] ${meta.id} (${img.key}) — 스켈레톤 대체`);
+    return screenSkeleton(ctx, meta);
+  }
+  const frame = figma.createFrame();
+  frame.name =
+    meta.name !== undefined && meta.name.length > 0 ? `${meta.name} — ${meta.id}` : meta.id;
+  frame.resize(Math.max(1, Math.round(img.w)), Math.max(1, Math.round(img.h)));
+  frame.fills = [{ type: 'IMAGE', imageHash: hash, scaleMode: 'FILL' }];
+  frame.strokes = [boundSolid(ctx.chrome.borderDefault)];
+  frame.strokeWeight = HAIRLINE;
+  frame.strokeAlign = 'INSIDE';
+  frame.clipsContent = true;
+  return frame;
+}
+
+/** 한 메뉴(= nav 가지)의 화면들을 한 Figma 페이지에 나열한다 — 실사가 있으면 실물, 없으면 DS 스켈레톤 */
 function buildMenuPage(
   ctx: DocContext,
   page: PageNode,
@@ -1007,16 +1160,22 @@ function buildMenuPage(
   screens: readonly TdsPageMeta[],
 ): void {
   const root = buildRoot(ctx, page);
-  root.appendChild(sectionHeader(ctx, `${menu} — 화면 ${String(screens.length)}개`));
+  const shots = screens.filter((s) => s.image).length;
+  root.appendChild(
+    sectionHeader(
+      ctx,
+      `${menu} — 화면 ${String(screens.length)}개${shots > 0 ? ` (실사 ${String(shots)})` : ''}`,
+    ),
+  );
   for (const meta of screens) {
     const label =
       meta.name !== undefined && meta.name.length > 0 ? `${meta.name}  ·  ${meta.id}` : meta.id;
     const block = stack('VERTICAL', GRID * 2, `Screen — ${meta.id}`);
     block.appendChild(makeText(ctx, label, { size: TYPE.group, font: ctx.fonts.medium }));
-    block.appendChild(screenSkeleton(ctx, meta));
+    block.appendChild(meta.image ? screenImage(ctx, meta) : screenSkeleton(ctx, meta));
     root.appendChild(block);
   }
-  ctx.log.push(`Pages — ${menu}: 화면 ${String(screens.length)}개`);
+  ctx.log.push(`Pages — ${menu}: 화면 ${String(screens.length)}개 (실사 ${String(shots)})`);
 }
 
 function buildPagesPage(ctx: DocContext, page: PageNode, payload: TdsDocPayload): void {
@@ -1066,7 +1225,525 @@ function buildPagesPage(ctx: DocContext, page: PageNode, payload: TdsDocPayload)
 // 엔트리 — 페이로드 검증 → 컨텍스트 구성 → 6개 페이지 생성/재생성 → 정렬
 // ---------------------------------------------------------------------------
 
-export async function generateTdsDoc(payload: TdsDocPayload): Promise<string[]> {
+/**
+ * 기능 카테고리 표준 순서 — main.ts 의 COMPONENT_CATEGORY_ORDER 와 반드시 같아야 한다.
+ * 페이지 base 는 `🧩 Components — <카테고리>` 규칙(main.ts categoryPageName)과 1:1.
+ */
+const COMPONENT_CATEGORIES = [
+  'Actions',
+  'Inputs',
+  'Selection',
+  'Navigation',
+  'Feedback',
+  'Dialogs & Overlays',
+  'Data Display',
+  'Media',
+  'Layout',
+  'Forms',
+  'Lists',
+  'Tables',
+  'Authentication',
+  'Commerce',
+  'Communication',
+  'File',
+  'Maps',
+  'Charts',
+  'Utilities',
+  'Mobile',
+  'AI',
+  'Korean Service',
+  'Foundation',
+];
+const COMPONENT_PAGE_ORDER = COMPONENT_CATEGORIES.map((c) => `🧩 Components — ${c}`);
+/** 페이지 base → 계약 category */
+const COMPONENT_PAGE_CATEGORY: Record<string, string> = {};
+for (const c of COMPONENT_CATEGORIES) COMPONENT_PAGE_CATEGORY[`🧩 Components — ${c}`] = c;
+/** sync-components 가 INSTANCE_SWAP 기본값용으로 만든 더미 — 정렬에서 제외한다 */
+const SWAP_PLACEHOLDER_NAME = '↔ Swap Placeholder';
+
+/** 속성 타입 = 용도. 문서에서 이 순서·이 라벨로 묶어 보여 준다. */
+const PROP_TYPE_ORDER = ['VARIANT', 'BOOLEAN', 'TEXT', 'INSTANCE_SWAP'];
+const PROP_TYPE_LABEL: Record<string, string> = {
+  VARIANT: '변형 · Variant',
+  BOOLEAN: '불리언 · Boolean',
+  TEXT: '텍스트 · Text',
+  INSTANCE_SWAP: '인스턴스 교체 · Instance swap',
+};
+
+/** 토큰 용도 분류 — 경로 접두어로 가른다(색상/타이포/간격/모서리/그림자) */
+const TOKEN_GROUPS: Array<{ label: string; prefix: string }> = [
+  { label: '색상 · Color', prefix: 'color.' },
+  { label: '타이포그래피 · Typography', prefix: 'typography.' },
+  { label: '간격 · Spacing', prefix: 'space.' },
+  { label: '모서리 · Radius', prefix: 'radius.' },
+  { label: '그림자 · Shadow', prefix: 'shadow.' },
+];
+const TOKEN_OTHER = '기타 · Other';
+function tokenGroupLabel(path: string): string {
+  for (const g of TOKEN_GROUPS) if (path.indexOf(g.prefix) === 0) return g.label;
+  return TOKEN_OTHER;
+}
+
+const TOKEN_COL_W = { key: GRID * 20, path: GRID * 42, variable: GRID * 42, status: GRID * 12 };
+
+function tokenRow(
+  ctx: DocContext,
+  cells: { key: string; path: string; variable: string; status: string },
+  font: FontName,
+  muted: boolean,
+): FrameNode {
+  const row = stack('HORIZONTAL', GRID * 2, 'Token Row');
+  const cell = (text: string, width: number): TextNode =>
+    makeText(ctx, text, {
+      size: TYPE.caption,
+      font,
+      width,
+      ...(muted ? { colorVar: ctx.chrome.textMuted } : {}),
+    });
+  row.appendChild(cell(cells.key, TOKEN_COL_W.key));
+  row.appendChild(cell(cells.path, TOKEN_COL_W.path));
+  row.appendChild(cell(cells.variable, TOKEN_COL_W.variable));
+  row.appendChild(cell(cells.status, TOKEN_COL_W.status));
+  return row;
+}
+
+// ---------------------------------------------------------------------------
+// 오너 정본 분류표 체크리스트 — 카테고리 페이지 상단(안내문 다음, 시트 앞)
+// ---------------------------------------------------------------------------
+
+/** 체크리스트 열 폭 — tokenRow/TOKEN_COL_W 와 같은 방식(합계 ≤ CONTENT_W) */
+const TAXO_COL_W = { item: GRID * 60, status: GRID * 20, component: GRID * 54 };
+
+const TAXO_DONE = '✅ 구현';
+const TAXO_TODO = '⬜ 미구현';
+
+/** 알 수 없는 payload 를 방어적으로 검증한다 — 형식이 어긋나면 조용히 버린다(문서 생성은 계속) */
+function normalizeTaxonomy(raw: unknown): TdsTaxonomyCategory[] {
+  if (!Array.isArray(raw)) return [];
+  const out: TdsTaxonomyCategory[] = [];
+  for (const entry of raw) {
+    if (typeof entry !== 'object' || entry === null) continue;
+    const rec = entry as Record<string, unknown>;
+    if (typeof rec.name !== 'string' || rec.name.length === 0) continue;
+    const items: TdsTaxonomyItem[] = [];
+    if (Array.isArray(rec.items)) {
+      for (const it of rec.items) {
+        if (typeof it !== 'object' || it === null) continue;
+        const ir = it as Record<string, unknown>;
+        if (typeof ir.name !== 'string' || ir.name.length === 0) continue;
+        items.push({
+          key: typeof ir.key === 'string' ? ir.key : '',
+          name: ir.name,
+          component:
+            typeof ir.component === 'string' && ir.component.length > 0 ? ir.component : null,
+        });
+      }
+    }
+    const extras: string[] = Array.isArray(rec.extras)
+      ? rec.extras.filter((e): e is string => typeof e === 'string' && e.length > 0)
+      : [];
+    out.push({
+      no: typeof rec.no === 'number' && isFinite(rec.no) ? rec.no : 0,
+      name: rec.name,
+      key: typeof rec.key === 'string' ? rec.key : '',
+      label: typeof rec.label === 'string' ? rec.label : '',
+      ...(typeof rec.description === 'string' ? { description: rec.description } : {}),
+      items,
+      extras,
+    });
+  }
+  return out;
+}
+
+/** 오너 번호 2자리 zero-pad — 0(미지정)이면 빈 문자열 */
+function taxoNo(no: number): string {
+  if (no <= 0) return '';
+  return no < 10 ? `0${String(no)}` : String(no);
+}
+
+/** 카테고리 페이지 섹션 헤더 문구 — `01. Actions (액션) — 컴포넌트 3개` */
+function categoryHeading(
+  category: string,
+  taxo: TdsTaxonomyCategory | null,
+  count: number,
+): string {
+  const tail = `컴포넌트 ${String(count)}개`;
+  if (!taxo) return `${category} — ${tail}`;
+  const no = taxoNo(taxo.no);
+  const prefix = no.length > 0 ? `${no}. ` : '';
+  const label = taxo.label.length > 0 ? ` (${taxo.label})` : '';
+  return `${prefix}${taxo.name}${label} — ${tail}`;
+}
+
+function taxoRow(
+  ctx: DocContext,
+  cells: { item: string; status: string; component: string },
+  font: FontName,
+  muted: boolean,
+): FrameNode {
+  const row = stack('HORIZONTAL', GRID * 2, 'Taxonomy Row');
+  const cell = (text: string, width: number): TextNode =>
+    makeText(ctx, text, {
+      size: TYPE.caption,
+      font,
+      width,
+      ...(muted ? { colorVar: ctx.chrome.textMuted } : {}),
+    });
+  row.appendChild(cell(cells.item, TAXO_COL_W.item));
+  row.appendChild(cell(cells.status, TAXO_COL_W.status));
+  row.appendChild(cell(cells.component, TAXO_COL_W.component));
+  return row;
+}
+
+/**
+ * 오너 정본 분류표 체크리스트 한 벌 — 헤더행 + 정본 항목 행 + 요약 + (있으면) 프로젝트 고유 목록.
+ * 색은 전부 ctx.chrome.* Variable 바인딩(하드코딩 색 없음).
+ */
+function taxonomyChecklist(ctx: DocContext, taxo: TdsTaxonomyCategory): FrameNode {
+  const block = stack('VERTICAL', GRID * 2, `Taxonomy — ${taxo.name}`);
+
+  const done = taxo.items.filter((i) => typeof i.component === 'string' && i.component.length > 0);
+  const extras = taxo.extras ?? [];
+
+  block.appendChild(groupHeader(ctx, '정본 분류표 체크리스트 · Owner taxonomy'));
+  block.appendChild(
+    makeText(
+      ctx,
+      `정본 ${String(taxo.items.length)}개 · 구현 ${String(done.length)}개 · 미구현 ${String(
+        taxo.items.length - done.length,
+      )}개 · 프로젝트 고유 ${String(extras.length)}개`,
+      { size: TYPE.body, colorVar: ctx.chrome.textMuted },
+    ),
+  );
+
+  const table = stack('VERTICAL', SUB, 'Taxonomy Table');
+  table.appendChild(
+    taxoRow(ctx, { item: '항목', status: '상태', component: '컴포넌트' }, ctx.fonts.medium, true),
+  );
+  table.appendChild(hairline(ctx, CONTENT_W));
+  for (const item of taxo.items) {
+    const impl = typeof item.component === 'string' && item.component.length > 0;
+    table.appendChild(
+      taxoRow(
+        ctx,
+        {
+          item: item.name,
+          status: impl ? TAXO_DONE : TAXO_TODO,
+          component: impl ? (item.component ?? '') : '—',
+        },
+        ctx.fonts.regular,
+        !impl, // 미구현 행만 흐리게 — 구현된 행은 기본 텍스트색
+      ),
+    );
+  }
+  block.appendChild(table);
+
+  if (extras.length > 0) {
+    const extraBlock = stack('VERTICAL', SUB, 'Taxonomy Extras');
+    extraBlock.appendChild(groupHeader(ctx, '프로젝트 고유 · Project-specific'));
+    extraBlock.appendChild(
+      makeText(ctx, '정본 분류표 밖에서 이 프로젝트가 추가로 갖고 있는 컴포넌트입니다.', {
+        size: TYPE.caption,
+        colorVar: ctx.chrome.textMuted,
+        width: CONTENT_W,
+      }),
+    );
+    for (const name of extras) {
+      extraBlock.appendChild(
+        taxoRow(ctx, { item: name, status: TAXO_DONE, component: name }, ctx.fonts.regular, false),
+      );
+    }
+    block.appendChild(extraBlock);
+  }
+
+  return block;
+}
+
+/** 케이스 카드 한 장 — 변형 이름 + 그 변형의 실제 인스턴스. 폭이 넘치면 비율 유지 축소. */
+function caseCard(ctx: DocContext, variant: ComponentNode): FrameNode | null {
+  let inst: InstanceNode;
+  try {
+    inst = variant.createInstance();
+  } catch (error) {
+    const m = error instanceof Error ? error.message : String(error);
+    ctx.log.push(`[케이스 인스턴스 실패] ${variant.name}: ${m}`);
+    return null;
+  }
+  const MAX_W = GRID * 62; // 496 — 카드 한 장 최대 폭
+  if (inst.width > MAX_W && inst.width > 0) {
+    const scale = MAX_W / inst.width;
+    inst.resize(MAX_W, Math.max(1, Math.round(inst.height * scale)));
+  }
+  const card = stack('VERTICAL', GRID, `Case — ${variant.name}`);
+  card.paddingTop = GRID * 2;
+  card.paddingBottom = GRID * 2;
+  card.paddingLeft = GRID * 2;
+  card.paddingRight = GRID * 2;
+  card.cornerRadius = GRID;
+  card.fills = [boundSolid(ctx.chrome.surfaceRaised)];
+  card.strokes = [boundSolid(ctx.chrome.borderDefault)];
+  card.strokeWeight = HAIRLINE;
+  card.strokeAlign = 'INSIDE';
+  card.appendChild(makeText(ctx, variant.name, { size: TYPE.caption, font: ctx.fonts.medium }));
+  card.appendChild(inst);
+  return card;
+}
+
+/**
+ * 컴포넌트 한 개의 문서 시트 — **용도별로 묶어** 보여 준다(실물 세트는 같은 페이지 아래에 따로).
+ *  - 속성: 변형 / 불리언 / 텍스트 / 인스턴스 교체 로 그룹, 각 그룹마다 표
+ *  - 토큰: 색상 / 타이포 / 간격 / 모서리 / 그림자 로 그룹, 키·토큰·Variable·상태 4열 표
+ */
+function componentSheet(
+  ctx: DocContext,
+  spec: DocComponentSpec,
+  real: SceneNode | null,
+): FrameNode {
+  const section = stack('VERTICAL', CARD_GAP, `Component — ${spec.name}`);
+  section.appendChild(sectionHeader(ctx, `${spec.name} v${spec.version}`));
+
+  // --- 실제 Component Set 을 시트 안에 넣는다 — 문서에서 바로 보이도록(오토레이아웃이라 겹치지 않음) ---
+  if (real) {
+    try {
+      section.appendChild(groupHeader(ctx, '컴포넌트 · Component Set'));
+      section.appendChild(real); // 페이지 최상위 → 이 시트 안으로 재부모화
+    } catch (error) {
+      const m = error instanceof Error ? error.message : String(error);
+      ctx.log.push(`[세트 삽입 실패] ${spec.name}: ${m} — 페이지에 그대로 둡니다`);
+    }
+  }
+
+  // --- 케이스별 카드 — 변형(정상/에러/취소 …) 하나하나를 독립 카드로 분리한다 ---
+  if (real && real.type === 'COMPONENT_SET') {
+    const variants = real.children.filter((c): c is ComponentNode => c.type === 'COMPONENT');
+    if (variants.length > 0) {
+      const cases = stack('VERTICAL', GRID * 2, 'Cases');
+      cases.appendChild(groupHeader(ctx, `케이스 · Cases — ${String(variants.length)}개`));
+      const grid = wrapRow(`Cases — ${spec.name}`);
+      for (const v of variants) {
+        const card = caseCard(ctx, v);
+        if (card) grid.appendChild(card);
+      }
+      cases.appendChild(grid);
+      section.appendChild(cases);
+    }
+  }
+
+  // --- 속성: 타입(용도)별 그룹 ---
+  const byType = new Map<string, DocPropertyRow[]>();
+  for (const p of spec.properties) {
+    const t = p.type.length > 0 ? p.type : TOKEN_OTHER;
+    const bucket = byType.get(t);
+    if (bucket) bucket.push(p);
+    else byType.set(t, [p]);
+  }
+  if (byType.size > 0) {
+    const types = [
+      ...PROP_TYPE_ORDER.filter((t) => byType.has(t)),
+      ...[...byType.keys()].filter((t) => !PROP_TYPE_ORDER.includes(t)),
+    ];
+    const props = stack('VERTICAL', GRID * 2, 'Properties');
+    props.appendChild(groupHeader(ctx, `속성 — ${String(spec.properties.length)}개`));
+    for (const t of types) {
+      const rows = byType.get(t) ?? [];
+      const block = stack('VERTICAL', GRID, `Props — ${t}`);
+      block.appendChild(
+        makeText(ctx, `${PROP_TYPE_LABEL[t] ?? t}  (${String(rows.length)})`, {
+          size: TYPE.caption,
+          font: ctx.fonts.medium,
+        }),
+      );
+      block.appendChild(
+        tableRow(
+          ctx,
+          { name: 'Property', type: 'Type', values: 'Values', defaultValue: 'Default' },
+          ctx.fonts.bold,
+        ),
+      );
+      block.appendChild(hairline(ctx, CONTENT_W));
+      for (const r of rows) block.appendChild(tableRow(ctx, r, ctx.fonts.regular));
+      props.appendChild(block);
+    }
+    section.appendChild(props);
+  }
+
+  // --- 토큰 바인딩: 용도별 그룹 + 4열 표 ---
+  const entries = Object.entries(spec.tokens);
+  if (entries.length > 0) {
+    const byGroup = new Map<string, Array<[string, string]>>();
+    for (const entry of entries) {
+      const label = tokenGroupLabel(entry[1]);
+      const bucket = byGroup.get(label);
+      if (bucket) bucket.push(entry);
+      else byGroup.set(label, [entry]);
+    }
+    const tokens = stack('VERTICAL', GRID * 2, 'Tokens');
+    tokens.appendChild(groupHeader(ctx, `토큰 바인딩 — ${String(entries.length)}개`));
+    for (const label of [...TOKEN_GROUPS.map((g) => g.label), TOKEN_OTHER]) {
+      const rows = byGroup.get(label);
+      if (!rows || rows.length === 0) continue;
+      const block = stack('VERTICAL', GRID, `Tokens — ${label}`);
+      block.appendChild(
+        makeText(ctx, `${label}  (${String(rows.length)})`, {
+          size: TYPE.caption,
+          font: ctx.fonts.medium,
+        }),
+      );
+      block.appendChild(
+        tokenRow(
+          ctx,
+          { key: '키', path: '토큰', variable: 'Variable', status: '상태' },
+          ctx.fonts.bold,
+          false,
+        ),
+      );
+      block.appendChild(hairline(ctx, CONTENT_W));
+      for (const [key, path] of rows) {
+        const varName = path.split('.').join('/');
+        const exists =
+          ctx.vars.has(varName) || [...ctx.vars.keys()].some((n) => n.startsWith(`${varName}/`));
+        if (!exists) warn(ctx, `${spec.name}.tokens.${key}: Variable 미생성 — ${varName}`);
+        block.appendChild(
+          tokenRow(
+            ctx,
+            { key, path, variable: varName, status: exists ? '연결됨' : '미생성' },
+            ctx.fonts.regular,
+            true,
+          ),
+        );
+      }
+      tokens.appendChild(block);
+    }
+    section.appendChild(tokens);
+  }
+  return section;
+}
+
+/**
+ * 카테고리 페이지 = TDS Doc 문서(속성 표·토큰) **위**, 실제 Component Set **아래**.
+ * 세트는 sync-components 가 이미 만든 것 — 절대 지우지 않고 위치만 정렬한다.
+ * 재실행 시 이전 문서 프레임(TDS Doc)만 지우고 새로 그린다.
+ */
+function buildComponentCategoryPage(
+  ctx: DocContext,
+  page: PageNode,
+  category: string,
+  specs: DocComponentSpec[],
+  taxo: TdsTaxonomyCategory | null,
+): void {
+  // 이전 문서 프레임을 지우기 **전에** 실제 컴포넌트를 걷어 둔다 — 지난 실행에서 시트 안에 넣어 뒀다면
+  // 프레임과 함께 지워질 수 있기 때문. 먼저 최상위로 꺼내 놓고, 그다음 옛 프레임을 제거한다.
+  const realByName = new Map<string, SceneNode>();
+  const collect = (node: SceneNode): void => {
+    if (node.name === SWAP_PLACEHOLDER_NAME) return;
+    if (node.type === 'COMPONENT_SET') realByName.set(node.name, node);
+    else if (node.type === 'COMPONENT' && node.parent?.type !== 'COMPONENT_SET')
+      realByName.set(node.name, node);
+  };
+  for (const child of page.children) {
+    if (child.name === ROOT_FRAME_NAME && child.type === 'FRAME') {
+      const inners = child.findAll((n) => n.type === 'COMPONENT_SET' || n.type === 'COMPONENT');
+      for (const inner of inners) collect(inner);
+    } else {
+      collect(child);
+    }
+  }
+  for (const node of realByName.values()) page.appendChild(node); // 최상위로 복귀(프레임 삭제로부터 보호)
+  for (const child of [...page.children]) {
+    if (child.name === ROOT_FRAME_NAME) child.remove(); // 문서 프레임만 교체 — 컴포넌트는 이미 대피
+  }
+
+  const group = specs.filter(
+    (s) => (s.category.length > 0 ? s.category : 'Utilities') === category,
+  );
+  const root = buildRoot(ctx, page);
+  root.x = 0;
+  root.y = 0;
+  root.appendChild(sectionHeader(ctx, categoryHeading(category, taxo, group.length)));
+  if (taxo && taxo.description !== undefined && taxo.description.length > 0) {
+    root.appendChild(
+      makeText(ctx, taxo.description, {
+        size: TYPE.body,
+        colorVar: ctx.chrome.textMuted,
+        width: CONTENT_W,
+      }),
+    );
+  }
+  root.appendChild(
+    makeText(
+      ctx,
+      group.length > 0
+        ? '각 시트 안의 Component Set 이 실제 컴포넌트입니다 — 변형축·속성은 계약 원천.'
+        : `아직 이 카테고리의 컴포넌트가 없습니다 — 계약에 "category": "${category}" 를 지정하면 여기에 자동으로 나타납니다.`,
+      {
+        size: TYPE.body,
+        colorVar: ctx.chrome.textMuted,
+      },
+    ),
+  );
+  // 오너 정본 분류표 체크리스트 — taxonomy 가 없으면 통째로 생략(기존 동작 유지)
+  if (taxo) root.appendChild(taxonomyChecklist(ctx, taxo));
+  let embedded = 0;
+  for (const spec of group) {
+    const real = realByName.get(spec.name) ?? null;
+    root.appendChild(componentSheet(ctx, spec, real));
+    // 삽입 성공 판정은 **실제 부모**로 한다 — Figma 가 프레임 안 Component Set 을 거부하면
+    // 여전히 page 의 자식이므로 잔여 목록에 남겨 아래쪽에 정렬(겹침 방지)한다.
+    if (real && real.parent !== page) {
+      realByName.delete(spec.name);
+      embedded += 1;
+    }
+  }
+
+  // 시트에 못 붙인 나머지(계약에 없는 세트 등)는 문서 아래에 한 줄로 둔다 — 겹치지 않게
+  let x = 0;
+  const top = root.y + root.height + SECTION_GAP;
+  for (const leftover of realByName.values()) {
+    leftover.x = x;
+    leftover.y = top;
+    x += leftover.width + SECTION_GAP;
+  }
+  ctx.log.push(
+    `${page.name}: 시트 ${String(group.length)}개 · 세트 삽입 ${String(embedded)}개 · 잔여 ${String(realByName.size)}개`,
+  );
+}
+
+/**
+ * sync-components 가 만든 **실제 Component Set 페이지**를 문서 순서에 편입한다(내용은 건드리지 않는다).
+ * 이 페이지들은 tdsDoc 표식이 없어 문서 정리에 삭제되지 않는다 — 여기서는 위치·번호만 관리한다.
+ */
+async function adoptComponentCategoryPages(ctx: DocContext): Promise<PageNode[]> {
+  const byBase = new Map<string, PageNode>();
+  for (const p of figma.root.children) {
+    const base = p.getPluginData('tdsBase');
+    if (base.startsWith('🧩 Components — ')) byBase.set(base, p);
+  }
+  const ordered: PageNode[] = [];
+  for (const base of COMPONENT_PAGE_ORDER) {
+    const p = byBase.get(base);
+    if (p) {
+      await p.loadAsync();
+      ordered.push(p);
+      byBase.delete(base);
+    }
+  }
+  // 규정 외 레벨(Other 등)도 뒤에 붙인다 — 누락 없이
+  for (const p of byBase.values()) {
+    await p.loadAsync();
+    ordered.push(p);
+  }
+  ctx.log.push(
+    ordered.length > 0
+      ? `컴포넌트 카테고리 페이지 편입: ${String(ordered.length)}개 (실제 Component Set)`
+      : '[경고] 컴포넌트 카테고리 페이지 없음 — ② Component Set 동기화를 먼저 실행하세요',
+  );
+  return ordered;
+}
+
+export async function generateTdsDoc(
+  payload: TdsDocPayload,
+  imageHash: Map<string, string>,
+): Promise<string[]> {
   if (
     !payload ||
     !isRecord(payload.tokens) ||
@@ -1145,6 +1822,7 @@ export async function generateTdsDoc(payload: TdsDocPayload): Promise<string[]> 
     },
     fonts,
     specimenFonts: new Map(),
+    imageHash,
   };
 
   // 파운데이션 5장 — 이름 매칭 멱등(내용을 비우고 재생성). 정렬·정리는 이름이 아니라 **페이지 참조**로
@@ -1157,10 +1835,26 @@ export async function generateTdsDoc(payload: TdsDocPayload): Promise<string[]> 
   await buildTypographyPage(ctx, typoP, payload);
   const spacingP = await ensurePage(PAGE_NAMES.spacing);
   buildSpacingPage(ctx, spacingP, payload);
-  const componentsP = await ensurePage(PAGE_NAMES.components);
-  buildComponentsPage(ctx, componentsP, payload);
 
-  const orderedPages: PageNode[] = [coverP, colorsP, typoP, spacingP, componentsP];
+  // 🧩 Components — 스크린샷 페이지(클립보드)를 만들지 않는다. 대신 sync-components 가 만든
+  // **실제 Component Set 카테고리 페이지**(🧩 Components — Atoms/Molecules/Organisms)를 순서에 편입한다.
+  const componentPages = await adoptComponentCategoryPages(ctx);
+  // 각 카테고리 페이지에 TDS Doc 문서(속성 표·토큰 바인딩)를 얹고, 실제 세트를 그 아래로 정렬한다.
+  const docSpecs = (payload.components ?? [])
+    .map((raw) => normalizeComponentSpec(raw))
+    .filter((s): s is DocComponentSpec => s !== null);
+  // 오너 정본 분류표(있을 때만) — 카테고리 영문명으로 매칭한다. 없으면 빈 맵 → 체크리스트 생략.
+  const taxoByName = new Map<string, TdsTaxonomyCategory>();
+  for (const t of normalizeTaxonomy(payload.taxonomy)) taxoByName.set(t.name, t);
+  if (taxoByName.size > 0) {
+    ctx.log.push(`정본 분류표 적재: ${String(taxoByName.size)}개 카테고리`);
+  }
+  for (const cp of componentPages) {
+    const cat = COMPONENT_PAGE_CATEGORY[cp.getPluginData('tdsBase')] ?? 'Utilities';
+    buildComponentCategoryPage(ctx, cp, cat, docSpecs, taxoByName.get(cat) ?? null);
+  }
+
+  const orderedPages: PageNode[] = [coverP, colorsP, typoP, spacingP, ...componentPages];
 
   // Pages — 앱의 nav 구조대로 **메뉴별 페이지**로 쪼갠다. 각 섹션(일반 관리·비즈니스·…) 앞에
   // '---------' 구분선 페이지를 하나씩 둔다(라벨 없음) — Figma 페이지 목록이 앱 IA 처럼 그룹진다.
@@ -1176,6 +1870,9 @@ export async function generateTdsDoc(payload: TdsDocPayload): Promise<string[]> 
       menus: MenuGroup[];
     }
     const sections: SectionGroup[] = [];
+    // 메뉴는 **전역으로** 유일해야 한다. 같은 메뉴 라벨이 두 섹션에 나오면 ensurePage 가 같은 페이지를
+    // 돌려주는데, 두 번 만들면 앞 섹션의 화면이 지워지고 orderedPages 에 중복 들어가 순번까지 어긋난다.
+    const menuByTitle = new Map<string, MenuGroup>();
     for (const meta of metas) {
       const secTitle = meta.section ?? '기타';
       const menuTitle = meta.menu ?? meta.name ?? meta.id;
@@ -1184,10 +1881,11 @@ export async function generateTdsDoc(payload: TdsDocPayload): Promise<string[]> 
         sec = { title: secTitle, menus: [] };
         sections.push(sec);
       }
-      let group = sec.menus.find((m) => m.menu === menuTitle);
+      let group = menuByTitle.get(menuTitle);
       if (!group) {
         group = { menu: menuTitle, screens: [] };
-        sec.menus.push(group);
+        menuByTitle.set(menuTitle, group);
+        sec.menus.push(group); // 처음 등장한 섹션에만 소속시킨다
       }
       group.screens.push(meta);
     }
@@ -1214,21 +1912,41 @@ export async function generateTdsDoc(payload: TdsDocPayload): Promise<string[]> 
   // documentAccess: dynamic-page — 동기 currentPage 대입 금지. 삭제 대상이 현재 페이지가 되지 않게 커버로.
   await figma.setCurrentPageAsync(coverP);
   let removed = 0;
+  // 삭제 기준은 **오직 우리 표식(tdsDoc)** — 이름으로 지우지 않는다(이름은 순번 접두어로 바뀌고,
+  // 사용자가 만든 동명 페이지를 오인 삭제할 수 있다). 게다가 실제 컴포넌트가 든 페이지는 절대 지우지
+  // 않는다: 구버전에서 Component Set 이 문서 페이지 위에 만들어졌을 수 있어 작업물 손실이 된다.
+  let preserved = 0;
   for (const p of [...figma.root.children]) {
-    const ours = p.getPluginData('tdsDoc') === '1' || p.name === PAGE_NAMES.pages;
-    if (ours && !keep.has(p)) {
-      await p.loadAsync();
-      p.remove();
-      removed += 1;
+    if (p.getPluginData('tdsDoc') !== '1' || keep.has(p)) continue;
+    await p.loadAsync();
+    if (p.findAllWithCriteria({ types: ['COMPONENT', 'COMPONENT_SET'] }).length > 0) {
+      p.setPluginData('tdsDoc', ''); // 표식을 떼어 사용자 페이지로 넘긴다(다음 실행에도 안전)
+      log.push(`[보존] ${p.name} — 컴포넌트가 들어 있어 삭제하지 않습니다`);
+      preserved += 1;
+      continue;
     }
+    p.remove();
+    removed += 1;
   }
   if (removed > 0) log.push(`이전 생성물 정리 — 페이지 ${String(removed)}개 삭제`);
+  if (preserved > 0)
+    log.push(`보존 ${String(preserved)}개 — 컴포넌트가 있는 옛 페이지는 수동 확인 후 정리하세요`);
 
   // 참조 순서대로 파일 맨 앞에 정렬(목록 밖 사용자 페이지는 건드리지 않음)
   orderedPages.forEach((page, index) => figma.root.insertChild(index, page));
 
+  // 순번 자동 부여 — 구분선('---------')은 건너뛰고 실제 페이지만 1,2,3… 으로 매긴다.
+  // 표시명만 바꾸고 식별은 tdsBase 로 하므로 다음 실행에도 같은 페이지를 찾아 멱등하다.
+  let seq = 0;
+  for (const page of orderedPages) {
+    const base = page.getPluginData('tdsBase');
+    if (base.length === 0) continue; // 구분선 등 — 번호 없음
+    seq += 1;
+    page.name = `${String(seq)}. ${base}`;
+  }
+
   log.push(
-    `TDS 문서 생성 완료 — 페이지 ${String(orderedPages.length)}개 (메뉴별 분리 + '---------' 구분선)`,
+    `TDS 문서 생성 완료 — 페이지 ${String(orderedPages.length)}개 (순번 ${String(seq)} · 컴포넌트 카테고리 + 메뉴별 분리 + '---------' 구분선)`,
   );
   return log;
 }

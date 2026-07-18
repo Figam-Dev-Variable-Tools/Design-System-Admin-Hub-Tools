@@ -66,7 +66,7 @@ const CHANNEL_SERIES = [
 ];
 
 const meta: Meta<typeof LineAreaChart> = {
-  title: 'Molecules/LineAreaChart',
+  title: 'Charts/LineAreaChart',
   component: LineAreaChart,
   argTypes: { ...LineAreaChartArgTypes },
   args: {

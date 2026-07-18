@@ -13,7 +13,7 @@ const SAMPLE_SRC =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='24'%3E%3Crect width='60' height='24' rx='4' fill='%234f46e5'/%3E%3Ctext x='30' y='16' font-size='10' fill='white' text-anchor='middle'%3ELOGO%3C/text%3E%3C/svg%3E";
 
 const meta: Meta<typeof ImageThumb> = {
-  title: 'Atoms/ImageThumb',
+  title: 'Media/ImageThumb',
   component: ImageThumb,
   argTypes: { ...ImageThumbArgTypes },
   args: { src: SAMPLE_SRC, alt: '샘플 로고' },

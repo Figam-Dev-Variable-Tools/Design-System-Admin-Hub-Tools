@@ -89,6 +89,25 @@ export function isSendableTemplate(channel: MessageChannel, status: ApprovalStat
   return status === 'approved';
 }
 
+/**
+ * 심사에 걸린 내용을 잠가야 하는가 — **저장된** 채널·상태로 판단한다.
+ *
+ * [왜 잠그나] 카카오에 심사를 넣은 뒤로 템플릿 내용은 우리 것이 아니다. 승인은 '이 문구' 에 대한
+ * 승인이라 본문을 고치면 승인이 무효가 되고, 검수중에 고치면 심사 대상과 제출본이 어긋난다.
+ * 카카오 비즈니스도 같은 이유로 승인된 템플릿의 수정을 막고 신규 등록을 요구한다.
+ * 그래서 고치고 싶으면 **복제해서 새 템플릿으로** 다시 심사를 받는다.
+ *
+ * [무엇이 잠기지 않나] 템플릿명은 운영자가 목록에서 찾으려고 붙인 **내부 라벨**이다 — 심사 대상이
+ * 아니므로 잠그지 않는다. 규제 근거 없이 막으면 그냥 불편한 화면이 된다.
+ *
+ * [무엇으로 판단하나] 인자는 폼 값이 아니라 **서버가 돌려준 원본**이어야 한다. 폼 값으로 판단하면
+ * 승인상태 select 를 '초안' 으로 되돌리는 것만으로 잠금이 풀린다 — 잠금이 잠금이 아니게 된다.
+ */
+export function isTemplateContentLocked(channel: MessageChannel, status: ApprovalStatus): boolean {
+  if (!requiresApproval(channel)) return false;
+  return status === 'approved' || status === 'inspecting';
+}
+
 /* ── 치환변수 (개인화) ──────────────────────────────────────────────────────────
  *
  * 문법은 `#{변수}`. 발송/템플릿 화면에서 본문에 삽입하고, 미리보기는 표본값으로 치환한다.
@@ -153,6 +172,49 @@ export function htmlToPlainText(html: string): string {
 export function isHtmlBodyEmpty(html: string): boolean {
   if (/<img\b/i.test(html)) return false;
   return htmlToPlainText(html) === '';
+}
+
+/** 값이 리치 텍스트(HTML)로 보이는가 — 태그가 하나라도 있으면 그렇게 본다 */
+export function looksLikeRichText(value: string): boolean {
+  return /<[a-z][^>]*>/i.test(value);
+}
+
+/**
+ * 리치 텍스트 → **줄바꿈을 살린** 평문.
+ *
+ * htmlToPlainText 는 태그를 지우기만 해서 `<p>가</p><p>나</p>` 를 '가나' 로 붙여 버린다. 길이·빈값
+ * 판정에는 충분하지만 사람이 읽을 본문으로 옮길 때는 문단이 뭉개진다. 블록 끝과 <br> 을 줄바꿈으로
+ * 바꾼 뒤에 태그를 걷는다.
+ */
+export function richTextToPlainText(html: string): string {
+  const withBreaks = html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li|h[1-6]|blockquote|tr)>/gi, '\n');
+
+  return (
+    htmlToPlainText(withBreaks)
+      // 문단 사이 빈 줄 하나까지만 남긴다 — 에디터가 내는 빈 <p> 가 줄바꿈을 부풀린다
+      .replace(/\n{3,}/g, '\n\n')
+  );
+}
+
+/**
+ * 채널이 바뀔 때 본문을 새 채널의 표현으로 옮긴다.
+ *
+ * [왜 필요한가] body 는 채널이 공유하는 **한 개의 필드**인데 이메일만 HTML 을 쓴다. 변환 없이
+ * 채널만 갈아타면 SMS·알림톡 본문에 `<p>…</p>` 가 남고, 그대로 저장돼 **수신자에게 태그가 문자로
+ * 발송된다**. 미리보기에서 먼저 눈에 띄지만 문제는 저장 값에 있으므로 경계(채널 전환)에서 고친다.
+ *
+ * 반대 방향(→ 이메일)은 변환하지 않는다 — 평문은 RichTextField 의 ensureRichText 가 문단으로
+ * 승격시키고, 그 승격은 에디터가 소유한 규칙이다.
+ */
+export function convertBodyForChannel(
+  body: string,
+  from: MessageChannel,
+  to: MessageChannel,
+): string {
+  if (from === to || to === 'email') return body;
+  return looksLikeRichText(body) ? richTextToPlainText(body) : body;
 }
 
 /* ── 발송 템플릿 ──────────────────────────────────────────────────────────────

@@ -1,5 +1,8 @@
 /**
- * Pages/상품 등록 — placeholder 골격 스토리 (조립 전용, 담당: 스토리북 페이지 · 게이트 G5).
+ * Pages/Products/Product Registration — placeholder 골격 스토리 (조립 전용, 담당: 스토리북 페이지 · 게이트 G5).
+ *
+ * 카테고리는 영문 메뉴명(`Pages/Products` = 상품 관리)이다 — 메뉴 개요는 같은 카테고리의
+ * Overview 스토리 (pages/menus/ProductsOverview.stories.tsx) 에 있다.
  *
  * 대응 화면정의서: docs/plan/ui/SCR-003-product-registration.md
  * 필요 모듈: TextField · TextArea · NumberField · Select · FileUpload · FormSection · Alert ·
@@ -16,7 +19,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { cssVar, tokenVars } from '../../generated/tokens/tokens';
 
 const meta: Meta = {
-  title: 'Pages/상품 등록',
+  title: 'Pages/Products/Product Registration',
   parameters: { layout: 'fullscreen' },
 };
 

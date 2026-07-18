@@ -3,6 +3,8 @@
   "name": "ImageThumb",
   "component": "ImageThumb",
   "version": "1.0.0",
+  "level": "atom",
+  "category": "Media",
   "variantProperties": {},
   "properties": [
     {

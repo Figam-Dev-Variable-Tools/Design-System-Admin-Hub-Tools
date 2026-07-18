@@ -8,6 +8,6 @@
   "documentAccess": "dynamic-page",
   "networkAccess": {
     "allowedDomains": ["none"],
-    "reasoning": "모든 데이터는 UI의 파일 업로드/붙여넣기로만 유입 — 네트워크 접근 불필요"
+    "reasoning": "계약·토큰·실사(Storybook·페이지 PNG)를 전부 빌드시 UI에 base64로 내장 — 런타임 네트워크 접근 불필요"
   }
 }

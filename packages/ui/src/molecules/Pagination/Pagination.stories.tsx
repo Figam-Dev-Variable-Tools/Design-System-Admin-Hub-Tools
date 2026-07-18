@@ -46,7 +46,7 @@ function ControlledPagination(args: PaginationProps) {
 }
 
 const meta: Meta<typeof Pagination> = {
-  title: 'Molecules/Pagination',
+  title: 'Navigation/Pagination',
   component: Pagination,
   argTypes: { ...PaginationArgTypes },
   args: {

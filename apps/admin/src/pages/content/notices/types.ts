@@ -91,19 +91,14 @@ export const STATUS_OPTIONS: readonly FilterDef<NoticeStatus>[] = [
 
 /* ── 조회 결과 ───────────────────────────────────────────────────────────── */
 
-export interface CategoryCounts {
-  readonly all: number;
-  readonly notice: number;
-  readonly event: number;
-  readonly maintenance: number;
-}
+/**
+ * 축별 배지 숫자 — **필터 유니온을 그대로 키로 삼는다.**
+ * 필터 항목이 늘면 건수도 함께 늘어야 하는데, 손으로 적은 필드 목록은 그 사실을 강제하지 못한다.
+ * (Record 로 두면 공유 FilterPanel 의 `counts`(id → 건수)에도 그대로 들어간다.)
+ */
+export type CategoryCounts = Readonly<Record<CategoryFilter, number>>;
 
-export interface StatusCounts {
-  readonly all: number;
-  readonly published: number;
-  readonly draft: number;
-  readonly scheduled: number;
-}
+export type StatusCounts = Readonly<Record<StatusFilter, number>>;
 
 export interface NoticeListResult {
   readonly notices: readonly NoticeSummary[];

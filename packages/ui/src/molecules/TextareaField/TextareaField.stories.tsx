@@ -28,7 +28,7 @@ function ControlledTextareaField(args: ComponentProps<typeof TextareaField>) {
 }
 
 const meta: Meta<typeof TextareaField> = {
-  title: 'Molecules/TextareaField',
+  title: 'Inputs/TextareaField',
   component: TextareaField,
   argTypes: { ...TextareaFieldArgTypes },
   args: {

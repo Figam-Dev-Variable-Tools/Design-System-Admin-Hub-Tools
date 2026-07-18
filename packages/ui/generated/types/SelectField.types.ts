@@ -1,5 +1,5 @@
 // AUTO-GENERATED from contracts/SelectField.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
-// 레벨: atom · 상태: beta
+// 레벨: atom · 카테고리: Inputs · 상태: beta
 
 import type { ReactNode } from 'react';
 

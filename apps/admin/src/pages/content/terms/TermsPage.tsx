@@ -21,16 +21,15 @@ import {
   Alert,
   Button,
   ConfirmDialog,
-  filterHeadingStyle,
-  filterItemStyle,
-  filterListStyle,
+  FilterPanel,
+  FilterRail,
   PlusCircleIcon,
   SearchField,
   SelectionBar,
   useToast,
   VersionHistoryTable,
 } from '../../../shared/ui';
-import type { VersionRow } from '../../../shared/ui';
+import type { FilterOption, VersionRow } from '../../../shared/ui';
 import {
   useBulkDeleteTermsVersions,
   useDeleteTermsVersion,
@@ -60,13 +59,6 @@ const layoutStyle: CSSProperties = {
   gridTemplateColumns: 'calc(var(--tds-space-6) * 9) minmax(0, 1fr)',
   gap: 'var(--tds-space-6)',
   alignItems: 'start',
-};
-
-const sideStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
-  minWidth: 0,
 };
 
 const mainColumnStyle: CSSProperties = {
@@ -158,6 +150,12 @@ export default function TermsPage() {
   const bulkDelete = useBulkDeleteTermsVersions();
   const bulkDeleting = bulkDelete.isPending;
 
+  /** 약관 종류에는 건수 배지가 없다 — 세는 것은 버전이지 종류가 아니다 (hideCount) */
+  const typeOptions = useMemo<readonly FilterOption<string>[]>(
+    () => (types ?? []).map((type) => ({ id: type.id, label: type.label, hideCount: true })),
+    [types],
+  );
+
   const versionList = useMemo(() => versions ?? [], [versions]);
   const rows = useMemo(() => {
     const trimmed = keyword.trim().toLowerCase();
@@ -245,27 +243,16 @@ export default function TermsPage() {
   return (
     <div style={pageStyle}>
       <div style={layoutStyle}>
-        <nav style={sideStyle} aria-label="약관 종류">
-          <h2 style={filterHeadingStyle}>약관 종류</h2>
-          <ul style={filterListStyle}>
-            {(types ?? []).map((type) => {
-              const active = type.id === selectedTypeId;
-              return (
-                <li key={type.id}>
-                  <button
-                    type="button"
-                    className="tds-ui-listitem tds-ui-focusable"
-                    style={filterItemStyle(active)}
-                    aria-pressed={active}
-                    onClick={() => list.setFilter('type', type.id)}
-                  >
-                    <span>{type.label}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+        <FilterRail>
+          <FilterPanel
+            navLabel="약관 종류"
+            heading="약관 종류"
+            options={typeOptions}
+            value={selectedTypeId}
+            counts={null}
+            onChange={(next) => list.setFilter('type', next)}
+          />
+        </FilterRail>
 
         <div style={mainColumnStyle}>
           <div style={toolbarStyle}>

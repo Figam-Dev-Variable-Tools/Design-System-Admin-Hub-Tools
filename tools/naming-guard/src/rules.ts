@@ -45,11 +45,15 @@ export const ICON_RE =
 export const LEVEL_DIRS = new Set(['atoms', 'molecules', 'organisms', 'templates', 'pages']);
 
 /**
- * 문서 전용 폴더 — 배포되는 컴포넌트가 아니라 토큰 스펙시멘 스토리만 담는다 (ADR-0002).
+ * 문서 전용 폴더 — 배포되는 컴포넌트가 아니라 스펙시멘/카탈로그 스토리만 담는다 (ADR-0002).
  * Atomic 레벨이 아니므로 PascalCase 폴더 규칙 대상이 아니며, 스토리 간 공용 렌더 유틸을
  * `_` 접두 비공개 모듈로 둘 수 있다 (public entry 로 재노출 금지 — src/index.ts 에서 export 하지 않음).
+ *
+ *  - foundations : 토큰 스펙시멘 스토리 (색·타이포·간격·모션…)
+ *  - catalog     : 23 모듈 분류표 대비 구현 현황 체크리스트 스토리
+ *                  (원천 taxonomy/taxonomy.v1.json → generated/taxonomy.ts)
  */
-export const DOC_ONLY_DIRS = new Set(['foundations']);
+export const DOC_ONLY_DIRS = new Set(['foundations', 'catalog']);
 
 /** 문서 전용 폴더에서 추가로 허용되는 파일명 패턴 — `_` 접두 비공개 모듈 */
 const DOC_ONLY_FILE_PATTERNS: RegExp[] = [/^_[a-z][A-Za-z0-9]*\.tsx?$/];

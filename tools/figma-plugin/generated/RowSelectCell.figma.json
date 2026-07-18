@@ -3,6 +3,8 @@
   "name": "RowSelectCell",
   "component": "RowSelectCell",
   "version": "1.0.0",
+  "level": "molecule",
+  "category": "Tables",
   "variantProperties": {
     "Checked": {
       "values": [

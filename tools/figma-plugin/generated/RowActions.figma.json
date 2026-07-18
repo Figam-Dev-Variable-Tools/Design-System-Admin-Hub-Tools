@@ -3,6 +3,8 @@
   "name": "RowActions",
   "component": "RowActions",
   "version": "1.0.0",
+  "level": "molecule",
+  "category": "Actions",
   "variantProperties": {
     "Disabled": {
       "values": [

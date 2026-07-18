@@ -34,7 +34,7 @@ function ControlledSegmentedControl(args: SegmentedControlProps) {
 }
 
 const meta: Meta<typeof SegmentedControl> = {
-  title: 'Molecules/SegmentedControl',
+  title: 'Selection/SegmentedControl',
   component: SegmentedControl,
   argTypes: { ...SegmentedControlArgTypes },
   args: {

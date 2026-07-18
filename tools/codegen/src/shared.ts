@@ -12,6 +12,65 @@ import { CONTRACTS_DIR, TOKENS_JSON_PATH } from './paths';
 
 export type ComponentLevel = 'atom' | 'molecule' | 'organism' | 'template' | 'page';
 
+/** 기능 축 — level(원자성 축)과 직교한다. CATEGORY_ORDER 가 표시/정렬 순서의 정본이다. */
+export type ComponentCategory =
+  | 'Actions'
+  | 'Inputs'
+  | 'Selection'
+  | 'Navigation'
+  | 'Feedback'
+  | 'Dialogs & Overlays'
+  | 'Data Display'
+  | 'Media'
+  | 'Layout'
+  | 'Forms'
+  | 'Lists'
+  | 'Tables'
+  | 'Authentication'
+  | 'Commerce'
+  | 'Communication'
+  | 'File'
+  | 'Maps'
+  | 'Charts'
+  | 'Utilities'
+  | 'Mobile'
+  | 'AI'
+  | 'Korean Service'
+  | 'Foundation';
+
+/**
+ * 표시/정렬 순서의 정본(23 모듈). 아래 4곳이 이 순서와 반드시 일치해야 한다:
+ *  - contracts/schemas/component.v1.json  (category enum)
+ *  - packages/ui/.storybook/preview.ts    (storySort.order)
+ *  - tools/figma-plugin/src/main.ts       (COMPONENT_CATEGORY_ORDER — 페이지 생성)
+ *  - tools/figma-plugin/src/tds-doc.ts    (COMPONENT_CATEGORIES — 페이지 정렬)
+ */
+export const CATEGORY_ORDER: readonly ComponentCategory[] = [
+  'Actions',
+  'Inputs',
+  'Selection',
+  'Navigation',
+  'Feedback',
+  'Dialogs & Overlays',
+  'Data Display',
+  'Media',
+  'Layout',
+  'Forms',
+  'Lists',
+  'Tables',
+  'Authentication',
+  'Commerce',
+  'Communication',
+  'File',
+  'Maps',
+  'Charts',
+  'Utilities',
+  'Mobile',
+  'AI',
+  'Korean Service',
+  'Foundation',
+] as const;
+
 export type PropType =
   | 'enum'
   | 'boolean'
@@ -65,6 +124,9 @@ export interface ComponentContract {
   name: string;
   version: string;
   level: ComponentLevel;
+  category: ComponentCategory;
+  /** 구현 대상 정본 카탈로그 항목 key — 생략하면 정본 밖 프로젝트 고유(extras) */
+  taxonomyItem?: string;
   status: 'draft' | 'beta' | 'stable' | 'deprecated';
   description?: string;
   owner: { code: string; design: string; figma: string };

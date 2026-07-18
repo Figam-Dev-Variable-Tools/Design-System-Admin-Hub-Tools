@@ -85,19 +85,23 @@ describe('A11Y-12 — 필터 선택 상태는 aria-pressed 하나로 말한다',
     expect(offenders).toEqual([]);
   });
 
-  it('선택 가능한 필터 항목은 aria-pressed 로 상태를 노출한다', () => {
-    // EsgCategoryFilter 는 사라졌다 — ESG·알림 관리가 복제하던 그 골격이 공유 FilterPanel 로
-    // 수렴했다. 이제 이 규칙을 지켜야 하는 자리가 한 곳이라 여기만 보면 된다.
-    const tierFilter = FILES.find((file) => file.path.endsWith('TierFilter.tsx'));
-    // 경로 구분자는 OS 마다 다르다(join 이 만든 경로다) — 파일명으로만 찾는다
-    const filterPanel = FILES.find((file) => file.path.endsWith('FilterPanel.tsx'));
+  it('필터 항목을 그리는 모든 파일이 aria-pressed 로 상태를 노출한다', () => {
+    // [파일 이름을 세지 않는 이유] 예전에는 TierFilter.tsx 와 FilterPanel.tsx 두 이름을 짚었다.
+    // TierFilter 는 사라졌다 — 회원·상품·공지·FAQ·로그가 복제하던 그 골격이 공유 FilterPanel 로
+    // 수렴했기 때문이다. 이름을 다시 적는 대신 **규칙 자체**를 스캔한다: 필터 항목의 시각 규칙은
+    // 공유 filterItemStyle 이 소유하므로, 그것을 호출하는 파일이 곧 '필터 항목을 그리는 파일'이다.
+    // 새 화면이 그 스타일을 가져다 쓰면서 aria-pressed 를 빠뜨리면 여기서 걸린다.
+    const renderers = FILES.filter((file) => file.text.includes('filterItemStyle('));
 
-    // find 가 undefined 를 돌려주면 단언이 조용히 무의미해진다 — 파일이 실재하는지 먼저 못 박는다
-    expect(tierFilter).toBeDefined();
-    expect(filterPanel).toBeDefined();
+    // 0개를 스캔하고 통과하면 그건 통과가 아니다 — 공유 구현이 목록 안에 있는지부터 못 박는다
+    // (경로 구분자는 OS 마다 다르다 — 파일명으로만 찾는다)
+    expect(renderers.find((file) => file.path.endsWith('FilterPanel.tsx'))).toBeDefined();
 
-    expect(tierFilter?.text).toContain('aria-pressed');
-    expect(filterPanel?.text).toContain('aria-pressed');
+    const offenders = renderers
+      .filter((file) => !stripComments(file.text).includes('aria-pressed'))
+      .map((file) => file.path);
+
+    expect(offenders).toEqual([]);
   });
 });
 

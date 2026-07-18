@@ -3,6 +3,8 @@
   "name": "Card",
   "component": "Card",
   "version": "1.2.0",
+  "level": "atom",
+  "category": "Data Display",
   "variantProperties": {
     "Padding": {
       "values": [

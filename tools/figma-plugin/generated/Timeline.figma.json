@@ -3,6 +3,8 @@
   "name": "Timeline",
   "component": "Timeline",
   "version": "1.0.0",
+  "level": "molecule",
+  "category": "Data Display",
   "variantProperties": {},
   "properties": [
     {

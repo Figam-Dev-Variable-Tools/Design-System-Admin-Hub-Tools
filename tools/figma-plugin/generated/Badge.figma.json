@@ -3,6 +3,8 @@
   "name": "Badge",
   "component": "Badge",
   "version": "1.0.0",
+  "level": "atom",
+  "category": "Data Display",
   "variantProperties": {
     "Tone": {
       "values": [

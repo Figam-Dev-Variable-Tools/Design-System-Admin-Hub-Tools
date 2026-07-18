@@ -10,7 +10,7 @@ import { ToastArgTypes } from '../../../generated/argtypes/Toast.argtypes';
 import { Toast } from './Toast';
 
 const meta: Meta<typeof Toast> = {
-  title: 'Molecules/Toast',
+  title: 'Feedback/Toast',
   component: Toast,
   argTypes: { ...ToastArgTypes },
   args: {

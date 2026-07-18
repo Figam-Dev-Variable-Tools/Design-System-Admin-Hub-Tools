@@ -1,5 +1,5 @@
 // AUTO-GENERATED from contracts/DateRangeField.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
-// 레벨: molecule · 상태: beta
+// 레벨: molecule · 카테고리: Inputs · 상태: beta
 
 /** 계약에 선언된 상호작용 상태 */
 export type DateRangeFieldState = 'default' | 'focus-visible' | 'disabled' | 'error';

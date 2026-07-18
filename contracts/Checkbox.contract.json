@@ -3,6 +3,8 @@
   "name": "Checkbox",
   "version": "1.1.0",
   "level": "atom",
+  "category": "Inputs",
+  "taxonomyItem": "checkbox",
   "status": "beta",
   "description": "체크박스 + 라벨. 출처: apps/admin/src/pages/login/components/Checkbox.tsx. 제어 컴포넌트로 checked/onChange 를 반드시 짝지어 받는다 (비제어 defaultChecked 는 지원하지 않는다). 라벨은 htmlFor={id} 로 연결되어 라벨 클릭으로도 토글된다.",
   "owner": { "code": "component-eng", "design": "ui-design", "figma": "figma-eng" },

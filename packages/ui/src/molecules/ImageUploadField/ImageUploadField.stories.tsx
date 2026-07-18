@@ -13,7 +13,7 @@ const SAMPLE =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120'%3E%3Crect width='200' height='120' fill='%234f8cff'/%3E%3C/svg%3E";
 
 const meta: Meta<typeof ImageUploadField> = {
-  title: 'Molecules/ImageUploadField',
+  title: 'Inputs/ImageUploadField',
   component: ImageUploadField,
   argTypes: { ...ImageUploadFieldArgTypes },
   args: {

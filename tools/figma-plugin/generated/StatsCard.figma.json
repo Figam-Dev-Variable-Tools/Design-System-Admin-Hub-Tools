@@ -3,6 +3,8 @@
   "name": "StatsCard",
   "component": "StatsCard",
   "version": "1.1.0",
+  "level": "organism",
+  "category": "Data Display",
   "variantProperties": {
     "Loading": {
       "values": [

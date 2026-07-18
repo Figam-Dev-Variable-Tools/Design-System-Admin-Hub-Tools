@@ -8,7 +8,7 @@ import { CardArgTypes } from '../../../generated/argtypes/Card.argtypes';
 import { Card } from './Card';
 
 const meta: Meta<typeof Card> = {
-  title: 'Atoms/Card',
+  title: 'Data Display/Card',
   component: Card,
   argTypes: { ...CardArgTypes },
   args: { padding: 'md', elevation: 'flat', busy: false, children: '카드 본문' },

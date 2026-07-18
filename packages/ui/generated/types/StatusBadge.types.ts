@@ -1,5 +1,5 @@
 // AUTO-GENERATED from contracts/StatusBadge.contract.json@1.0.0 — DO NOT EDIT (pnpm codegen)
-// 레벨: atom · 상태: beta
+// 레벨: atom · 카테고리: Feedback · 상태: beta
 
 /** `StatusBadge.tone` 허용 값 (계약이 유일한 원천) */
 export type StatusBadgeTone = 'neutral' | 'success' | 'warning' | 'danger' | 'info';

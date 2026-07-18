@@ -3,6 +3,8 @@
   "name": "DateRangeField",
   "component": "DateRangeField",
   "version": "1.1.0",
+  "level": "molecule",
+  "category": "Inputs",
   "variantProperties": {
     "Required": {
       "values": [

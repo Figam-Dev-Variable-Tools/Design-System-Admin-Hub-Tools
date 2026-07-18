@@ -8,7 +8,7 @@ import { StatusBadgeArgTypes } from '../../../generated/argtypes/StatusBadge.arg
 import { StatusBadge } from './StatusBadge';
 
 const meta: Meta<typeof StatusBadge> = {
-  title: 'Atoms/StatusBadge',
+  title: 'Feedback/StatusBadge',
   component: StatusBadge,
   argTypes: { ...StatusBadgeArgTypes },
   args: { tone: 'neutral', label: '임시저장' },

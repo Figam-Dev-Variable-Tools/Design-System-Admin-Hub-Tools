@@ -250,6 +250,30 @@ function covers(to: string, pathname: string): boolean {
 }
 
 /**
+ * 이 경로가 속한 **가지의 basePath** — 어떤 가지에도 속하지 않으면 null (예: '/dashboard').
+ *
+ * 사이드바가 "한 번에 한 가지만 펼친다" 를 지키려면 '지금 열려 있어야 할 가지' 를 물어볼 곳이
+ * 하나 있어야 한다. 그 답은 메뉴 트리만 알고 있으므로 여기가 그 자리다.
+ *
+ * 가장 **긴** basePath 를 고른다 — 가지끼리 프리픽스가 겹치면 얕은 쪽이 먼저 걸려 엉뚱한 가지가
+ * 열린다. 경계 판정은 findCoveringLeaf 와 같은 covers() 를 쓴다.
+ */
+export function findCoveringBranch(pathname: string): string | null {
+  let best: string | null = null;
+
+  for (const section of NAV_SECTIONS) {
+    for (const entry of section.entries) {
+      const item = entry.item;
+      if (item.kind !== 'branch') continue;
+      if (!covers(item.basePath, pathname)) continue;
+      if (best === null || item.basePath.length > best.length) best = item.basePath;
+    }
+  }
+
+  return best;
+}
+
+/**
  * 이 경로를 지배하는 **가장 구체적인 잎** — 어떤 잎에도 속하지 않으면 null.
  *
  * 라우트는 잎보다 많다: '/company/history' 는 잎이지만 '/company/history/new' 와

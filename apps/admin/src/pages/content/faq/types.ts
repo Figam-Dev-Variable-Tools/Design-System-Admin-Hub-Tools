@@ -68,11 +68,12 @@ export const VISIBILITY_FILTERS: readonly FilterDef<VisibilityFilter>[] = [
 
 /* ── 조회 결과 ───────────────────────────────────────────────────────────── */
 
-export interface VisibilityCounts {
-  readonly all: number;
-  readonly visible: number;
-  readonly hidden: number;
-}
+/**
+ * 노출 여부 배지 숫자 — **필터 유니온을 그대로 키로 삼는다.**
+ * 필터 항목이 늘면 건수도 함께 늘어야 하는데, 손으로 적은 필드 목록은 그 사실을 강제하지 못한다.
+ * (Record 로 두면 공유 FilterPanel 의 `counts`(id → 건수)에도 그대로 들어간다.)
+ */
+export type VisibilityCounts = Readonly<Record<VisibilityFilter, number>>;
 
 export interface FaqListResult {
   readonly faqs: readonly FaqSummary[];

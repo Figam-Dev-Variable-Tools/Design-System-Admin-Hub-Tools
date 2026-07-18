@@ -28,7 +28,7 @@ function ControlledPasswordField(args: PasswordFieldProps) {
 }
 
 const meta: Meta<typeof PasswordField> = {
-  title: 'Molecules/PasswordField',
+  title: 'Inputs/PasswordField',
   component: PasswordField,
   argTypes: { ...PasswordFieldArgTypes },
   args: {

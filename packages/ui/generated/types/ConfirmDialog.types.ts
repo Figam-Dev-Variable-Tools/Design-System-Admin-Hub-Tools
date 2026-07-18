@@ -1,5 +1,5 @@
 // AUTO-GENERATED from contracts/ConfirmDialog.contract.json@1.0.0 — DO NOT EDIT (pnpm codegen)
-// 레벨: organism · 상태: beta
+// 레벨: organism · 카테고리: Dialogs & Overlays · 상태: beta
 
 /** `ConfirmDialog.intent` 허용 값 (계약이 유일한 원천) */
 export type ConfirmDialogIntent = 'create' | 'update' | 'delete' | 'discard';

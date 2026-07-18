@@ -1,17 +1,8 @@
 // 상품 카테고리 좌측 필터
 //
-// 회원 화면(TierFilter/GroupFilter)의 좌측 필터가 정본이다 — 새 패턴을 만들지 않는다:
-// 승격된 filterPanel/filterNav/filterList/filterItem 스타일(COMP-05) · 건수 배지 ·
-// 선택 상태는 aria-pressed 하나로만 말한다(A11Y-12).
-import {
-  badgeStyle,
-  filterHeadingStyle,
-  filterItemStyle,
-  filterListStyle,
-  filterNavStyle,
-  filterPanelStyle,
-} from '../../../../shared/ui';
-import { formatNumber } from '../../../../shared/format';
+// 좌측 필터의 골격은 shared/ui 의 FilterPanel/FilterRail 한 벌이다 — 여기서 다시 만들지 않는다:
+// 제목 + 목록 + 건수 배지(COMP-05) · 선택 상태는 aria-pressed 하나로만 말한다(A11Y-12).
+import { FilterPanel, FilterRail } from '../../../../shared/ui';
 import { CATEGORY_USAGE_FILTERS } from '../types';
 import type { CategoryUsageFilter as UsageFilter } from '../types';
 
@@ -24,31 +15,15 @@ interface CategoryUsageFilterProps {
 
 export function CategoryUsageFilter({ value, counts, onChange }: CategoryUsageFilterProps) {
   return (
-    <div style={filterPanelStyle}>
-      <nav style={filterNavStyle} aria-label="카테고리 사용 여부 필터">
-        <h2 style={filterHeadingStyle}>사용 여부</h2>
-
-        <ul style={filterListStyle}>
-          {CATEGORY_USAGE_FILTERS.map((option) => {
-            const active = option.id === value;
-            const count = counts === null ? null : counts[option.id];
-            return (
-              <li key={option.id}>
-                <button
-                  type="button"
-                  className="tds-ui-listitem tds-ui-focusable"
-                  style={filterItemStyle(active)}
-                  aria-pressed={active}
-                  onClick={() => onChange(option.id)}
-                >
-                  <span>{option.label}</span>
-                  <span style={badgeStyle}>{count === null ? '—' : formatNumber(count)}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-    </div>
+    <FilterRail>
+      <FilterPanel
+        navLabel="카테고리 사용 여부 필터"
+        heading="사용 여부"
+        options={CATEGORY_USAGE_FILTERS}
+        value={value}
+        counts={counts}
+        onChange={onChange}
+      />
+    </FilterRail>
   );
 }

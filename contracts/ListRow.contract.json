@@ -3,6 +3,8 @@
   "name": "ListRow",
   "version": "1.0.0",
   "level": "molecule",
+  "category": "Lists",
+  "taxonomyItem": "list-item",
   "status": "beta",
   "description": "리스트 한 줄 — 좌측 아이콘 + 제목 + 메타(보조 텍스트). href 가 있으면 링크로, 없으면 onClick 만 갖는 행으로 렌더한다. 목록 컨테이너(ul)와 도메인 의미는 조립하는 organism(ListCard 등)이 소유한다. 출처 구현: apps/admin/src/pages/dashboard/components/ListCard.tsx 의 행(row) 부분",
   "owner": { "code": "component-eng", "design": "ui-design", "figma": "figma-eng" },

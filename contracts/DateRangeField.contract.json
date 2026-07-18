@@ -3,6 +3,8 @@
   "name": "DateRangeField",
   "version": "1.1.0",
   "level": "molecule",
+  "category": "Inputs",
+  "taxonomyItem": "date-picker",
   "status": "beta",
   "description": "노출 기간(시작~종료) 입력 — 날짜 입력 두 칸을 '~' 로 잇고 아래에 인라인 오류/힌트를 그린다. 출처: apps/admin/src/shared/ui/DateRangeField.tsx (소비 9곳: 팝업·배너·이벤트·프로모션·쿠폰·계약·프로젝트·견적). 두 화면이 각자 날짜 두 칸 + 종료≥시작 오류 자리를 복사하면 배치·오류 문구가 어긋난다 — 한 벌만 둔다.\n\n[검증은 스키마가] 종료≥시작 같은 규칙은 이 컴포넌트가 판정하지 않는다 — 호출부의 zod 스키마가 판정해 error 로 내려준다(검증 정본은 스키마). 이 컴포넌트는 error 문자열을 role=alert 로 주입해 그릴 뿐이다.\n\n[라벨 구조] 그룹 라벨(<span>)은 두 칸 위에 한 번 그리고, 각 날짜 입력에는 visually-hidden <label>('… 시작일'·'… 종료일')을 htmlFor 로 붙여 스크린리더가 두 칸을 구분하게 한다. id 는 useId 로 각각 생성한다.\n\n[도메인을 모른다] 무엇의 기간인지 알지 못한다 — 시작/종료 값·콜백과 라벨/오류/힌트만 받는다.\n\n[exactOptionalPropertyTypes] 옵셔널 문자열 prop(error·hint)은 호출부가 string|undefined 를 그대로 넘긴다 — 구현이 경계에서 undefined 를 허용해 받고 정규화한다 (9곳 호출부 무변경).",
   "owner": { "code": "component-eng", "design": "ui-design", "figma": "figma-eng" },

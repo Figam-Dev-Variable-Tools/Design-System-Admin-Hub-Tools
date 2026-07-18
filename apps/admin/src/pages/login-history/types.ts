@@ -142,17 +142,14 @@ export interface DateRange {
 
 /* ── 조회 결과 ───────────────────────────────────────────────────────────── */
 
-export interface OutcomeCounts {
-  readonly all: number;
-  readonly success: number;
-  readonly failure: number;
-}
+/**
+ * 축별 배지 숫자 — **필터 유니온을 그대로 키로 삼는다.**
+ * 필터 항목이 늘면 건수도 함께 늘어야 하는데, 손으로 적은 필드 목록은 그 사실을 강제하지 못한다.
+ * (Record 로 두면 공유 FilterPanel 의 `counts`(id → 건수)에도 그대로 들어간다.)
+ */
+export type OutcomeCounts = Readonly<Record<OutcomeFilter, number>>;
 
-export interface AccountKindCounts {
-  readonly all: number;
-  readonly member: number;
-  readonly admin: number;
-}
+export type AccountKindCounts = Readonly<Record<AccountKindFilter, number>>;
 
 export interface LoginHistoryResult {
   readonly entries: readonly LoginHistoryEntry[];

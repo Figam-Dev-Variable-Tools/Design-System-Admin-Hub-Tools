@@ -1,5 +1,5 @@
 // AUTO-GENERATED from contracts/TodoCard.contract.json@2.0.0 — DO NOT EDIT (pnpm codegen)
-// 레벨: organism · 상태: beta
+// 레벨: organism · 카테고리: Data Display · 상태: beta
 
 import type { MouseEvent } from 'react';
 

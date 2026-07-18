@@ -36,3 +36,17 @@
   border-width: var(--tds-border-width-medium);
   border-color: var(--tds-color-feedback-danger-border);
 }
+
+/*
+ * 잠긴 입력 칸 — 배경을 한 단 내려 '못 고치는 칸'임을 보이게 한다.
+ *
+ * [왜 필요했나] 표면 스타일이 상태와 무관해서 disabled 인 칸과 편집 가능한 칸이 **똑같이 보였다**.
+ * 한 카드 안에 잠긴 칸과 열린 칸이 나란히 서면(승인된 알림톡 템플릿: 채널·본문은 잠기고 템플릿명은
+ * 열린다) 어느 쪽을 고칠 수 있는지 클릭해 봐야 안다. 커서만 바꾸는 것으로는 부족하다.
+ *
+ * 글자는 흐리지 않는다 — 잠긴 칸의 내용은 여전히 **읽으라고** 있는 것이다(대비를 유지한다).
+ */
+.tds-textarea__control:disabled {
+  background: var(--tds-color-surface-raised);
+  cursor: not-allowed;
+}

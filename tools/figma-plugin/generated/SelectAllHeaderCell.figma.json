@@ -3,6 +3,8 @@
   "name": "SelectAllHeaderCell",
   "component": "SelectAllHeaderCell",
   "version": "1.0.0",
+  "level": "molecule",
+  "category": "Tables",
   "variantProperties": {},
   "properties": [
     {

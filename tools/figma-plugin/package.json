@@ -6,7 +6,8 @@
   "description": "Design System Admin Hub — contracts/tokens 산출물을 Figma Variables/Component Set으로 동기화하는 플러그인. 담당: Figma 플러그인, 검수: Figma 리뷰(G7)",
   "scripts": {
     "build": "node build.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "serve": "node scripts/serve-assets.mjs"
   },
   "devDependencies": {
     "@figma/plugin-typings": "^1.100.0",

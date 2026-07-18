@@ -1,5 +1,8 @@
 /**
- * Pages/대시보드 — placeholder 골격 스토리 (조립 전용, 담당: 스토리북 페이지 · 게이트 G5).
+ * Pages/Dashboard/Dashboard Screen — placeholder 골격 스토리 (조립 전용, 담당: 스토리북 페이지 · 게이트 G5).
+ *
+ * 카테고리는 영문 메뉴명(`Pages/Dashboard`)이다 — 메뉴 개요는 같은 카테고리의 Overview 스토리
+ * (pages/menus/DashboardOverview.stories.tsx) 에 있다.
  *
  * 대응 화면정의서: docs/plan/ui/SCR-002-dashboard.md
  * 필요 모듈: StatCard · Table · Pagination · Select · Badge · EmptyState · Skeleton · Alert ·
@@ -16,7 +19,7 @@ import type { CSSProperties } from 'react';
 import { cssVar, tokenVars } from '../../generated/tokens/tokens';
 
 const meta: Meta = {
-  title: 'Pages/대시보드',
+  title: 'Pages/Dashboard/Dashboard Screen',
   parameters: { layout: 'fullscreen' },
 };
 

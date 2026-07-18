@@ -13,6 +13,7 @@
 |---|---|
 | 버전 | `1.0.0` |
 | 레벨 | `molecule` |
+| 카테고리 | `Tables` |
 | 상태 | `beta` |
 | 소유 | code `react-refactor` · design `ui-design` · figma `figma-eng` |
 

@@ -1,0 +1,3905 @@
+{
+  "$kind": "tds-render-assets",
+  "$source": "reports/vrt/baseline",
+  "base": "vrt/baseline",
+  "stories": [
+    {
+      "component": "Alert",
+      "level": "atom",
+      "story": "danger",
+      "file": "atoms-alert--danger.png",
+      "w": 1248,
+      "h": 48
+    },
+    {
+      "component": "Alert",
+      "level": "atom",
+      "story": "dark-theme",
+      "file": "atoms-alert--dark-theme.png",
+      "w": 1248,
+      "h": 88
+    },
+    {
+      "component": "Alert",
+      "level": "atom",
+      "story": "dismissible",
+      "file": "atoms-alert--dismissible.png",
+      "w": 1248,
+      "h": 48
+    },
+    {
+      "component": "Alert",
+      "level": "atom",
+      "story": "info",
+      "file": "atoms-alert--info.png",
+      "w": 1248,
+      "h": 48
+    },
+    {
+      "component": "Alert",
+      "level": "atom",
+      "story": "not-dismissible",
+      "file": "atoms-alert--not-dismissible.png",
+      "w": 1248,
+      "h": 48
+    },
+    {
+      "component": "Alert",
+      "level": "atom",
+      "story": "right-to-left",
+      "file": "atoms-alert--right-to-left.png",
+      "w": 1248,
+      "h": 88
+    },
+    {
+      "component": "Alert",
+      "level": "atom",
+      "story": "slot-long-content",
+      "file": "atoms-alert--slot-long-content.png",
+      "w": 1248,
+      "h": 48
+    },
+    {
+      "component": "Alert",
+      "level": "atom",
+      "story": "slot-minimal",
+      "file": "atoms-alert--slot-minimal.png",
+      "w": 1248,
+      "h": 48
+    },
+    {
+      "component": "Alert",
+      "level": "atom",
+      "story": "success",
+      "file": "atoms-alert--success.png",
+      "w": 1248,
+      "h": 48
+    },
+    {
+      "component": "Alert",
+      "level": "atom",
+      "story": "warning",
+      "file": "atoms-alert--warning.png",
+      "w": 1248,
+      "h": 48
+    },
+    {
+      "component": "Alert",
+      "level": "atom",
+      "story": "with-block-children",
+      "file": "atoms-alert--with-block-children.png",
+      "w": 1248,
+      "h": 83
+    },
+    {
+      "component": "Alert",
+      "level": "atom",
+      "story": "with-id",
+      "file": "atoms-alert--with-id.png",
+      "w": 1248,
+      "h": 48
+    },
+    {
+      "component": "Badge",
+      "level": "atom",
+      "story": "danger",
+      "file": "atoms-badge--danger.png",
+      "w": 60,
+      "h": 54
+    },
+    {
+      "component": "Badge",
+      "level": "atom",
+      "story": "dark-theme",
+      "file": "atoms-badge--dark-theme.png",
+      "w": 100,
+      "h": 94
+    },
+    {
+      "component": "Badge",
+      "level": "atom",
+      "story": "hidden-when-zero",
+      "file": "atoms-badge--hidden-when-zero.png",
+      "w": 32,
+      "h": 32
+    },
+    {
+      "component": "Badge",
+      "level": "atom",
+      "story": "large-count",
+      "file": "atoms-badge--large-count.png",
+      "w": 84,
+      "h": 54
+    },
+    {
+      "component": "Badge",
+      "level": "atom",
+      "story": "minimal-count",
+      "file": "atoms-badge--minimal-count.png",
+      "w": 60,
+      "h": 54
+    },
+    {
+      "component": "Badge",
+      "level": "atom",
+      "story": "negative-visible",
+      "file": "atoms-badge--negative-visible.png",
+      "w": 60,
+      "h": 54
+    },
+    {
+      "component": "Badge",
+      "level": "atom",
+      "story": "neutral",
+      "file": "atoms-badge--neutral.png",
+      "w": 60,
+      "h": 54
+    },
+    {
+      "component": "Badge",
+      "level": "atom",
+      "story": "right-to-left",
+      "file": "atoms-badge--right-to-left.png",
+      "w": 100,
+      "h": 94
+    },
+    {
+      "component": "Badge",
+      "level": "atom",
+      "story": "success",
+      "file": "atoms-badge--success.png",
+      "w": 60,
+      "h": 54
+    },
+    {
+      "component": "Badge",
+      "level": "atom",
+      "story": "visible-when-zero",
+      "file": "atoms-badge--visible-when-zero.png",
+      "w": 60,
+      "h": 54
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "all-flags-on",
+      "file": "atoms-button--all-flags-on.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "aria-busy-override",
+      "file": "atoms-button--aria-busy-override.png",
+      "w": 92,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "blocked-when-disabled-on-click",
+      "file": "atoms-button--blocked-when-disabled-on-click.png",
+      "w": 92,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "blocked-when-loading-on-click",
+      "file": "atoms-button--blocked-when-loading-on-click.png",
+      "w": 132,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-lg-active",
+      "file": "atoms-button--danger-lg-active.png",
+      "w": 144,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-lg-default",
+      "file": "atoms-button--danger-lg-default.png",
+      "w": 144,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-lg-disabled",
+      "file": "atoms-button--danger-lg-disabled.png",
+      "w": 144,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-lg-focus-visible",
+      "file": "atoms-button--danger-lg-focus-visible.png",
+      "w": 144,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-lg-full-width-loading",
+      "file": "atoms-button--danger-lg-full-width-loading.png",
+      "w": 1248,
+      "h": 46
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-lg-full-width",
+      "file": "atoms-button--danger-lg-full-width.png",
+      "w": 1248,
+      "h": 46
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-lg-hover",
+      "file": "atoms-button--danger-lg-hover.png",
+      "w": 144,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-lg-loading",
+      "file": "atoms-button--danger-lg-loading.png",
+      "w": 172,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-md-active",
+      "file": "atoms-button--danger-md-active.png",
+      "w": 136,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-md-default",
+      "file": "atoms-button--danger-md-default.png",
+      "w": 136,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-md-disabled",
+      "file": "atoms-button--danger-md-disabled.png",
+      "w": 136,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-md-focus-visible",
+      "file": "atoms-button--danger-md-focus-visible.png",
+      "w": 136,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-md-full-width-loading",
+      "file": "atoms-button--danger-md-full-width-loading.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-md-full-width",
+      "file": "atoms-button--danger-md-full-width.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-md-hover",
+      "file": "atoms-button--danger-md-hover.png",
+      "w": 136,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-md-loading",
+      "file": "atoms-button--danger-md-loading.png",
+      "w": 162,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-sm-active",
+      "file": "atoms-button--danger-sm-active.png",
+      "w": 126,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-sm-default",
+      "file": "atoms-button--danger-sm-default.png",
+      "w": 126,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-sm-disabled",
+      "file": "atoms-button--danger-sm-disabled.png",
+      "w": 126,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-sm-focus-visible",
+      "file": "atoms-button--danger-sm-focus-visible.png",
+      "w": 126,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-sm-full-width-loading",
+      "file": "atoms-button--danger-sm-full-width-loading.png",
+      "w": 1248,
+      "h": 28
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-sm-full-width",
+      "file": "atoms-button--danger-sm-full-width.png",
+      "w": 1248,
+      "h": 28
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-sm-hover",
+      "file": "atoms-button--danger-sm-hover.png",
+      "w": 126,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "danger-sm-loading",
+      "file": "atoms-button--danger-sm-loading.png",
+      "w": 152,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "dark-theme",
+      "file": "atoms-button--dark-theme.png",
+      "w": 158,
+      "h": 108
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "full-width-and-disabled",
+      "file": "atoms-button--full-width-and-disabled.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-lg-active",
+      "file": "atoms-button--ghost-lg-active.png",
+      "w": 134,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-lg-default",
+      "file": "atoms-button--ghost-lg-default.png",
+      "w": 134,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-lg-disabled",
+      "file": "atoms-button--ghost-lg-disabled.png",
+      "w": 134,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-lg-focus-visible",
+      "file": "atoms-button--ghost-lg-focus-visible.png",
+      "w": 134,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-lg-full-width-loading",
+      "file": "atoms-button--ghost-lg-full-width-loading.png",
+      "w": 1248,
+      "h": 46
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-lg-full-width",
+      "file": "atoms-button--ghost-lg-full-width.png",
+      "w": 1248,
+      "h": 46
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-lg-hover",
+      "file": "atoms-button--ghost-lg-hover.png",
+      "w": 134,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-lg-loading",
+      "file": "atoms-button--ghost-lg-loading.png",
+      "w": 162,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-md-active",
+      "file": "atoms-button--ghost-md-active.png",
+      "w": 128,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-md-default",
+      "file": "atoms-button--ghost-md-default.png",
+      "w": 128,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-md-disabled",
+      "file": "atoms-button--ghost-md-disabled.png",
+      "w": 128,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-md-focus-visible",
+      "file": "atoms-button--ghost-md-focus-visible.png",
+      "w": 128,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-md-full-width-loading",
+      "file": "atoms-button--ghost-md-full-width-loading.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-md-full-width",
+      "file": "atoms-button--ghost-md-full-width.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-md-hover",
+      "file": "atoms-button--ghost-md-hover.png",
+      "w": 128,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-md-loading",
+      "file": "atoms-button--ghost-md-loading.png",
+      "w": 154,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-sm-active",
+      "file": "atoms-button--ghost-sm-active.png",
+      "w": 118,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-sm-default",
+      "file": "atoms-button--ghost-sm-default.png",
+      "w": 118,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-sm-disabled",
+      "file": "atoms-button--ghost-sm-disabled.png",
+      "w": 118,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-sm-focus-visible",
+      "file": "atoms-button--ghost-sm-focus-visible.png",
+      "w": 118,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-sm-full-width-loading",
+      "file": "atoms-button--ghost-sm-full-width-loading.png",
+      "w": 1248,
+      "h": 28
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-sm-full-width",
+      "file": "atoms-button--ghost-sm-full-width.png",
+      "w": 1248,
+      "h": 28
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-sm-hover",
+      "file": "atoms-button--ghost-sm-hover.png",
+      "w": 118,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "ghost-sm-loading",
+      "file": "atoms-button--ghost-sm-loading.png",
+      "w": 144,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "label-with-inline-icon",
+      "file": "atoms-button--label-with-inline-icon.png",
+      "w": 140,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "loading-and-disabled",
+      "file": "atoms-button--loading-and-disabled.png",
+      "w": 132,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "loading-hides-icon",
+      "file": "atoms-button--loading-hides-icon.png",
+      "w": 132,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "native-attribute-passthrough",
+      "file": "atoms-button--native-attribute-passthrough.png",
+      "w": 92,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "on-click-fires-when-not-blocked",
+      "file": "atoms-button--on-click-fires-when-not-blocked.png",
+      "w": 92,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-lg-active",
+      "file": "atoms-button--primary-lg-active.png",
+      "w": 148,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-lg-default",
+      "file": "atoms-button--primary-lg-default.png",
+      "w": 148,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-lg-disabled",
+      "file": "atoms-button--primary-lg-disabled.png",
+      "w": 148,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-lg-focus-visible",
+      "file": "atoms-button--primary-lg-focus-visible.png",
+      "w": 148,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-lg-full-width-loading",
+      "file": "atoms-button--primary-lg-full-width-loading.png",
+      "w": 1248,
+      "h": 46
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-lg-full-width",
+      "file": "atoms-button--primary-lg-full-width.png",
+      "w": 1248,
+      "h": 46
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-lg-hover",
+      "file": "atoms-button--primary-lg-hover.png",
+      "w": 148,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-lg-loading",
+      "file": "atoms-button--primary-lg-loading.png",
+      "w": 176,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-md-active",
+      "file": "atoms-button--primary-md-active.png",
+      "w": 140,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-md-default",
+      "file": "atoms-button--primary-md-default.png",
+      "w": 140,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-md-disabled",
+      "file": "atoms-button--primary-md-disabled.png",
+      "w": 140,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-md-focus-visible",
+      "file": "atoms-button--primary-md-focus-visible.png",
+      "w": 140,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-md-full-width-loading",
+      "file": "atoms-button--primary-md-full-width-loading.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-md-full-width",
+      "file": "atoms-button--primary-md-full-width.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-md-hover",
+      "file": "atoms-button--primary-md-hover.png",
+      "w": 140,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-md-loading",
+      "file": "atoms-button--primary-md-loading.png",
+      "w": 166,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-sm-active",
+      "file": "atoms-button--primary-sm-active.png",
+      "w": 130,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-sm-default",
+      "file": "atoms-button--primary-sm-default.png",
+      "w": 130,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-sm-disabled",
+      "file": "atoms-button--primary-sm-disabled.png",
+      "w": 130,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-sm-focus-visible",
+      "file": "atoms-button--primary-sm-focus-visible.png",
+      "w": 130,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-sm-full-width-loading",
+      "file": "atoms-button--primary-sm-full-width-loading.png",
+      "w": 1248,
+      "h": 28
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-sm-full-width",
+      "file": "atoms-button--primary-sm-full-width.png",
+      "w": 1248,
+      "h": 28
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-sm-hover",
+      "file": "atoms-button--primary-sm-hover.png",
+      "w": 130,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "primary-sm-loading",
+      "file": "atoms-button--primary-sm-loading.png",
+      "w": 156,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "right-to-left",
+      "file": "atoms-button--right-to-left.png",
+      "w": 194,
+      "h": 108
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-lg-active",
+      "file": "atoms-button--secondary-lg-active.png",
+      "w": 170,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-lg-default",
+      "file": "atoms-button--secondary-lg-default.png",
+      "w": 170,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-lg-disabled",
+      "file": "atoms-button--secondary-lg-disabled.png",
+      "w": 170,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-lg-focus-visible",
+      "file": "atoms-button--secondary-lg-focus-visible.png",
+      "w": 170,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-lg-full-width-loading",
+      "file": "atoms-button--secondary-lg-full-width-loading.png",
+      "w": 1248,
+      "h": 46
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-lg-full-width",
+      "file": "atoms-button--secondary-lg-full-width.png",
+      "w": 1248,
+      "h": 46
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-lg-hover",
+      "file": "atoms-button--secondary-lg-hover.png",
+      "w": 170,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-lg-loading",
+      "file": "atoms-button--secondary-lg-loading.png",
+      "w": 198,
+      "h": 78
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-md-active",
+      "file": "atoms-button--secondary-md-active.png",
+      "w": 158,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-md-default",
+      "file": "atoms-button--secondary-md-default.png",
+      "w": 158,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-md-disabled",
+      "file": "atoms-button--secondary-md-disabled.png",
+      "w": 158,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-md-focus-visible",
+      "file": "atoms-button--secondary-md-focus-visible.png",
+      "w": 158,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-md-full-width-loading",
+      "file": "atoms-button--secondary-md-full-width-loading.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-md-full-width",
+      "file": "atoms-button--secondary-md-full-width.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-md-hover",
+      "file": "atoms-button--secondary-md-hover.png",
+      "w": 158,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-md-loading",
+      "file": "atoms-button--secondary-md-loading.png",
+      "w": 184,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-sm-active",
+      "file": "atoms-button--secondary-sm-active.png",
+      "w": 148,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-sm-default",
+      "file": "atoms-button--secondary-sm-default.png",
+      "w": 148,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-sm-disabled",
+      "file": "atoms-button--secondary-sm-disabled.png",
+      "w": 148,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-sm-focus-visible",
+      "file": "atoms-button--secondary-sm-focus-visible.png",
+      "w": 148,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-sm-full-width-loading",
+      "file": "atoms-button--secondary-sm-full-width-loading.png",
+      "w": 1248,
+      "h": 28
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-sm-full-width",
+      "file": "atoms-button--secondary-sm-full-width.png",
+      "w": 1248,
+      "h": 28
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-sm-hover",
+      "file": "atoms-button--secondary-sm-hover.png",
+      "w": 148,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "secondary-sm-loading",
+      "file": "atoms-button--secondary-sm-loading.png",
+      "w": 174,
+      "h": 60
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "slot-long-label",
+      "file": "atoms-button--slot-long-label.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "slot-minimal",
+      "file": "atoms-button--slot-minimal.png",
+      "w": 92,
+      "h": 68
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "type-button-in-form",
+      "file": "atoms-button--type-button-in-form.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "type-reset",
+      "file": "atoms-button--type-reset.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "type-submit",
+      "file": "atoms-button--type-submit.png",
+      "w": 1248,
+      "h": 61
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "type-unknown-narrows-to-button",
+      "file": "atoms-button--type-unknown-narrows-to-button.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "Button",
+      "level": "atom",
+      "story": "with-icon-left",
+      "file": "atoms-button--with-icon-left.png",
+      "w": 140,
+      "h": 68
+    },
+    {
+      "component": "Card",
+      "level": "atom",
+      "story": "dark-theme",
+      "file": "atoms-card--dark-theme.png",
+      "w": 1248,
+      "h": 106
+    },
+    {
+      "component": "Card",
+      "level": "atom",
+      "story": "padding-lg-default",
+      "file": "atoms-card--padding-lg-default.png",
+      "w": 1248,
+      "h": 74
+    },
+    {
+      "component": "Card",
+      "level": "atom",
+      "story": "padding-lg-loading",
+      "file": "atoms-card--padding-lg-loading.png",
+      "w": 1248,
+      "h": 74
+    },
+    {
+      "component": "Card",
+      "level": "atom",
+      "story": "padding-md-default",
+      "file": "atoms-card--padding-md-default.png",
+      "w": 1248,
+      "h": 66
+    },
+    {
+      "component": "Card",
+      "level": "atom",
+      "story": "padding-md-loading",
+      "file": "atoms-card--padding-md-loading.png",
+      "w": 1248,
+      "h": 66
+    },
+    {
+      "component": "Card",
+      "level": "atom",
+      "story": "raised-default",
+      "file": "atoms-card--raised-default.png",
+      "w": 1248,
+      "h": 66
+    },
+    {
+      "component": "Card",
+      "level": "atom",
+      "story": "raised-lg-loading",
+      "file": "atoms-card--raised-lg-loading.png",
+      "w": 1248,
+      "h": 74
+    },
+    {
+      "component": "Card",
+      "level": "atom",
+      "story": "right-to-left",
+      "file": "atoms-card--right-to-left.png",
+      "w": 1248,
+      "h": 100
+    },
+    {
+      "component": "Card",
+      "level": "atom",
+      "story": "slot-long-content",
+      "file": "atoms-card--slot-long-content.png",
+      "w": 1248,
+      "h": 90
+    },
+    {
+      "component": "Card",
+      "level": "atom",
+      "story": "slot-minimal",
+      "file": "atoms-card--slot-minimal.png",
+      "w": 1248,
+      "h": 60
+    },
+    {
+      "component": "Checkbox",
+      "level": "atom",
+      "story": "blocked-when-disabled-on-change",
+      "file": "atoms-checkbox--blocked-when-disabled-on-change.png",
+      "w": 156,
+      "h": 54
+    },
+    {
+      "component": "Checkbox",
+      "level": "atom",
+      "story": "checked-disabled",
+      "file": "atoms-checkbox--checked-disabled.png",
+      "w": 156,
+      "h": 54
+    },
+    {
+      "component": "Checkbox",
+      "level": "atom",
+      "story": "checked",
+      "file": "atoms-checkbox--checked.png",
+      "w": 156,
+      "h": 54
+    },
+    {
+      "component": "Checkbox",
+      "level": "atom",
+      "story": "dark-theme",
+      "file": "atoms-checkbox--dark-theme.png",
+      "w": 196,
+      "h": 94
+    },
+    {
+      "component": "Checkbox",
+      "level": "atom",
+      "story": "default",
+      "file": "atoms-checkbox--default.png",
+      "w": 156,
+      "h": 54
+    },
+    {
+      "component": "Checkbox",
+      "level": "atom",
+      "story": "disabled",
+      "file": "atoms-checkbox--disabled.png",
+      "w": 156,
+      "h": 54
+    },
+    {
+      "component": "Checkbox",
+      "level": "atom",
+      "story": "focus-visible",
+      "file": "atoms-checkbox--focus-visible.png",
+      "w": 156,
+      "h": 54
+    },
+    {
+      "component": "Checkbox",
+      "level": "atom",
+      "story": "hover",
+      "file": "atoms-checkbox--hover.png",
+      "w": 156,
+      "h": 54
+    },
+    {
+      "component": "Checkbox",
+      "level": "atom",
+      "story": "label-click-toggles-it",
+      "file": "atoms-checkbox--label-click-toggles-it.png",
+      "w": 156,
+      "h": 54
+    },
+    {
+      "component": "Checkbox",
+      "level": "atom",
+      "story": "long-label",
+      "file": "atoms-checkbox--long-label.png",
+      "w": 1248,
+      "h": 22
+    },
+    {
+      "component": "Checkbox",
+      "level": "atom",
+      "story": "on-change-fires-when-enabled",
+      "file": "atoms-checkbox--on-change-fires-when-enabled.png",
+      "w": 156,
+      "h": 54
+    },
+    {
+      "component": "Checkbox",
+      "level": "atom",
+      "story": "right-to-left",
+      "file": "atoms-checkbox--right-to-left.png",
+      "w": 144,
+      "h": 94
+    },
+    {
+      "component": "Checkbox",
+      "level": "atom",
+      "story": "with-name",
+      "file": "atoms-checkbox--with-name.png",
+      "w": 156,
+      "h": 54
+    },
+    {
+      "component": "HelpTip",
+      "level": "atom",
+      "story": "dark-theme",
+      "file": "atoms-helptip--dark-theme.png",
+      "w": 1248,
+      "h": 70
+    },
+    {
+      "component": "HelpTip",
+      "level": "atom",
+      "story": "default",
+      "file": "atoms-helptip--default.png",
+      "w": 1248,
+      "h": 22
+    },
+    {
+      "component": "HelpTip",
+      "level": "atom",
+      "story": "focus-visible",
+      "file": "atoms-helptip--focus-visible.png",
+      "w": 1248,
+      "h": 22
+    },
+    {
+      "component": "HelpTip",
+      "level": "atom",
+      "story": "long-content",
+      "file": "atoms-helptip--long-content.png",
+      "w": 1248,
+      "h": 22
+    },
+    {
+      "component": "HelpTip",
+      "level": "atom",
+      "story": "opened",
+      "file": "atoms-helptip--opened.png",
+      "w": 1248,
+      "h": 22
+    },
+    {
+      "component": "HelpTip",
+      "level": "atom",
+      "story": "right-to-left",
+      "file": "atoms-helptip--right-to-left.png",
+      "w": 1248,
+      "h": 70
+    },
+    {
+      "component": "ImageThumb",
+      "level": "atom",
+      "story": "broken-image",
+      "file": "atoms-imagethumb--broken-image.png",
+      "w": 92,
+      "h": 58
+    },
+    {
+      "component": "ImageThumb",
+      "level": "atom",
+      "story": "dark-theme",
+      "file": "atoms-imagethumb--dark-theme.png",
+      "w": 132,
+      "h": 98
+    },
+    {
+      "component": "ImageThumb",
+      "level": "atom",
+      "story": "default",
+      "file": "atoms-imagethumb--default.png",
+      "w": 92,
+      "h": 60
+    },
+    {
+      "component": "ImageThumb",
+      "level": "atom",
+      "story": "empty-placeholder",
+      "file": "atoms-imagethumb--empty-placeholder.png",
+      "w": 92,
+      "h": 58
+    },
+    {
+      "component": "ImageThumb",
+      "level": "atom",
+      "story": "right-to-left",
+      "file": "atoms-imagethumb--right-to-left.png",
+      "w": 132,
+      "h": 100
+    },
+    {
+      "component": "SelectField",
+      "level": "atom",
+      "story": "dark-theme",
+      "file": "atoms-selectfield--dark-theme.png",
+      "w": 1248,
+      "h": 74
+    },
+    {
+      "component": "SelectField",
+      "level": "atom",
+      "story": "default",
+      "file": "atoms-selectfield--default.png",
+      "w": 1248,
+      "h": 34
+    },
+    {
+      "component": "SelectField",
+      "level": "atom",
+      "story": "disabled",
+      "file": "atoms-selectfield--disabled.png",
+      "w": 1248,
+      "h": 34
+    },
+    {
+      "component": "SelectField",
+      "level": "atom",
+      "story": "invalid",
+      "file": "atoms-selectfield--invalid.png",
+      "w": 1248,
+      "h": 36
+    },
+    {
+      "component": "SelectField",
+      "level": "atom",
+      "story": "right-to-left",
+      "file": "atoms-selectfield--right-to-left.png",
+      "w": 1248,
+      "h": 74
+    },
+    {
+      "component": "StatusBadge",
+      "level": "atom",
+      "story": "danger",
+      "file": "atoms-statusbadge--danger.png",
+      "w": 74,
+      "h": 54
+    },
+    {
+      "component": "StatusBadge",
+      "level": "atom",
+      "story": "dark-theme",
+      "file": "atoms-statusbadge--dark-theme.png",
+      "w": 114,
+      "h": 94
+    },
+    {
+      "component": "StatusBadge",
+      "level": "atom",
+      "story": "info",
+      "file": "atoms-statusbadge--info.png",
+      "w": 84,
+      "h": 54
+    },
+    {
+      "component": "StatusBadge",
+      "level": "atom",
+      "story": "long-label",
+      "file": "atoms-statusbadge--long-label.png",
+      "w": 1248,
+      "h": 22
+    },
+    {
+      "component": "StatusBadge",
+      "level": "atom",
+      "story": "neutral",
+      "file": "atoms-statusbadge--neutral.png",
+      "w": 96,
+      "h": 54
+    },
+    {
+      "component": "StatusBadge",
+      "level": "atom",
+      "story": "right-to-left",
+      "file": "atoms-statusbadge--right-to-left.png",
+      "w": 134,
+      "h": 94
+    },
+    {
+      "component": "StatusBadge",
+      "level": "atom",
+      "story": "success",
+      "file": "atoms-statusbadge--success.png",
+      "w": 74,
+      "h": 54
+    },
+    {
+      "component": "StatusBadge",
+      "level": "atom",
+      "story": "warning",
+      "file": "atoms-statusbadge--warning.png",
+      "w": 74,
+      "h": 54
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "blocked-when-disabled-on-blur",
+      "file": "atoms-textfield--blocked-when-disabled-on-blur.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "dark-theme",
+      "file": "atoms-textfield--dark-theme.png",
+      "w": 1248,
+      "h": 111
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "email-default",
+      "file": "atoms-textfield--email-default.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "email-disabled",
+      "file": "atoms-textfield--email-disabled.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "email-error",
+      "file": "atoms-textfield--email-error.png",
+      "w": 1248,
+      "h": 92
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "email-focus-visible",
+      "file": "atoms-textfield--email-focus-visible.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "email-hover",
+      "file": "atoms-textfield--email-hover.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "form-surface",
+      "file": "atoms-textfield--form-surface.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "number-default",
+      "file": "atoms-textfield--number-default.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "number-disabled",
+      "file": "atoms-textfield--number-disabled.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "number-error",
+      "file": "atoms-textfield--number-error.png",
+      "w": 1248,
+      "h": 92
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "number-focus-visible",
+      "file": "atoms-textfield--number-focus-visible.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "number-hover",
+      "file": "atoms-textfield--number-hover.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "on-blur-fires-when-enabled",
+      "file": "atoms-textfield--on-blur-fires-when-enabled.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "optional",
+      "file": "atoms-textfield--optional.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "password-default",
+      "file": "atoms-textfield--password-default.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "password-disabled",
+      "file": "atoms-textfield--password-disabled.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "password-error",
+      "file": "atoms-textfield--password-error.png",
+      "w": 1248,
+      "h": 92
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "password-focus-visible",
+      "file": "atoms-textfield--password-focus-visible.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "password-hover",
+      "file": "atoms-textfield--password-hover.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "required",
+      "file": "atoms-textfield--required.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "right-to-left",
+      "file": "atoms-textfield--right-to-left.png",
+      "w": 1248,
+      "h": 132
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "slot-long-content",
+      "file": "atoms-textfield--slot-long-content.png",
+      "w": 1248,
+      "h": 92
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "slot-minimal",
+      "file": "atoms-textfield--slot-minimal.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "text-default",
+      "file": "atoms-textfield--text-default.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "text-disabled",
+      "file": "atoms-textfield--text-disabled.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "text-error",
+      "file": "atoms-textfield--text-error.png",
+      "w": 1248,
+      "h": 92
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "text-focus-visible",
+      "file": "atoms-textfield--text-focus-visible.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "text-hover",
+      "file": "atoms-textfield--text-hover.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "TextField",
+      "level": "atom",
+      "story": "with-trailing",
+      "file": "atoms-textfield--with-trailing.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "ToggleSwitch",
+      "level": "atom",
+      "story": "blocked-when-busy",
+      "file": "atoms-toggleswitch--blocked-when-busy.png",
+      "w": 100,
+      "h": 56
+    },
+    {
+      "component": "ToggleSwitch",
+      "level": "atom",
+      "story": "blocked-when-disabled",
+      "file": "atoms-toggleswitch--blocked-when-disabled.png",
+      "w": 100,
+      "h": 56
+    },
+    {
+      "component": "ToggleSwitch",
+      "level": "atom",
+      "story": "custom-labels",
+      "file": "atoms-toggleswitch--custom-labels.png",
+      "w": 98,
+      "h": 56
+    },
+    {
+      "component": "ToggleSwitch",
+      "level": "atom",
+      "story": "dark-theme",
+      "file": "atoms-toggleswitch--dark-theme.png",
+      "w": 134,
+      "h": 96
+    },
+    {
+      "component": "ToggleSwitch",
+      "level": "atom",
+      "story": "fires-when-enabled",
+      "file": "atoms-toggleswitch--fires-when-enabled.png",
+      "w": 94,
+      "h": 56
+    },
+    {
+      "component": "ToggleSwitch",
+      "level": "atom",
+      "story": "off-busy",
+      "file": "atoms-toggleswitch--off-busy.png",
+      "w": 100,
+      "h": 56
+    },
+    {
+      "component": "ToggleSwitch",
+      "level": "atom",
+      "story": "off-disabled-busy",
+      "file": "atoms-toggleswitch--off-disabled-busy.png",
+      "w": 100,
+      "h": 56
+    },
+    {
+      "component": "ToggleSwitch",
+      "level": "atom",
+      "story": "off-disabled",
+      "file": "atoms-toggleswitch--off-disabled.png",
+      "w": 100,
+      "h": 56
+    },
+    {
+      "component": "ToggleSwitch",
+      "level": "atom",
+      "story": "off",
+      "file": "atoms-toggleswitch--off.png",
+      "w": 100,
+      "h": 56
+    },
+    {
+      "component": "ToggleSwitch",
+      "level": "atom",
+      "story": "on-busy",
+      "file": "atoms-toggleswitch--on-busy.png",
+      "w": 94,
+      "h": 56
+    },
+    {
+      "component": "ToggleSwitch",
+      "level": "atom",
+      "story": "on-disabled-busy",
+      "file": "atoms-toggleswitch--on-disabled-busy.png",
+      "w": 94,
+      "h": 56
+    },
+    {
+      "component": "ToggleSwitch",
+      "level": "atom",
+      "story": "on-disabled",
+      "file": "atoms-toggleswitch--on-disabled.png",
+      "w": 94,
+      "h": 56
+    },
+    {
+      "component": "ToggleSwitch",
+      "level": "atom",
+      "story": "on",
+      "file": "atoms-toggleswitch--on.png",
+      "w": 94,
+      "h": 56
+    },
+    {
+      "component": "ToggleSwitch",
+      "level": "atom",
+      "story": "right-to-left",
+      "file": "atoms-toggleswitch--right-to-left.png",
+      "w": 140,
+      "h": 96
+    },
+    {
+      "component": "TriStateCheckbox",
+      "level": "atom",
+      "story": "blocked-when-disabled",
+      "file": "atoms-tristatecheckbox--blocked-when-disabled.png",
+      "w": 56,
+      "h": 56
+    },
+    {
+      "component": "TriStateCheckbox",
+      "level": "atom",
+      "story": "dark-theme",
+      "file": "atoms-tristatecheckbox--dark-theme.png",
+      "w": 96,
+      "h": 96
+    },
+    {
+      "component": "TriStateCheckbox",
+      "level": "atom",
+      "story": "fires-when-enabled",
+      "file": "atoms-tristatecheckbox--fires-when-enabled.png",
+      "w": 56,
+      "h": 56
+    },
+    {
+      "component": "TriStateCheckbox",
+      "level": "atom",
+      "story": "mixed-disabled",
+      "file": "atoms-tristatecheckbox--mixed-disabled.png",
+      "w": 56,
+      "h": 56
+    },
+    {
+      "component": "TriStateCheckbox",
+      "level": "atom",
+      "story": "mixed",
+      "file": "atoms-tristatecheckbox--mixed.png",
+      "w": 56,
+      "h": 56
+    },
+    {
+      "component": "TriStateCheckbox",
+      "level": "atom",
+      "story": "off-disabled",
+      "file": "atoms-tristatecheckbox--off-disabled.png",
+      "w": 56,
+      "h": 56
+    },
+    {
+      "component": "TriStateCheckbox",
+      "level": "atom",
+      "story": "off",
+      "file": "atoms-tristatecheckbox--off.png",
+      "w": 56,
+      "h": 56
+    },
+    {
+      "component": "TriStateCheckbox",
+      "level": "atom",
+      "story": "on-disabled",
+      "file": "atoms-tristatecheckbox--on-disabled.png",
+      "w": 56,
+      "h": 56
+    },
+    {
+      "component": "TriStateCheckbox",
+      "level": "atom",
+      "story": "on-mixed-disabled",
+      "file": "atoms-tristatecheckbox--on-mixed-disabled.png",
+      "w": 56,
+      "h": 56
+    },
+    {
+      "component": "TriStateCheckbox",
+      "level": "atom",
+      "story": "on-mixed",
+      "file": "atoms-tristatecheckbox--on-mixed.png",
+      "w": 56,
+      "h": 56
+    },
+    {
+      "component": "TriStateCheckbox",
+      "level": "atom",
+      "story": "on",
+      "file": "atoms-tristatecheckbox--on.png",
+      "w": 56,
+      "h": 56
+    },
+    {
+      "component": "TriStateCheckbox",
+      "level": "atom",
+      "story": "right-to-left",
+      "file": "atoms-tristatecheckbox--right-to-left.png",
+      "w": 96,
+      "h": 96
+    },
+    {
+      "component": "DataTable",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-datatable--dark-theme.png",
+      "w": 1248,
+      "h": 377
+    },
+    {
+      "component": "DataTable",
+      "level": "molecule",
+      "story": "default",
+      "file": "molecules-datatable--default.png",
+      "w": 1248,
+      "h": 337
+    },
+    {
+      "component": "DataTable",
+      "level": "molecule",
+      "story": "dim-zero-off",
+      "file": "molecules-datatable--dim-zero-off.png",
+      "w": 1248,
+      "h": 337
+    },
+    {
+      "component": "DataTable",
+      "level": "molecule",
+      "story": "dim-zero-on",
+      "file": "molecules-datatable--dim-zero-on.png",
+      "w": 1248,
+      "h": 337
+    },
+    {
+      "component": "DataTable",
+      "level": "molecule",
+      "story": "empty",
+      "file": "molecules-datatable--empty.png",
+      "w": 1248,
+      "h": 75
+    },
+    {
+      "component": "DataTable",
+      "level": "molecule",
+      "story": "loading",
+      "file": "molecules-datatable--loading.png",
+      "w": 1248,
+      "h": 75
+    },
+    {
+      "component": "DataTable",
+      "level": "molecule",
+      "story": "long-content",
+      "file": "molecules-datatable--long-content.png",
+      "w": 1248,
+      "h": 188
+    },
+    {
+      "component": "DataTable",
+      "level": "molecule",
+      "story": "minimal-data",
+      "file": "molecules-datatable--minimal-data.png",
+      "w": 1248,
+      "h": 88
+    },
+    {
+      "component": "DataTable",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-datatable--right-to-left.png",
+      "w": 1248,
+      "h": 377
+    },
+    {
+      "component": "DataTable",
+      "level": "molecule",
+      "story": "unit-in-body",
+      "file": "molecules-datatable--unit-in-body.png",
+      "w": 1248,
+      "h": 337
+    },
+    {
+      "component": "DataTable",
+      "level": "molecule",
+      "story": "without-summary",
+      "file": "molecules-datatable--without-summary.png",
+      "w": 1248,
+      "h": 287
+    },
+    {
+      "component": "DateRangeField",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-daterangefield--dark-theme.png",
+      "w": 1248,
+      "h": 124
+    },
+    {
+      "component": "DateRangeField",
+      "level": "molecule",
+      "story": "default",
+      "file": "molecules-daterangefield--default.png",
+      "w": 1248,
+      "h": 84
+    },
+    {
+      "component": "DateRangeField",
+      "level": "molecule",
+      "story": "disabled",
+      "file": "molecules-daterangefield--disabled.png",
+      "w": 1248,
+      "h": 66
+    },
+    {
+      "component": "DateRangeField",
+      "level": "molecule",
+      "story": "error",
+      "file": "molecules-daterangefield--error.png",
+      "w": 1248,
+      "h": 86
+    },
+    {
+      "component": "DateRangeField",
+      "level": "molecule",
+      "story": "focus-visible",
+      "file": "molecules-daterangefield--focus-visible.png",
+      "w": 1248,
+      "h": 66
+    },
+    {
+      "component": "DateRangeField",
+      "level": "molecule",
+      "story": "required-disabled",
+      "file": "molecules-daterangefield--required-disabled.png",
+      "w": 1248,
+      "h": 66
+    },
+    {
+      "component": "DateRangeField",
+      "level": "molecule",
+      "story": "required-field",
+      "file": "molecules-daterangefield--required-field.png",
+      "w": 1248,
+      "h": 66
+    },
+    {
+      "component": "DateRangeField",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-daterangefield--right-to-left.png",
+      "w": 1248,
+      "h": 106
+    },
+    {
+      "component": "Empty",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-empty--dark-theme.png",
+      "w": 1248,
+      "h": 296
+    },
+    {
+      "component": "Empty",
+      "level": "molecule",
+      "story": "filter-no-results",
+      "file": "molecules-empty--filter-no-results.png",
+      "w": 1248,
+      "h": 315
+    },
+    {
+      "component": "Empty",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-empty--right-to-left.png",
+      "w": 1248,
+      "h": 296
+    },
+    {
+      "component": "Empty",
+      "level": "molecule",
+      "story": "search-no-results",
+      "file": "molecules-empty--search-no-results.png",
+      "w": 1248,
+      "h": 315
+    },
+    {
+      "component": "Empty",
+      "level": "molecule",
+      "story": "truly-empty-josa-ga",
+      "file": "molecules-empty--truly-empty-josa-ga.png",
+      "w": 1248,
+      "h": 256
+    },
+    {
+      "component": "Empty",
+      "level": "molecule",
+      "story": "truly-empty",
+      "file": "molecules-empty--truly-empty.png",
+      "w": 1248,
+      "h": 315
+    },
+    {
+      "component": "FormField",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-formfield--dark-theme.png",
+      "w": 1248,
+      "h": 116
+    },
+    {
+      "component": "FormField",
+      "level": "molecule",
+      "story": "default",
+      "file": "molecules-formfield--default.png",
+      "w": 1248,
+      "h": 76
+    },
+    {
+      "component": "FormField",
+      "level": "molecule",
+      "story": "error",
+      "file": "molecules-formfield--error.png",
+      "w": 1248,
+      "h": 76
+    },
+    {
+      "component": "FormField",
+      "level": "molecule",
+      "story": "optional-field",
+      "file": "molecules-formfield--optional-field.png",
+      "w": 1248,
+      "h": 58
+    },
+    {
+      "component": "FormField",
+      "level": "molecule",
+      "story": "required-field",
+      "file": "molecules-formfield--required-field.png",
+      "w": 1248,
+      "h": 58
+    },
+    {
+      "component": "FormField",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-formfield--right-to-left.png",
+      "w": 1248,
+      "h": 117
+    },
+    {
+      "component": "FormField",
+      "level": "molecule",
+      "story": "with-counter",
+      "file": "molecules-formfield--with-counter.png",
+      "w": 1248,
+      "h": 59
+    },
+    {
+      "component": "FormField",
+      "level": "molecule",
+      "story": "with-help",
+      "file": "molecules-formfield--with-help.png",
+      "w": 1248,
+      "h": 59
+    },
+    {
+      "component": "ImageGalleryField",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-imagegalleryfield--dark-theme.png",
+      "w": 1248,
+      "h": 162
+    },
+    {
+      "component": "ImageGalleryField",
+      "level": "molecule",
+      "story": "disabled",
+      "file": "molecules-imagegalleryfield--disabled.png",
+      "w": 1248,
+      "h": 122
+    },
+    {
+      "component": "ImageGalleryField",
+      "level": "molecule",
+      "story": "empty",
+      "file": "molecules-imagegalleryfield--empty.png",
+      "w": 1248,
+      "h": 169
+    },
+    {
+      "component": "ImageGalleryField",
+      "level": "molecule",
+      "story": "full",
+      "file": "molecules-imagegalleryfield--full.png",
+      "w": 1248,
+      "h": 122
+    },
+    {
+      "component": "ImageGalleryField",
+      "level": "molecule",
+      "story": "required-disabled",
+      "file": "molecules-imagegalleryfield--required-disabled.png",
+      "w": 1248,
+      "h": 169
+    },
+    {
+      "component": "ImageGalleryField",
+      "level": "molecule",
+      "story": "required",
+      "file": "molecules-imagegalleryfield--required.png",
+      "w": 1248,
+      "h": 169
+    },
+    {
+      "component": "ImageGalleryField",
+      "level": "molecule",
+      "story": "with-error",
+      "file": "molecules-imagegalleryfield--with-error.png",
+      "w": 1248,
+      "h": 189
+    },
+    {
+      "component": "ImageGalleryField",
+      "level": "molecule",
+      "story": "with-hint",
+      "file": "molecules-imagegalleryfield--with-hint.png",
+      "w": 1248,
+      "h": 187
+    },
+    {
+      "component": "ImageGalleryField",
+      "level": "molecule",
+      "story": "with-images",
+      "file": "molecules-imagegalleryfield--with-images.png",
+      "w": 1248,
+      "h": 122
+    },
+    {
+      "component": "ImageUploadField",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-imageuploadfield--dark-theme.png",
+      "w": 1248,
+      "h": 288
+    },
+    {
+      "component": "ImageUploadField",
+      "level": "molecule",
+      "story": "disabled",
+      "file": "molecules-imageuploadfield--disabled.png",
+      "w": 1248,
+      "h": 248
+    },
+    {
+      "component": "ImageUploadField",
+      "level": "molecule",
+      "story": "empty",
+      "file": "molecules-imageuploadfield--empty.png",
+      "w": 1248,
+      "h": 184
+    },
+    {
+      "component": "ImageUploadField",
+      "level": "molecule",
+      "story": "required-disabled",
+      "file": "molecules-imageuploadfield--required-disabled.png",
+      "w": 1248,
+      "h": 184
+    },
+    {
+      "component": "ImageUploadField",
+      "level": "molecule",
+      "story": "required",
+      "file": "molecules-imageuploadfield--required.png",
+      "w": 1248,
+      "h": 184
+    },
+    {
+      "component": "ImageUploadField",
+      "level": "molecule",
+      "story": "with-error",
+      "file": "molecules-imageuploadfield--with-error.png",
+      "w": 1248,
+      "h": 204
+    },
+    {
+      "component": "ImageUploadField",
+      "level": "molecule",
+      "story": "with-hint",
+      "file": "molecules-imageuploadfield--with-hint.png",
+      "w": 1248,
+      "h": 202
+    },
+    {
+      "component": "ImageUploadField",
+      "level": "molecule",
+      "story": "with-image",
+      "file": "molecules-imageuploadfield--with-image.png",
+      "w": 1248,
+      "h": 248
+    },
+    {
+      "component": "LineAreaChart",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-lineareachart--dark-theme.png",
+      "w": 1248,
+      "h": 442
+    },
+    {
+      "component": "LineAreaChart",
+      "level": "molecule",
+      "story": "default",
+      "file": "molecules-lineareachart--default.png",
+      "w": 1248,
+      "h": 415
+    },
+    {
+      "component": "LineAreaChart",
+      "level": "molecule",
+      "story": "legend-hidden",
+      "file": "molecules-lineareachart--legend-hidden.png",
+      "w": 1248,
+      "h": 382
+    },
+    {
+      "component": "LineAreaChart",
+      "level": "molecule",
+      "story": "legend-visible",
+      "file": "molecules-lineareachart--legend-visible.png",
+      "w": 1248,
+      "h": 415
+    },
+    {
+      "component": "LineAreaChart",
+      "level": "molecule",
+      "story": "loading",
+      "file": "molecules-lineareachart--loading.png",
+      "w": 1248,
+      "h": 415
+    },
+    {
+      "component": "LineAreaChart",
+      "level": "molecule",
+      "story": "long-data",
+      "file": "molecules-lineareachart--long-data.png",
+      "w": 1248,
+      "h": 415
+    },
+    {
+      "component": "LineAreaChart",
+      "level": "molecule",
+      "story": "minimal-data",
+      "file": "molecules-lineareachart--minimal-data.png",
+      "w": 1248,
+      "h": 415
+    },
+    {
+      "component": "LineAreaChart",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-lineareachart--right-to-left.png",
+      "w": 1248,
+      "h": 442
+    },
+    {
+      "component": "LineAreaChart",
+      "level": "molecule",
+      "story": "single-area",
+      "file": "molecules-lineareachart--single-area.png",
+      "w": 1248,
+      "h": 415
+    },
+    {
+      "component": "LineAreaChart",
+      "level": "molecule",
+      "story": "single-line",
+      "file": "molecules-lineareachart--single-line.png",
+      "w": 1248,
+      "h": 415
+    },
+    {
+      "component": "LineAreaChart",
+      "level": "molecule",
+      "story": "six-series-dark",
+      "file": "molecules-lineareachart--six-series-dark.png",
+      "w": 1248,
+      "h": 442
+    },
+    {
+      "component": "LineAreaChart",
+      "level": "molecule",
+      "story": "six-series",
+      "file": "molecules-lineareachart--six-series.png",
+      "w": 1248,
+      "h": 415
+    },
+    {
+      "component": "LineAreaChart",
+      "level": "molecule",
+      "story": "zero-values",
+      "file": "molecules-lineareachart--zero-values.png",
+      "w": 1248,
+      "h": 415
+    },
+    {
+      "component": "ListRow",
+      "level": "molecule",
+      "story": "as-link",
+      "file": "molecules-listrow--as-link.png",
+      "w": 1248,
+      "h": 64
+    },
+    {
+      "component": "ListRow",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-listrow--dark-theme.png",
+      "w": 1248,
+      "h": 104
+    },
+    {
+      "component": "ListRow",
+      "level": "molecule",
+      "story": "default",
+      "file": "molecules-listrow--default.png",
+      "w": 1248,
+      "h": 64
+    },
+    {
+      "component": "ListRow",
+      "level": "molecule",
+      "story": "focus-visible",
+      "file": "molecules-listrow--focus-visible.png",
+      "w": 1248,
+      "h": 64
+    },
+    {
+      "component": "ListRow",
+      "level": "molecule",
+      "story": "hover",
+      "file": "molecules-listrow--hover.png",
+      "w": 1248,
+      "h": 64
+    },
+    {
+      "component": "ListRow",
+      "level": "molecule",
+      "story": "on-click-always-fires",
+      "file": "molecules-listrow--on-click-always-fires.png",
+      "w": 1248,
+      "h": 64
+    },
+    {
+      "component": "ListRow",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-listrow--right-to-left.png",
+      "w": 1248,
+      "h": 104
+    },
+    {
+      "component": "ListRow",
+      "level": "molecule",
+      "story": "slot-long-content",
+      "file": "molecules-listrow--slot-long-content.png",
+      "w": 1248,
+      "h": 64
+    },
+    {
+      "component": "ListRow",
+      "level": "molecule",
+      "story": "slot-minimal",
+      "file": "molecules-listrow--slot-minimal.png",
+      "w": 1248,
+      "h": 42
+    },
+    {
+      "component": "ListRow",
+      "level": "molecule",
+      "story": "with-icon",
+      "file": "molecules-listrow--with-icon.png",
+      "w": 1248,
+      "h": 64
+    },
+    {
+      "component": "Pagination",
+      "level": "molecule",
+      "story": "at-first-page",
+      "file": "molecules-pagination--at-first-page.png",
+      "w": 262,
+      "h": 56
+    },
+    {
+      "component": "Pagination",
+      "level": "molecule",
+      "story": "at-last-page",
+      "file": "molecules-pagination--at-last-page.png",
+      "w": 270,
+      "h": 56
+    },
+    {
+      "component": "Pagination",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-pagination--dark-theme.png",
+      "w": 302,
+      "h": 96
+    },
+    {
+      "component": "Pagination",
+      "level": "molecule",
+      "story": "default",
+      "file": "molecules-pagination--default.png",
+      "w": 262,
+      "h": 56
+    },
+    {
+      "component": "Pagination",
+      "level": "molecule",
+      "story": "empty-range",
+      "file": "molecules-pagination--empty-range.png",
+      "w": 1248,
+      "h": 34
+    },
+    {
+      "component": "Pagination",
+      "level": "molecule",
+      "story": "focus-visible",
+      "file": "molecules-pagination--focus-visible.png",
+      "w": 262,
+      "h": 56
+    },
+    {
+      "component": "Pagination",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-pagination--right-to-left.png",
+      "w": 302,
+      "h": 96
+    },
+    {
+      "component": "Pagination",
+      "level": "molecule",
+      "story": "single-page-hidden",
+      "file": "molecules-pagination--single-page-hidden.png",
+      "w": 32,
+      "h": 32
+    },
+    {
+      "component": "Pagination",
+      "level": "molecule",
+      "story": "with-range-and-size-selector",
+      "file": "molecules-pagination--with-range-and-size-selector.png",
+      "w": 1248,
+      "h": 34
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "blocked-when-disabled-on-blur",
+      "file": "molecules-passwordfield--blocked-when-disabled-on-blur.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "blocked-when-disabled-on-change",
+      "file": "molecules-passwordfield--blocked-when-disabled-on-change.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "blocked-when-disabled-on-toggle-reveal",
+      "file": "molecules-passwordfield--blocked-when-disabled-on-toggle-reveal.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-passwordfield--dark-theme.png",
+      "w": 1248,
+      "h": 111
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "default",
+      "file": "molecules-passwordfield--default.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "disabled-with-error",
+      "file": "molecules-passwordfield--disabled-with-error.png",
+      "w": 1248,
+      "h": 92
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "disabled",
+      "file": "molecules-passwordfield--disabled.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "error",
+      "file": "molecules-passwordfield--error.png",
+      "w": 1248,
+      "h": 92
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "focus-visible",
+      "file": "molecules-passwordfield--focus-visible.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "form-surface",
+      "file": "molecules-passwordfield--form-surface.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "hover",
+      "file": "molecules-passwordfield--hover.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "long-content",
+      "file": "molecules-passwordfield--long-content.png",
+      "w": 1248,
+      "h": 92
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "on-blur-fires-when-enabled",
+      "file": "molecules-passwordfield--on-blur-fires-when-enabled.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "optional-field",
+      "file": "molecules-passwordfield--optional-field.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "required-field",
+      "file": "molecules-passwordfield--required-field.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "revealed",
+      "file": "molecules-passwordfield--revealed.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-passwordfield--right-to-left.png",
+      "w": 1248,
+      "h": 111
+    },
+    {
+      "component": "PasswordField",
+      "level": "molecule",
+      "story": "toggle-reveal",
+      "file": "molecules-passwordfield--toggle-reveal.png",
+      "w": 1248,
+      "h": 71
+    },
+    {
+      "component": "RichTextField",
+      "level": "molecule",
+      "story": "blocked-when-disabled-on-change",
+      "file": "molecules-richtextfield--blocked-when-disabled-on-change.png",
+      "w": 1248,
+      "h": 221
+    },
+    {
+      "component": "RichTextField",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-richtextfield--dark-theme.png",
+      "w": 1248,
+      "h": 279
+    },
+    {
+      "component": "RichTextField",
+      "level": "molecule",
+      "story": "default",
+      "file": "molecules-richtextfield--default.png",
+      "w": 1248,
+      "h": 239
+    },
+    {
+      "component": "RichTextField",
+      "level": "molecule",
+      "story": "disabled",
+      "file": "molecules-richtextfield--disabled.png",
+      "w": 1248,
+      "h": 221
+    },
+    {
+      "component": "RichTextField",
+      "level": "molecule",
+      "story": "empty",
+      "file": "molecules-richtextfield--empty.png",
+      "w": 1248,
+      "h": 200
+    },
+    {
+      "component": "RichTextField",
+      "level": "molecule",
+      "story": "error",
+      "file": "molecules-richtextfield--error.png",
+      "w": 1248,
+      "h": 202
+    },
+    {
+      "component": "RichTextField",
+      "level": "molecule",
+      "story": "focus-visible",
+      "file": "molecules-richtextfield--focus-visible.png",
+      "w": 1248,
+      "h": 221
+    },
+    {
+      "component": "RichTextField",
+      "level": "molecule",
+      "story": "long-content",
+      "file": "molecules-richtextfield--long-content.png",
+      "w": 1248,
+      "h": 200
+    },
+    {
+      "component": "RichTextField",
+      "level": "molecule",
+      "story": "required-disabled",
+      "file": "molecules-richtextfield--required-disabled.png",
+      "w": 1248,
+      "h": 221
+    },
+    {
+      "component": "RichTextField",
+      "level": "molecule",
+      "story": "required-field",
+      "file": "molecules-richtextfield--required-field.png",
+      "w": 1248,
+      "h": 221
+    },
+    {
+      "component": "RichTextField",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-richtextfield--right-to-left.png",
+      "w": 1248,
+      "h": 222
+    },
+    {
+      "component": "RichTextField",
+      "level": "molecule",
+      "story": "sanitizes-stored-value",
+      "file": "molecules-richtextfield--sanitizes-stored-value.png",
+      "w": 1248,
+      "h": 200
+    },
+    {
+      "component": "RichTextField",
+      "level": "molecule",
+      "story": "toolbar-state-is-announced",
+      "file": "molecules-richtextfield--toolbar-state-is-announced.png",
+      "w": 1248,
+      "h": 221
+    },
+    {
+      "component": "RowActions",
+      "level": "molecule",
+      "story": "blocked-when-disabled",
+      "file": "molecules-rowactions--blocked-when-disabled.png",
+      "w": 92,
+      "h": 60
+    },
+    {
+      "component": "RowActions",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-rowactions--dark-theme.png",
+      "w": 132,
+      "h": 100
+    },
+    {
+      "component": "RowActions",
+      "level": "molecule",
+      "story": "delete-only",
+      "file": "molecules-rowactions--delete-only.png",
+      "w": 60,
+      "h": 60
+    },
+    {
+      "component": "RowActions",
+      "level": "molecule",
+      "story": "disabled",
+      "file": "molecules-rowactions--disabled.png",
+      "w": 92,
+      "h": 60
+    },
+    {
+      "component": "RowActions",
+      "level": "molecule",
+      "story": "enabled",
+      "file": "molecules-rowactions--enabled.png",
+      "w": 92,
+      "h": 60
+    },
+    {
+      "component": "RowActions",
+      "level": "molecule",
+      "story": "fires-when-enabled",
+      "file": "molecules-rowactions--fires-when-enabled.png",
+      "w": 92,
+      "h": 60
+    },
+    {
+      "component": "RowActions",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-rowactions--right-to-left.png",
+      "w": 132,
+      "h": 100
+    },
+    {
+      "component": "SearchField",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-searchfield--dark-theme.png",
+      "w": 1248,
+      "h": 79
+    },
+    {
+      "component": "SearchField",
+      "level": "molecule",
+      "story": "default",
+      "file": "molecules-searchfield--default.png",
+      "w": 1248,
+      "h": 39
+    },
+    {
+      "component": "SearchField",
+      "level": "molecule",
+      "story": "focus-visible",
+      "file": "molecules-searchfield--focus-visible.png",
+      "w": 1248,
+      "h": 39
+    },
+    {
+      "component": "SearchField",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-searchfield--right-to-left.png",
+      "w": 1248,
+      "h": 79
+    },
+    {
+      "component": "SearchField",
+      "level": "molecule",
+      "story": "with-value",
+      "file": "molecules-searchfield--with-value.png",
+      "w": 1248,
+      "h": 39
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "arrow-key-navigation",
+      "file": "molecules-segmentedcontrol--arrow-key-navigation.png",
+      "w": 164,
+      "h": 68
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "blocked-when-disabled-on-change",
+      "file": "molecules-segmentedcontrol--blocked-when-disabled-on-change.png",
+      "w": 164,
+      "h": 68
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-segmentedcontrol--dark-theme.png",
+      "w": 204,
+      "h": 108
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "long-options",
+      "file": "molecules-segmentedcontrol--long-options.png",
+      "w": 1248,
+      "h": 35
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "md-default",
+      "file": "molecules-segmentedcontrol--md-default.png",
+      "w": 164,
+      "h": 68
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "md-disabled",
+      "file": "molecules-segmentedcontrol--md-disabled.png",
+      "w": 164,
+      "h": 68
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "md-focus-visible",
+      "file": "molecules-segmentedcontrol--md-focus-visible.png",
+      "w": 164,
+      "h": 68
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "md-hover",
+      "file": "molecules-segmentedcontrol--md-hover.png",
+      "w": 164,
+      "h": 68
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "md-selected",
+      "file": "molecules-segmentedcontrol--md-selected.png",
+      "w": 164,
+      "h": 68
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "minimal-options",
+      "file": "molecules-segmentedcontrol--minimal-options.png",
+      "w": 146,
+      "h": 68
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "on-change-fires-when-enabled",
+      "file": "molecules-segmentedcontrol--on-change-fires-when-enabled.png",
+      "w": 164,
+      "h": 68
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-segmentedcontrol--right-to-left.png",
+      "w": 246,
+      "h": 108
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "sm-default",
+      "file": "molecules-segmentedcontrol--sm-default.png",
+      "w": 156,
+      "h": 68
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "sm-disabled",
+      "file": "molecules-segmentedcontrol--sm-disabled.png",
+      "w": 156,
+      "h": 68
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "sm-focus-visible",
+      "file": "molecules-segmentedcontrol--sm-focus-visible.png",
+      "w": 156,
+      "h": 68
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "sm-hover",
+      "file": "molecules-segmentedcontrol--sm-hover.png",
+      "w": 156,
+      "h": 68
+    },
+    {
+      "component": "SegmentedControl",
+      "level": "molecule",
+      "story": "sm-selected",
+      "file": "molecules-segmentedcontrol--sm-selected.png",
+      "w": 156,
+      "h": 68
+    },
+    {
+      "component": "SelectionBar",
+      "level": "molecule",
+      "story": "clear-fires",
+      "file": "molecules-selectionbar--clear-fires.png",
+      "w": 1248,
+      "h": 43
+    },
+    {
+      "component": "SelectionBar",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-selectionbar--dark-theme.png",
+      "w": 1248,
+      "h": 83
+    },
+    {
+      "component": "SelectionBar",
+      "level": "molecule",
+      "story": "default",
+      "file": "molecules-selectionbar--default.png",
+      "w": 1248,
+      "h": 43
+    },
+    {
+      "component": "SelectionBar",
+      "level": "molecule",
+      "story": "empty-hidden",
+      "file": "molecules-selectionbar--empty-hidden.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "SelectionBar",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-selectionbar--right-to-left.png",
+      "w": 1248,
+      "h": 83
+    },
+    {
+      "component": "SelectionBar",
+      "level": "molecule",
+      "story": "without-clear",
+      "file": "molecules-selectionbar--without-clear.png",
+      "w": 1248,
+      "h": 43
+    },
+    {
+      "component": "RowSelectCell",
+      "level": "molecule",
+      "story": "checked",
+      "file": "molecules-tableselection-rowselectcell--checked.png",
+      "w": 72,
+      "h": 80
+    },
+    {
+      "component": "RowSelectCell",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-tableselection-rowselectcell--dark-theme.png",
+      "w": 112,
+      "h": 120
+    },
+    {
+      "component": "RowSelectCell",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-tableselection-rowselectcell--right-to-left.png",
+      "w": 112,
+      "h": 120
+    },
+    {
+      "component": "RowSelectCell",
+      "level": "molecule",
+      "story": "toggles-on-click",
+      "file": "molecules-tableselection-rowselectcell--toggles-on-click.png",
+      "w": 72,
+      "h": 80
+    },
+    {
+      "component": "RowSelectCell",
+      "level": "molecule",
+      "story": "unchecked",
+      "file": "molecules-tableselection-rowselectcell--unchecked.png",
+      "w": 72,
+      "h": 80
+    },
+    {
+      "component": "SelectAllHeaderCell",
+      "level": "molecule",
+      "story": "all",
+      "file": "molecules-tableselection-selectallheadercell--all.png",
+      "w": 72,
+      "h": 80
+    },
+    {
+      "component": "SelectAllHeaderCell",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-tableselection-selectallheadercell--dark-theme.png",
+      "w": 112,
+      "h": 120
+    },
+    {
+      "component": "SelectAllHeaderCell",
+      "level": "molecule",
+      "story": "none",
+      "file": "molecules-tableselection-selectallheadercell--none.png",
+      "w": 72,
+      "h": 80
+    },
+    {
+      "component": "SelectAllHeaderCell",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-tableselection-selectallheadercell--right-to-left.png",
+      "w": 112,
+      "h": 120
+    },
+    {
+      "component": "SelectAllHeaderCell",
+      "level": "molecule",
+      "story": "some",
+      "file": "molecules-tableselection-selectallheadercell--some.png",
+      "w": 72,
+      "h": 80
+    },
+    {
+      "component": "SelectAllHeaderCell",
+      "level": "molecule",
+      "story": "toggles-all",
+      "file": "molecules-tableselection-selectallheadercell--toggles-all.png",
+      "w": 72,
+      "h": 80
+    },
+    {
+      "component": "Tabs",
+      "level": "molecule",
+      "story": "arrow-key-navigation",
+      "file": "molecules-tabs--arrow-key-navigation.png",
+      "w": 1248,
+      "h": 75
+    },
+    {
+      "component": "Tabs",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-tabs--dark-theme.png",
+      "w": 1248,
+      "h": 115
+    },
+    {
+      "component": "Tabs",
+      "level": "molecule",
+      "story": "default",
+      "file": "molecules-tabs--default.png",
+      "w": 1248,
+      "h": 75
+    },
+    {
+      "component": "Tabs",
+      "level": "molecule",
+      "story": "focus-visible",
+      "file": "molecules-tabs--focus-visible.png",
+      "w": 1248,
+      "h": 75
+    },
+    {
+      "component": "Tabs",
+      "level": "molecule",
+      "story": "hover",
+      "file": "molecules-tabs--hover.png",
+      "w": 1248,
+      "h": 75
+    },
+    {
+      "component": "Tabs",
+      "level": "molecule",
+      "story": "long-items",
+      "file": "molecules-tabs--long-items.png",
+      "w": 1248,
+      "h": 75
+    },
+    {
+      "component": "Tabs",
+      "level": "molecule",
+      "story": "minimal-items",
+      "file": "molecules-tabs--minimal-items.png",
+      "w": 1248,
+      "h": 75
+    },
+    {
+      "component": "Tabs",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-tabs--right-to-left.png",
+      "w": 1248,
+      "h": 117
+    },
+    {
+      "component": "Tabs",
+      "level": "molecule",
+      "story": "selected",
+      "file": "molecules-tabs--selected.png",
+      "w": 1248,
+      "h": 75
+    },
+    {
+      "component": "TextareaField",
+      "level": "molecule",
+      "story": "blocked-when-disabled-on-change",
+      "file": "molecules-textareafield--blocked-when-disabled-on-change.png",
+      "w": 1248,
+      "h": 170
+    },
+    {
+      "component": "TextareaField",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-textareafield--dark-theme.png",
+      "w": 1248,
+      "h": 228
+    },
+    {
+      "component": "TextareaField",
+      "level": "molecule",
+      "story": "default",
+      "file": "molecules-textareafield--default.png",
+      "w": 1248,
+      "h": 188
+    },
+    {
+      "component": "TextareaField",
+      "level": "molecule",
+      "story": "disabled",
+      "file": "molecules-textareafield--disabled.png",
+      "w": 1248,
+      "h": 170
+    },
+    {
+      "component": "TextareaField",
+      "level": "molecule",
+      "story": "error",
+      "file": "molecules-textareafield--error.png",
+      "w": 1248,
+      "h": 190
+    },
+    {
+      "component": "TextareaField",
+      "level": "molecule",
+      "story": "focus-visible",
+      "file": "molecules-textareafield--focus-visible.png",
+      "w": 1248,
+      "h": 170
+    },
+    {
+      "component": "TextareaField",
+      "level": "molecule",
+      "story": "long-content",
+      "file": "molecules-textareafield--long-content.png",
+      "w": 1248,
+      "h": 188
+    },
+    {
+      "component": "TextareaField",
+      "level": "molecule",
+      "story": "required-disabled",
+      "file": "molecules-textareafield--required-disabled.png",
+      "w": 1248,
+      "h": 170
+    },
+    {
+      "component": "TextareaField",
+      "level": "molecule",
+      "story": "required-field",
+      "file": "molecules-textareafield--required-field.png",
+      "w": 1248,
+      "h": 170
+    },
+    {
+      "component": "TextareaField",
+      "level": "molecule",
+      "story": "right-to-left",
+      "file": "molecules-textareafield--right-to-left.png",
+      "w": 1248,
+      "h": 210
+    },
+    {
+      "component": "Timeline",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-timeline--dark-theme.png",
+      "w": 1248,
+      "h": 368
+    },
+    {
+      "component": "Timeline",
+      "level": "molecule",
+      "story": "default",
+      "file": "molecules-timeline--default.png",
+      "w": 1248,
+      "h": 328
+    },
+    {
+      "component": "Timeline",
+      "level": "molecule",
+      "story": "empty",
+      "file": "molecules-timeline--empty.png",
+      "w": 1248,
+      "h": 18
+    },
+    {
+      "component": "Timeline",
+      "level": "molecule",
+      "story": "single-event",
+      "file": "molecules-timeline--single-event.png",
+      "w": 1248,
+      "h": 73
+    },
+    {
+      "component": "Toast",
+      "level": "molecule",
+      "story": "cancelled",
+      "file": "molecules-toast--cancelled.png",
+      "w": 1248,
+      "h": 53
+    },
+    {
+      "component": "Toast",
+      "level": "molecule",
+      "story": "close-button",
+      "file": "molecules-toast--close-button.png",
+      "w": 1248,
+      "h": 53
+    },
+    {
+      "component": "Toast",
+      "level": "molecule",
+      "story": "dark-theme",
+      "file": "molecules-toast--dark-theme.png",
+      "w": 1248,
+      "h": 93
+    },
+    {
+      "component": "Toast",
+      "level": "molecule",
+      "story": "error-with-retry",
+      "file": "molecules-toast--error-with-retry.png",
+      "w": 1248,
+      "h": 53
+    },
+    {
+      "component": "Toast",
+      "level": "molecule",
+      "story": "error",
+      "file": "molecules-toast--error.png",
+      "w": 1248,
+      "h": 53
+    },
+    {
+      "component": "Toast",
+      "level": "molecule",
+      "story": "info",
+      "file": "molecules-toast--info.png",
+      "w": 1248,
+      "h": 53
+    },
+    {
+      "component": "Toast",
+      "level": "molecule",
+      "story": "success",
+      "file": "molecules-toast--success.png",
+      "w": 1248,
+      "h": 53
+    },
+    {
+      "component": "ConfirmDialog",
+      "level": "organism",
+      "story": "blocked-when-busy-on-confirm",
+      "file": "organisms-confirmdialog--blocked-when-busy-on-confirm.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "ConfirmDialog",
+      "level": "organism",
+      "story": "cancel-fires",
+      "file": "organisms-confirmdialog--cancel-fires.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "ConfirmDialog",
+      "level": "organism",
+      "story": "create-busy",
+      "file": "organisms-confirmdialog--create-busy.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "ConfirmDialog",
+      "level": "organism",
+      "story": "create-default",
+      "file": "organisms-confirmdialog--create-default.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "ConfirmDialog",
+      "level": "organism",
+      "story": "custom-confirm-label",
+      "file": "organisms-confirmdialog--custom-confirm-label.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "ConfirmDialog",
+      "level": "organism",
+      "story": "dark-theme",
+      "file": "organisms-confirmdialog--dark-theme.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "ConfirmDialog",
+      "level": "organism",
+      "story": "delete-busy",
+      "file": "organisms-confirmdialog--delete-busy.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "ConfirmDialog",
+      "level": "organism",
+      "story": "delete-default",
+      "file": "organisms-confirmdialog--delete-default.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "ConfirmDialog",
+      "level": "organism",
+      "story": "discard-busy",
+      "file": "organisms-confirmdialog--discard-busy.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "ConfirmDialog",
+      "level": "organism",
+      "story": "discard-default",
+      "file": "organisms-confirmdialog--discard-default.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "ConfirmDialog",
+      "level": "organism",
+      "story": "update-busy",
+      "file": "organisms-confirmdialog--update-busy.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "ConfirmDialog",
+      "level": "organism",
+      "story": "update-default",
+      "file": "organisms-confirmdialog--update-default.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "ConfirmDialog",
+      "level": "organism",
+      "story": "with-error",
+      "file": "organisms-confirmdialog--with-error.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "ListCard",
+      "level": "organism",
+      "story": "blocked-when-loading-on-row-click",
+      "file": "organisms-listcard--blocked-when-loading-on-row-click.png",
+      "w": 1248,
+      "h": 134
+    },
+    {
+      "component": "ListCard",
+      "level": "organism",
+      "story": "dark-theme",
+      "file": "organisms-listcard--dark-theme.png",
+      "w": 1248,
+      "h": 322
+    },
+    {
+      "component": "ListCard",
+      "level": "organism",
+      "story": "default",
+      "file": "organisms-listcard--default.png",
+      "w": 1248,
+      "h": 282
+    },
+    {
+      "component": "ListCard",
+      "level": "organism",
+      "story": "empty-custom-message",
+      "file": "organisms-listcard--empty-custom-message.png",
+      "w": 1248,
+      "h": 118
+    },
+    {
+      "component": "ListCard",
+      "level": "organism",
+      "story": "empty-rows",
+      "file": "organisms-listcard--empty-rows.png",
+      "w": 1248,
+      "h": 118
+    },
+    {
+      "component": "ListCard",
+      "level": "organism",
+      "story": "loading",
+      "file": "organisms-listcard--loading.png",
+      "w": 1248,
+      "h": 134
+    },
+    {
+      "component": "ListCard",
+      "level": "organism",
+      "story": "long-content",
+      "file": "organisms-listcard--long-content.png",
+      "w": 1248,
+      "h": 282
+    },
+    {
+      "component": "ListCard",
+      "level": "organism",
+      "story": "right-to-left",
+      "file": "organisms-listcard--right-to-left.png",
+      "w": 1248,
+      "h": 250
+    },
+    {
+      "component": "ListCard",
+      "level": "organism",
+      "story": "row-click",
+      "file": "organisms-listcard--row-click.png",
+      "w": 1248,
+      "h": 282
+    },
+    {
+      "component": "ListCard",
+      "level": "organism",
+      "story": "slot-minimal",
+      "file": "organisms-listcard--slot-minimal.png",
+      "w": 1248,
+      "h": 116
+    },
+    {
+      "component": "ListCard",
+      "level": "organism",
+      "story": "with-icon",
+      "file": "organisms-listcard--with-icon.png",
+      "w": 1248,
+      "h": 282
+    },
+    {
+      "component": "ListCard",
+      "level": "organism",
+      "story": "without-count",
+      "file": "organisms-listcard--without-count.png",
+      "w": 1248,
+      "h": 281
+    },
+    {
+      "component": "Modal",
+      "level": "organism",
+      "story": "as-form",
+      "file": "organisms-modal--as-form.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "Modal",
+      "level": "organism",
+      "story": "closes-on-close-button",
+      "file": "organisms-modal--closes-on-close-button.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "Modal",
+      "level": "organism",
+      "story": "closes-on-escape",
+      "file": "organisms-modal--closes-on-escape.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "Modal",
+      "level": "organism",
+      "story": "dark-theme",
+      "file": "organisms-modal--dark-theme.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "Modal",
+      "level": "organism",
+      "story": "default",
+      "file": "organisms-modal--default.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "Modal",
+      "level": "organism",
+      "story": "long-content",
+      "file": "organisms-modal--long-content.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "Modal",
+      "level": "organism",
+      "story": "with-icon",
+      "file": "organisms-modal--with-icon.png",
+      "w": 1280,
+      "h": 720
+    },
+    {
+      "component": "StatsCard",
+      "level": "organism",
+      "story": "dark-theme",
+      "file": "organisms-statscard--dark-theme.png",
+      "w": 1248,
+      "h": 522
+    },
+    {
+      "component": "StatsCard",
+      "level": "organism",
+      "story": "default",
+      "file": "organisms-statscard--default.png",
+      "w": 1248,
+      "h": 495
+    },
+    {
+      "component": "StatsCard",
+      "level": "organism",
+      "story": "error-state",
+      "file": "organisms-statscard--error-state.png",
+      "w": 1248,
+      "h": 117
+    },
+    {
+      "component": "StatsCard",
+      "level": "organism",
+      "story": "error-takes-precedence",
+      "file": "organisms-statscard--error-takes-precedence.png",
+      "w": 1248,
+      "h": 117
+    },
+    {
+      "component": "StatsCard",
+      "level": "organism",
+      "story": "loading-with-disabled-action",
+      "file": "organisms-statscard--loading-with-disabled-action.png",
+      "w": 1248,
+      "h": 157
+    },
+    {
+      "component": "StatsCard",
+      "level": "organism",
+      "story": "loading",
+      "file": "organisms-statscard--loading.png",
+      "w": 1248,
+      "h": 157
+    },
+    {
+      "component": "StatsCard",
+      "level": "organism",
+      "story": "right-to-left",
+      "file": "organisms-statscard--right-to-left.png",
+      "w": 1248,
+      "h": 507
+    },
+    {
+      "component": "StatsCard",
+      "level": "organism",
+      "story": "slot-long-content",
+      "file": "organisms-statscard--slot-long-content.png",
+      "w": 1248,
+      "h": 748
+    },
+    {
+      "component": "StatsCard",
+      "level": "organism",
+      "story": "slot-minimal",
+      "file": "organisms-statscard--slot-minimal.png",
+      "w": 1248,
+      "h": 102
+    },
+    {
+      "component": "StatsCard",
+      "level": "organism",
+      "story": "with-table-body",
+      "file": "organisms-statscard--with-table-body.png",
+      "w": 1248,
+      "h": 315
+    },
+    {
+      "component": "StatsCard",
+      "level": "organism",
+      "story": "with-value",
+      "file": "organisms-statscard--with-value.png",
+      "w": 1248,
+      "h": 539
+    },
+    {
+      "component": "TodoCard",
+      "level": "organism",
+      "story": "all-zero",
+      "file": "organisms-todocard--all-zero.png",
+      "w": 1248,
+      "h": 102
+    },
+    {
+      "component": "TodoCard",
+      "level": "organism",
+      "story": "blocked-when-loading-on-item-click",
+      "file": "organisms-todocard--blocked-when-loading-on-item-click.png",
+      "w": 1248,
+      "h": 98
+    },
+    {
+      "component": "TodoCard",
+      "level": "organism",
+      "story": "dark-theme",
+      "file": "organisms-todocard--dark-theme.png",
+      "w": 1248,
+      "h": 143
+    },
+    {
+      "component": "TodoCard",
+      "level": "organism",
+      "story": "default",
+      "file": "organisms-todocard--default.png",
+      "w": 1248,
+      "h": 103
+    },
+    {
+      "component": "TodoCard",
+      "level": "organism",
+      "story": "item-click",
+      "file": "organisms-todocard--item-click.png",
+      "w": 1248,
+      "h": 103
+    },
+    {
+      "component": "TodoCard",
+      "level": "organism",
+      "story": "loading-without-total",
+      "file": "organisms-todocard--loading-without-total.png",
+      "w": 1248,
+      "h": 98
+    },
+    {
+      "component": "TodoCard",
+      "level": "organism",
+      "story": "loading",
+      "file": "organisms-todocard--loading.png",
+      "w": 1248,
+      "h": 98
+    },
+    {
+      "component": "TodoCard",
+      "level": "organism",
+      "story": "long-content",
+      "file": "organisms-todocard--long-content.png",
+      "w": 1248,
+      "h": 103
+    },
+    {
+      "component": "TodoCard",
+      "level": "organism",
+      "story": "minimal-items",
+      "file": "organisms-todocard--minimal-items.png",
+      "w": 1248,
+      "h": 103
+    },
+    {
+      "component": "TodoCard",
+      "level": "organism",
+      "story": "right-to-left",
+      "file": "organisms-todocard--right-to-left.png",
+      "w": 1248,
+      "h": 143
+    },
+    {
+      "component": "TodoCard",
+      "level": "organism",
+      "story": "with-total",
+      "file": "organisms-todocard--with-total.png",
+      "w": 1248,
+      "h": 103
+    },
+    {
+      "component": "TodoCard",
+      "level": "organism",
+      "story": "without-links",
+      "file": "organisms-todocard--without-links.png",
+      "w": 1248,
+      "h": 103
+    },
+    {
+      "component": "TodoCard",
+      "level": "organism",
+      "story": "without-total",
+      "file": "organisms-todocard--without-total.png",
+      "w": 1248,
+      "h": 102
+    }
+  ],
+  "unmatched": [
+    "foundations-colors--component.png",
+    "foundations-colors--palette.png",
+    "foundations-colors--primitive.png",
+    "foundations-colors--semantic.png",
+    "foundations-font-colors--specimen.png",
+    "foundations-font-colors--table.png",
+    "foundations-motion--demo.png",
+    "foundations-motion--guide.png",
+    "foundations-motion--table.png",
+    "foundations-radius--scale.png",
+    "foundations-shadow--elevation.png",
+    "foundations-spacing--scale.png",
+    "foundations-typography--specimen.png",
+    "pages-__-__--placeholder.png",
+    "pages-___--placeholder.png",
+    "pages-____--placeholder.png"
+  ]
+}

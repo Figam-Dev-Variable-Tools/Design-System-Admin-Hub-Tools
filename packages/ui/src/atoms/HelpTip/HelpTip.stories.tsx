@@ -9,7 +9,7 @@ import { HelpTipArgTypes } from '../../../generated/argtypes/HelpTip.argtypes';
 import { HelpTip } from './HelpTip';
 
 const meta: Meta<typeof HelpTip> = {
-  title: 'Atoms/HelpTip',
+  title: 'Feedback/HelpTip',
   component: HelpTip,
   argTypes: { ...HelpTipArgTypes },
   args: {

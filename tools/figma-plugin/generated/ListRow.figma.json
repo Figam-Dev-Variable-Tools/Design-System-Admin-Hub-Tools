@@ -3,6 +3,8 @@
   "name": "ListRow",
   "component": "ListRow",
   "version": "1.0.0",
+  "level": "molecule",
+  "category": "Lists",
   "variantProperties": {},
   "properties": [
     {

@@ -3,6 +3,8 @@
   "name": "SelectionBar",
   "component": "SelectionBar",
   "version": "1.0.0",
+  "level": "molecule",
+  "category": "Actions",
   "variantProperties": {},
   "properties": [
     {

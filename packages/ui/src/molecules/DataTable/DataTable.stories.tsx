@@ -30,7 +30,7 @@ const SUMMARY_ROWS = [
 ];
 
 const meta: Meta<typeof DataTable> = {
-  title: 'Molecules/DataTable',
+  title: 'Tables/DataTable',
   component: DataTable,
   argTypes: { ...DataTableArgTypes },
   args: {

@@ -3,6 +3,8 @@
   "name": "HelpTip",
   "component": "HelpTip",
   "version": "1.0.0",
+  "level": "atom",
+  "category": "Feedback",
   "variantProperties": {},
   "properties": [
     {

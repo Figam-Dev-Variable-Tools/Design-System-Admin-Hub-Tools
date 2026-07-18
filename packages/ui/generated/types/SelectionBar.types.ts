@@ -1,5 +1,5 @@
 // AUTO-GENERATED from contracts/SelectionBar.contract.json@1.0.0 — DO NOT EDIT (pnpm codegen)
-// 레벨: molecule · 상태: beta
+// 레벨: molecule · 카테고리: Actions · 상태: beta
 
 import type { ReactNode } from 'react';
 

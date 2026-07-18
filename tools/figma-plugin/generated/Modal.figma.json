@@ -3,6 +3,8 @@
   "name": "Modal",
   "component": "Modal",
   "version": "1.1.0",
+  "level": "organism",
+  "category": "Dialogs & Overlays",
   "variantProperties": {},
   "properties": [
     {

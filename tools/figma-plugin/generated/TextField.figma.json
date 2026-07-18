@@ -3,6 +3,8 @@
   "name": "TextField",
   "component": "TextField",
   "version": "1.2.0",
+  "level": "atom",
+  "category": "Inputs",
   "variantProperties": {
     "Type": {
       "values": [

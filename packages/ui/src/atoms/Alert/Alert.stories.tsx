@@ -13,7 +13,7 @@ import { Alert } from './Alert';
 import { Button } from '../Button';
 
 const meta: Meta<typeof Alert> = {
-  title: 'Atoms/Alert',
+  title: 'Feedback/Alert',
   component: Alert,
   argTypes: { ...AlertArgTypes },
   args: { tone: 'danger', children: '이메일 또는 비밀번호가 올바르지 않습니다.', id: '' },

@@ -38,6 +38,7 @@
     "lint": "turbo run lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "figma:capture": "pnpm --filter @tds/admin run build && node tools/figma-plugin/scripts/capture-run.mjs",
     "openapi:types": "openapi-typescript openapi/openapi.yaml -o apps/admin/src/shared/api/schema.d.ts",
     "prepare": "husky"
   },

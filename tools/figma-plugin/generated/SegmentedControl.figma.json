@@ -3,6 +3,8 @@
   "name": "SegmentedControl",
   "component": "SegmentedControl",
   "version": "1.0.0",
+  "level": "molecule",
+  "category": "Selection",
   "variantProperties": {
     "Size": {
       "values": [

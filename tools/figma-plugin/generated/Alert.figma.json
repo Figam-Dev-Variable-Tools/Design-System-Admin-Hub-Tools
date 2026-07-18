@@ -3,6 +3,8 @@
   "name": "Alert",
   "component": "Alert",
   "version": "1.1.0",
+  "level": "atom",
+  "category": "Feedback",
   "variantProperties": {
     "Tone": {
       "values": [

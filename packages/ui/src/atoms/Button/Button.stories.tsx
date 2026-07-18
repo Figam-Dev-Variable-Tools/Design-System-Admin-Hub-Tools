@@ -26,7 +26,7 @@ import type { ButtonProps, ButtonSize, ButtonVariant } from '../../../generated/
 import { Button } from './Button';
 
 const meta: Meta<typeof Button> = {
-  title: 'Atoms/Button',
+  title: 'Actions/Button',
   component: Button,
   argTypes: { ...ButtonArgTypes },
   args: {

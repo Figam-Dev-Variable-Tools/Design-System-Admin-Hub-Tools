@@ -15,7 +15,7 @@ const swatch = (color: string) =>
 const SAMPLES = [swatch('%234f8cff'), swatch('%2334c759'), swatch('%23ff9f0a')];
 
 const meta: Meta<typeof ImageGalleryField> = {
-  title: 'Molecules/ImageGalleryField',
+  title: 'Inputs/ImageGalleryField',
   component: ImageGalleryField,
   argTypes: { ...ImageGalleryFieldArgTypes },
   args: {

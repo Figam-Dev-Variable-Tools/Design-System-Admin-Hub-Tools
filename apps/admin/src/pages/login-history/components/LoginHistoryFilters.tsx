@@ -1,28 +1,22 @@
 // 좌측 필터 패널 — 결과 · 계정 유형 · 기간
 //
-// 배치와 시각 규칙은 회원 관리(TierFilter/GroupFilter)와 **같다** — 제목 + 목록 + 선택 강조.
-// 그 세 조각(filterHeadingStyle/filterListStyle/filterItemStyle)은 shared/ui 에 있다.
-// 세 축은 서로 다른 축이며, 함께 고르면 **AND** 로 걸린다.
-//
-// [FilterGroup 이 왜 있나] 결과·계정 유형·기간 목록은 라벨과 배지만 다르고 구조가 같다.
-// 세 벌을 그대로 쓰면 30줄짜리 클론이 생긴다(클린코드 점검 축3). 이 페이지 안에서만 쓰이므로
-// shared/ui 로 올리지 않고 여기 지역 컴포넌트로 둔다 (shared/ui/README 규칙 1 — 소비자가 하나다).
+// 배치와 시각 규칙은 회원 관리와 **같다** — 골격은 공유 FilterPanel/FilterRail 한 벌이고
+// 여기서 다시 만들지 않는다. 세 축은 서로 다른 축이며, 함께 고르면 **AND** 로 걸린다.
 //
 // [여기에 없는 것] 필터를 저장하거나 이력을 삭제하는 버튼이 없다. 감사 로그는 조회 대상일 뿐이다.
 import type { CSSProperties } from 'react';
 
 import {
-  badgeStyle,
   controlStyle,
   errorTextStyle,
   fieldLabelStyle,
   fieldStyle,
-  filterHeadingStyle,
-  filterItemStyle,
-  filterListStyle,
+  FilterPanel,
+  filterNavStyle,
+  FilterRail,
   hintStyle,
 } from '../../../shared/ui';
-import { formatNumber } from '../../../shared/format';
+import type { FilterOption } from '../../../shared/ui';
 import { issueOf } from '../validation';
 import type { CustomRangeDraft, RangeIssue } from '../validation';
 import { ACCOUNT_KIND_FILTERS, MAX_RANGE_DAYS, OUTCOME_FILTERS, PERIOD_FILTERS } from '../types';
@@ -33,20 +27,6 @@ import type {
   OutcomeFilter,
   PeriodId,
 } from '../types';
-
-const wrapperStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
-  minWidth: 0,
-};
-
-const groupStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
-  minWidth: 0,
-};
 
 /** 직접 지정 입력 두 칸 — 기간 목록 아래에 붙는다 */
 const rangeFormStyle: CSSProperties = {
@@ -60,66 +40,12 @@ const rangeFormStyle: CSSProperties = {
   paddingRight: 'var(--tds-space-3)',
 };
 
-const noticeStyle: CSSProperties = {
-  ...hintStyle,
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 0,
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  borderTopStyle: 'solid',
-  borderTopWidth: 'var(--tds-border-width-thin)',
-  borderTopColor: 'var(--tds-color-border-default)',
-};
-
-interface FilterGroupProps<T extends string> {
-  readonly heading: string;
-  readonly ariaLabel: string;
-  readonly options: readonly { readonly id: T; readonly label: string }[];
-  readonly value: T;
-  /** 배지 숫자. `undefined` 를 돌려주면 배지를 달지 않는다(기간 목록), `null` 이면 '—' */
-  readonly countOf: (id: T) => number | null | undefined;
-  readonly onChange: (id: T) => void;
-}
-
-function FilterGroup<T extends string>({
-  heading,
-  ariaLabel,
-  options,
-  value,
-  countOf,
-  onChange,
-}: FilterGroupProps<T>) {
-  return (
-    <nav style={groupStyle} aria-label={ariaLabel}>
-      <h2 style={filterHeadingStyle}>{heading}</h2>
-
-      <ul style={filterListStyle}>
-        {options.map((option) => {
-          const active = option.id === value;
-          const count = countOf(option.id);
-
-          return (
-            <li key={option.id}>
-              <button
-                type="button"
-                className="tds-ui-listitem tds-ui-focusable"
-                style={filterItemStyle(active)}
-                aria-pressed={active}
-                onClick={() => onChange(option.id)}
-              >
-                <span>{option.label}</span>
-                {/* 아직 안 불러왔으면 '—' — 0 이라고 거짓말하지 않는다 */}
-                {count !== undefined && (
-                  <span style={badgeStyle}>{count === null ? '—' : formatNumber(count)}</span>
-                )}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
-  );
-}
+/** 기간 항목에는 배지를 달지 않는다 — '오늘 12건'은 어차피 목록 상단의 총 건수와 같은 말이다 */
+const PERIOD_OPTIONS: readonly FilterOption<PeriodId>[] = PERIOD_FILTERS.map((option) => ({
+  id: option.id,
+  label: option.label,
+  hideCount: true,
+}));
 
 interface LoginHistoryFiltersProps {
   readonly outcome: OutcomeFilter;
@@ -154,33 +80,39 @@ export function LoginHistoryFilters({
   const rangeIssue = issueOf(rangeIssues, 'range');
 
   return (
-    <aside style={wrapperStyle}>
-      <FilterGroup
+    <FilterRail
+      notice={
+        <p style={hintStyle}>
+          로그인 이력은 감사 기록입니다. 관리자도 수정하거나 삭제할 수 없으며, 조회와 내보내기만
+          제공합니다.
+        </p>
+      }
+    >
+      <FilterPanel
+        navLabel="로그인 결과 필터"
         heading="결과"
-        ariaLabel="로그인 결과 필터"
         options={OUTCOME_FILTERS}
         value={outcome}
-        countOf={(id) => (outcomeCounts === null ? null : outcomeCounts[id])}
+        counts={outcomeCounts}
         onChange={onOutcomeChange}
       />
 
-      <FilterGroup
+      <FilterPanel
+        navLabel="계정 유형 필터"
         heading="계정 유형"
-        ariaLabel="계정 유형 필터"
         options={ACCOUNT_KIND_FILTERS}
         value={accountKind}
-        countOf={(id) => (kindCounts === null ? null : kindCounts[id])}
+        counts={kindCounts}
         onChange={onAccountKindChange}
       />
 
-      <div style={groupStyle}>
-        {/* 기간에는 배지를 달지 않는다 — '오늘 12건'은 어차피 목록 상단의 총 건수와 같은 말이다 */}
-        <FilterGroup
+      <div style={filterNavStyle}>
+        <FilterPanel
+          navLabel="조회 기간 필터"
           heading="기간"
-          ariaLabel="조회 기간 필터"
-          options={PERIOD_FILTERS}
+          options={PERIOD_OPTIONS}
           value={period}
-          countOf={() => undefined}
+          counts={null}
           onChange={onPeriodChange}
         />
 
@@ -245,11 +177,6 @@ export function LoginHistoryFilters({
           </div>
         )}
       </div>
-
-      <p style={noticeStyle}>
-        로그인 이력은 감사 기록입니다. 관리자도 수정하거나 삭제할 수 없으며, 조회와 내보내기만
-        제공합니다.
-      </p>
-    </aside>
+    </FilterRail>
   );
 }

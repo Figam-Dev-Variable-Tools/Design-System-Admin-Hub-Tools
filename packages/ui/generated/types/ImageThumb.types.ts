@@ -1,5 +1,5 @@
 // AUTO-GENERATED from contracts/ImageThumb.contract.json@1.0.0 — DO NOT EDIT (pnpm codegen)
-// 레벨: atom · 상태: beta
+// 레벨: atom · 카테고리: Media · 상태: beta
 
 /** 계약에 선언된 상호작용 상태 */
 export type ImageThumbState = 'default' | 'error';

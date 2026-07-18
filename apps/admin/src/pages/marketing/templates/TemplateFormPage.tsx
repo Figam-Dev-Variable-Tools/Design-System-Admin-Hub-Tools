@@ -3,8 +3,9 @@
 // 데이터 배선은 공용 CRUD 프레임워크(useCrudForm)를 재사용하고, 화면은 입력 카드(기본 정보·본문·
 // 카카오 심사) + 우측 미리보기 카드 2단으로 구성한다(SMS 발송 폼과 같은 결). 채널(SMS/이메일/알림톡)에
 // 따라 필드가 갈린다: 이메일/알림톡은 제목, 이메일은 HTML 본문, 알림톡은 승인상태·반려사유.
-import type { CSSProperties } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import type { ChangeEvent, CSSProperties } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ensureRichText } from '@tds/ui';
 
@@ -36,6 +37,8 @@ import {
   APPROVAL_STATUS_OPTIONS,
   byteLengthOf,
   classifySms,
+  convertBodyForChannel,
+  isTemplateContentLocked,
   MESSAGE_CHANNEL_OPTIONS,
   requiresApproval,
   smsByteLimit,
@@ -45,10 +48,19 @@ import {
   TEMPLATE_TITLE_MAX,
   usesTitle,
 } from '../_shared/messaging';
-import type { MessageTemplate, MessageTemplateInput } from '../_shared/messaging';
+import type { MessageChannel, MessageTemplate, MessageTemplateInput } from '../_shared/messaging';
 
 const ENTITY_LABEL = '발송 템플릿';
 const LIST_PATH = '/marketing/templates';
+const NEW_PATH = '/marketing/templates/new';
+
+/**
+ * 복제 값을 등록 화면으로 넘기는 라우터 state 의 키.
+ *
+ * 쿼리스트링이 아니라 state 로 넘긴다 — 본문은 2000자까지 가고 치환변수·줄바꿈이 섞인다. URL 에
+ * 실으면 길이 상한에 걸리고, 무엇보다 **주소창에 남아** 새로고침·공유 때 다시 복제가 된다.
+ */
+const DUPLICATE_KEY = 'duplicateFrom';
 const UNSAVED_MESSAGE =
   '발송 템플릿에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
 
@@ -137,6 +149,25 @@ function toInput(values: TemplateFormValues): MessageTemplateInput {
   };
 }
 
+/**
+ * 라우터 state 에서 복제 값을 꺼낸다 — 없거나 모양이 다르면 null.
+ *
+ * state 는 `unknown` 이다. 사용자가 주소를 직접 치거나 오래된 탭이 되살아나면 우리가 넣지 않은
+ * 값이 올 수 있으므로, 필드가 전부 문자열인지 확인한 뒤에만 폼에 넣는다.
+ */
+function readDuplicateState(state: unknown): TemplateFormValues | null {
+  if (typeof state !== 'object' || state === null) return null;
+  const raw: unknown = (state as Record<string, unknown>)[DUPLICATE_KEY];
+  if (typeof raw !== 'object' || raw === null) return null;
+
+  const candidate = raw as Record<string, unknown>;
+  const keys = ['name', 'channel', 'title', 'body', 'approvalStatus', 'rejectReason'] as const;
+  if (!keys.every((key) => typeof candidate[key] === 'string')) return null;
+
+  const parsed = templateSchema.safeParse(candidate);
+  return parsed.success ? parsed.data : null;
+}
+
 function toValues(template: MessageTemplate): TemplateFormValues {
   return {
     name: template.name,
@@ -163,6 +194,7 @@ export default function TemplateFormPage() {
     conflict,
     submit,
     isDirty,
+    loaded,
   } = useCrudForm<MessageTemplate, MessageTemplateInput, TemplateFormValues>({
     resource: TEMPLATE_RESOURCE,
     adapter: templateAdapter,
@@ -178,8 +210,26 @@ export default function TemplateFormPage() {
     register,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = form;
+
+  /**
+   * 복제 진입 — 잠긴 템플릿의 '복제해서 새로 만들기' 가 보낸 값으로 등록 폼을 채운다.
+   *
+   * [왜 한 번만 채우나] state 는 뒤로 가기·새로고침에도 남는다. 매 렌더 reset 하면 사용자가 고친
+   * 입력을 계속 덮어써 타이핑이 되지 않는다. 소비했는지를 ref 로 기억해 첫 도착에만 반응한다.
+   */
+  const { state: navState } = useLocation();
+  const duplicateSource = readDuplicateState(navState);
+  const duplicateAppliedRef = useRef(false);
+
+  useEffect(() => {
+    if (duplicateSource === null || duplicateAppliedRef.current) return;
+    duplicateAppliedRef.current = true;
+    // dirty 로 표시한다 — 복제본은 '아직 저장되지 않은 편집' 이므로 이탈 경고가 떠야 한다
+    reset(duplicateSource, { keepDefaultValues: true });
+  }, [duplicateSource, reset]);
   const disabled = saving || loadingDetail;
   const unsavedDialog = useUnsavedChangesDialog(isDirty && !saving, { message: UNSAVED_MESSAGE });
 
@@ -188,10 +238,53 @@ export default function TemplateFormPage() {
   const title = watch('title');
   const approvalStatus = watch('approvalStatus');
 
+  /**
+   * 심사에 걸린 내용은 잠근다 — 근거는 **서버가 돌려준 원본**이다(폼 값이 아니다).
+   * 폼 값으로 판단하면 승인상태를 '초안' 으로 되돌리는 것만으로 잠금이 풀린다.
+   */
+  const locked =
+    loaded !== undefined && isTemplateContentLocked(loaded.channel, loaded.approvalStatus);
+  /** 내용 입력의 최종 비활성 — 저장 중·로딩 중이거나, 심사에 걸려 잠긴 경우 */
+  const contentDisabled = disabled || locked;
+
+  /** 잠긴 템플릿을 고치는 유일한 길 — 내용을 들고 등록 화면으로 간다(새로 심사받는다) */
+  const duplicate = () => {
+    if (loaded === undefined) return;
+    navigate(NEW_PATH, {
+      state: {
+        // 이름은 그대로 두면 목록에서 둘을 구분할 수 없다. 승인 이력은 따라오지 않는다 —
+        // 복제본은 아직 심사를 받지 않은 새 템플릿이다.
+        [DUPLICATE_KEY]: {
+          ...toValues(loaded),
+          name: `${loaded.name} (사본)`,
+          approvalStatus: 'draft',
+          rejectReason: '',
+        } satisfies TemplateFormValues,
+      },
+    });
+  };
+
   const bytes = byteLengthOf(body);
   const smsKind = classifySms(bytes, false);
   const insertVariable = (token: string) =>
     setValue('body', `${body}${token}`, { shouldDirty: true, shouldValidate: true });
+
+  /**
+   * 채널 전환 — 채널만 바꾸는 게 아니라 본문 표현도 함께 옮긴다.
+   *
+   * 이메일 본문은 HTML 이고 SMS·알림톡 본문은 평문이다. 여기서 옮기지 않으면 `<p>…</p>` 가 그대로
+   * 남아 저장되고 수신자에게 태그가 문자로 나간다 (convertBodyForChannel 주석 참고).
+   */
+  const channelField = register('channel');
+  const onChannelChange = async (event: ChangeEvent<HTMLSelectElement>): Promise<void> => {
+    const next = event.target.value as MessageChannel;
+    const converted = convertBodyForChannel(body, channel, next);
+
+    await channelField.onChange(event);
+    if (converted !== body) {
+      setValue('body', converted, { shouldDirty: true, shouldValidate: true });
+    }
+  };
 
   // [EXC-12] 404 와 서버 오류는 복구 수단이 다르다 — 이미 삭제된 항목에 '다시 시도'를 권하지 않는다.
   if (loadFailure !== null) {
@@ -241,6 +334,25 @@ export default function TemplateFormPage() {
       <form onSubmit={submit} noValidate style={pageStyle}>
         <FormServerError serverError={serverError} errorReference={errorReference} />
 
+        {locked && (
+          // 막기만 하고 이유를 말하지 않으면 '고장' 으로 읽힌다 — 이유와 나갈 길을 함께 준다
+          <Alert tone="info">
+            <div style={alertActionRowStyle}>
+              <span>
+                {loaded?.approvalStatus === 'approved'
+                  ? '카카오 승인이 끝난 템플릿입니다. 승인은 이 문구에 대한 것이라 내용을 고치면 승인이 무효가 됩니다.'
+                  : '카카오 검수가 진행 중입니다. 심사 대상과 어긋나므로 내용을 고칠 수 없습니다.'}
+                {
+                  ' 문구를 바꾸려면 복제해서 새 템플릿으로 다시 심사를 받으세요. 템플릿명은 그대로 수정할 수 있습니다.'
+                }
+              </span>
+              <Button variant="secondary" onClick={duplicate}>
+                복제해서 새로 만들기
+              </Button>
+            </div>
+          </Alert>
+        )}
+
         <div style={layoutStyle}>
           <div style={columnStyle}>
             <Card>
@@ -274,7 +386,14 @@ export default function TemplateFormPage() {
                 required
                 hint="SMS 는 길이에 따라 LMS·MMS 로 자동 분류됩니다. 알림톡은 카카오 사전 심사가 필요합니다."
               >
-                <SelectField id="template-channel" disabled={disabled} {...register('channel')}>
+                <SelectField
+                  id="template-channel"
+                  disabled={contentDisabled}
+                  {...channelField}
+                  onChange={(event) => {
+                    void onChannelChange(event);
+                  }}
+                >
                   {MESSAGE_CHANNEL_OPTIONS.map((option) => (
                     <option key={option.id} value={option.id}>
                       {option.label}
@@ -298,14 +417,14 @@ export default function TemplateFormPage() {
                     id="template-title"
                     type="text"
                     className="tds-ui-input tds-ui-focusable"
-                    style={controlStyle(errors.title !== undefined)}
+                    style={controlStyle(errors.title !== undefined, contentDisabled)}
                     maxLength={TEMPLATE_TITLE_MAX}
                     placeholder={
                       channel === 'email'
                         ? '예: [스페이스플래닝] 이달의 소식'
                         : '예: 배송 출발 안내'
                     }
-                    disabled={disabled}
+                    disabled={contentDisabled}
                     aria-invalid={errors.title !== undefined}
                     aria-describedby={
                       errors.title !== undefined ? errorIdOf('template-title') : undefined
@@ -326,7 +445,7 @@ export default function TemplateFormPage() {
                     setValue('body', value, { shouldDirty: true, shouldValidate: true })
                   }
                   maxLength={TEMPLATE_BODY_MAX}
-                  disabled={disabled}
+                  disabled={contentDisabled}
                   error={errors.body?.message}
                   hint="굵게·제목·목록·링크·이미지를 넣을 수 있습니다. #{이름} 등 치환변수도 그대로 씁니다."
                   placeholder="이메일 본문을 작성하세요."
@@ -341,7 +460,7 @@ export default function TemplateFormPage() {
                     setValue('body', value, { shouldDirty: true, shouldValidate: true })
                   }
                   maxLength={TEMPLATE_BODY_MAX}
-                  disabled={disabled}
+                  disabled={contentDisabled}
                   error={errors.body?.message}
                   placeholder="발송할 문구를 입력하세요. #{이름} 등 치환변수를 넣을 수 있습니다."
                   rows={6}
@@ -354,7 +473,7 @@ export default function TemplateFormPage() {
                 </p>
               )}
 
-              <VariableInsertBar onInsert={insertVariable} disabled={disabled} />
+              <VariableInsertBar onInsert={insertVariable} disabled={contentDisabled} />
             </Card>
 
             {requiresApproval(channel) && (

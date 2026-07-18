@@ -1,5 +1,5 @@
 // AUTO-GENERATED from contracts/Toast.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
-// 레벨: molecule · 상태: beta
+// 레벨: molecule · 카테고리: Feedback · 상태: beta
 
 /** `Toast.kind` 허용 값 (계약이 유일한 원천) */
 export type ToastKind = 'success' | 'cancelled' | 'error' | 'info';

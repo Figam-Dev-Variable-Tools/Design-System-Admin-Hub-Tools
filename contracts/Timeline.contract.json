@@ -3,6 +3,8 @@
   "name": "Timeline",
   "version": "1.0.0",
   "level": "molecule",
+  "category": "Data Display",
+  "taxonomyItem": "timeline",
   "status": "beta",
   "description": "이벤트 타임라인 — 시간순 이력 목록. StatusBadge 를 조립해 각 이벤트를 배지 톤·라벨·작성자·시각·본문으로 보여준다 (ADR-0003). 도메인을 모른다 — 무슨 이벤트인지 알지 못하고, 각 페이지가 자기 이벤트(문의·티켓·예약)를 표시용 TimelineEvent 로 매핑해 넘긴다.\n\n[시각 포맷] at 은 ISO 문자열이고 컴포넌트가 'YYYY-MM-DD HH:mm' 로 표기한다(로컬 타임존). 포맷터는 외부 의존이 없는 순수 함수로 컴포넌트에 co-locate 한다(앱 shared/format 을 끌어오지 않는다 — @tds/ui 자립).\n\n[events 는 데이터 prop] Figma Component Property 대응이 없다 (ADR-0003). 빈 배열이면 emptyLabel 문구를 렌더한다.",
   "owner": { "code": "component-eng", "design": "ui-design", "figma": "figma-eng" },

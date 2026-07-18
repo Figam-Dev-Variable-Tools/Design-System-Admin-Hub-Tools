@@ -17,7 +17,7 @@ const OPTIONS = (
 );
 
 const meta: Meta<typeof SelectField> = {
-  title: 'Atoms/SelectField',
+  title: 'Selection/SelectField',
   component: SelectField,
   argTypes: { ...SelectFieldArgTypes },
   args: { isInvalid: false },

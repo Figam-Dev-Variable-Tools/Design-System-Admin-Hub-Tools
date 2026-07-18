@@ -3,6 +3,8 @@
   "name": "Tabs",
   "component": "Tabs",
   "version": "1.0.0",
+  "level": "molecule",
+  "category": "Navigation",
   "variantProperties": {},
   "properties": [
     {

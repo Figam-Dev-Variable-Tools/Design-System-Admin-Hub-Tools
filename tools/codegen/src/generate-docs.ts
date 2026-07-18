@@ -59,6 +59,7 @@ export function generateDocs(contract: ComponentContract): GeneratedFile {
   out.push('|---|---|');
   out.push(`| 버전 | ${code(contract.version)} |`);
   out.push(`| 레벨 | ${code(contract.level)} |`);
+  out.push(`| 카테고리 | ${code(contract.category)} |`);
   out.push(`| 상태 | ${code(contract.status)} |`);
   out.push(
     `| 소유 | code ${code(contract.owner.code)} · design ${code(contract.owner.design)} · figma ${code(contract.owner.figma)} |`,

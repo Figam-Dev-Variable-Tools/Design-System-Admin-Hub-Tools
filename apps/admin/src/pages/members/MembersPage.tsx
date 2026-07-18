@@ -31,12 +31,20 @@ import { isAbort } from '../../shared/async';
 import { useListState } from '../../shared/crud';
 import { downloadCsv } from '../../shared/download';
 import { formatNumber } from '../../shared/format';
-import { Alert, Button, ConfirmDialog, hintStyle, Pagination, useToast } from '../../shared/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDialog,
+  FilterPanel,
+  FilterRail,
+  hintStyle,
+  Pagination,
+  useToast,
+} from '../../shared/ui';
+import type { FilterOption } from '../../shared/ui';
 import { CreateGroupModal } from './components/CreateGroupModal';
-import { GroupFilter } from './components/GroupFilter';
 import { MembersToolbar } from './components/MembersToolbar';
 import { MembersTable } from './components/MembersTable';
-import { TierFilter } from './components/TierFilter';
 import { toCsv } from './data-source';
 import {
   useBulkSendNotification,
@@ -46,7 +54,7 @@ import {
   useMembersQuery,
   useSendNotification,
 } from './queries';
-import { GROUP_ALL, PAGE_SIZE } from './types';
+import { GROUP_ALL, PAGE_SIZE, TIER_FILTERS } from './types';
 import type { Member, MemberTier } from './types';
 
 const pageStyle: CSSProperties = {
@@ -89,24 +97,6 @@ const errorBodyStyle: CSSProperties = {
   justifyContent: 'space-between',
   gap: 'var(--tds-space-3)',
   flexWrap: 'wrap',
-};
-
-const sidebarStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
-  minWidth: 0,
-};
-
-const sidebarNoticeStyle: CSSProperties = {
-  ...hintStyle,
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 0,
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  borderTopStyle: 'solid',
-  borderTopWidth: 'var(--tds-border-width-thin)',
-  borderTopColor: 'var(--tds-color-border-default)',
 };
 
 /** URL 파라미터의 기본값 — 이 값과 같으면 URL 에서 지운다(공유 링크를 짧게) */
@@ -185,6 +175,18 @@ export default function MembersPage() {
     if (data === undefined) return;
     clampPage(Math.ceil(data.total / PAGE_SIZE));
   }, [data, clampPage]);
+
+  /**
+   * 그룹 축의 항목 — 맨 앞에 '전체 그룹'.
+   * '전체 그룹' 만 배지를 숨긴다(hideCount): 세는 대상이 없어 0 을 띄우면 '해당 그룹 0명' 으로 읽힌다.
+   */
+  const groupOptions = useMemo<readonly FilterOption<string>[]>(
+    () => [
+      { id: GROUP_ALL, label: '전체 그룹', hideCount: true },
+      ...(groups ?? []).map((group) => ({ id: group.id, label: group.label })),
+    ],
+    [groups],
+  );
 
   const selectedMembers = members.filter((member) => selectedIds.has(member.id));
 
@@ -338,30 +340,44 @@ export default function MembersPage() {
       )}
 
       <div style={layoutStyle}>
-        <aside style={sidebarStyle}>
-          <TierFilter
+        <FilterRail
+          notice={
+            <p style={hintStyle}>
+              고객 목록은 회원가입으로만 유입됩니다. 관리자가 회원을 직접 추가하는 기능은 제공하지
+              않습니다.
+            </p>
+          }
+        >
+          {/* 등급과 그룹은 다른 축이다 — 함께 고르면 AND 로 걸린다 */}
+          <FilterPanel
+            navLabel="회원 등급 필터"
+            heading="등급"
+            options={TIER_FILTERS}
             value={tier}
             counts={data?.counts ?? null}
             onChange={(next) => list.setFilter('tier', next)}
           />
 
-          <GroupFilter
+          <FilterPanel
+            navLabel="회원 그룹 필터"
+            heading="그룹"
+            options={groupOptions}
             value={groupId}
-            groups={groups ?? []}
             counts={data?.groupCounts ?? null}
             onChange={(next) => list.setFilter('group', next)}
-            onCreate={() => setCreatingGroup(true)}
+            scroll
             failed={groupsError !== null}
             onRetry={() => {
               void refetchGroups();
             }}
+            footer={
+              // 회원이 아니라 **묶음**을 만드는 것이라 '사용자 추가 금지' 요구사항과 충돌하지 않는다
+              <Button variant="secondary" onClick={() => setCreatingGroup(true)}>
+                + 새 그룹 만들기
+              </Button>
+            }
           />
-
-          <p style={sidebarNoticeStyle}>
-            고객 목록은 회원가입으로만 유입됩니다. 관리자가 회원을 직접 추가하는 기능은 제공하지
-            않습니다.
-          </p>
-        </aside>
+        </FilterRail>
 
         <div style={mainColumnStyle}>
           <MembersToolbar

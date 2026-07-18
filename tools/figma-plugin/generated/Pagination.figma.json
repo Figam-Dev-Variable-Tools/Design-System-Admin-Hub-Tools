@@ -3,6 +3,8 @@
   "name": "Pagination",
   "component": "Pagination",
   "version": "1.1.0",
+  "level": "molecule",
+  "category": "Navigation",
   "variantProperties": {},
   "properties": [
     {

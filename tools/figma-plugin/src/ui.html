@@ -341,6 +341,9 @@
         color: var(--tds-color-feedback-danger-text);
       }
       /* 개별 실행(고급) 접이식 */
+      .advanced[hidden] {
+        display: none;
+      }
       .advanced {
         margin-top: var(--tds-space-2);
       }
@@ -459,7 +462,8 @@
         <span class="gauge-text" id="gauge-text">실행 중…</span>
       </div>
 
-      <details class="advanced">
+      <!-- 개별 실행은 원클릭에 일원화됨 — 요소는 JS 참조를 위해 남기되 숨긴다 -->
+      <details class="advanced" hidden>
         <summary>개별 실행 (고급)</summary>
 
         <!-- (a) 토큰 → Variables -->
@@ -521,6 +525,13 @@
       /* @tds-data-inject */
       window.__TDS_EMBEDDED__ = window.__TDS_EMBEDDED__ || null;
     </script>
+    <script>
+      /* @tds-images-inject */
+      // 빌드 시 실사(Storybook 스토리 + 어드민 페이지) PNG 바이트가 base64 로 여기 내장된다.
+      // { stories: { '<file>.png': '<base64>' }, pages: { '<file>.png': '<base64>' } }
+      // 네트워크/서버 없이 열자마자 동작 — Figma 의 localhost fetch 제약을 원천 회피한다.
+      window.__TDS_IMAGE_BYTES__ = window.__TDS_IMAGE_BYTES__ || { stories: {}, pages: {} };
+    </script>
 
     <script>
       // =====================================================================
@@ -580,9 +591,14 @@
         tokens: null, // { json, checksum, name }
         contracts: {}, // name → { json, checksum, fileName }
         pages: null,
+        taxonomy: null, // 오너 정본 분류표(23모듈) — 없으면 문서 체크리스트만 생략
         unknown: [], // 분류 불가 파일명
         loading: false,
         busy: false,
+        assetServer: 'http://localhost:3999',
+        renderAssets: { base: 'vrt/baseline', stories: [] }, // Storybook 실사 매니페스트
+        pageAssets: { base: 'pages', pages: [] }, // 어드민 페이지 실사 매니페스트
+        storyImages: null, // ② 단계에서 디코드한 스토리 실사 — ③ 문서에서 재사용
       };
 
       var $ = function (id) {
@@ -615,15 +631,185 @@
             if (c && c.name) state.contracts[c.name] = { json: c, checksum: checksumOf(c) };
           });
         if (Array.isArray(e.pages)) state.pages = e.pages;
+        // taxonomy: { version, categories: [...] } 또는 배열 자체 — 둘 다 수용, 없으면 그대로 null
+        if (e.taxonomy && Array.isArray(e.taxonomy.categories))
+          state.taxonomy = e.taxonomy.categories;
+        else if (Array.isArray(e.taxonomy)) state.taxonomy = e.taxonomy;
+        state.assetServer = e.assetServer || 'http://localhost:3999';
+        state.renderAssets = e.renderAssets || { base: 'vrt/baseline', stories: [] };
+        state.pageAssets = e.pageAssets || { base: 'pages', pages: [] };
         log(
           '— 프로젝트 산출물을 내장값으로 자동 적재: 계약 ' +
             (e.contracts ? e.contracts.length : 0) +
             ' · 변수 ' +
             (e.tokens ? e.tokens.variables.length : 0) +
             ' · 화면 ' +
-            (e.pages ? e.pages.length : 0),
+            (e.pages ? e.pages.length : 0) +
+            ' · 실사(스토리 ' +
+            state.renderAssets.stories.length +
+            ' · 페이지 ' +
+            state.pageAssets.pages.length +
+            ')',
         );
         return true;
+      }
+
+      /** base64 → Uint8Array (네이티브 atob). PNG 바이트 복원용. */
+      function b64ToBytes(b64) {
+        var bin = atob(b64);
+        var len = bin.length;
+        var u = new Uint8Array(len);
+        for (var i = 0; i < len; i++) u[i] = bin.charCodeAt(i);
+        return u;
+      }
+
+      /**
+       * 내장 실사(스토리 + 페이지)를 전부 디코드해:
+       *  - byKey: { key(파일명) → Uint8Array }  ← cache-images 로 배치 업로드할 원본 바이트
+       *  - storyRefs: [{component, story, key, w, h}]         ← sync-components 참조(바이트 없음)
+       *  - renderRefs: { component → [{story, key, w, h}] }   ← 🧩 문서 Variant 매트릭스 참조
+       *  - pageRefs: { routeId → {key, w, h} }                ← 문서 페이지 아트보드 참조
+       * 페이지는 4096 초과 시 canvas 로 축소하고 축소된 바이트·치수를 쓴다. 스토리는 40장씩 끊어 디코드.
+       */
+      function decodeAllImages(onProgress) {
+        var storeS = (window.__TDS_IMAGE_BYTES__ && window.__TDS_IMAGE_BYTES__.stories) || {};
+        var storeP = (window.__TDS_IMAGE_BYTES__ && window.__TDS_IMAGE_BYTES__.pages) || {};
+        var stories = (state.renderAssets && state.renderAssets.stories) || [];
+        var pages = (state.pageAssets && state.pageAssets.pages) || [];
+        var byKey = {};
+        var storyRefs = [];
+        var renderRefs = {};
+        var pageRefs = {};
+        // 컴포넌트는 이제 토큰으로 **실제 레이어**를 조립하므로 스토리 실사는 쓰지 않는다.
+        // 페이지(어드민 화면) 실사만 디코드·캐시한다 — 485장 × createImage 를 통째로 아낀다.
+        var total = pages.length;
+        var done = 0;
+        var i = stories.length; // stories 루프는 건너뛴다
+        return new Promise(function (resolve) {
+          function finish() {
+            resolve({
+              byKey: byKey,
+              storyRefs: storyRefs,
+              renderRefs: renderRefs,
+              pageRefs: pageRefs,
+            });
+          }
+          function stepStories() {
+            var end = Math.min(i + 40, stories.length);
+            for (; i < end; i++) {
+              var s = stories[i];
+              var b64 = storeS[s.file];
+              done++;
+              if (!b64) {
+                log('[실사 누락] ' + s.file + ' (내장 없음)');
+                continue;
+              }
+              // atob 가 던져도(손상 base64) 그 한 장만 건너뛰고 계속한다 — 절대 멈추지 않게
+              try {
+                byKey[s.file] = b64ToBytes(b64);
+              } catch (e) {
+                log('[실사 디코드 실패] ' + s.file + ' — ' + (e && e.message ? e.message : e));
+                continue;
+              }
+              storyRefs.push({
+                component: s.component,
+                story: s.story,
+                key: s.file,
+                w: s.w,
+                h: s.h,
+              });
+              (renderRefs[s.component] = renderRefs[s.component] || []).push({
+                story: s.story,
+                key: s.file,
+                w: s.w,
+                h: s.h,
+              });
+            }
+            if (onProgress) onProgress(done, total);
+            if (i < stories.length) setTimeout(stepStories, 0);
+            else processPages();
+          }
+          function processPages() {
+            pages
+              .reduce(function (chain, p) {
+                return chain.then(function () {
+                  var b64 = storeP[p.file];
+                  done++;
+                  if (!b64) {
+                    log('[페이지 실사 누락] ' + p.file + ' (내장 없음)');
+                    if (onProgress) onProgress(done, total);
+                    return;
+                  }
+                  var raw;
+                  try {
+                    raw = b64ToBytes(b64);
+                  } catch (e) {
+                    log(
+                      '[페이지 디코드 실패] ' + p.file + ' — ' + (e && e.message ? e.message : e),
+                    );
+                    if (onProgress) onProgress(done, total);
+                    return;
+                  }
+                  // 한 페이지가 실패해도 체인을 끊지 않도록 per-page catch — 그래야 항상 finish 에 닿는다
+                  return toPngWithin(raw, p.w, p.h, 4096)
+                    .then(function (img) {
+                      byKey[p.file] = img.bytes; // 축소됐으면 축소된 바이트
+                      pageRefs[p.id] = { key: p.file, w: img.w, h: img.h };
+                      if (onProgress) onProgress(done, total);
+                    })
+                    .catch(function (e) {
+                      log(
+                        '[페이지 축소 실패] ' + p.file + ' — ' + (e && e.message ? e.message : e),
+                      );
+                    });
+                });
+              }, Promise.resolve())
+              .then(finish, finish); // 성공/실패 어느 쪽이든 반드시 settle
+          }
+          stepStories();
+        });
+      }
+
+      /**
+       * PNG 바이트를 한 변 maxSide 이하로 축소해 재인코딩한다(canvas). Figma createImage 는
+       * 4096px 초과를 던지므로 긴 풀페이지(예: /users/roles 5217px)를 안전 범위로 줄인다.
+       * 이미 범위 안이면 원본 바이트를 그대로 돌려준다(재인코딩 없음).
+       */
+      function toPngWithin(bytes, w, h, maxSide) {
+        if (w <= maxSide && h <= maxSide) return Promise.resolve({ bytes: bytes, w: w, h: h });
+        var original = { bytes: bytes, w: w, h: h }; // 축소 실패 시 폴백(다운스트림에서 걸러짐)
+        return createImageBitmap(new Blob([bytes], { type: 'image/png' }))
+          .then(function (bmp) {
+            var scale = maxSide / Math.max(bmp.width, bmp.height);
+            var cw = Math.max(1, Math.round(bmp.width * scale));
+            var ch = Math.max(1, Math.round(bmp.height * scale));
+            var canvas = document.createElement('canvas');
+            canvas.width = cw;
+            canvas.height = ch;
+            canvas.getContext('2d').drawImage(bmp, 0, 0, cw, ch);
+            if (bmp.close) bmp.close();
+            return new Promise(function (res) {
+              // toBlob 이 null(초대형/메모리 압박) → 원본으로 폴백해 **절대 멈추지 않게** 한다
+              canvas.toBlob(function (blob) {
+                if (!blob) {
+                  res(original);
+                  return;
+                }
+                blob.arrayBuffer().then(
+                  function (buf) {
+                    res({ bytes: new Uint8Array(buf), w: cw, h: ch });
+                  },
+                  function () {
+                    res(original);
+                  },
+                );
+              }, 'image/png');
+            });
+          })
+          .catch(function () {
+            // createImageBitmap/getContext/drawImage 실패해도 reject 대신 원본 반환(행 방지)
+            return original;
+          });
       }
 
       /** TDS 문서 생성 페이로드 — 원클릭(runAll)이 사용 */
@@ -639,6 +825,7 @@
           meta: { generatedAt: new Date().toISOString().slice(0, 10) },
         };
         if (state.pages) payload.pages = state.pages;
+        if (state.taxonomy) payload.taxonomy = state.taxonomy;
         return payload;
       }
 
@@ -1142,73 +1329,134 @@
         send({ type: 'scan-detached' });
       });
 
-      // --- 원클릭: 토큰 → 컴포넌트 → 문서 를 한 번에 -----------------------------
-      // 각 단계를 main 응답(onmessage)으로 이어 달린다. runQueue 가 비면 완료.
-      var runQueue = null;
-      function runNext() {
-        var step = runQueue[0];
-        if (step === 'tokens') {
-          gauge(12, '① 토큰 Variables 동기화 중…', 'busy');
-          log('▶ ① 토큰 Variables 동기화 — 변수 ' + state.tokens.json.variables.length + '개');
-          send({ type: 'sync-tokens', payload: state.tokens.json });
-        } else if (step === 'components') {
-          var specs = Object.keys(state.contracts)
-            .sort()
-            .map(function (n) {
-              return state.contracts[n].json;
+      // --- 원클릭: 토큰 → 이미지 캐시(배치) → 컴포넌트 → 문서 → 스캔 --------------------
+      // 대용량 실사 바이트는 cache-images 로 **배치 업로드**(메시지당 소량)하고, 이후 컴포넌트/문서
+      // 메시지는 key 로만 참조한다 → 단일 대용량 postMessage 리스크 제거.
+      var pendingResolve = null; // sendAwait 대기 resolver (main 응답 1건당 1 resolve)
+      var running = false; // runAll 이 실행 상태를 점유 중인지 — 개별 버튼과 구분
+      function sendAwait(message) {
+        return new Promise(function (resolve) {
+          pendingResolve = resolve;
+          send(message);
+        });
+      }
+      // main 이 error 를 돌려주면 throw 해서 runAll 을 중단시킨다
+      function step(message) {
+        return sendAwait(message).then(function (msg) {
+          if (msg && msg.type === 'error') throw new Error(msg.message || 'main 오류');
+          return msg;
+        });
+      }
+
+      async function runAll() {
+        if (state.busy || $('btn-run-all').disabled) return;
+        state.busy = true;
+        running = true;
+        render();
+        var specs = Object.keys(state.contracts)
+          .sort()
+          .map(function (n) {
+            return state.contracts[n].json;
+          });
+        try {
+          log('▶ 원클릭 — 토큰 → 이미지 캐시 → 컴포넌트 → 문서 → 스캔');
+
+          gauge(6, '① 토큰 Variables 동기화 중…', 'busy');
+          await step({ type: 'sync-tokens', payload: state.tokens.json });
+
+          // 실사 디코드(내장 base64 → 바이트). 페이지는 4096 초과 시 축소.
+          gauge(12, '실사 디코드 중…', 'busy');
+          var decoded = await decodeAllImages(function (d, t) {
+            gauge(
+              12 + Math.round((d / Math.max(1, t)) * 8),
+              '실사 디코드 ' + d + '/' + t + '…',
+              'busy',
+            );
+          });
+          var keys = Object.keys(decoded.byKey);
+          log('▶ 실사 디코드 완료 — ' + keys.length + '장');
+
+          // 이미지 캐시(배치 업로드) — main 이 createImage 해 key→hash 로 보관. 배치당 ~24장.
+          var BATCH = 24;
+          for (var bi = 0; bi < keys.length; bi += BATCH) {
+            var batch = keys.slice(bi, bi + BATCH).map(function (k) {
+              return { key: k, bytes: decoded.byKey[k] };
             });
-          gauge(45, '② Component Set 동기화 중 (' + specs.length + '개)…', 'busy');
-          log('▶ ② Component Set 동기화 — ' + specs.length + '개');
-          send({ type: 'sync-components', payload: specs });
-        } else if (step === 'doc') {
-          gauge(75, '③ Figma 문서 생성 중 (메뉴별 페이지 + 구분선)…', 'busy');
-          log('▶ ③ Figma 문서 생성 (메뉴별 페이지 + 구분선)');
-          send({ type: 'generate-tds-doc', payload: docPayload() });
+            await step({ type: 'cache-images', batch: batch });
+            var uploaded = Math.min(bi + BATCH, keys.length);
+            gauge(
+              20 + Math.round((uploaded / Math.max(1, keys.length)) * 30),
+              '이미지 캐시 ' + uploaded + '/' + keys.length + '…',
+              'busy',
+            );
+          }
+
+          // ② 컴포넌트 — 계약 스키마로 변형/속성, 실사는 key 참조만(바이트 없음)
+          gauge(55, '② Component Set 동기화 중 (' + specs.length + '개)…', 'busy');
+          log(
+            '▶ ② Component Set 동기화 — ' +
+              specs.length +
+              '개 · 실사참조 ' +
+              decoded.storyRefs.length,
+          );
+          await step({
+            type: 'sync-components',
+            payload: { specs: specs, images: decoded.storyRefs },
+          });
+
+          // ③ 문서 — 페이지·🧩 변형 렌더도 key 참조만
+          gauge(72, '③ Figma 문서 생성 중…', 'busy');
+          var payload = docPayload();
+          if (Array.isArray(payload.pages)) {
+            payload.pages = payload.pages.map(function (m) {
+              var ref = decoded.pageRefs[m.id];
+              return ref ? Object.assign({}, m, { image: ref }) : m;
+            });
+          }
+          payload.componentRenders = decoded.renderRefs;
+          var shots = Object.keys(decoded.pageRefs).length;
+          var cRenders = Object.keys(decoded.renderRefs).length;
+          log(
+            '▶ ③ Figma 문서 생성 (🧩 Components 실물 ' +
+              cRenders +
+              '개 · 메뉴별 페이지 실사 ' +
+              shots +
+              '장)',
+          );
+          await step({ type: 'generate-tds-doc', payload: payload });
+
+          gauge(92, '④ Detached 스타일 스캔 중…', 'busy');
+          log('▶ ④ Detached 스타일 스캔 (읽기 전용)');
+          await step({ type: 'scan-detached' });
+
+          gauge(
+            100,
+            '완료 — 토큰 · 컴포넌트(속성 포함) · 🧩 문서 · 메뉴별 페이지 실사를 모두 생성했습니다.',
+            'done',
+          );
+        } catch (e) {
+          var m = e && e.message ? e.message : String(e);
+          gauge(100, '중단: ' + m, 'error');
+          log('[중단] ' + m);
+        } finally {
+          state.busy = false;
+          running = false;
+          pendingResolve = null;
+          render();
         }
       }
+
       $('btn-run-all').addEventListener('click', function () {
-        if (state.busy || $('btn-run-all').disabled) return;
-        runQueue = ['tokens', 'components', 'doc'];
-        state.busy = true;
-        render();
-        log('▶ 원클릭 — 토큰 → 컴포넌트 → 문서 한 번에');
-        runNext();
+        runAll();
       });
 
       // --- main 스레드 응답 --------------------------------------------------
       window.onmessage = function (event) {
         var msg = event.data && event.data.pluginMessage;
         if (!msg) return;
-        state.busy = false;
-
-        if (msg.type === 'error') {
-          gauge(100, '오류: ' + msg.message, 'error');
-          log('[오류] ' + msg.message);
-          runQueue = null;
-          render();
-          return;
-        }
         if (Array.isArray(msg.log)) msg.log.forEach(log);
 
-        // 원클릭 시퀀스 진행 — 토큰 → 컴포넌트 → 문서 → 완료
-        if (runQueue && runQueue.length) {
-          runQueue.shift();
-          if (runQueue.length) {
-            state.busy = true;
-            runNext();
-            render();
-            return;
-          }
-          gauge(100, '완료 — 토큰 · 컴포넌트 · 메뉴별 페이지를 모두 생성했습니다.', 'done');
-          runQueue = null;
-        } else if (msg.type === 'scan-result') {
-          $('gauge').hidden = true; // 스캔은 읽기 전용 — 게이지를 남기지 않는다
-        } else {
-          gauge(100, '완료', 'done');
-        }
-
-        render();
-
+        // 스캔 리포트 렌더(읽기 전용)
         if (msg.type === 'scan-result' && Array.isArray(msg.report)) {
           msg.report.slice(0, 100).forEach(function (r) {
             log(' - [' + r.page + '] ' + r.node + ' (' + r.nodeType + '): ' + r.issue);
@@ -1219,6 +1467,24 @@
                 (msg.report.length - 100) +
                 '건 생략 — 전체는 G7 리포트 파이프라인(reports/)에서 처리',
             );
+        }
+
+        // runAll 진행 중이면 그 단계를 이어 달리게 resolve. 아니면(개별 버튼) 여기서 마무리.
+        if (pendingResolve) {
+          var r = pendingResolve;
+          pendingResolve = null;
+          r(msg);
+        } else if (!running) {
+          // 런이 상태를 점유한 동안(디코드·게이지 구간, pendingResolve=null) 날아온 stray 메시지는 무시
+          if (msg.type === 'error') {
+            gauge(100, '오류: ' + msg.message, 'error');
+            log('[오류] ' + msg.message);
+          } else if (msg.type === 'scan-result') {
+            $('gauge').hidden = true;
+          } else {
+            gauge(100, '완료', 'done');
+          }
+          render();
         }
       };
 

@@ -1,5 +1,5 @@
 // AUTO-GENERATED from contracts/TextField.contract.json@1.2.0 — DO NOT EDIT (pnpm codegen)
-// 레벨: atom · 상태: beta
+// 레벨: atom · 카테고리: Inputs · 상태: beta
 
 import type { ChangeEvent, FocusEvent, ReactNode } from 'react';
 

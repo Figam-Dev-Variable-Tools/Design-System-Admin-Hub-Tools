@@ -1,5 +1,7 @@
 /**
- * Pages/로그인 — placeholder 골격 스토리 (조립 전용, 담당: 스토리북 페이지 · 게이트 G5).
+ * Pages/Login — placeholder 골격 스토리 (조립 전용, 담당: 스토리북 페이지 · 게이트 G5).
+ *
+ * 로그인은 사이드바 메뉴에 속하지 않는 인증 화면이라 `Pages` 바로 아래에 둔다.
  *
  * 대응 화면정의서: docs/plan/ui/SCR-001-login.md
  * 필요 모듈: TextField · Checkbox · Alert · Button(contracts/Button.contract.json@1.0.0)
@@ -15,7 +17,7 @@ import type { CSSProperties } from 'react';
 import { cssVar, tokenVars } from '../../generated/tokens/tokens';
 
 const meta: Meta = {
-  title: 'Pages/로그인',
+  title: 'Pages/Login',
   parameters: { layout: 'fullscreen' },
 };
 

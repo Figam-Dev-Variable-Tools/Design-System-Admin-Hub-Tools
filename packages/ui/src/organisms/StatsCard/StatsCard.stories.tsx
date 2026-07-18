@@ -50,7 +50,7 @@ const TABLE_ROWS = [
 ];
 
 const meta: Meta<typeof StatsCard> = {
-  title: 'Organisms/StatsCard',
+  title: 'Data Display/StatsCard',
   component: StatsCard,
   argTypes: { ...StatsCardArgTypes },
   args: {

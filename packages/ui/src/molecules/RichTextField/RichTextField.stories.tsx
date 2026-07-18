@@ -33,7 +33,7 @@ const SAMPLE_HTML =
   '<h2>제품 특징</h2><p>가벼운 충전재로 <strong>보온성</strong>과 <em>활동성</em>을 모두 잡았습니다.</p><ul><li>초경량 충전재</li><li>발수 가공</li></ul>';
 
 const meta: Meta<typeof RichTextField> = {
-  title: 'Molecules/RichTextField',
+  title: 'Inputs/RichTextField',
   component: RichTextField,
   argTypes: { ...RichTextFieldArgTypes },
   args: {

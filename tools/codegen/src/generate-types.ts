@@ -112,7 +112,9 @@ export function generateTypes(contract: ComponentContract): GeneratedFile {
 
   const out: string[] = [];
   out.push(generatedHeader(name, contract.version));
-  out.push(`// 레벨: ${contract.level} · 상태: ${contract.status}`);
+  out.push(
+    `// 레벨: ${contract.level} · 카테고리: ${contract.category} · 상태: ${contract.status}`,
+  );
   out.push('');
   if (reactImports.size > 0) {
     out.push(`import type { ${[...reactImports].sort().join(', ')} } from 'react';`);

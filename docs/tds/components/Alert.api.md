@@ -17,6 +17,7 @@
 |---|---|
 | 버전 | `1.1.0` |
 | 레벨 | `atom` |
+| 카테고리 | `Feedback` |
 | 상태 | `beta` |
 | 소유 | code `component-eng` · design `ui-design` · figma `figma-eng` |
 

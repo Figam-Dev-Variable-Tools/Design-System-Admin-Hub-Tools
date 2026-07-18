@@ -28,7 +28,7 @@ function ControlledTextField(args: TextFieldProps) {
 }
 
 const meta: Meta<typeof TextField> = {
-  title: 'Atoms/TextField',
+  title: 'Inputs/TextField',
   component: TextField,
   argTypes: { ...TextFieldArgTypes },
   args: {

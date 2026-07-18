@@ -4,7 +4,18 @@
   "title": "TDS Component Contract v1",
   "description": "컴포넌트 4자 계약(Contract ↔ React ↔ Storybook ↔ Figma)의 단일 원천. 이 파일에서 React 타입, Storybook argTypes, Figma Properties, Docs가 자동 생성된다 (tools/codegen). G3 승인 시 Frozen.",
   "type": "object",
-  "required": ["name", "version", "level", "status", "owner", "props", "states", "tokens", "a11y"],
+  "required": [
+    "name",
+    "version",
+    "level",
+    "category",
+    "status",
+    "owner",
+    "props",
+    "states",
+    "tokens",
+    "a11y"
+  ],
   "additionalProperties": false,
   "properties": {
     "$schema": { "type": "string" },
@@ -19,6 +30,39 @@
       "description": "SemVer. prop 제거/타입 변경/default 변경 → MAJOR, prop 추가 → MINOR"
     },
     "level": { "enum": ["atom", "molecule", "organism", "template", "page"] },
+    "category": {
+      "enum": [
+        "Actions",
+        "Inputs",
+        "Selection",
+        "Navigation",
+        "Feedback",
+        "Dialogs & Overlays",
+        "Data Display",
+        "Media",
+        "Layout",
+        "Forms",
+        "Lists",
+        "Tables",
+        "Authentication",
+        "Commerce",
+        "Communication",
+        "File",
+        "Maps",
+        "Charts",
+        "Utilities",
+        "Mobile",
+        "AI",
+        "Korean Service",
+        "Foundation"
+      ],
+      "description": "기능 축 — 컴포넌트가 '무엇을 위한 것인가'. level(원자성 축)과 직교한다. Storybook 사이드바 그룹과 Figma 페이지 분류에 쓴다. 이 enum 의 나열 순서가 표시 순서의 정본이며 tools/codegen/src/shared.ts 의 CATEGORY_ORDER 와 일치해야 한다."
+    },
+    "taxonomyItem": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "이 컴포넌트가 구현하는 정본 카탈로그 항목 key (contracts/taxonomy.v1.json 의 해당 category 안 items[].key). 생략하면 '정본 목록 밖 프로젝트 고유 컴포넌트(extras)'로 분류된다. Storybook 카탈로그와 Figma 문서 체크리스트가 이 값으로 구현/미구현을 판정한다."
+    },
     "status": { "enum": ["draft", "beta", "stable", "deprecated"] },
     "description": { "type": "string" },
     "owner": {

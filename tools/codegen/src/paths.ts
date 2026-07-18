@@ -22,6 +22,14 @@ export const CONTRACT_SCHEMA_PATH = path.join(CONTRACTS_DIR, 'schemas', 'compone
 /** 디자인 토큰 원본 (W3C DTCG 포맷) — Source of Truth */
 export const TOKENS_JSON_PATH = path.join(REPO_ROOT, 'tokens', 'tokens.json');
 
+/**
+ * 컴포넌트 분류 체계(23 모듈 카탈로그) 원본 — Source of Truth.
+ * 컴포넌트 계약이 아니라 '무엇을 만들 것인가' 목록이므로 contracts/ 가 아니라
+ * tokens/ 와 같은 층위의 최상위 정본 디렉터리에 둔다 (contracts/ 직하는
+ * <Name>.contract.json 만 허용 — naming-guard contract-file 규칙).
+ */
+export const TAXONOMY_JSON_PATH = path.join(REPO_ROOT, 'taxonomy', 'taxonomy.v1.json');
+
 /** UI 패키지 생성물 루트 */
 export const UI_GENERATED_DIR = path.join(REPO_ROOT, 'packages', 'ui', 'generated');
 
@@ -42,6 +50,21 @@ export const FIGMA_TOKENS_GENERATED_DIR = path.join(FIGMA_GENERATED_DIR, 'tokens
 
 /** 토큰 → Figma Variables 페이로드 — 플러그인(main.ts) TokensPayload 규격 */
 export const FIGMA_VARIABLES_PATH = path.join(FIGMA_TOKENS_GENERATED_DIR, 'figma-variables.json');
+
+/** Figma 플러그인 진입 — 카테고리 페이지 생성(COMPONENT_CATEGORY_ORDER) */
+export const FIGMA_MAIN_PATH = path.join(REPO_ROOT, 'tools', 'figma-plugin', 'src', 'main.ts');
+
+/** Figma 문서 생성기 — 카테고리 페이지 정렬(COMPONENT_CATEGORIES) */
+export const FIGMA_DOC_PATH = path.join(REPO_ROOT, 'tools', 'figma-plugin', 'src', 'tds-doc.ts');
+
+/** Storybook 프리뷰 설정 — 사이드바 카테고리 정렬(storySort.order) */
+export const STORYBOOK_PREVIEW_PATH = path.join(
+  REPO_ROOT,
+  'packages',
+  'ui',
+  '.storybook',
+  'preview.ts',
+);
 
 /** 계약 → API 문서 출력 — <Name>.api.md */
 export const DOCS_COMPONENTS_DIR = path.join(REPO_ROOT, 'docs', 'tds', 'components');

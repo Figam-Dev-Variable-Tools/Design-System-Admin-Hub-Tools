@@ -28,7 +28,7 @@ function ControlledCheckbox(args: CheckboxProps) {
 }
 
 const meta: Meta<typeof Checkbox> = {
-  title: 'Atoms/Checkbox',
+  title: 'Inputs/Checkbox',
   component: Checkbox,
   argTypes: { ...CheckboxArgTypes },
   args: {

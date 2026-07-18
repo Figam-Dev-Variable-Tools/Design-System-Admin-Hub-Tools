@@ -8,266 +8,266 @@
       "file": "Alert.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 1,
-      "checksum": "9ecb3089"
+      "checksum": "70d65377"
     },
     {
       "name": "Badge",
       "file": "Badge.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 2,
-      "checksum": "51d81fbb"
+      "checksum": "e657ee1c"
     },
     {
       "name": "Button",
       "file": "Button.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 5,
-      "checksum": "d77d9c05"
+      "checksum": "87dcb733"
     },
     {
       "name": "Card",
       "file": "Card.figma.json",
       "version": "1.2.0",
       "variantPropertyCount": 3,
-      "checksum": "4dd38d13"
+      "checksum": "7451ce7a"
     },
     {
       "name": "Checkbox",
       "file": "Checkbox.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 2,
-      "checksum": "f2d30827"
+      "checksum": "19d092bd"
     },
     {
       "name": "ConfirmDialog",
       "file": "ConfirmDialog.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 2,
-      "checksum": "18e6b77d"
+      "checksum": "4733628f"
     },
     {
       "name": "DataTable",
       "file": "DataTable.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 1,
-      "checksum": "374b1fdd"
+      "checksum": "15b3c3d6"
     },
     {
       "name": "DateRangeField",
       "file": "DateRangeField.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 2,
-      "checksum": "32f47d83"
+      "checksum": "2eaf7f30"
     },
     {
       "name": "Empty",
       "file": "Empty.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 2,
-      "checksum": "30924388"
+      "checksum": "1d96c3b7"
     },
     {
       "name": "FormField",
       "file": "FormField.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 1,
-      "checksum": "d67bcda3"
+      "checksum": "17aad9fe"
     },
     {
       "name": "HelpTip",
       "file": "HelpTip.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 0,
-      "checksum": "476aaebd"
+      "checksum": "936bf783"
     },
     {
       "name": "ImageGalleryField",
       "file": "ImageGalleryField.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 2,
-      "checksum": "90f16e19"
+      "checksum": "8a46d3fa"
     },
     {
       "name": "ImageThumb",
       "file": "ImageThumb.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 0,
-      "checksum": "01a9f397"
+      "checksum": "78ef8a3e"
     },
     {
       "name": "ImageUploadField",
       "file": "ImageUploadField.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 2,
-      "checksum": "2f55406b"
+      "checksum": "ace467d0"
     },
     {
       "name": "LineAreaChart",
       "file": "LineAreaChart.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 1,
-      "checksum": "3532c6a1"
+      "checksum": "3676a24c"
     },
     {
       "name": "ListCard",
       "file": "ListCard.figma.json",
       "version": "2.0.0",
       "variantPropertyCount": 1,
-      "checksum": "3197caee"
+      "checksum": "cf5e21f6"
     },
     {
       "name": "ListRow",
       "file": "ListRow.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 0,
-      "checksum": "a6449c61"
+      "checksum": "71a8a60a"
     },
     {
       "name": "Modal",
       "file": "Modal.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 0,
-      "checksum": "63d7a139"
+      "checksum": "02b6705b"
     },
     {
       "name": "Pagination",
       "file": "Pagination.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 0,
-      "checksum": "74af9d6c"
+      "checksum": "71b607f8"
     },
     {
       "name": "PasswordField",
       "file": "PasswordField.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 3,
-      "checksum": "bc12166d"
+      "checksum": "0f475316"
     },
     {
       "name": "RichTextField",
       "file": "RichTextField.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 2,
-      "checksum": "493fea30"
+      "checksum": "13aa7e49"
     },
     {
       "name": "RowActions",
       "file": "RowActions.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 1,
-      "checksum": "58e8813c"
+      "checksum": "fd33bdab"
     },
     {
       "name": "RowSelectCell",
       "file": "RowSelectCell.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 1,
-      "checksum": "dbbc255d"
+      "checksum": "9edbb468"
     },
     {
       "name": "SearchField",
       "file": "SearchField.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 0,
-      "checksum": "3ae856f4"
+      "checksum": "7c372883"
     },
     {
       "name": "SegmentedControl",
       "file": "SegmentedControl.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 2,
-      "checksum": "30698933"
+      "checksum": "c48a4f23"
     },
     {
       "name": "SelectAllHeaderCell",
       "file": "SelectAllHeaderCell.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 0,
-      "checksum": "56aeefaf"
+      "checksum": "934f7d4a"
     },
     {
       "name": "SelectField",
       "file": "SelectField.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 1,
-      "checksum": "55d8ec58"
+      "checksum": "c232981c"
     },
     {
       "name": "SelectionBar",
       "file": "SelectionBar.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 0,
-      "checksum": "bdefe53e"
+      "checksum": "bb251b43"
     },
     {
       "name": "StatsCard",
       "file": "StatsCard.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 1,
-      "checksum": "9e4cf353"
+      "checksum": "ec1c7e33"
     },
     {
       "name": "StatusBadge",
       "file": "StatusBadge.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 1,
-      "checksum": "69d32428"
+      "checksum": "cd5be1ea"
     },
     {
       "name": "Tabs",
       "file": "Tabs.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 0,
-      "checksum": "8ecc2828"
+      "checksum": "3d36f934"
     },
     {
       "name": "TextareaField",
       "file": "TextareaField.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 2,
-      "checksum": "e380d5df"
+      "checksum": "a10add1e"
     },
     {
       "name": "TextField",
       "file": "TextField.figma.json",
       "version": "1.2.0",
       "variantPropertyCount": 3,
-      "checksum": "7079762b"
+      "checksum": "0550c05f"
     },
     {
       "name": "Timeline",
       "file": "Timeline.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 0,
-      "checksum": "1ab053a5"
+      "checksum": "221acd75"
     },
     {
       "name": "Toast",
       "file": "Toast.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 1,
-      "checksum": "de4a472d"
+      "checksum": "2123da06"
     },
     {
       "name": "TodoCard",
       "file": "TodoCard.figma.json",
       "version": "2.0.0",
       "variantPropertyCount": 2,
-      "checksum": "63565130"
+      "checksum": "3b3477c0"
     },
     {
       "name": "ToggleSwitch",
       "file": "ToggleSwitch.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 3,
-      "checksum": "c9c02191"
+      "checksum": "9de039c7"
     },
     {
       "name": "TriStateCheckbox",
       "file": "TriStateCheckbox.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 3,
-      "checksum": "f068d73b"
+      "checksum": "5c37fbe1"
     }
   ],
   "tokens": {
@@ -277,7 +277,7 @@
       "light",
       "dark"
     ],
-    "variableCount": 221,
-    "checksum": "ba45c3ed"
+    "variableCount": 226,
+    "checksum": "021ae34d"
   }
 }

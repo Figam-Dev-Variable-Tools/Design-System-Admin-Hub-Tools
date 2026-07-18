@@ -3,6 +3,8 @@
   "name": "TextareaField",
   "version": "1.1.0",
   "level": "molecule",
+  "category": "Inputs",
+  "taxonomyItem": "textarea",
   "status": "beta",
   "description": "제어 textarea + 글자수 카운터 — 긴 글 입력('공지 본문·FAQ 답변·약관 조문·상품 설명' 등)을 FormField 껍데기 안에 담는다. 출처: apps/admin/src/shared/ui/TextareaField.tsx (소비 30곳). 네 화면이 각자 textarea + 카운터 + 검증 배선을 복사하면 최대 길이·오류 자리·카운터 형식이 어긋난다 — 한 벌만 둔다.\n\n[FormField 조립] 라벨/오류/힌트/필수 표식과 우측 카운터('N/max')는 FormField(molecule) 에 위임한다 (dependencies: FormField). 이 컴포넌트는 그 슬롯 안에 제어 <textarea> 를 넣고, htmlFor 로 라벨과 잇고, aria-invalid·aria-describedby(errorIdOf/hintIdOf)로 접근성을 배선한다. id 는 useId 로 생성한다.\n\n[리치 텍스트 아님] 지금은 제어된 <textarea> 로만 본문을 받는다(WYSIWYG 미도입 — ADR 사안). 서식 본문이 요구되면 내부만 에디터로 바꾸고 value/onChange 계약은 유지한다.\n\n[도메인을 모른다] 무슨 본문인지 알지 못한다 — value/onChange/maxLength 와 라벨 문자열만 받는다.\n\n[exactOptionalPropertyTypes] 옵셔널 문자열 prop(error·hint·placeholder)은 호출부가 string|undefined 를 그대로 넘긴다 — 구현이 경계에서 undefined 를 허용해 받고 정규화한다 (FormField 와 동일 처리, 30곳 호출부 무변경).",
   "owner": { "code": "component-eng", "design": "ui-design", "figma": "figma-eng" },

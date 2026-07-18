@@ -1,5 +1,5 @@
 // AUTO-GENERATED from contracts/SegmentedControl.contract.json@1.0.0 — DO NOT EDIT (pnpm codegen)
-// 레벨: molecule · 상태: beta
+// 레벨: molecule · 카테고리: Selection · 상태: beta
 
 /** `SegmentedControl.size` 허용 값 (계약이 유일한 원천) */
 export type SegmentedControlSize = 'sm' | 'md';

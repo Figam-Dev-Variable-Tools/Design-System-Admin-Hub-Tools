@@ -1,5 +1,5 @@
 // AUTO-GENERATED from contracts/FormField.contract.json@1.1.0 — DO NOT EDIT (pnpm codegen)
-// 레벨: molecule · 상태: beta
+// 레벨: molecule · 카테고리: Forms · 상태: beta
 
 import type { ReactNode } from 'react';
 

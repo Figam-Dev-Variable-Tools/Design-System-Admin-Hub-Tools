@@ -50,10 +50,34 @@ const preview: Preview = {
     direction: 'ltr',
   },
   parameters: {
-    // 사이드바 정렬 — Foundations(토큰 문서)를 최상단에, 이후 원자적 계층 순서.
+    // 사이드바 정렬 — Foundations(토큰 문서)를 최상단에, 이후 계약의 category 정본 순서.
     options: {
       storySort: {
-        order: ['Foundations', 'Atoms', 'Molecules', 'Organisms', 'Templates', 'Pages'],
+        order: [
+          'Foundations',
+          'Actions',
+          'Inputs',
+          'Selection',
+          'Navigation',
+          'Feedback',
+          'Dialogs & Overlays',
+          'Data Display',
+          'Media',
+          'Layout',
+          'Forms',
+          'Lists',
+          'Tables',
+          'Authentication',
+          'Commerce',
+          'Communication',
+          'File',
+          'Maps',
+          'Charts',
+          'Utilities',
+          'Mobile',
+          'AI',
+          'Korean Service',
+        ],
       },
     },
     // 다크 페어 배경 — color.surface.default 가 각 테마에서 해석되는 primitive 를 직접 참조한다.

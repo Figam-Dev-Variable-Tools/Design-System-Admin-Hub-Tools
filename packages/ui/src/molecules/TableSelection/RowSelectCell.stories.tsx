@@ -38,7 +38,7 @@ function ControlledRowSelectCell(args: RowSelectCellProps) {
 }
 
 const meta: Meta<typeof RowSelectCell> = {
-  title: 'Molecules/TableSelection/RowSelectCell',
+  title: 'Tables/RowSelectCell',
   component: RowSelectCell,
   argTypes: { ...RowSelectCellArgTypes },
   args: {

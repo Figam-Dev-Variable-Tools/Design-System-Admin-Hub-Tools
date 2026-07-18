@@ -9,6 +9,11 @@
  *     (d) dependencies: 대상 계약 파일 실존 + level 위계
  *         - atom 은 dependencies 가 비어 있어야 한다
  *         - 자기 자신/상위 레벨 의존(역방향 의존) 금지
+ *     (e) 카테고리 정본 순서(shared.ts CATEGORY_ORDER)와 소비처 4곳의 복제본 일치
+ *         - contracts/schemas/component.v1.json      (category enum)
+ *         - tools/figma-plugin/src/main.ts           (COMPONENT_CATEGORY_ORDER)
+ *         - tools/figma-plugin/src/tds-doc.ts        (COMPONENT_CATEGORIES)
+ *         - packages/ui/.storybook/preview.ts        (storySort.order)
  *
  * 위반이 하나라도 있으면 위반 목록을 출력하고 exit 1.
  *
@@ -19,8 +24,18 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
-import { CONTRACT_SCHEMA_PATH, CONTRACTS_DIR, TOKENS_JSON_PATH, relFromRepo } from './paths';
 import {
+  CONTRACT_SCHEMA_PATH,
+  CONTRACTS_DIR,
+  FIGMA_DOC_PATH,
+  FIGMA_MAIN_PATH,
+  STORYBOOK_PREVIEW_PATH,
+  TOKENS_JSON_PATH,
+  relFromRepo,
+} from './paths';
+import { TAXONOMY_SOURCE_PATH, loadTaxonomySource, taxonomyItemKeys } from './generate-taxonomy';
+import {
+  CATEGORY_ORDER,
   ComponentContract,
   LEVEL_ORDER,
   LoadedContract,
@@ -211,7 +226,137 @@ export function runValidation(): ValidationResult {
     }
   }
 
+  violations.push(...checkCategoryOrderSync());
+  violations.push(...checkTaxonomyItems(contracts));
+
   return { violations, contracts };
+}
+
+/**
+ * taxonomyItem 이 실제로 그 category 안에 있는 정본 항목인지, 그리고 한 항목을 두 컴포넌트가
+ * 동시에 주장하지 않는지 검사한다. 어긋나면 카탈로그가 조용히 '미구현'으로 남는다.
+ */
+function checkTaxonomyItems(contracts: LoadedContract[]): Violation[] {
+  const out: Violation[] = [];
+  const source = loadTaxonomySource();
+  if (source === null) return out; // 분류표가 없으면 이 축은 검사하지 않는다
+
+  const keysByCategory = taxonomyItemKeys(source);
+  const claimed = new Map<string, string>(); // `${category}/${item}` → 컴포넌트명
+
+  for (const { filePath, contract } of contracts) {
+    const item = contract.taxonomyItem;
+    if (item === undefined) continue;
+    const file = relFromRepo(filePath);
+    const keys = keysByCategory.get(contract.category);
+    if (!keys) {
+      out.push({
+        file,
+        rule: 'taxonomy-item',
+        message: `분류표에 category '${contract.category}' 가 없습니다.`,
+      });
+      continue;
+    }
+    if (!keys.has(item)) {
+      out.push({
+        file,
+        rule: 'taxonomy-item',
+        message: `taxonomyItem '${item}' 이 '${contract.category}' 의 정본 항목이 아닙니다 — ${relFromRepo(TAXONOMY_SOURCE_PATH)} 참조.`,
+      });
+      continue;
+    }
+    const slot = `${contract.category}/${item}`;
+    const prev = claimed.get(slot);
+    if (prev !== undefined) {
+      out.push({
+        file,
+        rule: 'taxonomy-item',
+        message: `정본 항목 '${slot}' 을 ${prev} 와 ${contract.name} 이 중복 주장합니다.`,
+      });
+      continue;
+    }
+    claimed.set(slot, contract.name);
+  }
+
+  return out;
+}
+
+/**
+ * 카테고리 정본 순서(CATEGORY_ORDER)를 소비처 4곳이 그대로 복제하고 있는지 검사한다.
+ * 복제본이 어긋나면 Storybook 사이드바 순서와 Figma 페이지 순서가 조용히 갈라지므로
+ * 텍스트 수준에서 강제한다 — 소비처는 각자 다른 런타임(플러그인 샌드박스·Storybook 설정)이라
+ * 정본을 import 할 수 없다.
+ */
+function checkCategoryOrderSync(): Violation[] {
+  const out: Violation[] = [];
+
+  /** `marker` 뒤 첫 배열 리터럴에서 따옴표 문자열을 순서대로 뽑는다 */
+  const literalsAfter = (source: string, marker: string): string[] | null => {
+    const start = source.indexOf(marker);
+    if (start < 0) return null;
+    const open = source.indexOf('[', start);
+    const close = source.indexOf(']', open);
+    if (open < 0 || close < 0) return null;
+    return [...source.slice(open, close).matchAll(/'([^']*)'|"([^"]*)"/g)].map(
+      (m) => m[1] ?? m[2] ?? '',
+    );
+  };
+
+  const compare = (file: string, actual: string[] | null, expected: readonly string[]): void => {
+    if (actual === null) {
+      out.push({ file, rule: 'category-order-sync', message: '카테고리 목록을 찾지 못했습니다.' });
+      return;
+    }
+    if (actual.length === expected.length && actual.every((v, i) => v === expected[i])) return;
+    out.push({
+      file,
+      rule: 'category-order-sync',
+      message: `카테고리 순서가 CATEGORY_ORDER(tools/codegen/src/shared.ts)와 다릅니다.\n        기대: ${expected.join(' → ')}\n        실제: ${actual.join(' → ')}`,
+    });
+  };
+
+  // 스키마 enum — CATEGORY_ORDER 와 완전히 동일해야 한다
+  const schema = readJsonFile(CONTRACT_SCHEMA_PATH) as {
+    properties?: { category?: { enum?: string[] } };
+  };
+  compare(
+    relFromRepo(CONTRACT_SCHEMA_PATH),
+    schema.properties?.category?.enum ?? null,
+    CATEGORY_ORDER,
+  );
+
+  const read = (abs: string): string | null =>
+    fs.existsSync(abs) ? fs.readFileSync(abs, 'utf8') : null;
+
+  for (const [abs, marker] of [
+    [FIGMA_MAIN_PATH, 'const COMPONENT_CATEGORY_ORDER ='],
+    [FIGMA_DOC_PATH, 'const COMPONENT_CATEGORIES ='],
+  ] as const) {
+    const src = read(abs);
+    if (src === null) {
+      out.push({ file: relFromRepo(abs), rule: 'category-order-sync', message: '파일 없음' });
+      continue;
+    }
+    compare(relFromRepo(abs), literalsAfter(src, marker), CATEGORY_ORDER);
+  }
+
+  // Storybook 사이드바 — 토큰 문서 네임스페이스 'Foundations' 가 맨 앞에 오고,
+  // 계약 category 'Foundation'(컴포넌트용)은 사이드바 그룹으로 쓰지 않는다.
+  const previewSrc = read(STORYBOOK_PREVIEW_PATH);
+  if (previewSrc === null) {
+    out.push({
+      file: relFromRepo(STORYBOOK_PREVIEW_PATH),
+      rule: 'category-order-sync',
+      message: '파일 없음',
+    });
+  } else {
+    compare(relFromRepo(STORYBOOK_PREVIEW_PATH), literalsAfter(previewSrc, 'storySort'), [
+      'Foundations',
+      ...CATEGORY_ORDER.filter((c) => c !== 'Foundation'),
+    ]);
+  }
+
+  return out;
 }
 
 /** 검증 결과 출력 + 종료 코드 결정 (index.ts 와 단독 실행이 공유) */

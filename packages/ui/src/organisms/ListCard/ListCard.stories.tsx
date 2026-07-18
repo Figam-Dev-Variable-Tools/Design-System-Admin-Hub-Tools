@@ -43,7 +43,7 @@ const ROWS = [
 ];
 
 const meta: Meta<typeof ListCard> = {
-  title: 'Organisms/ListCard',
+  title: 'Data Display/ListCard',
   component: ListCard,
   argTypes: { ...ListCardArgTypes },
   args: {

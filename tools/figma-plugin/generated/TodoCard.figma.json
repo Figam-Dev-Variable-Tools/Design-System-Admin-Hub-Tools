@@ -3,6 +3,8 @@
   "name": "TodoCard",
   "component": "TodoCard",
   "version": "2.0.0",
+  "level": "organism",
+  "category": "Data Display",
   "variantProperties": {
     "Loading": {
       "values": [

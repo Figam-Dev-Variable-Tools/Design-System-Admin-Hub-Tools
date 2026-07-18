@@ -13,6 +13,7 @@
 |---|---|
 | 버전 | `1.1.0` |
 | 레벨 | `molecule` |
+| 카테고리 | `Charts` |
 | 상태 | `beta` |
 | 소유 | code `component-eng` · design `ui-design` · figma `figma-eng` |
 

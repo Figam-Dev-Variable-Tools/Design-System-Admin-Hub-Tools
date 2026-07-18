@@ -39,7 +39,7 @@ interface CrudFormConfig<T extends { id: string }, Input, Values extends FieldVa
 /** 상세 조회 실패의 갈래 — 404 와 5xx 는 복구 수단이 다르다 (EXC-12) */
 export type LoadFailure = 'not-found' | 'error';
 
-interface CrudFormController<Values extends FieldValues> {
+interface CrudFormController<T, Values extends FieldValues> {
   readonly form: UseFormReturn<Values>;
   readonly isEdit: boolean;
   readonly saving: boolean;
@@ -58,6 +58,14 @@ interface CrudFormController<Values extends FieldValues> {
   readonly conflict: ConflictState | null;
   readonly submit: (event: FormEvent<HTMLFormElement>) => void;
   readonly isDirty: boolean;
+  /**
+   * 서버에서 불러온 원본 — 등록 화면이거나 아직 도착 전이면 undefined.
+   *
+   * [왜 폼 값이 아니라 원본이 필요한가] '저장된 상태' 를 근거로 편집을 막아야 하는 화면이 있다
+   * (예: 카카오 승인이 끝난 알림톡 템플릿). 판단을 폼 값으로 하면 사용자가 그 필드를 되돌리는
+   * 것만으로 잠금이 풀린다 — 잠금의 근거는 화면이 아니라 서버가 갖고 있어야 한다.
+   */
+  readonly loaded: T | undefined;
 }
 
 export interface ConflictState {
@@ -70,7 +78,7 @@ export interface ConflictState {
 
 export function useCrudForm<T extends { id: string }, Input, Values extends FieldValues>(
   config: CrudFormConfig<T, Input, Values>,
-): CrudFormController<Values> {
+): CrudFormController<T, Values> {
   const { id } = useParams<{ id: string }>();
   const isEdit = id !== undefined;
   const navigate = useNavigate();
@@ -259,5 +267,6 @@ export function useCrudForm<T extends { id: string }, Input, Values extends Fiel
     conflict,
     submit: (event) => void form.handleSubmit(onValid, onInvalid)(event),
     isDirty: form.formState.isDirty,
+    loaded,
   };
 }

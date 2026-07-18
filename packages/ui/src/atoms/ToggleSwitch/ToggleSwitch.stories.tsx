@@ -28,7 +28,7 @@ function ControlledToggle(args: ToggleSwitchProps) {
 }
 
 const meta: Meta<typeof ToggleSwitch> = {
-  title: 'Atoms/ToggleSwitch',
+  title: 'Inputs/ToggleSwitch',
   component: ToggleSwitch,
   argTypes: { ...ToggleSwitchArgTypes },
   args: {

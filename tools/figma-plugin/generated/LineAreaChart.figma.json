@@ -3,6 +3,8 @@
   "name": "LineAreaChart",
   "component": "LineAreaChart",
   "version": "1.1.0",
+  "level": "molecule",
+  "category": "Charts",
   "variantProperties": {
     "ShowLegend": {
       "values": [

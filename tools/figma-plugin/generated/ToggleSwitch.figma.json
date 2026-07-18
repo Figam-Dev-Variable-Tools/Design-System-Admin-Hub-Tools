@@ -3,6 +3,8 @@
   "name": "ToggleSwitch",
   "component": "ToggleSwitch",
   "version": "1.0.0",
+  "level": "atom",
+  "category": "Inputs",
   "variantProperties": {
     "Checked": {
       "values": [

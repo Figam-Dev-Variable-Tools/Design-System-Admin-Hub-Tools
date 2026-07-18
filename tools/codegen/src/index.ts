@@ -20,6 +20,7 @@ import {
   GENERATED_ARGTYPES_DIR,
   GENERATED_TOKENS_DIR,
   GENERATED_TYPES_DIR,
+  UI_GENERATED_DIR,
   relFromRepo,
 } from './paths';
 import { GeneratedFile, fileMatches, loadTokensDocument, writeFileEnsured } from './shared';
@@ -30,6 +31,7 @@ import { generateFigma } from './generate-figma';
 import { FigmaContractOutput, generateFigmaManifest } from './generate-figma-manifest';
 import { generateFigmaVariables } from './generate-figma-variables';
 import { generateDocs } from './generate-docs';
+import { generateTaxonomy, loadTaxonomySource } from './generate-taxonomy';
 import { generateTokenOutputs } from './tokens-to-css';
 
 interface OutputPattern {
@@ -47,6 +49,8 @@ const OUTPUT_PATTERNS: OutputPattern[] = [
   { dir: FIGMA_TOKENS_GENERATED_DIR, pattern: /^figma-variables\.json$/ },
   { dir: DOCS_COMPONENTS_DIR, pattern: /\.api\.md$/ },
   { dir: GENERATED_TOKENS_DIR, pattern: /^tokens\.(css|ts)$/ },
+  { dir: UI_GENERATED_DIR, pattern: /^taxonomy\.ts$/ },
+  { dir: FIGMA_GENERATED_DIR, pattern: /^taxonomy\.json$/ },
 ];
 
 function collectExistingOutputs(): string[] {
@@ -94,6 +98,19 @@ function main(): void {
     expected.push(figmaVariablesFile);
   } else {
     console.warn('[codegen] tokens/tokens.json 이 아직 없습니다 — 토큰 생성 단계를 건너뜁니다.');
+  }
+
+  // 정본 분류표 × 계약 → 카탈로그(구현 현황). Storybook 과 Figma 가 같은 판정을 보도록 한 곳에서 합친다.
+  const taxonomySource = loadTaxonomySource();
+  if (taxonomySource !== null) {
+    expected.push(
+      ...generateTaxonomy(
+        taxonomySource,
+        validation.contracts.map((c) => c.contract),
+      ),
+    );
+  } else {
+    console.warn('[codegen] taxonomy/taxonomy.v1.json 이 없습니다 — 카탈로그 생성을 건너뜁니다.');
   }
 
   // 플러그인 UI 가 "무엇이 전량인가"를 아는 유일한 수단 — 항상 마지막에 조립한다

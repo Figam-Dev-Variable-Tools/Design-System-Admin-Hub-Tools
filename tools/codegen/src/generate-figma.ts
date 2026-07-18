@@ -103,6 +103,10 @@ export function generateFigma(contract: ComponentContract): GeneratedFile {
     name: contract.name,
     component: contract.name,
     version: contract.version,
+    // level: atom·molecule·organism — 플러그인이 Component Set 을 레벨별 페이지로 분류하는 데 쓴다
+    level: contract.level,
+    // category: 기능 축(Actions·Inputs·Feedback…) — level 과 직교한 분류 축이다
+    category: contract.category,
     variantProperties: toVariantProperties(properties),
     properties,
     tokens: contract.tokens,

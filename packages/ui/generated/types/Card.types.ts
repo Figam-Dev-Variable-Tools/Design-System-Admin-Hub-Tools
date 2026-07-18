@@ -1,5 +1,5 @@
 // AUTO-GENERATED from contracts/Card.contract.json@1.2.0 — DO NOT EDIT (pnpm codegen)
-// 레벨: atom · 상태: beta
+// 레벨: atom · 카테고리: Data Display · 상태: beta
 
 import type { ReactNode } from 'react';
 

@@ -3,6 +3,8 @@
   "name": "Button",
   "version": "1.1.0",
   "level": "atom",
+  "category": "Actions",
+  "taxonomyItem": "button",
   "status": "beta",
   "description": "기본 액션 버튼. 이 계약에서 React Props 타입, Storybook argTypes, Figma Component Properties, Docs가 자동 생성된다 (tools/codegen). G3 승인 시 Frozen — 변경은 변경 요청 → G3 재진입 + SemVer 재판정.\n\n[네이티브 속성 패스스루 — 계약 prop 이 아니다] 계약 props 외의 표준 HTML/ARIA 속성(aria-label · aria-describedby · aria-busy · title …)은 구현이 <button> 으로 그대로 전달한다 (Card 선례: CardProps & Omit<HTMLAttributes,'style'|'children'|'className'>). 이 속성들은 시각 변형이 아니고 Figma Component Property 대응도 없으므로 계약 prop 으로 열거하지 않는다. 실사용: RolePanel(aria-describedby·title) · PointsCard(aria-label) · ConfirmDialog(aria-busy). className/style 은 토큰 규칙 보호를 위해 차단한다.",
   "owner": { "code": "component-eng", "design": "ui-design", "figma": "figma-eng" },

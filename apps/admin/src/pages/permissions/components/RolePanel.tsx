@@ -1,7 +1,12 @@
 // 좌측 역할 목록 패널
 //
-// 구조는 관리자 화면의 AdminGroupPanel 과 같다 — 제목 + 목록 + 안내문.
-// 선택 항목의 시각 규칙(배경 강조 + 파란 텍스트)도 TierFilter/AdminGroupPanel 과 동일하다.
+// 껍데기(패널 + 하단 안내문)는 공유 FilterRail 이다 — 다른 좌측 필터와 같은 한 벌.
+//
+// [목록은 왜 공유 FilterPanel 이 아닌가] 이 목록의 항목은 '라벨 + 건수 배지' 가 아니다:
+// 시스템 역할에는 자물쇠 아이콘이 붙고, 적용 중인 역할에는 **숫자가 아닌** '적용 중' 배지가 붙는다.
+// FilterPanel 은 그 둘(항목별 아이콘 · 숫자 아닌 배지)을 일부러 열어 두지 않았다 — 지금 없는 축을
+// 미리 여는 대신, 이 화면에서만 필요한 항목 렌더링을 여기 남긴다. 선택 강조·hover·aria 표기는
+// 공유 filterItemStyle 과 aria-pressed(A11Y-12)를 그대로 쓰므로 규칙이 갈라지지는 않는다.
 //
 // 시스템 역할(슈퍼어드민)을 고르면 '수정'·'삭제' 가 비활성되고,
 // 그 이유는 aria-describedby 로 연결된 문구가 알려준다 (색·툴팁만으로 전달하지 않는다).
@@ -16,8 +21,7 @@ import {
   filterItemStyle,
   filterListStyle,
   filterNavStyle,
-  filterNoticeStyle,
-  filterPanelStyle,
+  FilterRail,
   hintStyle,
   PencilIcon,
   TrashIcon,
@@ -96,7 +100,25 @@ export function RolePanel({
   const locked = selected === null || selected.system;
 
   return (
-    <aside style={filterPanelStyle}>
+    <FilterRail
+      notice={
+        <>
+          {/* 비활성 컨트롤(수정·삭제 버튼, 매트릭스 체크박스, 범위 select)이 가리키는 문구 —
+              보이는 텍스트이기도 하다 (사유를 색·비활성 상태만으로 전달하지 않는다) */}
+          <p id={systemReasonId} style={hintStyle}>
+            {SYSTEM_ROLE_REASON}
+          </p>
+          <p style={hintStyle}>
+            '적용 중' 역할의 권한이 곧 이 관리자 앱의 유효 권한입니다. 조회를 끄면 사이드바의 메뉴와
+            하위 메뉴가 즉시 사라집니다.
+          </p>
+          <p style={hintStyle}>
+            체크는 누르는 즉시 저장됩니다 — 따로 저장 버튼이 없습니다. 설정은 이 브라우저에
+            저장되며, 열려 있는 다른 탭에도 실시간으로 반영됩니다.
+          </p>
+        </>
+      }
+    >
       <nav style={filterNavStyle} aria-label="역할 목록">
         <h2 style={filterHeadingStyle}>역할</h2>
 
@@ -154,22 +176,6 @@ export function RolePanel({
           })}
         </ul>
       </nav>
-
-      <div style={filterNoticeStyle}>
-        {/* 비활성 컨트롤(수정·삭제 버튼, 매트릭스 체크박스, 범위 select)이 가리키는 문구 —
-            보이는 텍스트이기도 하다 (사유를 색·비활성 상태만으로 전달하지 않는다) */}
-        <p id={systemReasonId} style={hintStyle}>
-          {SYSTEM_ROLE_REASON}
-        </p>
-        <p style={hintStyle}>
-          '적용 중' 역할의 권한이 곧 이 관리자 앱의 유효 권한입니다. 조회를 끄면 사이드바의 메뉴와
-          하위 메뉴가 즉시 사라집니다.
-        </p>
-        <p style={hintStyle}>
-          체크는 누르는 즉시 저장됩니다 — 따로 저장 버튼이 없습니다. 설정은 이 브라우저에 저장되며,
-          열려 있는 다른 탭에도 실시간으로 반영됩니다.
-        </p>
-      </div>
-    </aside>
+    </FilterRail>
   );
 }

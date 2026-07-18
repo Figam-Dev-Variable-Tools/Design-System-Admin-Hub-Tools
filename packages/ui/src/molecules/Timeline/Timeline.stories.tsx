@@ -44,7 +44,7 @@ const EVENTS = [
 ];
 
 const meta: Meta<typeof Timeline> = {
-  title: 'Molecules/Timeline',
+  title: 'Data Display/Timeline',
   component: Timeline,
   argTypes: { ...TimelineArgTypes },
   args: {

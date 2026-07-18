@@ -3,6 +3,8 @@
   "name": "ConfirmDialog",
   "component": "ConfirmDialog",
   "version": "1.0.0",
+  "level": "organism",
+  "category": "Dialogs & Overlays",
   "variantProperties": {
     "Intent": {
       "values": [

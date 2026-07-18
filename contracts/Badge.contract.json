@@ -3,6 +3,8 @@
   "name": "Badge",
   "version": "1.0.0",
   "level": "atom",
+  "category": "Data Display",
+  "taxonomyItem": "badge",
   "status": "beta",
   "description": "카운트 뱃지 — 제목/라벨 옆에 개수를 표시하는 원형 pill. 출처: apps/admin/src/pages/dashboard/components/Card.tsx 의 CountBadge (count<=0 이면 렌더하지 않음). 비대화형 표시 전용이며 클릭 이벤트를 갖지 않는다.",
   "owner": { "code": "component-eng", "design": "ui-design", "figma": "figma-eng" },

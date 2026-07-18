@@ -3,6 +3,8 @@
   "name": "RichTextField",
   "component": "RichTextField",
   "version": "1.0.0",
+  "level": "molecule",
+  "category": "Inputs",
   "variantProperties": {
     "Required": {
       "values": [

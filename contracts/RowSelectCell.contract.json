@@ -3,6 +3,7 @@
   "name": "RowSelectCell",
   "version": "1.0.0",
   "level": "molecule",
+  "category": "Tables",
   "status": "beta",
   "description": "표 행의 선택 칸 — 보이지 않는 라벨 + 단일 체크박스를 담은 <td>. 목록 표(회원·운영자·공지·FAQ·팝업·배너·버전 이력)의 행 선택 마크업을 한 벌로 올렸다. 도메인을 모른다 — 행 식별자(id)·보이지 않는 라벨 문구(label)·checked·토글 콜백만 받는다. 출처: apps/admin/src/shared/ui/TableSelection.tsx 의 RowSelectCell (TableSelection 묶음의 행-셀 대표). 보이는 라벨이 없으므로 시각적으로 숨긴 문구를 두고 aria-labelledby(id 파생) 로 잇는다.",
   "owner": { "code": "react-refactor", "design": "ui-design", "figma": "figma-eng" },

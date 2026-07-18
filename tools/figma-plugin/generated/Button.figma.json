@@ -3,6 +3,8 @@
   "name": "Button",
   "component": "Button",
   "version": "1.1.0",
+  "level": "atom",
+  "category": "Actions",
   "variantProperties": {
     "Variant": {
       "values": [

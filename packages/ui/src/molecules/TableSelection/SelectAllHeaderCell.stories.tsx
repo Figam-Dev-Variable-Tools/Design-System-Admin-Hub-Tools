@@ -21,7 +21,7 @@ const tableFrame: Decorator = (Story) => (
 );
 
 const meta: Meta<typeof SelectAllHeaderCell> = {
-  title: 'Molecules/TableSelection/SelectAllHeaderCell',
+  title: 'Tables/SelectAllHeaderCell',
   component: SelectAllHeaderCell,
   argTypes: { ...SelectAllHeaderCellArgTypes },
   args: {

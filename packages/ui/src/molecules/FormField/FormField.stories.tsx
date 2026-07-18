@@ -30,7 +30,7 @@ const control = (
 );
 
 const meta: Meta<typeof FormField> = {
-  title: 'Molecules/FormField',
+  title: 'Forms/FormField',
   component: FormField,
   argTypes: { ...FormFieldArgTypes },
   args: {

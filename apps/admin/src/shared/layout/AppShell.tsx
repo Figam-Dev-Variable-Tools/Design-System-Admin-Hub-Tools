@@ -40,7 +40,7 @@ import {
 } from '../icons';
 import { usePermissions } from '../permissions/PermissionProvider';
 import { navGroupResourceId, navPageResourceId } from '../permissions/resources';
-import { findNavLabel, NAV_SECTIONS } from './nav-config';
+import { findCoveringBranch, findNavLabel, NAV_SECTIONS } from './nav-config';
 import type { NavBranch, NavEntry, NavIconName } from './nav-config';
 
 function NavIcon({ name }: { readonly name: NavIconName }): ReactNode {
@@ -331,7 +331,10 @@ function RouteFocusAnnouncer({ label }: { readonly label: string }) {
   useEffect(() => {
     if (focusedPathRef.current === pathname) return;
     focusedPathRef.current = pathname;
-    document.getElementById(MAIN_ID)?.focus();
+    // preventScroll — focus() 의 기본 동작은 대상을 화면 안으로 끌어오는 것이라, 여기서 막지 않으면
+    // 바로 아래 scrollTo(0) 와 싸운다. 포커스 이동만 시키고 스크롤 위치는 다음 줄이 정한다.
+    document.getElementById(MAIN_ID)?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, [pathname]);
 
   // polite live region — 이동한 화면의 이름을 읽어 준다. 항상 마운트돼 있어야 주입이 announce 된다.
@@ -343,19 +346,23 @@ function RouteFocusAnnouncer({ label }: { readonly label: string }) {
 }
 
 /**
- * 확장형 항목 — 현재 경로가 basePath 아래면 기본 펼침.
- * branch 임이 타입으로 보장되므로 훅 앞의 조건부 return 이 없다 (Rules of Hooks).
+ * 확장형 항목 — 펼침 여부는 자기가 갖지 않고 AppShell 이 준다.
+ *
+ * [왜 상태를 위로 올렸나] 예전에는 가지마다 자기 useState 를 들고 있어서 **여러 가지가 동시에**
+ * 펼쳐졌다. "한 번에 하나만" 은 가지 하나가 혼자 알 수 없는 규칙(다른 가지를 닫아야 한다)이라,
+ * 형제를 모두 보는 부모만 강제할 수 있다.
  */
 function BranchEntry({
   icon,
   item,
-  pathname,
+  open,
+  onToggle,
 }: {
   readonly icon: NavIconName;
   readonly item: NavBranch;
-  readonly pathname: string;
+  readonly open: boolean;
+  readonly onToggle: () => void;
 }) {
-  const [open, setOpen] = useState(() => pathname.startsWith(item.basePath));
   const panelId = `nav-panel-${item.basePath.replace(/\//g, '-')}`;
 
   return (
@@ -366,7 +373,7 @@ function BranchEntry({
         style={rowStyle(false)}
         aria-expanded={open}
         aria-controls={panelId}
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={onToggle}
       >
         <NavIcon name={icon} />
         <span style={rowLabelStyle}>{item.label}</span>
@@ -396,6 +403,25 @@ function BranchEntry({
 export default function AppShell() {
   const { pathname } = useLocation();
   const { can } = usePermissions();
+
+  /**
+   * 펼쳐진 가지 — 항상 0개 또는 1개다.
+   *
+   * [경로가 정본, 클릭은 그 위의 덧칠] 화면을 옮기면 그 화면이 속한 가지만 열려 있어야 하므로
+   * 이동 때마다 경로 기준으로 되돌린다. 그 사이 사용자가 다른 가지를 눌러 둘러보는 것은 허용하되,
+   * 그때도 눌린 가지 하나만 남기고 나머지는 닫는다.
+   *
+   * [effect 가 아니라 렌더 중 조정] useEffect 로 맞추면 **닫힌 프레임이 한 번 그려진 뒤** 열려서
+   * 메뉴가 깜빡인다. 렌더 도중의 setState 는 커밋 전에 즉시 재실행되므로 중간 프레임이 없다.
+   */
+  const routeBasePath = findCoveringBranch(pathname);
+  const [openBasePath, setOpenBasePath] = useState<string | null>(routeBasePath);
+  const [syncedPath, setSyncedPath] = useState(pathname);
+
+  if (syncedPath !== pathname) {
+    setSyncedPath(pathname);
+    setOpenBasePath(routeBasePath);
+  }
 
   /**
    * 메뉴 가시성 판정 — 활성 역할의 **read** 권한만 본다 (등록/수정/삭제/내보내기는 화면 안의 일).
@@ -441,28 +467,38 @@ export default function AppShell() {
             <div key={section.title}>
               <h2 style={sectionTitleStyle}>{section.title}</h2>
               <ul style={listStyle}>
-                {section.entries.map((entry) =>
-                  entry.item.kind === 'leaf' ? (
-                    <li key={entry.item.to}>
-                      <NavLink
-                        to={entry.item.to}
-                        end
-                        className="tds-nav-row"
-                        style={({ isActive }) => rowStyle(isActive)}
-                      >
-                        <NavIcon name={entry.icon} />
-                        <span style={rowLabelStyle}>{entry.item.label}</span>
-                      </NavLink>
-                    </li>
-                  ) : (
+                {section.entries.map((entry) => {
+                  const item = entry.item;
+
+                  if (item.kind === 'leaf') {
+                    return (
+                      <li key={item.to}>
+                        <NavLink
+                          to={item.to}
+                          end
+                          className="tds-nav-row"
+                          style={({ isActive }) => rowStyle(isActive)}
+                        >
+                          <NavIcon name={entry.icon} />
+                          <span style={rowLabelStyle}>{item.label}</span>
+                        </NavLink>
+                      </li>
+                    );
+                  }
+
+                  const base = item.basePath;
+                  return (
                     <BranchEntry
-                      key={entry.item.basePath}
+                      key={base}
                       icon={entry.icon}
-                      item={entry.item}
-                      pathname={pathname}
+                      item={item}
+                      open={openBasePath === base}
+                      onToggle={() => {
+                        setOpenBasePath((prev) => (prev === base ? null : base));
+                      }}
                     />
-                  ),
-                )}
+                  );
+                })}
               </ul>
             </div>
           ))}

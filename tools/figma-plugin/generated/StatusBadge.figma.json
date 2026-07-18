@@ -3,6 +3,8 @@
   "name": "StatusBadge",
   "component": "StatusBadge",
   "version": "1.0.0",
+  "level": "atom",
+  "category": "Feedback",
   "variantProperties": {
     "Tone": {
       "values": [

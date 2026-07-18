@@ -13,6 +13,7 @@ import {
   isNightHour,
   isPhoneNumber,
   isSendableTemplate,
+  isTemplateContentLocked,
   isVariableOnlyBody,
   meetsAdRequirements,
   smsByteLimit,
@@ -118,6 +119,26 @@ describe('알림톡 발송 가능 판정', () => {
   it('SMS·이메일은 승인 개념 없이 항상 발송 가능', () => {
     expect(isSendableTemplate('sms', 'draft')).toBe(true);
     expect(isSendableTemplate('email', 'draft')).toBe(true);
+  });
+});
+
+describe('심사에 걸린 템플릿 내용 잠금', () => {
+  it('알림톡은 승인·검수중이면 잠긴다 — 승인은 그 문구에 대한 것이라 고치면 무효가 된다', () => {
+    expect(isTemplateContentLocked('alimtalk', 'approved')).toBe(true);
+    expect(isTemplateContentLocked('alimtalk', 'inspecting')).toBe(true);
+  });
+
+  it('반려는 잠기지 않는다 — 고쳐서 다시 내는 것이 반려의 목적이다', () => {
+    expect(isTemplateContentLocked('alimtalk', 'rejected')).toBe(false);
+    expect(isTemplateContentLocked('alimtalk', 'draft')).toBe(false);
+  });
+
+  it('SMS·이메일은 심사가 없으므로 어떤 상태에서도 잠기지 않는다', () => {
+    // 픽스처의 SMS 템플릿은 approvalStatus 가 'approved' 다 — 승인 개념이 없는 채널에서
+    // 그 값을 잠금 근거로 삼으면 문자 템플릿이 통째로 수정 불가가 된다.
+    expect(isTemplateContentLocked('sms', 'approved')).toBe(false);
+    expect(isTemplateContentLocked('email', 'approved')).toBe(false);
+    expect(isTemplateContentLocked('sms', 'inspecting')).toBe(false);
   });
 });
 

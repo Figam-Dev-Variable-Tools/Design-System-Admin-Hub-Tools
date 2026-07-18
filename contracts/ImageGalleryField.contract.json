@@ -3,6 +3,7 @@
   "name": "ImageGalleryField",
   "version": "1.1.0",
   "level": "molecule",
+  "category": "Inputs",
   "status": "beta",
   "description": "다중 이미지 업로드(갤러리) 필드 — ImageUploadField 와 같은 메커니즘(드래그드롭·클릭 선택·object URL 프리뷰·클라이언트 검증)을 여러 장으로 확장한다. 값(values)은 이미지 URL 배열이다. 도메인을 모른다 — label/values/onChange 와 힌트만 받는다 (ADR-0003).\n\n[손코딩 유지] react-dropzone 기각(오너 검토) — 드롭존 버튼을 직접 만든다.\n[프리뷰] 그리드 타일, 각 타일에 개별 제거 버튼. 순서는 추가 순서 유지. 타일 URL 이 비거나 로드 실패면 이미지 아이콘 placeholder.\n[검증] image/* · 파일당 용량 상한(maxSizeMB) · 개수 상한(maxFiles). 위반은 인라인 오류(토스트 아님). imageFileError 순수 함수를 ImageUploadField 와 공유.\n[누수 방지] 우리가 만든 object URL 만 추적해 제거/언마운트 시 revoke 한다.\n\n[imperative/경계] onChange 는 새 URL 배열을 넘기는 값 콜백. error/hint 는 exactOptionalPropertyTypes 경계에서 undefined 허용으로 넓힌다 (B2 선례).",
   "owner": {

@@ -3,6 +3,8 @@
   "name": "Checkbox",
   "component": "Checkbox",
   "version": "1.1.0",
+  "level": "atom",
+  "category": "Inputs",
   "variantProperties": {
     "Checked": {
       "values": [

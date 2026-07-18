@@ -1,32 +1,24 @@
 // 좌측 필터 패널 — 화면별 축 + 기간 + 보존기간 안내 (apps/admin/src/pages/logs/**)
 //
-// 배치와 시각 규칙은 회원 관리(TierFilter/GroupFilter)·로그인 이력과 **같다** — 제목 + 목록 + 선택 강조.
-// 그 조각들(filterPanelStyle/filterNavStyle/filterHeadingStyle/filterListStyle/filterItemStyle/
-// filterNoticeStyle)은 전부 shared/ui 에 있다 — 여기서 로컬로 다시 선언하지 않는다 (COMP-05).
+// 배치와 시각 규칙은 회원 관리·로그인 이력과 **같다** — 골격은 공유 FilterPanel/FilterRail 한 벌이고
+// 여기서 다시 만들지 않는다 (COMP-05). 선택 상태는 aria-pressed 로만 표기한다 (A11Y-12).
 //
 // [축이 데이터인 이유] 4화면의 축은 라벨과 배지만 다르고 구조가 같다. 축을 prop 으로 받으면
 // 이 파일 한 벌이 4화면을 그린다 — 화면마다 30줄짜리 클론을 만들지 않는다.
 //
-// [A11Y-12] 선택 상태는 **aria-pressed** 로만 표기한다. 이 앱의 다른 필터가 전부 그렇고,
-// 같은 토글이 화면마다 다른 속성으로 읽히면 보조기술 사용자가 매번 다시 배워야 한다.
-// (aria-current 는 쓰지 않는다 — 그것은 '현재 위치'이지 '눌린 상태'가 아니다.)
-//
 // [여기에 없는 것] 필터를 저장하거나 로그를 삭제하는 버튼이 없다. 감사 로그는 조회 대상일 뿐이다.
 import type { CSSProperties } from 'react';
 
-import { formatNumber, TIME_ZONE_NOTICE } from '../../../shared/format';
+import { TIME_ZONE_NOTICE } from '../../../shared/format';
 import {
-  badgeStyle,
   DateRangeField,
-  filterHeadingStyle,
-  filterItemStyle,
-  filterListStyle,
+  FilterPanel,
+  FilterRail,
   filterNavStyle,
-  filterNoticeStyle,
-  filterPanelStyle,
   hintStyle,
 } from '../../../shared/ui';
-import { ALL_FILTER, MAX_RANGE_DAYS, PERIOD_FILTERS } from '../types';
+import type { FilterOption } from '../../../shared/ui';
+import { ALL_FILTER, isPeriodId, MAX_RANGE_DAYS, PERIOD_FILTERS } from '../types';
 import type { LogAxisCounts, LogFilterAxis, PeriodId, RetentionPolicy } from '../types';
 import { firstIssueMessage } from '../validation';
 import type { CustomRangeDraft, RangeIssue } from '../validation';
@@ -48,48 +40,12 @@ const retentionStyle: CSSProperties = {
   fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
 };
 
-interface FilterGroupProps {
-  readonly heading: string;
-  readonly ariaLabel: string;
-  readonly options: readonly { readonly id: string; readonly label: string }[];
-  readonly value: string;
-  /** 배지 숫자. `undefined` 를 돌려주면 배지를 달지 않는다(기간 목록), `null` 이면 '—' */
-  readonly countOf: (id: string) => number | null | undefined;
-  readonly onChange: (id: string) => void;
-}
-
-function FilterGroup({ heading, ariaLabel, options, value, countOf, onChange }: FilterGroupProps) {
-  return (
-    <nav style={filterNavStyle} aria-label={ariaLabel}>
-      <h2 style={filterHeadingStyle}>{heading}</h2>
-
-      <ul style={filterListStyle}>
-        {options.map((option) => {
-          const active = option.id === value;
-          const count = countOf(option.id);
-
-          return (
-            <li key={option.id}>
-              <button
-                type="button"
-                className="tds-ui-listitem tds-ui-focusable"
-                style={filterItemStyle(active)}
-                aria-pressed={active}
-                onClick={() => onChange(option.id)}
-              >
-                <span>{option.label}</span>
-                {/* 아직 안 불러왔으면 '—' — 0 이라고 거짓말하지 않는다 */}
-                {count !== undefined && (
-                  <span style={badgeStyle}>{count === null ? '—' : formatNumber(count)}</span>
-                )}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
-  );
-}
+/** 기간 항목에는 배지를 달지 않는다 — '오늘 12건'은 어차피 목록 상단의 총 건수와 같은 말이다 */
+const PERIOD_OPTIONS: readonly FilterOption<string>[] = PERIOD_FILTERS.map((option) => ({
+  id: option.id,
+  label: option.label,
+  hideCount: true,
+}));
 
 interface LogFilterPanelProps {
   readonly axes: readonly LogFilterAxis[];
@@ -121,28 +77,43 @@ export function LogFilterPanel({
   const rangeError = firstIssueMessage(rangeIssues);
 
   return (
-    <aside style={filterPanelStyle}>
+    <FilterRail
+      notice={
+        /* 이 섹션의 성격을 화면에 적는다 — 코드에만 있는 규칙은 운영자에게 없는 규칙이다 */
+        <>
+          <p style={retentionStyle}>{`보존기간 ${retention.label}`}</p>
+          <p style={hintStyle}>{retention.basis}</p>
+          <p style={hintStyle}>
+            이 기록은 감사 로그입니다. 관리자도 수정하거나 삭제할 수 없으며, 조회와 내보내기만
+            제공합니다.
+          </p>
+          <p style={hintStyle}>{TIME_ZONE_NOTICE}</p>
+        </>
+      }
+    >
       {axes.map((axis) => (
-        <FilterGroup
+        <FilterPanel
           key={axis.key}
+          navLabel={axis.ariaLabel}
           heading={axis.heading}
-          ariaLabel={axis.ariaLabel}
           options={axis.options}
           value={axisValues[axis.key] ?? ALL_FILTER}
-          countOf={(id) => axisCounts?.[axis.key]?.[id] ?? (axisCounts === null ? null : 0)}
+          counts={axisCounts === null ? null : (axisCounts[axis.key] ?? {})}
           onChange={(value) => onAxisChange(axis.key, value)}
         />
       ))}
 
       <div style={filterNavStyle}>
-        {/* 기간에는 배지를 달지 않는다 — '오늘 12건'은 어차피 목록 상단의 총 건수와 같은 말이다 */}
-        <FilterGroup
+        <FilterPanel
+          navLabel="조회 기간 필터"
           heading="기간"
-          ariaLabel="조회 기간 필터"
-          options={PERIOD_FILTERS}
+          options={PERIOD_OPTIONS}
           value={period}
-          countOf={() => undefined}
-          onChange={(value) => onPeriodChange(value as PeriodId)}
+          counts={null}
+          // 값은 상수 목록에서 왔지만 타입은 string 이다 — 'as' 로 우기지 않고 가드로 좁힌다
+          onChange={(value) => {
+            if (isPeriodId(value)) onPeriodChange(value);
+          }}
         />
 
         {period === 'custom' && (
@@ -163,17 +134,6 @@ export function LogFilterPanel({
           </div>
         )}
       </div>
-
-      {/* 이 섹션의 성격을 화면에 적는다 — 코드에만 있는 규칙은 운영자에게 없는 규칙이다 */}
-      <div style={filterNoticeStyle}>
-        <p style={retentionStyle}>{`보존기간 ${retention.label}`}</p>
-        <p style={hintStyle}>{retention.basis}</p>
-        <p style={hintStyle}>
-          이 기록은 감사 로그입니다. 관리자도 수정하거나 삭제할 수 없으며, 조회와 내보내기만
-          제공합니다.
-        </p>
-        <p style={hintStyle}>{TIME_ZONE_NOTICE}</p>
-      </div>
-    </aside>
+    </FilterRail>
   );
 }

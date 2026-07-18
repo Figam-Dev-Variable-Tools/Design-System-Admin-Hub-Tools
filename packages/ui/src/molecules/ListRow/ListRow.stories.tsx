@@ -31,7 +31,7 @@ function DocumentGlyph() {
 }
 
 const meta: Meta<typeof ListRow> = {
-  title: 'Molecules/ListRow',
+  title: 'Data Display/ListRow',
   component: ListRow,
   argTypes: { ...ListRowArgTypes },
   args: {

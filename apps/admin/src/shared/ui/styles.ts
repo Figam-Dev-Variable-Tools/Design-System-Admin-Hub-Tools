@@ -294,7 +294,15 @@ export function filterItemStyle(active: boolean): CSSProperties {
 
 /* ── 폼 컨트롤 ───────────────────────────────────────────────────────────── */
 
-export function controlStyle(invalid = false): CSSProperties {
+/**
+ * 입력 표면.
+ *
+ * [왜 disabled 를 인자로 받나 — CSS 로는 못 이긴다] 잠긴 칸의 회색 배경은 `.tds-ui-input:disabled`
+ * 규칙으로 두는 게 자연스럽지만, 이 함수가 `background` 를 **인라인 style 로** 박기 때문에 규칙이
+ * 항상 진다(인라인이 스타일시트를 이긴다). `!important` 로 억지로 이기게 하는 대신, 배경을 정하는
+ * 곳이 상태도 함께 알게 한다 — 배경의 주인은 한 곳이어야 한다.
+ */
+export function controlStyle(invalid = false, disabled = false): CSSProperties {
   return {
     boxSizing: 'border-box',
     width: '100%',
@@ -309,7 +317,8 @@ export function controlStyle(invalid = false): CSSProperties {
       ? 'var(--tds-color-feedback-danger-border)'
       : 'var(--tds-color-border-default)',
     borderRadius: 'var(--tds-radius-md)',
-    background: 'var(--tds-color-surface-default)',
+    background: disabled ? 'var(--tds-color-surface-raised)' : 'var(--tds-color-surface-default)',
+    // 글자는 흐리지 않는다 — 잠긴 칸의 내용은 여전히 **읽으라고** 있는 것이다(대비를 유지한다)
     color: 'var(--tds-color-text-default)',
     fontFamily: 'var(--tds-typography-body-md-font-family)',
     fontSize: 'var(--tds-typography-label-md-font-size)',

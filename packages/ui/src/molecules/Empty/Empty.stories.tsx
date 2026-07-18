@@ -10,7 +10,7 @@ import { Button } from '../../atoms/Button';
 import { Empty } from './Empty';
 
 const meta: Meta<typeof Empty> = {
-  title: 'Molecules/Empty',
+  title: 'Feedback/Empty',
   component: Empty,
   argTypes: { ...EmptyArgTypes },
   args: {
