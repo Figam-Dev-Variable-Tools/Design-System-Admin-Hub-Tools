@@ -22,6 +22,7 @@ import type { PromotionFormValues } from './validation';
 import { DISCOUNT_TYPE_OPTIONS, PROMOTION_DESC_MAX, PROMOTION_TITLE_MAX } from './types';
 import type { Promotion, PromotionInput } from './types';
 import { CAMPAIGN_PHASE_OPTIONS } from '../_shared/campaign';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'marketing-promotions';
 const ENTITY_LABEL = '프로모션';
@@ -32,7 +33,7 @@ const UNSAVED_MESSAGE =
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 4), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const EMPTY: PromotionFormValues = {

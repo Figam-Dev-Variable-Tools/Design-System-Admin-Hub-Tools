@@ -43,6 +43,7 @@ import {
 import type { AdminDraft, AdminUser } from './types';
 import { adminSchema } from './validation';
 import type { AdminFormValues } from './validation';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'admins';
 const ENTITY_LABEL = '운영자';
@@ -56,7 +57,7 @@ const ROLE_LOCK_HINT_ID = hintIdOf('admin-role');
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 6), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const EMPTY: AdminFormValues = {

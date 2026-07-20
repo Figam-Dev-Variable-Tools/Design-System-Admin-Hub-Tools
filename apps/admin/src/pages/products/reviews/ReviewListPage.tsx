@@ -27,6 +27,7 @@ import {
   toReviewInput,
 } from './types';
 import type { RatingFilter, Review, ReviewInput } from './types';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'reviews';
 const ENTITY_LABEL = '리뷰';
@@ -52,14 +53,14 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
 const filtersStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
   flexGrow: 1,
   minWidth: 0,
@@ -70,7 +71,7 @@ const selectWrapStyle: CSSProperties = {
 };
 
 const starStyle: CSSProperties = {
-  color: 'var(--tds-color-feedback-warning-text)',
+  color: cssVar('color.feedback.warning.text'),
   letterSpacing: '0.05em',
   whiteSpace: 'nowrap',
 };
@@ -86,7 +87,7 @@ const contentStyle: CSSProperties = {
 const badgeRowStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
 };
 
 const nameOf = (item: Review) => `${item.productName} 리뷰`;

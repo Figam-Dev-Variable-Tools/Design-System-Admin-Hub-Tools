@@ -10,6 +10,7 @@ import { CrudListShell, useCrudList, type CrudColumn } from '../../../shared/cru
 import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
 import { historyAdapter } from './data-source';
 import type { HistoryInput, HistoryItem } from './types';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'history';
 const ENTITY_LABEL = '연혁';
@@ -19,7 +20,7 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

@@ -8,36 +8,37 @@ import { Link } from 'react-router-dom';
 
 import { Button, SearchField } from '../../../shared/ui';
 import type { Conversation } from '../_shared/conversations';
+import { cssVar } from '@tds/ui';
 
 const railStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   boxSizing: 'border-box',
-  paddingTop: 'var(--tds-space-4)',
-  paddingBottom: 'var(--tds-space-4)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.4'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   border: 'thin solid var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-lg)',
-  background: 'var(--tds-color-surface-default)',
+  borderRadius: cssVar('radius.lg'),
+  background: cssVar('color.surface.default'),
 };
 
 const groupTitleStyle: CSSProperties = {
-  marginTop: 'var(--tds-space-2)',
-  marginBottom: 'var(--tds-space-1)',
+  marginTop: cssVar('space.2'),
+  marginBottom: cssVar('space.1'),
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
 
 const listStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   margin: 0,
   paddingTop: 0,
   paddingBottom: 0,
@@ -51,7 +52,7 @@ const mutedStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

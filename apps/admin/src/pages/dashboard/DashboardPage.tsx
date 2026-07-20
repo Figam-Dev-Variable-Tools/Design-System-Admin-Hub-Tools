@@ -11,7 +11,7 @@
 // [스타일] 토큰 CSS 변수만 — 하드코딩 색상 hex / px 리터럴 0건.
 import { useCallback, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { Alert, Tabs } from '@tds/ui';
+import { Alert, cssVar, Tabs } from '@tds/ui';
 
 import { usePermissions } from '../../shared/permissions/PermissionProvider';
 import { DashboardTabPanel } from './components/DashboardTabPanel';
@@ -24,12 +24,12 @@ import { useDashboardTabs } from './useDashboardTabs';
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const emptyStyle: CSSProperties = {
   margin: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };

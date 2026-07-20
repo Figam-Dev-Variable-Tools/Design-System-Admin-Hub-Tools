@@ -18,23 +18,24 @@ import {
 } from '../../../shared/ui';
 import { PERIOD_OPTIONS, RECALC_OPTIONS } from '../types';
 import type { AggregationPeriod, RecalcTrigger } from '../types';
+import { cssVar } from '@tds/ui';
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const labelRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
 };
 
 const checkboxRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 interface TierCriteriaCardProps {

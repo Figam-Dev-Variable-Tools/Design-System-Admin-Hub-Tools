@@ -12,6 +12,7 @@ import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 
 import {
+  cssVar,
   RowActions,
   RowSelectCell,
   SelectAllHeaderCell,
@@ -43,7 +44,7 @@ const COLUMNS = ['버전', '시행일', '상태'] as const;
 const versionCellStyle: CSSProperties = {
   ...numericCellStyle,
   textAlign: 'left',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
 };
 
 const nowrapCellStyle: CSSProperties = {
@@ -54,7 +55,7 @@ const nowrapCellStyle: CSSProperties = {
 const badgeGroupStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const actionCellStyle: CSSProperties = {
@@ -65,9 +66,9 @@ const actionCellStyle: CSSProperties = {
 
 const emptyCellStyle: CSSProperties = {
   ...tdStyle,
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
-  color: 'var(--tds-color-text-muted)',
+  paddingTop: cssVar('space.6'),
+  paddingBottom: cssVar('space.6'),
+  color: cssVar('color.text.muted'),
   textAlign: 'center',
 };
 

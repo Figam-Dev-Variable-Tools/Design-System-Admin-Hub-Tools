@@ -31,17 +31,18 @@ import { useCreateFaqCategory, useDeleteFaqCategory, useFaqCategoryUsageQuery } 
 import type { FaqCategoryUsage } from '../types';
 import { faqCategorySchema } from '../validation';
 import type { FaqCategoryFormValues } from '../validation';
+import { cssVar } from '@tds/ui';
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const listStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
@@ -57,44 +58,44 @@ const rowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
 };
 
 const rowLeftStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 
 const labelTextStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   overflowWrap: 'anywhere',
 };
 
 const dangerGhostStyle: CSSProperties = {
   ...buttonStyle('ghost'),
-  color: 'var(--tds-color-feedback-danger-text)',
+  color: cssVar('color.feedback.danger.text'),
 };
 
 const dividerStyle: CSSProperties = {
-  marginTop: 'var(--tds-space-2)',
+  marginTop: cssVar('space.2'),
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
   borderStyle: 'none',
   borderTopStyle: 'solid',
-  borderTopWidth: 'var(--tds-border-width-thin)',
-  borderTopColor: 'var(--tds-color-border-default)',
+  borderTopWidth: cssVar('border-width.thin'),
+  borderTopColor: cssVar('color.border.default'),
 };
 
 /** 삭제 가능 여부 문구 — 사용 중이면 왜 못 지우는지 알린다 */

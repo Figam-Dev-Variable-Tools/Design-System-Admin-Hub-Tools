@@ -7,54 +7,55 @@ import type { CSSProperties } from 'react';
 import { ImageThumb } from '../../../../shared/ui';
 import { starText } from '../types';
 import type { ReviewRating } from '../types';
+import { cssVar } from '@tds/ui';
 
 const stageStyle: CSSProperties = {
   boxSizing: 'border-box',
   width: '100%',
-  paddingTop: 'var(--tds-space-4)',
-  paddingBottom: 'var(--tds-space-4)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.4'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderStyle: 'dashed',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
 };
 
 const cardStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   boxSizing: 'border-box',
   width: '100%',
-  paddingTop: 'var(--tds-space-4)',
-  paddingBottom: 'var(--tds-space-4)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.4'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-lg)',
-  background: 'var(--tds-color-surface-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.lg'),
+  background: cssVar('color.surface.default'),
 };
 
 const headRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
 const starStyle: CSSProperties = {
-  color: 'var(--tds-color-feedback-warning-text)',
+  color: cssVar('color.feedback.warning.text'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   letterSpacing: '0.1em',
 };
 
 const authorStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
 };
 
@@ -63,7 +64,7 @@ const contentStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
   whiteSpace: 'pre-wrap',
@@ -72,26 +73,26 @@ const contentStyle: CSSProperties = {
 
 const photoRowStyle: CSSProperties = {
   display: 'flex',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
 const replyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
+  gap: cssVar('space.1'),
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
 };
 
 const replyLabelStyle: CSSProperties = {
-  color: 'var(--tds-color-action-primary-default)',
+  color: cssVar('color.action.primary.default'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 const replyTextStyle: CSSProperties = {
@@ -99,7 +100,7 @@ const replyTextStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
   whiteSpace: 'pre-wrap',
@@ -107,11 +108,11 @@ const replyTextStyle: CSSProperties = {
 };
 
 const hiddenNoteStyle: CSSProperties = {
-  marginTop: 'var(--tds-space-3)',
+  marginTop: cssVar('space.3'),
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
 };
 

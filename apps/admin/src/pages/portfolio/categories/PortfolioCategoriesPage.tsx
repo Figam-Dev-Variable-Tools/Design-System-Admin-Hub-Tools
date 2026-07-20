@@ -24,11 +24,12 @@ import { CATEGORY_RESOURCE, portfolioCategoryAdapter } from './data-source';
 import { PortfolioCategoryFormModal } from './components/PortfolioCategoryFormModal';
 import { usageLabel } from './types';
 import type { PortfolioCategoryUsage } from '../_shared/store';
+import { cssVar } from '@tds/ui';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   minWidth: 0,
 };
 
@@ -36,14 +37,14 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
 const listStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   listStyleType: 'none',
   marginTop: 0,
   marginBottom: 0,
@@ -59,26 +60,26 @@ const rowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
 };
 
 const rowLeftStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 
 const labelTextStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   overflowWrap: 'anywhere',
 };
@@ -86,19 +87,19 @@ const labelTextStyle: CSSProperties = {
 const actionsStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
 };
 
 const dangerGhostStyle: CSSProperties = {
   ...buttonStyle('ghost'),
-  color: 'var(--tds-color-feedback-danger-text)',
+  color: cssVar('color.feedback.danger.text'),
 };
 
 const errorBodyStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

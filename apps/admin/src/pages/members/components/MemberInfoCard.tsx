@@ -18,11 +18,12 @@ import {
 import { initialOf } from '../../../shared/format';
 import { TIER_LABEL } from '../types';
 import type { MemberDetail } from '../types';
+import { cssVar } from '@tds/ui';
 
 const identityStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 /** 아바타 — 프로필 이미지가 없으므로 닉네임 이니셜 원형으로 대신한다 */
@@ -33,23 +34,23 @@ const avatarStyle: CSSProperties = {
   flexShrink: 0,
   width: 'calc(var(--tds-space-6) * 2)',
   height: 'calc(var(--tds-space-6) * 2)',
-  borderRadius: 'var(--tds-radius-full)',
-  background: 'var(--tds-color-action-primary-default)',
-  color: 'var(--tds-color-text-on-primary)',
+  borderRadius: cssVar('radius.full'),
+  background: cssVar('color.action.primary.default'),
+  color: cssVar('color.text.on-primary'),
   fontSize: 'var(--tds-typography-title-lg-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   lineHeight: 'var(--tds-typography-title-lg-line-height)',
 };
 
 const nameStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   minWidth: 0,
 };
 
 const nicknameStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-title-lg-font-size)',
   fontWeight: 'var(--tds-typography-title-lg-font-weight)',
   lineHeight: 'var(--tds-typography-title-lg-line-height)',
@@ -57,7 +58,7 @@ const nicknameStyle: CSSProperties = {
 };
 
 const accountStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   overflowWrap: 'anywhere',
@@ -67,7 +68,7 @@ const passwordRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 /** 값이 비면 '—' — 빈칸이 그냥 누락처럼 보이지 않게 한다 */

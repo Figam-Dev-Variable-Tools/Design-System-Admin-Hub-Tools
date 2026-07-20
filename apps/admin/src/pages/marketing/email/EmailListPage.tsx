@@ -28,6 +28,7 @@ import {
   sendStatusLabel,
   sendStatusTone,
 } from '../_shared/messaging';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'marketing-email';
 const ENTITY_LABEL = '이메일 발송';
@@ -46,14 +47,14 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
 const filtersStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
   flexGrow: 1,
   minWidth: 0,
@@ -64,7 +65,7 @@ const selectWrapStyle: CSSProperties = { width: 'calc(var(--tds-space-6) * 5)' }
 const numStyle: CSSProperties = { fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' };
 
 const mutedStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontVariantNumeric: 'tabular-nums',
   whiteSpace: 'nowrap',
 };
@@ -72,7 +73,7 @@ const mutedStyle: CSSProperties = {
 const statusCellStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 

@@ -21,7 +21,7 @@ import { useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { Skeleton } from '@tds/ui';
+import { cssVar, Skeleton } from '@tds/ui';
 
 import { isAbort } from '../../shared/async';
 import { isHttpError, isNotFound } from '../../shared/errors/http-error';
@@ -47,22 +47,22 @@ const LIST_PATH = '/users/admins';
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const backLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   alignSelf: 'flex-start',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
   paddingLeft: 0,
   paddingRight: 0,
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   cursor: 'pointer',
@@ -72,21 +72,21 @@ const headerStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'flex-start',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   flexWrap: 'wrap',
 };
 
 const actionsStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
 const skeletonBodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 /** 비활성 삭제 버튼의 사유 — 시각뿐 아니라 aria-describedby 로도 읽힌다 */

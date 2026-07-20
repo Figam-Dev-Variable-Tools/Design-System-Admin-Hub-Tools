@@ -5,32 +5,33 @@ import type { CSSProperties } from 'react';
 
 import { Icon, StatusBadge } from '../../../../shared/ui';
 import { fileKindLabel, fileKindOf, formatBytes, visibilityLabel, visibilityTone } from '../types';
+import { cssVar } from '@tds/ui';
 
 const cardStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
-  paddingTop: 'var(--tds-space-4)',
-  paddingBottom: 'var(--tds-space-4)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  gap: cssVar('space.3'),
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.4'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
 };
 
 const headStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
 const titleStyle: CSSProperties = {
   margin: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-title-md-font-size)',
   fontWeight: 'var(--tds-typography-title-md-font-weight)',
   lineHeight: 'var(--tds-typography-title-md-line-height)',
@@ -40,14 +41,14 @@ const titleStyle: CSSProperties = {
 const fileRowStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
-  color: 'var(--tds-color-text-muted)',
+  gap: cssVar('space.2'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   overflowWrap: 'anywhere',
 };
 
 const mutedStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   fontVariantNumeric: 'tabular-nums',
 };

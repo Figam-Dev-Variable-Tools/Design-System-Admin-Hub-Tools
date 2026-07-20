@@ -34,18 +34,19 @@ import {
 } from './queries';
 import { isCurrent, STATUS_LABEL, STATUS_TONE } from './types';
 import type { PrivacyVersion } from './types';
+import { cssVar } from '@tds/ui';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
@@ -53,7 +54,7 @@ const errorBodyStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

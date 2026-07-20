@@ -32,6 +32,7 @@ import {
 import { useRowNavigation } from '../../../../shared/useRowNavigation';
 import { PAGE_SIZE } from '../types';
 import type { FaqSummary } from '../types';
+import { cssVar } from '@tds/ui';
 
 const COLUMNS = ['질문', '카테고리', '노출', '정렬 순서'] as const;
 
@@ -39,7 +40,7 @@ const SELECT_ALL_LABEL_ID = 'faqs-select-all-label';
 
 const questionCellStyle: CSSProperties = {
   ...tdStyle,
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
 };
 
 const nowrapCellStyle: CSSProperties = {
@@ -56,15 +57,15 @@ const actionCellStyle: CSSProperties = {
 const rowActionsWrapStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   justifyContent: 'flex-end',
 };
 
 const emptyCellStyle: CSSProperties = {
   ...tdStyle,
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
-  color: 'var(--tds-color-text-muted)',
+  paddingTop: cssVar('space.6'),
+  paddingBottom: cssVar('space.6'),
+  color: cssVar('color.text.muted'),
   textAlign: 'center',
 };
 

@@ -144,6 +144,23 @@ export const ActivatableRows: Story = {
   },
 };
 
+/**
+ * selected — 선택은 **판정의 결과**로 들어온다. 무엇이 선택됐는지 고르는 것도 체크박스를
+ * 그리는 것도 호출부의 일이고, DS 는 그 사실을 aria-selected 와 시각으로만 옮긴다.
+ * 배경은 hover 와 같은 raised 이고 구분은 inline-start 강조선이 짊어진다 — 배경만으로
+ * 갈리면 마우스가 얹힌 행과 선택된 행이 같아 보인다.
+ */
+export const SelectedRows: Story = {
+  args: { rows: ROWS.map((row, index) => ({ ...row, selected: index === 0 })) },
+  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+    const canvas = within(canvasElement);
+    const [first, second] = canvas.getAllByRole('row').slice(1);
+
+    await expect(first).toHaveAttribute('aria-selected', 'true');
+    await expect(second).toHaveAttribute('aria-selected', 'false');
+  },
+};
+
 /** focus-visible — 정렬 버튼에 키보드로 들어오면 링이 뜬다. 행 자체는 탭 순서에 없다 */
 export const FocusVisible: Story = {
   args: { onSortToggle: fn() },

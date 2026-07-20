@@ -17,6 +17,7 @@ import {
 import { formatNumber } from '../../../shared/format';
 import { useSaveMemo } from '../queries';
 import { MEMO_MAX_LENGTH } from '../types';
+import { cssVar } from '@tds/ui';
 
 const textareaStyle: CSSProperties = {
   ...controlStyle(false),
@@ -28,7 +29,7 @@ const footerStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const counterStyle: CSSProperties = {

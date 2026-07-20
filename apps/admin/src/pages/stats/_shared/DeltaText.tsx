@@ -15,11 +15,12 @@ import type { CSSProperties } from 'react';
 
 import { describeDelta, formatDeltaPercent } from './format';
 import type { Delta, DeltaTone, MetricUnit } from './format';
+import { cssVar } from '@tds/ui';
 
 const TONE_COLOR: Readonly<Record<DeltaTone, string>> = {
-  positive: 'var(--tds-color-feedback-success-text)',
-  negative: 'var(--tds-color-feedback-danger-text)',
-  neutral: 'var(--tds-color-text-muted)',
+  positive: cssVar('color.feedback.success.text'),
+  negative: cssVar('color.feedback.danger.text'),
+  neutral: cssVar('color.text.muted'),
 };
 
 /**
@@ -28,8 +29,8 @@ const TONE_COLOR: Readonly<Record<DeltaTone, string>> = {
  */
 const srOnlyStyle: CSSProperties = {
   position: 'absolute',
-  inlineSize: 'var(--tds-border-width-thin)',
-  blockSize: 'var(--tds-border-width-thin)',
+  inlineSize: cssVar('border-width.thin'),
+  blockSize: cssVar('border-width.thin'),
   padding: 0,
   margin: 'calc(var(--tds-border-width-thin) * -1)',
   overflow: 'hidden',

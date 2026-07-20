@@ -26,6 +26,7 @@ import type { MessageTemplateDraft } from './store';
 import { statusToneOf } from './status';
 import { TEMPLATE_KIND_LABEL, TEMPLATE_STATUS_LABEL, templateKindOf } from './types';
 import type { MessageTemplate, TemplateKind, TemplateStatus } from './types';
+import { cssVar } from '@tds/ui';
 
 const ENTITY_LABEL = '메시지 템플릿';
 
@@ -52,14 +53,14 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
 const filtersStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
   flexGrow: 1,
   minWidth: 0,
@@ -69,7 +70,7 @@ const filtersStyle: CSSProperties = {
 const selectWrapStyle: CSSProperties = { width: 'calc(var(--tds-space-6) * 6)' };
 
 const mutedCellStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   whiteSpace: 'nowrap',
 };
 

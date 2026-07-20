@@ -11,6 +11,7 @@
 //
 // [모든 시각 값은 토큰 CSS 변수] 하드코딩 hex/px 0건.
 import type { CSSProperties, ReactNode } from 'react';
+import { cssVar } from '@tds/ui';
 
 /** 라벨 열의 폭 — space 토큰의 배수로만 표현한다(토큰에 없는 파생 치수 규칙) */
 const LABEL_COLUMN = 'minmax(0, calc(var(--tds-space-10) * 3))';
@@ -18,16 +19,16 @@ const LABEL_COLUMN = 'minmax(0, calc(var(--tds-space-10) * 3))';
 const sectionStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: `${LABEL_COLUMN} minmax(0, 1fr)`,
-  columnGap: 'var(--tds-space-6)',
-  rowGap: 'var(--tds-space-4)',
+  columnGap: cssVar('space.6'),
+  rowGap: cssVar('space.4'),
   alignItems: 'start',
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
+  paddingTop: cssVar('space.6'),
+  paddingBottom: cssVar('space.6'),
   paddingLeft: 0,
   paddingRight: 0,
   borderTopStyle: 'solid',
-  borderTopWidth: 'var(--tds-border-width-thin)',
-  borderTopColor: 'var(--tds-color-border-subtle)',
+  borderTopWidth: cssVar('border-width.thin'),
+  borderTopColor: cssVar('color.border.subtle'),
 };
 
 const sectionTitleStyle: CSSProperties = {
@@ -35,7 +36,7 @@ const sectionTitleStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-title-md-font-family)',
   fontSize: 'var(--tds-typography-title-md-font-size)',
   fontWeight: 'var(--tds-typography-title-md-font-weight)',
@@ -45,7 +46,7 @@ const sectionTitleStyle: CSSProperties = {
 const sectionBodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-6)',
+  gap: cssVar('space.6'),
   minWidth: 0,
 };
 
@@ -72,8 +73,8 @@ export function SettingSection({ id, title, children }: SettingSectionProps) {
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: `${LABEL_COLUMN} minmax(0, 1fr)`,
-  columnGap: 'var(--tds-space-6)',
-  rowGap: 'var(--tds-space-2)',
+  columnGap: cssVar('space.6'),
+  rowGap: cssVar('space.2'),
   alignItems: 'start',
   minWidth: 0,
 };
@@ -81,20 +82,20 @@ const rowStyle: CSSProperties = {
 const rowLabelBoxStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   minWidth: 0,
 };
 
 const rowLabelHeadStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   minWidth: 0,
 };
 
 function rowLabelStyle(disabled: boolean): CSSProperties {
   return {
-    color: disabled ? 'var(--tds-color-text-disabled)' : 'var(--tds-color-text-default)',
+    color: disabled ? cssVar('color.text.disabled') : cssVar('color.text.default'),
     fontFamily: 'var(--tds-typography-label-md-font-family)',
     fontSize: 'var(--tds-typography-label-md-font-size)',
     fontWeight: 'var(--tds-typography-label-md-font-weight)',
@@ -107,7 +108,7 @@ const rowHintStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -115,7 +116,7 @@ const rowHintStyle: CSSProperties = {
 const rowControlStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
 };
 

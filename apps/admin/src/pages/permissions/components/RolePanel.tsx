@@ -28,6 +28,7 @@ import {
 import { SYSTEM_ROLE_REASON } from '../../../shared/permissions/roles';
 import type { Role } from '../../../shared/permissions/roles';
 import { LockIcon, PlusIcon } from '../icons';
+import { cssVar } from '@tds/ui';
 
 /**
  * 상단 액션 3개 — 아이콘 + 라벨의 ghost 버튼.
@@ -38,21 +39,21 @@ import { LockIcon, PlusIcon } from '../icons';
 const actionsStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   flexWrap: 'wrap',
   paddingTop: 0,
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.2'),
+  paddingRight: cssVar('space.2'),
   borderBottomStyle: 'solid',
-  borderBottomWidth: 'var(--tds-border-width-thin)',
-  borderBottomColor: 'var(--tds-color-border-default)',
+  borderBottomWidth: cssVar('border-width.thin'),
+  borderBottomColor: cssVar('color.border.default'),
 };
 
 const roleNameStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -63,14 +64,14 @@ const roleNameStyle: CSSProperties = {
 const lockStyle: CSSProperties = {
   display: 'inline-flex',
   flexShrink: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
 };
 
 /** '적용 중' 배지 — 지금 앱의 유효 권한을 내는 역할 */
 const activeBadgeStyle: CSSProperties = {
   ...badgeStyle,
-  background: 'var(--tds-color-feedback-info-surface)',
-  color: 'var(--tds-color-feedback-info-text)',
+  background: cssVar('color.feedback.info.surface'),
+  color: cssVar('color.feedback.info.text'),
 };
 
 interface RolePanelProps {

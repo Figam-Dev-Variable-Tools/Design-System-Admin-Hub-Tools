@@ -36,11 +36,12 @@ import {
   templateVariableCatalog,
   templateVariableToken,
 } from '../../../shared/domain/template-variables';
+import { cssVar } from '@tds/ui';
 
 const wrapStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 
@@ -69,17 +70,17 @@ const scrollStyle: CSSProperties = {
 const groupButtonStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   width: '100%',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.2'),
+  paddingRight: cssVar('space.2'),
   borderStyle: 'none',
   background: 'transparent',
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   textAlign: 'left',
   cursor: 'pointer',
 };
@@ -87,15 +88,15 @@ const groupButtonStyle: CSSProperties = {
 const leafButtonStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'baseline',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   width: '100%',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
-  paddingLeft: 'var(--tds-space-6)',
-  paddingRight: 'var(--tds-space-2)',
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
+  paddingLeft: cssVar('space.6'),
+  paddingRight: cssVar('space.2'),
   borderStyle: 'none',
   background: 'transparent',
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   textAlign: 'left',
   cursor: 'pointer',
@@ -103,7 +104,7 @@ const leafButtonStyle: CSSProperties = {
 
 /** 토큰·표본값은 보조 정보다 — 라벨보다 약하게 */
 const mutedStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
 };
 
@@ -112,10 +113,10 @@ const noticeStyle: CSSProperties = {
   lineHeight: 'var(--tds-typography-body-md-line-height)',
   marginTop: 0,
   marginBottom: 0,
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.2'),
+  paddingRight: cssVar('space.2'),
 };
 
 interface TemplateVariablePickerProps {

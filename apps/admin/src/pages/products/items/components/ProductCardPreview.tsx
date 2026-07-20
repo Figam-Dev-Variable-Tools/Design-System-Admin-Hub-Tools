@@ -9,6 +9,7 @@ import { Icon, StatusBadge } from '../../../../shared/ui';
 import { finalPrice } from '../../_shared/store';
 import type { DiscountType, ProductSaleStatus } from '../../_shared/store';
 import { saleStatusLabel, saleStatusTone } from '../types';
+import { cssVar } from '@tds/ui';
 
 const formatWon = (value: number): string => `${value.toLocaleString('ko-KR')}원`;
 
@@ -18,33 +19,33 @@ const stageStyle: CSSProperties = {
   justifyContent: 'center',
   boxSizing: 'border-box',
   width: '100%',
-  paddingTop: 'var(--tds-space-5)',
-  paddingBottom: 'var(--tds-space-5)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.5'),
+  paddingBottom: cssVar('space.5'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderStyle: 'dashed',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
 };
 
 const cardStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   boxSizing: 'border-box',
   width: '100%',
   maxWidth: 'calc(var(--tds-space-6) * 9)',
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-lg)',
-  background: 'var(--tds-color-surface-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.lg'),
+  background: cssVar('color.surface.default'),
 };
 
 const thumbStyle: CSSProperties = {
@@ -55,9 +56,9 @@ const thumbStyle: CSSProperties = {
   width: '100%',
   aspectRatio: '1 / 1',
   overflow: 'hidden',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-muted)',
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
 };
 
 const thumbImageStyle: CSSProperties = {
@@ -72,15 +73,15 @@ const soldOutOverlayStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  background: 'var(--tds-color-text-default)',
+  background: cssVar('color.text.default'),
   opacity: 0.55,
-  color: 'var(--tds-color-surface-default)',
+  color: cssVar('color.surface.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 const brandStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -90,9 +91,9 @@ const nameStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   overflowWrap: 'anywhere',
 };
@@ -101,24 +102,24 @@ const priceRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'baseline',
   flexWrap: 'wrap',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const rateStyle: CSSProperties = {
-  color: 'var(--tds-color-feedback-danger-text)',
+  color: cssVar('color.feedback.danger.text'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 const finalPriceStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-title-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   fontVariantNumeric: 'tabular-nums',
 };
 
 const originalPriceStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   textDecorationLine: 'line-through',
   fontVariantNumeric: 'tabular-nums',
@@ -127,16 +128,16 @@ const originalPriceStyle: CSSProperties = {
 const badgeRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   flexWrap: 'wrap',
 };
 
 const captionStyle: CSSProperties = {
-  marginTop: 'var(--tds-space-3)',
+  marginTop: cssVar('space.3'),
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

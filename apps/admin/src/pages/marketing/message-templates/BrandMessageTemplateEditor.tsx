@@ -85,6 +85,7 @@ import {
   parseBrandMessageBodyType,
 } from './validation';
 import type { BrandMessageTemplateFormValues } from './validation';
+import { cssVar } from '@tds/ui';
 
 const ENTITY_LABEL = '메시지 템플릿';
 const UNSAVED_MESSAGE =
@@ -118,12 +119,12 @@ const EMPTY: BrandMessageTemplateFormValues = {
 const chipRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
 const windowStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   fontVariantNumeric: 'tabular-nums',
 };
@@ -139,7 +140,7 @@ const bodyTextareaStyle = (invalid: boolean, disabled: boolean): CSSProperties =
 
 const counterStyle: CSSProperties = {
   alignSelf: 'flex-end',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   fontVariantNumeric: 'tabular-nums',
@@ -147,7 +148,7 @@ const counterStyle: CSSProperties = {
 
 /** 유형 셀렉트 아래 한 줄 설명 — AlimtalkTemplateEditor 의 typeHintStyle 과 같은 자리·같은 이유 */
 const typeHintStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -155,7 +156,7 @@ const typeHintStyle: CSSProperties = {
 const adRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

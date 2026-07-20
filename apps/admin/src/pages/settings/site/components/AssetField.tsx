@@ -6,7 +6,7 @@ import type { CSSProperties } from 'react';
 
 // FileChip · FileDropzone 은 @tds/ui 의 것이다 (File 승격) — 승격된 DS 컴포넌트는 앱 배럴을
 // 거치지 않고 public entry 에서 직접 가져온다 (Tabs·SegmentedControl·Empty 선례 · shared/ui README 규칙 7).
-import { FileChip, FileDropzone } from '@tds/ui';
+import { cssVar, FileChip, FileDropzone } from '@tds/ui';
 
 import { errorTextStyle } from '../../../../shared/ui';
 import type { SiteAsset } from '../validation';
@@ -14,7 +14,7 @@ import type { SiteAsset } from '../validation';
 const rowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
   minWidth: 0,
 };
@@ -24,7 +24,7 @@ const busyStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

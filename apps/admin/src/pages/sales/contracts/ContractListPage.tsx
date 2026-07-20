@@ -28,6 +28,7 @@ import {
   searchContracts,
 } from './types';
 import type { Contract, ContractInput, ContractStatusFilter } from './types';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'sales-contracts';
 const ENTITY_LABEL = '계약';
@@ -44,14 +45,14 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
 const filtersStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
   flexGrow: 1,
   minWidth: 0,
@@ -60,7 +61,7 @@ const filtersStyle: CSSProperties = {
 const selectWrapStyle: CSSProperties = { width: 'calc(var(--tds-space-6) * 5)' };
 
 const periodStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontVariantNumeric: 'tabular-nums',
   whiteSpace: 'nowrap',
 };
@@ -68,7 +69,7 @@ const periodStyle: CSSProperties = {
 const statusCellStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   flexWrap: 'wrap',
 };
 

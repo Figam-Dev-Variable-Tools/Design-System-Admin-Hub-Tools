@@ -41,6 +41,9 @@
 // [1초 회원가입] 이 화면에 없다 — OAuth 제공자가 아니라 본인인증 상품이고, 그 자리는
 // 연동 목록(/settings/api-keys)이다 (근거: ../validation.ts 머리말). 마크만 남겨 두지 않는다.
 
+// 마크 **바깥**의 치수·문구 색은 브랜드 자산이 아니라 우리 UI 라 토큰을 쓴다(머리말의 금지는 브랜드 색에 한한다).
+import { cssVar } from '@tds/ui';
+
 /* eslint-disable no-restricted-syntax -- 브랜드 색은 각 사 가이드가 고정한 값이라 토큰이 될 수 없다(파일 머리말) */
 /** 각 사 브랜드 가이드가 규정한 색. **이 블록 밖에서 hex 를 쓰지 않는다.** */
 const BRAND = {
@@ -226,7 +229,7 @@ interface ProviderMarkProps {
 }
 
 /** 마크 한 칸 — 정사각 상자에 벡터를 꽉 채운다(어떤 크기에서도 또렷하다) */
-export function ProviderMark({ provider, size = 'var(--tds-space-7)' }: ProviderMarkProps) {
+export function ProviderMark({ provider, size = cssVar('space.7') }: ProviderMarkProps) {
   const Mark = PROVIDER_MARKS[provider] ?? NeutralMark;
 
   return (
@@ -237,7 +240,7 @@ export function ProviderMark({ provider, size = 'var(--tds-space-7)' }: Provider
         flexShrink: 0,
         width: size,
         height: size,
-        color: 'var(--tds-color-text-muted)',
+        color: cssVar('color.text.muted'),
       }}
     >
       <Mark />

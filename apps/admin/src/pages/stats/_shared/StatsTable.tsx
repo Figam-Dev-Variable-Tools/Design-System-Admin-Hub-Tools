@@ -24,6 +24,7 @@ import {
 import { pageSlice, sortRows, totalPagesOf } from './table';
 import { PAGE_SIZE_OPTIONS } from './useStatsParams';
 import type { SortState, StatsColumn } from './types';
+import { cssVar } from '@tds/ui';
 
 /** 넓은 표는 페이지를 넘치지 않고 자기 컨테이너 안에서 가로 스크롤한다 (IA-14 · ERP-15) */
 const scrollStyle: CSSProperties = {
@@ -43,7 +44,7 @@ const stickyHeadStyle: CSSProperties = {
 const sortButtonStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   padding: 0,
   background: 'none',
   borderWidth: 0,
@@ -58,11 +59,11 @@ const footerStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'space-between',
   flexWrap: 'wrap',
-  gap: 'var(--tds-space-3)',
-  marginBlockStart: 'var(--tds-space-4)',
+  gap: cssVar('space.3'),
+  marginBlockStart: cssVar('space.4'),
 };
 
-const skeletonCellStyle: CSSProperties = { ...tdStyle, blockSize: 'var(--tds-space-5)' };
+const skeletonCellStyle: CSSProperties = { ...tdStyle, blockSize: cssVar('space.5') };
 
 interface StatsTableProps<T> {
   /** 필터를 적용한 전체 행 — 정렬·페이지는 이 컴포넌트가 한다 */

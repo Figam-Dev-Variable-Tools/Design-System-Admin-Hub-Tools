@@ -7,6 +7,7 @@
 // [단축/개별 속성을 섞지 않는다] padding 과 paddingLeft 를 한 객체에 함께 쓰면 스프레드 병합에서
 // 한쪽이 통째로 지워진다. 아래 객체는 전부 개별 속성만 쓴다 (shared/ui/styles.ts 규약).
 import type { CSSProperties } from 'react';
+import { cssVar } from '@tds/ui';
 
 /* ── 레이아웃 ────────────────────────────────────────────────────────────── */
 
@@ -15,7 +16,7 @@ export const builderStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns:
     'calc(var(--tds-space-10) * 3.5) minmax(0, 1fr) calc(var(--tds-space-10) * 4)',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   alignItems: 'start',
   minWidth: 0,
 };
@@ -30,7 +31,7 @@ export function builderGridStyle(leftOpen: boolean, rightOpen: boolean): CSSProp
 export const columnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
 };
 
@@ -42,7 +43,7 @@ export const railHeadingStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-action-primary-default)',
+  color: cssVar('color.action.primary.default'),
   fontFamily: 'var(--tds-typography-title-md-font-family)',
   fontSize: 'var(--tds-typography-title-md-font-size)',
   fontWeight: 'var(--tds-typography-title-md-font-weight)',
@@ -55,10 +56,10 @@ export const panelHeadingStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontFamily: 'var(--tds-typography-label-sm-font-family)',
   fontSize: 'var(--tds-typography-label-sm-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   lineHeight: 'var(--tds-typography-label-sm-line-height)',
   textTransform: 'uppercase',
   letterSpacing: '0.08em',
@@ -69,7 +70,7 @@ export const panelHeadingStyle: CSSProperties = {
 export const presetListStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   listStyle: 'none',
   marginTop: 0,
   marginBottom: 0,
@@ -87,19 +88,19 @@ export function presetItemStyle(selected: boolean): CSSProperties {
     display: 'block',
     width: '100%',
     boxSizing: 'border-box',
-    paddingTop: 'var(--tds-space-2)',
-    paddingBottom: 'var(--tds-space-2)',
-    paddingLeft: 'var(--tds-space-3)',
-    paddingRight: 'var(--tds-space-3)',
+    paddingTop: cssVar('space.2'),
+    paddingBottom: cssVar('space.2'),
+    paddingLeft: cssVar('space.3'),
+    paddingRight: cssVar('space.3'),
     borderStyle: 'none',
-    borderRadius: 'var(--tds-radius-md)',
-    background: selected ? 'var(--tds-color-surface-raised)' : 'transparent',
-    color: 'var(--tds-color-text-default)',
+    borderRadius: cssVar('radius.md'),
+    background: selected ? cssVar('color.surface.raised') : 'transparent',
+    color: cssVar('color.text.default'),
     fontFamily: 'var(--tds-typography-body-md-font-family)',
     fontSize: 'var(--tds-typography-label-md-font-size)',
     fontWeight: selected
-      ? 'var(--tds-primitive-typography-font-weight-semibold)'
-      : 'var(--tds-primitive-typography-font-weight-regular)',
+      ? cssVar('primitive.typography.font-weight.semibold')
+      : cssVar('primitive.typography.font-weight.regular'),
     lineHeight: 'var(--tds-typography-body-md-line-height)',
     textAlign: 'left',
     cursor: 'pointer',
@@ -111,17 +112,17 @@ export function presetItemStyle(selected: boolean): CSSProperties {
 export const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.default'),
 };
 
 /** 툴바를 좌/우로 가르는 여백 */
@@ -130,8 +131,8 @@ export const toolbarSpacerStyle: CSSProperties = { flex: 1, minWidth: 0 };
 /** 툴바 구획선 */
 export const toolbarDividerStyle: CSSProperties = {
   alignSelf: 'stretch',
-  width: 'var(--tds-border-width-thin)',
-  background: 'var(--tds-color-border-subtle)',
+  width: cssVar('border-width.thin'),
+  background: cssVar('color.border.subtle'),
 };
 
 /** 아이콘 버튼 — 눌린 상태면 보라색으로 뜬다 */
@@ -140,23 +141,23 @@ export function iconButtonStyle(pressed = false, disabled = false): CSSPropertie
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 'var(--tds-space-1)',
-    width: 'var(--tds-space-7)',
-    height: 'var(--tds-space-7)',
+    gap: cssVar('space.1'),
+    width: cssVar('space.7'),
+    height: cssVar('space.7'),
     paddingTop: 0,
     paddingBottom: 0,
     paddingLeft: 0,
     paddingRight: 0,
     borderStyle: 'solid',
-    borderWidth: 'var(--tds-border-width-thin)',
-    borderColor: pressed ? 'var(--tds-color-action-primary-default)' : 'transparent',
-    borderRadius: 'var(--tds-radius-sm)',
-    background: pressed ? 'var(--tds-color-surface-raised)' : 'transparent',
+    borderWidth: cssVar('border-width.thin'),
+    borderColor: pressed ? cssVar('color.action.primary.default') : 'transparent',
+    borderRadius: cssVar('radius.sm'),
+    background: pressed ? cssVar('color.surface.raised') : 'transparent',
     color: disabled
-      ? 'var(--tds-color-text-disabled)'
+      ? cssVar('color.text.disabled')
       : pressed
-        ? 'var(--tds-color-action-primary-default)'
-        : 'var(--tds-color-text-default)',
+        ? cssVar('color.action.primary.default')
+        : cssVar('color.text.default'),
     cursor: disabled ? 'not-allowed' : 'pointer',
   };
 }
@@ -168,12 +169,12 @@ export const canvasScrollStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: 'var(--tds-space-4)',
-  paddingTop: 'var(--tds-space-5)',
-  paddingBottom: 'var(--tds-space-5)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
-  borderRadius: 'var(--tds-radius-md)',
+  gap: cssVar('space.4'),
+  paddingTop: cssVar('space.5'),
+  paddingBottom: cssVar('space.5'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
+  borderRadius: cssVar('radius.md'),
   minWidth: 0,
   overflowX: 'auto',
 };
@@ -192,38 +193,38 @@ export const senderCardStyle: CSSProperties = {
   width: '100%',
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
-  paddingTop: 'var(--tds-space-4)',
-  paddingBottom: 'var(--tds-space-4)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  gap: cssVar('space.3'),
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.4'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
   borderLeftStyle: 'solid',
-  borderLeftWidth: 'var(--tds-border-width-thick)',
-  borderLeftColor: 'var(--tds-color-action-primary-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-default)',
+  borderLeftWidth: cssVar('border-width.thick'),
+  borderLeftColor: cssVar('color.action.primary.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.default'),
 };
 
 /** 미리보기 탭의 읽기 전용 한 줄 — 'From  …' / 'Subject  …' */
 export const senderReadonlyRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'baseline',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
 };
 
 export const senderReadonlyLabelStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-semibold)',
-  minWidth: 'var(--tds-space-8)',
+  fontWeight: cssVar('primitive.typography.font-weight.semibold'),
+  minWidth: cssVar('space.8'),
 };
 
 export const senderReadonlyValueStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   overflowWrap: 'anywhere',
 };
@@ -231,8 +232,8 @@ export const senderReadonlyValueStyle: CSSProperties = {
 /** 제목은 보라색으로 — 목업이 유일하게 강조하는 값이다 */
 export const senderReadonlySubjectStyle: CSSProperties = {
   ...senderReadonlyValueStyle,
-  color: 'var(--tds-color-action-primary-default)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-semibold)',
+  color: cssVar('color.action.primary.default'),
+  fontWeight: cssVar('primitive.typography.font-weight.semibold'),
 };
 
 /* ── 블록 스택 ───────────────────────────────────────────────────────────── */
@@ -254,8 +255,8 @@ export function blockShellStyle(active: boolean): CSSProperties {
     width: '100%',
     minWidth: 0,
     borderStyle: 'solid',
-    borderWidth: 'var(--tds-border-width-medium)',
-    borderColor: active ? 'var(--tds-color-action-primary-default)' : 'transparent',
+    borderWidth: cssVar('border-width.medium'),
+    borderColor: active ? cssVar('color.action.primary.default') : 'transparent',
     cursor: 'pointer',
     // 윤곽이 생겨도 내용이 밀리지 않게 항상 같은 두께의 테두리를 둔다(투명 → 보라)
     display: 'block',
@@ -315,11 +316,11 @@ export function blockOutlineStyle(active: boolean, nested = false): CSSPropertie
     width: '100%',
     minWidth: 0,
     borderStyle: 'solid',
-    borderWidth: 'var(--tds-border-width-medium)',
+    borderWidth: cssVar('border-width.medium'),
     borderColor: active
-      ? 'var(--tds-color-action-primary-default)'
+      ? cssVar('color.action.primary.default')
       : nested
-        ? 'var(--tds-color-border-subtle)'
+        ? cssVar('color.border.subtle')
         : 'transparent',
   };
 }
@@ -343,12 +344,12 @@ export const emptyColumnStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  minHeight: 'var(--tds-space-10)',
+  minHeight: cssVar('space.10'),
   borderStyle: 'dashed',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-sm)',
-  background: 'var(--tds-color-surface-raised)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.sm'),
+  background: cssVar('color.surface.raised'),
 };
 
 /** 블록 아래 가장자리에 뜨는 동그란 + */
@@ -375,7 +376,7 @@ export const blockRemoveHandleStyle: CSSProperties = {
 
 /** 동그란 보라색 + 버튼 */
 export function roundAddButtonStyle(large = false): CSSProperties {
-  const size = large ? 'var(--tds-space-9)' : 'var(--tds-space-6)';
+  const size = large ? cssVar('space.9') : cssVar('space.6');
   return {
     display: 'inline-flex',
     alignItems: 'center',
@@ -387,11 +388,11 @@ export function roundAddButtonStyle(large = false): CSSProperties {
     paddingLeft: 0,
     paddingRight: 0,
     borderStyle: 'none',
-    borderRadius: 'var(--tds-radius-full)',
-    background: 'var(--tds-color-action-primary-default)',
-    color: 'var(--tds-color-text-on-primary)',
+    borderRadius: cssVar('radius.full'),
+    background: cssVar('color.action.primary.default'),
+    color: cssVar('color.text.on-primary'),
     cursor: 'pointer',
-    boxShadow: 'var(--tds-shadow-raised)',
+    boxShadow: cssVar('shadow.raised'),
   };
 }
 
@@ -403,19 +404,19 @@ export const emptyStackStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   minHeight: 'calc(var(--tds-space-10) * 2)',
-  paddingTop: 'var(--tds-space-8)',
-  paddingBottom: 'var(--tds-space-8)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.8'),
+  paddingBottom: cssVar('space.8'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
 };
 
 /** 미완성 블록의 빨간 안내 — 색과 문구로 이중 전달한다 */
 export const incompleteTextStyle: CSSProperties = {
-  marginTop: 'var(--tds-space-2)',
+  marginTop: cssVar('space.2'),
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-feedback-danger-text)',
+  color: cssVar('color.feedback.danger.text'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -424,10 +425,10 @@ export const incompleteTextStyle: CSSProperties = {
 export function placeholderShapeStyle(radius: string): CSSProperties {
   return {
     display: 'inline-block',
-    width: 'var(--tds-space-9)',
-    height: 'var(--tds-space-9)',
+    width: cssVar('space.9'),
+    height: cssVar('space.9'),
     borderRadius: radius,
-    background: 'var(--tds-color-surface-skeleton)',
+    background: cssVar('color.surface.skeleton'),
   };
 }
 
@@ -436,7 +437,7 @@ export function placeholderShapeStyle(radius: string): CSSProperties {
 export const blockPickerStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fill, minmax(calc(var(--tds-space-10) * 1.5), 1fr))',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 
@@ -445,17 +446,17 @@ export const blockPickerItemStyle: CSSProperties = {
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: 'var(--tds-space-1)',
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
+  gap: cssVar('space.1'),
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.2'),
+  paddingRight: cssVar('space.2'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-default)',
-  color: 'var(--tds-color-text-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.default'),
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   cursor: 'pointer',
 };
@@ -472,18 +473,18 @@ export const variableMenuStyle: CSSProperties = {
   width: 'calc(var(--tds-space-10) * 7)',
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
-  marginTop: 'var(--tds-space-1)',
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  gap: cssVar('space.2'),
+  marginTop: cssVar('space.1'),
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-default)',
-  boxShadow: 'var(--tds-shadow-overlay)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.default'),
+  boxShadow: cssVar('shadow.overlay'),
 };
 
 // [삭제됨] variableGroupButtonStyle / variableLeafButtonStyle
@@ -496,7 +497,7 @@ export const variableMenuStyle: CSSProperties = {
 export const panelFieldListStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
 };
 
@@ -504,12 +505,12 @@ export const panelFieldListStyle: CSSProperties = {
 export const panelPairStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 
 export const panelEmptyStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
 };

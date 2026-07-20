@@ -18,6 +18,7 @@ import { useRouteWritePermissions } from '../../../shared/permissions/RequirePer
 import { replyTemplateAdapter, TEMPLATE_RESOURCE } from './data-source';
 import { searchTemplates } from '../_shared/domain';
 import type { ReplyTemplate, ReplyTemplateInput } from '../_shared/domain';
+import { cssVar } from '@tds/ui';
 
 const ENTITY_LABEL = '답변 템플릿';
 const LIST_PATH = '/support/replies';
@@ -26,7 +27,7 @@ const SELECT_ALL_LABEL_ID = 'support-templates-select-all';
 const columnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   minWidth: 0,
 };
 
@@ -34,13 +35,13 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
 const bodyPreviewStyle: CSSProperties = {
   ...tdStyle,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   maxWidth: 'calc(var(--tds-space-6) * 12)',
   overflow: 'hidden',
   textOverflow: 'ellipsis',

@@ -25,11 +25,12 @@ import { ReorderMoveButtons } from '../../../../shared/ui';
 import { providerTitle } from '../validation';
 import type { OAuthProviderId, OAuthProviderValues } from '../validation';
 import { ProviderMark } from './provider-marks';
+import { cssVar } from '@tds/ui';
 
 const sectionStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 /** 묶음 제목 줄 — 오른쪽에 액션(순서 변경) 슬롯을 둔다 */
@@ -37,7 +38,7 @@ const headerStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
@@ -46,7 +47,7 @@ const headingStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   fontWeight: 'var(--tds-typography-label-md-font-weight)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
@@ -63,7 +64,7 @@ const headingStyle: CSSProperties = {
 const listStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   listStyle: 'none',
   marginTop: 0,
   marginBottom: 0,
@@ -78,7 +79,7 @@ const listStyle: CSSProperties = {
 const itemStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 
@@ -90,22 +91,20 @@ const tileStyle = (enabled: boolean): CSSProperties => ({
   flex: 1,
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
   textAlign: 'left',
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: enabled
-    ? 'var(--tds-color-feedback-success-border)'
-    : 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-lg)',
-  background: 'var(--tds-color-surface-default)',
-  color: 'var(--tds-color-text-default)',
-  boxShadow: 'var(--tds-shadow-raised)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: enabled ? cssVar('color.feedback.success.border') : cssVar('color.border.default'),
+  borderRadius: cssVar('radius.lg'),
+  background: cssVar('color.surface.default'),
+  color: cssVar('color.text.default'),
+  boxShadow: cssVar('shadow.raised'),
   cursor: 'pointer',
   // 링크지만 생김새는 타일이다 — 밑줄이 붙으면 목록이 링크 더미처럼 보인다
   textDecoration: 'none',
@@ -128,16 +127,16 @@ const nameStyle: CSSProperties = {
 /** '사용중' 알약 — 시각 보조다. 상태의 유일한 신호가 아니다(파일 머리말) */
 const pillStyle: CSSProperties = {
   flexShrink: 0,
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
+  paddingLeft: cssVar('space.2'),
+  paddingRight: cssVar('space.2'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-feedback-success-border)',
-  borderRadius: 'var(--tds-radius-full)',
-  background: 'var(--tds-color-feedback-success-surface)',
-  color: 'var(--tds-color-feedback-success-text)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.feedback.success.border'),
+  borderRadius: cssVar('radius.full'),
+  background: cssVar('color.feedback.success.surface'),
+  color: cssVar('color.feedback.success.text'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   whiteSpace: 'nowrap',
@@ -148,15 +147,15 @@ const emptyStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  paddingTop: 'var(--tds-space-4)',
-  paddingBottom: 'var(--tds-space-4)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.4'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderStyle: 'dashed',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-subtle)',
-  borderRadius: 'var(--tds-radius-lg)',
-  color: 'var(--tds-color-text-muted)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.subtle'),
+  borderRadius: cssVar('radius.lg'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

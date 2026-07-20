@@ -19,7 +19,7 @@ import type { CSSProperties } from 'react';
 import { isAbort } from '../../shared/async';
 import type { MemberTier } from '../../shared/domain/member';
 import { MEMBERS } from '../../shared/fixtures/members';
-import { Skeleton } from '@tds/ui';
+import { cssVar, Skeleton } from '@tds/ui';
 
 import { Alert, Button, ConfirmDialog, useToast, useUnsavedChangesDialog } from '../../shared/ui';
 import { TierCriteriaCard } from './components/TierCriteriaCard';
@@ -42,21 +42,21 @@ const SAVE_CONFIRM_MESSAGE =
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const layoutStyle: CSSProperties = {
   display: 'grid',
   // 좌: 편집 카드(넓게) / 우: 분포 미리보기 — minmax(0,…) 이라야 표가 그리드를 밀지 않는다
   gridTemplateColumns: 'minmax(0, 3fr) minmax(0, 2fr)',
-  gap: 'var(--tds-space-6)',
+  gap: cssVar('space.6'),
   alignItems: 'start',
 };
 
 const columnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   minWidth: 0,
 };
 
@@ -65,7 +65,7 @@ const footerStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const footerHintStyle: CSSProperties = {
@@ -73,7 +73,7 @@ const footerHintStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -82,14 +82,14 @@ const errorBodyStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
 const skeletonStackStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 export default function CustomerSettingsPage() {

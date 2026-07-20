@@ -23,11 +23,12 @@ import { CATEGORY_NAME_MAX } from '../types';
 import type { PortfolioCategoryUsage } from '../../_shared/store';
 import { portfolioCategorySchema } from '../validation';
 import type { PortfolioCategoryFormValues } from '../validation';
+import { cssVar } from '@tds/ui';
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 interface PortfolioCategoryFormModalProps {

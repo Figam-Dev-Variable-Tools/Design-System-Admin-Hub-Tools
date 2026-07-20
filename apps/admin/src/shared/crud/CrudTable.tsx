@@ -32,7 +32,7 @@ import {
   useReactTable,
   type SortingState,
 } from '@tanstack/react-table';
-import { Table } from '@tds/ui';
+import { cssVar, Table } from '@tds/ui';
 
 import {
   Empty,
@@ -69,13 +69,13 @@ export interface CrudSort {
 /* 액션 열의 <td> 는 이 파일이 그린다 — DS Table 은 trailing 을 완성된 셀로 받는다.
    폭·우측 정렬은 이 앱의 액션 버튼 두 개(연필·휴지통)에 맞춘 값이라 DS 로 올리지 않았다. */
 const actionCellStyle: CSSProperties = {
-  paddingTop: 'var(--tds-component-table-cell-padding-y)',
-  paddingBottom: 'var(--tds-component-table-cell-padding-y)',
-  paddingLeft: 'var(--tds-component-table-cell-padding-x)',
-  paddingRight: 'var(--tds-component-table-cell-padding-x)',
+  paddingTop: cssVar('component.table.cell-padding-y'),
+  paddingBottom: cssVar('component.table.cell-padding-y'),
+  paddingLeft: cssVar('component.table.cell-padding-x'),
+  paddingRight: cssVar('component.table.cell-padding-x'),
   borderBottomStyle: 'solid',
-  borderBottomWidth: 'var(--tds-border-width-thin)',
-  borderBottomColor: 'var(--tds-component-table-divider)',
+  borderBottomWidth: cssVar('border-width.thin'),
+  borderBottomColor: cssVar('component.table.divider'),
   verticalAlign: 'middle',
   width: 'calc(var(--tds-space-6) * 3)',
   textAlign: 'right',
@@ -84,7 +84,7 @@ const actionCellStyle: CSSProperties = {
 const rowActionsWrapStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   justifyContent: 'flex-end',
 };
 
@@ -307,6 +307,10 @@ export function CrudTable<T extends { id: string }>({
          인터랙티브 요소 가드와 드래그 선택 가드는 이제 DS Table 이 소유한다
          (useRowNavigation 이 갖고 있던 규칙을 그대로 옮겼다). */
       ...(canUpdate && { onActivate: () => onEdit(item) }),
+      /* 선택 여부는 체크박스 셀에만 있던 사실이었다 — 행 전체의 시각·aria-selected 로
+         올린다. 선택 열이 없는 표에는 주지 않는다: 그러면 DS 가 aria-selected="false" 를
+         달아 스크린리더가 없는 선택 조작을 있다고 읽는다. */
+      ...(showSelect && { selected: selectedIds.has(item.id) }),
     };
   });
 

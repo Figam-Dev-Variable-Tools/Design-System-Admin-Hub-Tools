@@ -6,36 +6,37 @@ import { useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
 
 import { Icon } from '../../../../shared/ui';
+import { cssVar } from '@tds/ui';
 
 const stageStyle: CSSProperties = {
   boxSizing: 'border-box',
   width: '100%',
-  paddingTop: 'var(--tds-space-4)',
-  paddingBottom: 'var(--tds-space-4)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.4'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderStyle: 'dashed',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
 };
 
 const stripStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   boxSizing: 'border-box',
   width: '100%',
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.default'),
 };
 
 // 배너는 가로로 긴 띠 — 이미지를 넓고 낮게 cover 한다
@@ -44,8 +45,8 @@ const imageStyle: CSSProperties = {
   width: '100%',
   height: 'calc(var(--tds-space-6) * 4)',
   objectFit: 'cover',
-  borderRadius: 'var(--tds-radius-sm)',
-  background: 'var(--tds-color-surface-raised)',
+  borderRadius: cssVar('radius.sm'),
+  background: cssVar('color.surface.raised'),
 };
 
 const imagePlaceholderStyle: CSSProperties = {
@@ -53,15 +54,15 @@ const imagePlaceholderStyle: CSSProperties = {
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   boxSizing: 'border-box',
   width: '100%',
   height: 'calc(var(--tds-space-6) * 4)',
   borderStyle: 'dashed',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-sm)',
-  color: 'var(--tds-color-text-muted)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.sm'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -75,7 +76,7 @@ const rowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
@@ -84,7 +85,7 @@ const titleStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-title-md-font-family)',
   fontSize: 'var(--tds-typography-title-md-font-size)',
   fontWeight: 'var(--tds-typography-title-md-font-weight)',
@@ -95,14 +96,14 @@ const titleStyle: CSSProperties = {
 const linkButtonStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  borderRadius: 'var(--tds-component-button-radius)',
-  background: 'var(--tds-component-button-background)',
-  color: 'var(--tds-component-button-text)',
+  gap: cssVar('space.1'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  borderRadius: cssVar('component.button.radius'),
+  background: cssVar('component.button.background'),
+  color: cssVar('component.button.text'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   fontWeight: 'var(--tds-typography-label-sm-font-weight)',
   lineHeight: 'var(--tds-typography-label-sm-line-height)',
@@ -112,12 +113,12 @@ const linkButtonStyle: CSSProperties = {
 const captionStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
-  marginTop: 'var(--tds-space-3)',
+  gap: cssVar('space.2'),
+  marginTop: cssVar('space.3'),
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

@@ -7,7 +7,7 @@
 // 않고 그릴 때 다시 sanitize 한다(RichTextField 와 같은 원칙) — 그 판단은 이 컴포넌트가 갖는다.
 import type { CSSProperties, ReactNode } from 'react';
 
-import { sanitizeRichText } from '@tds/ui';
+import { cssVar, sanitizeRichText } from '@tds/ui';
 
 import { isHtmlBodyEmpty, looksLikeRichText } from '../messaging';
 import { MAIL_WIDTH, MOCK_BODY_MIN_HEIGHT } from '../preview-metrics';
@@ -20,29 +20,29 @@ const frameStyle: CSSProperties = {
   marginRight: 'auto',
   width: '100%',
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.default'),
   overflow: 'hidden',
 };
 
 const headerStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  gap: cssVar('space.1'),
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderBottomStyle: 'solid',
-  borderBottomWidth: 'var(--tds-border-width-thin)',
-  borderBottomColor: 'var(--tds-color-border-default)',
-  background: 'var(--tds-color-surface-raised)',
+  borderBottomWidth: cssVar('border-width.thin'),
+  borderBottomColor: cssVar('color.border.default'),
+  background: cssVar('color.surface.raised'),
 };
 
 const subjectStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-title-md-font-family)',
   fontSize: 'var(--tds-typography-title-md-font-size)',
   fontWeight: 'var(--tds-typography-title-md-font-weight)',
@@ -51,16 +51,16 @@ const subjectStyle: CSSProperties = {
 };
 
 const fromStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
 };
 
 const bodyBase: CSSProperties = {
-  paddingTop: 'var(--tds-space-4)',
-  paddingBottom: 'var(--tds-space-4)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
-  color: 'var(--tds-color-text-default)',
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.4'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-body-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
   overflowWrap: 'anywhere',
@@ -78,18 +78,18 @@ const plainBodyStyle: CSSProperties = {
 
 const emptyBodyStyle: CSSProperties = {
   ...bodyBase,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
 };
 
 const footerStyle: CSSProperties = {
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderTopStyle: 'solid',
-  borderTopWidth: 'var(--tds-border-width-thin)',
-  borderTopColor: 'var(--tds-color-border-default)',
-  color: 'var(--tds-color-text-muted)',
+  borderTopWidth: cssVar('border-width.thin'),
+  borderTopColor: cssVar('color.border.default'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
 };
 

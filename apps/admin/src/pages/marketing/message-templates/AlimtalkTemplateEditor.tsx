@@ -102,6 +102,7 @@ import {
   parseMessageType,
 } from './validation';
 import type { AlimtalkTemplateFormValues } from './validation';
+import { cssVar } from '@tds/ui';
 
 const ENTITY_LABEL = '메시지 템플릿';
 const UNSAVED_MESSAGE =
@@ -144,7 +145,7 @@ const EMPTY: AlimtalkTemplateFormValues = {
 const chipRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
@@ -160,7 +161,7 @@ const bodyTextareaStyle = (invalid: boolean, disabled: boolean): CSSProperties =
 
 const counterStyle: CSSProperties = {
   alignSelf: 'flex-end',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   fontVariantNumeric: 'tabular-nums',
@@ -169,14 +170,14 @@ const counterStyle: CSSProperties = {
 const typeRowStyle: CSSProperties = {
   display: 'flex',
   flexWrap: 'wrap',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
 };
 
 const typeFieldStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   flexGrow: 1,
   flexShrink: 1,
   flexBasis: 'calc(var(--tds-space-10) * 3)',
@@ -191,7 +192,7 @@ const typeFieldStyle: CSSProperties = {
  * 있게 되면서 **고르기 전에 뜻을 알려 주는 자리**가 필요해졌다. 문구의 정본은 kakao.ts 다.
  */
 const typeHintStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

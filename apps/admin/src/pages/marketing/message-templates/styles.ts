@@ -9,12 +9,13 @@
 // [스타일 규칙] 모든 값은 토큰 CSS 변수. 파생 치수는 space 토큰의 calc 배수.
 // **단축 속성(padding)과 개별 속성(paddingLeft)을 한 객체에서 섞지 않는다.**
 import type { CSSProperties } from 'react';
+import { cssVar } from '@tds/ui';
 
 /** 편집기·상세의 페이지 골격 — 헤더와 본문을 띄운다 */
 export const editorPageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   minWidth: 0,
 };
 
@@ -29,7 +30,7 @@ export const editorPageStyle: CSSProperties = {
 export const threeColumnStyle: CSSProperties = {
   display: 'flex',
   flexWrap: 'wrap',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   alignItems: 'flex-start',
   minWidth: 0,
 };
@@ -65,10 +66,10 @@ export const sectionHeadingStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-action-primary-default)',
+  color: cssVar('color.action.primary.default'),
   fontFamily: 'var(--tds-typography-label-md-font-family)',
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
 
@@ -77,14 +78,14 @@ export const sectionHeadingStyle: CSSProperties = {
  * (목업 원문 `Sender profile` · `Preview template` · `Template status history`).
  */
 export const accentTitleStyle: CSSProperties = {
-  color: 'var(--tds-color-action-primary-default)',
+  color: cssVar('color.action.primary.default'),
 };
 
 /** 구역(제목 + 내용)의 세로 스택 */
 export const sectionStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
 };
 
@@ -95,28 +96,28 @@ export const sectionStyle: CSSProperties = {
 export const calloutStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'flex-start',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-feedback-info-surface)',
-  color: 'var(--tds-color-feedback-info-text)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.feedback.info.surface'),
+  color: cssVar('color.feedback.info.text'),
   minWidth: 0,
 };
 
 export const calloutListStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
   paddingTop: 0,
   paddingBottom: 0,
-  paddingLeft: 'var(--tds-space-4)',
+  paddingLeft: cssVar('space.4'),
   paddingRight: 0,
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
@@ -129,20 +130,20 @@ export const calloutListStyle: CSSProperties = {
 export const channelChipStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  gap: cssVar('space.1'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-action-primary-default)',
-  borderRadius: 'var(--tds-radius-full)',
-  background: 'var(--tds-color-feedback-info-surface)',
-  color: 'var(--tds-color-action-primary-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.action.primary.default'),
+  borderRadius: cssVar('radius.full'),
+  background: cssVar('color.feedback.info.surface'),
+  color: cssVar('color.action.primary.default'),
   fontFamily: 'var(--tds-typography-label-sm-font-family)',
   fontSize: 'var(--tds-typography-label-sm-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   lineHeight: 'var(--tds-typography-label-sm-line-height)',
   cursor: 'pointer',
   appearance: 'none',
@@ -155,18 +156,18 @@ export function iconButtonStyle(disabled = false): CSSProperties {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 'var(--tds-space-6)',
-    height: 'var(--tds-space-6)',
+    width: cssVar('space.6'),
+    height: cssVar('space.6'),
     paddingTop: 0,
     paddingBottom: 0,
     paddingLeft: 0,
     paddingRight: 0,
     borderStyle: 'solid',
-    borderWidth: 'var(--tds-border-width-thin)',
+    borderWidth: cssVar('border-width.thin'),
     borderColor: 'transparent',
-    borderRadius: 'var(--tds-radius-sm)',
+    borderRadius: cssVar('radius.sm'),
     background: 'transparent',
-    color: disabled ? 'var(--tds-color-text-disabled)' : 'var(--tds-color-text-muted)',
+    color: disabled ? cssVar('color.text.disabled') : cssVar('color.text.muted'),
     cursor: disabled ? 'not-allowed' : 'pointer',
   };
 }

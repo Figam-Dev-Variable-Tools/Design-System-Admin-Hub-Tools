@@ -43,6 +43,7 @@ import {
 } from './types';
 import type { Account, AccountInput, TradeFilter } from './types';
 import { objectParticle } from '../../../shared/format';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'sales-accounts';
 const ENTITY_LABEL = '거래처';
@@ -59,14 +60,14 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
 const filtersStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
   flexGrow: 1,
   minWidth: 0,
@@ -77,7 +78,7 @@ const selectWrapStyle: CSSProperties = {
 };
 
 const mutedStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontVariantNumeric: 'tabular-nums',
 };
 

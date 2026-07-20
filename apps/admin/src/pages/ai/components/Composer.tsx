@@ -40,21 +40,22 @@ import { mentionSuggestions } from '../_shared/parser';
 import type { ResponseModeId } from '../_shared/modes';
 import { MicIcon, PlusIcon, SendIcon } from '../icons';
 import { ModePicker } from './ModePicker';
+import { cssVar } from '@tds/ui';
 
 /** 한 줄 알약 — 참조 디자인의 컴팩트한 단일 행 */
 const shellStyle: CSSProperties = {
   position: 'relative',
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   boxSizing: 'border-box',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   border: 'thin solid var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-full)',
-  background: 'var(--tds-color-surface-default)',
+  borderRadius: cssVar('radius.full'),
+  background: cssVar('color.surface.default'),
 };
 
 /**
@@ -70,8 +71,8 @@ const inputStyle: CSSProperties = {
   minWidth: 0,
   border: 'none',
   outline: 'none',
-  background: 'var(--tds-color-transparent)',
-  color: 'var(--tds-color-text-default)',
+  background: cssVar('color.transparent'),
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-body-md-font-family)',
   fontSize: 'var(--tds-typography-body-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
@@ -81,7 +82,7 @@ const inputStyle: CSSProperties = {
 const trailingStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   flexShrink: 0,
 };
 
@@ -101,9 +102,9 @@ function iconButtonStyle(enabled: boolean): CSSProperties {
     paddingLeft: 0,
     paddingRight: 0,
     border: 'none',
-    borderRadius: 'var(--tds-radius-full)',
-    background: 'var(--tds-color-transparent)',
-    color: enabled ? 'var(--tds-color-text-muted)' : 'var(--tds-color-text-disabled)',
+    borderRadius: cssVar('radius.full'),
+    background: cssVar('color.transparent'),
+    color: enabled ? cssVar('color.text.muted') : cssVar('color.text.disabled'),
     cursor: enabled ? 'pointer' : 'not-allowed',
   };
 }
@@ -125,9 +126,9 @@ function sendButtonStyle(enabled: boolean): CSSProperties {
     paddingLeft: 0,
     paddingRight: 0,
     border: 'none',
-    borderRadius: 'var(--tds-radius-full)',
-    background: enabled ? 'var(--tds-color-text-default)' : 'var(--tds-color-surface-disabled)',
-    color: enabled ? 'var(--tds-color-surface-default)' : 'var(--tds-color-text-disabled)',
+    borderRadius: cssVar('radius.full'),
+    background: enabled ? cssVar('color.text.default') : cssVar('color.surface.disabled'),
+    color: enabled ? cssVar('color.surface.default') : cssVar('color.text.disabled'),
     cursor: enabled ? 'pointer' : 'not-allowed',
   };
 }
@@ -142,13 +143,13 @@ const listboxStyle: CSSProperties = {
   maxHeight: 'calc(var(--tds-space-10) * 4)',
   overflowY: 'auto',
   margin: 0,
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
   paddingLeft: 0,
   paddingRight: 0,
   border: 'thin solid var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-default)',
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.default'),
   listStyle: 'none',
 };
 
@@ -156,19 +157,19 @@ function optionStyle(active: boolean): CSSProperties {
   return {
     display: 'flex',
     alignItems: 'baseline',
-    gap: 'var(--tds-space-2)',
-    paddingTop: 'var(--tds-space-2)',
-    paddingBottom: 'var(--tds-space-2)',
-    paddingLeft: 'var(--tds-space-3)',
-    paddingRight: 'var(--tds-space-3)',
-    background: active ? 'var(--tds-color-surface-raised)' : 'var(--tds-color-transparent)',
-    color: 'var(--tds-color-text-default)',
+    gap: cssVar('space.2'),
+    paddingTop: cssVar('space.2'),
+    paddingBottom: cssVar('space.2'),
+    paddingLeft: cssVar('space.3'),
+    paddingRight: cssVar('space.3'),
+    background: active ? cssVar('color.surface.raised') : cssVar('color.transparent'),
+    color: cssVar('color.text.default'),
     cursor: 'pointer',
   };
 }
 
 const optionMetaStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

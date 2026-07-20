@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { isRichTextEmpty, sanitizeRichText } from '@tds/ui';
+import { cssVar, isRichTextEmpty, sanitizeRichText } from '@tds/ui';
 
 import './product-form.css';
 import {
@@ -76,15 +76,15 @@ const UNSAVED_MESSAGE =
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const descriptionStyle: CSSProperties = {
-  marginTop: 'var(--tds-space-1)',
+  marginTop: cssVar('space.1'),
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
@@ -93,15 +93,15 @@ const backLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   alignSelf: 'flex-start',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
   paddingLeft: 0,
   paddingRight: 0,
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   cursor: 'pointer',
@@ -150,21 +150,21 @@ const SECTION_IDS: readonly string[] = SECTIONS.map((section) => section.id);
 const layoutStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 13), 1fr))',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   alignItems: 'start',
 };
 
 const columnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   minWidth: 0,
 };
 
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 5), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const toggleFieldStyle: CSSProperties = fieldStyle;
@@ -172,7 +172,7 @@ const toggleFieldStyle: CSSProperties = fieldStyle;
 const actionsStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'flex-end',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const EMPTY: ProductFormValues = {

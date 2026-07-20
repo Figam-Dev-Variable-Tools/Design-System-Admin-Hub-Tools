@@ -35,6 +35,7 @@ import {
   toTicketInput,
 } from '../_shared/domain';
 import type { TicketEventKind, TicketStatus } from '../_shared/domain';
+import { cssVar } from '@tds/ui';
 
 const LIST_PATH = '/support/tickets';
 const NO_TEMPLATE = '';
@@ -44,22 +45,22 @@ const UNSAVED_MESSAGE =
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const backLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   alignSelf: 'flex-start',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
   paddingLeft: 0,
   paddingRight: 0,
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   cursor: 'pointer',
@@ -204,7 +205,7 @@ export default function TicketDetailPage() {
 
       {ticket === undefined ? (
         <Card>
-          <p style={{ ...fieldLabelStyle, color: 'var(--tds-color-text-muted)' }}>불러오는 중…</p>
+          <p style={{ ...fieldLabelStyle, color: cssVar('color.text.muted') }}>불러오는 중…</p>
         </Card>
       ) : (
         <TicketWorkspace

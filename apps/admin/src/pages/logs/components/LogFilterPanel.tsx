@@ -22,22 +22,23 @@ import { ALL_FILTER, isPeriodId, MAX_RANGE_DAYS, PERIOD_FILTERS } from '../types
 import type { LogAxisCounts, LogFilterAxis, PeriodId, RetentionPolicy } from '../types';
 import { firstIssueMessage } from '../validation';
 import type { CustomRangeDraft, RangeIssue } from '../validation';
+import { cssVar } from '@tds/ui';
 
 /** 직접 지정 입력 — 기간 목록 아래에 붙는다 */
 const rangeFormStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
-  marginTop: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
+  marginTop: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
 };
 
 /** 보존기간은 흘려 읽히면 안 된다 — 안내문 중 이 줄만 강조한다 */
 const retentionStyle: CSSProperties = {
   ...hintStyle,
-  color: 'var(--tds-color-text-default)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  color: cssVar('color.text.default'),
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 /** 기간 항목에는 배지를 달지 않는다 — '오늘 12건'은 어차피 목록 상단의 총 건수와 같은 말이다 */

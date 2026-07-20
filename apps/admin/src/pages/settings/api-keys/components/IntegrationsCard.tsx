@@ -17,7 +17,7 @@ import { useCallback } from 'react';
 import type { CSSProperties } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { Menu, Tabs, tabPanelId } from '@tds/ui';
+import { cssVar, Menu, tabPanelId, Tabs } from '@tds/ui';
 import type { MenuProps } from '@tds/ui';
 
 import {
@@ -43,7 +43,7 @@ import { ServiceGlyph } from './ServiceGlyph';
 const stackStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const nameCellStyle: CSSProperties = {
@@ -54,31 +54,31 @@ const nameCellStyle: CSSProperties = {
 const nameRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
 };
 
 const nameStackStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   minWidth: 0,
 };
 
 const nameTextStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontWeight: 'var(--tds-typography-label-md-font-weight)',
 };
 
 const descriptionStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
 
 const mutedCellStyle: CSSProperties = {
   ...tdStyle,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   whiteSpace: 'nowrap',
 };
 
@@ -91,15 +91,15 @@ const actionCellStyle: CSSProperties = {
 const actionRowStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 /** 잠긴 '앱 설정' 옆의 이유 — 표 안이라 한 줄로 짧게 */
 const reasonStyle: CSSProperties = {
   display: 'block',
   maxWidth: 'calc(var(--tds-space-6) * 7)',
-  marginTop: 'var(--tds-space-1)',
-  color: 'var(--tds-color-text-muted)',
+  marginTop: cssVar('space.1'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   whiteSpace: 'normal',
@@ -111,11 +111,11 @@ const emptyStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
+  paddingTop: cssVar('space.6'),
+  paddingBottom: cssVar('space.6'),
   paddingLeft: 0,
   paddingRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   textAlign: 'center',

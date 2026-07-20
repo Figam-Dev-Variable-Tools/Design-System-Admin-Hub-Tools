@@ -20,12 +20,13 @@ import { Button, controlStyle, errorIdOf, errorTextStyle, Icon } from '../../../
 import { ACTION_CANCEL, TITLE_PLACEHOLDER } from './copy';
 import { MESSAGE_TEMPLATE_LIST_PATH } from './data-source';
 import { editorPageStyle } from './styles';
+import { cssVar } from '@tds/ui';
 
 const headerStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'flex-start',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   flexWrap: 'wrap',
   minWidth: 0,
 };
@@ -33,7 +34,7 @@ const headerStyle: CSSProperties = {
 const headingColumnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexGrow: 1,
   minWidth: 0,
 };
@@ -42,15 +43,15 @@ const backLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   alignSelf: 'flex-start',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
   paddingLeft: 0,
   paddingRight: 0,
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   cursor: 'pointer',
@@ -60,20 +61,20 @@ const backLinkStyle: CSSProperties = {
 function titleInputStyle(invalid: boolean, disabled: boolean): CSSProperties {
   return {
     ...controlStyle(invalid, disabled),
-    paddingLeft: 'var(--tds-space-2)',
-    paddingRight: 'var(--tds-space-2)',
-    borderColor: invalid ? 'var(--tds-color-feedback-danger-border)' : 'transparent',
+    paddingLeft: cssVar('space.2'),
+    paddingRight: cssVar('space.2'),
+    borderColor: invalid ? cssVar('color.feedback.danger.border') : 'transparent',
     background: 'transparent',
     fontFamily: 'var(--tds-typography-title-xl-font-family)',
     fontSize: 'var(--tds-typography-title-xl-font-size)',
-    fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+    fontWeight: cssVar('primitive.typography.font-weight.bold'),
     lineHeight: 'var(--tds-typography-title-xl-line-height)',
   };
 }
 
 /** 종류 표시 — 발행본을 수정할 때 '무엇을 수정하고 있는가' 를 제목 위에 적는다 */
 const eyebrowStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   lineHeight: 'var(--tds-typography-label-sm-line-height)',
 };
@@ -81,7 +82,7 @@ const eyebrowStyle: CSSProperties = {
 const actionsStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 

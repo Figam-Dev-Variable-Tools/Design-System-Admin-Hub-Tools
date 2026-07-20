@@ -24,6 +24,7 @@ import {
 import { useRowNavigation } from '../../../../shared/useRowNavigation';
 import { CATEGORY_LABEL, PAGE_SIZE, STATUS_LABEL, STATUS_TONE } from '../types';
 import type { NoticeSummary } from '../types';
+import { cssVar } from '@tds/ui';
 
 const COLUMNS = ['제목', '분류', '상태', '작성자', '게시일', '조회수'] as const;
 
@@ -33,7 +34,7 @@ const SELECT_ALL_LABEL_ID = 'notices-select-all-label';
 
 const titleCellStyle: CSSProperties = {
   ...tdStyle,
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
 };
 
 const nowrapCellStyle: CSSProperties = {
@@ -43,22 +44,22 @@ const nowrapCellStyle: CSSProperties = {
 
 const actionCellStyle: CSSProperties = {
   ...tdStyle,
-  width: 'var(--tds-space-6)',
+  width: cssVar('space.6'),
   textAlign: 'right',
 };
 
 const emptyCellStyle: CSSProperties = {
   ...tdStyle,
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
-  color: 'var(--tds-color-text-muted)',
+  paddingTop: cssVar('space.6'),
+  paddingBottom: cssVar('space.6'),
+  color: cssVar('color.text.muted'),
   textAlign: 'center',
 };
 
 const titleGroupStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const TOTAL_COLS = COLUMNS.length + LEADING_COLS + 1;

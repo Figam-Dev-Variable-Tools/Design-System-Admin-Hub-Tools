@@ -32,6 +32,7 @@ import { useCreatePopup, useNextPopupPriority, usePopupQuery, useUpdatePopup } f
 import { POSITION_LABEL, POSITION_OPTIONS, TITLE_MAX_LENGTH } from './types';
 import { popupSchema } from './validation';
 import type { PopupFormValues } from './validation';
+import { cssVar } from '@tds/ui';
 
 const UNSAVED_MESSAGE =
   '팝업에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
@@ -39,15 +40,15 @@ const UNSAVED_MESSAGE =
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const descriptionStyle: CSSProperties = {
-  marginTop: 'var(--tds-space-1)',
+  marginTop: cssVar('space.1'),
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
@@ -56,39 +57,39 @@ const descriptionStyle: CSSProperties = {
 const layoutStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 13), 1fr))',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   alignItems: 'start',
 };
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 6), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const checkboxRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const checkStyle: CSSProperties = {
-  width: 'var(--tds-space-4)',
-  height: 'var(--tds-space-4)',
-  accentColor: 'var(--tds-color-action-primary-default)',
+  width: cssVar('space.4'),
+  height: cssVar('space.4'),
+  accentColor: cssVar('color.action.primary.default'),
   cursor: 'pointer',
 };
 
 const actionsStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'flex-end',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const EMPTY: PopupFormValues = {

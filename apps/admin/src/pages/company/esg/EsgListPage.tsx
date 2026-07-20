@@ -18,6 +18,7 @@ import {
   filterEsg,
 } from './types';
 import type { EsgFilter, EsgInput, EsgItem } from './types';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'esg';
 const ENTITY_LABEL = 'ESG 활동';
@@ -26,7 +27,7 @@ const LIST_PATH = '/company/esg';
 const layoutStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'calc(var(--tds-space-6) * 8) minmax(0, 1fr)',
-  gap: 'var(--tds-space-6)',
+  gap: cssVar('space.6'),
   alignItems: 'start',
 };
 
@@ -34,7 +35,7 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

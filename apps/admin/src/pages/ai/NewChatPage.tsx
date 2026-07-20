@@ -28,19 +28,20 @@ import type { ResponseModeId } from './_shared/modes';
 import type { ChatMessage } from './_shared/conversations';
 import { ConversationGoneError } from './data-source';
 import { useAskAgent, useConversationQuery, useConversationsQuery } from './queries';
+import { cssVar } from '@tds/ui';
 
 const layoutStyle: CSSProperties = {
   display: 'grid',
   // 좌측 레일은 고정 폭, 본문은 남는 폭 전부 (minmax(0,…) 이라야 표가 그리드를 밀지 않는다)
   gridTemplateColumns: 'calc(var(--tds-space-10) * 5) minmax(0, 1fr)',
-  gap: 'var(--tds-space-6)',
+  gap: cssVar('space.6'),
   alignItems: 'start',
 };
 
 const mainStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   // 입력줄이 항상 보이게 본문에 최소 높이를 준다
   minHeight: 'calc(var(--tds-space-10) * 12)',
 };
@@ -48,7 +49,7 @@ const mainStyle: CSSProperties = {
 const listStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   flexGrow: 1,
   margin: 0,
   paddingTop: 0,
@@ -62,13 +63,13 @@ const userRowStyle: CSSProperties = { display: 'flex', justifyContent: 'flex-end
 
 const userBubbleStyle: CSSProperties = {
   maxWidth: 'calc(var(--tds-space-10) * 8)',
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
-  borderRadius: 'var(--tds-radius-lg)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-default)',
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
+  borderRadius: cssVar('radius.lg'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-body-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
 };
@@ -76,12 +77,12 @@ const userBubbleStyle: CSSProperties = {
 const agentRowStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const thinkingStyle: CSSProperties = {
   margin: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -90,9 +91,9 @@ const followUpListStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-start',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   margin: 0,
-  paddingTop: 'var(--tds-space-1)',
+  paddingTop: cssVar('space.1'),
   paddingBottom: 0,
   paddingLeft: 0,
   paddingRight: 0,
@@ -102,9 +103,9 @@ const followUpListStyle: CSSProperties = {
 const emptyStateStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
-  paddingTop: 'var(--tds-space-8)',
-  paddingBottom: 'var(--tds-space-8)',
+  gap: cssVar('space.3'),
+  paddingTop: cssVar('space.8'),
+  paddingBottom: cssVar('space.8'),
   paddingLeft: 0,
   paddingRight: 0,
 };
@@ -114,7 +115,7 @@ const headingStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-title-md-font-family)',
   fontSize: 'var(--tds-typography-title-md-font-size)',
   fontWeight: 'var(--tds-typography-title-md-font-weight)',

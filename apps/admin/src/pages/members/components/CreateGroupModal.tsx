@@ -32,17 +32,18 @@ import { useCreateGroup } from '../queries';
 import { GROUP_TYPE_OPTIONS, SHIPPING_BENEFIT_OPTIONS } from '../types';
 import { createGroupSchema } from '../validation';
 import type { CreateGroupFormValues } from '../validation';
+import { cssVar } from '@tds/ui';
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const labelRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
 };
 
 interface CreateGroupModalProps {

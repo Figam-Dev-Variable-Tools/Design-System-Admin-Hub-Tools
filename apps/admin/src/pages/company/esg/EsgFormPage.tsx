@@ -20,6 +20,7 @@ import {
 import type { EsgCategory, EsgInput, EsgItem } from './types';
 import { esgSchema } from './validation';
 import type { EsgFormValues } from './validation';
+import { cssVar } from '@tds/ui';
 
 const ENTITY_LABEL = 'ESG 활동';
 const LIST_PATH = '/company/esg';
@@ -29,7 +30,7 @@ const UNSAVED_MESSAGE =
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 5), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 export default function EsgFormPage() {

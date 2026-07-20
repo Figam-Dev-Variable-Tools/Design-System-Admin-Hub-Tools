@@ -13,7 +13,7 @@ import headerCss from './Header.css?raw';
 import { Header } from './Header';
 
 describe('Header — 랜드마크와 제목 계층', () => {
-  it('banner 랜드마크다 — role 속성 없이 네이티브 <header> 시맨틱으로', () => {
+  it('Header: default 상태 — banner 랜드마크다. role 속성 없이 네이티브 <header> 시맨틱으로', () => {
     const { container } = render(<Header title="회원 관리" />);
     expect(screen.getByRole('banner')).not.toBeNull();
     // 네이티브 시맨틱으로 충분하다 — 중복 role 속성을 달지 않는다

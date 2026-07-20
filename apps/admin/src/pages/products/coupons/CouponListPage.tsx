@@ -42,6 +42,7 @@ import {
   usageRate,
 } from './types';
 import type { Coupon, CouponInput, CouponIssueFilter } from './types';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'coupons';
 const ENTITY_LABEL = '쿠폰';
@@ -58,14 +59,14 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
 const filtersStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
   flexGrow: 1,
   minWidth: 0,
@@ -76,7 +77,7 @@ const selectWrapStyle: CSSProperties = {
 };
 
 const periodStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontVariantNumeric: 'tabular-nums',
 };
 

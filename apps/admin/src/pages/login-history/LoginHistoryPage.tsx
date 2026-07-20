@@ -39,6 +39,7 @@ import { PAGE_SIZE } from './types';
 import type { AccountKindFilter, DateRange, OutcomeFilter, PeriodId } from './types';
 import { validateCustomRange } from './validation';
 import type { CustomRangeDraft, RangeIssue } from './validation';
+import { cssVar } from '@tds/ui';
 
 /** 검색어 디바운스 — 타이핑 한 글자마다 조회하지 않는다 */
 const SEARCH_DEBOUNCE_MS = 250;
@@ -49,21 +50,21 @@ const DEFAULT_PERIOD: PeriodId = 'last-30d';
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const layoutStyle: CSSProperties = {
   display: 'grid',
   // 좌측 필터는 고정 폭, 표는 남는 폭 전부 (minmax(0,…) 이라야 표가 그리드를 밀지 않는다)
   gridTemplateColumns: 'calc(var(--tds-space-6) * 9) minmax(0, 1fr)',
-  gap: 'var(--tds-space-6)',
+  gap: cssVar('space.6'),
   alignItems: 'start',
 };
 
 const mainColumnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   minWidth: 0,
 };
 
@@ -71,15 +72,15 @@ const summaryRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
 /** 실패 건수 — 요약 줄에서도 실패는 실패로 보인다 (성공 톤으로 섞지 않는다) */
 const failureSummaryStyle: CSSProperties = {
   ...hintStyle,
-  color: 'var(--tds-color-feedback-danger-text)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  color: cssVar('color.feedback.danger.text'),
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 /** 표 카드의 가로 스크롤 — 컬럼이 8개라 좁은 화면에서 넘칠 수 있다 */
@@ -92,7 +93,7 @@ const errorBodyStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

@@ -44,6 +44,19 @@ function renderSidebar(props: Partial<Parameters<typeof Sidebar>[0]> = {}) {
   return render(<Sidebar label="주 내비게이션" sections={SECTIONS} {...props} />);
 }
 
+/**
+ * 스타일시트에서 셀렉터의 선언 블록을 뽑는다 — 규칙이 없으면 null (그러면 단언이 실패한다).
+ * hover 규칙이 최상위/하위 항목을 콤마로 묶으므로 "셀렉터 바로 뒤에 여는 중괄호" 를 가정하지 않고
+ * 셀렉터 등장 위치에서 다음 여는 중괄호를 찾는다.
+ */
+function ruleBody(css: string, selector: string): string | null {
+  const start = css.indexOf(selector);
+  if (start < 0) return null;
+  const open = css.indexOf('{', start);
+  const close = css.indexOf('}', open);
+  return open < 0 || close < 0 ? null : css.slice(open + 1, close);
+}
+
 /** 주 내비게이션 안에서 aria-current=page 를 단 항목들의 href */
 function activeHrefs(): string[] {
   const nav = screen.getByRole('navigation', { name: '주 내비게이션' });
@@ -53,7 +66,7 @@ function activeHrefs(): string[] {
 }
 
 describe('Sidebar — 랜드마크와 구조 (a11y.role)', () => {
-  it('nav 랜드마크가 label prop 을 접근 가능한 이름으로 갖는다', () => {
+  it('Sidebar: default 상태 — nav 랜드마크가 label prop 을 접근 가능한 이름으로 갖는다', () => {
     renderSidebar();
     expect(screen.getByRole('navigation', { name: '주 내비게이션' })).not.toBeNull();
   });
@@ -75,7 +88,7 @@ describe('Sidebar — 랜드마크와 구조 (a11y.role)', () => {
 });
 
 describe('Sidebar — 활성 표시 (states: selected)', () => {
-  it('activeHref 와 같은 링크만 aria-current=page 를 단다', () => {
+  it('Sidebar: selected 상태 — activeHref 와 같은 링크만 aria-current=page 를 단다', () => {
     renderSidebar({ activeHref: '/users/members' });
     expect(activeHrefs()).toStrictEqual(['/users/members']);
   });
@@ -99,6 +112,33 @@ describe('Sidebar — 활성 표시 (states: selected)', () => {
   });
 });
 
+describe('Sidebar — 포인터·키보드 상태 (states: hover · focus-visible)', () => {
+  // hover 는 포인터 의사 클래스라 jsdom 에 실제 상태가 없다 — 검증할 수 있는 유일한 진짜
+  // 단언은 스타일시트 규칙 자체다. 규칙을 지우면 이 테스트가 실패한다 (Button 선례).
+  it('Sidebar: hover 상태 — 최상위·하위 항목이 같은 raised 배경으로 올라간다', () => {
+    const top = ruleBody(sidebarCss, '.tds-sidebar__item:hover');
+    const sub = ruleBody(sidebarCss, '.tds-sidebar__sub-item:hover');
+
+    expect(top).not.toBeNull();
+    expect(top).toContain('var(--tds-color-surface-raised)');
+    // 두 층이 갈라지면 같은 목록 안에서 hover 가 두 가지 색으로 보인다
+    expect(sub).toBe(top);
+  });
+
+  it('Sidebar: focus-visible 상태 — 링크가 키보드 포커스를 받고 :focus-visible 규칙이 링을 그린다', async () => {
+    renderSidebar();
+
+    await userEvent.tab();
+    expect(document.activeElement).toBe(screen.getByRole('link', { name: '대시보드' }));
+
+    // 두께는 CSS 키워드가 아니라 단일 토큰 border-width.medium 에서 온다 (TOKEN-02)
+    const ring = ruleBody(sidebarCss, '.tds-sidebar__item:focus-visible');
+    expect(ring).not.toBeNull();
+    expect(ring).toContain('var(--tds-border-width-medium)');
+    expect(ring).toContain('var(--tds-color-border-focus)');
+  });
+});
+
 describe('Sidebar — 가지 펼침 (states: open · aria-expanded/controls)', () => {
   it('접힌 가지는 aria-expanded=false 이고 aria-controls 를 달지 않는다', () => {
     renderSidebar({ openId: '' });
@@ -108,7 +148,7 @@ describe('Sidebar — 가지 펼침 (states: open · aria-expanded/controls)', (
     expect(branch.getAttribute('aria-controls')).toBeNull();
   });
 
-  it('펼친 가지는 aria-expanded=true 이고 aria-controls 가 실재하는 목록을 가리킨다', () => {
+  it('Sidebar: open 상태 — 펼친 가지는 aria-expanded=true 이고 aria-controls 가 실재하는 목록을 가리킨다', () => {
     renderSidebar({ openId: 'company' });
     const branch = screen.getByRole('button', { name: /기업 정보/ });
     expect(branch.getAttribute('aria-expanded')).toBe('true');

@@ -18,11 +18,12 @@ import {
 } from '../../../shared/ui';
 import { ROLE_NAME_MAX_LENGTH } from '../../../shared/permissions/roles';
 import type { RoleMutationResult } from '../../../shared/permissions/PermissionProvider';
+import { cssVar } from '@tds/ui';
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 interface RoleFormModalProps {

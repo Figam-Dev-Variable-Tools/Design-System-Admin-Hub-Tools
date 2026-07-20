@@ -8,17 +8,18 @@ import type { CSSProperties } from 'react';
 
 import { Card, CardTitle, checkboxStyle, hintStyle, mutedTextStyle } from '../../../shared/ui';
 import type { ConsentGroup } from '../types';
+import { cssVar } from '@tds/ui';
 
 const groupsStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const groupStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
   borderWidth: 0,
   borderStyle: 'none',
@@ -35,22 +36,22 @@ const groupStyle: CSSProperties = {
 const legendStyle: CSSProperties = {
   paddingLeft: 0,
   paddingRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-label-md-font-family)',
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
 
 const itemStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
 const itemLabelStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };

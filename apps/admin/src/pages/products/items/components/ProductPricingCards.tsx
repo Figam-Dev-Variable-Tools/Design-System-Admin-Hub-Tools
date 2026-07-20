@@ -22,6 +22,7 @@ import {
 } from '../../../../shared/ui';
 import { POINTS_MODE_OPTIONS } from '../types';
 import type { ProductFormValues } from '../validation';
+import { cssVar } from '@tds/ui';
 
 const DISCOUNT_TYPE_OPTIONS = [
   { id: 'none', label: '할인 없음' },
@@ -44,7 +45,7 @@ const SHIPPING_FEE_OPTIONS = [
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 5), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 interface PriceDiscountCardProps {

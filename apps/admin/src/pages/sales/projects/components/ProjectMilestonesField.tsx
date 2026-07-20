@@ -15,23 +15,24 @@ import {
 } from '../../../../shared/ui';
 import { milestoneProgress, PROJECT_MAX_MILESTONES } from '../types';
 import type { Milestone } from '../types';
+import { cssVar } from '@tds/ui';
 
 const sectionStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const rowsStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'minmax(0, 1fr) minmax(calc(var(--tds-space-6) * 3), auto) auto auto',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   alignItems: 'center',
 };
 
@@ -39,14 +40,14 @@ const iconButtonStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
-  paddingLeft: 'var(--tds-space-1)',
-  paddingRight: 'var(--tds-space-1)',
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
+  paddingLeft: cssVar('space.1'),
+  paddingRight: cssVar('space.1'),
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-feedback-danger-text)',
+  color: cssVar('color.feedback.danger.text'),
   cursor: 'pointer',
 };
 

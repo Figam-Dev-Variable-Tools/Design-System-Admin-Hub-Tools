@@ -21,6 +21,7 @@ import {
 } from '../../../../shared/ui';
 import { PAGE_SIZE, POSITION_LABEL } from '../types';
 import type { Popup } from '../types';
+import { cssVar } from '@tds/ui';
 
 const COLUMNS = ['제목', '위치', '노출 기간', '상태', '우선순위'] as const;
 
@@ -31,7 +32,7 @@ const SELECT_ALL_LABEL_ID = 'popups-select-all-label';
 
 const titleCellStyle: CSSProperties = {
   ...tdStyle,
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
 };
 
 const nowrapCellStyle: CSSProperties = {
@@ -47,9 +48,9 @@ const actionCellStyle: CSSProperties = {
 
 const emptyCellStyle: CSSProperties = {
   ...tdStyle,
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
-  color: 'var(--tds-color-text-muted)',
+  paddingTop: cssVar('space.6'),
+  paddingBottom: cssVar('space.6'),
+  color: cssVar('color.text.muted'),
   textAlign: 'center',
 };
 

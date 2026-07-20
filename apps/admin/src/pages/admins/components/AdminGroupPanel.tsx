@@ -19,9 +19,10 @@ import { Button, FilterPanel, FilterRail, hintStyle } from '../../../shared/ui';
 import type { FilterOption } from '../../../shared/ui';
 import { GROUP_ALL } from '../types';
 import type { AdminGroup, AdminGroupCounts } from '../types';
+import { cssVar } from '@tds/ui';
 
 const noticeLinkStyle: CSSProperties = {
-  color: 'var(--tds-color-action-primary-default)',
+  color: cssVar('color.action.primary.default'),
   textDecoration: 'none',
 };
 
@@ -29,7 +30,7 @@ const noticeLinkStyle: CSSProperties = {
 const footerActionsStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   width: '100%',
 };
 

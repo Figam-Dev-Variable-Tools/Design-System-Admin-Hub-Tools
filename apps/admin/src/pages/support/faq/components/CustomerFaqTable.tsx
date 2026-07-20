@@ -21,21 +21,22 @@ import {
 } from '../../../../shared/ui';
 import { formatNumber } from '../../../../shared/format';
 import type { CustomerFaq } from '../types';
+import { cssVar } from '@tds/ui';
 
 const COLUMNS = ['질문', '카테고리', '노출', 'BEST', '순서'] as const;
 
 const questionCellStyle: CSSProperties = {
   ...tdStyle,
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
 };
 
 const nowrapCellStyle: CSSProperties = { ...tdStyle, whiteSpace: 'nowrap' };
 
 const emptyCellStyle: CSSProperties = {
   ...tdStyle,
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
-  color: 'var(--tds-color-text-muted)',
+  paddingTop: cssVar('space.6'),
+  paddingBottom: cssVar('space.6'),
+  color: cssVar('color.text.muted'),
   textAlign: 'center',
 };
 

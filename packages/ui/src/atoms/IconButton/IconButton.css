@@ -53,6 +53,14 @@
   background-color: var(--tds-color-surface-raised);
 }
 
+/* active (계약 state) — 누르고 있는 동안. 배경은 hover 가 이미 올려 둔 raised 를 그대로 두고
+   글자색만 action.primary.active 로 눌러 넣는다. Button 의 ghost 변형이 쓰는 것과 같은 어법이다
+   (component.button.ghost: background 는 hover 와 동일 · text 만 active 로 깊어진다) —
+   배경까지 또 바꾸면 hover 와 pressed=on 사이에 구분되지 않는 세 번째 배경이 생긴다. */
+.tds-icon-button:active:not(:disabled) {
+  color: var(--tds-color-action-primary-active);
+}
+
 /* focus-visible — 키보드 포커스에만 링을 노출한다 (계약 a11y.focusVisible).
    두께는 단일 토큰 border-width.medium 에서만 온다 (TokenGuard TOKEN-02). */
 .tds-icon-button:focus-visible {

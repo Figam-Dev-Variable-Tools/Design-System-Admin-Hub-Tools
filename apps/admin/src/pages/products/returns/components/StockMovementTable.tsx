@@ -12,13 +12,14 @@ import {
   visuallyHiddenStyle,
 } from '../../../../shared/ui';
 import type { StockMovement } from '../types';
+import { cssVar } from '@tds/ui';
 
 const emptyStyle: CSSProperties = {
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };

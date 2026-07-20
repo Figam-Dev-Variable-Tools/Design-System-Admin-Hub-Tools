@@ -39,6 +39,7 @@ import {
   PAGE_SIZE,
 } from '../types';
 import type { LoginHistoryEntry } from '../types';
+import { cssVar } from '@tds/ui';
 
 const COLUMNS = ['시각', '계정', '이름', '유형', '결과', '실패 사유', 'IP', '기기'] as const;
 
@@ -49,21 +50,21 @@ const nowrapCellStyle: CSSProperties = {
 
 const accountCellStyle: CSSProperties = {
   ...tdStyle,
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
   whiteSpace: 'nowrap',
 };
 
 /** 값이 없는 칸 — 지어내지 않고 '—' 로 비워 둔다 */
 const emptyValueStyle: CSSProperties = {
   ...nowrapCellStyle,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
 };
 
 const emptyRowStyle: CSSProperties = {
   ...tdStyle,
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
-  color: 'var(--tds-color-text-muted)',
+  paddingTop: cssVar('space.6'),
+  paddingBottom: cssVar('space.6'),
+  color: cssVar('color.text.muted'),
   textAlign: 'center',
 };
 
@@ -71,28 +72,28 @@ const emptyRowStyle: CSSProperties = {
 const outcomeInnerStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const failureTextStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
-  color: 'var(--tds-color-feedback-danger-text)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  gap: cssVar('space.1'),
+  color: cssVar('color.feedback.danger.text'),
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 /** '실패 3회 연속' — 계정 탈취 시도의 신호. 이 배지가 이 화면이 존재하는 이유다 */
 const streakBadgeStyle: CSSProperties = {
   ...badgeStyle,
-  background: 'var(--tds-color-feedback-danger-border)',
-  color: 'var(--tds-color-text-on-primary)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  background: cssVar('color.feedback.danger.border'),
+  color: cssVar('color.text.on-primary'),
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 const reasonCellStyle: CSSProperties = {
   ...nowrapCellStyle,
-  color: 'var(--tds-color-feedback-danger-text)',
+  color: cssVar('color.feedback.danger.text'),
 };
 
 /** 기기 — 브라우저와 OS 를 한 칸에 두 줄로 */
@@ -103,7 +104,7 @@ const deviceStyle: CSSProperties = {
 };
 
 const deviceSubStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

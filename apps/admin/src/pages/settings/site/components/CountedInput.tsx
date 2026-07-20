@@ -11,24 +11,25 @@ import type { CSSProperties } from 'react';
 import type { UseFormRegisterReturn } from 'react-hook-form';
 
 import { controlStyle, errorTextStyle } from '../../../../shared/ui';
+import { cssVar } from '@tds/ui';
 
 const boxStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   minWidth: 0,
 };
 
 const rowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
 };
 
 const counterStyle: CSSProperties = {
   flexShrink: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   fontVariantNumeric: 'tabular-nums',

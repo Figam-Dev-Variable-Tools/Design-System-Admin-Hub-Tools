@@ -19,7 +19,7 @@
 // [도메인을 모른다] 무슨 설정인지 알지 못한다 — 제목·안내문·필드(children)와 상태 플래그만 받는다.
 import type { CSSProperties, FormEvent, ReactNode } from 'react';
 
-import { Skeleton } from '@tds/ui';
+import { cssVar, Skeleton } from '@tds/ui';
 
 import { Alert, Button, Card, CardTitle, useUnsavedChangesDialog } from '../../../shared/ui';
 import { AuditNote } from './AuditNote';
@@ -28,7 +28,7 @@ import type { AuditInfo } from './store';
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const descriptionStyle: CSSProperties = {
@@ -36,7 +36,7 @@ const descriptionStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
@@ -44,14 +44,14 @@ const descriptionStyle: CSSProperties = {
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const actionsStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const footerHintStyle: CSSProperties = {
@@ -59,7 +59,7 @@ const footerHintStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -67,14 +67,14 @@ const footerHintStyle: CSSProperties = {
 const skeletonBodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const errorBodyStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

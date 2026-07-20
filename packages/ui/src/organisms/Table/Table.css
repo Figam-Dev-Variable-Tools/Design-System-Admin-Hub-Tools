@@ -119,6 +119,18 @@
   background: var(--tds-color-surface-raised);
 }
 
+/* selected (계약 state) — 배경은 hover 와 같은 raised 를 쓰고, 구분은 inline-start 강조선이
+   짊어진다. 배경만으로 갈리면 마우스가 얹힌 행과 선택된 행이 같아 보이고, 선택을 색 하나로만
+   말하면 색각 이상에서 사라진다 — 위치를 가진 선은 색에 기대지 않는다.
+   첫 셀에 거는 이유: <tr> 은 border-inline-start 를 그리지 못하는 표 박스라 선이 나오지 않는다. */
+.tds-table__row--selected {
+  background: var(--tds-color-surface-raised);
+}
+
+.tds-table__row--selected > *:first-child {
+  box-shadow: inset var(--tds-border-width-medium) 0 0 0 var(--tds-color-action-primary-default);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tds-table__row--activatable {
     transition: none;

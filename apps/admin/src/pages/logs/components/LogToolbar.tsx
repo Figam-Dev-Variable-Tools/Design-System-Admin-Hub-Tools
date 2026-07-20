@@ -16,12 +16,13 @@ import { Button, Icon, SearchField, SelectField, visuallyHiddenStyle } from '../
 import type { DebouncedSearch } from '../../../shared/crud';
 import { PAGE_SIZE_OPTIONS } from '../types';
 import type { PageSize } from '../types';
+import { cssVar } from '@tds/ui';
 
 const barStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
@@ -34,13 +35,13 @@ const searchWrapStyle: CSSProperties = {
 const actionsStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const sizeWrapStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 interface LogToolbarProps {

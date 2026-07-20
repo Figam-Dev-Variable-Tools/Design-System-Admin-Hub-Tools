@@ -19,6 +19,7 @@ import type { CSSProperties, ReactNode } from 'react';
 
 import './FormSectionNav.css';
 import { filterHeadingStyle, filterNavStyle, visuallyHiddenStyle } from './styles';
+import { cssVar } from '@tds/ui';
 
 /** 오류 표시의 접근성 텍스트 — 색(붉은 점)만으로 말하지 않는다 */
 const INVALID_LABEL = '확인 필요';
@@ -56,7 +57,7 @@ interface FormSectionNavProps {
 const listStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
@@ -73,23 +74,23 @@ function navItemStyle(active: boolean): CSSProperties {
   return {
     display: 'flex',
     alignItems: 'center',
-    gap: 'var(--tds-space-2)',
+    gap: cssVar('space.2'),
     width: '100%',
     boxSizing: 'border-box',
-    paddingTop: 'var(--tds-space-2)',
-    paddingBottom: 'var(--tds-space-2)',
-    paddingLeft: 'var(--tds-space-3)',
-    paddingRight: 'var(--tds-space-3)',
+    paddingTop: cssVar('space.2'),
+    paddingBottom: cssVar('space.2'),
+    paddingLeft: cssVar('space.3'),
+    paddingRight: cssVar('space.3'),
     borderStyle: 'none',
     borderWidth: 0,
-    borderRadius: 'var(--tds-radius-md)',
-    background: active ? 'var(--tds-color-surface-raised)' : 'transparent',
-    color: active ? 'var(--tds-color-action-primary-default)' : 'var(--tds-color-text-default)',
+    borderRadius: cssVar('radius.md'),
+    background: active ? cssVar('color.surface.raised') : 'transparent',
+    color: active ? cssVar('color.action.primary.default') : cssVar('color.text.default'),
     fontFamily: 'var(--tds-typography-label-md-font-family)',
     fontSize: 'var(--tds-typography-label-md-font-size)',
     fontWeight: active
-      ? 'var(--tds-primitive-typography-font-weight-bold)'
-      : 'var(--tds-primitive-typography-font-weight-regular)',
+      ? cssVar('primitive.typography.font-weight.bold')
+      : cssVar('primitive.typography.font-weight.regular'),
     lineHeight: 'var(--tds-typography-label-md-line-height)',
     textAlign: 'left',
     cursor: 'pointer',
@@ -105,13 +106,11 @@ function stepStyle(active: boolean): CSSProperties {
     justifyContent: 'center',
     flexShrink: 0,
     boxSizing: 'border-box',
-    width: 'var(--tds-space-5)',
-    height: 'var(--tds-space-5)',
-    borderRadius: 'var(--tds-radius-full)',
-    background: active
-      ? 'var(--tds-color-action-primary-default)'
-      : 'var(--tds-color-surface-raised)',
-    color: active ? 'var(--tds-color-text-on-primary)' : 'var(--tds-color-text-muted)',
+    width: cssVar('space.5'),
+    height: cssVar('space.5'),
+    borderRadius: cssVar('radius.full'),
+    background: active ? cssVar('color.action.primary.default') : cssVar('color.surface.raised'),
+    color: active ? cssVar('color.text.on-primary') : cssVar('color.text.muted'),
     fontSize: 'var(--tds-typography-label-sm-font-size)',
     lineHeight: 'var(--tds-typography-label-sm-line-height)',
     fontVariantNumeric: 'tabular-nums',
@@ -125,10 +124,10 @@ const labelStyle: CSSProperties = {
 
 const invalidDotStyle: CSSProperties = {
   flexShrink: 0,
-  width: 'var(--tds-space-2)',
-  height: 'var(--tds-space-2)',
-  borderRadius: 'var(--tds-radius-full)',
-  background: 'var(--tds-color-feedback-danger-text)',
+  width: cssVar('space.2'),
+  height: cssVar('space.2'),
+  borderRadius: cssVar('radius.full'),
+  background: cssVar('color.feedback.danger.text'),
 };
 
 /**
@@ -184,7 +183,7 @@ export function FormSectionNav({
 
 const anchorStyle: CSSProperties = {
   // 레일에서 뛰어온 구획이 화면 맨 위에 딱 붙지 않게 한 칸 띄운다
-  scrollMarginTop: 'var(--tds-space-7)',
+  scrollMarginTop: cssVar('space.7'),
 };
 
 /**

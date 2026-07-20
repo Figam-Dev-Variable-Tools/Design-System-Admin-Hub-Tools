@@ -6,7 +6,7 @@
 import { useId } from 'react';
 import type { CSSProperties } from 'react';
 
-import { FormField, SelectField, TextField } from '@tds/ui';
+import { cssVar, FormField, SelectField, TextField } from '@tds/ui';
 import { Button } from '../../../../shared/ui';
 import { BlockView } from './BlockView';
 import { BLOCK_KIND_LABEL } from './blocks';
@@ -192,7 +192,7 @@ export function EmailCanvas({
     maxWidth: device === 'mobile' ? CANVAS_WIDTH_MOBILE : CANVAS_WIDTH_DESKTOP,
     background: value.canvas.canvasColor,
     borderStyle: 'solid',
-    borderWidth: 'var(--tds-border-width-thin)',
+    borderWidth: cssVar('border-width.thin'),
     borderColor: value.canvas.canvasBorderColor,
     borderRadius: value.canvas.canvasBorderRadius,
     color: value.canvas.textColor,

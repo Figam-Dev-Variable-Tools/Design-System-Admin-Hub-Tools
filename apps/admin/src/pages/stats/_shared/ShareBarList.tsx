@@ -21,7 +21,7 @@
 // 갈라진다. 그래서 계약을 StatsTable 에 맞췄다.
 import type { CSSProperties, ReactNode } from 'react';
 
-import { Skeleton } from '@tds/ui';
+import { cssVar, Skeleton } from '@tds/ui';
 
 import { DeltaText } from './DeltaText';
 import { deltaOf, formatMetric, formatPercentValue, shareOf } from './format';
@@ -31,7 +31,7 @@ import type { ShareItem } from './types';
 const listStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   margin: 0,
   paddingInlineStart: 0,
   listStyle: 'none',
@@ -41,14 +41,14 @@ const headRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'baseline',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const labelStyle: CSSProperties = {
   fontFamily: 'var(--tds-typography-label-md-font-family)',
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
@@ -57,7 +57,7 @@ const labelStyle: CSSProperties = {
 const valueStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'baseline',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   fontVariantNumeric: 'tabular-nums',
   whiteSpace: 'nowrap',
   fontFamily: 'var(--tds-typography-label-md-font-family)',
@@ -66,21 +66,21 @@ const valueStyle: CSSProperties = {
 };
 
 const trackStyle: CSSProperties = {
-  blockSize: 'var(--tds-space-2)',
-  marginBlockStart: 'var(--tds-space-1)',
-  background: 'var(--tds-color-surface-raised)',
-  borderRadius: 'var(--tds-radius-full)',
+  blockSize: cssVar('space.2'),
+  marginBlockStart: cssVar('space.1'),
+  background: cssVar('color.surface.raised'),
+  borderRadius: cssVar('radius.full'),
   overflow: 'hidden',
 };
 
 const fillStyle: CSSProperties = {
   blockSize: '100%',
-  background: 'var(--tds-color-chart-series-1)',
-  borderRadius: 'var(--tds-radius-full)',
+  background: cssVar('color.chart.series-1'),
+  borderRadius: cssVar('radius.full'),
 };
 
 const shareStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontVariantNumeric: 'tabular-nums',
 };
 

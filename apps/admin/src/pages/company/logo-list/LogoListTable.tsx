@@ -24,16 +24,17 @@ import {
   visuallyHiddenStyle,
 } from '../../../shared/ui';
 import type { LogoItem } from './types';
+import { cssVar } from '@tds/ui';
 
 const SELECT_ALL_LABEL_ID = 'logo-select-all-label';
 
 const nameCellStyle: CSSProperties = {
   ...tdStyle,
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
 };
 
 const thumbEmptyStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
 };
 
@@ -54,15 +55,15 @@ const actionCellStyle: CSSProperties = {
 const rowActionsWrapStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   justifyContent: 'flex-end',
 };
 
 const emptyCellStyle: CSSProperties = {
   ...tdStyle,
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
-  color: 'var(--tds-color-text-muted)',
+  paddingTop: cssVar('space.6'),
+  paddingBottom: cssVar('space.6'),
+  color: cssVar('color.text.muted'),
   textAlign: 'center',
 };
 

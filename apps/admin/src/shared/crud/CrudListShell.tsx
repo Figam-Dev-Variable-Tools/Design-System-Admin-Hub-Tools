@@ -17,13 +17,14 @@ import {
 } from '../ui';
 import { CrudTable } from './CrudTable';
 import type { CrudColumn, CrudSort, EmptyContext } from './CrudTable';
+import { cssVar } from '@tds/ui';
 
 /* 목록 페이지의 section gap — space.5(20px). 제목 · 필터 · 표 · 페이지네이션이
    각각 다른 덩어리로 읽히게 띄운다 (TOKEN-08). */
 const columnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   minWidth: 0,
 };
 
@@ -31,7 +32,7 @@ const summaryRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 interface CrudListShellController<T extends { id: string }> {

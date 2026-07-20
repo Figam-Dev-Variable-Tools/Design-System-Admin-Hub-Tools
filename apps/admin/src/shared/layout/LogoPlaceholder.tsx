@@ -5,11 +5,12 @@
 //
 // [스타일 규칙] 색상은 토큰 CSS 변수만 — 하드코딩 hex 0건. 크기는 em 기준(부모 font-size 추종).
 import type { CSSProperties } from 'react';
+import { cssVar } from '@tds/ui';
 
 const wrapStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 /** 로고 마크 — 자산 확정 전까지의 자리표시 도형 */
@@ -22,10 +23,10 @@ const markStyle: CSSProperties = {
 
 const wordmarkStyle: CSSProperties = {
   margin: 0,
-  color: 'var(--tds-color-text-default)',
-  fontSize: 'var(--tds-primitive-typography-font-size-18)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
-  lineHeight: 'var(--tds-primitive-typography-line-height-tight)',
+  color: cssVar('color.text.default'),
+  fontSize: cssVar('primitive.typography.font-size.18'),
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
+  lineHeight: cssVar('primitive.typography.line-height.tight'),
   letterSpacing: '0.04em',
 };
 

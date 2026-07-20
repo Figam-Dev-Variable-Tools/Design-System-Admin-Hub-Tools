@@ -19,6 +19,7 @@ import {
   StatusBadge,
 } from '../../../shared/ui';
 import type { AdminUser } from '../types';
+import { cssVar } from '@tds/ui';
 
 /** 값이 비어 있을 때의 표기 — 빈 칸과 '없음' 은 다른 사실이라 기호로 통일한다 */
 const EMPTY_MARK = '—';
@@ -34,7 +35,7 @@ const memoStyle: CSSProperties = {
   marginRight: 0,
   whiteSpace: 'pre-wrap',
   overflowWrap: 'anywhere',
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
 };
 
 const orDash = (value: string): string => (value.trim() === '' ? EMPTY_MARK : value);

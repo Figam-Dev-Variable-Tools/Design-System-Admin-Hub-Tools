@@ -8,11 +8,12 @@ import type { CSSProperties } from 'react';
 import { Button, Modal } from '../../../../shared/ui';
 import { TEMPLATE_KIND_LABEL } from '../types';
 import type { TemplateKind } from '../types';
+import { cssVar } from '@tds/ui';
 
 const listStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
 };
 
@@ -21,19 +22,19 @@ function choiceStyle(): CSSProperties {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: 'var(--tds-space-1)',
+    gap: cssVar('space.1'),
     width: '100%',
     boxSizing: 'border-box',
-    paddingTop: 'var(--tds-space-4)',
-    paddingBottom: 'var(--tds-space-4)',
-    paddingLeft: 'var(--tds-space-4)',
-    paddingRight: 'var(--tds-space-4)',
+    paddingTop: cssVar('space.4'),
+    paddingBottom: cssVar('space.4'),
+    paddingLeft: cssVar('space.4'),
+    paddingRight: cssVar('space.4'),
     borderStyle: 'solid',
-    borderWidth: 'var(--tds-border-width-thin)',
-    borderColor: 'var(--tds-color-border-default)',
-    borderRadius: 'var(--tds-radius-md)',
-    background: 'var(--tds-color-surface-default)',
-    color: 'var(--tds-color-text-default)',
+    borderWidth: cssVar('border-width.thin'),
+    borderColor: cssVar('color.border.default'),
+    borderRadius: cssVar('radius.md'),
+    background: cssVar('color.surface.default'),
+    color: cssVar('color.text.default'),
     textAlign: 'left',
     cursor: 'pointer',
   };
@@ -42,12 +43,12 @@ function choiceStyle(): CSSProperties {
 const choiceTitleStyle: CSSProperties = {
   fontFamily: 'var(--tds-typography-label-md-font-family)',
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
 
 const choiceNoteStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
 };

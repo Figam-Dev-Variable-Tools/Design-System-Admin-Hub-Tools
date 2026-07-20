@@ -4,7 +4,7 @@
 // 마일스톤·산출물) + 우측 파이프라인 스텝퍼/가중예상매출 미리보기 2단으로 구성한다. 검증은 ./validation.
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Stepper } from '@tds/ui';
+import { cssVar, Stepper } from '@tds/ui';
 
 import { formatNumber } from '../../../shared/format';
 import {
@@ -55,15 +55,15 @@ const UNSAVED_MESSAGE =
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const descriptionStyle: CSSProperties = {
-  marginTop: 'var(--tds-space-1)',
+  marginTop: cssVar('space.1'),
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
@@ -72,15 +72,15 @@ const backLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   alignSelf: 'flex-start',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
   paddingLeft: 0,
   paddingRight: 0,
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   cursor: 'pointer',
@@ -89,46 +89,46 @@ const backLinkStyle: CSSProperties = {
 const layoutStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 13), 1fr))',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   alignItems: 'start',
 };
 
 const columnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   minWidth: 0,
 };
 
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 4), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const previewBodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const previewRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const previewValueStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontVariantNumeric: 'tabular-nums',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 const actionsStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'flex-end',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const EMPTY: ProjectFormValues = {

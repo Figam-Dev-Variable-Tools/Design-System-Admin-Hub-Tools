@@ -23,6 +23,7 @@ import { pointsPolicyKey, pointsPolicyStore } from './data-source';
 import { DEFAULT_POINTS_POLICY, EARN_BASELINE_OPTIONS } from './types';
 import { pointsPolicySchema } from './validation';
 import type { PointsPolicyValues } from './validation';
+import { cssVar } from '@tds/ui';
 
 const UNSAVED_MESSAGE =
   '적립금 정책에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
@@ -30,7 +31,7 @@ const UNSAVED_MESSAGE =
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 6), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 interface NumberFieldSpec {

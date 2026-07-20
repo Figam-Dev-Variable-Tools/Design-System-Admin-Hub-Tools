@@ -19,6 +19,7 @@ import type { LogColumn, LogDetail, LogResult, LogScreenSpec, LogTone } from '..
 import { apiLogSpec, fetchApiLogs, fetchApiLogsForExport, toCsv } from './data-source';
 import { API_LOG_AXES, API_LOG_RETENTION, SLOW_THRESHOLD_MS, statusClassOf } from './types';
 import type { ApiLogEntry } from './types';
+import { cssVar } from '@tds/ui';
 
 /** 상태 코드 — 색만으로 전하지 않는다. 5xx/4xx 는 계열 이름을 글자로 함께 적는다 */
 function StatusCell({ entry }: { readonly entry: ApiLogEntry }) {
@@ -26,12 +27,10 @@ function StatusCell({ entry }: { readonly entry: ApiLogEntry }) {
   if (kind === '2xx') return <span>{entry.status}</span>;
 
   const tone =
-    kind === '5xx'
-      ? 'var(--tds-color-feedback-danger-text)'
-      : 'var(--tds-color-feedback-warning-text)';
+    kind === '5xx' ? cssVar('color.feedback.danger.text') : cssVar('color.feedback.warning.text');
 
   return (
-    <span style={{ color: tone, fontWeight: 'var(--tds-primitive-typography-font-weight-bold)' }}>
+    <span style={{ color: tone, fontWeight: cssVar('primitive.typography.font-weight.bold') }}>
       {`${String(entry.status)} ${kind}`}
     </span>
   );
@@ -45,8 +44,8 @@ function DurationCell({ entry }: { readonly entry: ApiLogEntry }) {
   return (
     <span
       style={{
-        color: 'var(--tds-color-feedback-warning-text)',
-        fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+        color: cssVar('color.feedback.warning.text'),
+        fontWeight: cssVar('primitive.typography.font-weight.bold'),
       }}
     >
       {`${formatNumber(entry.durationMs)} 느림`}

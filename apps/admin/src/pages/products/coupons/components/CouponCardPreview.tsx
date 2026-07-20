@@ -7,6 +7,7 @@ import type { CSSProperties } from 'react';
 import { formatNumber } from '../../../../shared/format';
 import { discountLabel, targetLabel } from '../types';
 import type { CouponIssueType, CouponTarget } from '../types';
+import { cssVar } from '@tds/ui';
 
 const stageStyle: CSSProperties = {
   display: 'flex',
@@ -14,79 +15,79 @@ const stageStyle: CSSProperties = {
   justifyContent: 'center',
   boxSizing: 'border-box',
   width: '100%',
-  paddingTop: 'var(--tds-space-5)',
-  paddingBottom: 'var(--tds-space-5)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.5'),
+  paddingBottom: cssVar('space.5'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderStyle: 'dashed',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
 };
 
 const cardStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'minmax(0, 1fr) auto',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   boxSizing: 'border-box',
   width: '100%',
   maxWidth: 'calc(var(--tds-space-6) * 12)',
-  paddingTop: 'var(--tds-space-4)',
-  paddingBottom: 'var(--tds-space-4)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.4'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-action-primary-default)',
-  borderRadius: 'var(--tds-radius-lg)',
-  background: 'var(--tds-color-surface-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.action.primary.default'),
+  borderRadius: cssVar('radius.lg'),
+  background: cssVar('color.surface.default'),
 };
 
 const leftStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   minWidth: 0,
 };
 
 const discountStyle: CSSProperties = {
-  color: 'var(--tds-color-action-primary-default)',
+  color: cssVar('color.action.primary.default'),
   fontSize: 'var(--tds-typography-title-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 const nameStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
   overflowWrap: 'anywhere',
 };
 
 const metaStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
 
 const dividerStyle: CSSProperties = {
   borderLeftStyle: 'dashed',
-  borderLeftWidth: 'var(--tds-border-width-thin)',
-  borderLeftColor: 'var(--tds-color-border-default)',
-  paddingLeft: 'var(--tds-space-3)',
-  color: 'var(--tds-color-text-muted)',
+  borderLeftWidth: cssVar('border-width.thin'),
+  borderLeftColor: cssVar('color.border.default'),
+  paddingLeft: cssVar('space.3'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   textAlign: 'center',
   whiteSpace: 'nowrap',
 };
 
 const captionStyle: CSSProperties = {
-  marginTop: 'var(--tds-space-3)',
+  marginTop: cssVar('space.3'),
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

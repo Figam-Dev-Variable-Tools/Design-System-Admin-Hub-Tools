@@ -15,23 +15,24 @@ import {
 } from '../../../../shared/ui';
 import { ACCOUNT_MAX_CONTACTS } from '../types';
 import type { AccountContact } from '../types';
+import { cssVar } from '@tds/ui';
 
 const sectionStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const rowsStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 3), 1fr))',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   alignItems: 'end',
 };
 
@@ -39,15 +40,15 @@ const primaryRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
 const primaryLabelStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
-  color: 'var(--tds-color-text-default)',
+  gap: cssVar('space.2'),
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   cursor: 'pointer',
 };
@@ -56,15 +57,15 @@ const iconButtonStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: 'var(--tds-space-1)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
+  gap: cssVar('space.1'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
+  paddingLeft: cssVar('space.2'),
+  paddingRight: cssVar('space.2'),
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-feedback-danger-text)',
+  color: cssVar('color.feedback.danger.text'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   cursor: 'pointer',
 };
@@ -77,7 +78,7 @@ const cellLabelStyle: CSSProperties = {
 const cellStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   minWidth: 0,
 };
 

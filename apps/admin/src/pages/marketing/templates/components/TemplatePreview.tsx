@@ -24,6 +24,7 @@ import type { MessageChannel } from '../../_shared/messaging';
 import { KakaoFrame } from '../../_shared/preview/KakaoFrame';
 import { MailFrame } from '../../_shared/preview/MailFrame';
 import { PhoneFrame } from '../../_shared/preview/PhoneFrame';
+import { cssVar } from '@tds/ui';
 
 const EMPTY_BODY = '(본문 미입력)';
 const EMPTY_TITLE = '(제목 미입력)';
@@ -35,19 +36,19 @@ const SAMPLE_SENDER = '스페이스플래닝 <no-reply@example.com>';
 const wrapStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const headerRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
 const headerLabelStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   fontWeight: 'var(--tds-typography-label-md-font-weight)',
   textTransform: 'uppercase',
@@ -55,7 +56,7 @@ const headerLabelStyle: CSSProperties = {
 };
 
 const emptyStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
 };
 
 /**

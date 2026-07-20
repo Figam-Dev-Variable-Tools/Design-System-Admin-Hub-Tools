@@ -4,7 +4,7 @@
 // INSPECT 패널마다 복붙하면 블록 종류마다 상한이나 라벨이 어긋난다.
 import type { CSSProperties } from 'react';
 
-import { Slider } from '@tds/ui';
+import { cssVar, Slider } from '@tds/ui';
 
 import { FieldBox } from './FieldBox';
 import { PADDING_MAX } from '../blocks';
@@ -13,7 +13,7 @@ import type { BlockPadding } from '../../types';
 const listStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 

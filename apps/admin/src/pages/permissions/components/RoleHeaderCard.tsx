@@ -19,29 +19,30 @@ import {
 import { ROLE_SCOPE_META, SYSTEM_ROLE_REASON } from '../../../shared/permissions/roles';
 import type { Role, RoleScope } from '../../../shared/permissions/roles';
 import { LockIcon } from '../icons';
+import { cssVar } from '@tds/ui';
 
 const activeBadgeStyle: CSSProperties = {
   ...badgeStyle,
-  background: 'var(--tds-color-feedback-info-surface)',
-  color: 'var(--tds-color-feedback-info-text)',
+  background: cssVar('color.feedback.info.surface'),
+  color: cssVar('color.feedback.info.text'),
 };
 
 const titleStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 
 const lockStyle: CSSProperties = {
   display: 'inline-flex',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
 };
 
 const scopeRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
   minWidth: 0,
 };

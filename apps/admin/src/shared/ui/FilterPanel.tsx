@@ -18,7 +18,7 @@
 // 아니다 — aria-current 는 내비게이션의 것이다. 공유 hover 규칙
 // `.tds-ui-listitem[aria-pressed='false']` 도 이 표기에 맞춰져 있다.
 import type { CSSProperties, ReactNode } from 'react';
-import { Panel } from '@tds/ui';
+import { cssVar, Panel } from '@tds/ui';
 
 import { formatNumber } from '../format';
 import {
@@ -46,19 +46,19 @@ const scrollListStyle: CSSProperties = {
 
 const footerStyle: CSSProperties = {
   display: 'flex',
-  marginTop: 'var(--tds-space-1)',
+  marginTop: cssVar('space.1'),
 };
 
 const retryRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  color: 'var(--tds-color-text-muted)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -67,7 +67,7 @@ const retryButtonStyle: CSSProperties = {
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-action-primary-default)',
+  color: cssVar('color.action.primary.default'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   cursor: 'pointer',
   textDecoration: 'underline',

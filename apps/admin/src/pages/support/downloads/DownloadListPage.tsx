@@ -44,6 +44,7 @@ import {
   visibilityLabel,
 } from './types';
 import type { CategoryFilter, DownloadInput, DownloadItem, VisibilityFilter } from './types';
+import { cssVar } from '@tds/ui';
 
 const ENTITY_LABEL = '자료';
 const LIST_PATH = '/support/downloads';
@@ -52,14 +53,14 @@ const SELECT_ALL_LABEL_ID = 'support-downloads-select-all';
 const columnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   minWidth: 0,
 };
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
@@ -67,7 +68,7 @@ const spacerStyle: CSSProperties = { flex: 1 };
 
 const selectWrapStyle: CSSProperties = { width: 'calc(var(--tds-space-6) * 3.5)' };
 
-const fileCellStyle: CSSProperties = { ...tdStyle, color: 'var(--tds-color-text-muted)' };
+const fileCellStyle: CSSProperties = { ...tdStyle, color: cssVar('color.text.muted') };
 
 const VISIBILITY_OPTIONS: readonly { readonly id: VisibilityFilter; readonly label: string }[] = [
   { id: 'all', label: '전체 노출상태' },

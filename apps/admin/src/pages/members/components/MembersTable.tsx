@@ -4,7 +4,7 @@
 // [행 액션] ⋯ 메뉴는 **회원 삭제 / 알림 발송 두 개뿐**이다 (요구사항).
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu } from '@tds/ui';
+import { cssVar, Menu } from '@tds/ui';
 
 import {
   buttonStyle,
@@ -38,7 +38,7 @@ const COLUMNS = [
 
 const nicknameCellStyle: CSSProperties = {
   ...tdStyle,
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
   whiteSpace: 'nowrap',
 };
 
@@ -49,20 +49,20 @@ const nowrapCellStyle: CSSProperties = {
 
 const checkboxCellStyle: CSSProperties = {
   ...tdStyle,
-  width: 'var(--tds-space-6)',
+  width: cssVar('space.6'),
 };
 
 const actionCellStyle: CSSProperties = {
   ...tdStyle,
-  width: 'var(--tds-space-6)',
+  width: cssVar('space.6'),
   textAlign: 'right',
 };
 
 const emptyCellStyle: CSSProperties = {
   ...tdStyle,
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
-  color: 'var(--tds-color-text-muted)',
+  paddingTop: cssVar('space.6'),
+  paddingBottom: cssVar('space.6'),
+  color: cssVar('color.text.muted'),
   textAlign: 'center',
 };
 

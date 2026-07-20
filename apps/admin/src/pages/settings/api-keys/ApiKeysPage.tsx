@@ -32,7 +32,7 @@
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
 
-import { Skeleton } from '@tds/ui';
+import { cssVar, Skeleton } from '@tds/ui';
 
 import { Alert, Button } from '../../../shared/ui';
 import { useSettingsQuery } from '../_shared/queries';
@@ -45,7 +45,7 @@ import type { IntegrationTabId } from './integrations';
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const descriptionStyle: CSSProperties = {
@@ -53,7 +53,7 @@ const descriptionStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
@@ -62,7 +62,7 @@ const errorBodyStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

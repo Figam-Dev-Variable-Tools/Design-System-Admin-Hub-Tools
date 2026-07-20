@@ -21,7 +21,7 @@
 // 아니라 StatsTrendChart 인 이유는 그 파일 헤더에 있다 — 요약하면 LineAreaChart 는 **lazy 가
 // 아닌 대시보드**도 쓰기 때문에, 거기에 Recharts 를 넣으면 진입 청크가 108% 커진다.
 import type { CSSProperties } from 'react';
-import { SegmentedControl, StatsCard } from '@tds/ui';
+import { cssVar, SegmentedControl, StatsCard } from '@tds/ui';
 
 import { formatMetric } from './format';
 import { formatPeriodLabel } from './period';
@@ -31,8 +31,8 @@ import type { StatsTrend } from './types';
 
 const emptyStyle: CSSProperties = {
   margin: 0,
-  paddingBlock: 'var(--tds-space-6)',
-  color: 'var(--tds-color-text-muted)',
+  paddingBlock: cssVar('space.6'),
+  color: cssVar('color.text.muted'),
   textAlign: 'center',
   fontFamily: 'var(--tds-typography-label-md-font-family)',
   fontSize: 'var(--tds-typography-label-md-font-size)',

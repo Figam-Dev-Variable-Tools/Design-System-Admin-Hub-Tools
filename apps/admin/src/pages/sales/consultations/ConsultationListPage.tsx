@@ -43,6 +43,7 @@ import {
   searchConsultations,
 } from './types';
 import type { ConsultTypeFilter } from './types';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'sales-consultations';
 const LIST_PATH = '/sales/consultations';
@@ -64,14 +65,14 @@ const FILTER_DEFAULTS = { type: CONSULT_FILTER_ALL, pending: PENDING_OFF } as co
 const columnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   minWidth: 0,
 };
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
@@ -80,8 +81,8 @@ const selectWrapStyle: CSSProperties = { width: 'calc(var(--tds-space-6) * 5)' }
 const checkLabelStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
-  color: 'var(--tds-color-text-default)',
+  gap: cssVar('space.2'),
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   cursor: 'pointer',
 };
@@ -90,7 +91,7 @@ const errorBodyStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
@@ -104,9 +105,9 @@ const actionCellStyle: CSSProperties = { ...tdStyle, textAlign: 'right' };
 
 const emptyCellStyle: CSSProperties = {
   ...tdStyle,
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
-  color: 'var(--tds-color-text-muted)',
+  paddingTop: cssVar('space.6'),
+  paddingBottom: cssVar('space.6'),
+  color: cssVar('color.text.muted'),
   textAlign: 'center',
 };
 

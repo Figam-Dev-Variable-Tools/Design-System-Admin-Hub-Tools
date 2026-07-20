@@ -27,42 +27,42 @@ import {
   formatBytes,
   MAX_FILE_SIZE_MB,
 } from '../types';
+import { cssVar } from '@tds/ui';
 
 const labelStyle: CSSProperties = {
   ...fieldLabelStyle,
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
 };
 
-const requiredMarkStyle: CSSProperties = { color: 'var(--tds-color-feedback-danger-text)' };
+const requiredMarkStyle: CSSProperties = { color: cssVar('color.feedback.danger.text') };
 
 function dropZoneStyle(active: boolean, invalid: boolean, disabled: boolean): CSSProperties {
   const borderColor = active
-    ? 'var(--tds-color-border-focus)'
+    ? cssVar('color.border.focus')
     : invalid
-      ? 'var(--tds-color-feedback-danger-border)'
-      : 'var(--tds-color-border-default)';
+      ? cssVar('color.feedback.danger.border')
+      : cssVar('color.border.default');
   return {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 'var(--tds-space-2)',
+    gap: cssVar('space.2'),
     boxSizing: 'border-box',
     width: '100%',
     minHeight: 'calc(var(--tds-space-6) * 4)',
-    paddingTop: 'var(--tds-space-4)',
-    paddingBottom: 'var(--tds-space-4)',
-    paddingLeft: 'var(--tds-space-4)',
-    paddingRight: 'var(--tds-space-4)',
+    paddingTop: cssVar('space.4'),
+    paddingBottom: cssVar('space.4'),
+    paddingLeft: cssVar('space.4'),
+    paddingRight: cssVar('space.4'),
     borderStyle: 'dashed',
-    borderWidth:
-      invalid || active ? 'var(--tds-border-width-medium)' : 'var(--tds-border-width-thin)',
+    borderWidth: invalid || active ? cssVar('border-width.medium') : cssVar('border-width.thin'),
     borderColor,
-    borderRadius: 'var(--tds-radius-md)',
-    background: 'var(--tds-color-surface-raised)',
-    color: 'var(--tds-color-text-muted)',
+    borderRadius: cssVar('radius.md'),
+    background: cssVar('color.surface.raised'),
+    color: cssVar('color.text.muted'),
     cursor: disabled ? 'not-allowed' : 'pointer',
     textAlign: 'center',
   };
@@ -72,34 +72,34 @@ const chipStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
 };
 
 const fileMetaStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   minWidth: 0,
 };
 
 const fileNameStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
   overflowWrap: 'anywhere',
 };
 
 const fileSubStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   fontVariantNumeric: 'tabular-nums',
 };
@@ -107,13 +107,13 @@ const fileSubStyle: CSSProperties = {
 const actionsRowStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexShrink: 0,
 };
 
 const dangerGhostStyle: CSSProperties = {
   ...buttonStyle('ghost'),
-  color: 'var(--tds-color-feedback-danger-text)',
+  color: cssVar('color.feedback.danger.text'),
 };
 
 interface FileUploadFieldProps {

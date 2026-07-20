@@ -10,11 +10,12 @@
 import type { CSSProperties, ReactNode } from 'react';
 
 import { iconButtonStyle } from '../styles';
+import { cssVar } from '@tds/ui';
 
 const groupStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
 };
 
 export interface IconToggleOption<T extends string> {

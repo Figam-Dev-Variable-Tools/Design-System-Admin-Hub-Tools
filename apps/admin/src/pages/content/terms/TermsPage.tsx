@@ -38,6 +38,7 @@ import {
 } from './queries';
 import { isCurrent, STATUS_LABEL, STATUS_TONE } from './types';
 import type { TermsVersion } from './types';
+import { cssVar } from '@tds/ui';
 
 /**
  * URL 파라미터 기본값.
@@ -51,20 +52,20 @@ const FILTER_DEFAULTS = { type: '' } as const;
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const layoutStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'calc(var(--tds-space-6) * 9) minmax(0, 1fr)',
-  gap: 'var(--tds-space-6)',
+  gap: cssVar('space.6'),
   alignItems: 'start',
 };
 
 const mainColumnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   minWidth: 0,
 };
 
@@ -72,7 +73,7 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
@@ -80,7 +81,7 @@ const errorBodyStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

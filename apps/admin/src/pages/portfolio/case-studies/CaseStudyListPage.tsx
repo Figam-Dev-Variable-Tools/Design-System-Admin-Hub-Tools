@@ -22,6 +22,7 @@ import {
 import type { CaseFilter, CaseStudy, CaseStudyInput } from './types';
 import { publishToggleColumn } from '../_shared/publishColumn';
 import { objectParticle } from '../../../shared/format';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'case-studies';
 const ENTITY_LABEL = '성공 사례';
@@ -35,7 +36,7 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

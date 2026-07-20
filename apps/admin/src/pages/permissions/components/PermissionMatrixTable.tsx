@@ -39,6 +39,7 @@ import {
   triStateProps,
   visuallyHiddenStyle,
 } from '../../../shared/ui';
+import { cssVar } from '@tds/ui';
 
 /* ── 스타일 (토큰 변수만 · padding 은 개별 속성만) ───────────────────────── */
 
@@ -51,8 +52,8 @@ const matrixTableStyle: CSSProperties = {
 /** 좌측 리소스명 열 — sticky. 폭을 고정해야 스크롤 중 열 너비가 흔들리지 않는다 */
 const resourceHeadStyle: CSSProperties = {
   ...thStyle,
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   width: 'calc(var(--tds-space-6) * 8)',
   minWidth: 'calc(var(--tds-space-6) * 8)',
 };
@@ -65,17 +66,17 @@ const actionHeadStyle: CSSProperties = {
 
 const actionHeadLabelStyle: CSSProperties = {
   display: 'block',
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
 
 const actionHeadHintStyle: CSSProperties = {
   display: 'block',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-regular)',
+  fontWeight: cssVar('primitive.typography.font-weight.regular'),
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   whiteSpace: 'nowrap',
 };
@@ -83,9 +84,9 @@ const actionHeadHintStyle: CSSProperties = {
 /** 행 이름 셀 — 그룹/단독 행 (굵게) */
 const groupNameCellStyle: CSSProperties = {
   ...tdStyle,
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   textAlign: 'left',
 };
 
@@ -93,15 +94,15 @@ const groupNameCellStyle: CSSProperties = {
 const childNameCellStyle: CSSProperties = {
   ...tdStyle,
   paddingLeft: 'calc(var(--tds-space-6) + var(--tds-space-3))',
-  paddingRight: 'var(--tds-space-3)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-regular)',
+  paddingRight: cssVar('space.3'),
+  fontWeight: cssVar('primitive.typography.font-weight.regular'),
   textAlign: 'left',
 };
 
 const nameRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 
@@ -115,14 +116,14 @@ const nameTextStyle: CSSProperties = {
 function nameTextColor(disabled: boolean): CSSProperties {
   return {
     ...nameTextStyle,
-    color: disabled ? 'var(--tds-color-text-disabled)' : 'var(--tds-color-text-default)',
+    color: disabled ? cssVar('color.text.disabled') : cssVar('color.text.default'),
   };
 }
 
 const cellStyle: CSSProperties = {
   ...tdStyle,
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
+  paddingLeft: cssVar('space.2'),
+  paddingRight: cssVar('space.2'),
   textAlign: 'center',
 };
 

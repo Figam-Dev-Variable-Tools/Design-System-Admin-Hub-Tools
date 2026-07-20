@@ -119,7 +119,14 @@ describe('TokenGuard — TOKEN-04: elevation 은 shadow 토큰에서만 온다',
    * 의미가 elevation 이 아니므로 shadow 토큰을 쓰는 것이 오히려 틀리다. 새 예외는 이 목록에 명시적으로
    * 추가해야 하며(리뷰 대상), 그 외 모든 box-shadow 는 var(--tds-*shadow*) 여야 한다.
    */
-  const NON_ELEVATION_EXCEPTIONS: readonly string[] = ['/atoms/Checkbox/Checkbox.css'];
+  const NON_ELEVATION_EXCEPTIONS: readonly string[] = [
+    '/atoms/Checkbox/Checkbox.css',
+    // Table 의 선택 행 강조선도 그림자가 아니다 — border-width + action 토큰으로 그린
+    // inline-start '선'이다. <tr> 은 border-inline-start 를 그리지 못하는 표 박스라
+    // 첫 셀의 inset box-shadow 가 레이아웃을 밀지 않고 선을 내는 유일한 방법이고,
+    // 의미가 elevation 이 아니므로 shadow 토큰을 쓰는 것이 오히려 틀리다.
+    '/organisms/Table/Table.css',
+  ];
 
   const isException = (path: string): boolean =>
     NON_ELEVATION_EXCEPTIONS.some((suffix) => path.endsWith(suffix));

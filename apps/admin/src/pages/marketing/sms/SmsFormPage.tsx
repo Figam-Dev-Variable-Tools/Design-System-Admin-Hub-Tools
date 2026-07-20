@@ -46,6 +46,7 @@ import {
   sendSubmitLabel,
   totalRecipients,
 } from '../_shared/messaging';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'marketing-sms';
 const ENTITY_LABEL = 'SMS 발송';
@@ -57,15 +58,15 @@ const NO_TEMPLATE = '';
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const descriptionStyle: CSSProperties = {
-  marginTop: 'var(--tds-space-1)',
+  marginTop: cssVar('space.1'),
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
@@ -74,15 +75,15 @@ const backLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   alignSelf: 'flex-start',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
   paddingLeft: 0,
   paddingRight: 0,
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   cursor: 'pointer',
@@ -91,32 +92,32 @@ const backLinkStyle: CSSProperties = {
 const layoutStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 13), 1fr))',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   alignItems: 'start',
 };
 
 const columnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   minWidth: 0,
 };
 
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 4), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const actionsStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'flex-end',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const previewNoteStyle: CSSProperties = {
   ...hintStyle,
-  marginTop: 'var(--tds-space-3)',
+  marginTop: cssVar('space.3'),
 };
 
 const EMPTY: SmsFormValues = {

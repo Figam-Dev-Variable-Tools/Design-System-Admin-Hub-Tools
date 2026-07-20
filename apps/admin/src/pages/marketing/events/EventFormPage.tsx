@@ -26,6 +26,7 @@ import {
   benefitNeedsDetail,
   CAMPAIGN_PHASE_OPTIONS,
 } from '../_shared/campaign';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'marketing-events';
 const ENTITY_LABEL = '이벤트';
@@ -36,7 +37,7 @@ const UNSAVED_MESSAGE =
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 4), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const EMPTY: EventFormValues = {

@@ -95,6 +95,7 @@
     "borderWidth": "border-width.thin",
     "text": "color.text.default",
     "backgroundHover": "color.surface.raised",
+    "textActive": "color.action.primary.active",
     "textDisabled": "color.text.disabled",
     "focusRing": "color.border.focus",
     "focusRingWidth": "border-width.medium",

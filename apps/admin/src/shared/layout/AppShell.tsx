@@ -19,7 +19,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
-import { Sidebar } from '@tds/ui';
+import { cssVar, Sidebar } from '@tds/ui';
 
 import AppHeader from './AppHeader';
 import LogoPlaceholder from './LogoPlaceholder';
@@ -65,8 +65,8 @@ const shellStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'auto minmax(0, 1fr)',
   minHeight: '100vh',
-  background: 'var(--tds-color-surface-default)',
-  color: 'var(--tds-color-text-default)',
+  background: cssVar('color.surface.default'),
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-body-md-font-family)',
   fontSize: 'var(--tds-typography-body-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
@@ -76,7 +76,7 @@ const contentColumnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   minWidth: 0,
-  background: 'var(--tds-color-surface-default)',
+  background: cssVar('color.surface.default'),
 };
 
 /* 본문 여백은 space.7(32px) — 넉넉한 여백은 Toss 의 하중 특성이고, 24px 에서 멈춘
@@ -84,10 +84,10 @@ const contentColumnStyle: CSSProperties = {
    이 <main> 안에 들어오므로 여기 한 곳이 전역 page padding 의 정본이다. */
 const mainStyle: CSSProperties = {
   flexGrow: 1,
-  paddingTop: 'var(--tds-space-7)',
-  paddingBottom: 'var(--tds-space-7)',
-  paddingLeft: 'var(--tds-space-7)',
-  paddingRight: 'var(--tds-space-7)',
+  paddingTop: cssVar('space.7'),
+  paddingBottom: cssVar('space.7'),
+  paddingLeft: cssVar('space.7'),
+  paddingRight: cssVar('space.7'),
 };
 
 /** <main> 의 앵커 id — skip link 의 목적지이자 라우트 이동 시 포커스 착지점 */
@@ -105,24 +105,24 @@ const skipLinkStyle: CSSProperties = {
 
 const skipLinkFocusedStyle: CSSProperties = {
   position: 'absolute',
-  top: 'var(--tds-space-2)',
-  left: 'var(--tds-space-2)',
+  top: cssVar('space.2'),
+  left: cssVar('space.2'),
   zIndex: 1,
   width: 'auto',
   height: 'auto',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
   overflow: 'visible',
   clip: 'auto',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-default)',
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   textDecoration: 'none',

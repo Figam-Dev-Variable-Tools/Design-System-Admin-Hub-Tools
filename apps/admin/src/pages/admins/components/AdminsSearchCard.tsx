@@ -6,6 +6,7 @@ import { useId } from 'react';
 import type { CSSProperties } from 'react';
 
 import { Card, controlStyle, Icon, visuallyHiddenStyle } from '../../../shared/ui';
+import { cssVar } from '@tds/ui';
 
 const searchWrapStyle: CSSProperties = {
   position: 'relative',
@@ -17,9 +18,9 @@ const searchWrapStyle: CSSProperties = {
 /** 입력 안쪽 왼쪽에 겹쳐 놓는 돋보기 — 클릭이 입력으로 통과하도록 pointerEvents 해제 */
 const searchIconStyle: CSSProperties = {
   position: 'absolute',
-  left: 'var(--tds-space-3)',
+  left: cssVar('space.3'),
   display: 'inline-flex',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   pointerEvents: 'none',
 };
 

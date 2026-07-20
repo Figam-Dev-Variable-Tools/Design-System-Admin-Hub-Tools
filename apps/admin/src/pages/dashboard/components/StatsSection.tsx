@@ -8,7 +8,7 @@
 // 변환뿐이다: 방문자/페이지뷰를 계열로, 기간 행을 표 행으로 옮긴다 (ADR-0003: 도메인은 올라가지 않는다).
 import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
-import { DataTable, LineAreaChart, SegmentedControl, StatsCard } from '@tds/ui';
+import { cssVar, DataTable, LineAreaChart, SegmentedControl, StatsCard } from '@tds/ui';
 
 import { BarChartIcon } from '../../../shared/icons';
 import { usePermissions } from '../../../shared/permissions/PermissionProvider';
@@ -19,24 +19,24 @@ import type { StatsData, StatsRange } from '../stats-types';
 const sectionStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const sectionTitleStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   margin: 0,
-  color: 'var(--tds-color-action-primary-default)',
+  color: cssVar('color.action.primary.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-medium)',
+  fontWeight: cssVar('primitive.typography.font-weight.medium'),
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
 
 const gridStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 18), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   alignItems: 'start',
 };
 

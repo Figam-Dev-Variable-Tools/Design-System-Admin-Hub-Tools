@@ -24,38 +24,39 @@ import { StatusBadge } from '../../../../shared/ui';
 import { showsSubject, smsByteLimit, smsKindLabel, SMS_PROMOTION_THRESHOLD } from '../messaging';
 import type { SmsKind } from '../messaging';
 import { PHONE_WIDTH } from '../preview-metrics';
+import { cssVar } from '@tds/ui';
 
 const frameStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   maxWidth: PHONE_WIDTH,
   marginLeft: 'auto',
   marginRight: 'auto',
   width: '100%',
   boxSizing: 'border-box',
-  paddingTop: 'var(--tds-space-5)',
-  paddingBottom: 'var(--tds-space-5)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingTop: cssVar('space.5'),
+  paddingBottom: cssVar('space.5'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thick)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-xl)',
-  background: 'var(--tds-color-surface-raised)',
+  borderWidth: cssVar('border-width.thick'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.xl'),
+  background: cssVar('color.surface.raised'),
 };
 
 const notchStyle: CSSProperties = {
   alignSelf: 'center',
   width: 'calc(var(--tds-space-6) * 2)',
-  height: 'var(--tds-space-1)',
-  borderRadius: 'var(--tds-radius-full)',
-  background: 'var(--tds-color-border-default)',
+  height: cssVar('space.1'),
+  borderRadius: cssVar('radius.full'),
+  background: cssVar('color.border.default'),
 };
 
 const senderStyle: CSSProperties = {
   textAlign: 'center',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   fontVariantNumeric: 'tabular-nums',
 };
@@ -63,16 +64,16 @@ const senderStyle: CSSProperties = {
 const bubbleStyle: CSSProperties = {
   alignSelf: 'flex-start',
   maxWidth: '92%',
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
-  borderRadius: 'var(--tds-radius-lg)',
-  background: 'var(--tds-color-surface-default)',
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
+  borderRadius: cssVar('radius.lg'),
+  background: cssVar('color.surface.default'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  color: 'var(--tds-color-text-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-body-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
   whiteSpace: 'pre-wrap',
@@ -85,10 +86,10 @@ const imageStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   height: 'calc(var(--tds-space-6) * 3)',
-  marginBottom: 'var(--tds-space-2)',
-  borderRadius: 'var(--tds-radius-sm)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-muted)',
+  marginBottom: cssVar('space.2'),
+  borderRadius: cssVar('radius.sm'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
 };
 
@@ -100,12 +101,12 @@ const imageStyle: CSSProperties = {
  */
 const subjectStyle: CSSProperties = {
   marginTop: 0,
-  marginBottom: 'var(--tds-space-2)',
+  marginBottom: cssVar('space.2'),
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   overflowWrap: 'anywhere',
 };
@@ -113,10 +114,10 @@ const subjectStyle: CSSProperties = {
 /** 제목을 적었는데 SMS 라 나가지 않을 때의 안내 — 값을 감추기만 하면 사라진 이유를 알 수 없다 */
 const subjectDroppedStyle: CSSProperties = {
   marginTop: 0,
-  marginBottom: 'var(--tds-space-2)',
+  marginBottom: cssVar('space.2'),
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -124,7 +125,7 @@ const subjectDroppedStyle: CSSProperties = {
 const metaStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 
@@ -132,12 +133,12 @@ const metaRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
 const byteStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   fontVariantNumeric: 'tabular-nums',
 };
@@ -150,9 +151,9 @@ const byteStyle: CSSProperties = {
 const gaugeStyle: CSSProperties = {
   position: 'relative',
   width: '100%',
-  height: 'var(--tds-space-2)',
-  borderRadius: 'var(--tds-radius-full)',
-  background: 'var(--tds-color-surface-raised)',
+  height: cssVar('space.2'),
+  borderRadius: cssVar('radius.full'),
+  background: cssVar('color.surface.raised'),
   overflow: 'hidden',
 };
 
@@ -162,10 +163,8 @@ const gaugeFillStyle = (percent: number, over: boolean): CSSProperties => ({
   insetInlineStart: 0,
   height: '100%',
   width: `${String(percent)}%`,
-  borderRadius: 'var(--tds-radius-full)',
-  background: over
-    ? 'var(--tds-color-feedback-danger-text)'
-    : 'var(--tds-color-feedback-info-text)',
+  borderRadius: cssVar('radius.full'),
+  background: over ? cssVar('color.feedback.danger.text') : cssVar('color.feedback.info.text'),
 });
 
 /** 90byte 눈금 — 여기를 넘는 순간 SMS 가 LMS 가 된다. 등급과 무관하게 늘 같은 자리다 */
@@ -174,8 +173,8 @@ const gaugeTickStyle = (percent: number): CSSProperties => ({
   insetBlockStart: 0,
   insetInlineStart: `${String(percent)}%`,
   height: '100%',
-  width: 'var(--tds-border-width-thick)',
-  background: 'var(--tds-color-text-default)',
+  width: cssVar('border-width.thick'),
+  background: cssVar('color.text.default'),
 });
 
 /** 눈금이 무엇을 뜻하는지 — 막대만 있으면 검은 선이 왜 거기 있는지 알 수 없다 */
@@ -183,8 +182,8 @@ const gaugeLegendStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: 'var(--tds-space-1)',
-  color: 'var(--tds-color-text-muted)',
+  gap: cssVar('space.1'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   fontVariantNumeric: 'tabular-nums',

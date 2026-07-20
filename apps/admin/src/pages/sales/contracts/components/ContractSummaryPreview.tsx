@@ -7,24 +7,25 @@ import { StatusBadge } from '../../../../shared/ui';
 import { formatWon } from '../../_shared/business';
 import { contractStatusMeta, contractTypeLabel, signStatusLabel, signStatusTone } from '../types';
 import type { ContractStatus, ContractType, SignStatus } from '../types';
+import { cssVar } from '@tds/ui';
 
 const cardStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
-  paddingTop: 'var(--tds-space-4)',
-  paddingBottom: 'var(--tds-space-4)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  gap: cssVar('space.3'),
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.4'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
 };
 
 const titleStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-title-md-font-family)',
   fontSize: 'var(--tds-typography-title-md-font-size)',
   fontWeight: 'var(--tds-typography-title-md-font-weight)',
@@ -34,17 +35,17 @@ const titleStyle: CSSProperties = {
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'minmax(calc(var(--tds-space-6) * 2), auto) minmax(0, 1fr)',
-  columnGap: 'var(--tds-space-3)',
-  rowGap: 'var(--tds-space-2)',
+  columnGap: cssVar('space.3'),
+  rowGap: cssVar('space.2'),
 };
 
 const keyStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
 };
 
 const valueStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   fontVariantNumeric: 'tabular-nums',
   overflowWrap: 'anywhere',
@@ -53,7 +54,7 @@ const valueStyle: CSSProperties = {
 const badgeRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 

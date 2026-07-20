@@ -10,13 +10,14 @@
 // - **단축 속성(padding)과 개별 속성(paddingLeft)을 한 객체에서 섞지 않는다** — 병합이 깨져 빈 값이 된다.
 //   그래서 아래 객체들은 padding/margin/border 를 전부 개별 속성으로만 쓴다.
 import type { CSSProperties } from 'react';
+import { cssVar } from '@tds/ui';
 
 /* ── 텍스트 ──────────────────────────────────────────────────────────────── */
 
 export const visuallyHiddenStyle: CSSProperties = {
   position: 'absolute',
-  width: 'var(--tds-space-1)',
-  height: 'var(--tds-space-1)',
+  width: cssVar('space.1'),
+  height: cssVar('space.1'),
   paddingTop: 0,
   paddingBottom: 0,
   paddingLeft: 0,
@@ -53,7 +54,7 @@ export const pageTitleStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-title-xl-font-family)',
   fontSize: 'var(--tds-typography-title-xl-font-size)',
   fontWeight: 'var(--tds-typography-title-xl-font-weight)',
@@ -61,7 +62,7 @@ export const pageTitleStyle: CSSProperties = {
 };
 
 export const mutedTextStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -75,7 +76,7 @@ export const mutedTextStyle: CSSProperties = {
 export const alertActionRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
@@ -99,7 +100,7 @@ export const hintStyle: CSSProperties = {
 export const cardBodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   minWidth: 0,
 };
 
@@ -107,12 +108,12 @@ export const cardTitleStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-title-md-font-family)',
   fontSize: 'var(--tds-typography-title-md-font-size)',
   fontWeight: 'var(--tds-typography-title-md-font-weight)',
@@ -128,15 +129,15 @@ export function buttonStyle(variant: ButtonVariant, disabled = false): CSSProper
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 'var(--tds-component-button-gap)',
-    paddingTop: 'var(--tds-component-button-padding-y)',
-    paddingBottom: 'var(--tds-component-button-padding-y)',
-    paddingLeft: 'var(--tds-component-button-padding-x)',
-    paddingRight: 'var(--tds-component-button-padding-x)',
+    gap: cssVar('component.button.gap'),
+    paddingTop: cssVar('component.button.padding-y'),
+    paddingBottom: cssVar('component.button.padding-y'),
+    paddingLeft: cssVar('component.button.padding-x'),
+    paddingRight: cssVar('component.button.padding-x'),
     borderStyle: 'solid',
-    borderWidth: 'var(--tds-border-width-thin)',
+    borderWidth: cssVar('border-width.thin'),
     borderColor: 'transparent',
-    borderRadius: 'var(--tds-component-button-radius)',
+    borderRadius: cssVar('component.button.radius'),
     fontFamily: 'var(--tds-typography-label-md-font-family)',
     fontSize: 'var(--tds-typography-label-md-font-size)',
     fontWeight: 'var(--tds-typography-label-md-font-weight)',
@@ -150,41 +151,41 @@ export function buttonStyle(variant: ButtonVariant, disabled = false): CSSProper
     return {
       ...base,
       background: disabled
-        ? 'var(--tds-component-button-background-disabled)'
-        : 'var(--tds-component-button-background)',
-      color: disabled ? 'var(--tds-color-text-disabled)' : 'var(--tds-component-button-text)',
+        ? cssVar('component.button.background-disabled')
+        : cssVar('component.button.background'),
+      color: disabled ? cssVar('color.text.disabled') : cssVar('component.button.text'),
     };
   }
 
   if (variant === 'secondary') {
     return {
       ...base,
-      background: 'var(--tds-color-surface-default)',
+      background: cssVar('color.surface.default'),
       borderColor: disabled
-        ? 'var(--tds-color-action-primary-disabled)'
-        : 'var(--tds-color-border-default)',
-      color: disabled ? 'var(--tds-color-text-disabled)' : 'var(--tds-color-text-default)',
+        ? cssVar('color.action.primary.disabled')
+        : cssVar('color.border.default'),
+      color: disabled ? cssVar('color.text.disabled') : cssVar('color.text.default'),
     };
   }
 
   if (variant === 'danger') {
     return {
       ...base,
-      background: 'var(--tds-color-feedback-danger-surface)',
-      borderColor: 'var(--tds-color-feedback-danger-border)',
-      color: 'var(--tds-color-feedback-danger-text)',
+      background: cssVar('color.feedback.danger.surface'),
+      borderColor: cssVar('color.feedback.danger.border'),
+      color: cssVar('color.feedback.danger.text'),
     };
   }
 
   // ghost — 아이콘 전용 버튼(연필/⋯/×)
   return {
     ...base,
-    paddingTop: 'var(--tds-space-1)',
-    paddingBottom: 'var(--tds-space-1)',
-    paddingLeft: 'var(--tds-space-1)',
-    paddingRight: 'var(--tds-space-1)',
+    paddingTop: cssVar('space.1'),
+    paddingBottom: cssVar('space.1'),
+    paddingLeft: cssVar('space.1'),
+    paddingRight: cssVar('space.1'),
     background: 'transparent',
-    color: disabled ? 'var(--tds-color-text-disabled)' : 'var(--tds-color-text-muted)',
+    color: disabled ? cssVar('color.text.disabled') : cssVar('color.text.muted'),
   };
 }
 
@@ -209,7 +210,7 @@ export function buttonStyle(variant: ButtonVariant, disabled = false): CSSProper
 export const filterPanelStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   minWidth: 0,
 };
 
@@ -217,7 +218,7 @@ export const filterPanelStyle: CSSProperties = {
 export const filterNavStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 
@@ -225,22 +226,22 @@ export const filterNavStyle: CSSProperties = {
 export const filterNoticeStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
-  paddingTop: 'var(--tds-space-4)',
+  gap: cssVar('space.3'),
+  paddingTop: cssVar('space.4'),
   paddingBottom: 0,
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderTopStyle: 'solid',
-  borderTopWidth: 'var(--tds-border-width-thin)',
-  borderTopColor: 'var(--tds-color-border-default)',
+  borderTopWidth: cssVar('border-width.thin'),
+  borderTopColor: cssVar('color.border.default'),
 };
 
 export const filterHeadingStyle: CSSProperties = {
   marginTop: 0,
   marginBottom: 0,
-  marginLeft: 'var(--tds-space-3)',
+  marginLeft: cssVar('space.3'),
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontFamily: 'var(--tds-typography-label-sm-font-family)',
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   fontWeight: 'var(--tds-typography-label-sm-font-weight)',
@@ -250,7 +251,7 @@ export const filterHeadingStyle: CSSProperties = {
 export const filterListStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
@@ -268,23 +269,23 @@ export function filterItemStyle(active: boolean): CSSProperties {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 'var(--tds-space-2)',
+    gap: cssVar('space.2'),
     width: '100%',
     boxSizing: 'border-box',
-    paddingTop: 'var(--tds-space-2)',
-    paddingBottom: 'var(--tds-space-2)',
-    paddingLeft: 'var(--tds-space-3)',
-    paddingRight: 'var(--tds-space-3)',
+    paddingTop: cssVar('space.2'),
+    paddingBottom: cssVar('space.2'),
+    paddingLeft: cssVar('space.3'),
+    paddingRight: cssVar('space.3'),
     borderStyle: 'none',
     borderWidth: 0,
-    borderRadius: 'var(--tds-radius-md)',
-    background: active ? 'var(--tds-color-surface-raised)' : 'transparent',
-    color: active ? 'var(--tds-color-action-primary-default)' : 'var(--tds-color-text-default)',
+    borderRadius: cssVar('radius.md'),
+    background: active ? cssVar('color.surface.raised') : 'transparent',
+    color: active ? cssVar('color.action.primary.default') : cssVar('color.text.default'),
     fontFamily: 'var(--tds-typography-label-md-font-family)',
     fontSize: 'var(--tds-typography-label-md-font-size)',
     fontWeight: active
-      ? 'var(--tds-primitive-typography-font-weight-bold)'
-      : 'var(--tds-primitive-typography-font-weight-regular)',
+      ? cssVar('primitive.typography.font-weight.bold')
+      : cssVar('primitive.typography.font-weight.regular'),
     lineHeight: 'var(--tds-typography-label-md-line-height)',
     textAlign: 'left',
     cursor: 'pointer',
@@ -307,19 +308,17 @@ export function controlStyle(invalid = false, disabled = false): CSSProperties {
     boxSizing: 'border-box',
     width: '100%',
     minWidth: 0,
-    paddingTop: 'var(--tds-space-2)',
-    paddingBottom: 'var(--tds-space-2)',
-    paddingLeft: 'var(--tds-space-3)',
-    paddingRight: 'var(--tds-space-3)',
+    paddingTop: cssVar('space.2'),
+    paddingBottom: cssVar('space.2'),
+    paddingLeft: cssVar('space.3'),
+    paddingRight: cssVar('space.3'),
     borderStyle: 'solid',
-    borderWidth: invalid ? 'var(--tds-border-width-medium)' : 'var(--tds-border-width-thin)',
-    borderColor: invalid
-      ? 'var(--tds-color-feedback-danger-border)'
-      : 'var(--tds-color-border-default)',
-    borderRadius: 'var(--tds-radius-md)',
-    background: disabled ? 'var(--tds-color-surface-raised)' : 'var(--tds-color-surface-default)',
+    borderWidth: invalid ? cssVar('border-width.medium') : cssVar('border-width.thin'),
+    borderColor: invalid ? cssVar('color.feedback.danger.border') : cssVar('color.border.default'),
+    borderRadius: cssVar('radius.md'),
+    background: disabled ? cssVar('color.surface.raised') : cssVar('color.surface.default'),
     // 글자는 흐리지 않는다 — 잠긴 칸의 내용은 여전히 **읽으라고** 있는 것이다(대비를 유지한다)
-    color: 'var(--tds-color-text-default)',
+    color: cssVar('color.text.default'),
     fontFamily: 'var(--tds-typography-body-md-font-family)',
     fontSize: 'var(--tds-typography-label-md-font-size)',
     lineHeight: 'var(--tds-typography-body-md-line-height)',
@@ -329,12 +328,12 @@ export function controlStyle(invalid = false, disabled = false): CSSProperties {
 export const fieldStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   minWidth: 0,
 };
 
 export const fieldLabelStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-label-md-font-family)',
   fontSize: 'var(--tds-typography-label-md-font-size)',
   fontWeight: 'var(--tds-typography-label-md-font-weight)',
@@ -347,10 +346,10 @@ export const errorTextStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-feedback-danger-text)',
+  color: cssVar('color.feedback.danger.text'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 /* ── 피드백 (배너 · 토스트) ──────────────────────────────────────────────────
@@ -370,15 +369,15 @@ export const tableStyle: CSSProperties = {
    밀도를 바꾸려면 tokens.json 의 component.table.* 한 곳만 고치면 DataTable 과 함께 움직인다.
    thead 밑줄만 border.default 를 유지한다: 머리/몸통을 가르는 구조선이라 행 divider(subtle)보다 진해야 한다. */
 export const thStyle: CSSProperties = {
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-component-table-cell-padding-x)',
-  paddingRight: 'var(--tds-component-table-cell-padding-x)',
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('component.table.cell-padding-x'),
+  paddingRight: cssVar('component.table.cell-padding-x'),
   borderBottomStyle: 'solid',
-  borderBottomWidth: 'var(--tds-border-width-thin)',
-  borderBottomColor: 'var(--tds-color-border-default)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-muted)',
+  borderBottomWidth: cssVar('border-width.thin'),
+  borderBottomColor: cssVar('color.border.default'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   fontWeight: 'var(--tds-typography-label-sm-font-weight)',
   lineHeight: 'var(--tds-typography-label-sm-line-height)',
@@ -387,14 +386,14 @@ export const thStyle: CSSProperties = {
 };
 
 export const tdStyle: CSSProperties = {
-  paddingTop: 'var(--tds-component-table-cell-padding-y)',
-  paddingBottom: 'var(--tds-component-table-cell-padding-y)',
-  paddingLeft: 'var(--tds-component-table-cell-padding-x)',
-  paddingRight: 'var(--tds-component-table-cell-padding-x)',
+  paddingTop: cssVar('component.table.cell-padding-y'),
+  paddingBottom: cssVar('component.table.cell-padding-y'),
+  paddingLeft: cssVar('component.table.cell-padding-x'),
+  paddingRight: cssVar('component.table.cell-padding-x'),
   borderBottomStyle: 'solid',
-  borderBottomWidth: 'var(--tds-border-width-thin)',
-  borderBottomColor: 'var(--tds-component-table-divider)',
-  color: 'var(--tds-color-text-default)',
+  borderBottomWidth: cssVar('border-width.thin'),
+  borderBottomColor: cssVar('component.table.divider'),
+  color: cssVar('color.text.default'),
   verticalAlign: 'middle',
 };
 
@@ -405,9 +404,9 @@ export const numericCellStyle: CSSProperties = {
 };
 
 export const checkboxStyle: CSSProperties = {
-  width: 'var(--tds-space-4)',
-  height: 'var(--tds-space-4)',
-  accentColor: 'var(--tds-color-action-primary-default)',
+  width: cssVar('space.4'),
+  height: cssVar('space.4'),
+  accentColor: cssVar('color.action.primary.default'),
   cursor: 'pointer',
 };
 
@@ -417,8 +416,8 @@ export const dlStyle: CSSProperties = {
   display: 'grid',
   // 라벨 열은 고정 폭, 값 열은 남는 만큼 — 라벨이 길어도 값이 밀리지 않는다
   gridTemplateColumns: 'minmax(calc(var(--tds-space-6) * 4), auto) minmax(0, 1fr)',
-  columnGap: 'var(--tds-space-4)',
-  rowGap: 'var(--tds-space-3)',
+  columnGap: cssVar('space.4'),
+  rowGap: cssVar('space.3'),
   alignItems: 'center',
   marginTop: 0,
   marginBottom: 0,
@@ -427,7 +426,7 @@ export const dlStyle: CSSProperties = {
 };
 
 export const dtStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
@@ -437,7 +436,7 @@ export const ddStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
   overflowWrap: 'anywhere',
@@ -450,11 +449,11 @@ export const badgeStyle: CSSProperties = {
   alignItems: 'center',
   paddingTop: 0,
   paddingBottom: 0,
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
-  borderRadius: 'var(--tds-radius-full)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-muted)',
+  paddingLeft: cssVar('space.2'),
+  paddingRight: cssVar('space.2'),
+  borderRadius: cssVar('radius.full'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   fontWeight: 'var(--tds-typography-label-sm-font-weight)',
   lineHeight: 'calc(var(--tds-space-5))',

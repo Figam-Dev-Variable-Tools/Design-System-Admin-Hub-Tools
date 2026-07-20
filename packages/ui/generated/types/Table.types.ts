@@ -38,9 +38,9 @@ export interface TableProps {
    */
   columns: ReadonlyArray<{ id: string; header: ReactNode; align?: 'start' | 'end'; nowrap?: boolean; sortable?: boolean }>;
   /**
-   * 본문 행. 데이터 prop — Figma Component Property 대응 없음 (ADR-0003). `cells` 는 columns 와 **같은 순서·같은 길이**이며 각 항목이 그 열의 `<td>` 안에 그대로 들어간다. `leading`/`trailing` 은 **완성된 `<td>`/`<th>` 요소**다 — 호출부가 체크박스 셀·순번 셀·액션 셀을 통째로 넘긴다. `onActivate` 를 주면 행 전체가 클릭 가능해진다(포인터 커서). 정렬은 이미 끝난 상태로 들어온다 — DS 는 rows 를 준 순서 그대로 그린다
+   * 본문 행. 데이터 prop — Figma Component Property 대응 없음 (ADR-0003). `cells` 는 columns 와 **같은 순서·같은 길이**이며 각 항목이 그 열의 `<td>` 안에 그대로 들어간다. `leading`/`trailing` 은 **완성된 `<td>`/`<th>` 요소**다 — 호출부가 체크박스 셀·순번 셀·액션 셀을 통째로 넘긴다. `onActivate` 를 주면 행 전체가 클릭 가능해진다(포인터 커서). 정렬은 이미 끝난 상태로 들어온다 — DS 는 rows 를 준 순서 그대로 그린다. `selected` 는 계약 states 의 `selected` 를 그리는 **판정의 결과**다(sortKey·Sidebar 의 activeHref 와 같은 어법) — 무엇이 선택됐는지 고르는 것도, 체크박스를 그리는 것도 여전히 앱의 일이고(체크박스는 leading 으로 통째로 들어온다) DS 는 '이 행은 선택됐다' 는 사실만 받아 `aria-selected` 와 시각으로 옮긴다. hover 와 같은 배경을 쓰되 inline-start 강조선으로 구분한다 — 배경만으로 갈리면 마우스가 얹힌 행과 선택된 행이 같아 보인다
    */
-  rows: ReadonlyArray<{ id: string; cells: ReadonlyArray<ReactNode>; leading?: ReadonlyArray<ReactNode>; trailing?: ReadonlyArray<ReactNode>; onActivate?: () => void }>;
+  rows: ReadonlyArray<{ id: string; cells: ReadonlyArray<ReactNode>; leading?: ReadonlyArray<ReactNode>; trailing?: ReadonlyArray<ReactNode>; onActivate?: () => void; selected?: boolean }>;
   /**
    * 데이터 헤더 **앞**에 오는 완성된 `<th>` 요소들 — 전체 선택 체크박스 헤더·순번 헤더 등. 배열 길이가 곧 앞쪽 열 수이며, 스켈레톤과 빈 행의 colSpan 이 여기서 계산된다. 권한으로 열이 사라지면 호출부가 배열에서 빼면 되고 DS 는 셈을 다시 하지 않는다
    * @default []

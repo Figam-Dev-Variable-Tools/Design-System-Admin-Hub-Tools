@@ -2,6 +2,19 @@
 // 계약(contracts/*.contract.json) 15종의 구현이 여기서 re-export될 때만 public API가 된다.
 // Props 타입은 전부 codegen 산출물(generated/types/*)이 원천이다 — 수동 타입 선언 금지 (G6).
 
+// --- 토큰 헬퍼 ---
+// 인라인 style 의 토큰 참조는 손글씨 `var(--tds-*)` 문자열이 아니라 이 헬퍼를 쓴다.
+// TokenPath 는 codegen 이 tokens.json 에서 만든 리터럴 유니온이라 오타가 컴파일 타임에 잡히고
+// 자동완성이 붙는다. 문자열은 타입 검사가 닿지 않아 실재하지 않는 토큰이 조용히 렌더됐다
+// (work-cycle.md §7 — `--tds-shadow-md` 가 그림자를 안 그리고 있던 사고).
+//
+// [서브패스가 아니라 배럴인 이유] eslint-plugin-boundaries 가 `@tds/ui/*` deep import 를 막고
+// (apps/admin/eslint.config.js:147) 이 파일 머리말이 "앱은 반드시 이 entry 로만" 을 못박는다.
+// `./generated/*` 서브패스를 열면 그 규칙에 예외를 하나 더 뚫어야 하고, 앱이 산출물 경로 모양에
+// 직접 의존하게 된다. 배럴은 예외를 만들지 않고 산출물 위치를 캡슐화한다.
+export { cssVar, tokenVars } from '../generated/tokens/tokens';
+export type { TokenPath } from '../generated/tokens/tokens';
+
 // --- Atoms ---
 export { Alert } from './atoms/Alert';
 export type { AlertProps, AlertState, AlertTone } from './atoms/Alert';

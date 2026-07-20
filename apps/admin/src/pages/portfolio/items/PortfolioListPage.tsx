@@ -17,6 +17,7 @@ import { publishToggleColumn } from '../_shared/publishColumn';
 import { filterPortfolioItems, PORTFOLIO_FILTER_ALL } from '../_shared/store';
 import type { PortfolioItem, PortfolioItemInput } from '../_shared/store';
 import { objectParticle } from '../../../shared/format';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'portfolio';
 const ENTITY_LABEL = '포트폴리오';
@@ -26,7 +27,7 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

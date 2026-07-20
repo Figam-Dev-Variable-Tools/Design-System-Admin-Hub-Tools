@@ -26,6 +26,7 @@ import type {
   MediaShape,
 } from '../types';
 import { incompleteTextStyle, placeholderShapeStyle } from './styles';
+import { cssVar } from '@tds/ui';
 
 /** 미완성 안내 문구 — 목업 확정(영문) */
 export const INCOMPLETE_MESSAGE = '이 블록의 설정이 아직 비어 있습니다.';
@@ -79,14 +80,14 @@ function buttonPaddingOf(size: ButtonSize): CSSProperties {
 
 function mediaRadiusOf(shape: MediaShape): CSSProperties['borderRadius'] {
   if (shape === 'circle') return '50%';
-  if (shape === 'rounded') return 'var(--tds-radius-md)';
+  if (shape === 'rounded') return cssVar('radius.md');
   return 0;
 }
 
 /** 자리표시 도형의 라운드 — 아바타는 동그라미, 로고는 모서리만 둥글게 */
 function placeholderRadiusOf(shape: MediaShape): string {
   if (shape === 'circle') return '50%';
-  if (shape === 'rounded') return 'var(--tds-radius-md)';
+  if (shape === 'rounded') return cssVar('radius.md');
   return '0';
 }
 
@@ -263,11 +264,7 @@ export function BlockView({
         fontSize: block.fontSize,
         fontWeight: fontWeightOf(block.fontWeight),
         borderRadius:
-          block.shape === 'pill'
-            ? '9999em'
-            : block.shape === 'rounded'
-              ? 'var(--tds-radius-md)'
-              : 0,
+          block.shape === 'pill' ? '9999em' : block.shape === 'rounded' ? cssVar('radius.md') : 0,
         textAlign: 'center',
       };
       return (
@@ -303,12 +300,12 @@ export function BlockView({
         width: block.width,
         maxWidth: '100%',
         height: block.height ?? 'auto',
-        minHeight: 'var(--tds-space-10)',
+        minHeight: cssVar('space.10'),
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--tds-color-surface-skeleton)',
-        color: 'var(--tds-color-text-muted)',
+        background: cssVar('color.surface.skeleton'),
+        color: cssVar('color.text.muted'),
         fontSize: 'var(--tds-typography-caption-md-font-size)',
         overflowWrap: 'anywhere',
       };
@@ -342,8 +339,8 @@ export function BlockView({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: mediaRadiusOf(block.shape),
-        background: 'var(--tds-color-surface-skeleton)',
-        color: 'var(--tds-color-text-muted)',
+        background: cssVar('color.surface.skeleton'),
+        color: cssVar('color.text.muted'),
         fontFamily: canvasFontFamily,
         fontSize: 'var(--tds-typography-caption-md-font-size)',
         overflow: 'hidden',
@@ -392,7 +389,7 @@ export function BlockView({
         ...paddingStyle(block.padding),
         display: 'flex',
         flexWrap: 'wrap',
-        gap: 'var(--tds-space-2)',
+        gap: cssVar('space.2'),
         justifyContent: justifyOf(block.align),
         background: block.backgroundColor,
         color: block.textColor,
@@ -422,7 +419,7 @@ export function BlockView({
         ...paddingStyle(block.padding),
         display: 'flex',
         flexWrap: 'wrap',
-        gap: 'var(--tds-space-2)',
+        gap: cssVar('space.2'),
         justifyContent: justifyOf(block.align),
         background: block.backgroundColor,
         color: block.textColor,
@@ -442,7 +439,7 @@ export function BlockView({
           {block.items.map((item, index) => (
             <span key={item.id}>
               {index > 0 && (
-                <span aria-hidden="true" style={{ paddingRight: 'var(--tds-space-2)' }}>
+                <span aria-hidden="true" style={{ paddingRight: cssVar('space.2') }}>
                   {block.separator}
                 </span>
               )}
@@ -472,13 +469,13 @@ export function BlockView({
         position: 'relative',
         width: block.width,
         maxWidth: '100%',
-        minHeight: 'var(--tds-space-10)',
+        minHeight: cssVar('space.10'),
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 'var(--tds-radius-md)',
-        background: 'var(--tds-color-surface-skeleton)',
-        color: 'var(--tds-color-text-muted)',
+        borderRadius: cssVar('radius.md'),
+        background: cssVar('color.surface.skeleton'),
+        color: cssVar('color.text.muted'),
         fontSize: 'var(--tds-typography-caption-md-font-size)',
         overflowWrap: 'anywhere',
       };
@@ -512,7 +509,7 @@ export function BlockView({
         marginBottom: 0,
         marginLeft: 0,
         marginRight: 0,
-        paddingLeft: 'var(--tds-space-6)',
+        paddingLeft: cssVar('space.6'),
       };
       const items = block.items.map((item) => (
         <li key={item.id}>
@@ -551,7 +548,7 @@ export function BlockView({
           {lines.map((line) => (
             <div key={line}>{line}</div>
           ))}
-          <div style={{ paddingTop: 'var(--tds-space-3)' }}>
+          <div style={{ paddingTop: cssVar('space.3') }}>
             <span style={{ color: block.linkColor, textDecoration: 'underline' }}>
               {UNSUBSCRIBE_LABEL}
             </span>

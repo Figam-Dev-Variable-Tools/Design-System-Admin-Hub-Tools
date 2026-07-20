@@ -14,7 +14,7 @@ import { useEffect, useRef } from 'react';
 import type { ChangeEvent, CSSProperties } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { ensureRichText } from '@tds/ui';
+import { cssVar, ensureRichText } from '@tds/ui';
 
 import {
   Alert,
@@ -83,15 +83,15 @@ const EMPTY: TemplateFormValues = {
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const descriptionStyle: CSSProperties = {
-  marginTop: 'var(--tds-space-1)',
+  marginTop: cssVar('space.1'),
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
@@ -100,15 +100,15 @@ const backLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   alignSelf: 'flex-start',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
   paddingLeft: 0,
   paddingRight: 0,
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   cursor: 'pointer',
@@ -118,7 +118,7 @@ const backLinkStyle: CSSProperties = {
 const layoutStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 13), 1fr))',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   alignItems: 'start',
 };
 
@@ -126,21 +126,21 @@ const layoutStyle: CSSProperties = {
 const columnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   minWidth: 0,
 };
 
 /** 우측 미리보기 카드 — 스크롤해도 따라오도록 sticky */
 const previewColStyle: CSSProperties = {
   position: 'sticky',
-  top: 'var(--tds-space-4)',
+  top: cssVar('space.4'),
   minWidth: 0,
 };
 
 const actionsStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'flex-end',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const byteHintStyle: CSSProperties = { ...hintStyle };

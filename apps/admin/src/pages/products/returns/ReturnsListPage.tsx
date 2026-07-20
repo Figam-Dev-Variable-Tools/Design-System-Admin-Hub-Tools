@@ -43,6 +43,7 @@ import {
   statusMeta,
 } from './types';
 import type { ReturnKind, StatusFilter } from './types';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'returns';
 const LIST_PATH = '/products/returns';
@@ -77,14 +78,14 @@ const SKELETON_ROWS = 5;
 const columnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   minWidth: 0,
 };
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
@@ -100,8 +101,8 @@ const orderCellStyle: CSSProperties = {
 
 const emptyCellStyle: CSSProperties = {
   ...tdStyle,
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
+  paddingTop: cssVar('space.6'),
+  paddingBottom: cssVar('space.6'),
 };
 
 export default function ReturnsListPage() {

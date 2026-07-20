@@ -73,6 +73,7 @@
 | `borderWidth` | `border-width.thin` | `--tds-border-width-thin` |
 | `text` | `color.text.default` | `--tds-color-text-default` |
 | `backgroundHover` | `color.surface.raised` | `--tds-color-surface-raised` |
+| `textActive` | `color.action.primary.active` | `--tds-color-action-primary-active` |
 | `textDisabled` | `color.text.disabled` | `--tds-color-text-disabled` |
 | `focusRing` | `color.border.focus` | `--tds-color-border-focus` |
 | `focusRingWidth` | `border-width.medium` | `--tds-border-width-medium` |

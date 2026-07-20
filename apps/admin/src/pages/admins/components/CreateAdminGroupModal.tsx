@@ -39,24 +39,25 @@ import { zodResolver } from '../../../shared/form/zodResolver';
 import { useCreateAdminGroup, useRegisteredSenderPhonesQuery } from '../queries';
 import { createAdminGroupSchema } from '../validation';
 import type { CreateAdminGroupFormValues } from '../validation';
+import { cssVar } from '@tds/ui';
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const labelRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
 };
 
 /** 체크박스 한 줄 — 라벨을 클릭 대상에 포함시킨다(작은 사각형만 노리게 두지 않는다) */
 const checkboxRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   cursor: 'pointer',
 };
 

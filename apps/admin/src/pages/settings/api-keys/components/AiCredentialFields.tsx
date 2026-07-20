@@ -27,12 +27,13 @@ import { MASKED_SECRET_TEXT } from '../../_shared/secret';
 import { CREDENTIAL_VALUE_MAX, endpointWarning, regionWarning } from '../validation';
 import type { AiConnectionFormValues } from '../validation';
 import type { AiCredentialField, AiCredentialFieldKey } from '../ai-connections';
+import { cssVar } from '@tds/ui';
 
 /** 입력칸과 옆 버튼('변경'·'취소')을 한 줄에 — 버튼이 아래로 떨어지지 않게 한다 */
 const secretRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 
@@ -43,10 +44,10 @@ const secretRowStyle: CSSProperties = {
 const maskedStyle: CSSProperties = {
   flex: '1 1 auto',
   minWidth: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
-  letterSpacing: 'var(--tds-space-1)',
+  letterSpacing: cssVar('space.1'),
 };
 
 /** 경고는 오류가 아니다 — 저장을 막지 않고 '확인해 보라' 고만 한다 */
@@ -55,7 +56,7 @@ const warningStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

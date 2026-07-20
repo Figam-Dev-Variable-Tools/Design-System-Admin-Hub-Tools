@@ -41,6 +41,7 @@ import {
   zeroResultCountOf,
 } from './types';
 import type { KeywordDailyRow, KeywordRow, KeywordSegment } from './types';
+import { cssVar } from '@tds/ui';
 
 const ROUTE = '/stats/keywords';
 
@@ -54,7 +55,7 @@ function segmentOf(value: string): KeywordSegment {
 const keywordCellStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 /** 결과 없음 검색어는 이 화면에서 유일하게 '지금 손대야 하는' 행이다 — 색이 아니라 문구가 말한다 */

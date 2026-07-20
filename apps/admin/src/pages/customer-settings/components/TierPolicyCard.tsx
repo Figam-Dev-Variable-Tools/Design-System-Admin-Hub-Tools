@@ -25,6 +25,7 @@ import { TIER_LABEL } from '../../../shared/domain/member';
 import type { MemberTier } from '../../../shared/domain/member';
 import { BASE_TIER, DISCOUNT_MAX, issuesFor, TIER_ORDER, warningsOf } from '../types';
 import type { PolicyIssue, TierDraftRows } from '../types';
+import { cssVar } from '@tds/ui';
 
 const tableWrapStyle: CSSProperties = {
   overflowX: 'auto',
@@ -35,13 +36,13 @@ const tableWrapStyle: CSSProperties = {
 const inputRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 
 const unitStyle: CSSProperties = {
   flexShrink: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
@@ -62,7 +63,7 @@ const tierCellStyle: CSSProperties = {
   verticalAlign: 'top',
   // 입력의 텍스트 첫 줄 = 셀 상단 패딩(space-3) + 입력 테두리(thin) + 입력 세로 패딩(space-2)
   paddingTop: 'calc(var(--tds-space-3) + var(--tds-border-width-thin) + var(--tds-space-2))',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   whiteSpace: 'nowrap',
 };
 
@@ -70,14 +71,14 @@ const tierCellStyle: CSSProperties = {
 const stackStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   minWidth: 0,
 };
 
 const labelRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
 };
 
 interface TierPolicyCardProps {

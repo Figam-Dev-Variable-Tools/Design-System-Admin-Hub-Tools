@@ -24,27 +24,28 @@ import { PermissionMatrixTable } from './components/PermissionMatrixTable';
 import { RoleFormModal } from './components/RoleFormModal';
 import { RoleHeaderCard } from './components/RoleHeaderCard';
 import { RolePanel } from './components/RolePanel';
+import { cssVar } from '@tds/ui';
 
 type DialogKind = 'create' | 'rename' | 'delete';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const layoutStyle: CSSProperties = {
   display: 'grid',
   // 좌측 패널은 고정 폭, 우측은 남는 폭 전부 (AdminsPage 와 같은 그리드)
   gridTemplateColumns: 'calc(var(--tds-space-6) * 9) minmax(0, 1fr)',
-  gap: 'var(--tds-space-6)',
+  gap: cssVar('space.6'),
   alignItems: 'start',
 };
 
 const mainColumnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   minWidth: 0,
 };
 

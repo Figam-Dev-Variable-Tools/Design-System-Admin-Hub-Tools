@@ -17,6 +17,7 @@ import {
   filterCertificates,
 } from './types';
 import type { CertFilter, CertInput, CertItem } from './types';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'certificates';
 const ENTITY_LABEL = '인증서/특허';
@@ -30,14 +31,14 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
 const filterWrapStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 

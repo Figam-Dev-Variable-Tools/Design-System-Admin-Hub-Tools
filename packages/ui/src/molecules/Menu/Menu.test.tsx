@@ -226,7 +226,9 @@ describe('Menu — 계약 events', () => {
     );
   });
 
-  it('Menu: onSelect 는 잠긴 항목에서 발화하지 않는다 (blockedWhen)', async () => {
+  // 이름이 계약 조건 두 개(items[].disabled · items[].disabledReason)를 그대로 부른다 —
+  // 이 테스트는 두 조건을 한 번에 클릭해 확인하므로 이름도 둘을 함께 지목해야 한다.
+  it('Menu: onSelect — items[].disabled · items[].disabledReason 상태에서 발화하지 않는다 (blockedWhen)', async () => {
     const onSelect = vi.fn();
     const user = userEvent.setup();
     render(

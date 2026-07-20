@@ -18,6 +18,7 @@ import {
   PORTFOLIO_TITLE_MAX,
 } from '../_shared/store';
 import type { PortfolioItem, PortfolioItemInput } from '../_shared/store';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'portfolio';
 const ENTITY_LABEL = '포트폴리오';
@@ -28,7 +29,7 @@ const UNSAVED_MESSAGE =
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 5), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 export default function PortfolioFormPage() {

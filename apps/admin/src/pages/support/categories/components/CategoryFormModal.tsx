@@ -26,11 +26,12 @@ import { CATEGORY_LABEL_MAX } from '../../_shared/domain';
 import type { SupportCategoryUsage } from '../../_shared/domain';
 import { supportCategorySchema } from '../validation';
 import type { SupportCategoryFormValues } from '../validation';
+import { cssVar } from '@tds/ui';
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 interface CategoryFormModalProps {

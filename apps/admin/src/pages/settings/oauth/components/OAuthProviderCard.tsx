@@ -81,6 +81,7 @@ import type {
   OAuthSettingsValues,
 } from '../validation';
 import { ProviderMark } from './provider-marks';
+import { cssVar } from '@tds/ui';
 
 /** 카카오싱크 '간편 설정' 이 실제로 있는 자리 — 우리 화면이 흉내 낼 수 있는 동작이 아니다 */
 const KAKAO_SYNC_CONSOLE_URL = 'https://developers.kakao.com/console/app';
@@ -105,7 +106,7 @@ const hintStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -115,7 +116,7 @@ const warningStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-feedback-warning-text)',
+  color: cssVar('color.feedback.warning.text'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -123,23 +124,23 @@ const warningStyle: CSSProperties = {
 const secretRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
 };
 
 const maskedStyle: CSSProperties = {
   flex: 1,
   minWidth: 0,
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-muted)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
 };
@@ -152,16 +153,16 @@ const derivedValueStyle: CSSProperties = {
   flex: 1,
   minWidth: 0,
   overflowWrap: 'anywhere',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-code-md-font-family)',
   fontSize: 'var(--tds-typography-code-md-font-size)',
   lineHeight: 'var(--tds-typography-code-md-line-height)',
@@ -170,7 +171,7 @@ const derivedValueStyle: CSSProperties = {
 /** 아직 파생할 근거가 없을 때 — 값이 아니라 안내문이라 본문 서체로 되돌린다 */
 const derivedEmptyStyle: CSSProperties = {
   ...derivedValueStyle,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontFamily: 'var(--tds-typography-body-md-font-family)',
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
@@ -179,7 +180,7 @@ const derivedEmptyStyle: CSSProperties = {
 const testRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
@@ -187,32 +188,32 @@ const testRowStyle: CSSProperties = {
 const titleRowStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 /** 글리프 자리 — 이름과 같은 색을 물려받아(currentColor) 톤을 맞춘다 */
 const brandIconStyle: CSSProperties = {
   display: 'inline-flex',
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
 };
 
 /** '발급 위치' 안내 — 운영자가 콘솔에서 어디를 열어야 하는지 한 줄로 */
 const consoleHintStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'baseline',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-muted)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -220,14 +221,14 @@ const consoleHintStyle: CSSProperties = {
 const consoleHintTagStyle: CSSProperties = {
   flexShrink: 0,
   fontWeight: 'var(--tds-typography-label-md-font-weight)',
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
 };
 
 /** 제목 = 이 제공자 설정을 펼치거나 접는 disclosure 버튼 */
 const disclosureButtonStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   padding: 0,
   borderStyle: 'none',
   borderWidth: 0,
@@ -240,7 +241,7 @@ const disclosureButtonStyle: CSSProperties = {
 /** 펼치면 오른쪽 화살표가 아래를 가리키도록 90° 회전 */
 const chevronStyle = (expanded: boolean): CSSProperties => ({
   display: 'inline-flex',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   transform: expanded ? 'rotate(90deg)' : 'none',
 });
 
@@ -253,7 +254,7 @@ const chevronStyle = (expanded: boolean): CSSProperties => ({
 const configRegionStyle = (expanded: boolean): CSSProperties => ({
   display: expanded ? 'flex' : 'none',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 });
 
 /**
@@ -270,7 +271,7 @@ const plainToggleRowStyle: CSSProperties = {
 const fileRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
   minWidth: 0,
 };
@@ -283,18 +284,16 @@ const fileRowStyle: CSSProperties = {
 const filePickerStyle = (invalid: boolean): CSSProperties => ({
   flex: 1,
   minWidth: 0,
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: invalid
-    ? 'var(--tds-color-feedback-danger-border)'
-    : 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-default)',
-  color: 'var(--tds-color-text-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: invalid ? cssVar('color.feedback.danger.border') : cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.default'),
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
 });
@@ -303,7 +302,7 @@ const filePickerStyle = (invalid: boolean): CSSProperties => ({
 const pickedFileStyle: CSSProperties = {
   minWidth: 0,
   overflowWrap: 'anywhere',
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

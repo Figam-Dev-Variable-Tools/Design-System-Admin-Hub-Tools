@@ -27,17 +27,18 @@ import type {
   OutcomeFilter,
   PeriodId,
 } from '../types';
+import { cssVar } from '@tds/ui';
 
 /** 직접 지정 입력 두 칸 — 기간 목록 아래에 붙는다 */
 const rangeFormStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
-  marginTop: 'var(--tds-space-2)',
+  gap: cssVar('space.3'),
+  marginTop: cssVar('space.2'),
   paddingTop: 0,
   paddingBottom: 0,
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
 };
 
 /** 기간 항목에는 배지를 달지 않는다 — '오늘 12건'은 어차피 목록 상단의 총 건수와 같은 말이다 */

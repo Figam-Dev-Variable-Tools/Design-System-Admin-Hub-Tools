@@ -23,6 +23,7 @@ import {
 } from '../_shared/modes';
 import type { ResponseModeId } from '../_shared/modes';
 import { capabilityDetail } from '../_shared/answer';
+import { cssVar } from '@tds/ui';
 
 const wrapStyle: CSSProperties = { position: 'relative' };
 
@@ -35,16 +36,16 @@ const wrapStyle: CSSProperties = { position: 'relative' };
 const triggerStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   flexShrink: 0,
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
+  paddingLeft: cssVar('space.2'),
+  paddingRight: cssVar('space.2'),
   border: 'none',
-  borderRadius: 'var(--tds-radius-full)',
-  background: 'var(--tds-color-transparent)',
-  color: 'var(--tds-color-text-muted)',
+  borderRadius: cssVar('radius.full'),
+  background: cssVar('color.transparent'),
+  color: cssVar('color.text.muted'),
   fontFamily: 'var(--tds-typography-label-sm-font-family)',
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   lineHeight: 'var(--tds-typography-label-sm-line-height)',
@@ -61,13 +62,13 @@ const menuStyle: CSSProperties = {
   zIndex: 3,
   width: 'calc(var(--tds-space-10) * 6)',
   margin: 0,
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
   paddingLeft: 0,
   paddingRight: 0,
   border: 'thin solid var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-lg)',
-  background: 'var(--tds-color-surface-default)',
+  borderRadius: cssVar('radius.lg'),
+  background: cssVar('color.surface.default'),
   listStyle: 'none',
 };
 
@@ -75,16 +76,16 @@ function itemStyle(enabled: boolean): CSSProperties {
   return {
     display: 'flex',
     alignItems: 'flex-start',
-    gap: 'var(--tds-space-2)',
+    gap: cssVar('space.2'),
     width: '100%',
     boxSizing: 'border-box',
-    paddingTop: 'var(--tds-space-2)',
-    paddingBottom: 'var(--tds-space-2)',
-    paddingLeft: 'var(--tds-space-3)',
-    paddingRight: 'var(--tds-space-3)',
+    paddingTop: cssVar('space.2'),
+    paddingBottom: cssVar('space.2'),
+    paddingLeft: cssVar('space.3'),
+    paddingRight: cssVar('space.3'),
     border: 'none',
-    background: 'var(--tds-color-transparent)',
-    color: enabled ? 'var(--tds-color-text-default)' : 'var(--tds-color-text-disabled)',
+    background: cssVar('color.transparent'),
+    color: enabled ? cssVar('color.text.default') : cssVar('color.text.disabled'),
     textAlign: 'left',
     cursor: enabled ? 'pointer' : 'not-allowed',
   };
@@ -93,12 +94,12 @@ function itemStyle(enabled: boolean): CSSProperties {
 const labelRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'baseline',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const descStyle: CSSProperties = {
   display: 'block',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -106,11 +107,11 @@ const descStyle: CSSProperties = {
 const notWiredBadgeStyle: CSSProperties = {
   paddingTop: 0,
   paddingBottom: 0,
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
-  borderRadius: 'var(--tds-radius-full)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-muted)',
+  paddingLeft: cssVar('space.2'),
+  paddingRight: cssVar('space.2'),
+  borderRadius: cssVar('radius.full'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -118,19 +119,19 @@ const notWiredBadgeStyle: CSSProperties = {
 /** 설정 화면으로 가는 줄 — 메뉴 안의 명령이라 menuitem 이다 */
 const settingsLinkStyle: CSSProperties = {
   display: 'block',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  color: 'var(--tds-color-action-primary-default)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  color: cssVar('color.action.primary.default'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   textDecoration: 'none',
 };
 
 const separatorStyle: CSSProperties = {
-  marginTop: 'var(--tds-space-2)',
-  marginBottom: 'var(--tds-space-2)',
+  marginTop: cssVar('space.2'),
+  marginBottom: cssVar('space.2'),
   marginLeft: 0,
   marginRight: 0,
   border: 'none',
@@ -147,15 +148,15 @@ const separatorStyle: CSSProperties = {
 const noteStyle: CSSProperties = {
   marginTop: 0,
   marginBottom: 0,
-  marginLeft: 'var(--tds-space-3)',
-  marginRight: 'var(--tds-space-3)',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-muted)',
+  marginLeft: cssVar('space.3'),
+  marginRight: cssVar('space.3'),
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

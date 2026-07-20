@@ -24,11 +24,12 @@ import { NAME_MAX_LENGTH } from './types';
 import type { LogoItem } from './types';
 import { logoSchema } from './validation';
 import type { LogoFormValues } from './validation';
+import { cssVar } from '@tds/ui';
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 interface LogoFormModalProps {

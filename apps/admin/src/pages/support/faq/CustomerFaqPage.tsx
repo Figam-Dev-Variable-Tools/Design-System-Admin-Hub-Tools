@@ -20,13 +20,14 @@ import {
 } from './data-source';
 import { applyFaqOrder, countVisible } from './types';
 import type { CustomerFaq } from './types';
+import { cssVar } from '@tds/ui';
 
 const QUERY_KEY = ['support-faq', 'list'] as const;
 
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   minWidth: 0,
 };
 
@@ -34,7 +35,7 @@ const noticeStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
@@ -42,7 +43,7 @@ const errorBodyStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

@@ -38,9 +38,10 @@ import { formatNumber, formatSignedNumber } from '../../../shared/format';
 import { useAddPointHistory, useRemovePointHistory } from '../queries';
 import { PAGE_SIZE, POINT_ADJUST_LABEL } from '../types';
 import type { PointAdjustKind, PointEntry } from '../types';
+import { cssVar } from '@tds/ui';
 
 const balanceStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-title-lg-font-size)',
   fontWeight: 'var(--tds-typography-title-lg-font-weight)',
   lineHeight: 'var(--tds-typography-title-lg-line-height)',
@@ -52,7 +53,7 @@ const formStyle: CSSProperties = {
   // 구분(고정) · 금액(고정) · 사유(가변) · 확인(고정)
   gridTemplateColumns:
     'calc(var(--tds-space-6) * 4) calc(var(--tds-space-6) * 5) minmax(0, 1fr) auto',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   alignItems: 'end',
 };
 
@@ -63,22 +64,21 @@ const formErrorStyle: CSSProperties = {
 
 const signStyle = (amount: number): CSSProperties => ({
   ...numericCellStyle,
-  color:
-    amount < 0 ? 'var(--tds-color-feedback-danger-text)' : 'var(--tds-color-feedback-success-text)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  color: amount < 0 ? cssVar('color.feedback.danger.text') : cssVar('color.feedback.success.text'),
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 });
 
 const deleteCellStyle: CSSProperties = {
   ...tdStyle,
-  width: 'var(--tds-space-6)',
+  width: cssVar('space.6'),
   textAlign: 'right',
 };
 
 const emptyCellStyle: CSSProperties = {
   ...tdStyle,
-  paddingTop: 'var(--tds-space-5)',
-  paddingBottom: 'var(--tds-space-5)',
-  color: 'var(--tds-color-text-muted)',
+  paddingTop: cssVar('space.5'),
+  paddingBottom: cssVar('space.5'),
+  color: cssVar('color.text.muted'),
   textAlign: 'center',
 };
 

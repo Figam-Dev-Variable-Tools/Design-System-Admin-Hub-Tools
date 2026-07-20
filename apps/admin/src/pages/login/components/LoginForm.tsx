@@ -31,7 +31,7 @@
 // 되돌리려면: 두 번째 제품이 같은 폼을 요구할 때 **템플릿 계층에서** 다시 검토한다.
 // ─────────────────────────────────────────────────────────────────────────────
 import type { ChangeEvent, CSSProperties, FocusEvent, FormEvent, RefObject } from 'react';
-import { Alert, Button, Checkbox, PasswordField, TextField } from '@tds/ui';
+import { Alert, Button, Checkbox, cssVar, PasswordField, TextField } from '@tds/ui';
 import type { AlertTone } from '@tds/ui';
 
 export interface AlertState {
@@ -75,7 +75,7 @@ interface LoginFormProps {
 const formStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const EMAIL_FIELD_ID = 'login-email';

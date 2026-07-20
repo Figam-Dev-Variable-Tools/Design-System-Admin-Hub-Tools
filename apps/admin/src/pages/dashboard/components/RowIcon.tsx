@@ -5,10 +5,11 @@ import type { CSSProperties } from 'react';
 
 import { BoxIcon, BriefcaseIcon, FileTextIcon, HeadsetIcon } from '../../../shared/icons';
 import type { ListCardData } from '../types';
+import { cssVar } from '@tds/ui';
 
 const iconStyle: CSSProperties = {
   flexShrink: 0,
-  color: 'var(--tds-color-action-primary-default)',
+  color: cssVar('color.action.primary.default'),
 };
 
 export function RowIcon({ name }: { readonly name: ListCardData['icon'] }) {

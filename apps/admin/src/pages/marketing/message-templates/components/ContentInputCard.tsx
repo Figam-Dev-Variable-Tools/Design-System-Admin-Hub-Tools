@@ -25,6 +25,7 @@ import { sectionHeadingStyle, sectionStyle } from '../styles';
 import { TEXT_BODY_MAX } from '../types';
 import { ImageAttachRow } from './ImageAttachRow';
 import { InfoCallout } from './InfoCallout';
+import { cssVar } from '@tds/ui';
 
 const BODY_FIELD_ID = 'message-template-body';
 const SUBJECT_FIELD_ID = 'message-template-subject';
@@ -34,7 +35,7 @@ const textareaStyle = (invalid: boolean, disabled: boolean): CSSProperties => ({
   ...controlStyle(invalid, disabled),
   minHeight: 'calc(var(--tds-space-10) * 8)',
   // 카운터가 마지막 줄을 덮지 않도록 아래 여백을 넓힌다
-  paddingBottom: 'var(--tds-space-7)',
+  paddingBottom: cssVar('space.7'),
   resize: 'vertical',
   fontFamily: 'var(--tds-typography-body-md-font-family)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
@@ -50,9 +51,9 @@ const fieldWrapStyle: CSSProperties = {
 
 const counterStyle: CSSProperties = {
   position: 'absolute',
-  right: 'var(--tds-space-3)',
-  bottom: 'var(--tds-space-2)',
-  color: 'var(--tds-color-text-muted)',
+  right: cssVar('space.3'),
+  bottom: cssVar('space.2'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   fontVariantNumeric: 'tabular-nums',
@@ -62,7 +63,7 @@ const counterStyle: CSSProperties = {
 /** 제목 칸의 바이트 카운터 — 본문 카운터가 글자를 세는 것과 **다른 축**이다(제목은 byte 규격) */
 const subjectCounterStyle: CSSProperties = {
   alignSelf: 'flex-end',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   fontVariantNumeric: 'tabular-nums',

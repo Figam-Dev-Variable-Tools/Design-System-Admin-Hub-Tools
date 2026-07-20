@@ -34,6 +34,7 @@ import { QuoteLineItemsTable } from './components/QuoteLineItemsTable';
 import { QuotePreview } from './components/QuotePreview';
 import { isInherited, QUOTE_NOTE_MAX, QUOTE_STATUS_OPTIONS, TAX_MODE_OPTIONS } from './types';
 import type { Quote, QuoteInput, QuoteLineItem } from './types';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'sales-quotes';
 const ENTITY_LABEL = '견적';
@@ -45,15 +46,15 @@ const UNSAVED_MESSAGE =
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const descriptionStyle: CSSProperties = {
-  marginTop: 'var(--tds-space-1)',
+  marginTop: cssVar('space.1'),
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
@@ -62,15 +63,15 @@ const backLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   alignSelf: 'flex-start',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
   paddingLeft: 0,
   paddingRight: 0,
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   cursor: 'pointer',
@@ -79,14 +80,14 @@ const backLinkStyle: CSSProperties = {
 const layoutStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 15), 1fr))',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   alignItems: 'start',
 };
 
 const columnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   minWidth: 0,
 };
 
@@ -95,7 +96,7 @@ const previewHeadStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 /**
@@ -119,7 +120,7 @@ function printQuote(): void {
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 4), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 // 공급받는자 4개 필드(거래처·담당자·대표자·사업자번호)는 한 줄에 밀어 넣으면 회사명이 잘린다
@@ -132,15 +133,15 @@ const partyRowStyle: CSSProperties = {
 const actionsStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'flex-end',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 // 시스템 자동 부여 값(견적번호)의 읽기 전용 표면 — 입력과 구분되게 죽은 배경·흐린 글자·기본 커서로
 // "편집 불가한 시스템 값"임을 시각으로 알린다(토큰만).
 const systemValueStyle: CSSProperties = {
   ...controlStyle(false),
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-muted)',
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
   cursor: 'default',
 };
 

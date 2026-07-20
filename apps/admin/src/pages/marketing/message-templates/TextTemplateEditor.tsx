@@ -36,6 +36,7 @@ import { isPublished, TEMPLATE_KIND_LABEL } from './types';
 import type { MessageTemplate, TextMessageVendor } from './types';
 import { isTextTemplateValid, textTemplateSchema } from './validation';
 import type { TextTemplateFormValues } from './validation';
+import { cssVar } from '@tds/ui';
 
 const ENTITY_LABEL = '메시지 템플릿';
 const UNSAVED_MESSAGE =
@@ -61,12 +62,12 @@ const HISTORY_LIMIT = 50;
 const chipRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
 const gradeStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   fontVariantNumeric: 'tabular-nums',
 };
@@ -74,8 +75,8 @@ const gradeStyle: CSSProperties = {
 /** 치환 후 등급이 갈릴 때 — 건당 과금이 달라지므로 흐린 회색으로 흘려보내지 않는다 */
 const gradeShiftStyle: CSSProperties = {
   ...gradeStyle,
-  color: 'var(--tds-color-feedback-warning-text)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  color: cssVar('color.feedback.warning.text'),
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 function toInput(values: TextTemplateFormValues): MessageTemplateDraft {

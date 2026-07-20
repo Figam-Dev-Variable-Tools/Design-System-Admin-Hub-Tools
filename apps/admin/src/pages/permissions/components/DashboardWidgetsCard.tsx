@@ -18,11 +18,12 @@ import {
 } from '../../../shared/ui';
 import { DASHBOARD_WIDGET_META } from '../../../shared/permissions/feature-registry';
 import type { DashboardWidgetKey, WidgetMap } from '../../../shared/permissions/feature-registry';
+import { cssVar } from '@tds/ui';
 
 const listStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fill, minmax(calc(var(--tds-space-6) * 6), 1fr))',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
@@ -38,15 +39,15 @@ function itemStyle(disabled: boolean): CSSProperties {
   return {
     display: 'flex',
     alignItems: 'center',
-    gap: 'var(--tds-space-2)',
+    gap: cssVar('space.2'),
     boxSizing: 'border-box',
     minWidth: 0,
-    paddingTop: 'var(--tds-space-2)',
-    paddingBottom: 'var(--tds-space-2)',
-    paddingLeft: 'var(--tds-space-2)',
-    paddingRight: 'var(--tds-space-2)',
-    borderRadius: 'var(--tds-radius-md)',
-    color: disabled ? 'var(--tds-color-text-disabled)' : 'var(--tds-color-text-default)',
+    paddingTop: cssVar('space.2'),
+    paddingBottom: cssVar('space.2'),
+    paddingLeft: cssVar('space.2'),
+    paddingRight: cssVar('space.2'),
+    borderRadius: cssVar('radius.md'),
+    color: disabled ? cssVar('color.text.disabled') : cssVar('color.text.default'),
     fontFamily: 'var(--tds-typography-label-md-font-family)',
     fontSize: 'var(--tds-typography-label-md-font-size)',
     lineHeight: 'var(--tds-typography-label-md-line-height)',
@@ -64,8 +65,8 @@ const labelTextStyle: CSSProperties = {
 const selectAllStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
-  color: 'var(--tds-color-text-muted)',
+  gap: cssVar('space.2'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   fontWeight: 'var(--tds-typography-label-sm-font-weight)',
   lineHeight: 'var(--tds-typography-label-sm-line-height)',

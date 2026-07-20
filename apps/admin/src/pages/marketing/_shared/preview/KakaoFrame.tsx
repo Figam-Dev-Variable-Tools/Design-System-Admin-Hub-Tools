@@ -30,6 +30,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 
 import { PHONE_WIDTH } from '../preview-metrics';
+import { cssVar } from '@tds/ui';
 
 const frameStyle: CSSProperties = {
   display: 'flex',
@@ -39,9 +40,9 @@ const frameStyle: CSSProperties = {
   marginRight: 'auto',
   width: '100%',
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-lg)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.lg'),
   overflow: 'hidden',
 };
 
@@ -49,61 +50,61 @@ const frameStyle: CSSProperties = {
 const barStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  background: 'var(--tds-color-channel-kakao-surface)',
-  color: 'var(--tds-color-channel-kakao-text)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  background: cssVar('color.channel.kakao.surface'),
+  color: cssVar('color.channel.kakao.text'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   lineHeight: 'var(--tds-typography-label-sm-line-height)',
 };
 
 const barTagStyle: CSSProperties = {
   paddingTop: 0,
   paddingBottom: 0,
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
-  borderRadius: 'var(--tds-radius-full)',
-  background: 'var(--tds-color-channel-kakao-text)',
-  color: 'var(--tds-color-channel-kakao-surface)',
+  paddingLeft: cssVar('space.2'),
+  paddingRight: cssVar('space.2'),
+  borderRadius: cssVar('radius.full'),
+  background: cssVar('color.channel.kakao.text'),
+  color: cssVar('color.channel.kakao.surface'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'calc(var(--tds-space-5))',
 };
 
 /** 대화방 배경 — 말풍선이 떠 보이게 하는 푸른 회색 */
 const chatStyle: CSSProperties = {
-  paddingTop: 'var(--tds-space-4)',
-  paddingBottom: 'var(--tds-space-4)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  background: 'var(--tds-color-channel-kakao-chat-surface)',
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.4'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  background: cssVar('color.channel.kakao.chat-surface'),
 };
 
 const bubbleStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   maxWidth: '92%',
-  borderRadius: 'var(--tds-radius-lg)',
-  background: 'var(--tds-color-surface-default)',
+  borderRadius: cssVar('radius.lg'),
+  background: cssVar('color.surface.default'),
   overflow: 'hidden',
 };
 
 const bubbleBodyStyle: CSSProperties = {
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
 };
 
 const emphasisStyle: CSSProperties = {
   marginTop: 0,
-  marginBottom: 'var(--tds-space-2)',
+  marginBottom: cssVar('space.2'),
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-title-md-font-family)',
   fontSize: 'var(--tds-typography-title-md-font-size)',
   fontWeight: 'var(--tds-typography-title-md-font-weight)',
@@ -112,7 +113,7 @@ const emphasisStyle: CSSProperties = {
 };
 
 const textStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-body-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
   whiteSpace: 'pre-wrap',
@@ -123,21 +124,21 @@ const textStyle: CSSProperties = {
 const buttonAreaStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   paddingTop: 0,
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.2'),
+  paddingRight: cssVar('space.2'),
 };
 
 const buttonStyle: CSSProperties = {
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-default)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   textAlign: 'center',
@@ -158,12 +159,12 @@ const imageSlotStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   minHeight: 'calc(var(--tds-space-10) * 2)',
-  paddingTop: 'var(--tds-space-4)',
-  paddingBottom: 'var(--tds-space-4)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-muted)',
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.4'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   textAlign: 'center',
@@ -173,10 +174,10 @@ const imageSlotStyle: CSSProperties = {
 /** 강조표기형의 보조 문구 — 굵은 제목 위에 작게 붙는다 */
 const subtitleStyle: CSSProperties = {
   marginTop: 0,
-  marginBottom: 'var(--tds-space-1)',
+  marginBottom: cssVar('space.1'),
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   overflowWrap: 'anywhere',
@@ -189,12 +190,12 @@ const subtitleStyle: CSSProperties = {
 
 const itemHeaderStyle: CSSProperties = {
   marginTop: 0,
-  marginBottom: 'var(--tds-space-2)',
+  marginBottom: cssVar('space.2'),
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   overflowWrap: 'anywhere',
 };
@@ -202,15 +203,15 @@ const itemHeaderStyle: CSSProperties = {
 const highlightStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   marginTop: 0,
-  marginBottom: 'var(--tds-space-3)',
+  marginBottom: cssVar('space.3'),
   marginLeft: 0,
   marginRight: 0,
 };
 
 const highlightTitleStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-title-md-font-family)',
   fontSize: 'var(--tds-typography-title-md-font-size)',
   fontWeight: 'var(--tds-typography-title-md-font-weight)',
@@ -219,7 +220,7 @@ const highlightTitleStyle: CSSProperties = {
 };
 
 const highlightDescriptionStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   overflowWrap: 'anywhere',
@@ -229,35 +230,35 @@ const highlightDescriptionStyle: CSSProperties = {
 const itemTableStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   marginTop: 0,
-  marginBottom: 'var(--tds-space-3)',
+  marginBottom: cssVar('space.3'),
   marginLeft: 0,
   marginRight: 0,
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
   paddingLeft: 0,
   paddingRight: 0,
   borderTopStyle: 'solid',
   borderBottomStyle: 'solid',
-  borderTopWidth: 'var(--tds-border-width-thin)',
-  borderBottomWidth: 'var(--tds-border-width-thin)',
-  borderTopColor: 'var(--tds-color-border-default)',
-  borderBottomColor: 'var(--tds-color-border-default)',
+  borderTopWidth: cssVar('border-width.thin'),
+  borderBottomWidth: cssVar('border-width.thin'),
+  borderTopColor: cssVar('color.border.default'),
+  borderBottomColor: cssVar('color.border.default'),
 };
 
 const itemRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'flex-start',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
 };
 
 const itemNameStyle: CSSProperties = {
   flexGrow: 0,
   flexShrink: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   overflowWrap: 'anywhere',
@@ -267,7 +268,7 @@ const itemValueStyle: CSSProperties = {
   flexGrow: 1,
   flexShrink: 1,
   minWidth: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   textAlign: 'right',
@@ -282,11 +283,11 @@ const itemValueStyle: CSSProperties = {
  * 중요한 안내를 거기 적는다.
  */
 const descriptionAreaStyle: CSSProperties = {
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
-  color: 'var(--tds-color-text-muted)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   whiteSpace: 'pre-wrap',
@@ -303,15 +304,15 @@ const listStyle: CSSProperties = {
 const listRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderTopStyle: 'solid',
-  borderTopWidth: 'var(--tds-border-width-thin)',
-  borderTopColor: 'var(--tds-color-border-default)',
+  borderTopWidth: cssVar('border-width.thin'),
+  borderTopColor: cssVar('color.border.default'),
 };
 
 const listThumbStyle: CSSProperties = {
@@ -322,9 +323,9 @@ const listThumbStyle: CSSProperties = {
   flexShrink: 0,
   width: 'calc(var(--tds-space-10) * 1)',
   height: 'calc(var(--tds-space-8) * 1)',
-  borderRadius: 'var(--tds-radius-sm)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-muted)',
+  borderRadius: cssVar('radius.sm'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   overflow: 'hidden',
 };
@@ -333,7 +334,7 @@ const listTitleStyle: CSSProperties = {
   flexGrow: 1,
   flexShrink: 1,
   minWidth: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-body-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
   overflowWrap: 'anywhere',
@@ -346,11 +347,11 @@ const listTitleStyle: CSSProperties = {
 
 const carouselStyle: CSSProperties = {
   display: 'flex',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   overflowX: 'auto',
   overflowY: 'hidden',
   paddingTop: 0,
-  paddingBottom: 'var(--tds-space-2)',
+  paddingBottom: cssVar('space.2'),
   paddingLeft: 0,
   paddingRight: 0,
 };
@@ -362,29 +363,29 @@ const carouselCardStyle: CSSProperties = {
   flexShrink: 0,
   /* 카드 폭은 말풍선보다 좁다 — 옆 카드의 가장자리가 보여야 '넘길 수 있다' 가 읽힌다 */
   width: 'calc(var(--tds-space-10) * 4)',
-  borderRadius: 'var(--tds-radius-lg)',
-  background: 'var(--tds-color-surface-default)',
+  borderRadius: cssVar('radius.lg'),
+  background: cssVar('color.surface.default'),
   overflow: 'hidden',
 };
 
 const carouselHeaderStyle: CSSProperties = {
   marginTop: 0,
-  marginBottom: 'var(--tds-space-1)',
+  marginBottom: cssVar('space.1'),
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   overflowWrap: 'anywhere',
 };
 
 const carouselBodyStyle: CSSProperties = {
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  color: 'var(--tds-color-text-default)',
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   whiteSpace: 'pre-wrap',

@@ -7,7 +7,7 @@
 // 도메인 → 데이터 prop 변환과 **SPA 내비게이션**뿐이다 (아래 useSpaLink 참조).
 import { useCallback } from 'react';
 import type { CSSProperties, MouseEvent } from 'react';
-import { ListCard, TodoCard, tabId, tabPanelId } from '@tds/ui';
+import { cssVar, ListCard, tabId, tabPanelId, TodoCard } from '@tds/ui';
 import { useNavigate } from 'react-router-dom';
 
 import { RowIcon } from './RowIcon';
@@ -16,13 +16,13 @@ import type { TabData, TabId } from '../types';
 const panelStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const cardsGridStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 16), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   alignItems: 'start',
 };
 

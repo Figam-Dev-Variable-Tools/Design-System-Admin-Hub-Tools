@@ -24,11 +24,12 @@ import {
   taxModeLabel,
 } from '../types';
 import type { QuoteLineItem, QuoteTaxMode } from '../types';
+import { cssVar } from '@tds/ui';
 
 const sectionStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const tableWrapStyle: CSSProperties = { width: '100%', overflowX: 'auto' };
@@ -56,27 +57,27 @@ const totalsRowStyle: CSSProperties = {
   ...tdStyle,
   textAlign: 'right',
   fontVariantNumeric: 'tabular-nums',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 const totalsLabelStyle: CSSProperties = {
   ...tdStyle,
   textAlign: 'right',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
 };
 
 const iconButtonStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
-  paddingLeft: 'var(--tds-space-1)',
-  paddingRight: 'var(--tds-space-1)',
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
+  paddingLeft: cssVar('space.1'),
+  paddingRight: cssVar('space.1'),
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-feedback-danger-text)',
+  color: cssVar('color.feedback.danger.text'),
   cursor: 'pointer',
 };
 
@@ -163,7 +164,7 @@ export function QuoteLineItemsTable({
               <tr>
                 <td
                   colSpan={6}
-                  style={{ ...tdStyle, textAlign: 'center', color: 'var(--tds-color-text-muted)' }}
+                  style={{ ...tdStyle, textAlign: 'center', color: cssVar('color.text.muted') }}
                 >
                   품목을 추가하세요.
                 </td>

@@ -12,11 +12,12 @@ import { Alert, Empty, visuallyHiddenStyle } from '../../../shared/ui';
 import { formatNumber } from '../../../shared/format';
 import { ROW_LIMIT } from '../_shared/execute';
 import type { AgentAnswer } from '../_shared/answer';
+import { cssVar } from '@tds/ui';
 
 const blockStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const summaryStyle: CSSProperties = {
@@ -24,7 +25,7 @@ const summaryStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-body-md-font-family)',
   fontSize: 'var(--tds-typography-body-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
@@ -35,7 +36,7 @@ const mutedStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -43,7 +44,7 @@ const mutedStyle: CSSProperties = {
 const tableWrapStyle: CSSProperties = {
   overflowX: 'auto',
   border: 'thin solid var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
+  borderRadius: cssVar('radius.md'),
 };
 
 const tableStyle: CSSProperties = {
@@ -54,24 +55,24 @@ const tableStyle: CSSProperties = {
 };
 
 const thStyle: CSSProperties = {
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderBottom: 'thin solid var(--tds-color-border-default)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-muted)',
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
   textAlign: 'left',
   whiteSpace: 'nowrap',
 };
 
 const tdStyle: CSSProperties = {
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderTop: 'thin solid var(--tds-color-border-subtle)',
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   whiteSpace: 'nowrap',
 };
 

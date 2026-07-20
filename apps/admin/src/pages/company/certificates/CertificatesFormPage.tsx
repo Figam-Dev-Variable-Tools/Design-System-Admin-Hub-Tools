@@ -14,6 +14,7 @@ import { CERT_KIND_OPTIONS, ISSUER_MAX_LENGTH, NAME_MAX_LENGTH } from './types';
 import type { CertInput, CertItem, CertKind } from './types';
 import { certSchema } from './validation';
 import type { CertFormValues } from './validation';
+import { cssVar } from '@tds/ui';
 
 const ENTITY_LABEL = '인증서/특허';
 const LIST_PATH = '/company/certificates';
@@ -23,7 +24,7 @@ const UNSAVED_MESSAGE =
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 5), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 export default function CertificatesFormPage() {

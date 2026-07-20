@@ -10,10 +10,11 @@ import type { CSSProperties } from 'react';
 import { StatusBadge } from '../../../shared/ui';
 import { applyVariableSamples } from './messaging';
 import { MailFrame } from './preview/MailFrame';
+import { cssVar } from '@tds/ui';
 
 const unsubStyle: CSSProperties = {
   textDecorationLine: 'underline',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
 };
 
 interface EmailPreviewProps {

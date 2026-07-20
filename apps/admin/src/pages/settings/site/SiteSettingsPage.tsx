@@ -28,7 +28,7 @@ import { isAbort } from '../../../shared/async';
 import { zodResolver } from '../../../shared/form/zodResolver';
 // RadioCardGroup 은 @tds/ui 의 것이다 (molecule 승격) — 승격된 DS 컴포넌트는 앱 배럴을 거치지 않고
 // public entry 에서 직접 가져온다 (Tabs·SegmentedControl·Empty 선례 · shared/ui README 규칙 7).
-import { RadioCardGroup } from '@tds/ui';
+import { cssVar, RadioCardGroup } from '@tds/ui';
 
 import { Alert, ConfirmDialog, HelpTip, ToggleSwitch, useToast } from '../../../shared/ui';
 import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
@@ -101,10 +101,10 @@ const toggleAlignStyle: CSSProperties = {
 const calloutListStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   marginTop: 0,
   marginBottom: 0,
-  marginLeft: 'var(--tds-space-4)',
+  marginLeft: cssVar('space.4'),
   marginRight: 0,
   paddingTop: 0,
   paddingBottom: 0,
@@ -117,7 +117,7 @@ const lockedNoteStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

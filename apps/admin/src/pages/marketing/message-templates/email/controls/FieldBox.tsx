@@ -9,40 +9,41 @@
 // 안에 들어가는 것이 input 한 개일 수도, 버튼 세 개일 수도 있기 때문이다. 접근 가능한 이름은
 // 각 컨트롤이 스스로 갖는다(aria-label 또는 <label htmlFor>).
 import type { CSSProperties, ReactNode } from 'react';
+import { cssVar } from '@tds/ui';
 
 const boxStyle: CSSProperties = {
   position: 'relative',
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
-  paddingTop: 'var(--tds-space-4)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.default'),
 };
 
 const invalidBoxStyle: CSSProperties = {
   ...boxStyle,
-  borderWidth: 'var(--tds-border-width-medium)',
-  borderColor: 'var(--tds-color-feedback-danger-border)',
+  borderWidth: cssVar('border-width.medium'),
+  borderColor: cssVar('color.feedback.danger.border'),
 };
 
 /** 테두리 위에 걸터앉는 라벨 — 배경을 깔아 선을 끊는다 */
 const floatingLabelStyle: CSSProperties = {
   position: 'absolute',
   top: 0,
-  left: 'var(--tds-space-2)',
+  left: cssVar('space.2'),
   transform: 'translateY(-50%)',
-  paddingLeft: 'var(--tds-space-1)',
-  paddingRight: 'var(--tds-space-1)',
-  background: 'var(--tds-color-surface-default)',
-  color: 'var(--tds-color-text-muted)',
+  paddingLeft: cssVar('space.1'),
+  paddingRight: cssVar('space.1'),
+  background: cssVar('color.surface.default'),
+  color: cssVar('color.text.muted'),
   fontFamily: 'var(--tds-typography-label-sm-font-family)',
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   lineHeight: 'var(--tds-typography-label-sm-line-height)',
@@ -50,7 +51,7 @@ const floatingLabelStyle: CSSProperties = {
 };
 
 const requiredMarkStyle: CSSProperties = {
-  color: 'var(--tds-color-feedback-danger-text)',
+  color: cssVar('color.feedback.danger.text'),
 };
 
 const helperStyle: CSSProperties = {
@@ -58,7 +59,7 @@ const helperStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-feedback-danger-text)',
+  color: cssVar('color.feedback.danger.text'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

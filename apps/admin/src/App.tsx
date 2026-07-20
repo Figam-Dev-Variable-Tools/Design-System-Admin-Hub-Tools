@@ -39,6 +39,7 @@ import PlaceholderPage from './pages/placeholder/PlaceholderPage';
 
 import { wireDomains } from './wiring';
 import { wireAiDomains } from './wiring-ai';
+import { cssVar } from '@tds/ui';
 
 // 도메인 배선은 앱이 뜨기 전에 한 번 — 근거는 wiring.ts 머리말
 wireDomains();
@@ -416,7 +417,7 @@ const IMPLEMENTED = new Set(
  * 여기서 또 하나의 로딩을 announce 하면 같은 전이를 두 번 말하게 된다.
  */
 function RouteFallback() {
-  return <div style={{ minBlockSize: 'var(--tds-space-10)' }} aria-hidden="true" />;
+  return <div style={{ minBlockSize: cssVar('space.10') }} aria-hidden="true" />;
 }
 
 /**

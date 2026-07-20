@@ -9,13 +9,14 @@ import type { CSSProperties } from 'react';
 
 import { formatDateTime, formatRelativeOrDate } from '../../../shared/format';
 import type { AuditInfo } from './store';
+import { cssVar } from '@tds/ui';
 
 const noteStyle: CSSProperties = {
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

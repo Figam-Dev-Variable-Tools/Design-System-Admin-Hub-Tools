@@ -42,6 +42,7 @@ import {
   searchInquiries,
 } from './types';
 import type { InquiryChannelFilter, InquiryStatusFilter, InquiryTypeFilter } from './types';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'sales-inquiries';
 const LIST_PATH = '/sales/inquiries';
@@ -70,14 +71,14 @@ const INQUIRY_STATUS_FILTER_VALUES: readonly InquiryStatusFilter[] = [
 const columnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   minWidth: 0,
 };
 
 const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
@@ -91,8 +92,8 @@ const dateCellStyle: CSSProperties = {
 
 const emptyCellStyle: CSSProperties = {
   ...tdStyle,
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
+  paddingTop: cssVar('space.6'),
+  paddingBottom: cssVar('space.6'),
 };
 
 /** skeleton 은 실제 표와 같은 모양이어야 한다 — 열 수를 손으로 세지 않는다 (COMP-06) */

@@ -11,7 +11,7 @@ import panelCss from './Panel.css?raw';
 import { Panel } from './Panel';
 
 describe('Panel — 랜드마크와 슬롯', () => {
-  it('role=complementary 인 <aside> 다', () => {
+  it('Panel: default 상태 — role=complementary 인 <aside> 다', () => {
     const { container } = render(<Panel>내용</Panel>);
     expect(screen.getByRole('complementary')).not.toBeNull();
     expect(container.querySelector('aside')).not.toBeNull();

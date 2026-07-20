@@ -28,13 +28,14 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { cssVar } from '@tds/ui';
 
 /** 계열 색 — chart.series-N 토큰. 현재=1, 비교=2 (LineAreaChart 의 배열 순서와 같은 결과) */
-const CURRENT_STROKE = 'var(--tds-color-chart-series-1)';
-const CURRENT_FILL = 'var(--tds-color-chart-series-1-fill)';
-const COMPARE_STROKE = 'var(--tds-color-chart-series-2)';
-const AXIS_COLOR = 'var(--tds-color-chart-axis)';
-const LABEL_COLOR = 'var(--tds-color-chart-label)';
+const CURRENT_STROKE = cssVar('color.chart.series-1');
+const CURRENT_FILL = cssVar('color.chart.series-1-fill');
+const COMPARE_STROKE = cssVar('color.chart.series-2');
+const AXIS_COLOR = cssVar('color.chart.axis');
+const LABEL_COLOR = cssVar('color.chart.label');
 
 /** 차트 높이 — LineAreaChart 의 viewBox 220 과 같은 비율감. space 토큰의 배수로 잡는다 */
 const CHART_HEIGHT = 'calc(var(--tds-space-6) * 6)';
@@ -42,15 +43,15 @@ const CHART_HEIGHT = 'calc(var(--tds-space-6) * 6)';
 const figureStyle: CSSProperties = {
   margin: 0,
   minInlineSize: 0,
-  background: 'var(--tds-color-surface-default)',
+  background: cssVar('color.surface.default'),
 };
 
 const legendStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'flex-end',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   margin: 0,
-  marginBlockEnd: 'var(--tds-space-4)',
+  marginBlockEnd: cssVar('space.4'),
   padding: 0,
   listStyle: 'none',
   color: LABEL_COLOR,
@@ -62,14 +63,14 @@ const legendStyle: CSSProperties = {
 const legendItemStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
 };
 
 const legendDotStyle: CSSProperties = {
   display: 'inline-block',
-  inlineSize: 'var(--tds-space-2)',
-  blockSize: 'var(--tds-space-2)',
-  borderRadius: 'var(--tds-radius-full)',
+  inlineSize: cssVar('space.2'),
+  blockSize: cssVar('space.2'),
+  borderRadius: cssVar('radius.full'),
 };
 
 const chartBoxStyle: CSSProperties = { inlineSize: '100%', blockSize: CHART_HEIGHT };

@@ -4,18 +4,17 @@
 > 커밋되는 기준선이다 — **커버리지가 실제로 바뀔 때만 바뀐다.** 실행 시각은 여기 없다(콘솔/tmp 참조).
 > **커버리지는 라인 %가 아니다.** 계약이 정의한 상태 전부 + FS가 정의한 예외 축 전부다.
 
-- 판정: **FAIL** (exit 1) — blocker 16건 · major 10625건
-- 차단 게이트: **G5 · G6 BLOCKED**
+- 판정: **WARN** (exit 0) — blocker 0건 · major 10625건
 - 입력: 계약 55종 · FS 64건 · 테스트 파일 185개 · 스토리 파일 102개
-- **단언을 가진 실행 단위(= 테스트): 2453건** / 단언 없는 실행 단위: 9건
+- **단언을 가진 실행 단위(= 테스트): 2465건** / 단언 없는 실행 단위: 9건
 
 ## 축별 요약
 
 | # | 축 | 심각도 | 커버 | 전체 | 미커버 | 임계값 | 게이트 | 판정 |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 테스트 존재 (워크스페이스 스코프별 · 단언을 가진 실행 단위) | **blocker** | 2 | 2 | 0 | 스코프마다 >= 1건 | G5·G6 | PASS |
-| 2 | 계약 states 커버리지 (contracts/*.contract.json → states[]) | **blocker** | 151 | 165 | 14 | 미커버 상태 0건 (전수) | G5·G6 | VIOLATED |
-| 3 | 계약 events.blockedWhen 커버리지 (금지 동작의 비발생 단언) | **blocker** | 24 | 26 | 2 | 미커버 차단 조건 0건 (전수) | G5·G6 | VIOLATED |
+| 2 | 계약 states 커버리지 (contracts/*.contract.json → states[]) | **blocker** | 165 | 165 | 0 | 미커버 상태 0건 (전수) | G5·G6 | PASS |
+| 3 | 계약 events.blockedWhen 커버리지 (금지 동작의 비발생 단언) | **blocker** | 26 | 26 | 0 | 미커버 차단 조건 0건 (전수) | G5·G6 | PASS |
 | 4 | FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) | major | 137 | 10760 | 10623 | 미커버 칸 0건 (major) · **커버 칸 수 후퇴 = blocker** | G6 | VIOLATED |
 | 5 | 검증 도구의 골든 픽스처 (codegen · contract-test) | major | 0 | 2 | 2 | 도구당 골든 픽스처 >= 1건 | G5·G6 | VIOLATED |
 
@@ -26,7 +25,7 @@
 | 스코프 | 경로 | 테스트 (단언 有) | 단언 없는 실행 단위 | 판정 |
 |---|---|---|---|---|
 | @tds/admin | `apps/admin` | **1634** | 1 | PASS |
-| @tds/ui | `packages/ui` | **745** | 7 | PASS |
+| @tds/ui | `packages/ui` | **757** | 7 | PASS |
 
 ### 축 4 — 래칫 (후퇴 금지)
 
@@ -48,31 +47,6 @@
 | `packages/ui/src/atoms/HelpTip/HelpTip.stories.tsx` | 1건 |
 | `packages/ui/src/organisms/Sidebar/Sidebar.stories.tsx` | 1건 |
 | `packages/ui/src/organisms/Table/Table.stories.tsx` | 1건 |
-
-## 축 2 — 계약 states 커버리지 (contracts/*.contract.json → states[]) (14건, blocker)
-
-| 원천 | 덮이지 않은 항목 | 기대 테스트 이름 |
-|---|---|---|
-| `contracts/Header.contract.json` | Header · state `default` | `Header: renders default state` |
-| `contracts/IconButton.contract.json` | IconButton · state `hover` | `IconButton: renders hover state` |
-| `contracts/IconButton.contract.json` | IconButton · state `active` | `IconButton: renders active state` |
-| `contracts/IconButton.contract.json` | IconButton · state `focus-visible` | `IconButton: renders focus-visible state` |
-| `contracts/IconButton.contract.json` | IconButton · state `selected` | `IconButton: renders selected state` |
-| `contracts/Panel.contract.json` | Panel · state `default` | `Panel: renders default state` |
-| `contracts/Sidebar.contract.json` | Sidebar · state `default` | `Sidebar: renders default state` |
-| `contracts/Sidebar.contract.json` | Sidebar · state `hover` | `Sidebar: renders hover state` |
-| `contracts/Sidebar.contract.json` | Sidebar · state `focus-visible` | `Sidebar: renders focus-visible state` |
-| `contracts/Sidebar.contract.json` | Sidebar · state `open` | `Sidebar: renders open state` |
-| `contracts/Sidebar.contract.json` | Sidebar · state `selected` | `Sidebar: renders selected state` |
-| `contracts/Table.contract.json` | Table · state `default` | `Table: renders default state` |
-| … 외 **2건** | 전수 목록은 JSON 리포트 `gaps[]` 참조 | |
-
-## 축 3 — 계약 events.blockedWhen 커버리지 (금지 동작의 비발생 단언) (2건, blocker)
-
-| 원천 | 덮이지 않은 항목 | 기대 테스트 이름 |
-|---|---|---|
-| `contracts/Menu.contract.json` | Menu · `onSelect` blockedWhen `items[].disabled` | `Menu: onSelect — items[].disabled 상태에서 발화하지 않는다` |
-| `contracts/Menu.contract.json` | Menu · `onSelect` blockedWhen `items[].disabledReason` | `Menu: onSelect — items[].disabledReason 상태에서 발화하지 않는다` |
 
 ## 축 4 — FS 예외 7축 커버리지 (요소 × 축 격자 — 동작이 정의된 칸만 · 래칫) (10623건, major)
 

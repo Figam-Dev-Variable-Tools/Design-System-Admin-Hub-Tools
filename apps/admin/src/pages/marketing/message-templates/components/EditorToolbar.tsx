@@ -13,11 +13,12 @@ import { Icon } from '../../../../shared/ui';
 import { TemplateVariablePicker } from '../../_shared/TemplateVariablePicker';
 import { LABEL_VARIABLE } from '../copy';
 import { iconButtonStyle } from '../styles';
+import { cssVar } from '@tds/ui';
 
 const barStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   flexWrap: 'wrap',
   minWidth: 0,
 };
@@ -25,29 +26,29 @@ const barStyle: CSSProperties = {
 const spacerStyle: CSSProperties = { flexGrow: 1, minWidth: 0 };
 
 const dividerStyle: CSSProperties = {
-  width: 'var(--tds-border-width-thin)',
+  width: cssVar('border-width.thin'),
   alignSelf: 'stretch',
-  background: 'var(--tds-color-border-subtle)',
+  background: cssVar('color.border.subtle'),
 };
 
 /** 보라 테두리 pill — '✨ Variable' 은 아이콘 전용 버튼이 아니라 글자가 함께 있는 액션이다 */
 const variableButtonStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  gap: cssVar('space.1'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-action-primary-default)',
-  borderRadius: 'var(--tds-radius-full)',
-  background: 'var(--tds-color-surface-default)',
-  color: 'var(--tds-color-action-primary-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.action.primary.default'),
+  borderRadius: cssVar('radius.full'),
+  background: cssVar('color.surface.default'),
+  color: cssVar('color.action.primary.default'),
   fontFamily: 'var(--tds-typography-label-sm-font-family)',
   fontSize: 'var(--tds-typography-label-sm-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   lineHeight: 'var(--tds-typography-label-sm-line-height)',
   cursor: 'pointer',
 };
@@ -59,7 +60,7 @@ const variableButtonStyle: CSSProperties = {
 const panelStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 

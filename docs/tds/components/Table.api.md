@@ -40,7 +40,7 @@
 |---|---|---|---|---|---|
 | `caption` | `string` | — | ✅ | — | 표의 접근 가능한 설명 — `<caption>` 에 들어가며 시각적으로는 숨는다. 표가 무엇의 목록이고 행에 어떤 조작이 있는지 한 문장으로 말한다. **없는 버튼을 있다고 읽어 주면 스크린리더 사용자는 존재하지 않는 조작을 찾아 표를 헤맨다** — 권한에 따라 문장을 바꾸는 것은 호출부의 일이다(DS 는 권한을 모른다) |
 | `columns` | `array` | — | ✅ | — | **데이터 열**의 정의. 데이터 prop — Figma Component Property 대응 없음 (ADR-0003). 체크박스·순번·행 액션 열은 여기 들어가지 않는다(leadingHead·trailingHead 참조). `id` 는 정렬 키이자 React key 다. `align: 'end'` 는 수치 열 — 우측 정렬 + tabular-nums 가 함께 붙는다. `sortable: true` 인 열만 헤더가 정렬 버튼이 되며 기본은 false 다(정렬은 opt-in) |
-| `rows` | `array` | — | ✅ | — | 본문 행. 데이터 prop — Figma Component Property 대응 없음 (ADR-0003). `cells` 는 columns 와 **같은 순서·같은 길이**이며 각 항목이 그 열의 `<td>` 안에 그대로 들어간다. `leading`/`trailing` 은 **완성된 `<td>`/`<th>` 요소**다 — 호출부가 체크박스 셀·순번 셀·액션 셀을 통째로 넘긴다. `onActivate` 를 주면 행 전체가 클릭 가능해진다(포인터 커서). 정렬은 이미 끝난 상태로 들어온다 — DS 는 rows 를 준 순서 그대로 그린다 |
+| `rows` | `array` | — | ✅ | — | 본문 행. 데이터 prop — Figma Component Property 대응 없음 (ADR-0003). `cells` 는 columns 와 **같은 순서·같은 길이**이며 각 항목이 그 열의 `<td>` 안에 그대로 들어간다. `leading`/`trailing` 은 **완성된 `<td>`/`<th>` 요소**다 — 호출부가 체크박스 셀·순번 셀·액션 셀을 통째로 넘긴다. `onActivate` 를 주면 행 전체가 클릭 가능해진다(포인터 커서). 정렬은 이미 끝난 상태로 들어온다 — DS 는 rows 를 준 순서 그대로 그린다. `selected` 는 계약 states 의 `selected` 를 그리는 **판정의 결과**다(sortKey·Sidebar 의 activeHref 와 같은 어법) — 무엇이 선택됐는지 고르는 것도, 체크박스를 그리는 것도 여전히 앱의 일이고(체크박스는 leading 으로 통째로 들어온다) DS 는 '이 행은 선택됐다' 는 사실만 받아 `aria-selected` 와 시각으로 옮긴다. hover 와 같은 배경을 쓰되 inline-start 강조선으로 구분한다 — 배경만으로 갈리면 마우스가 얹힌 행과 선택된 행이 같아 보인다 |
 | `leadingHead` | `array` | `[]` | — | — | 데이터 헤더 **앞**에 오는 완성된 `<th>` 요소들 — 전체 선택 체크박스 헤더·순번 헤더 등. 배열 길이가 곧 앞쪽 열 수이며, 스켈레톤과 빈 행의 colSpan 이 여기서 계산된다. 권한으로 열이 사라지면 호출부가 배열에서 빼면 되고 DS 는 셈을 다시 하지 않는다 |
 | `trailingHead` | `array` | `[]` | — | — | 데이터 헤더 **뒤**에 오는 완성된 `<th>` 요소들 — 행 액션 열 헤더 등. leadingHead 와 같은 규칙이다 |
 | `sortKey` | `string` | `""` | — | — | 지금 정렬 기준인 열의 id. 빈 문자열이면 어느 열도 정렬 표시를 갖지 않고 rows 가 온 순서 그대로다. **판정은 앱이 한다** — 어드민은 URL(useListState.sort)이 단일 원천이라 DS 가 자기 상태로 들면 뒤로 가기로 되돌릴 수 없다 |
@@ -94,6 +94,9 @@
 | `headBorder` | `color.border.default` | `--tds-color-border-default` |
 | `borderWidth` | `border-width.thin` | `--tds-border-width-thin` |
 | `rowHoverBackground` | `color.surface.raised` | `--tds-color-surface-raised` |
+| `rowSelectedBackground` | `color.surface.raised` | `--tds-color-surface-raised` |
+| `rowSelectedAccent` | `color.action.primary.default` | `--tds-color-action-primary-default` |
+| `rowSelectedAccentWidth` | `border-width.medium` | `--tds-border-width-medium` |
 | `emptyText` | `color.text.muted` | `--tds-color-text-muted` |
 | `emptyPadY` | `space.6` | `--tds-space-6` |
 | `sortGap` | `space.1` | `--tds-space-1` |

@@ -12,6 +12,7 @@ import { errorIdOf, FormField, hintStyle, SelectField, StatusBadge } from '../..
 import { formatNumber } from '../../../../shared/format';
 import type { ProductVariant } from '../../_shared/store';
 import { findVariant, optionLabel } from '../types';
+import { cssVar } from '@tds/ui';
 
 /** '미선택' 센티넬 — variant.id 는 절대 빈 문자열이 아니라 충돌하지 않는다 */
 const OPTION_NONE = '';
@@ -19,24 +20,24 @@ const OPTION_NONE = '';
 const previewStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-sm)',
-  background: 'var(--tds-color-surface-raised)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.sm'),
+  background: cssVar('color.surface.raised'),
 };
 
 const moveRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
 };
 

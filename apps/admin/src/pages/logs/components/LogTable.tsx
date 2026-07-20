@@ -26,7 +26,7 @@ import type { CSSProperties } from 'react';
 // Empty 는 아직 앱의 shared/ui 배럴에 재수출돼 있지 않다 — DS public entry 에서 직접 가져온다.
 // (Tabs·SegmentedControl·DataTable 등 다른 화면들이 이미 쓰는 경로다. 배럴 재수출은 shared/** 의
 //  소유라 이번 배치에서 손대지 않고 보고서에 남긴다.)
-import { Empty } from '@tds/ui';
+import { cssVar, Empty } from '@tds/ui';
 
 import {
   numericCellStyle,
@@ -47,8 +47,8 @@ const nowrapCellStyle: CSSProperties = {
 /** 빈 상태·스켈레톤이 들어가는 칸 — 표 폭을 그대로 쓴다 */
 const spanCellStyle: CSSProperties = {
   ...tdStyle,
-  paddingTop: 'var(--tds-space-6)',
-  paddingBottom: 'var(--tds-space-6)',
+  paddingTop: cssVar('space.6'),
+  paddingBottom: cssVar('space.6'),
 };
 
 /** 상세를 여는 첫 칸 버튼 — 링크처럼 보이되 이동이 아니라 다이얼로그를 연다 */
@@ -56,7 +56,7 @@ const openButtonStyle: CSSProperties = {
   padding: 0,
   border: 'none',
   background: 'none',
-  color: 'var(--tds-color-action-primary-default)',
+  color: cssVar('color.action.primary.default'),
   font: 'inherit',
   whiteSpace: 'nowrap',
   textDecoration: 'underline',

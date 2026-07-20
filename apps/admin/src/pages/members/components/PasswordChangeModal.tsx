@@ -28,11 +28,12 @@ import { zodResolver } from '../../../shared/form/zodResolver';
 import { useChangePassword } from '../queries';
 import { PASSWORD_MIN_LENGTH, passwordChangeSchema } from '../validation';
 import type { PasswordChangeFormValues } from '../validation';
+import { cssVar } from '@tds/ui';
 
 const formBodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 interface PasswordChangeModalProps {

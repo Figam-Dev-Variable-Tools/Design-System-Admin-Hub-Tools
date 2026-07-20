@@ -10,7 +10,7 @@
 import type { CSSProperties } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { Header } from '@tds/ui';
+import { cssVar, Header } from '@tds/ui';
 
 import { findNavLabel } from './nav-config';
 
@@ -23,15 +23,15 @@ const ACCOUNT_EMAIL = 'test@example.com';
 
 const dateStyle: CSSProperties = {
   margin: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
 
 const accountStyle: CSSProperties = {
   margin: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };

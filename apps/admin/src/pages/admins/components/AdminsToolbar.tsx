@@ -4,7 +4,7 @@
 // 지휘한다. 거기에 '권한이 있으면 버튼을 그린다' 라는 분기를 더하면 한 함수의 복잡도가 상한을
 // 넘는다(클린코드 점검 축4). 이 줄은 상태를 갖지 않으므로 값과 콜백만 받는다.
 import type { CSSProperties } from 'react';
-import { Tabs } from '@tds/ui';
+import { cssVar, Tabs } from '@tds/ui';
 
 import { Button, Icon } from '../../../shared/ui';
 import { ADMIN_TABS } from '../types';
@@ -14,7 +14,7 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

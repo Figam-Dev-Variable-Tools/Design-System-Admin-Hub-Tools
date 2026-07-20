@@ -9,23 +9,24 @@
 import type { CSSProperties, ReactNode } from 'react';
 
 import { Icon, mutedTextStyle } from '../../../shared/ui';
+import { cssVar } from '@tds/ui';
 
 const rowStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const failureStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
-  color: 'var(--tds-color-feedback-danger-text)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  gap: cssVar('space.1'),
+  color: cssVar('color.feedback.danger.text'),
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 const reasonStyle: CSSProperties = {
-  color: 'var(--tds-color-feedback-danger-text)',
+  color: cssVar('color.feedback.danger.text'),
 };
 
 const stackStyle: CSSProperties = {

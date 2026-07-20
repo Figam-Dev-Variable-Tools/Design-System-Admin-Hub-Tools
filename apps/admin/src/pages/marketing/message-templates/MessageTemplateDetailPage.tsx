@@ -88,6 +88,7 @@ import {
 } from './styles';
 import { TEMPLATE_STATUS_LABEL, templateKindOf } from './types';
 import type { MessageTemplate, TemplateContent, TemplateStatus } from './types';
+import { cssVar } from '@tds/ui';
 
 const ENTITY_LABEL = '메시지 템플릿';
 
@@ -108,7 +109,7 @@ const headerStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'flex-start',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   flexWrap: 'wrap',
   minWidth: 0,
 };
@@ -116,7 +117,7 @@ const headerStyle: CSSProperties = {
 const titleColumnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   minWidth: 0,
 };
 
@@ -125,7 +126,7 @@ const titleStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-title-xl-font-family)',
   fontSize: 'var(--tds-typography-title-xl-font-size)',
   fontWeight: 'var(--tds-typography-title-xl-font-weight)',
@@ -134,7 +135,7 @@ const titleStyle: CSSProperties = {
 };
 
 const eyebrowStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   lineHeight: 'var(--tds-typography-label-sm-line-height)',
 };
@@ -142,7 +143,7 @@ const eyebrowStyle: CSSProperties = {
 const actionsStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
@@ -150,15 +151,15 @@ const backLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   alignSelf: 'flex-start',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
   paddingLeft: 0,
   paddingRight: 0,
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   cursor: 'pointer',
@@ -171,17 +172,17 @@ const valueStyle: CSSProperties = { ...ddStyle, textAlign: 'right' };
 const destructiveStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-component-button-gap)',
-  paddingTop: 'var(--tds-component-button-padding-y)',
-  paddingBottom: 'var(--tds-component-button-padding-y)',
-  paddingLeft: 'var(--tds-component-button-padding-x)',
-  paddingRight: 'var(--tds-component-button-padding-x)',
+  gap: cssVar('component.button.gap'),
+  paddingTop: cssVar('component.button.padding-y'),
+  paddingBottom: cssVar('component.button.padding-y'),
+  paddingLeft: cssVar('component.button.padding-x'),
+  paddingRight: cssVar('component.button.padding-x'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-feedback-danger-border)',
-  borderRadius: 'var(--tds-component-button-radius)',
-  background: 'var(--tds-color-surface-default)',
-  color: 'var(--tds-color-feedback-danger-text)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.feedback.danger.border'),
+  borderRadius: cssVar('component.button.radius'),
+  background: cssVar('color.surface.default'),
+  color: cssVar('color.feedback.danger.text'),
   fontFamily: 'var(--tds-typography-label-md-font-family)',
   fontSize: 'var(--tds-typography-label-md-font-size)',
   fontWeight: 'var(--tds-typography-label-md-font-weight)',

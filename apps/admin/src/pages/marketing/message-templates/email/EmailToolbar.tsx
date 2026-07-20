@@ -18,7 +18,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 
 import { Icon } from '../../../../shared/ui';
-import { Divider, IconButton, SegmentedControl, Tabs } from '@tds/ui';
+import { cssVar, Divider, IconButton, SegmentedControl, Tabs } from '@tds/ui';
 import { VariableMenu } from './VariableMenu';
 import { toolbarSpacerStyle, toolbarStyle } from './styles';
 
@@ -28,7 +28,7 @@ export type DeviceMode = 'desktop' | 'mobile';
 const tabRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
 };
 
@@ -36,7 +36,7 @@ const tabRowStyle: CSSProperties = {
 const tabGlyphStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  color: 'var(--tds-color-action-primary-default)',
+  color: cssVar('color.action.primary.default'),
 };
 
 /** Variable 버튼 — 드롭다운이 이 버튼을 기준으로 뜬다 */
@@ -45,17 +45,17 @@ const variableAnchorStyle: CSSProperties = { position: 'relative' };
 const variableButtonStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
+  gap: cssVar('space.1'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
+  paddingLeft: cssVar('space.2'),
+  paddingRight: cssVar('space.2'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-sm)',
-  background: 'var(--tds-color-surface-default)',
-  color: 'var(--tds-color-text-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.sm'),
+  background: cssVar('color.surface.default'),
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   cursor: 'pointer',
 };

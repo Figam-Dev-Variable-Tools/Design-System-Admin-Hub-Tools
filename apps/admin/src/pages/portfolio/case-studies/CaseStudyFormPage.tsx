@@ -17,6 +17,7 @@ import {
 import type { CaseIndustry, CaseStudy, CaseStudyInput } from './types';
 import { caseStudySchema } from './validation';
 import type { CaseStudyFormValues } from './validation';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'case-studies';
 const ENTITY_LABEL = '성공 사례';
@@ -27,7 +28,7 @@ const UNSAVED_MESSAGE =
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 5), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 export default function CaseStudyFormPage() {

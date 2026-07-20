@@ -25,7 +25,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import './members.css';
 import { isAbort } from '../../shared/async';
-import { Card as TdsCard, Menu, Skeleton } from '@tds/ui';
+import { Card as TdsCard, cssVar, Menu, Skeleton } from '@tds/ui';
 
 import { Alert, Button, ConfirmDialog, useToast } from '../../shared/ui';
 import { ActivityCard } from './components/ActivityCard';
@@ -46,26 +46,26 @@ const LIST_PATH = '/users/members';
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const topRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const errorActionsStyle: CSSProperties = {
   display: 'flex',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const backLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
-  color: 'var(--tds-color-text-muted)',
+  gap: cssVar('space.2'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   textDecoration: 'none',
@@ -75,14 +75,14 @@ const gridStyle: CSSProperties = {
   display: 'grid',
   // 2단 — 좁은 화면에서는 auto-fit 이 한 단으로 접는다
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 16), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   alignItems: 'start',
 };
 
 const columnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   minWidth: 0,
 };
 
@@ -90,7 +90,7 @@ const columnStyle: CSSProperties = {
 const skeletonBodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
 };
 

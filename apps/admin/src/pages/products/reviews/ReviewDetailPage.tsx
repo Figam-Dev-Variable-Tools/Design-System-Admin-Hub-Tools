@@ -31,6 +31,7 @@ import { useCrudDelete, useCrudUpdate } from '../../../shared/crud';
 import { reviewAdapter } from './data-source';
 import { ReviewPreview } from './components/ReviewPreview';
 import { REVIEW_REPLY_MAX, starText, toReviewInput } from './types';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'reviews';
 const LIST_PATH = '/products/reviews';
@@ -40,22 +41,22 @@ const UNSAVED_MESSAGE =
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const backLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   alignSelf: 'flex-start',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
   paddingLeft: 0,
   paddingRight: 0,
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   cursor: 'pointer',
@@ -64,12 +65,12 @@ const backLinkStyle: CSSProperties = {
 const layoutStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 13), 1fr))',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   alignItems: 'start',
 };
 
 const starStyle: CSSProperties = {
-  color: 'var(--tds-color-feedback-warning-text)',
+  color: cssVar('color.feedback.warning.text'),
   letterSpacing: '0.05em',
 };
 
@@ -77,13 +78,13 @@ const actionsStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
 const rightActionsStyle: CSSProperties = {
   display: 'inline-flex',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 export default function ReviewDetailPage() {
@@ -205,7 +206,7 @@ export default function ReviewDetailPage() {
 
       {review === undefined ? (
         <Card>
-          <p style={{ ...fieldLabelStyle, color: 'var(--tds-color-text-muted)' }}>불러오는 중…</p>
+          <p style={{ ...fieldLabelStyle, color: cssVar('color.text.muted') }}>불러오는 중…</p>
         </Card>
       ) : (
         <div style={layoutStyle}>

@@ -21,9 +21,10 @@ import { KAKAO_LABEL_VARIABLE_SAMPLES } from '../copy';
 import { variableTokensOf } from '../kakao';
 import type { VariableSampleMap } from '../kakao';
 import { sectionHeadingStyle, sectionStyle } from '../styles';
+import { cssVar } from '@tds/ui';
 
 const emptyStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
 };
@@ -31,7 +32,7 @@ const emptyStyle: CSSProperties = {
 const listStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   minWidth: 0,
 };
 

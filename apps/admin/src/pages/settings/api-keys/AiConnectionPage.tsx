@@ -36,7 +36,7 @@ import type { CSSProperties } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useParams } from 'react-router-dom';
 
-import { ToggleSwitch } from '@tds/ui';
+import { cssVar, ToggleSwitch } from '@tds/ui';
 
 import { isAbort } from '../../../shared/async';
 import { zodResolver } from '../../../shared/form/zodResolver';
@@ -81,7 +81,7 @@ const READ_ONLY_NOTICE =
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 /** '목록으로' — 앱의 다른 상세 화면(OAuthProviderPage·MemberDetailPage)과 같은 모양 */
@@ -89,8 +89,8 @@ const backLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   alignSelf: 'flex-start',
-  gap: 'var(--tds-space-2)',
-  color: 'var(--tds-color-text-muted)',
+  gap: cssVar('space.2'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   textDecoration: 'none',
@@ -105,12 +105,12 @@ const backLinkStyle: CSSProperties = {
 const titleStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-title-md-font-size)',
   fontWeight: 'var(--tds-typography-title-md-font-weight)',
   lineHeight: 'var(--tds-typography-title-md-line-height)',
@@ -120,7 +120,7 @@ const notFoundRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
@@ -128,7 +128,7 @@ const notFoundRowStyle: CSSProperties = {
 const toggleRowStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const hintStyle: CSSProperties = {
@@ -136,7 +136,7 @@ const hintStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -145,25 +145,25 @@ const hintStyle: CSSProperties = {
 const factListStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const factRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'baseline',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
 const factLabelStyle: CSSProperties = {
   minWidth: 'calc(var(--tds-space-7) * 2)',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
 
 const factValueStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };

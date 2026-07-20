@@ -96,13 +96,20 @@ export function Table({
 
   const renderRow = (row: TableRow) => {
     const activate = row.onActivate;
+    const className = [
+      'tds-table__row',
+      ...(activate === undefined ? [] : ['tds-table__row--activatable']),
+      ...(row.selected === true ? ['tds-table__row--selected'] : []),
+    ].join(' ');
 
     return (
       <tr
         key={row.id}
-        className={
-          activate === undefined ? 'tds-table__row' : 'tds-table__row tds-table__row--activatable'
-        }
+        className={className}
+        // 선택은 '아니다' 도 말해야 하는 상태가 아니다 — 선택 개념이 없는 표의 행에
+        // aria-selected="false" 를 달면 스크린리더가 없는 선택지를 있다고 읽는다
+        // (IconButton 의 pressed off/unset 구분과 같은 판단).
+        {...(row.selected === undefined ? {} : { 'aria-selected': row.selected })}
         {...(activate === undefined
           ? {}
           : {

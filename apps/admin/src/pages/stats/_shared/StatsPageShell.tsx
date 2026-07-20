@@ -20,16 +20,17 @@ import { periodErrorOf } from './period';
 import type { SegmentOption } from './types';
 import type { CsvExportState } from './useCsvExport';
 import type { StatsParamsApi } from './useStatsParams';
+import { cssVar } from '@tds/ui';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const descriptionStyle: CSSProperties = {
   margin: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontFamily: 'var(--tds-typography-body-md-font-family)',
   fontSize: 'var(--tds-typography-body-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
@@ -39,14 +40,14 @@ const forbiddenStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   paddingBlock: 'calc(var(--tds-space-6) * 2)',
   textAlign: 'center',
 };
 
 const forbiddenTitleStyle: CSSProperties = {
   margin: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-title-lg-font-family)',
   fontSize: 'var(--tds-typography-title-lg-font-size)',
   fontWeight: 'var(--tds-typography-title-lg-font-weight)',
@@ -136,7 +137,7 @@ export function StatsPageShell({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              gap: 'var(--tds-space-3)',
+              gap: cssVar('space.3'),
               flexWrap: 'wrap',
             }}
           >

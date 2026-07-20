@@ -51,6 +51,7 @@ import {
   providerTitle,
 } from './validation';
 import type { OAuthProviderId, OAuthProviderValues, OAuthSettingsValues } from './validation';
+import { cssVar } from '@tds/ui';
 
 const READ_ONLY_NOTICE =
   '조회 권한만 있습니다. OAuth 설정을 바꾸려면 시스템 설정 수정 권한이 필요합니다.';
@@ -58,7 +59,7 @@ const READ_ONLY_NOTICE =
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 /** '목록으로' — 앱의 다른 상세 화면(MemberDetailPage)과 같은 모양 */
@@ -66,8 +67,8 @@ const backLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   alignSelf: 'flex-start',
-  gap: 'var(--tds-space-2)',
-  color: 'var(--tds-color-text-muted)',
+  gap: cssVar('space.2'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   textDecoration: 'none',
@@ -82,12 +83,12 @@ const backLinkStyle: CSSProperties = {
 const titleStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-title-md-font-size)',
   fontWeight: 'var(--tds-typography-title-md-font-weight)',
   lineHeight: 'var(--tds-typography-title-md-line-height)',
@@ -97,7 +98,7 @@ const notFoundRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

@@ -27,6 +27,7 @@ import {
   stageTone,
 } from './types';
 import type { Project, ProjectInput, StageFilter } from './types';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'sales-projects';
 const ENTITY_LABEL = '프로젝트';
@@ -43,14 +44,14 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
 const filtersStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
   flexGrow: 1,
   minWidth: 0,
@@ -59,7 +60,7 @@ const filtersStyle: CSSProperties = {
 const selectWrapStyle: CSSProperties = { width: 'calc(var(--tds-space-6) * 5)' };
 
 const periodStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontVariantNumeric: 'tabular-nums',
   whiteSpace: 'nowrap',
 };
@@ -67,16 +68,16 @@ const periodStyle: CSSProperties = {
 const progressWrapStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 'calc(var(--tds-space-6) * 3)',
 };
 
 const progressTrackStyle: CSSProperties = {
   position: 'relative',
   flexGrow: 1,
-  height: 'var(--tds-space-2)',
-  borderRadius: 'var(--tds-radius-full)',
-  background: 'var(--tds-color-surface-raised)',
+  height: cssVar('space.2'),
+  borderRadius: cssVar('radius.full'),
+  background: cssVar('color.surface.raised'),
   overflow: 'hidden',
 };
 
@@ -87,13 +88,13 @@ function progressFillStyle(progress: number): CSSProperties {
     bottom: 0,
     left: 0,
     width: `${String(Math.max(0, Math.min(100, progress)))}%`,
-    background: 'var(--tds-color-action-primary-default)',
+    background: cssVar('color.action.primary.default'),
   };
 }
 
 const progressLabelStyle: CSSProperties = {
   fontVariantNumeric: 'tabular-nums',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
 };
 
 const nameOf = (item: Project) => item.name;

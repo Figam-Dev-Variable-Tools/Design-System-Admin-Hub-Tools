@@ -21,24 +21,25 @@ import {
 } from '../../../../shared/ui';
 import { buildVariantMatrix, MAX_OPTION_GROUPS, totalStock } from '../../_shared/store';
 import type { ProductOptionGroup, ProductVariant } from '../../_shared/store';
+import { cssVar } from '@tds/ui';
 
 const sectionStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const groupsStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const groupRowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'calc(var(--tds-space-6) * 4) minmax(0, 1fr) auto',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const tableWrapStyle: CSSProperties = {
@@ -62,7 +63,7 @@ const summaryStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
@@ -70,14 +71,14 @@ const iconButtonStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
-  paddingLeft: 'var(--tds-space-1)',
-  paddingRight: 'var(--tds-space-1)',
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
+  paddingLeft: cssVar('space.1'),
+  paddingRight: cssVar('space.1'),
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-feedback-danger-text)',
+  color: cssVar('color.feedback.danger.text'),
   cursor: 'pointer',
 };
 

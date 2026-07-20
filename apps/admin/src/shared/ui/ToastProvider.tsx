@@ -16,7 +16,7 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 
-import { Toast } from '@tds/ui';
+import { cssVar, Toast } from '@tds/ui';
 import type { ToastKind } from '@tds/ui';
 
 /** 큐 항목 — 위치/큐/최대개수를 소유한 provider 의 것. Toast(@tds/ui)는 kind·message·id 만 받는다 */
@@ -62,7 +62,7 @@ const regionStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 /**
@@ -71,7 +71,7 @@ const regionStyle: CSSProperties = {
  */
 const viewportStyle: CSSProperties = {
   position: 'fixed',
-  bottom: 'var(--tds-space-6)',
+  bottom: cssVar('space.6'),
   left: '50%',
   transform: 'translateX(-50%)',
   // 모달 오버레이(z-index 10) 위에 온다 — 모달 안에서 취소해도 토스트가 보여야 한다
@@ -80,14 +80,14 @@ const viewportStyle: CSSProperties = {
   // 아래가 바닥에 고정되어 있으므로 목록이 길어지면 위로 자란다 (최근 것이 아래)
   flexDirection: 'column',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   boxSizing: 'border-box',
   width: 'max-content',
   maxWidth: '100%',
   paddingTop: 0,
   paddingBottom: 0,
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   pointerEvents: 'none',
 };
 

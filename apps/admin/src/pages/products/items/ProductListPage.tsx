@@ -48,6 +48,7 @@ import {
   totalStock,
 } from '../_shared/store';
 import type { Product, ProductInput } from '../_shared/store';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'products';
 const ENTITY_LABEL = '상품';
@@ -60,7 +61,7 @@ const SALE_STATUS_FILTER_VALUES: readonly SaleStatusFilter[] = SALE_STATUS_FILTE
 const layoutStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'calc(var(--tds-space-6) * 9) minmax(0, 1fr)',
-  gap: 'var(--tds-space-6)',
+  gap: cssVar('space.6'),
   alignItems: 'start',
 };
 
@@ -68,7 +69,7 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
@@ -81,11 +82,11 @@ const searchWrapStyle: CSSProperties = {
 const nameCellStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
 };
 
 const brandTextStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
 };
 
@@ -93,11 +94,11 @@ const priceCellStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-end',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
 };
 
 const strikeStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   textDecorationLine: 'line-through',
 };
@@ -105,7 +106,7 @@ const strikeStyle: CSSProperties = {
 const stockCellStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   justifyContent: 'flex-end',
 };
 

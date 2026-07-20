@@ -33,6 +33,7 @@ import {
 // 길이 제약은 zod 스키마의 검증으로만 강제한다 (validation.ts 가 규칙의 정본이다).
 import { loginSchema } from './validation';
 import type { LoginFormValues } from './validation';
+import { cssVar } from '@tds/ui';
 
 /** 인증 성공 시 기본 이동처 (SCR-002 대시보드) */
 const DEFAULT_REDIRECT = '/dashboard';
@@ -78,7 +79,7 @@ const pageStyle: CSSProperties = {
   minHeight: '100vh',
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-body-md-font-family)',
   fontSize: 'var(--tds-typography-body-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
@@ -96,26 +97,26 @@ const visualPanelStyle: CSSProperties = {
   overflow: 'hidden',
   background:
     'linear-gradient(135deg, var(--tds-color-action-primary-active), var(--tds-color-action-primary-default))',
-  color: 'var(--tds-color-text-on-primary)',
+  color: cssVar('color.text.on-primary'),
 };
 
 const visualHeadlineStyle: CSSProperties = {
   margin: 0,
-  fontSize: 'var(--tds-primitive-typography-font-size-18)',
-  lineHeight: 'var(--tds-primitive-typography-line-height-tight)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontSize: cssVar('primitive.typography.font-size.18'),
+  lineHeight: cssVar('primitive.typography.line-height.tight'),
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 const visualBodyStyle: CSSProperties = {
   margin: 0,
-  marginTop: 'var(--tds-space-3)',
+  marginTop: cssVar('space.3'),
   maxWidth: 'calc(var(--tds-space-6) * 14)',
   opacity: 0.9,
 };
 
 const visualBrandStyle: CSSProperties = {
   margin: 0,
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   letterSpacing: '0.08em',
 };
 
@@ -123,14 +124,14 @@ const visualBrandStyle: CSSProperties = {
 const formPanelStyle: CSSProperties = {
   display: 'grid',
   placeItems: 'center',
-  padding: 'var(--tds-space-6)',
-  background: 'var(--tds-color-surface-default)',
+  padding: cssVar('space.6'),
+  background: cssVar('color.surface.default'),
 };
 
 const cardStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
   width: '100%',
   // 폼 폭 = space.6 배수 (토큰 파생 치수 — raw px 금지). 24 * 20 = 480px
   maxWidth: 'calc(var(--tds-space-6) * 20)',
@@ -138,20 +139,20 @@ const cardStyle: CSSProperties = {
 
 const titleStyle: CSSProperties = {
   margin: 0,
-  fontSize: 'var(--tds-primitive-typography-font-size-18)',
-  lineHeight: 'var(--tds-primitive-typography-line-height-tight)',
+  fontSize: cssVar('primitive.typography.font-size.18'),
+  lineHeight: cssVar('primitive.typography.line-height.tight'),
 };
 
 const subtitleStyle: CSSProperties = {
   margin: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };
 
 const hintStyle: CSSProperties = {
   margin: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };

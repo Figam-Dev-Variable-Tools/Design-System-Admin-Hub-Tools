@@ -41,6 +41,9 @@
 // '회사'가 아닌 것)에는 마크가 없다. 비슷하게 그린 가짜 로고는 상표 문제이자 '이게 진짜
 // 로고' 라는 거짓 정보다 — 그런 항목은 호출부가 브랜드를 null 로 넘겨 자기 대체 표현을 쓴다.
 
+// 마크 **바깥**의 치수·문구 색은 브랜드 자산이 아니라 우리 UI 라 토큰을 쓴다(머리말의 금지는 브랜드 색에 한한다).
+import { cssVar } from '@tds/ui';
+
 /* eslint-disable no-restricted-syntax -- 브랜드 색은 각 사 가이드가 고정한 값이라 토큰이 될 수 없다(파일 머리말) */
 /** 각 사 브랜드 가이드가 규정한 색. **이 블록 밖에서 hex 를 쓰지 않는다.** */
 const BRAND = {
@@ -204,7 +207,7 @@ interface BrandMarkProps {
 }
 
 /** 마크 한 칸 — 정사각 상자에 벡터를 꽉 채운다(어떤 크기에서도 또렷하다) */
-export function BrandMark({ brand, size = 'var(--tds-space-7)' }: BrandMarkProps) {
+export function BrandMark({ brand, size = cssVar('space.7') }: BrandMarkProps) {
   const Mark = BRAND_MARKS[brand];
 
   return (

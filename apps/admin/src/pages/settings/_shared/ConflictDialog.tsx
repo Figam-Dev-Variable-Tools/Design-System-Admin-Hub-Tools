@@ -15,11 +15,12 @@ import { useId } from 'react';
 import type { CSSProperties } from 'react';
 
 import { Alert, Button, Modal } from '../../../shared/ui';
+import { cssVar } from '@tds/ui';
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const textStyle: CSSProperties = {
@@ -27,7 +28,7 @@ const textStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
 };
@@ -35,13 +36,13 @@ const textStyle: CSSProperties = {
 const listStyle: CSSProperties = {
   marginTop: 0,
   marginBottom: 0,
-  marginLeft: 'var(--tds-space-4)',
+  marginLeft: cssVar('space.4'),
   marginRight: 0,
   paddingTop: 0,
   paddingBottom: 0,
   paddingLeft: 0,
   paddingRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
 };
@@ -51,7 +52,7 @@ const auditStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

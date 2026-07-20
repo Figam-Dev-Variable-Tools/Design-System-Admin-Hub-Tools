@@ -8,11 +8,12 @@ import { useLocation } from 'react-router-dom';
 
 import { collectNavRoutes } from '../../shared/layout/nav-config';
 import { pageTitleStyle } from '../../shared/ui';
+import { cssVar } from '@tds/ui';
 
 const wrapStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   alignItems: 'flex-start',
 };
 
@@ -21,7 +22,7 @@ const titleStyle: CSSProperties = pageTitleStyle;
 
 const bodyStyle: CSSProperties = {
   margin: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
 };

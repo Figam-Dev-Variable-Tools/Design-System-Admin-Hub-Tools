@@ -14,13 +14,14 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { Fragment } from 'react';
 import type { CSSProperties } from 'react';
+import { cssVar } from '@tds/ui';
 
 /** 치환변수 문법 — `#{변수}` (솔라피·카카오 공통, _shared/messaging 의 countVariables 와 같은 모양) */
 const VARIABLE_RE = /#\{[^}]+\}/g;
 
 const tokenStyle: CSSProperties = {
-  color: 'var(--tds-color-action-primary-default)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  color: cssVar('color.action.primary.default'),
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
 };
 
 /**

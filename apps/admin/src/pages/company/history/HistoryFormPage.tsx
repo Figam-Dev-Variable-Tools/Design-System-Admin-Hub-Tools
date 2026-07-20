@@ -8,6 +8,7 @@ import { CONTENT_MAX_LENGTH, YEAR_MAX, YEAR_MIN } from './types';
 import type { HistoryInput, HistoryItem } from './types';
 import { historySchema } from './validation';
 import type { HistoryFormValues } from './validation';
+import { cssVar } from '@tds/ui';
 
 const ENTITY_LABEL = '연혁';
 const LIST_PATH = '/company/history';
@@ -17,7 +18,7 @@ const UNSAVED_MESSAGE =
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 5), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const MONTHS = Array.from({ length: 12 }, (_, index) => index + 1);

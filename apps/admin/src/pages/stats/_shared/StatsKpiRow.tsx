@@ -9,7 +9,7 @@
 // [낮을수록 좋은 지표] 탈퇴·취소율·반품률은 증가가 나쁨이다. isLowerBetter 가 색을 뒤집는다 —
 // 이게 없으면 탈퇴자 급증이 초록색으로 뜬다.
 import type { CSSProperties } from 'react';
-import { StatsCard } from '@tds/ui';
+import { cssVar, StatsCard } from '@tds/ui';
 
 import { DeltaText } from './DeltaText';
 import { deltaOf, formatMetric } from './format';
@@ -20,19 +20,19 @@ import type { StatsKpi } from './types';
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 8), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
 };
 
 const deltaStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   fontFamily: 'var(--tds-typography-label-md-font-family)',
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
@@ -41,7 +41,7 @@ const deltaStyle: CSSProperties = {
 
 const hintStyle: CSSProperties = {
   margin: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontFamily: 'var(--tds-typography-caption-md-font-family)',
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
@@ -57,9 +57,7 @@ function DeltaLine({ kpi, delta }: { readonly kpi: StatsKpi; readonly delta: Del
 
 /** 비교 안 함 — 증감 자리를 비워두면 카드 높이가 들쭉날쭉해진다 */
 function NoCompareLine() {
-  return (
-    <p style={{ ...deltaStyle, margin: 0, color: 'var(--tds-color-text-muted)' }}>비교 안 함</p>
-  );
+  return <p style={{ ...deltaStyle, margin: 0, color: cssVar('color.text.muted') }}>비교 안 함</p>;
 }
 
 export function StatsKpiRow({

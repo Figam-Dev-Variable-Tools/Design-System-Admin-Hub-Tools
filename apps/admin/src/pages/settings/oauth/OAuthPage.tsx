@@ -31,7 +31,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { Checkbox } from '@tds/ui';
+import { Checkbox, cssVar } from '@tds/ui';
 
 import { isAbort } from '../../../shared/async';
 import { zodResolver } from '../../../shared/form/zodResolver';
@@ -58,14 +58,14 @@ const READ_ONLY_NOTICE =
 const stackStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 /** 순서 변경 액션 — 버튼과 '왜 못 누르는지' 를 한 줄에 */
 const reorderActionStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
@@ -74,7 +74,7 @@ const reorderHintStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -88,7 +88,7 @@ const DEFAULT_FORM_VALUES: OAuthSettingsValues = {
 const policyStackStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 const policyHintStyle: CSSProperties = {
@@ -96,7 +96,7 @@ const policyHintStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 'calc(var(--tds-space-5) + var(--tds-space-2))',
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };

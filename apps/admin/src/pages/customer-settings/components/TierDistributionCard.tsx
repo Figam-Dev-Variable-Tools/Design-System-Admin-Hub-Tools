@@ -22,11 +22,12 @@ import { directionParticle, formatNumber, formatSignedNumber } from '../../../sh
 import { TIER_LABEL } from '../../../shared/domain/member';
 import type { Distribution } from '../distribution';
 import { TIER_ORDER } from '../types';
+import { cssVar } from '@tds/ui';
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const tableWrapStyle: CSSProperties = {
@@ -47,7 +48,7 @@ const numericHeadStyle: CSSProperties = {
 const summaryStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
@@ -57,13 +58,13 @@ const summaryStyle: CSSProperties = {
   paddingLeft: 0,
   paddingRight: 0,
   listStyleType: 'none',
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
 };
 
 const strongStyle: CSSProperties = {
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   fontVariantNumeric: 'tabular-nums',
 };
 

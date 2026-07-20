@@ -17,11 +17,12 @@ import type { LogColumn, LogDetail, LogResult, LogScreenSpec, LogTone } from '..
 import { errorLogSpec, fetchErrorLogs, fetchErrorLogsForExport, toCsv } from './data-source';
 import { ERROR_LOG_AXES, ERROR_LOG_RETENTION, ERROR_SEVERITY_LABEL } from './types';
 import type { ErrorLogEntry, ErrorSeverity } from './types';
+import { cssVar } from '@tds/ui';
 
 const severityColor: Record<ErrorSeverity, string> = {
-  critical: 'var(--tds-color-feedback-danger-text)',
-  error: 'var(--tds-color-feedback-danger-text)',
-  warning: 'var(--tds-color-feedback-warning-text)',
+  critical: cssVar('color.feedback.danger.text'),
+  error: cssVar('color.feedback.danger.text'),
+  warning: cssVar('color.feedback.warning.text'),
 };
 
 /** 심각도 — 색 위에 **글자**가 있다. 색을 못 봐도 '치명'은 치명으로 읽힌다 */
@@ -30,7 +31,7 @@ function SeverityCell({ severity }: { readonly severity: ErrorSeverity }) {
     <span
       style={{
         color: severityColor[severity],
-        fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+        fontWeight: cssVar('primitive.typography.font-weight.bold'),
       }}
     >
       {ERROR_SEVERITY_LABEL[severity]}

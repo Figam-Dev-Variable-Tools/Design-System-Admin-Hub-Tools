@@ -13,6 +13,7 @@ import { directionsKey, directionsStore } from './data-source';
 import { ADDRESS_DETAIL_MAX_LENGTH, ADDRESS_MAX_LENGTH, TRANSIT_MAX_LENGTH } from './types';
 import { directionsSchema } from './validation';
 import type { DirectionsFormValues } from './validation';
+import { cssVar } from '@tds/ui';
 
 const UNSAVED_MESSAGE =
   '오시는 길에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
@@ -20,7 +21,7 @@ const UNSAVED_MESSAGE =
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 5), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const textareaStyle = (invalid: boolean): CSSProperties => ({
@@ -34,27 +35,27 @@ const mapPlaceholderStyle: CSSProperties = {
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   boxSizing: 'border-box',
   width: '100%',
   minHeight: 'calc(var(--tds-space-6) * 6)',
-  paddingTop: 'var(--tds-space-4)',
-  paddingBottom: 'var(--tds-space-4)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.4'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
   borderStyle: 'dashed',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-muted)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
   textAlign: 'center',
 };
 
 const coordTextStyle: CSSProperties = {
   fontVariantNumeric: 'tabular-nums',
   fontSize: 'var(--tds-typography-label-md-font-size)',
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
 };
 
 const EMPTY: DirectionsFormValues = {

@@ -11,11 +11,12 @@
 //
 // [모든 시각 값은 토큰 CSS 변수] 하드코딩 hex/px 0건.
 import type { CSSProperties } from 'react';
+import { cssVar } from '@tds/ui';
 
 const figureStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   marginTop: 0,
   marginBottom: 0,
   marginLeft: 0,
@@ -24,7 +25,7 @@ const figureStyle: CSSProperties = {
 };
 
 const captionStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
@@ -38,38 +39,38 @@ const chromeStyle: CSSProperties = {
   maxWidth: 'calc(var(--tds-space-10) * 7)',
   minWidth: 0,
   boxSizing: 'border-box',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-2)',
-  paddingRight: 'var(--tds-space-2)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.2'),
+  paddingRight: cssVar('space.2'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-raised)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
 };
 
 const tabStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   maxWidth: 'calc(var(--tds-space-10) * 4)',
   minWidth: 0,
   boxSizing: 'border-box',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  borderTopLeftRadius: 'var(--tds-radius-md)',
-  borderTopRightRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-default)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  borderTopLeftRadius: cssVar('radius.md'),
+  borderTopRightRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.default'),
 };
 
 const tabIconStyle: CSSProperties = {
-  width: 'var(--tds-space-4)',
-  height: 'var(--tds-space-4)',
+  width: cssVar('space.4'),
+  height: cssVar('space.4'),
   flexShrink: 0,
-  borderRadius: 'var(--tds-radius-sm)',
+  borderRadius: cssVar('radius.sm'),
   objectFit: 'cover',
 };
 
@@ -77,11 +78,11 @@ const tabIconStyle: CSSProperties = {
 const tabIconEmptyStyle: CSSProperties = {
   ...tabIconStyle,
   display: 'inline-block',
-  background: 'var(--tds-color-surface-disabled)',
+  background: cssVar('color.surface.disabled'),
 };
 
 const tabTitleStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   overflow: 'hidden',
@@ -92,16 +93,16 @@ const tabTitleStyle: CSSProperties = {
 const addressBarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   minWidth: 0,
   boxSizing: 'border-box',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
-  borderRadius: 'var(--tds-radius-full)',
-  background: 'var(--tds-color-surface-default)',
-  color: 'var(--tds-color-text-muted)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  borderRadius: cssVar('radius.full'),
+  background: cssVar('color.surface.default'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   overflow: 'hidden',
@@ -146,10 +147,10 @@ const ogCardStyle: CSSProperties = {
   minWidth: 0,
   boxSizing: 'border-box',
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.default'),
   overflow: 'hidden',
 };
 
@@ -159,7 +160,7 @@ const ogImageStyle: CSSProperties = {
   // 링크 카드의 관례 비율(가로가 세로의 약 2배) — 토큰에 없는 파생 치수라 space 배수로 못박는다
   height: 'calc(var(--tds-space-10) * 2)',
   objectFit: 'cover',
-  background: 'var(--tds-color-surface-disabled)',
+  background: cssVar('color.surface.disabled'),
 };
 
 const ogImageEmptyStyle: CSSProperties = {
@@ -167,23 +168,23 @@ const ogImageEmptyStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
 };
 
 const ogBodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   minWidth: 0,
-  paddingTop: 'var(--tds-space-3)',
-  paddingBottom: 'var(--tds-space-3)',
-  paddingLeft: 'var(--tds-space-4)',
-  paddingRight: 'var(--tds-space-4)',
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
 };
 
 const ogTitleStyle: CSSProperties = {
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontFamily: 'var(--tds-typography-label-md-font-family)',
   fontSize: 'var(--tds-typography-label-md-font-size)',
   fontWeight: 'var(--tds-typography-label-md-font-weight)',
@@ -194,13 +195,13 @@ const ogTitleStyle: CSSProperties = {
 };
 
 const ogDescriptionStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
 
 const ogUrlStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   overflow: 'hidden',

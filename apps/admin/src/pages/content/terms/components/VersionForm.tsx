@@ -24,29 +24,30 @@ import { BODY_MAX_LENGTH, STATUS_OPTIONS, VERSION_MAX_LENGTH } from '../types';
 import type { TermsVersion } from '../types';
 import { termsVersionSchema } from '../validation';
 import type { TermsVersionFormValues } from '../validation';
+import { cssVar } from '@tds/ui';
 
 const formStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const rowStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(calc(var(--tds-space-6) * 7), 1fr))',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 const actionsStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'flex-end',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 function toValues(version: TermsVersion | null): TermsVersionFormValues {

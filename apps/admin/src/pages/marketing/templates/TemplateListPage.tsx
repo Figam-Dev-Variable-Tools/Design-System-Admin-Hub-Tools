@@ -42,6 +42,7 @@ import type {
   MessageTemplateInput,
   TemplateChannelFilter,
 } from '../_shared/messaging';
+import { cssVar } from '@tds/ui';
 
 const ENTITY_LABEL = '발송 템플릿';
 const LIST_PATH = '/marketing/templates/alimtalk';
@@ -59,14 +60,14 @@ const toolbarStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 
 const filtersStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
   flexGrow: 1,
   minWidth: 0,
@@ -75,7 +76,7 @@ const filtersStyle: CSSProperties = {
 const selectWrapStyle: CSSProperties = { width: 'calc(var(--tds-space-6) * 5)' };
 
 const bodyPreviewStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   display: 'block',
   maxWidth: 'calc(var(--tds-space-6) * 12)',
   overflow: 'hidden',
@@ -84,7 +85,7 @@ const bodyPreviewStyle: CSSProperties = {
 };
 
 const dateStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontVariantNumeric: 'tabular-nums',
   whiteSpace: 'nowrap',
 };

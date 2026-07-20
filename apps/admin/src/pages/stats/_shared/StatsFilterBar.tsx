@@ -29,30 +29,31 @@ import {
 import type { SegmentOption } from './types';
 import type { StatsParamsApi } from './useStatsParams';
 import type { CsvExportState } from './useCsvExport';
+import { cssVar } from '@tds/ui';
 
 const barStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
-  padding: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
+  padding: cssVar('space.4'),
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-lg)',
-  background: 'var(--tds-color-surface-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.lg'),
+  background: cssVar('color.surface.default'),
 };
 
 const rowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'flex-end',
   flexWrap: 'wrap',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
 };
 
 const presetListStyle: CSSProperties = {
   display: 'flex',
   flexWrap: 'wrap',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   margin: 0,
   paddingInlineStart: 0,
   listStyle: 'none',
@@ -61,12 +62,12 @@ const presetListStyle: CSSProperties = {
 const fieldStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   inlineSize: 'calc(var(--tds-space-6) * 7)',
 };
 
 const labelStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontFamily: 'var(--tds-typography-label-sm-font-family)',
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   fontWeight: 'var(--tds-typography-label-sm-font-weight)',
@@ -78,7 +79,7 @@ const spacerStyle: CSSProperties = { marginInlineStart: 'auto' };
 const exportWrapStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 /** 프리셋 버튼은 가로로 눕는다 — filterItemStyle 은 세로 패널용이라 폭만 되돌린다 */
@@ -121,7 +122,7 @@ export function StatsFilterBar({
   return (
     <section style={barStyle} aria-label="조회 조건">
       <div style={rowStyle}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--tds-space-2)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: cssVar('space.2') }}>
           <span style={labelStyle}>조회 기간</span>
           <ul style={presetListStyle}>
             {PERIOD_PRESETS.map((preset) => {

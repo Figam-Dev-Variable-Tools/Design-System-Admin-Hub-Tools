@@ -15,6 +15,7 @@ import { Button, errorTextStyle, visuallyHiddenStyle } from '../../../../shared/
 import { IMAGE_PLACEHOLDER, LABEL_CHOOSE_IMAGE, LABEL_FILE_NAME } from '../copy';
 import { imageEdgeError, pickedImageError } from '../validation';
 import { TEXT_IMAGE_MAX_EDGE } from '../types';
+import { cssVar } from '@tds/ui';
 
 const rowStyle: CSSProperties = {
   display: 'flex',
@@ -23,10 +24,10 @@ const rowStyle: CSSProperties = {
   flexWrap: 'wrap',
   minWidth: 0,
   borderStyle: 'solid',
-  borderWidth: 'var(--tds-border-width-thin)',
-  borderColor: 'var(--tds-color-border-default)',
-  borderRadius: 'var(--tds-radius-md)',
-  background: 'var(--tds-color-surface-default)',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.default'),
   overflow: 'hidden',
 };
 
@@ -34,15 +35,15 @@ const legendStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   flex: 'none',
-  paddingTop: 'var(--tds-space-2)',
-  paddingBottom: 'var(--tds-space-2)',
-  paddingLeft: 'var(--tds-space-3)',
-  paddingRight: 'var(--tds-space-3)',
+  paddingTop: cssVar('space.2'),
+  paddingBottom: cssVar('space.2'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
   borderRightStyle: 'solid',
-  borderRightWidth: 'var(--tds-border-width-thin)',
-  borderRightColor: 'var(--tds-color-border-default)',
-  background: 'var(--tds-color-surface-raised)',
-  color: 'var(--tds-color-text-muted)',
+  borderRightWidth: cssVar('border-width.thin'),
+  borderRightColor: cssVar('color.border.default'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-sm-font-size)',
   lineHeight: 'var(--tds-typography-label-sm-line-height)',
   whiteSpace: 'nowrap',
@@ -57,11 +58,11 @@ function nameStyle(hasFile: boolean): CSSProperties {
     flexShrink: 1,
     flexBasis: 0,
     minWidth: 0,
-    paddingTop: 'var(--tds-space-2)',
-    paddingBottom: 'var(--tds-space-2)',
-    paddingLeft: 'var(--tds-space-3)',
-    paddingRight: 'var(--tds-space-3)',
-    color: hasFile ? 'var(--tds-color-text-default)' : 'var(--tds-color-text-muted)',
+    paddingTop: cssVar('space.2'),
+    paddingBottom: cssVar('space.2'),
+    paddingLeft: cssVar('space.3'),
+    paddingRight: cssVar('space.3'),
+    color: hasFile ? cssVar('color.text.default') : cssVar('color.text.muted'),
     fontSize: 'var(--tds-typography-label-md-font-size)',
     lineHeight: 'var(--tds-typography-label-md-line-height)',
     overflow: 'hidden',
@@ -74,16 +75,16 @@ const actionStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   flex: 'none',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
-  paddingLeft: 'var(--tds-space-1)',
-  paddingRight: 'var(--tds-space-1)',
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
+  paddingLeft: cssVar('space.1'),
+  paddingRight: cssVar('space.1'),
 };
 
 const wrapStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-1)',
+  gap: cssVar('space.1'),
   minWidth: 0,
 };
 

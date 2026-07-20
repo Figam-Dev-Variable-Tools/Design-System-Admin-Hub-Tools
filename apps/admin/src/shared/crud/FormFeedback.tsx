@@ -8,14 +8,15 @@ import type { CSSProperties } from 'react';
 
 import { Alert, ConfirmDialog } from '../ui';
 import type { ConflictState } from './useCrudForm';
+import { cssVar } from '@tds/ui';
 
 /** 참조 코드 — 복사해서 티켓에 붙일 수 있게 tabular + 전체 선택 (EXC-20) */
 const referenceStyle: CSSProperties = {
-  marginTop: 'var(--tds-space-1)',
+  marginTop: cssVar('space.1'),
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
   fontVariantNumeric: 'tabular-nums',

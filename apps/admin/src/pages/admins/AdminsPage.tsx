@@ -15,7 +15,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { tabId, tabPanelId } from '@tds/ui';
+import { cssVar, tabId, tabPanelId } from '@tds/ui';
 
 import { isAbort } from '../../shared/async';
 import { adminGroupDeletionBlock } from '../../shared/domain/admin-group';
@@ -51,28 +51,28 @@ const SEARCH_DEBOUNCE_MS = 250;
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const layoutStyle: CSSProperties = {
   display: 'grid',
   // 좌측 패널은 고정 폭, 표는 남는 폭 전부 (minmax(0,…) 이라야 표가 그리드를 밀지 않는다)
   gridTemplateColumns: 'calc(var(--tds-space-6) * 9) minmax(0, 1fr)',
-  gap: 'var(--tds-space-6)',
+  gap: cssVar('space.6'),
   alignItems: 'start',
 };
 
 const mainColumnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   minWidth: 0,
 };
 
 const panelStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
   minWidth: 0,
 };
 
@@ -84,15 +84,15 @@ const tableWrapStyle: CSSProperties = {
 
 /** '전체 운영자 N명' 의 숫자 — 파란색 강조 */
 const countStyle: CSSProperties = {
-  color: 'var(--tds-color-action-primary-default)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-bold)',
+  color: cssVar('color.action.primary.default'),
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
   fontVariantNumeric: 'tabular-nums',
 };
 
 const selectedHintStyle: CSSProperties = {
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-caption-md-font-size)',
-  fontWeight: 'var(--tds-primitive-typography-font-weight-regular)',
+  fontWeight: cssVar('primitive.typography.font-weight.regular'),
   lineHeight: 'var(--tds-typography-caption-md-line-height)',
 };
 
@@ -100,7 +100,7 @@ const errorBodyStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 'var(--tds-space-3)',
+  gap: cssVar('space.3'),
   flexWrap: 'wrap',
 };
 

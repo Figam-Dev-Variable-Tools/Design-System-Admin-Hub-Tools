@@ -23,11 +23,12 @@ import { CATEGORY_NAME_MAX } from '../types';
 import type { ProductCategoryUsage } from '../../_shared/store';
 import { productCategorySchema } from '../validation';
 import type { ProductCategoryFormValues } from '../validation';
+import { cssVar } from '@tds/ui';
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-4)',
+  gap: cssVar('space.4'),
 };
 
 interface ProductCategoryFormModalProps {

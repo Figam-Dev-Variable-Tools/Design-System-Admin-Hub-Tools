@@ -26,6 +26,7 @@ import {
   consultTypeLabel,
   hasPendingFollowUp,
 } from './types';
+import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'sales-consultations';
 const LIST_PATH = '/sales/consultations';
@@ -33,22 +34,22 @@ const LIST_PATH = '/sales/consultations';
 const pageStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 'var(--tds-space-5)',
+  gap: cssVar('space.5'),
 };
 
 const backLinkStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   alignSelf: 'flex-start',
-  gap: 'var(--tds-space-2)',
-  paddingTop: 'var(--tds-space-1)',
-  paddingBottom: 'var(--tds-space-1)',
+  gap: cssVar('space.2'),
+  paddingTop: cssVar('space.1'),
+  paddingBottom: cssVar('space.1'),
   paddingLeft: 0,
   paddingRight: 0,
   borderStyle: 'none',
   borderWidth: 0,
   background: 'transparent',
-  color: 'var(--tds-color-text-muted)',
+  color: cssVar('color.text.muted'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-label-md-line-height)',
   cursor: 'pointer',
@@ -57,7 +58,7 @@ const backLinkStyle: CSSProperties = {
 const badgeRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
   flexWrap: 'wrap',
 };
 
@@ -66,7 +67,7 @@ const bodyTextStyle: CSSProperties = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
-  color: 'var(--tds-color-text-default)',
+  color: cssVar('color.text.default'),
   fontSize: 'var(--tds-typography-label-md-font-size)',
   lineHeight: 'var(--tds-typography-body-md-line-height)',
   whiteSpace: 'pre-wrap',
@@ -76,7 +77,7 @@ const bodyTextStyle: CSSProperties = {
 const actionsStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'flex-end',
-  gap: 'var(--tds-space-2)',
+  gap: cssVar('space.2'),
 };
 
 export default function ConsultationDetailPage() {
@@ -121,7 +122,7 @@ export default function ConsultationDetailPage() {
 
       {consultation === undefined ? (
         <Card>
-          <p style={{ ...fieldLabelStyle, color: 'var(--tds-color-text-muted)' }}>불러오는 중…</p>
+          <p style={{ ...fieldLabelStyle, color: cssVar('color.text.muted') }}>불러오는 중…</p>
         </Card>
       ) : (
         <>
@@ -163,7 +164,7 @@ export default function ConsultationDetailPage() {
           <Card>
             <CardTitle>후속조치</CardTitle>
             {consultation.followUpAction === '' ? (
-              <p style={{ ...bodyTextStyle, color: 'var(--tds-color-text-muted)' }}>
+              <p style={{ ...bodyTextStyle, color: cssVar('color.text.muted') }}>
                 등록된 후속조치가 없습니다.
               </p>
             ) : (
