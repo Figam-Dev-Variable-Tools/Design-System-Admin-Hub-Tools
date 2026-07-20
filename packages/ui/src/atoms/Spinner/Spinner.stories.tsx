@@ -36,7 +36,8 @@ export const Sizes: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--tds-space-5)' }}>
-      <span style={{ fontSize: 'var(--tds-typography-body-lg-font-size)' }}>
+      {/* inherit 은 1em 이라 부모 글자 크기를 따른다 — 그것을 보이려면 문맥이 커야 한다 */}
+      <span style={{ fontSize: 'var(--tds-typography-title-lg-font-size)' }}>
         <Spinner size="inherit" /> inherit
       </span>
       <span>

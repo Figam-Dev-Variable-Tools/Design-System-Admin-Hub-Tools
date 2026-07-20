@@ -135,7 +135,12 @@ export const Gallery: Story = {
           style={{
             marginBottom: 'var(--tds-space-4)',
             color: 'var(--tds-color-text-muted)',
-            font: 'var(--tds-typography-body-md)',
+            // typography 토큰은 축약형 `font` 로 해석되지 않는다 — codegen 이 네 속성으로 전개한다.
+            // 한 이름으로 쓰면 선언이 무효가 되어 조용히 상속값으로 떨어진다.
+            fontFamily: 'var(--tds-typography-body-md-font-family)',
+            fontSize: 'var(--tds-typography-body-md-font-size)',
+            fontWeight: 'var(--tds-typography-body-md-font-weight)',
+            lineHeight: 'var(--tds-typography-body-md-line-height)',
           }}
         >
           아이콘 {names.length}종 — 이름은 계약(contracts/Icon.contract.json)의 name 값
@@ -168,7 +173,10 @@ export const Gallery: Story = {
               <Icon name={name} size="lg" />
               <code
                 style={{
-                  font: 'var(--tds-typography-caption-md)',
+                  fontFamily: 'var(--tds-typography-caption-md-font-family)',
+                  fontSize: 'var(--tds-typography-caption-md-font-size)',
+                  fontWeight: 'var(--tds-typography-caption-md-font-weight)',
+                  lineHeight: 'var(--tds-typography-caption-md-line-height)',
                   color: 'var(--tds-color-text-muted)',
                   textAlign: 'center',
                   wordBreak: 'break-all',
