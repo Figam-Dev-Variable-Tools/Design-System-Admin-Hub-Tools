@@ -1,23 +1,37 @@
-// Icon — Storybook 스토리 (CSF3 · Media/Icon)
+// Icon — Storybook 스토리 (CSF3)
 //
-// argTypes 는 계약 생성물(generated/argtypes/Icon.argtypes)을 spread 한다 (수기 작성 금지 — G5).
-//
-// 커버리지 방침: 아이콘 이름은 **자산 축**이라 값마다 동작이 달라지지 않는다. 59종 × 4단
-// = 236개 스토리는 커버리지가 아니라 소음이므로, 이름 전량은 Gallery 한 칸에 격자로 싣는다
-// (사람이 한 화면에서 빠진 것을 눈으로 찾을 수 있어야 한다는 것이 목적이다).
-// 크기·label·Dark/RTL 같은 **동작이 달라지는 축**만 개별 스토리로 남긴다.
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+// [폭발 방지 — 운영 가이드 §14] 아이콘 이름은 **자산 축**이라 값마다 동작이 달라지지 않는다.
+// 59종 × 4단 = 236개 스토리는 커버리지가 아니라 소음이다. 이름 전량은 Gallery 한 칸에 격자로,
+// 크기는 Sizes 한 칸에 나란히 싣는다(Search Sm/Md/Lg 처럼 나누지 않는다).
+//   Playground · Gallery · Sizes · Color Inherit · Decorative · Labelled · RTL · Docs
+import type { CSSProperties } from 'react';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { IconArgTypes } from '../../../generated/argtypes/Icon.argtypes';
 import { ICON_SHAPES } from '../../../generated/icons/icon-geometry';
-import type { IconName, IconSize } from '../../../generated/types/Icon.types';
+import type { IconName } from '../../../generated/types/Icon.types';
 import { Icon } from './Icon';
+
+const rowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 'var(--tds-space-4)',
+};
+
+/** Playground 의 color 컨트롤 — Icon 은 currentColor 라 부모 color 를 따른다. 그 부모색을 고른다 */
+const COLORS: Record<string, string> = {
+  'inherit (기본)': 'inherit',
+  'text.default': 'var(--tds-color-text-default)',
+  'text.muted': 'var(--tds-color-text-muted)',
+  danger: 'var(--tds-color-feedback-danger-text)',
+  primary: 'var(--tds-color-action-primary-default)',
+};
 
 const meta: Meta<typeof Icon> = {
   title: 'Design System/Components/Icon',
   component: Icon,
   argTypes: { ...IconArgTypes },
-  args: { name: 'close', size: 'inherit', label: '' },
+  args: { name: 'close', size: 'md', label: '' },
   parameters: { layout: 'centered' },
 };
 
@@ -25,81 +39,39 @@ export default meta;
 
 type Story = StoryObj<typeof Icon>;
 
-const rtlFrame: Decorator = (Story) => (
-  <div dir="rtl" style={{ padding: 'var(--tds-space-5)' }}>
-    <Story />
-  </div>
-);
+/** Playground — iconName·size·color 를 Controls 로 바꿔 모든 조합을 여기서 본다 */
+export const Playground: StoryObj<{ name: IconName; size: string; label: string; color: string }> =
+  {
+    argTypes: {
+      color: {
+        control: 'select',
+        options: Object.keys(COLORS),
+        description: '부모 color (Icon 은 currentColor 를 상속한다)',
+      },
+    },
+    args: { color: 'inherit (기본)' },
+    render: (args) => (
+      <span style={{ color: COLORS[args.color] ?? 'inherit' }}>
+        <Icon name={args.name} size={args.size as never} label={args.label} />
+      </span>
+    ),
+  };
 
-/* ── name × size 조합 ───────────────────────────────────────────────────────
- * 대표 11종 × 4단(sm·md·lg·inherit). 이름 전량은 아래 Gallery 가 맡는다 —
- * 여기서 보려는 것은 '이름이 몇 개인가' 가 아니라 **단이 바뀌면 무엇이 달라지는가** 다.
- */
-
-/** 이름과 크기만 다른 조합 스토리를 한 줄로 만든다 (본문이 같아 손으로 반복할 이유가 없다) */
-const combo = (name: IconName, size: IconSize): Story => ({ args: { name, size } });
-
-export const CloseSm: Story = combo('close', 'sm');
-export const CloseMd: Story = combo('close', 'md');
-export const CloseLg: Story = combo('close', 'lg');
-export const XCircleSm: Story = combo('x-circle', 'sm');
-export const XCircleMd: Story = combo('x-circle', 'md');
-export const XCircleLg: Story = combo('x-circle', 'lg');
-export const PlusCircleSm: Story = combo('plus-circle', 'sm');
-export const PlusCircleMd: Story = combo('plus-circle', 'md');
-export const PlusCircleLg: Story = combo('plus-circle', 'lg');
-export const PencilSm: Story = combo('pencil', 'sm');
-export const PencilMd: Story = combo('pencil', 'md');
-export const PencilLg: Story = combo('pencil', 'lg');
-export const TrashSm: Story = combo('trash', 'sm');
-export const TrashMd: Story = combo('trash', 'md');
-export const TrashLg: Story = combo('trash', 'lg');
-export const DownloadSm: Story = combo('download', 'sm');
-export const DownloadMd: Story = combo('download', 'md');
-export const DownloadLg: Story = combo('download', 'lg');
-export const ImageSm: Story = combo('image', 'sm');
-export const ImageMd: Story = combo('image', 'md');
-export const ImageLg: Story = combo('image', 'lg');
-export const UploadSm: Story = combo('upload', 'sm');
-export const UploadMd: Story = combo('upload', 'md');
-export const UploadLg: Story = combo('upload', 'lg');
-export const SearchSm: Story = combo('search', 'sm');
-export const SearchMd: Story = combo('search', 'md');
-export const SearchLg: Story = combo('search', 'lg');
-export const ChevronLeftSm: Story = combo('chevron-left', 'sm');
-export const ChevronLeftMd: Story = combo('chevron-left', 'md');
-export const ChevronLeftLg: Story = combo('chevron-left', 'lg');
-export const ChevronRightSm: Story = combo('chevron-right', 'sm');
-export const ChevronRightMd: Story = combo('chevron-right', 'md');
-export const ChevronRightLg: Story = combo('chevron-right', 'lg');
-
-/* size=inherit — 부모 글자 크기를 그대로 따르는 단. 본문 안에 섞여 들어가는 자리다 */
-export const CloseInherit: Story = combo('close', 'inherit');
-export const XCircleInherit: Story = combo('x-circle', 'inherit');
-export const PlusCircleInherit: Story = combo('plus-circle', 'inherit');
-export const PencilInherit: Story = combo('pencil', 'inherit');
-export const TrashInherit: Story = combo('trash', 'inherit');
-export const DownloadInherit: Story = combo('download', 'inherit');
-export const ImageInherit: Story = combo('image', 'inherit');
-export const UploadInherit: Story = combo('upload', 'inherit');
-export const SearchInherit: Story = combo('search', 'inherit');
-export const ChevronLeftInherit: Story = combo('chevron-left', 'inherit');
-export const ChevronRightInherit: Story = combo('chevron-right', 'inherit');
-
-/* ── 접근성·색 축 ───────────────────────────────────────────────────────────── */
-
-/** label 없음 — 장식으로 간주해 aria-hidden 처리된다 (인접 텍스트가 의미를 제공하는 경우) */
-export const Decorative: Story = {
-  args: { name: 'search', label: '' },
+/** Sizes — 크기 규격 검증. sm·md·lg 를 한 화면에 나란히(자산×크기로 나누지 않는다) */
+export const Sizes: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div style={rowStyle}>
+      <Icon name="trash" size="sm" />
+      <Icon name="trash" size="md" />
+      <Icon name="trash" size="lg" />
+    </div>
+  ),
 };
 
-/** label 있음 — role=img + aria-label 로 이름이 노출된다 */
-export const Labelled: Story = {
-  args: { name: 'trash', label: '삭제' },
-};
-
-/** 색은 currentColor — 부모의 color 를 그대로 따른다 */
-export const InheritsColor: Story = {
+/** Color Inherit — 색은 currentColor 다. 부모의 color 를 그대로 따른다 */
+export const ColorInherit: Story = {
+  name: 'Color Inherit',
   args: { name: 'plus-circle', size: 'lg' },
   decorators: [
     (Story) => (
@@ -110,20 +82,32 @@ export const InheritsColor: Story = {
   ],
 };
 
-/** RTL — 방향 아이콘은 미러링하지 않는다(레이아웃이 뒤집혀도 글리프는 그대로) */
-export const RightToLeft: Story = {
-  args: { name: 'chevron-right', size: 'lg' },
-  decorators: [rtlFrame],
+/** Decorative — label 이 없으면 장식으로 간주해 aria-hidden 이다(인접 텍스트가 의미를 준다) */
+export const Decorative: Story = {
+  args: { name: 'search', label: '' },
 };
 
-/* ── 전량 갤러리 ────────────────────────────────────────────────────────────── */
+/** Labelled — label 이 있으면 role=img + aria-label 로 이름이 노출된다 */
+export const Labelled: Story = {
+  args: { name: 'trash', label: '삭제' },
+};
+
+/** RTL — 방향 아이콘은 미러링하지 않는다(레이아웃이 뒤집혀도 글리프는 그대로) */
+export const RightToLeft: Story = {
+  name: 'Accessibility/RTL',
+  args: { name: 'chevron-right', size: 'lg' },
+  decorators: [
+    (Story) => (
+      <div dir="rtl" style={{ padding: 'var(--tds-space-5)' }}>
+        <Story />
+      </div>
+    ),
+  ],
+};
 
 /**
- * Gallery — 계약이 선언한 아이콘 **전량**을 이름과 함께 격자로 늘어놓는다.
- *
- * 목록을 손으로 적지 않는다: 생성 기하(ICON_SHAPES)의 키를 그대로 쓰므로 아이콘이 늘면
- * 이 화면도 자동으로 따라온다. 빠진 아이콘은 눈으로 바로 찾을 수 있고, 모양이 비어 있으면
- * 빈 칸으로 드러난다.
+ * Gallery — 계약이 선언한 아이콘 **전량**을 이름과 함께 격자로. 목록을 손으로 적지 않는다:
+ * 생성 기하(ICON_SHAPES)의 키를 그대로 쓰므로 아이콘이 늘면 이 화면도 자동으로 따라온다.
  */
 export const Gallery: Story = {
   parameters: { layout: 'padded', controls: { disable: true } },
@@ -135,8 +119,6 @@ export const Gallery: Story = {
           style={{
             marginBottom: 'var(--tds-space-4)',
             color: 'var(--tds-color-text-muted)',
-            // typography 토큰은 축약형 `font` 로 해석되지 않는다 — codegen 이 네 속성으로 전개한다.
-            // 한 이름으로 쓰면 선언이 무효가 되어 조용히 상속값으로 떨어진다.
             fontFamily: 'var(--tds-typography-body-md-font-family)',
             fontSize: 'var(--tds-typography-body-md-font-size)',
             fontWeight: 'var(--tds-typography-body-md-font-weight)',

@@ -39,8 +39,8 @@ payload `string` · **`blockedWhen: ["disabled"]`**.
 **유효한 hex 가 됐을 때만** `onChange` 를 발화하고 그 전까지는 지역 초안(draft)으로 들고 있는다.
 유효하지 않은 채로 포커스를 떠나면 마지막 유효값으로 되돌린다 — **반쯤 친 값이 화면에 남지 않는다.**
 
-<Story of={ColorFieldStories.FiresOnlyOnValidHex} />
-<Story of={ColorFieldStories.BlockedWhenDisabled} />
+<Story of={ColorFieldStories.EnabledChange} />
+<Story of={ColorFieldStories.DisabledChange} />
 
 ### 스와치 정규화
 
