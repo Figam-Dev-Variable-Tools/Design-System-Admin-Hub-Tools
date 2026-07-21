@@ -1,8 +1,11 @@
-// TriStateCheckbox — Storybook 스토리 (CSF3 · Atoms/TriStateCheckbox)
+// TriStateCheckbox — Storybook 스토리 (CSF3 · 고정 IA · Button 기준)
 //
-// argTypes 는 계약 생성물(generated/argtypes/TriStateCheckbox.argtypes)을 spread 한다 (수기 작성 금지 — G5).
-// 커버리지: combinationMatrix(checked·indeterminate·disabled = 2^3 = 8) 전수 + blockedWhen(disabled) +
-//           활성 발화 대조 + Dark/RTL.
+// [고정 IA] checked·indeterminate·disabled 8조합을 낱개 스토리로 폭발시키지 않는다. 대표 상태만
+// 남기고(States/Unchecked·Checked·Indeterminate·Disabled), 세부 조합(On+Mixed·Mixed+Disabled …)은
+// Playground Controls 로 넘긴다:
+//   Docs · Overview · Playground · States/ · Accessibility/RTL · Interaction/
+// 8조합 전수 검증(aria-checked=mixed 조건 포함)은 TriStateCheckbox.test.tsx 가 소유.
+// argTypes 는 계약 생성물(generated/argtypes/TriStateCheckbox.argtypes)을 spread 한다 (수기 금지 — G5).
 import { useEffect, useState } from 'react';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import { expect, fn, userEvent, within } from '@storybook/test';
@@ -52,53 +55,49 @@ const rtlFrame: Decorator = (Story) => (
   </div>
 );
 
-/* ── combinationMatrix 전수 (checked × indeterminate × disabled = 8) ───────── */
+/** Overview — 대표 쓰임새(부분 선택). 이 컴포넌트를 일반 Checkbox 와 가르는 mixed 상태를 보인다 */
+export const Overview: Story = { args: { indeterminate: true } };
+
+/** Playground — checked·indeterminate·disabled 를 Controls 로 바꿔 전 8조합을 본다 */
+export const Playground: Story = {};
+
+/* ── States ─────────────────────────────────────────────────────────────── */
 
 /** off — 미선택 */
-export const Off: Story = { args: { checked: false, indeterminate: false } };
+export const Off: Story = {
+  name: 'States/Unchecked',
+  args: { checked: false, indeterminate: false },
+};
 
 /** on — 전체 선택 */
-export const On: Story = { args: { checked: true, indeterminate: false } };
+export const On: Story = { name: 'States/Checked', args: { checked: true, indeterminate: false } };
 
-/** mixed — 일부 선택 (aria-checked="mixed") */
-export const Mixed: Story = { args: { checked: false, indeterminate: true } };
-
-/** on + mixed — indeterminate 가 checked 보다 우선 표시된다 */
-export const OnMixed: Story = { args: { checked: true, indeterminate: true } };
-
-/** off + disabled */
-export const OffDisabled: Story = {
-  args: { checked: false, indeterminate: false, disabled: true },
+/** mixed — 부분 선택 (aria-checked="mixed"). indeterminate 가 checked 보다 우선 표시된다 */
+export const Mixed: Story = {
+  name: 'States/Indeterminate',
+  args: { checked: false, indeterminate: true },
 };
 
-/** on + disabled */
-export const OnDisabled: Story = { args: { checked: true, indeterminate: false, disabled: true } };
-
-/** mixed + disabled — 잠기면 indeterminate 표시를 끈다 */
-export const MixedDisabled: Story = {
-  args: { checked: false, indeterminate: true, disabled: true },
+/** disabled (잠금) — 잠기면 indeterminate 표시를 끈다. 세부 on/off/mixed 조합은 Playground 에서 */
+export const Disabled: Story = {
+  name: 'States/Disabled',
+  args: { checked: true, indeterminate: false, disabled: true },
 };
 
-/** on + mixed + disabled */
-export const OnMixedDisabled: Story = {
-  args: { checked: true, indeterminate: true, disabled: true },
+/* ── Accessibility ──────────────────────────────────────────────────────── */
+
+/** RTL — 논리 속성이라 체크박스가 라벨의 오른쪽에 온다(문서 방향만 뒤집는다 · 문구는 한국어로 검수) */
+export const RightToLeft: Story = {
+  name: 'Accessibility/RTL',
+  args: { checked: true, indeterminate: false, label: '이 페이지의 회원 전체 선택' },
+  decorators: [rtlFrame],
 };
 
-/* ── 계약 events.onChange.blockedWhen 전수 검증 (disabled) ──────────────────── */
+/* ── Interaction ────────────────────────────────────────────────────────── */
 
-/** TriStateCheckbox: disabled 에서 onChange 가 발화하지 않는다 (계약 blockedWhen: disabled) */
-export const BlockedWhenDisabled: Story = {
-  name: 'TriStateCheckbox: disabled 상태에서 onChange 가 발화하지 않는다',
-  args: { checked: false, indeterminate: false, disabled: true },
-  play: async ({ canvasElement, args }) => {
-    await userEvent.click(within(canvasElement).getByRole('checkbox'), { pointerEventsCheck: 0 });
-    await expect(args.onChange).not.toHaveBeenCalled();
-  },
-};
-
-/** TriStateCheckbox: 활성 상태에서는 onChange 가 발화한다 (비발생 단언이 공허하지 않음을 보인다) */
+/** 활성 상태에서는 클릭이 onChange 를 다음 상태(true)로 발화한다 */
 export const FiresWhenEnabled: Story = {
-  name: 'TriStateCheckbox: 활성 상태에서는 onChange 가 발화한다',
+  name: 'Interaction/Enabled Change',
   args: { checked: false, indeterminate: false },
   play: async ({ canvasElement, args }) => {
     await userEvent.click(within(canvasElement).getByRole('checkbox'));
@@ -106,8 +105,12 @@ export const FiresWhenEnabled: Story = {
   },
 };
 
-/** RTL */
-export const RightToLeft: Story = {
-  args: { checked: true, indeterminate: false, label: 'تحديد الكل' },
-  decorators: [rtlFrame],
+/** disabled 면 onChange 가 발화하지 않는다 (계약 blockedWhen: disabled) */
+export const BlockedWhenDisabled: Story = {
+  name: 'Interaction/Disabled Change',
+  args: { checked: false, indeterminate: false, disabled: true },
+  play: async ({ canvasElement, args }) => {
+    await userEvent.click(within(canvasElement).getByRole('checkbox'), { pointerEventsCheck: 0 });
+    await expect(args.onChange).not.toHaveBeenCalled();
+  },
 };

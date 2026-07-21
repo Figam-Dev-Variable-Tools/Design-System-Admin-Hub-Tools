@@ -1,8 +1,9 @@
-// Slider — Storybook 스토리 (CSF3 · Inputs/Slider)
+// Slider — Storybook 스토리 (CSF3)
 //
-// argTypes 는 계약 생성물(generated/argtypes/Slider.argtypes)을 spread 한다 (수기 작성 금지 — G5).
-// 커버리지: combinationMatrix(disabled = 2) 전수 + blockedWhen(disabled) + 활성 발화 대조 +
-//           경계값(min·max) + 단위 있음/없음 + 큰 step + RTL.
+// [고정 IA — Button 기준] 값·범위·단위 조합을 낱개로 폭발시키지 않는다. min·max·step·unit 은
+// Controls 로 바꾸고, 대표 상태·콘텐츠 형태만 그룹으로 남긴다(Behavior 금지 → Interaction):
+//   Overview · Playground · States/ · Content/ · Examples/ · Accessibility/RTL · Interaction/
+// 상태 규칙(hover·focus-visible)·blockedWhen 전수 검증은 Slider.test.tsx 가 소유. argTypes 는 계약 생성물 spread(G5).
 import { useEffect, useState } from 'react';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import { expect, fn, userEvent, within } from '@storybook/test';
@@ -65,63 +66,75 @@ const rtlFrame: Decorator = (Story) => (
   </div>
 );
 
-/** 기본 — 값 표시가 옆에 붙는다 */
-export const Default: Story = {
+/** Overview — 대표 쓰임새. 값 표시가 트랙 옆에 붙는다 */
+export const Overview: Story = {
   decorators: [widthFrame],
 };
 
-/** 잠김 — 트랙과 값 표시가 함께 흐려진다 */
+/**
+ * Playground — min·max·step·unit·disabled 를 Controls 로 바꿔 전 조합을 본다.
+ * min·max·step 은 서로 맞물리는 값이라(step 이 범위를 나누지 못하면 끝 값에 닿지 못한다)
+ * 하나씩 고정된 스토리로는 그 상호작용이 보이지 않는다 — 여기서 같이 움직여 본다.
+ */
+export const Playground: Story = {
+  decorators: [widthFrame],
+};
+
+/* ── States ─────────────────────────────────────────────────────────────── */
+
+/** disabled (잠금) — 트랙과 값 표시가 함께 흐려진다 */
 export const Disabled: Story = {
+  name: 'States/Disabled',
   args: { disabled: true },
   decorators: [widthFrame],
 };
 
+/* ── Content ────────────────────────────────────────────────────────────── */
+
 /** 최솟값(0) — 손잡이가 왼쪽 끝에 붙는다 */
 export const AtMinimum: Story = {
+  name: 'Content/At Minimum',
   args: { value: 0 },
   decorators: [widthFrame],
 };
 
 /** 최댓값 — 손잡이가 오른쪽 끝에 붙는다. 자릿수가 늘어도 트랙이 흔들리지 않는다(tabular-nums) */
 export const AtMaximum: Story = {
+  name: 'Content/At Maximum',
   args: { value: 40 },
   decorators: [widthFrame],
 };
 
 /** 단위 없음 — 숫자만 보인다 */
 export const WithoutUnit: Story = {
+  name: 'Content/Without Unit',
   args: { value: 3, min: 0, max: 10, unit: '', label: 'Divider height' },
   decorators: [widthFrame],
 };
 
+/* ── Examples ───────────────────────────────────────────────────────────── */
+
 /** 큰 step — 화살표 한 번이 10씩 움직인다 (글자 크기·미디어 크기 같은 거친 축) */
 export const CoarseStep: Story = {
+  name: 'Examples/Coarse Step',
   args: { value: 40, min: 0, max: 200, step: 10, label: 'Media width' },
   decorators: [widthFrame],
 };
 
-/* ── 계약 events.onChange.blockedWhen 전수 검증 (disabled) ────────────────────
- * 비발생은 렌더로 증명되지 않는다 — 스파이(args.onChange = fn())를 관찰한다.
- */
+/* ── Accessibility ──────────────────────────────────────────────────────── */
 
-/** Slider: disabled 에서 onChange 가 발화하지 않는다 (계약 blockedWhen: disabled) */
-export const BlockedWhenDisabled: Story = {
-  name: 'Slider: disabled 상태에서 onChange 가 발화하지 않는다',
-  args: { disabled: true },
-  decorators: [widthFrame],
-  play: async ({ canvasElement, args }) => {
-    const slider = within(canvasElement).getByRole('slider');
-
-    await expect(slider).toBeDisabled();
-    await userEvent.click(slider, { pointerEventsCheck: 0 });
-
-    await expect(args.onChange).not.toHaveBeenCalled();
-  },
+/** RTL — 트랙 방향이 뒤집혀도 값 표시가 트랙 반대편에 붙는다(라벨은 한국어로 검수) */
+export const RightToLeft: Story = {
+  name: 'Accessibility/RTL',
+  args: { label: '상단 여백' },
+  decorators: [rtlFrame],
 };
 
-/** Slider: 활성 상태에서는 값을 옮기면 onChange 가 발화한다 (비발생 단언이 공허하지 않음을 보인다) */
+/* ── Interaction ────────────────────────────────────────────────────────── */
+
+/** 활성 상태에서는 값을 옮기면 onChange 가 발화한다 (비발생 단언이 공허하지 않음을 보인다) */
 export const FiresWhenEnabled: Story = {
-  name: 'Slider: 활성 상태에서는 onChange 가 발화한다',
+  name: 'Interaction/Enabled Change',
   decorators: [widthFrame],
   play: async ({ canvasElement, args }) => {
     const slider = within(canvasElement).getByRole('slider');
@@ -133,26 +146,17 @@ export const FiresWhenEnabled: Story = {
   },
 };
 
-/** RTL — 트랙 방향이 뒤집혀도 값 표시가 트랙 반대편에 붙는다 */
-export const RightToLeft: Story = {
-  args: { label: 'الحشوة العلوية' },
-  decorators: [rtlFrame],
-};
+/** disabled 면 onChange 가 발화하지 않는다 (계약 blockedWhen: disabled) */
+export const BlockedWhenDisabled: Story = {
+  name: 'Interaction/Disabled Change',
+  args: { disabled: true },
+  decorators: [widthFrame],
+  play: async ({ canvasElement, args }) => {
+    const slider = within(canvasElement).getByRole('slider');
 
-/**
- * Playground — 컨트롤 9개를 한 화면에서 전부 살려 둔다.
- * min·max·step 은 서로 맞물리는 값이라(예: step 이 범위를 나누지 못하면 끝 값에 닿지 못한다)
- * 하나씩 고정된 스토리로는 그 상호작용이 보이지 않는다 — 여기서 같이 움직여 본다.
- */
-export const Playground: Story = {
-  args: {
-    value: 16,
-    min: 0,
-    max: 40,
-    step: 1,
-    label: 'Padding top',
-    unit: 'px',
-    id: '',
-    disabled: false,
+    await expect(slider).toBeDisabled();
+    await userEvent.click(slider, { pointerEventsCheck: 0 });
+
+    await expect(args.onChange).not.toHaveBeenCalled();
   },
 };

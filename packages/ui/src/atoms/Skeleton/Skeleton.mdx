@@ -54,9 +54,7 @@ FaqTable · NoticesTable · PopupsTable · LoginHistoryTable · LogTable · Memb
 
 ## States
 
-계약 `states` 는 `default` 하나뿐이다. 시각 축은 `shape` 와 `isAnimated` 가 전부다.
-
-<Story of={SkeletonStories.States} />
+계약 `states` 는 `default` 하나뿐이다. 시각 축은 `shape`(Variants)와 `isAnimated`(Variants/Static)가 전부다.
 
 ## 접근성 계약
 
@@ -71,6 +69,8 @@ FaqTable · NoticesTable · PopupsTable · LoginHistoryTable · LogTable · Memb
 
 > **블록 하나하나가 알리면 표 한 장에서 수십 번 낭독된다.** 그래서 `aria-busy` 는 호출부의 책임이지
 > 이 컴포넌트의 책임이 아니다 — `TableRows` 스토리가 `<tbody aria-busy="true">` 로 그 배치를 보여 준다.
+
+<Story of={SkeletonStories.AriaSemantics} />
 
 ## 토큰
 

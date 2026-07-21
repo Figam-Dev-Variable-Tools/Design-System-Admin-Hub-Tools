@@ -51,18 +51,14 @@ import * as TriStateCheckboxStories from './TriStateCheckbox.stories';
 <Story of={TriStateCheckboxStories.Off} />
 <Story of={TriStateCheckboxStories.On} />
 <Story of={TriStateCheckboxStories.Mixed} />
-<Story of={TriStateCheckboxStories.OnMixed} />
 
-`OnMixed` 는 `indeterminate` 가 `checked` 보다 우선한다는 계약 규칙을 보여준다.
+`indeterminate` 는 `checked` 보다 우선해 표시된다 — `checked`+`indeterminate` 조합은 Playground 의 Controls 로 확인한다.
 
 ## 잠금
 
-`disabled` 이면 `indeterminate` 표시도 함께 꺼진다.
+`disabled` 이면 `indeterminate` 표시도 함께 꺼진다. off/mixed 등 세부 잠금 조합은 Playground 에서 확인한다.
 
-<Story of={TriStateCheckboxStories.OffDisabled} />
-<Story of={TriStateCheckboxStories.OnDisabled} />
-<Story of={TriStateCheckboxStories.MixedDisabled} />
-<Story of={TriStateCheckboxStories.OnMixedDisabled} />
+<Story of={TriStateCheckboxStories.Disabled} />
 
 ## 이벤트 — `onChange`
 

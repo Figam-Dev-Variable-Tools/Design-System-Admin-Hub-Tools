@@ -26,15 +26,13 @@ import * as SpinnerStories from './Spinner.stories';
 
 ## size
 
-<Story of={SpinnerStories.Inherit} />
-<Story of={SpinnerStories.Small} />
-<Story of={SpinnerStories.Medium} />
-<Story of={SpinnerStories.Large} />
+<Story of={SpinnerStories.Sizes} />
 
 `inherit` 만 상대 단위다. Button 이 size `sm`/`md`/`lg` 마다 다른 `font-size` 를 갖는데
-**스피너가 따라 커지던 승계 동작이 이 `1em` 하나에 담겨 있다.**
+**스피너가 따라 커지던 승계 동작이 이 `1em` 하나에 담겨 있다.** 아래 버튼 맥락에서 스피너가
+버튼 글자 크기를 따라 커지는 것을 볼 수 있다.
 
-<Story of={SpinnerStories.InheritsFontSize} />
+<Story of={SpinnerStories.CurrentColor} />
 
 ## 색은 `currentColor` 다
 
@@ -58,7 +56,7 @@ Button 안에서는 `aria-busy` 가 **이미 버튼에** 붙어 로딩을 알린
 
 계약 `states` 는 `default` 하나뿐이다. 시각 축은 `size` 가 전부다.
 
-<Story of={SpinnerStories.States} />
+<Story of={SpinnerStories.Overview} />
 
 ## 접근성 계약
 
