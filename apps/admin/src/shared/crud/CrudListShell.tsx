@@ -37,6 +37,23 @@ const summaryRowStyle: CSSProperties = {
   gap: cssVar('space.3'),
 };
 
+/**
+ * 표의 가로 스크롤 (IA-14 · ERP-15).
+ *
+ * DS Table 은 스스로 스크롤을 두르지 않는다 — overflow-x 를 표에 넣으면 표가 자기 스크롤
+ * 컨테이너가 되어 sticky 헤더·행 확장 같은 다음 축을 막기 때문이다(Table.css 머리말).
+ * 그래서 **폭 대응은 감싸는 쪽의 일**인데, 로그·통계 껍데기만 그것을 하고 있었고 CRUD
+ * 껍데기는 빠져 있었다. 열이 많은 목록(프로그램 현황은 선택·순번·행액션까지 12칸이다)에서
+ * 표가 페이지 밖으로 밀려 나가 사이드바 옆 레이아웃을 통째로 늘리던 원인이다.
+ *
+ * minWidth: 0 이 함께 필요하다 — 이 껍데기는 그리드 트랙 안에 놓이고, 그리드 아이템의
+ * 기본 min-width:auto 는 내용 폭만큼 트랙을 벌려 overflow 를 무력화한다.
+ */
+const tableScrollStyle: CSSProperties = {
+  overflowX: 'auto',
+  minWidth: 0,
+};
+
 interface CrudListShellController<T extends { id: string }> {
   /** 최초 로드 — 스켈레톤의 유일한 조건 (STATE-01) */
   readonly firstLoading: boolean;
@@ -170,37 +187,39 @@ export function CrudListShell<T extends { id: string }>({
             </SelectionBar>
           )}
 
-          <CrudTable
-            items={visibleItems}
-            loading={firstLoading}
-            entityLabel={entityLabel}
-            columns={columns}
-            nameOf={nameOf}
-            selectedIds={controller.selectedIds}
-            onToggleOne={controller.toggleOne}
-            onToggleAll={(checked) =>
-              controller.toggleAll(
-                visibleItems.map((item) => item.id),
-                checked,
-              )
-            }
-            onEdit={onEdit}
-            {...(rowTarget !== undefined && {
-              rowTarget,
-              activatorFor: (item: T) =>
-                rowActivator(rowTarget, item, (href) => {
-                  navigate(href);
-                }),
-            })}
-            onDelete={controller.requestDelete}
-            deletingId={controller.deletingId}
-            selectAllLabelId={selectAllLabelId}
-            canUpdate={canUpdate}
-            canRemove={canRemove}
-            {...(empty !== undefined && { empty })}
-            sort={sort}
-            {...(onToggleSort !== undefined && { onToggleSort })}
-          />
+          <div style={tableScrollStyle}>
+            <CrudTable
+              items={visibleItems}
+              loading={firstLoading}
+              entityLabel={entityLabel}
+              columns={columns}
+              nameOf={nameOf}
+              selectedIds={controller.selectedIds}
+              onToggleOne={controller.toggleOne}
+              onToggleAll={(checked) =>
+                controller.toggleAll(
+                  visibleItems.map((item) => item.id),
+                  checked,
+                )
+              }
+              onEdit={onEdit}
+              {...(rowTarget !== undefined && {
+                rowTarget,
+                activatorFor: (item: T) =>
+                  rowActivator(rowTarget, item, (href) => {
+                    navigate(href);
+                  }),
+              })}
+              onDelete={controller.requestDelete}
+              deletingId={controller.deletingId}
+              selectAllLabelId={selectAllLabelId}
+              canUpdate={canUpdate}
+              canRemove={canRemove}
+              {...(empty !== undefined && { empty })}
+              sort={sort}
+              {...(onToggleSort !== undefined && { onToggleSort })}
+            />
+          </div>
         </>
       ) : (
         <Alert tone="danger">

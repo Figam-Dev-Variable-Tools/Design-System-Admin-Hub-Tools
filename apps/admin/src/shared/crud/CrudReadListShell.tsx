@@ -32,6 +32,12 @@ const columnStyle: CSSProperties = {
   minWidth: 0,
 };
 
+/** 표의 가로 스크롤 — 근거는 CrudListShell.tableScrollStyle 머리말과 같다 */
+const tableScrollStyle: CSSProperties = {
+  overflowX: 'auto',
+  minWidth: 0,
+};
+
 /** 읽기 전용 목록의 조회 상태 — UseQueryResult 에서 화면이 뽑아 넘긴다 */
 interface ReadListState {
   /** 최초 로드 — 스켈레톤의 유일한 조건 (STATE-01) */
@@ -114,33 +120,35 @@ export function CrudReadListShell<T extends { id: string }>({
             {refreshing && ' · 새로고침 중…'}
           </p>
 
-          <CrudTable
-            items={visibleItems}
-            loading={firstLoading}
-            entityLabel={entityLabel}
-            columns={columns}
-            nameOf={nameOf}
-            selectedIds={NO_SELECTION}
-            onToggleOne={noop}
-            onToggleAll={noop}
-            onEdit={noop}
-            rowTarget={rowTarget}
-            activatorFor={(item: T) =>
-              rowActivator(rowTarget, item, (href) => {
-                navigate(href);
-              })
-            }
-            onDelete={noop}
-            deletingId={null}
-            selectAllLabelId=""
-            /* 읽기 전용 — 선택 열도 액션 열도 어떤 역할에게든 없다. 행 클릭은 detail 이라
-               canUpdate 와 무관하게 read 로 게이팅된다(CrudTable 의 activationAllowed). */
-            canUpdate={false}
-            canRemove={false}
-            {...(empty !== undefined && { empty })}
-            sort={sort}
-            {...(onToggleSort !== undefined && { onToggleSort })}
-          />
+          <div style={tableScrollStyle}>
+            <CrudTable
+              items={visibleItems}
+              loading={firstLoading}
+              entityLabel={entityLabel}
+              columns={columns}
+              nameOf={nameOf}
+              selectedIds={NO_SELECTION}
+              onToggleOne={noop}
+              onToggleAll={noop}
+              onEdit={noop}
+              rowTarget={rowTarget}
+              activatorFor={(item: T) =>
+                rowActivator(rowTarget, item, (href) => {
+                  navigate(href);
+                })
+              }
+              onDelete={noop}
+              deletingId={null}
+              selectAllLabelId=""
+              /* 읽기 전용 — 선택 열도 액션 열도 어떤 역할에게든 없다. 행 클릭은 detail 이라
+                 canUpdate 와 무관하게 read 로 게이팅된다(CrudTable 의 activationAllowed). */
+              canUpdate={false}
+              canRemove={false}
+              {...(empty !== undefined && { empty })}
+              sort={sort}
+              {...(onToggleSort !== undefined && { onToggleSort })}
+            />
+          </div>
         </>
       ) : (
         <Alert tone="danger">
