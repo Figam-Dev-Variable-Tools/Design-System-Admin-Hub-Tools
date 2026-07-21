@@ -11,7 +11,7 @@
 // 값은 인덱스로부터 결정적으로 만든다 — 새로고침해도 목록이 흔들리지 않는다.
 import type {
   ConsentGroup,
-  Coupon,
+  IssuedCoupon,
   Member,
   MemberDetail,
   MemberGroup,
@@ -201,17 +201,24 @@ function buildPointHistory(index: number, joinedAt: string): readonly PointEntry
   return index % 4 === 0 ? base.slice(0, 1) : base;
 }
 
-function buildCoupons(index: number): readonly Coupon[] {
+/**
+ * 보유 쿠폰 = 상품 관리 쿠폰의 **발급 1건**.
+ *
+ * [왜 id 가 'cpn-1' 인가] 예전에는 '00001-C1' 처럼 어디에도 없는 id 를 지어냈다. 그래서 회원 상세의
+ * 보유 쿠폰과 쿠폰 관리의 발급 수량은 **영원히 서로 다른 이야기**를 했다. 이제 couponId 는 쿠폰
+ * 카탈로그에 실재하는 키다.
+ *
+ * [왜 이름·혜택·만료일이 없나] 그것은 쿠폰의 정의이고 정본은 상품 관리에 있다 — 화면이 조인해
+ * 온다(shared/domain/member 의 joinIssuedCoupons). 여기서 지어내면 두 화면이 다시 갈라진다.
+ * 픽스처가 pages/products/coupons 를 직접 import 하지 않는 이유는 페이지 간 결합이기 때문이다.
+ */
+function buildIssuedCoupons(index: number): readonly IssuedCoupon[] {
   // 상당수 회원은 보유 쿠폰이 없다 → 빈 상태 문구를 실제로 확인할 수 있다
   if (index % 3 !== 0) return [];
-  return [
-    {
-      id: `${pad(index + 1, 5)}-C1`,
-      name: '신규 가입 감사 쿠폰',
-      benefit: '10% 할인',
-      expiresAt: '2026-08-31',
-    },
-  ];
+  const welcome: IssuedCoupon = { couponId: 'cpn-1', issuedAt: '2026-07-01', usedAt: null };
+  // 6명 중 1명은 두 건 — 사용한 쿠폰과 남은 쿠폰이 한 목록에 함께 있는 모습을 볼 수 있다
+  if (index % 6 !== 0) return [welcome];
+  return [welcome, { couponId: 'cpn-2', issuedAt: '2026-06-05', usedAt: '2026-06-20' }];
 }
 
 /**
@@ -249,7 +256,7 @@ export function buildMemberDetail(member: Member): MemberDetail {
     points: member.points,
     pointHistory: buildPointHistory(safeIndex, member.joinedAt),
 
-    coupons: buildCoupons(safeIndex),
+    coupons: buildIssuedCoupons(safeIndex),
 
     memo: member.memo,
   };

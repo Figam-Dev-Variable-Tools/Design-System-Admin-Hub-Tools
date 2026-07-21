@@ -1,6 +1,6 @@
 // 프로모션 폼 검증 규칙 (검증의 정본은 이 zod 스키마다)
 //
-// 할인값은 원값 보존을 위해 문자열로 받는다. 기간 역전·할인값 0/정률 100 초과·쿠폰 연동 시 코드 누락을
+// 할인값은 원값 보존을 위해 문자열로 받는다. 기간 역전·할인값 0/정률 100 초과·쿠폰 연동 시 선택 누락을
 // 경계값으로 막는다.
 import * as z from 'zod/mini';
 
@@ -20,8 +20,10 @@ export const promotionSchema = z
     discountType: z.enum(['rate', 'amount']),
     discountValue: z.string(),
     minOrderAmount: z.string(),
+    // 폼 전용 스위치 — 저장되는 값이 아니다(연동 여부의 정본은 couponId 가 비었는가다).
+    // 토글을 끄면 선택이 사라지고, 켜면 카탈로그에서 고른다.
     couponLinked: z.boolean(),
-    couponCode: z.string(),
+    couponId: z.string(),
     description: z.string().check(
       z.refine((value) => value.trim().length <= PROMOTION_DESC_MAX, {
         error: `설명은 ${String(PROMOTION_DESC_MAX)}자를 넘을 수 없습니다.`,
@@ -93,13 +95,14 @@ export const promotionSchema = z
     }
   })
   .check((ctx) => {
-    // 쿠폰 연동 — 연동 시 쿠폰코드 필수.
-    if (ctx.value.couponLinked && ctx.value.couponCode.trim() === '') {
+    // 쿠폰 연동 — 연동 시 쿠폰 선택 필수. 값은 카탈로그의 id 라 '존재하지 않는 쿠폰' 은
+    // 여기까지 오지 않는다(선택 목록 자체가 카탈로그에서 만들어진다).
+    if (ctx.value.couponLinked && ctx.value.couponId.trim() === '') {
       ctx.issues.push({
         code: 'custom',
-        input: ctx.value.couponCode,
-        path: ['couponCode'],
-        message: '연동할 쿠폰코드를 입력하세요.',
+        input: ctx.value.couponId,
+        path: ['couponId'],
+        message: '연동할 쿠폰을 선택하세요.',
       });
     }
   });

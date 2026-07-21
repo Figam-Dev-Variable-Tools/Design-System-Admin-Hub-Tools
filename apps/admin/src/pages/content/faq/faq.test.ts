@@ -10,10 +10,13 @@ import {
   deleteFaqCategory,
   FAQ_CATEGORIES,
   FAQS,
+  listPublishedFaqs,
   nextOrder,
   reorderByIds,
   setVisibilityById,
 } from './data-source';
+import { publishedFaqs } from '../../../shared/domain/faq-catalog';
+import { wireDomains } from '../../../wiring';
 import type { FaqQuery } from './data-source';
 import { faqCategorySchema, faqSchema } from './validation';
 import type { FaqCategoryFormValues, FaqFormValues } from './validation';
@@ -86,6 +89,34 @@ describe('FAQS 픽스처', () => {
   it('정렬 순서 오름차순으로 온다', () => {
     const orders = FAQS.map((faq) => faq.order);
     expect([...orders].sort((a, b) => a - b)).toEqual(orders);
+  });
+});
+
+/* ── 고객센터 FAQ 와의 관계 ────────────────────────────────────────────────────
+ *
+ * 고객센터 FAQ(/support/faq)는 이 화면에서 쓴 FAQ 를 큐레이션한다. 그 연결은 조회기 배선으로
+ * 이뤄지고(shared/domain/faq-catalog · src/wiring.ts), 여기서는 **공급하는 쪽의 계약**을 지킨다.
+ * 소비하는 쪽(노출·BEST·순서)은 support/faq/faq.test.ts 가 맡는다 — 두 페이지는 서로를
+ * import 하지 않으므로(축1) 테스트도 각자의 반쪽만 본다. */
+
+describe('listPublishedFaqs — 고객센터가 큐레이션할 원본', () => {
+  it('숨김 FAQ 는 내보내지 않는다 — 여기서 내린 결정을 저쪽 토글이 뒤집지 못하게', () => {
+    const published = listPublishedFaqs();
+    expect(published.length).toBeGreaterThan(0);
+    expect(published.length).toBe(FAQS.filter((faq) => faq.visible).length);
+    const ids = new Set(published.map((faq) => faq.id));
+    for (const faq of FAQS.filter((item) => !item.visible)) expect(ids.has(faq.id)).toBe(false);
+  });
+
+  it('카테고리 어휘는 이 화면의 카테고리 목록 안에 있다 — 고객센터가 자기 어휘를 만들지 않는다', () => {
+    const known = new Set(FAQ_CATEGORIES.map((category) => category.id));
+    for (const faq of listPublishedFaqs()) expect(known.has(faq.categoryId)).toBe(true);
+  });
+
+  it('배선(wireDomains)을 걸면 공통 조회기가 이 목록을 준다 — 두 화면을 잇는 유일한 지점', () => {
+    wireDomains();
+    const viaCatalog = publishedFaqs();
+    expect(viaCatalog?.map((faq) => faq.id)).toEqual(listPublishedFaqs().map((faq) => faq.id));
   });
 });
 

@@ -6,7 +6,9 @@
 // [데이터 접근 범위] 역할당 하나. 저장만 하고 실제 필터링은 백엔드가 한다.
 import type { CSSProperties } from 'react';
 import { useId } from 'react';
+import { Link } from 'react-router-dom';
 
+import { formatNumber } from '../../../shared/format';
 import {
   badgeStyle,
   Button,
@@ -58,10 +60,18 @@ const scopeHintStyle: CSSProperties = {
   minWidth: 0,
 };
 
+/** 관리자 관리 목록 — 역할 필터가 URL 을 소유하므로 ?role= 로 바로 착지한다 */
+const ADMINS_PATH = '/users/admins';
+
 interface RoleHeaderCardProps {
   readonly role: Role;
   readonly active: boolean;
   readonly activeRoleName: string;
+  /**
+   * 이 역할을 배정받은 운영자 수 — null 이면 '확인 불가'(조회기 미배선)다.
+   * 0 과 null 을 같게 그리지 않는다: '아무도 없다' 와 '모른다' 는 다음 행동이 다르다.
+   */
+  readonly assigneeCount: number | null;
   readonly onActivate: () => void;
   readonly onScopeChange: (scope: RoleScope) => void;
   /** 슈퍼어드민 비활성 사유 문구의 id — 비활성 컨트롤이 aria-describedby 로 가리킨다 */
@@ -72,6 +82,7 @@ export function RoleHeaderCard({
   role,
   active,
   activeRoleName,
+  assigneeCount,
   onActivate,
   onScopeChange,
   systemReasonId,
@@ -105,6 +116,33 @@ export function RoleHeaderCard({
           )}
         </span>
       </CardTitle>
+
+      {/* 이 역할이 지금 누구에게 붙어 있는가 — 권한만 다루는 화면에서 유일하게 '사람' 을 가리키는 줄.
+          숫자를 보여 주는 데서 끝내지 않고 그 명단으로 보낸다(관리자 관리의 ?role= 필터가 URL 을 소유한다).
+          삭제가 막히는 이유가 곧 이 숫자라, 사유를 읽은 운영자가 다음 행동을 바로 할 수 있어야 한다. */}
+      <div style={scopeRowStyle}>
+        <span style={fieldLabelStyle}>배정 운영자</span>
+        {assigneeCount === null ? (
+          <span style={scopeHintStyle}>
+            운영자 명부를 확인할 수 없어 배정 인원을 셀 수 없습니다. 이 상태에서는 역할을 삭제할 수
+            없습니다.
+          </span>
+        ) : (
+          <>
+            <Link
+              to={`${ADMINS_PATH}?role=${encodeURIComponent(role.id)}`}
+              className="tds-ui-link tds-ui-focusable"
+            >
+              이 역할 운영자 {formatNumber(assigneeCount)}명
+            </Link>
+            <span style={scopeHintStyle}>
+              {assigneeCount > 0
+                ? '배정된 운영자가 있는 역할은 삭제할 수 없습니다 — 먼저 이 운영자들의 역할을 바꿔 주세요.'
+                : '이 역할을 쓰는 운영자가 없습니다.'}
+            </span>
+          </>
+        )}
+      </div>
 
       <div style={scopeRowStyle}>
         <label htmlFor={scopeId} style={fieldLabelStyle}>

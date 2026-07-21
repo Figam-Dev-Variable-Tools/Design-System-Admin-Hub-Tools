@@ -14,11 +14,12 @@
 // 태워 **재조회를 일으키고, 그 재조회가 도는 동안** 단언해야 잡힌다.
 // ─────────────────────────────────────────────────────────────────────────────
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ToastProvider } from '../../shared/ui';
+import type { AdminQuery } from './data-source';
 import type { AdminListResult } from './types';
 
 const RESULT: AdminListResult = {
@@ -54,18 +55,39 @@ vi.mock('./data-source', async (importOriginal) => ({
 
 const { default: AdminsPage } = await import('./AdminsPage');
 
-function renderPage() {
+/**
+ * 지금 URL 의 쿼리스트링을 그대로 뱉는 탐침.
+ *
+ * 'URL 이 상태를 소유한다'(IA-13)는 화면 안의 값이 아니라 **주소**로만 증명된다 — 화면이 옳게
+ * 보여도 주소가 그대로면 그 필터는 공유할 수도, Back 으로 되돌아올 수도 없다.
+ */
+function LocationProbe() {
+  const location = useLocation();
+  return <output data-testid="location-search">{location.search}</output>;
+}
+
+function renderPage(entry = '/users/admins') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(
     <QueryClientProvider client={client}>
       <ToastProvider>
-        <MemoryRouter initialEntries={['/users/admins']}>
+        <MemoryRouter initialEntries={[entry]}>
           <AdminsPage />
+          <LocationProbe />
         </MemoryRouter>
       </ToastProvider>
     </QueryClientProvider>,
   );
   return client;
+}
+
+/** 마지막으로 나간 목록 조회의 조건 — 화면이 무엇을 물었는지는 이것으로만 알 수 있다 */
+function lastQuery(): AdminQuery | undefined {
+  return fetchAdmins.mock.calls.at(-1)?.[0] as AdminQuery | undefined;
+}
+
+function locationSearch(): string {
+  return screen.getByTestId('location-search').textContent ?? '';
 }
 
 /** 스켈레톤은 aria-hidden 인 장식 span 이다 — 표시 여부를 그 존재로 읽는다 */
@@ -142,6 +164,68 @@ describe('AdminsPage — 재조회가 행을 지우지 않는다 (STATE-01)', ()
     releaseSecondFetch(RESULT);
     await waitFor(() => {
       expect(screen.getByText('운영자킴')).not.toBeNull();
+    });
+  });
+});
+
+/**
+ * 역할 열 · 역할 필터
+ *
+ * [왜 이 화면의 핵심인가] '누가 무슨 권한인가' 는 관리자 관리 화면이 답해야 하는 질문인데,
+ * 예전에는 역할이 등록 폼과 상세에만 있어 **목록 어디에서도 답할 수 없었다**. 그리고 권한 관리의
+ * '이 역할 운영자 N명' 링크는 이 필터가 URL 을 소유할 때에만 착지할 곳이 생긴다.
+ */
+describe('AdminsPage — 역할 열과 ?role= 필터 (IA-13)', () => {
+  /** 표의 다섯 번째 칸(체크박스·닉네임·계정·그룹 다음)이 역할이다 */
+  function roleCellText(nickname: string): string {
+    const row = screen.getByText(nickname).closest('tr');
+    const cells = row === null ? [] : Array.from(row.querySelectorAll('td'));
+    return cells[4]?.textContent ?? '';
+  }
+
+  it('표가 roleId 를 역할 이름으로 되돌려 그린다', async () => {
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('운영자킴')).not.toBeNull();
+    });
+
+    // 픽스처의 roleId 는 'role-operator' — 권한 스토어의 기본 역할 '운영자'
+    expect(roleCellText('운영자킴')).toBe('운영자');
+  });
+
+  it('?role= 이 조회 조건을 정하고, 필터를 바꾸면 URL 이 따라 바뀐다', async () => {
+    renderPage('/users/admins?role=role-viewer');
+
+    // 들어온 주소가 곧 첫 조회 조건이다 — 링크로 들어온 사람이 '전체'를 보지 않는다
+    await waitFor(() => {
+      expect(lastQuery()?.roleId).toBe('role-viewer');
+    });
+
+    fireEvent.change(screen.getByLabelText('역할'), { target: { value: 'role-operator' } });
+
+    await waitFor(() => {
+      expect(lastQuery()?.roleId).toBe('role-operator');
+    });
+    // 상태의 소유자는 URL 이다 — 컴포넌트 useState 였다면 주소는 그대로였을 것이다
+    expect(locationSearch()).toBe('?role=role-operator');
+
+    // 기본값('전체')으로 되돌리면 파라미터가 사라진다 — 같은 화면이 두 개의 주소를 갖지 않는다
+    fireEvent.change(screen.getByLabelText('역할'), { target: { value: 'all' } });
+
+    await waitFor(() => {
+      expect(lastQuery()?.roleId).toBe('all');
+    });
+    expect(locationSearch()).toBe('');
+  });
+
+  it('존재하지 않는 역할을 가리키는 주소는 전체로 되돌린다', async () => {
+    // 손으로 고친 URL 이거나, 그 사이 삭제된 역할을 가리키는 옛 링크다.
+    // 없는 id 로 그대로 조회하면 화면이 영원히 0건이 된다 — 그것은 '검색 결과 없음' 이 아니라 고장이다.
+    renderPage('/users/admins?role=role-deleted-long-ago');
+
+    await waitFor(() => {
+      expect(lastQuery()?.roleId).toBe('all');
     });
   });
 });

@@ -46,6 +46,8 @@ interface LoginHistoryToolbarProps {
   readonly onKeywordChange: (keyword: string) => void;
   readonly onExport: () => void;
   readonly exporting: boolean;
+  /** 내보내기 권한이 없으면 버튼 자체를 렌더하지 않는다 (EXC-03 — 로그 툴바와 같은 규칙) */
+  readonly canExport: boolean;
 }
 
 export function LoginHistoryToolbar({
@@ -53,6 +55,7 @@ export function LoginHistoryToolbar({
   onKeywordChange,
   onExport,
   exporting,
+  canExport,
 }: LoginHistoryToolbarProps) {
   const searchId = useId();
 
@@ -76,10 +79,12 @@ export function LoginHistoryToolbar({
         />
       </div>
 
-      <Button variant="secondary" disabled={exporting} onClick={onExport}>
-        <Icon name="download" />
-        {exporting ? '내보내는 중…' : '내보내기'}
-      </Button>
+      {canExport && (
+        <Button variant="secondary" disabled={exporting} onClick={onExport}>
+          <Icon name="download" />
+          {exporting ? '내보내는 중…' : '내보내기'}
+        </Button>
+      )}
     </div>
   );
 }

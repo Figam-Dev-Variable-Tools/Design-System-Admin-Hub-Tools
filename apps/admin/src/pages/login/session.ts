@@ -21,6 +21,34 @@ function safeStorage(): Storage | null {
   }
 }
 
+/**
+ * 탭이 닫히면 함께 사라지는 저장소 — **'로그인 유지' 를 끈 세션**이 여기 산다.
+ *
+ * [왜 두 저장소인가] 체크박스가 아무 데도 쓰이지 않으면 그것은 켜고 끌 수 있는 장식이다.
+ * 유지/비유지의 차이는 '브라우저를 닫았다 열었을 때 아직 로그인되어 있는가' 하나뿐이고,
+ * 그 차이를 만드는 표준 장치가 localStorage(영속) ↔ sessionStorage(탭 수명)다.
+ * 키는 같은 이름을 쓴다 — 같은 것을 담는 두 서랍이지 다른 물건이 아니다.
+ */
+function safeSessionStorage(): Storage | null {
+  try {
+    return globalThis.sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
+function readFrom(storage: Storage | null): AuthSession | null {
+  if (!storage) return null;
+  try {
+    const raw = storage.getItem(SESSION_KEY);
+    if (raw === null) return null;
+    const parsed: unknown = JSON.parse(raw);
+    return isAuthSession(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 function isAuthSession(value: unknown): value is AuthSession {
   if (typeof value !== 'object' || value === null) return false;
   const candidate = value as Record<string, unknown>;
@@ -33,25 +61,39 @@ function isAuthSession(value: unknown): value is AuthSession {
   );
 }
 
-/** 현재 세션 — 없거나 형식이 깨졌으면 null */
+/**
+ * 현재 세션 — 없거나 형식이 깨졌으면 null.
+ *
+ * **탭 저장소를 먼저 본다.** '로그인 유지' 를 끄고 들어온 세션이 그쪽에 있고, 그것이 더 최근이다
+ * (같은 브라우저에 예전 영속 세션이 남아 있어도 방금 한 로그인이 이긴다).
+ */
 export function readSession(): AuthSession | null {
-  const storage = safeStorage();
-  if (!storage) return null;
-  try {
-    const raw = storage.getItem(SESSION_KEY);
-    if (raw === null) return null;
-    const parsed: unknown = JSON.parse(raw);
-    return isAuthSession(parsed) ? parsed : null;
-  } catch {
-    return null;
-  }
+  return readFrom(safeSessionStorage()) ?? readFrom(safeStorage());
 }
 
-export function writeSession(session: AuthSession): void {
-  const storage = safeStorage();
-  if (!storage) return;
+/**
+ * 세션을 저장한다.
+ *
+ * @param keepSignedIn 로그인 유지 — true 면 브라우저를 닫아도 남고(localStorage), false 면 탭을
+ *   닫는 순간 사라진다(sessionStorage). 기본값은 **유지하지 않음**이다: 이 값을 넘기지 않는
+ *   호출자는 '유지할지 정한 적이 없는' 경로라, 공용 PC 에 세션을 남기지 않는 쪽으로 떨어뜨린다.
+ *
+ * 반대편 서랍은 **반드시 비운다.** 남겨 두면 유지를 끈 로그인 뒤에도 예전 영속 세션이 그대로
+ * 살아 있어, 브라우저를 닫았다 열면 '로그아웃했어야 할' 계정으로 다시 들어간다.
+ */
+export function writeSession(session: AuthSession, keepSignedIn = false): void {
+  const target = keepSignedIn ? safeStorage() : safeSessionStorage();
+  const other = keepSignedIn ? safeSessionStorage() : safeStorage();
+
   try {
-    storage.setItem(SESSION_KEY, JSON.stringify(session));
+    other?.removeItem(SESSION_KEY);
+  } catch {
+    // 정리 실패는 무시 — 아래 저장이 성공하면 readSession 이 어느 쪽을 먼저 보는지가 결과를 정한다.
+  }
+
+  if (!target) return;
+  try {
+    target.setItem(SESSION_KEY, JSON.stringify(session));
   } catch {
     // 저장 실패는 인증 결과를 무효화하지 않는다 — 세션 유지만 포기한다.
   }
@@ -64,12 +106,14 @@ export function writeSession(session: AuthSession): void {
  * '유효' 로 읽어 화면으로 되돌린다 — 무한 왕복이 된다. 그래서 리다이렉트 **전에** 지운다.
  */
 export function clearSession(): void {
-  const storage = safeStorage();
-  if (!storage) return;
-  try {
-    storage.removeItem(SESSION_KEY);
-  } catch {
-    // 삭제 실패는 무시 — 저장소가 막힌 브라우저에선 애초에 세션이 영속되지 않았다.
+  // 두 서랍을 모두 비운다 — 한쪽만 지우면 readSession 이 나머지 한쪽을 찾아내 왕복이 되살아난다.
+  for (const storage of [safeSessionStorage(), safeStorage()]) {
+    if (!storage) continue;
+    try {
+      storage.removeItem(SESSION_KEY);
+    } catch {
+      // 삭제 실패는 무시 — 저장소가 막힌 브라우저에선 애초에 세션이 영속되지 않았다.
+    }
   }
 }
 

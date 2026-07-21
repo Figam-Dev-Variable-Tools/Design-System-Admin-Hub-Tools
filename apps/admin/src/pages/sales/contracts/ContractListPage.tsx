@@ -16,6 +16,7 @@ import { Button, Icon, SearchField, SelectField, StatusBadge } from '../../../sh
 import { CrudListShell, parseFilter, useCrudList, useListState } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
+import { AccountLink } from '../_shared/AccountLink';
 import { formatWon } from '../_shared/business';
 import { contractAdapter } from './data-source';
 import {
@@ -112,7 +113,8 @@ export default function ContractListPage() {
 
   const columns: readonly CrudColumn<Contract>[] = [
     { header: '계약명', render: (item) => item.title },
-    { header: '거래처', render: (item) => item.accountName },
+    // 거래처는 이제 문이다 — 이 행에서 그 거래처의 다른 계약·견적·프로젝트로 건너간다
+    { header: '거래처', render: (item) => <AccountLink account={item} /> },
     { header: '유형', nowrap: true, render: (item) => contractTypeLabel(item.contractType) },
     {
       header: '계약기간',

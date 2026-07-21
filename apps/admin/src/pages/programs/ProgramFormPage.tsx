@@ -1,12 +1,18 @@
 // ProgramFormPage — 프로그램(펀딩) 등록/수정 (라우트: /programs/new · /programs/:id/edit)
 //
 // [프레임워크 재사용 + 다중 구획 레이아웃] 데이터 배선은 공용 CRUD 프레임워크(useCrudForm)를 그대로
-// 쓰고, 화면은 구획 카드(기본정보·펀딩설정·스토리·대표이미지·리워드) + 좌측 구획 목차 레일 +
+// 쓰고, 화면은 구획 카드(기본정보·펀딩설정·스토리·상세설명·이미지·옵션·리워드) + 좌측 구획 목차 레일 +
 // 우측 실시간 미리보기로 구성한다. 상품 등록 폼(ProductFormPage)과 같은 골격이다 —
 // FormPageShell 은 단일 카드 폼 전용이라, 다중 구획 + 미리보기 2단은 여기서 직접 배치한다.
 //
 // [무엇을 입력하는가] 후원형 펀딩은 '목표 금액 · 기간 · 리워드' 세 가지가 계약의 전부다. 모금액과
 // 후원자수는 **후원이 만드는 값**이라 이 폼에 없다 (ProgramInput 이 그렇게 좁혀져 있다).
+//
+// [세 쌍은 일부러 갈라져 있다]
+//   이미지  — 썸네일(목록·카드에서 작게) ↔ 대표 이미지(상세 상단에 크게). 같은 그림을 두 자리에
+//             쓰면 한쪽이 반드시 잘린다.
+//   본문    — 스토리('왜 만들었나'를 파는 글) ↔ 상세 설명(사양·구성·유의사항처럼 사실을 확인하는 글).
+//   옵션    — 정의는 프로그램(옵션 그룹)이 갖고, **적용은 리워드가 고른다**(리워드별 옵션 선택).
 import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -21,12 +27,14 @@ import {
   Button,
   Card,
   CardTitle,
+  checkboxStyle,
   controlStyle,
   ddStyle,
   dlStyle,
   dtStyle,
   errorIdOf,
   errorTextStyle,
+  fieldLabelStyle,
   FilterRail,
   FormField,
   FormSectionAnchor,
@@ -53,7 +61,7 @@ import {
   submitButtonLabel,
   useCrudForm,
 } from '../../shared/crud';
-import { useRouteWritePermissions } from '../../shared/permissions/RequirePermission';
+import { ForbiddenScreen } from '../../shared/errors/ErrorScreens';
 import { fetchProgramCategoryOptions, programAdapter } from './data-source';
 import { programSchema } from './validation';
 import type { ProgramFormValues } from './validation';
@@ -61,10 +69,20 @@ import {
   fundingSummary,
   fundingTone,
   PROGRAM_STATUS_OPTIONS,
+  programOptionSummary,
   programStatusLabel,
   programStatusTone,
+  rewardOptionSummary,
 } from './types';
-import { daysLeft, PROGRAM_SUMMARY_MAX, PROGRAM_TITLE_MAX } from './_shared/store';
+import {
+  applyOptionGroupsToRewards,
+  daysLeft,
+  MAX_PROGRAM_OPTION_GROUPS,
+  normalizeProgramOptionGroups,
+  PROGRAM_DESCRIPTION_MAX,
+  PROGRAM_SUMMARY_MAX,
+  PROGRAM_TITLE_MAX,
+} from './_shared/store';
 import type { Program, ProgramInput } from './_shared/store';
 
 const RESOURCE = 'programs';
@@ -109,7 +127,10 @@ const SECTIONS = [
     fields: ['goalAmount', 'startDate', 'endDate', 'status'],
   },
   { id: 'program-section-story', label: '스토리', fields: ['story'] },
-  { id: 'program-section-cover', label: '대표 이미지', fields: ['coverImageUrl'] },
+  { id: 'program-section-description', label: '상세 설명', fields: ['description'] },
+  // 이미지는 두 자리(카드·상세 상단)를 함께 받으므로 구획 이름이 '대표 이미지' 가 아니라 '이미지' 다
+  { id: 'program-section-images', label: '이미지', fields: ['thumbnailUrl', 'coverImageUrl'] },
+  { id: 'program-section-options', label: '옵션', fields: ['optionGroups'] },
   { id: 'program-section-rewards', label: '리워드', fields: ['rewards'] },
 ] as const satisfies readonly {
   id: string;
@@ -278,14 +299,166 @@ const disabledIconButtonStyle: CSSProperties = {
 /** 리워드 한 줄 — 폼 값의 원소(zod 스키마가 정본이라 여기서 다시 정의하지 않는다) */
 type RewardValue = ProgramFormValues['rewards'][number];
 
+/** 옵션 그룹 한 줄 — 같은 이유로 스키마에서 되짚는다 */
+type OptionGroupValue = ProgramFormValues['optionGroups'][number];
+
 /** 숫자 칸은 숫자만 남긴다 — '1,000원' 을 붙여 넣어도 값이 깨지지 않게 한다 */
 const toDigits = (raw: string): number => {
   const digits = raw.replace(/\D/g, '');
   return digits === '' ? 0 : Number(digits);
 };
 
+/* ── 옵션 편집기 ───────────────────────────────────────────────────────────── */
+
+const optionSectionStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: cssVar('space.3'),
+};
+
+const optionRowStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: `calc(${cssVar('space.6')} * 4) minmax(0, 1fr) auto`,
+  alignItems: 'center',
+  gap: cssVar('space.2'),
+};
+
+/** 리워드 표 안의 옵션 선택 묶음 — 체크박스가 칸을 넘치지 않게 세로로 쌓는다 */
+const optionPickerStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: cssVar('space.1'),
+  marginTop: 0,
+  marginBottom: 0,
+  paddingTop: 0,
+  paddingBottom: 0,
+  paddingLeft: 0,
+  paddingRight: 0,
+  listStyle: 'none',
+  minWidth: `calc(${cssVar('space.6')} * 4)`,
+};
+
+const optionPickerLabelStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: cssVar('space.2'),
+  color: cssVar('color.text.default'),
+  fontSize: cssVar('typography.label.sm.font-size'),
+  lineHeight: cssVar('typography.label.sm.line-height'),
+  cursor: 'pointer',
+};
+
+interface OptionEditorProps {
+  readonly optionGroups: readonly OptionGroupValue[];
+  readonly disabled: boolean;
+  readonly error?: string | undefined;
+  readonly onChange: (next: OptionGroupValue[]) => void;
+}
+
+/**
+ * 옵션 그룹 편집기 — 상품 폼의 ProductOptionMatrix 에서 **매트릭스만 뺀 것**이다.
+ *
+ * [왜 SKU 매트릭스가 없나] 상품은 옵션 조합마다 재고·SKU 가 붙어 데카르트 곱을 표로 펼쳐야 한다.
+ * 펀딩에는 그 축이 없다 — 후원자는 조합을 사는 것이 아니라 **리워드를 고르고**, 색상·사이즈는
+ * 그 리워드를 받을 때 함께 정하는 값이다. 그래서 여기서는 '무엇을 고를 수 있는가'(그룹·값)만
+ * 정의하고, '어느 리워드가 그것을 고르게 하는가'는 아래 리워드 표가 정한다.
+ */
+function OptionEditor({ optionGroups, disabled, error, onChange }: OptionEditorProps) {
+  const addGroup = () => {
+    if (optionGroups.length >= MAX_PROGRAM_OPTION_GROUPS) return;
+    // randomUUID 라 같은 밀리초에 두 번 눌러도 id 가 겹치지 않는다 — 리워드가 이 id 로 그룹을 가리킨다
+    onChange([...optionGroups, { id: `pog-${crypto.randomUUID()}`, name: '', values: [] }]);
+  };
+
+  const removeGroup = (id: string) => {
+    onChange(optionGroups.filter((group) => group.id !== id));
+  };
+
+  const patchGroup = (id: string, patch: Partial<Omit<OptionGroupValue, 'id'>>) => {
+    onChange(optionGroups.map((group) => (group.id === id ? { ...group, ...patch } : group)));
+  };
+
+  return (
+    <div style={optionSectionStyle}>
+      <span style={fieldLabelStyle}>옵션</span>
+      <p style={hintStyle}>
+        색상·사이즈처럼 후원자가 리워드를 받을 때 함께 고르는 값입니다. 옵션값은 쉼표(,)로
+        구분하세요. 여기서는 선택지를 정의만 하고, 어느 리워드가 고르게 할지는 아래 리워드 표에서
+        정합니다. (최대 {MAX_PROGRAM_OPTION_GROUPS}개)
+      </p>
+
+      {optionGroups.length === 0 ? (
+        <p style={hintStyle}>
+          등록된 옵션이 없습니다. 고를 것이 없는 프로그램(책 한 권 등)은 비워 두어도 됩니다.
+        </p>
+      ) : (
+        <div style={optionSectionStyle}>
+          {optionGroups.map((group, index) => (
+            <div key={group.id} style={optionRowStyle}>
+              <input
+                type="text"
+                className="tds-ui-input tds-ui-focusable"
+                style={controlStyle(false)}
+                value={group.name}
+                placeholder={`옵션명 ${String(index + 1)} (예: 색상)`}
+                disabled={disabled}
+                aria-label={`옵션 ${String(index + 1)} 이름`}
+                onChange={(event) => patchGroup(group.id, { name: event.target.value })}
+              />
+              <input
+                type="text"
+                className="tds-ui-input tds-ui-focusable"
+                style={controlStyle(false)}
+                value={group.values.join(', ')}
+                placeholder="옵션값 (예: 블랙, 화이트, 베이지)"
+                disabled={disabled}
+                aria-label={`옵션 ${String(index + 1)} 값`}
+                onChange={(event) =>
+                  patchGroup(group.id, {
+                    values: event.target.value
+                      .split(',')
+                      .map((value) => value.trim())
+                      .filter((value) => value !== ''),
+                  })
+                }
+              />
+              <button
+                type="button"
+                className="tds-ui-focusable"
+                style={iconButtonStyle}
+                disabled={disabled}
+                aria-label={`옵션 ${String(index + 1)} 삭제`}
+                onClick={() => removeGroup(group.id)}
+              >
+                <Icon name="trash" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {optionGroups.length < MAX_PROGRAM_OPTION_GROUPS && (
+        <span>
+          <Button variant="secondary" size="md" disabled={disabled} onClick={addGroup}>
+            <Icon name="plus-circle" />
+            옵션 추가
+          </Button>
+        </span>
+      )}
+
+      {error !== undefined && error !== '' && (
+        <p role="alert" style={errorTextStyle}>
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
 interface RewardEditorProps {
   readonly rewards: readonly RewardValue[];
+  /** 리워드가 고를 수 있는 선택지 — 값이 채워진 그룹만 넘어온다 */
+  readonly optionGroups: readonly OptionGroupValue[];
   readonly disabled: boolean;
   readonly error?: string | undefined;
   readonly onChange: (next: RewardValue[]) => void;
@@ -298,7 +471,7 @@ interface RewardEditorProps {
  * [왜 이미 후원된 리워드를 못 지우나] claimedCount 는 **후원자가 이미 고른 수**다. 그 줄을 지우면
  * 후원자가 무엇을 받기로 했는지 가리키는 곳이 사라진다 — 서버도 같은 이유로 막는다.
  */
-function RewardEditor({ rewards, disabled, error, onChange }: RewardEditorProps) {
+function RewardEditor({ rewards, optionGroups, disabled, error, onChange }: RewardEditorProps) {
   const patch = (id: string, next: Partial<RewardValue>) => {
     onChange(rewards.map((reward) => (reward.id === id ? { ...reward, ...next } : reward)));
   };
@@ -315,6 +488,8 @@ function RewardEditor({ rewards, disabled, error, onChange }: RewardEditorProps)
         description: '',
         limitCount: 0,
         claimedCount: 0,
+        // 옵션은 기본으로 붙이지 않는다 — 고르게 할지는 리워드마다 다른 결정이다
+        optionGroupIds: [],
       },
     ]);
   };
@@ -323,12 +498,35 @@ function RewardEditor({ rewards, disabled, error, onChange }: RewardEditorProps)
     onChange(rewards.filter((reward) => reward.id !== id));
   };
 
+  /** 이 리워드가 그 옵션을 고르게 할지 — 체크는 더하고, 해제는 뺀다 */
+  const toggleOption = (reward: RewardValue, groupId: string, checked: boolean) => {
+    patch(reward.id, {
+      optionGroupIds: checked
+        ? [...reward.optionGroupIds, groupId]
+        : reward.optionGroupIds.filter((id) => id !== groupId),
+    });
+  };
+
+  const hasOptions = optionGroups.length > 0;
+
   return (
     <div style={rewardSectionStyle}>
       <p style={hintStyle}>
         후원자가 고를 리워드를 등록하세요. 수량 한정은 0 이면 무제한입니다. 이미 후원된 리워드는
         삭제할 수 없습니다 — 후원자가 받기로 한 대가가 사라지기 때문입니다.
       </p>
+
+      {hasOptions ? (
+        <p style={hintStyle}>
+          옵션 칸에서 각 리워드가 후원자에게 고르게 할 항목을 선택하세요. 고를 것이 없는 리워드는
+          비워 둡니다.
+        </p>
+      ) : (
+        <p style={hintStyle}>
+          옵션 구획에 값이 채워진 옵션이 없어 옵션 칸을 그리지 않았습니다. 옵션을 먼저 등록하면
+          리워드 별로 고르게 할 수 있습니다.
+        </p>
+      )}
 
       {rewards.length === 0 ? (
         <p style={hintStyle}>
@@ -352,6 +550,11 @@ function RewardEditor({ rewards, disabled, error, onChange }: RewardEditorProps)
                 <th scope="col" style={thStyle}>
                   수량 한정
                 </th>
+                {hasOptions && (
+                  <th scope="col" style={thStyle}>
+                    옵션
+                  </th>
+                )}
                 <th scope="col" style={thStyle}>
                   후원 수
                 </th>
@@ -418,6 +621,37 @@ function RewardEditor({ rewards, disabled, error, onChange }: RewardEditorProps)
                         }
                       />
                     </td>
+                    {/* 옵션은 **리워드가 고른다** — 프로그램이 정의한 선택지 중 이 줄이 쓸 것만 켠다.
+                        묶음 이름에 리워드명을 실어, 표를 훑는 스크린리더가 '어느 줄의 옵션인지'를
+                        체크박스마다 되묻지 않게 한다(A11Y-12 · SegmentPicker 와 같은 판단). */}
+                    {hasOptions && (
+                      <td style={tdStyle}>
+                        <ul
+                          style={optionPickerStyle}
+                          role="group"
+                          aria-label={`${rowName} 옵션 선택`}
+                        >
+                          {optionGroups.map((group) => (
+                            <li key={group.id}>
+                              <label style={optionPickerLabelStyle}>
+                                <input
+                                  type="checkbox"
+                                  style={checkboxStyle}
+                                  checked={reward.optionGroupIds.includes(group.id)}
+                                  disabled={disabled}
+                                  onChange={(event) =>
+                                    toggleOption(reward, group.id, event.target.checked)
+                                  }
+                                />
+                                <span>
+                                  {group.name.trim() === '' ? '이름 없는 옵션' : group.name.trim()}
+                                </span>
+                              </label>
+                            </li>
+                          ))}
+                        </ul>
+                      </td>
+                    )}
                     {/* 후원 수는 후원이 만드는 값이라 읽기 전용이다 — 폼이 손댈 축이 아니다 */}
                     <td style={tdStyle}>{`${formatNumber(reward.claimedCount)}명`}</td>
                     <td style={tdStyle}>
@@ -469,16 +703,24 @@ const EMPTY: ProgramFormValues = {
   creator: '',
   summary: '',
   story: '',
+  description: '',
   goalAmount: '',
   startDate: '',
   endDate: '',
   // 새 프로그램은 '작성 중' 에서 출발한다 — 열기 전에 스토리·리워드를 마저 채우는 것이 보통이다
   status: 'draft',
   coverImageUrl: '',
+  thumbnailUrl: '',
+  optionGroups: [],
   rewards: [],
 };
 
 function toInput(values: ProgramFormValues): ProgramInput {
+  // 옵션은 **먼저 눕히고 그다음 리워드를 맞춘다** — 값이 빈 그룹이 버려지면 그 그룹을 가리키던
+  // 리워드의 참조도 함께 떨어져야 한다. 순서가 뒤집히면 가리킬 곳 없는 id 가 저장된다.
+  const optionGroups = normalizeProgramOptionGroups(values.optionGroups);
+  const rewards = applyOptionGroupsToRewards(values.rewards, optionGroups);
+
   return {
     title: values.title.trim(),
     categoryId: values.categoryId,
@@ -489,13 +731,18 @@ function toInput(values: ProgramFormValues): ProgramInput {
     // trim() 하지 않는다 — HTML 이라 앞뒤 공백은 마크업 사이의 것이고, 빈 본문('<p></p>')은
     // 문자열 비교가 아니라 isRichTextEmpty 가 판정한다.
     story: isRichTextEmpty(values.story) ? '' : sanitizeRichText(values.story),
+    // 상세 설명도 같은 길목에서 같은 규칙으로 건다 — 리치 텍스트 두 필드가 서로 다른 안전 수준을
+    // 갖지 않게 한다(둘 중 하나만 sanitize 하면 어느 쪽이 안전한지 아무도 기억하지 못한다).
+    description: isRichTextEmpty(values.description) ? '' : sanitizeRichText(values.description),
     goalAmount: Number(values.goalAmount.trim() || '0'),
     startDate: values.startDate,
     endDate: values.endDate,
     status: values.status,
     coverImageUrl: values.coverImageUrl,
+    thumbnailUrl: values.thumbnailUrl,
+    optionGroups,
     // 제목 앞뒤 공백은 목록 정렬을 흔든다 — 저장 직전에 눕힌다
-    rewards: values.rewards.map((reward) => ({
+    rewards: rewards.map((reward) => ({
       ...reward,
       title: reward.title.trim(),
       description: reward.description.trim(),
@@ -510,13 +757,20 @@ function toValues(program: Program): ProgramFormValues {
     creator: program.creator,
     summary: program.summary,
     story: program.story,
+    description: program.description,
     goalAmount: String(program.goalAmount),
     startDate: program.startDate,
     endDate: program.endDate,
     status: program.status,
     coverImageUrl: program.coverImageUrl,
+    thumbnailUrl: program.thumbnailUrl,
     // 읽기 전용 배열을 그대로 넘기면 폼이 소유권 없는 배열을 편집하게 된다 — 복사해서 넣는다
-    rewards: program.rewards.map((reward) => ({ ...reward })),
+    // (values 는 그룹 안에 또 배열을 갖는다 — 한 겹만 복사하면 값 편집이 원본을 건드린다)
+    optionGroups: program.optionGroups.map((group) => ({ ...group, values: [...group.values] })),
+    rewards: program.rewards.map((reward) => ({
+      ...reward,
+      optionGroupIds: [...reward.optionGroupIds],
+    })),
   };
 }
 
@@ -532,10 +786,10 @@ function previewNumber(raw: string): number {
 
 export default function ProgramFormPage() {
   const navigate = useNavigate();
-  const { canCreate, canUpdate } = useRouteWritePermissions();
   const {
     form,
     isEdit,
+    canSubmit,
     saving,
     loadingDetail,
     loadFailure,
@@ -564,9 +818,10 @@ export default function ProgramFormPage() {
     formState: { errors },
   } = form;
 
-  // 쓰기 권한은 등록/수정이 다른 축이다 — 등록 화면은 create, 수정 화면은 update 를 본다 (EXC-03).
-  // 없으면 입력은 보여 주되 저장을 막는다: 읽기는 허용된 화면이라 내용을 지울 이유가 없다.
-  const canSave = isEdit ? canUpdate : canCreate;
+  // [EXC-03] 등록/수정 권한 판정은 이 화면의 것이 아니다 — useCrudForm 이 라우트에서 파생해
+  // (등록이면 create, 수정이면 update) canSubmit 으로 내려 준다. 예전에는 이 파일이 직접
+  // useRouteWritePermissions 를 불러 같은 식을 한 벌 더 적었고, 그래서 폼마다 옳게 적어야 하는
+  // 규칙이 하나 더 늘어 있었다. 여기서는 그 판정을 **쓰기만** 한다.
   const disabled = saving || loadingDetail;
 
   const unsavedDialog = useUnsavedChangesDialog(isDirty && !saving, { message: UNSAVED_MESSAGE });
@@ -601,11 +856,14 @@ export default function ProgramFormPage() {
   const creator = watch('creator');
   const summary = watch('summary');
   const story = watch('story');
+  const description = watch('description');
   const goalAmount = watch('goalAmount');
   const startDate = watch('startDate');
   const endDate = watch('endDate');
   const status = watch('status');
   const coverImageUrl = watch('coverImageUrl');
+  const thumbnailUrl = watch('thumbnailUrl');
+  const optionGroups = watch('optionGroups');
   const rewards = watch('rewards');
 
   // 좌측 레일 — 지금 보고 있는 구획(스크롤 추적)과 오류가 남은 구획을 함께 말한다
@@ -623,6 +881,15 @@ export default function ProgramFormPage() {
   );
 
   const rewardsError = (errors.rewards as { message?: string } | undefined)?.message;
+  const optionGroupsError = (errors.optionGroups as { message?: string } | undefined)?.message;
+
+  /**
+   * 리워드 표가 고르게 할 선택지 — **값이 채워진 그룹만** 넘긴다.
+   *
+   * 값이 없는 그룹은 저장 시 버려진다(normalizeProgramOptionGroups). 버려질 그룹을 리워드에서
+   * 고르게 해 두면 저장 뒤 조용히 선택이 사라진다 — 고를 수 없게 하는 편이 정직하다.
+   */
+  const selectableOptionGroups = optionGroups.filter((group) => group.values.length > 0);
 
   // 미리보기 파생값 — 아직 검증을 통과하지 않은 입력에서도 그린다
   const goalPreview = previewNumber(goalAmount);
@@ -631,6 +898,11 @@ export default function ProgramFormPage() {
     (lowest, reward) => (lowest === null || reward.amount < lowest ? reward.amount : lowest),
     null,
   );
+
+  /* [EXC-03] 저장할 수 없는 폼은 열지 않는다. FormPageShell 을 쓰는 폼은 껍데기가 이 403 을
+     그린다 — 이 화면은 다중 구획 + 미리보기라 껍데기를 쓸 수 없어, 껍데기가 내린 **같은 판정**을
+     받아 같은 화면을 그린다(판정을 다시 계산하지 않는다). */
+  if (!canSubmit) return <ForbiddenScreen />;
 
   // [EXC-12] 404 와 서버 오류는 복구 수단이 다르다 — 이미 삭제된 항목에 '다시 시도'를 권하면
   // 영원히 실패하는 버튼을 누르게 된다.
@@ -678,14 +950,6 @@ export default function ProgramFormPage() {
           확인하세요.
         </p>
       </div>
-
-      {/* 저장할 수 없는 화면임을 먼저 말한다 — 다 입력한 뒤 버튼이 죽어 있는 것을 발견하지 않게 */}
-      {!canSave && (
-        <Alert tone="warning">
-          이 프로그램을 {isEdit ? '수정' : '등록'}할 권한이 없습니다. 내용은 확인할 수 있지만 저장은
-          되지 않습니다.
-        </Alert>
-      )}
 
       <form onSubmit={submit} noValidate style={pageStyle}>
         <FormServerError serverError={serverError} errorReference={errorReference} />
@@ -953,34 +1217,81 @@ export default function ProgramFormPage() {
                     maxLength={STORY_GUIDE_MAX}
                     disabled={disabled}
                     error={errors.story?.message}
-                    hint="왜 만들었는지·무엇을 만드는지·언제 보내는지를 적으면 후원 결정이 쉬워집니다. 글자 수는 서식을 빼고 셉니다."
+                    hint="왜 만들었는지·무엇을 만들고 있는지를 적어 후원을 설득하는 글입니다. 사양·구성·배송 시기는 아래 상세 설명에 적습니다. 글자 수는 서식을 빼고 셉니다."
                     placeholder="이 프로그램을 시작한 이유와 만들려는 것을 설명하세요."
                     rows={8}
                   />
                 </Card>
               </FormSectionAnchor>
 
-              {/* ── 대표 이미지 ── */}
+              {/* ── 상세 설명 ── */}
               <FormSectionAnchor id={SECTIONS[3].id} label={SECTIONS[3].label}>
                 <Card>
-                  <CardTitle>대표 이미지</CardTitle>
+                  <CardTitle>상세 설명</CardTitle>
+                  {/* 스토리와 나란히 있지만 읽는 방식이 다르다 — 스토리는 후원을 결심하게 하는 글이고,
+                      상세 설명은 결심한 뒤 '내가 받는 것이 정확히 무엇인지'를 확인하는 글이다.
+                      한 필드에 섞으면 사양이 서술 속에 묻혀 문의(리워드 구성·배송 시기)로 되돌아온다. */}
+                  <RichTextField
+                    label="상세 설명"
+                    value={description}
+                    onChange={(value) => setValue('description', value, { shouldDirty: true })}
+                    maxLength={PROGRAM_DESCRIPTION_MAX}
+                    disabled={disabled}
+                    error={errors.description?.message}
+                    hint="크기·소재·구성품·배송 시기처럼 후원 전에 확인할 사실을 적습니다. 글자 수는 서식을 빼고 셉니다."
+                    placeholder="사양·구성품·배송 일정·유의사항을 정리해 적으세요."
+                    rows={8}
+                  />
+                </Card>
+              </FormSectionAnchor>
+
+              {/* ── 이미지 (썸네일 · 대표) ── */}
+              <FormSectionAnchor id={SECTIONS[4].id} label={SECTIONS[4].label}>
+                <Card>
+                  <CardTitle>이미지</CardTitle>
+                  {/* 두 자리는 비율이 다르다 — 카드는 작은 정사각에 가깝고 상세 상단은 넓은 가로다.
+                      같은 그림을 두 자리에 쓰면 한쪽이 반드시 잘린다. 그래서 따로 받는다. */}
+                  <ImageUploadField
+                    label="썸네일"
+                    value={thumbnailUrl}
+                    onChange={(value) => setValue('thumbnailUrl', value, { shouldDirty: true })}
+                    disabled={disabled}
+                    error={errors.thumbnailUrl?.message}
+                    hint="목록·카드에서 작게 쓰이는 이미지입니다. 오른쪽 미리보기가 이 이미지로 그려집니다."
+                  />
                   <ImageUploadField
                     label="대표 이미지"
                     value={coverImageUrl}
                     onChange={(value) => setValue('coverImageUrl', value, { shouldDirty: true })}
                     disabled={disabled}
                     error={errors.coverImageUrl?.message}
-                    hint="목록과 상세의 첫인상입니다. 가로가 긴 이미지가 잘 맞습니다."
+                    hint="상세 화면 맨 위에 크게 걸리는 이미지입니다. 가로가 긴 이미지가 잘 맞습니다."
+                  />
+                </Card>
+              </FormSectionAnchor>
+
+              {/* ── 옵션 ── */}
+              <FormSectionAnchor id={SECTIONS[5].id} label={SECTIONS[5].label}>
+                <Card>
+                  <CardTitle>옵션</CardTitle>
+                  <OptionEditor
+                    optionGroups={optionGroups}
+                    disabled={disabled}
+                    error={optionGroupsError}
+                    onChange={(next) =>
+                      setValue('optionGroups', next, { shouldDirty: true, shouldValidate: true })
+                    }
                   />
                 </Card>
               </FormSectionAnchor>
 
               {/* ── 리워드 ── */}
-              <FormSectionAnchor id={SECTIONS[4].id} label={SECTIONS[4].label}>
+              <FormSectionAnchor id={SECTIONS[6].id} label={SECTIONS[6].label}>
                 <Card>
                   <CardTitle>리워드</CardTitle>
                   <RewardEditor
                     rewards={rewards}
+                    optionGroups={selectableOptionGroups}
                     disabled={disabled}
                     error={rewardsError}
                     onChange={(next) =>
@@ -994,9 +1305,13 @@ export default function ProgramFormPage() {
             {/* ── 우측 실시간 미리보기 ── */}
             <Card>
               <CardTitle>후원자 노출 미리보기</CardTitle>
+              {/* 이 미리보기는 **카드**다 — 그래서 대표 이미지가 아니라 썸네일을 그린다.
+                  상세 상단의 큰 그림(대표 이미지)을 여기에 끼워 넣으면, 실제 목록에서는 잘려
+                  보일 그림을 잘리지 않은 채로 확인하게 되어 확인의 의미가 없어진다. */}
+              <p style={hintStyle}>목록·카드에 노출되는 모습입니다 — 이미지는 썸네일입니다.</p>
               {/* 값이 비어 있어도 자리를 비우지 않는다 — '무엇이 아직 안 채워졌는지'가 곧 정보다 */}
               <div style={previewCardStyle}>
-                <ImageThumb src={coverImageUrl} alt={`${title.trim() || '프로그램'} 대표 이미지`} />
+                <ImageThumb src={thumbnailUrl} alt={`${title.trim() || '프로그램'} 썸네일`} />
                 <p style={previewTitleStyle}>{title.trim() === '' ? '프로그램명 미입력' : title}</p>
                 <p style={previewSummaryStyle}>
                   {summary.trim() === '' ? '한 줄 소개 미입력' : summary}
@@ -1036,6 +1351,24 @@ export default function ProgramFormPage() {
                     ? '없음'
                     : `${formatNumber(rewards.length)}종 · 최저 ${formatNumber(cheapestReward ?? 0)}원`}
                 </dd>
+
+                {/* 옵션은 리워드가 드는 값이라 두 줄로 읽힌다 — 무엇이 정의됐고, 어느 리워드가 쓰는가 */}
+                <dt style={dtStyle}>옵션</dt>
+                <dd style={ddStyle}>{programOptionSummary(selectableOptionGroups)}</dd>
+
+                {rewards.length > 0 && (
+                  <>
+                    <dt style={dtStyle}>리워드별 옵션</dt>
+                    <dd style={ddStyle}>
+                      {rewards
+                        .map(
+                          (reward, index) =>
+                            `${reward.title.trim() === '' ? `리워드 ${String(index + 1)}` : reward.title.trim()}: ${rewardOptionSummary(reward, selectableOptionGroups)}`,
+                        )
+                        .join(' / ')}
+                    </dd>
+                  </>
+                )}
               </dl>
 
               {/* 모금 현황은 **저장된 사실**이다 — 폼에 없는 값이라 입력에 따라 움직이지 않는다.
@@ -1060,7 +1393,7 @@ export default function ProgramFormPage() {
           >
             취소
           </Button>
-          <Button type="submit" variant="primary" size="md" disabled={disabled || !canSave}>
+          <Button type="submit" variant="primary" size="md" disabled={disabled}>
             {submitButtonLabel(saving, isEdit)}
           </Button>
         </div>

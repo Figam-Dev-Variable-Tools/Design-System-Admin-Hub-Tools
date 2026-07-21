@@ -7,6 +7,9 @@
 // '견적 발행'으로 바꾸면 문의 어댑터가 여기에 견적을 꽂는다(H). createCrudAdapter 는 배열을 클로저에
 // 가둬 다른 어댑터가 쓸 수 없다. 그래서 저장소를 노출하고 그 위에 createStoreAdapter 를 얹는다
 // (products/_shared/store 선례). 저장소 함수가 409/404 를 직접 던져 프레임워크와 같은 계약을 지킨다.
+//
+// [거래처 참조] 시드의 accountId 는 accounts/data-source 의 실제 거래처 id(acc-1~3)를 가리킨다 —
+// 이름만 같고 연결이 없는 행이 하나라도 있으면 거래처 상세의 역방향 조회가 조용히 비어 보인다.
 import { createStoreAdapter } from '../../../shared/crud';
 import { HTTP_STATUS, HttpError } from '../../../shared/errors/http-error';
 import { buildQuoteFromInquiry, makeQuoteNo, sortQuotes } from './types';
@@ -18,6 +21,7 @@ const QUOTE_SEED: readonly Quote[] = [
   {
     id: 'qt-1',
     quoteNo: 'Q-20260710-001',
+    accountId: 'acc-1',
     accountName: '(주)한빛소프트웨어',
     accountBizNo: '124-81-00998',
     accountCeo: '김한빛',
@@ -38,6 +42,7 @@ const QUOTE_SEED: readonly Quote[] = [
   {
     id: 'qt-2',
     quoteNo: 'Q-20260705-001',
+    accountId: 'acc-2',
     accountName: '대성물산 주식회사',
     accountBizNo: '220-81-62517',
     accountCeo: '정대성',
@@ -57,6 +62,7 @@ const QUOTE_SEED: readonly Quote[] = [
   {
     id: 'qt-3',
     quoteNo: 'Q-20260620-002',
+    accountId: 'acc-3',
     accountName: '미래테크놀로지',
     accountBizNo: '120-81-47521',
     accountCeo: '오미래',

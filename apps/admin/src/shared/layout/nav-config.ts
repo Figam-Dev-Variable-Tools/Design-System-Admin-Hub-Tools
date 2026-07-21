@@ -150,6 +150,8 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         ['쿠폰', '/products/coupons'],
         ['적립금', '/products/points'],
         ['리뷰', '/products/reviews'],
+        // 결제(PG)를 쓰지 않는 설정에서는 구매 버튼이 '문의하기'가 된다 — 그 문의가 여기로 들어온다
+        ['문의', '/products/inquiries'],
       ]),
 
       // 7. 프로그램 관리 — 후원형 펀딩(목표 금액·기간을 걸고 여는 프로그램)
@@ -160,6 +162,8 @@ export const NAV_SECTIONS: readonly NavSection[] = [
       branch('box', 'menu.programs', '프로그램 관리', '/programs', [
         ['프로그램', '/programs'],
         ['카테고리', '/programs/categories'],
+        // 상품과 같은 이유 — PG 미사용 설정에서 후원 버튼이 '문의하기'로 바뀌면 여기로 들어온다
+        ['문의', '/programs/inquiries'],
       ]),
 
       // 8. 영업 관리
@@ -188,8 +192,8 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         ['뉴스레터', '/marketing/newsletters'],
         ['SMS 발송', '/marketing/sms'],
         ['이메일 발송', '/marketing/email'],
-        // 이메일·문자 템플릿(메시지 템플릿)이 이 자리의 화면이다. 알림톡 화면은 재구축 대기 중이라
-        // /marketing/templates/alimtalk 에 라우트만 남기고 메뉴에는 올리지 않는다 (App.tsx 참고).
+        // 메시지 템플릿이 이 자리의 화면이다 — 이메일·문자에 더해 알림톡·브랜드메시지까지 한 목록이
+        // 덮는다(종류는 목록의 '만들기' 다이얼로그에서 고른다). 템플릿 메뉴는 이 하나뿐이다.
         ['발송 템플릿 관리', '/marketing/templates'],
       ]),
     ],
@@ -245,6 +249,8 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         // (2026-07-20). 두 이름 다 이 화면을 가리키며, 지금 라벨은 경로(`api-keys`)와도 맞는다.
         ['API Key 설정', '/settings/api-keys'],
         ['OAuth 설정', '/settings/oauth'],
+        // 결제 연동 여부가 상품·프로그램의 구매/후원 버튼을 '문의하기'로 바꾼다 — 판매 방식의 스위치다
+        ['결제 설정', '/settings/payment'],
       ]),
     ],
   },

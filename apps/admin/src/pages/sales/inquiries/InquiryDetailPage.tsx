@@ -321,9 +321,11 @@ export default function InquiryDetailPage() {
               <Alert tone="info">
                 <div style={alertActionRowStyle}>
                   <span>이미 이 문의로 견적이 발행되었습니다. 견적은 다시 생성되지 않습니다.</span>
+                  {/* '보기' 는 읽기 전용 상세로 간다 — 예전에는 편집 폼이 열려, 확인만 하려던
+                      운영자가 발행 완료된 견적의 수정 화면에 서 있었다. */}
                   <Button
                     variant="secondary"
-                    onClick={() => navigate(`${QUOTE_PATH}/${inquiry.quoteId}/edit`)}
+                    onClick={() => navigate(`${QUOTE_PATH}/${inquiry.quoteId}`)}
                   >
                     발행된 견적 보기
                   </Button>

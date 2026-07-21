@@ -11,6 +11,8 @@ import type { CSSProperties, FormEvent, ReactNode } from 'react';
 
 import { cssVar, Skeleton } from '@tds/ui';
 
+import { ForbiddenScreen } from '../errors/ErrorScreens';
+import { useRouteCanSubmitForm } from '../permissions/RequirePermission';
 import { Alert, Button, Card, CardTitle, useUnsavedChangesDialog } from '../ui';
 
 const pageStyle: CSSProperties = {
@@ -98,8 +100,18 @@ export function DocumentFormShell({
   onSubmit,
   children,
 }: DocumentFormShellProps) {
+  /* [EXC-03] 이 껍데기는 **언제나 수정**이다 — 문서는 이미 존재하고(회사 정보·CEO 인사말·비전·
+     오시는 길·정책), 이 화면은 그 한 건을 고쳐 쓴다. 등록/수정을 가를 축이 아예 없으므로
+     `isEdit = true` 로 물어 update 권한을 요구한다. FormPageShell 과 같은 판정 함수를 쓰는 이유는
+     같다: 폼 라우트의 권한 규칙이 두 벌로 갈라지면 언젠가 한쪽만 고쳐진다. */
+  const canSubmit = useRouteCanSubmitForm(true);
+
   // 저장하지 않은 채 이탈하면 discard 확인 다이얼로그를 세운다(콘텐츠 폼과 같은 공통 가드).
   const unsavedDialog = useUnsavedChangesDialog(dirty && !saving, { message: unsavedMessage });
+
+  /* 편집 권한이 없으면 폼을 그리지 않는다. 이 화면에는 저장 말고 할 일이 없어, 입력만 남겨 두면
+     '고칠 수 있다' 는 거짓 신호가 된다 (EXC-03 — 누를 수 없는 것은 보여 주지 않는다). */
+  if (!canSubmit) return <ForbiddenScreen />;
 
   if (loadFailed) {
     return (

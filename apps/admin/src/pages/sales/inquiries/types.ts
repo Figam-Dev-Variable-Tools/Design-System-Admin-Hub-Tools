@@ -3,13 +3,27 @@
 // 국내 CRM 문의관리 관례: 유형·채널·우선순위·담당배정·처리상태(접수→배정→처리중→완료→종결) +
 // 대화 타임라인(접수·내부메모·고객답변·상태변경). 문의는 고객이 만들고 관리자는 처리·답변한다.
 import type { StatusTone } from '../../../shared/ui';
+import { withExtraInquiryStatuses } from '../../../shared/domain/inquiry-status';
+import type { CommonInquiryStatus } from '../../../shared/domain/inquiry-status';
 
 type InquiryType = 'quote' | 'product' | 'support' | 'partnership' | 'claim' | 'etc';
 type InquiryChannel = 'web' | 'phone' | 'email' | 'visit';
 type InquiryPriority = 'urgent' | 'high' | 'normal' | 'low';
-/** 처리상태 — 접수→배정→처리중→(보류)→견적 발행→완료→종결 */
-export type InquiryStatus =
-  'received' | 'assigned' | 'in_progress' | 'hold' | 'quote_issued' | 'answered' | 'closed';
+
+/**
+ * 영업 문의만의 추가 상태 — 보류·견적 발행.
+ *
+ * 견적 발행은 이 모듈에만 있는 산출물 단계다(고객센터 티켓에는 견적이 없다).
+ */
+type SalesOnlyStatus = 'hold' | 'quote_issued';
+
+/**
+ * 처리상태 — 접수→배정→처리중→(보류)→견적 발행→완료→종결.
+ *
+ * 공통 다섯 단계는 shared/domain/inquiry-status 가 갖는다(고객센터 1:1 문의와 같은 어휘다).
+ * 여기서 넓히는 것은 영업에만 있는 두 단계뿐이다 — 같은 흐름을 두 모듈이 각자 선언하던 자리다.
+ */
+export type InquiryStatus = CommonInquiryStatus | SalesOnlyStatus;
 
 /** 타임라인 이벤트 종류 — 접수/내부메모/고객답변/상태변경 (append-only) */
 export type InquiryEventKind = 'received' | 'note' | 'reply' | 'status';
@@ -86,15 +100,33 @@ const INQUIRY_PRIORITY_OPTIONS: readonly Option<InquiryPriority>[] = [
   { id: 'low', label: '낮음' },
 ];
 
-export const INQUIRY_STATUS_OPTIONS: readonly Option<InquiryStatus>[] = [
-  { id: 'received', label: '접수' },
-  { id: 'assigned', label: '배정' },
-  { id: 'in_progress', label: '처리중' },
-  { id: 'hold', label: '보류' },
-  { id: 'quote_issued', label: '견적 발행' },
-  { id: 'answered', label: '완료' },
-  { id: 'closed', label: '종결' },
-];
+/**
+ * 상태 순서 — 공통 흐름의 '처리중' 뒤에 영업 고유 두 단계를 끼워 넣는다.
+ *
+ * 접수→배정→처리중→보류→견적 발행→완료→종결. 리터럴로 다시 적지 않는 이유는
+ * shared/domain/inquiry-status 의 withExtraInquiryStatuses 주석에 있다.
+ */
+export const INQUIRY_STATUS_ORDER: readonly InquiryStatus[] = withExtraInquiryStatuses<
+  'hold' | 'quote_issued'
+>('in_progress', ['hold', 'quote_issued']);
+
+/**
+ * 상태 문구 — **이 화면의 말투다.** 같은 'answered' 를 고객센터는 '답변완료' 라 부른다.
+ * 어휘(enum)는 공유하되 문구는 각자 갖는다 — 공통 층으로 올리면 한쪽 문구 수정이 다른 화면을 흔든다.
+ */
+const STATUS_LABEL: Record<InquiryStatus, string> = {
+  received: '접수',
+  assigned: '배정',
+  in_progress: '처리중',
+  hold: '보류',
+  quote_issued: '견적 발행',
+  answered: '완료',
+  closed: '종결',
+};
+
+export const INQUIRY_STATUS_OPTIONS: readonly Option<InquiryStatus>[] = INQUIRY_STATUS_ORDER.map(
+  (id) => ({ id, label: STATUS_LABEL[id] }),
+);
 
 const label = <T extends string>(options: readonly Option<T>[], id: T): string =>
   options.find((option) => option.id === id)?.label ?? id;
@@ -103,7 +135,8 @@ export const inquiryTypeLabel = (v: InquiryType): string => label(INQUIRY_TYPE_O
 export const inquiryChannelLabel = (v: InquiryChannel): string => label(INQUIRY_CHANNEL_OPTIONS, v);
 export const inquiryPriorityLabel = (v: InquiryPriority): string =>
   label(INQUIRY_PRIORITY_OPTIONS, v);
-export const inquiryStatusLabel = (v: InquiryStatus): string => label(INQUIRY_STATUS_OPTIONS, v);
+/** 상태만 Record 직접 조회 — 옵션 배열을 훑지 않는다(누락 시 컴파일이 막는다) */
+export const inquiryStatusLabel = (v: InquiryStatus): string => STATUS_LABEL[v];
 
 const STATUS_TONE: Record<InquiryStatus, StatusTone> = {
   received: 'neutral',
@@ -139,18 +172,8 @@ export function inquiryEventLabel(kind: InquiryEventKind): string {
 }
 
 /** 타입가드 — select 값(문자열)을 InquiryStatus 로 좁힌다(as 캐스팅 대신) */
-const STATUS_VALUES = [
-  'received',
-  'assigned',
-  'in_progress',
-  'hold',
-  'quote_issued',
-  'answered',
-  'closed',
-] as const;
-
 export function isInquiryStatus(value: unknown): value is InquiryStatus {
-  return typeof value === 'string' && (STATUS_VALUES as readonly string[]).includes(value);
+  return typeof value === 'string' && (INQUIRY_STATUS_ORDER as readonly string[]).includes(value);
 }
 
 export const INQUIRY_FILTER_ALL = 'all';

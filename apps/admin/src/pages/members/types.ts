@@ -15,7 +15,7 @@ import type { GroupCounts, Member, TierCounts } from '../../shared/domain/member
 // 회원 화면 어디서도 직접 쓰지 않아 도메인 파일 안의 지역 타입으로 되돌렸다 (죽은 공개 표면).
 export type {
   ConsentGroup,
-  Coupon,
+  IssuedCoupon,
   GroupCounts,
   Member,
   MemberDetail,

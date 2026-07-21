@@ -82,6 +82,22 @@ function toSummary(faq: Faq): FaqSummary {
   };
 }
 
+/**
+ * 고객센터가 큐레이션할 수 있는 FAQ — **노출 중인 것만**, 정렬 순서 그대로.
+ *
+ * [왜 이 화면이 이 함수를 갖나] 이 배열의 정본이 여기이기 때문이다. 고객센터 FAQ 화면은 예전에
+ * 자기 픽스처를 따로 들고 있어서 여기서 쓴 FAQ 가 그쪽에 영영 뜨지 않았다. 배열을 밖으로 내보내는
+ * 대신 질문 하나에 함수 하나로 답한다 — 저장소 내부(mutable 참조)가 새어 나가지 않는다.
+ * 배선은 `src/wiring.ts` 가 한다(고객센터 화면은 이 모듈을 import 하지 않는다 — 축1 페이지 결합).
+ *
+ * [왜 숨김(visible=false)은 빼나] 여기서 내린 FAQ 는 아직 공개할 것이 아니다. 그것이 고객센터
+ * 큐레이션 목록에 뜨면 운영자는 '노출' 토글 하나로 여기의 결정을 우회할 수 있게 된다 —
+ * 두 화면이 같은 질문에 서로 다른 답을 갖는 상태로 되돌아간다.
+ */
+export function listPublishedFaqs(): readonly FaqSummary[] {
+  return FAQS.filter((faq) => faq.visible).map(toSummary);
+}
+
 /* ── 조회 ────────────────────────────────────────────────────────────────── */
 
 export interface FaqQuery {

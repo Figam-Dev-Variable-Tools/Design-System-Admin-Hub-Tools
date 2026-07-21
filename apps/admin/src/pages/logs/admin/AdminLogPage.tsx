@@ -8,7 +8,15 @@
 // 여기 적히는 것은 **이 화면만의 것**: 축의 어휘 · 컬럼 · 강조 규칙 · 상세의 모양.
 //
 // [읽기 전용] 등록 버튼도, 행 ⋯ 메뉴도, 체크박스도 없다. 감사 기록은 불변이다 — ../types.ts 참조.
+//
+// [두 개의 목적지 — 회원 활동 로그와 같은 규약]
+//   · **행**을 누르면 그 요청의 **페이로드**가 열린다 (이 화면의 본업 — 무엇을 보냈는가).
+//   · **행위자 계정**을 누르면 운영자 상세로, **대상 이름**을 누르면 그 대상의 화면으로 간다.
+// 그래야 "그 회원 등급 누가 바꿨어요?" 가 이 표에서 끝나지 않고 **다음 한 걸음**으로 이어진다.
+// 행 이동 훅이 링크 클릭을 행 활성화에서 제외하므로 둘이 충돌하지 않는다.
+// id 가 없는 행(옛 기록·목록 반출)은 링크가 아니라 글자다 — types.ts 의 actorId/targetId 참조.
 import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 
 import { formatNumber } from '../../../shared/format';
 import { OutcomeCell, StackCell } from '../components/cells';
@@ -21,8 +29,20 @@ import {
   ADMIN_LOG_AXES,
   ADMIN_LOG_RETENTION,
   ADMIN_OUTCOME_LABEL,
+  adminLogActorPath,
+  adminLogTargetPath,
 } from './types';
 import type { AdminLogEntry } from './types';
+
+/** 갈 곳이 있으면 링크, 없으면 그대로 글자 — 없는 화면을 있는 것처럼 보이게 하지 않는다 */
+function LinkedText({ to, children }: { readonly to: string | null; readonly children: string }) {
+  if (to === null) return <>{children}</>;
+  return (
+    <Link to={to} className="tds-ui-link tds-ui-focusable">
+      {children}
+    </Link>
+  );
+}
 
 /** 컬럼 id 는 곧 정렬 키다 — data-source 의 sortValues 와 이름이 맞아야 정렬 가능 컬럼이 된다 (ERP-04) */
 const COLUMNS: readonly LogColumn<AdminLogEntry>[] = [
@@ -36,10 +56,11 @@ const COLUMNS: readonly LogColumn<AdminLogEntry>[] = [
     id: 'actor',
     label: '행위자',
     nowrap: true,
-    // 계정 아래 이름+역할 — 그때의 역할이 함께 보여야 '권한이 있었나'를 그 자리에서 판단한다
+    // 계정 아래 이름+역할 — 그때의 역할이 함께 보여야 '권한이 있었나'를 그 자리에서 판단한다.
+    // 역할은 **그때의 값**이라 링크로 만들지 않는다(지금의 역할과 다를 수 있다 — 그것이 감사다).
     render: (entry) => (
       <StackCell
-        primary={entry.actorAccount}
+        primary={<LinkedText to={adminLogActorPath(entry)}>{entry.actorAccount}</LinkedText>}
         secondary={`${entry.actorName} · ${entry.actorRole}`}
       />
     ),
@@ -53,7 +74,12 @@ const COLUMNS: readonly LogColumn<AdminLogEntry>[] = [
   {
     id: 'target',
     label: '대상',
-    render: (entry) => <StackCell primary={entry.targetLabel} secondary={entry.targetType} />,
+    render: (entry) => (
+      <StackCell
+        primary={<LinkedText to={adminLogTargetPath(entry)}>{entry.targetLabel}</LinkedText>}
+        secondary={entry.targetType}
+      />
+    ),
   },
   {
     id: 'outcome',
@@ -133,7 +159,7 @@ export default function AdminLogPage() {
       // 어댑터는 그 키를 모르는 상태가 조용히 생긴다 (컬럼 id = 정렬 키의 단일 원천)
       sortValues: adminLogSpec.sortValues,
       caption:
-        '관리자 로그 — 행을 누르면 그 요청의 상세 페이로드가 열립니다. 이 목록은 읽기 전용이며 수정·삭제할 수 없습니다.',
+        '관리자 로그 — 행을 누르면 그 요청의 상세 페이로드가 열리고, 행위자 계정이나 대상 이름을 누르면 그 화면으로 이동합니다. 이 목록은 읽기 전용이며 수정·삭제할 수 없습니다.',
       searchLabel: '행위자, 대상 또는 IP 검색',
       searchPlaceholder: '행위자 · 대상 · IP 검색',
       csvBaseName: 'admin-log',

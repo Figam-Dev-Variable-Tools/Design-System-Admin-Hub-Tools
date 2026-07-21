@@ -85,9 +85,19 @@ interface PointsCardProps {
   readonly memberId: string;
   readonly initialPoints: number;
   readonly initialHistory: readonly PointEntry[];
+  /** 적립금 지급·차감 권한 (EXC-03) — 없으면 조정 폼을 그리지 않는다. 잔액·내역은 계속 읽는다 */
+  readonly canUpdate: boolean;
+  /** 내역 삭제 권한 (EXC-03) — 없으면 삭제 열 자체가 없다 */
+  readonly canRemove: boolean;
 }
 
-export function PointsCard({ memberId, initialPoints, initialHistory }: PointsCardProps) {
+export function PointsCard({
+  memberId,
+  initialPoints,
+  initialHistory,
+  canUpdate,
+  canRemove,
+}: PointsCardProps) {
   // 결과 통지는 공통 토스트가 맡는다 — 부모에게 콜백으로 올려보내지 않는다
   const toast = useToast();
 
@@ -235,74 +245,77 @@ export function PointsCard({ memberId, initialPoints, initialHistory }: PointsCa
 
       <p style={balanceStyle}>{`${formatNumber(points)} 포인트 (KRW)`}</p>
 
-      <form
-        noValidate
-        style={formStyle}
-        onSubmit={(event) => {
-          event.preventDefault();
-          submit();
-        }}
-      >
-        <div style={fieldStyle}>
-          <label htmlFor={kindId} style={fieldLabelStyle}>
-            구분
-          </label>
-          <SelectField
-            id={kindId}
-            value={kind}
-            disabled={submitting}
-            onChange={(event) => setKind(event.target.value === 'deduct' ? 'deduct' : 'grant')}
-          >
-            <option value="grant">{POINT_ADJUST_LABEL.grant}</option>
-            <option value="deduct">{POINT_ADJUST_LABEL.deduct}</option>
-          </SelectField>
-        </div>
+      {/* 돈이 움직이는 폼이다 — 지급·차감 권한이 없으면 입력 자체를 두지 않는다 (EXC-03) */}
+      {canUpdate && (
+        <form
+          noValidate
+          style={formStyle}
+          onSubmit={(event) => {
+            event.preventDefault();
+            submit();
+          }}
+        >
+          <div style={fieldStyle}>
+            <label htmlFor={kindId} style={fieldLabelStyle}>
+              구분
+            </label>
+            <SelectField
+              id={kindId}
+              value={kind}
+              disabled={submitting}
+              onChange={(event) => setKind(event.target.value === 'deduct' ? 'deduct' : 'grant')}
+            >
+              <option value="grant">{POINT_ADJUST_LABEL.grant}</option>
+              <option value="deduct">{POINT_ADJUST_LABEL.deduct}</option>
+            </SelectField>
+          </div>
 
-        <div style={fieldStyle}>
-          <label htmlFor={amountId} style={fieldLabelStyle}>
-            금액
-          </label>
-          <input
-            id={amountId}
-            type="number"
-            inputMode="numeric"
-            min={1}
-            step={1}
-            className="tds-ui-input tds-ui-focusable"
-            style={controlStyle(error !== null)}
-            value={amount}
-            // 요청 중에 값을 바꾸면 전송한 값과 화면 값이 어긋난다 — 응답까지 잠근다
-            disabled={submitting}
-            onChange={(event) => setAmount(event.target.value)}
-          />
-        </div>
+          <div style={fieldStyle}>
+            <label htmlFor={amountId} style={fieldLabelStyle}>
+              금액
+            </label>
+            <input
+              id={amountId}
+              type="number"
+              inputMode="numeric"
+              min={1}
+              step={1}
+              className="tds-ui-input tds-ui-focusable"
+              style={controlStyle(error !== null)}
+              value={amount}
+              // 요청 중에 값을 바꾸면 전송한 값과 화면 값이 어긋난다 — 응답까지 잠근다
+              disabled={submitting}
+              onChange={(event) => setAmount(event.target.value)}
+            />
+          </div>
 
-        <div style={fieldStyle}>
-          <label htmlFor={reasonId} style={fieldLabelStyle}>
-            사유
-          </label>
-          <input
-            id={reasonId}
-            type="text"
-            className="tds-ui-input tds-ui-focusable"
-            style={controlStyle(false)}
-            value={reason}
-            placeholder="예: 이벤트 참여 보상"
-            disabled={submitting}
-            onChange={(event) => setReason(event.target.value)}
-          />
-        </div>
+          <div style={fieldStyle}>
+            <label htmlFor={reasonId} style={fieldLabelStyle}>
+              사유
+            </label>
+            <input
+              id={reasonId}
+              type="text"
+              className="tds-ui-input tds-ui-focusable"
+              style={controlStyle(false)}
+              value={reason}
+              placeholder="예: 이벤트 참여 보상"
+              disabled={submitting}
+              onChange={(event) => setReason(event.target.value)}
+            />
+          </div>
 
-        <Button variant="primary" type="submit" disabled={submitting}>
-          {submitting ? '처리 중…' : '확인'}
-        </Button>
+          <Button variant="primary" type="submit" disabled={submitting}>
+            {submitting ? '처리 중…' : '확인'}
+          </Button>
 
-        {error !== null && (
-          <p role="alert" style={formErrorStyle}>
-            {error}
-          </p>
-        )}
-      </form>
+          {error !== null && (
+            <p role="alert" style={formErrorStyle}>
+              {error}
+            </p>
+          )}
+        </form>
+      )}
 
       <table style={tableStyle}>
         <caption style={visuallyHiddenStyle}>적립금 증감 내역</caption>
@@ -320,15 +333,18 @@ export function PointsCard({ memberId, initialPoints, initialHistory }: PointsCa
             <th scope="col" style={thStyle}>
               증감
             </th>
-            <th scope="col" style={thStyle}>
-              <span style={visuallyHiddenStyle}>삭제</span>
-            </th>
+            {canRemove && (
+              <th scope="col" style={thStyle}>
+                <span style={visuallyHiddenStyle}>삭제</span>
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
           {visibleEntries.length === 0 ? (
             <tr>
-              <td colSpan={5} style={emptyCellStyle}>
+              {/* 삭제 열은 권한이 있을 때만 존재한다 — 빈 상태의 colSpan 도 그것을 따라간다 */}
+              <td colSpan={canRemove ? 5 : 4} style={emptyCellStyle}>
                 적립 내역이 없습니다.
               </td>
             </tr>
@@ -339,20 +355,22 @@ export function PointsCard({ memberId, initialPoints, initialHistory }: PointsCa
                 <td style={tdStyle}>{entry.reason}</td>
                 <td style={tdStyle}>{entry.orderNo ?? '—'}</td>
                 <td style={signStyle(entry.amount)}>{formatSignedNumber(entry.amount)}</td>
-                <td style={deleteCellStyle}>
-                  <Button
-                    variant="ghost"
-                    aria-label={`${entry.date} ${entry.reason} 내역 삭제`}
-                    disabled={removing && pendingRemove?.id === entry.id}
-                    // 클릭 즉시 삭제하지 않는다 — 확인 다이얼로그를 먼저 세운다
-                    onClick={() => {
-                      setRemoveError(null);
-                      setPendingRemove(entry);
-                    }}
-                  >
-                    <Icon name="trash" />
-                  </Button>
-                </td>
+                {canRemove && (
+                  <td style={deleteCellStyle}>
+                    <Button
+                      variant="ghost"
+                      aria-label={`${entry.date} ${entry.reason} 내역 삭제`}
+                      disabled={removing && pendingRemove?.id === entry.id}
+                      // 클릭 즉시 삭제하지 않는다 — 확인 다이얼로그를 먼저 세운다
+                      onClick={() => {
+                        setRemoveError(null);
+                        setPendingRemove(entry);
+                      }}
+                    >
+                      <Icon name="trash" />
+                    </Button>
+                  </td>
+                )}
               </tr>
             ))
           )}

@@ -25,7 +25,7 @@ import {
   hintStyle,
   Icon,
 } from '../../../shared/ui';
-import { SYSTEM_ROLE_REASON } from '../../../shared/permissions/roles';
+import { roleDeletionBlock, SYSTEM_ROLE_REASON } from '../../../shared/permissions/roles';
 import type { Role } from '../../../shared/permissions/roles';
 import { LockIcon, PlusIcon } from '../icons';
 import { cssVar } from '@tds/ui';
@@ -78,6 +78,13 @@ interface RolePanelProps {
   readonly roles: readonly Role[];
   readonly selectedRoleId: string;
   readonly activeRoleId: string;
+  /**
+   * 역할 id → 그 역할을 배정받은 운영자 수 (null = 확인 불가).
+   *
+   * 키 있는 Record 로 받는다 — 배열을 받아 find 로 짚으면 못 찾았을 때 **엉뚱한 역할의 숫자**로
+   * 폴백하기 쉽고, 그 실수는 '0명이라 지웠는데 3명이 고아가 됐다' 로 나타난다.
+   */
+  readonly assigneeCounts: Readonly<Record<string, number | null>>;
   /** 시스템 역할 비활성 사유 문구의 id — 비활성 버튼이 aria-describedby 로 가리킨다 */
   readonly systemReasonId: string;
   readonly onSelect: (roleId: string) => void;
@@ -90,6 +97,7 @@ export function RolePanel({
   roles,
   selectedRoleId,
   activeRoleId,
+  assigneeCounts,
   systemReasonId,
   onSelect,
   onCreate,
@@ -98,6 +106,18 @@ export function RolePanel({
 }: RolePanelProps) {
   const selected = roles.find((role) => role.id === selectedRoleId) ?? null;
   const locked = selected === null || selected.system;
+
+  /**
+   * 삭제만 사유가 하나 더 있다 — 이 역할을 든 운영자가 남아 있는가(고아 참조 방지).
+   * 시스템 역할은 이미 잠겨 있으므로 그때는 배정 수를 묻지 않는다(사유가 둘이면 하나만 말한다).
+   * 상품·고객센터 카테고리 삭제 버튼과 같은 관용구: **사유를 aria-label/title 에 싣는다** —
+   * 비활성 상태와 색만으로 이유를 전달하지 않는다.
+   */
+  const deleteBlock =
+    selected === null || selected.system
+      ? null
+      : roleDeletionBlock(selected.name, assigneeCounts[selected.id] ?? null);
+  const deleteLocked = locked || deleteBlock !== null;
 
   return (
     <FilterRail
@@ -139,9 +159,12 @@ export function RolePanel({
           </Button>
           <Button
             variant="ghost"
-            disabled={locked}
+            disabled={deleteLocked}
             aria-describedby={locked ? systemReasonId : undefined}
-            title={locked ? SYSTEM_ROLE_REASON : undefined}
+            // 배정 사유는 이 화면에만 있는 문장이라 보이는 문구(systemReasonId)로 가리킬 수 없다 —
+            // 버튼 자신이 이름과 툴팁으로 말한다
+            aria-label={deleteBlock ?? undefined}
+            title={locked ? SYSTEM_ROLE_REASON : (deleteBlock ?? undefined)}
             onClick={onDelete}
           >
             <Icon name="trash" />

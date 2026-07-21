@@ -26,6 +26,7 @@ import {
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
 import { FormConflictDialog, FormServerError, useCrudForm } from '../../../shared/crud';
+import { AccountSelectField } from '../_shared/AccountSelectField';
 import { formatWon } from '../_shared/business';
 import { projectAdapter } from './data-source';
 import { projectSchema } from './validation';
@@ -133,6 +134,7 @@ const actionsStyle: CSSProperties = {
 
 const EMPTY: ProjectFormValues = {
   name: '',
+  accountId: '',
   accountName: '',
   stage: 'lead',
   probability: '10',
@@ -157,6 +159,7 @@ const clampPercent = (raw: string): number => Math.min(100, digitsToNumber(raw))
 function toInput(values: ProjectFormValues): ProjectInput {
   return {
     name: values.name.trim(),
+    accountId: values.accountId,
     accountName: values.accountName.trim(),
     stage: values.stage,
     probability: clampPercent(values.probability),
@@ -178,6 +181,7 @@ function toInput(values: ProjectFormValues): ProjectInput {
 function toValues(project: Project): ProjectFormValues {
   return {
     name: project.name,
+    accountId: project.accountId,
     accountName: project.accountName,
     stage: project.stage,
     probability: String(project.probability),
@@ -317,27 +321,24 @@ export default function ProjectFormPage() {
                 />
               </FormField>
 
+              {/* 거래처는 마스터에서 고른다 — 자유 입력이던 자리다(ContractFormPage 와 같은 규칙) */}
+              <AccountSelectField
+                id="project-account"
+                accountId={watch('accountId')}
+                accountName={watch('accountName')}
+                required
+                disabled={disabled}
+                error={errors.accountName?.message}
+                onChange={(next) => {
+                  setValue('accountId', next.accountId, { shouldDirty: true });
+                  setValue('accountName', next.accountName, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }}
+              />
+
               <div style={rowStyle}>
-                <FormField
-                  htmlFor="project-account"
-                  label="거래처"
-                  required
-                  error={errors.accountName?.message}
-                >
-                  <input
-                    id="project-account"
-                    type="text"
-                    className="tds-ui-input tds-ui-focusable"
-                    style={controlStyle(errors.accountName !== undefined)}
-                    placeholder="예: (주)한빛소프트웨어"
-                    disabled={disabled}
-                    aria-invalid={errors.accountName !== undefined}
-                    aria-describedby={
-                      errors.accountName !== undefined ? errorIdOf('project-account') : undefined
-                    }
-                    {...register('accountName')}
-                  />
-                </FormField>
                 <FormField htmlFor="project-owner" label="담당자">
                   <input
                     id="project-owner"

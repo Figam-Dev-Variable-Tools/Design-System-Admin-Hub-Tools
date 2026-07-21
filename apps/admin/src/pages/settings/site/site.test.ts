@@ -5,8 +5,15 @@
 //   ② 글자 수 상한 — 사이트 이름 20자 / 설명 100자.
 //   ③ 파일 규칙 — 확장자·용량·해상도.
 //   ④ 공개 범위 ↔ 비공개용 이미지의 관계 — 전체 공개일 때 이 이미지는 판정 대상이 아니다.
-import { describe, expect, it } from 'vitest';
+//   ⑤ 저장한 값이 **화면 밖에서 실제로 읽히는가** — 예전에는 소비자가 하나도 없었다.
+import { beforeAll, describe, expect, it } from 'vitest';
 
+// 설정 → 소비자 배선. 이 화면은 읽는 쪽을 모르고, 잇는 일은 wiring 이 한다
+// (shared/domain/site-policy.ts 머리말). 배선을 걸지 않으면 아래 마지막 describe 는
+// 제품이 아니라 '미배선 상태' 를 검증하게 된다.
+import { wireDomains } from '../../../wiring';
+import { messagingNameOf } from '../../../shared/domain/site-policy';
+import { siteSettingsStore } from './data-source';
 import { byteLengthOf } from '../../../shared/format';
 import {
   MESSAGING_NAME_MAX_BYTES,
@@ -268,5 +275,40 @@ describe('파일 형식 — 확장자만 믿지 않는다', () => {
       expect(faviconFileError({ name: 'f.ico', size: 1024, type })).toBe(null);
     }
     expect(faviconFileError({ name: 'f.ico', size: 1024, type: 'image/svg+xml' })).not.toBe(null);
+  });
+});
+
+/* ── 저장한 값이 화면 밖에서 읽히는가 ─────────────────────────────────────────
+ *
+ * [왜 이 묶음이 필요한가] 이 화면의 값은 오래도록 **아무도 읽지 않았다.** 검증 테스트는
+ * 전부 통과하는데 제품은 아무 일도 하지 않는 상태였고, 그것을 잡아 줄 테스트가 없었다.
+ * 여기서 고정하는 것은 '스키마가 값을 받는가' 가 아니라 '그 값이 소비자에게 도달하는가' 다. */
+describe('사이트 설정 → 소비자 (배선을 지난 값)', () => {
+  beforeAll(() => {
+    wireDomains();
+  });
+
+  /**
+   * 여기서 보는 것은 **분기**다 — 조회기가 꽂히는지는 배선 지점의 테스트가 본다(src/wiring.test.ts).
+   *
+   * 화면의 안내가 이렇게 말한다: "전용 이름을 지정하지 않으면 사이트 이름으로 적용됩니다".
+   * 그 분기는 **배선이 끝내고** 읽는 쪽(SMS·이메일·뉴스레터)에는 결과만 간다. 세 화면이 각자
+   * 분기하면 한 곳만 고쳐진 채 나머지가 남는다.
+   *
+   * 저장소를 실제로 바꿔 확인한다 — 이 파일 마지막 테스트라 뒤따르는 검증에 영향이 없다.
+   */
+  it('전용 이름 스위치를 끄면 사이트 이름으로 떨어진다', async () => {
+    const before = siteSettingsStore.peek();
+    await siteSettingsStore.save({
+      value: { ...before.value, messagingNameEnabled: false },
+      expectedRevision: before.revision,
+    });
+
+    expect(messagingNameOf()).toBe(before.value.siteName);
+
+    // 다른 파일과 모듈 상태를 공유하지 않지만, 이 파일 안에서는 되돌려 둔다
+    const changed = siteSettingsStore.peek();
+    await siteSettingsStore.save({ value: before.value, expectedRevision: changed.revision });
+    expect(messagingNameOf()).toBe(before.value.messagingName);
   });
 });

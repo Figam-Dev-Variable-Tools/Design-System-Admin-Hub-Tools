@@ -1,9 +1,10 @@
-// 프로모션 회귀 테스트 — 할인표기·필터·정렬(순수) + 폼 검증(기간·할인값·정률상한·쿠폰)
+// 프로모션 회귀 테스트 — 할인표기·필터·정렬(순수) + 폼 검증(기간·할인값·정률상한·쿠폰 참조)
 import { describe, expect, it } from 'vitest';
 
 import {
   discountLabel,
   filterPromotions,
+  hasLinkedCoupon,
   searchPromotions,
   sortPromotions,
   toPromotionInput,
@@ -22,8 +23,8 @@ function promotionOf(overrides: Partial<Promotion> & { id: string }): Promotion 
     discountType: 'rate',
     discountValue: 20,
     minOrderAmount: 0,
-    couponLinked: false,
-    couponCode: '',
+    couponId: '',
+    couponName: '',
     description: '',
     ...overrides,
   };
@@ -46,6 +47,17 @@ describe('할인표기·필터·정렬·변환(순수)', () => {
   it('toPromotionInput 은 id 를 뺀다', () => {
     expect(toPromotionInput(promotionOf({ id: 'a' }))).not.toHaveProperty('id');
   });
+  // [회귀] 연동 여부가 couponLinked 불리언으로 따로 저장되던 시절에는 '연동함 + 코드 없음' 이라는
+  // 어긋난 상태가 만들어졌다. 이제 판정의 정본은 참조 하나다.
+  it('연동 여부는 couponId 하나에서 파생한다', () => {
+    expect(hasLinkedCoupon(promotionOf({ id: 'a', couponId: 'cpn-1' }))).toBe(true);
+    expect(hasLinkedCoupon(promotionOf({ id: 'b', couponId: '' }))).toBe(false);
+  });
+  it('표시용 쿠폰명이 비어도 참조는 남는다 — 링크는 id 로 건다', () => {
+    const promotion = promotionOf({ id: 'a', couponId: 'cpn-4', couponName: '' });
+    expect(hasLinkedCoupon(promotion)).toBe(true);
+    expect(toPromotionInput(promotion).couponId).toBe('cpn-4');
+  });
 });
 
 function valuesOf(overrides: Partial<PromotionFormValues> = {}): PromotionFormValues {
@@ -59,7 +71,7 @@ function valuesOf(overrides: Partial<PromotionFormValues> = {}): PromotionFormVa
     discountValue: '20',
     minOrderAmount: '30000',
     couponLinked: false,
-    couponCode: '',
+    couponId: '',
     description: '',
     ...overrides,
   };
@@ -94,10 +106,15 @@ describe('promotionSchema — 폼 검증', () => {
       '빠를',
     );
   });
-  it('쿠폰 연동인데 코드가 없으면 막는다', () => {
-    expect(messageFor(valuesOf({ couponLinked: true, couponCode: '' }), 'couponCode')).toContain(
+  it('쿠폰 연동인데 선택이 없으면 막는다', () => {
+    expect(messageFor(valuesOf({ couponLinked: true, couponId: '' }), 'couponId')).toContain(
       '쿠폰',
     );
+  });
+  it('쿠폰을 고르면 통과한다 — 값은 카탈로그의 id 다', () => {
+    expect(
+      promotionSchema.safeParse(valuesOf({ couponLinked: true, couponId: 'cpn-1' })).success,
+    ).toBe(true);
   });
   // [회귀] 여기 있던 사본 isRealDate 는 형식만 보고 실재 여부를 보지 않아 2026-02-31 을
   // 통과시켰다(Date 가 3/3 으로 굴린 뒤 !Number.isNaN 이 참). 정본 isCalendarDate 로 수렴해 막는다.

@@ -129,12 +129,12 @@ date: 2026-07-15
 ```json
 {
   "todos": [
-    { "key": "new-order", "label": "신규주문", "count": 1, "to": "/products" },
+    { "key": "new-product", "label": "신규 상품", "count": 1, "to": "/products" },
     { "key": "cancel", "label": "취소관리", "count": 0, "to": "/products/returns" }
   ],
   "cards": [
     {
-      "title": "최근 주문",
+      "title": "최근 등록 상품",
       "count": 0,
       "moreTo": "/products",
       "icon": "order",
@@ -143,7 +143,7 @@ date: 2026-07-15
       ]
     },
     {
-      "title": "판매 신청",
+      "title": "최근 구매평",
       "count": 4,
       "moreTo": "/products/categories",
       "icon": "tag",
@@ -171,7 +171,7 @@ date: 2026-07-15
 
 | 탭 | 카드 A `title` · `icon` | 카드 B `title` · `icon` |
 |---|---|---|
-| `products` | '최근 주문' · `order` | '판매 신청' · `tag` |
+| `products` | '최근 등록 상품' · `order` | '최근 구매평' · `tag` |
 | `inquiries` | '최근 문의' · `question` | '답변 대기' · `question` |
 | `sales` | '최근 상담' · `question` | '계약 대기' · `contract` |
 

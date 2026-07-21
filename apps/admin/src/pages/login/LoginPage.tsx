@@ -33,6 +33,11 @@ import {
 // 길이 제약은 zod 스키마의 검증으로만 강제한다 (validation.ts 가 규칙의 정본이다).
 import { loginSchema } from './validation';
 import type { LoginFormValues } from './validation';
+// '로그인 유지' 의 기본값은 시스템 설정(기본 설정 › 로그인 상태 유지)이 정한다. 이 화면이
+// pages/settings 를 직접 import 하면 페이지 간 결합이라(code-quality 축1, blocker) 공통 층의
+// 조회기를 통해 읽는다 — 값을 꽂는 일은 두 도메인을 모두 아는 src/wiring.ts 가 한다
+// (shared/domain/site-policy.ts 머리말).
+import { keepSignedInDefault } from '../../shared/domain/site-policy';
 import { cssVar } from '@tds/ui';
 
 /** 인증 성공 시 기본 이동처 (SCR-002 대시보드) */
@@ -192,16 +197,22 @@ export default function LoginPage() {
     reValidateMode: 'onBlur',
     shouldFocusError: false,
     // '이메일 저장' 기본값: 직전 로그인에서 저장된 이메일이 있으면 체크 (§5.2)
+    //
+    // '로그인 유지' 기본값: **운영자가 정한 사이트 설정**이다(기본 설정 › 로그인 상태 유지).
+    // 조회 시점에 한 번만 읽는다 — 폼이 뜬 뒤 설정이 바뀌어도 사용자가 이미 손댄 체크를
+    // 뒤에서 뒤집지 않는다. 배선이 없으면 꺼진 채로 연다(site-policy 의 fail-closed).
     defaultValues: {
       email: rememberedEmail ?? '',
       password: '',
       rememberEmail: rememberedEmail !== null,
+      keepSignedIn: keepSignedInDefault(),
     },
   });
 
   const emailField = useController({ control, name: 'email' }).field;
   const passwordField = useController({ control, name: 'password' }).field;
   const rememberField = useController({ control, name: 'rememberEmail' }).field;
+  const keepSignedInField = useController({ control, name: 'keepSignedIn' }).field;
 
   const email = watch('email');
 
@@ -317,7 +328,9 @@ export default function LoginPage() {
         );
 
         if (result.ok) {
-          writeSession(result.session);
+          // '로그인 유지' 를 끄면 세션은 탭 수명만 산다 — 체크박스가 실제로 하는 일이 이것이다
+          // (./session.ts writeSession). 켜면 예전처럼 브라우저를 닫아도 남는다.
+          writeSession(result.session, values.keepSignedIn);
           // '이메일 저장' — 이메일 값만 보관/삭제. 비밀번호는 저장하지 않는다 (§5.3-2)
           if (values.rememberEmail) writeRememberedEmail(result.session.email);
           else clearRememberedEmail();
@@ -392,6 +405,8 @@ export default function LoginPage() {
             onPasswordBlur={passwordField.onBlur}
             rememberEmail={rememberField.value}
             onRememberChange={rememberField.onChange}
+            keepSignedIn={keepSignedInField.value}
+            onKeepSignedInChange={keepSignedInField.onChange}
             fieldErrors={{
               email: errors.email?.message ?? null,
               password: errors.password?.message ?? null,

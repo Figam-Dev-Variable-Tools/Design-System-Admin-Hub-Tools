@@ -29,6 +29,7 @@ import type { CSSProperties } from 'react';
 // 화면 전용 상태 클래스가 사라졌다.
 import { downloadCsv } from '../../shared/download';
 import { formatDate, formatNumber } from '../../shared/format';
+import { useRouteCan } from '../../shared/permissions/RequirePermission';
 import { Alert, Button, hintStyle, Pagination, useToast } from '../../shared/ui';
 import { LoginHistoryFilters } from './components/LoginHistoryFilters';
 import { LoginHistoryTable } from './components/LoginHistoryTable';
@@ -100,6 +101,12 @@ const errorBodyStyle: CSSProperties = {
 
 export default function LoginHistoryPage() {
   const toast = useToast();
+
+  // [EXC-03] 이 화면의 유일한 쓰기성 액션은 내보내기다 — 감사 기록에는 삭제도 수정도 없다.
+  // 그런데 그 하나가 계정·이름·IP 가 담긴 파일을 뽑아낸다. 로그 화면(LogListShell)과 같은 게이팅:
+  // 권한이 없으면 버튼을 **비활성이 아니라 부재**로 둔다. read 게이팅은 여기의 일이 아니다 —
+  // AppShell 이 <Outlet> 을 RequirePermission 으로 감싸 모든 라우트를 한 번에 덮는다.
+  const canExport = useRouteCan('export');
 
   const [outcome, setOutcome] = useState<OutcomeFilter>('all');
   const [accountKind, setAccountKind] = useState<AccountKindFilter>('all');
@@ -232,6 +239,7 @@ export default function LoginHistoryPage() {
             onKeywordChange={setKeywordInput}
             onExport={onExport}
             exporting={exporting}
+            canExport={canExport}
           />
 
           {error === null ? (

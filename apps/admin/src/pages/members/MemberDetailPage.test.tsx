@@ -84,7 +84,8 @@ const DETAIL: MemberDetail = {
     { id: 'p1', date: '2026-07-10', reason: '이벤트 참여 보상', orderNo: null, amount: 500 },
   ],
 
-  coupons: [{ id: 'c1', name: '여름 할인 쿠폰', benefit: '10% 할인', expiresAt: '2026-08-31' }],
+  // 보유 쿠폰은 이제 카탈로그를 가리키는 발급 기록이다 — 이름·혜택은 조인해서 얻는다
+  coupons: [{ couponId: 'cpn-1', issuedAt: '2026-07-01', usedAt: null }],
 
   memo: 'VIP 승급 예정',
 };

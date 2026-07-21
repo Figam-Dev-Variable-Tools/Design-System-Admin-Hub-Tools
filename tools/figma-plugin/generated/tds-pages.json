@@ -183,6 +183,12 @@
       "menu": "상품 관리"
     },
     {
+      "id": "/products/inquiries",
+      "name": "문의",
+      "section": "비즈니스",
+      "menu": "상품 관리"
+    },
+    {
       "id": "/programs",
       "name": "프로그램",
       "section": "비즈니스",
@@ -191,6 +197,12 @@
     {
       "id": "/programs/categories",
       "name": "카테고리",
+      "section": "비즈니스",
+      "menu": "프로그램 관리"
+    },
+    {
+      "id": "/programs/inquiries",
+      "name": "문의",
       "section": "비즈니스",
       "menu": "프로그램 관리"
     },
@@ -383,6 +395,12 @@
     {
       "id": "/settings/oauth",
       "name": "OAuth 설정",
+      "section": "시스템",
+      "menu": "시스템 설정"
+    },
+    {
+      "id": "/settings/payment",
+      "name": "결제 설정",
       "section": "시스템",
       "menu": "시스템 설정"
     }

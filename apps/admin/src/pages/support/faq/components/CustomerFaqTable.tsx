@@ -90,7 +90,7 @@ export function CustomerFaqTable({
         ) : faqs.length === 0 ? (
           <tr>
             <td colSpan={totalCols} style={emptyCellStyle}>
-              고객센터에 노출할 FAQ 가 없습니다.
+              큐레이션할 FAQ 가 없습니다. 콘텐츠 관리에서 FAQ 를 등록·노출하면 이 목록에 올라옵니다.
             </td>
           </tr>
         ) : (

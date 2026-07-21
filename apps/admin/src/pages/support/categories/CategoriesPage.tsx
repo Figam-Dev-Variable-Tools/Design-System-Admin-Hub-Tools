@@ -19,7 +19,7 @@ import {
   StatusBadge,
   useToast,
 } from '../../../shared/ui';
-import { useCrudDelete, useCrudListQuery } from '../../../shared/crud';
+import { DetailCellLink, useCrudDelete, useCrudListQuery } from '../../../shared/crud';
 import { CATEGORY_RESOURCE, supportCategoryAdapter } from './data-source';
 import { CategoryFormModal } from './components/CategoryFormModal';
 import { categoryInUse, categoryUsageLabel } from '../_shared/domain';
@@ -98,6 +98,18 @@ const errorBodyStyle: CSSProperties = {
   flexWrap: 'wrap',
 };
 
+/**
+ * 사용 건수 배지가 여는 목록.
+ *
+ * 티켓 목록은 유형을 `?category=` 로 URL 이 소유한다(IA-13) — 그 유형만 걸러 열 수 있다.
+ * **답변 템플릿 목록에는 유형 필터가 없다**: 조회 수단이 검색뿐이고 그 검색은 제목·본문만 훑어
+ * 유형 이름으로 찾아지지 않는다(support/_shared/domain.ts 의 searchTemplates). 그래서 템플릿 쪽은
+ * 걸러진 링크를 지어내지 않고 **그냥 목록**으로 보낸다 — 걸러졌다고 말해 놓고 안 걸러진 목록을
+ * 보여 주는 것이 가장 나쁘다. 템플릿 목록에 유형 필터가 생기면 여기도 ?category= 를 붙인다.
+ */
+const TICKET_LIST_PATH = '/support/tickets';
+const TEMPLATE_LIST_PATH = '/support/replies';
+
 type ModalState =
   | { readonly kind: 'closed' }
   | { readonly kind: 'create' }
@@ -121,7 +133,31 @@ function CategoryRow({ category, deleting, onEdit, onDelete }: CategoryRowProps)
           tone={category.active ? 'success' : 'neutral'}
           label={category.active ? '사용' : '미사용'}
         />
-        <StatusBadge tone={inUse ? 'info' : 'neutral'} label={usage} />
+        {/* 참조 건수는 **삭제를 막는 근거**다 — 근거를 확인할 길이 같은 자리에 있어야 한다.
+            티켓과 템플릿은 사는 곳이 다르므로 배지도 목적지도 둘로 나눈다(합계 하나로는 어디로
+            가야 할지 알 수 없다). 0건인 쪽은 아예 그리지 않는다 — 열어 봐야 빈 목록이다. */}
+        {inUse ? (
+          <>
+            {category.ticketCount > 0 && (
+              <DetailCellLink
+                to={`${TICKET_LIST_PATH}?category=${encodeURIComponent(category.id)}`}
+                ariaLabel={`'${category.label}' 유형의 문의 ${formatNumber(category.ticketCount)}건 보기`}
+              >
+                <StatusBadge tone="info" label={`티켓 ${formatNumber(category.ticketCount)}`} />
+              </DetailCellLink>
+            )}
+            {category.templateCount > 0 && (
+              <DetailCellLink
+                to={TEMPLATE_LIST_PATH}
+                ariaLabel={`'${category.label}' 유형을 쓰는 답변 템플릿 ${formatNumber(category.templateCount)}건 — 템플릿 목록 열기`}
+              >
+                <StatusBadge tone="info" label={`템플릿 ${formatNumber(category.templateCount)}`} />
+              </DetailCellLink>
+            )}
+          </>
+        ) : (
+          <StatusBadge tone="neutral" label={usage} />
+        )}
       </span>
       <span style={actionsStyle}>
         <button
@@ -260,8 +296,9 @@ export default function CategoriesPage() {
             </ul>
           )}
           <p style={hintStyle}>
-            사용 중인 유형은 삭제할 수 없습니다 — 먼저 그 티켓·템플릿의 유형을 바꾸거나, 사용여부를
-            꺼서 신규 선택에서 숨기세요.
+            사용 중인 유형은 삭제할 수 없습니다 — 건수 배지를 누르면 그 유형을 쓰는 문의 목록(또는
+            답변 템플릿 목록)이 열립니다. 거기서 유형을 바꾸거나, 사용여부를 꺼서 신규 선택에서
+            숨기세요.
           </p>
         </Card>
       )}

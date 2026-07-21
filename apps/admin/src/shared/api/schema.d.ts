@@ -851,18 +851,25 @@ export interface components {
             amount: number;
         };
         /**
-         * Coupon
-         * @description 보유 쿠폰 1건 (프론트 `Coupon`).
+         * IssuedCoupon
+         * @description 회원에게 **발급된 쿠폰 1건** (프론트 `IssuedCoupon` — shared/domain/member.ts).
+         *     이름·혜택·만료일은 여기 없다 — 쿠폰의 정의는 쿠폰 카탈로그(`GET /api/coupons`)가 갖고,
+         *     화면이 `couponId` 로 조인한다. 예전에는 표시값을 여기 실어 회원 상세의 보유 쿠폰과
+         *     쿠폰 관리의 발급 수량이 서로 다른 이야기를 했다.
          */
-        Coupon: {
-            id: string;
-            name: string;
-            benefit: string;
+        IssuedCoupon: {
+            /**
+             * @description 쿠폰 카탈로그의 id.
+             * @example cpn-1
+             */
+            couponId: string;
             /**
              * Format: date
-             * @description `YYYY-MM-DD`
+             * @description 발급일 `YYYY-MM-DD`
              */
-            expiresAt: string;
+            issuedAt: string;
+            /** @description 사용일 `YYYY-MM-DD`. **미사용이면 `null`.** */
+            usedAt: string | null;
         };
         /**
          * MemberDetail
@@ -908,8 +915,8 @@ export interface components {
              *     **취소된 내역과 그 상쇄 거래는 이 배열에서 제외한다** (BE-004 §7.2).
              */
             pointHistory: components["schemas"]["PointEntry"][];
-            /** @description 전량 반환한다 (페이징 없음). */
-            coupons: components["schemas"]["Coupon"][];
+            /** @description 전량 반환한다 (페이징 없음). **발급 참조만** 담는다 — 표시값은 쿠폰 카탈로그 조인이다. */
+            coupons: components["schemas"]["IssuedCoupon"][];
             /** @description 관리자 메모. 없으면 빈 문자열. */
             memo: string;
         };

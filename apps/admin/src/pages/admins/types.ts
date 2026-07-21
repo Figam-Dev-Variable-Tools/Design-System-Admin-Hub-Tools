@@ -25,6 +25,14 @@ export type {
 /** 그룹 필터의 '전체' 값 — 그룹 id 와 섞이지 않게 상수로 둔다 */
 export const GROUP_ALL = 'all';
 
+/**
+ * 역할 필터의 '전체' 값 — GROUP_ALL 과 같은 이유로 상수다.
+ *
+ * 이 값은 URL 파라미터(`?role=`)의 기본값이기도 하다: 기본값과 같으면 URL 에서 지워져
+ * '필터 없는 목록' 의 주소가 하나로 정해진다(useListState 규약).
+ */
+export const ROLE_ALL = 'all';
+
 export interface AdminUser {
   readonly id: string;
   readonly nickname: string;

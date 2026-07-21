@@ -2,6 +2,10 @@
 //
 // [백엔드 연동 지점] 프레임워크 createCrudAdapter 에 시드를 넣는다. 실연동 시 // TODO(backend) 로 본문만
 // 바꾼다.
+//
+// [bannerId 는 콘텐츠 관리 배너의 실제 id 다] 'BN-002' 같은 값은 지어낸 것이 아니라 배너 카탈로그에
+// 실재하는 키다. 문자열로 적는 이유는 픽스처가 그 모듈을 import 하면 페이지 간 결합이 되기 때문이고,
+// 조인은 shared/domain/banner-catalog 조회기가 한다. bannerTitle 은 그 시점의 표시용 사본이다.
 import { createCrudAdapter } from '../../../shared/crud';
 import { sortEvents } from './types';
 import type { MarketingEvent, MarketingEventInput } from './types';
@@ -16,8 +20,8 @@ const EVENT_SEED: readonly MarketingEvent[] = [
     target: '전체 회원',
     benefitType: 'points',
     benefitDetail: '리뷰 작성 시 3,000 적립금',
-    bannerLinked: true,
-    bannerLabel: '메인 상단 여름 배너',
+    bannerId: 'BN-002',
+    bannerTitle: '신상품 입고 (002)',
     description: '구매 후기 작성 고객에게 적립금을 드리는 이벤트입니다.',
   },
   {
@@ -29,8 +33,8 @@ const EVENT_SEED: readonly MarketingEvent[] = [
     target: '뉴스레터 구독자',
     benefitType: 'coupon',
     benefitDetail: '사전알림 신청 시 10% 할인쿠폰',
-    bannerLinked: false,
-    bannerLabel: '',
+    bannerId: '',
+    bannerTitle: '',
     description: '가을 신상품 출시 전 사전알림 신청 이벤트.',
   },
   {
@@ -42,8 +46,8 @@ const EVENT_SEED: readonly MarketingEvent[] = [
     target: '전체 회원',
     benefitType: 'coupon',
     benefitDetail: '5,000원 할인쿠폰',
-    bannerLinked: true,
-    bannerLabel: '봄 시즌 배너',
+    bannerId: 'BN-001',
+    bannerTitle: '봄 시즌 기획전 (001)',
     description: '봄 시즌 감사 이벤트(종료).',
   },
 ];

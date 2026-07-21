@@ -16,6 +16,7 @@ import { Button, Icon, SearchField, SelectField, StatusBadge } from '../../../sh
 import { CrudListShell, parseFilter, useCrudList, useListState } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
+import { AccountLink } from '../_shared/AccountLink';
 import { formatWon } from '../_shared/business';
 import { projectAdapter } from './data-source';
 import {
@@ -140,7 +141,8 @@ export default function ProjectListPage() {
       render: (item) => <StatusBadge tone={stageTone(item.stage)} label={stageLabel(item.stage)} />,
     },
     { header: '프로젝트명', render: (item) => item.name },
-    { header: '거래처', render: (item) => item.accountName },
+    // 거래처는 이제 문이다 — 이 행에서 그 거래처의 계약·견적·상담 이력으로 건너간다
+    { header: '거래처', render: (item) => <AccountLink account={item} /> },
     { header: '예상매출', numeric: true, render: (item) => formatWon(item.expectedRevenue) },
     {
       header: '기간',

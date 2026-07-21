@@ -87,7 +87,11 @@ function text(value: string): string {
 
 interface MemberInfoCardProps {
   readonly detail: MemberDetail;
-  readonly onChangePassword: () => void;
+  /**
+   * 비밀번호 변경 — **null 이면 그 권한이 없다는 뜻**이고 버튼을 그리지 않는다 (EXC-03).
+   * 관리자가 회원 정보에서 바꿀 수 있는 유일한 값이라, 이 카드의 유일한 쓰기 손잡이다.
+   */
+  readonly onChangePassword: (() => void) | null;
 }
 
 export function MemberInfoCard({ detail, onChangePassword }: MemberInfoCardProps) {
@@ -115,9 +119,11 @@ export function MemberInfoCard({ detail, onChangePassword }: MemberInfoCardProps
             {/* 실제 값은 절대 내려오지 않는다 — 자리표시자만 보여준다 */}
             <span aria-hidden="true">••••••••</span>
             <span style={visuallyHiddenStyle}>비밀번호는 표시되지 않습니다</span>
-            <Button variant="secondary" onClick={onChangePassword}>
-              비밀번호 변경
-            </Button>
+            {onChangePassword !== null && (
+              <Button variant="secondary" onClick={onChangePassword}>
+                비밀번호 변경
+              </Button>
+            )}
           </span>
         </Row>
 

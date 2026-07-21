@@ -53,6 +53,12 @@ interface LoginFormProps {
   readonly onPasswordBlur: (event: FocusEvent<HTMLInputElement>) => void;
   readonly rememberEmail: boolean;
   readonly onRememberChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  /**
+   * 로그인 유지 — 기본값은 사이트 기본 설정이 정하고(LoginPage), 사용자가 여기서 뒤집을 수 있다.
+   * 이메일 저장과 다른 축이다: 저쪽은 다음 방문에 이메일 칸을 채워 줄 뿐 로그인은 다시 해야 한다.
+   */
+  readonly keepSignedIn: boolean;
+  readonly onKeepSignedInChange: (event: ChangeEvent<HTMLInputElement>) => void;
   readonly fieldErrors: FieldErrors;
   /** 공통 안내/에러 — null이면 렌더하지 않는다 */
   readonly alert: AlertState | null;
@@ -81,6 +87,7 @@ const formStyle: CSSProperties = {
 const EMAIL_FIELD_ID = 'login-email';
 const PASSWORD_FIELD_ID = 'login-password';
 const REMEMBER_FIELD_ID = 'login-remember';
+const KEEP_SIGNED_IN_FIELD_ID = 'login-keep-signed-in';
 const ALERT_ID = 'login-alert';
 
 /**
@@ -100,6 +107,8 @@ export function LoginForm({
   onPasswordBlur,
   rememberEmail,
   onRememberChange,
+  keepSignedIn,
+  onKeepSignedInChange,
   fieldErrors,
   alert,
   alertRef,
@@ -158,6 +167,20 @@ export function LoginForm({
         checked={rememberEmail}
         disabled={isSending}
         onChange={onRememberChange}
+      />
+
+      {/*
+        로그인 유지 — 기본값은 시스템 설정(기본 설정 › 로그인 상태 유지)이 정한다.
+        이메일 저장 바로 아래 둔다: 둘 다 '다음에 올 때' 를 정하는 값이라 떨어뜨려 놓으면
+        무엇이 무엇의 짝인지 읽히지 않는다.
+      */}
+      <Checkbox
+        id={KEEP_SIGNED_IN_FIELD_ID}
+        name="keepSignedIn"
+        label="로그인 유지"
+        checked={keepSignedIn}
+        disabled={isSending}
+        onChange={onKeepSignedInChange}
       />
 
       {/*

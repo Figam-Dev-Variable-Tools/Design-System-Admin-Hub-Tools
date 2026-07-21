@@ -12,6 +12,10 @@ const INT_RE = /^\d+$/;
 export const contractSchema = z
   .object({
     title: requiredText('계약명', CONTRACT_TITLE_MAX),
+    // 거래처 마스터 참조. 빈 문자열을 허용한다 — 아직 등록되지 않은 거래처와의 첫 계약을 막지
+    // 않기 위해서다. 대신 폼이 그 대가(역방향 조회에서 빠진다)를 경고로 드러낸다
+    // (../_shared/AccountSelectField). 이름은 계속 필수라 '아무것도 모르는 계약'은 생기지 않는다.
+    accountId: z.string(),
     accountName: requiredText('거래처', 60),
     contractType: z.enum(['supply', 'service', 'maintenance', 'license', 'lease', 'nda']),
     startAt: z.string(),

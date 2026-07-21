@@ -3,6 +3,7 @@
 // 공용 CRUD 프레임워크(useCrudForm + FormPageShell)를 재사용한다. 필드: 이벤트명·기간·상태·대상·혜택
 // (쿠폰/적립)·배너 연동·설명. 검증 정본은 ./validation.
 import type { CSSProperties } from 'react';
+import { Link } from 'react-router-dom';
 
 import {
   controlStyle,
@@ -11,6 +12,7 @@ import {
   fieldLabelStyle,
   fieldStyle,
   FormField,
+  hintIdOf,
   SelectField,
   TextareaField,
   ToggleSwitch,
@@ -26,6 +28,11 @@ import {
   benefitNeedsDetail,
   CAMPAIGN_PHASE_OPTIONS,
 } from '../_shared/campaign';
+import {
+  bannerCatalog,
+  bannerEditPath,
+  findCatalogBanner,
+} from '../../../shared/domain/banner-catalog';
 import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'marketing-events';
@@ -40,6 +47,14 @@ const rowStyle: CSSProperties = {
   gap: cssVar('space.4'),
 };
 
+/** 선택한 배너로 건너뛰는 줄 — 선택 바로 아래에 붙는다 */
+const bannerLinkStyle: CSSProperties = {
+  marginTop: 0,
+  marginBottom: 0,
+  fontSize: cssVar('typography.label.md.font-size'),
+  lineHeight: cssVar('typography.label.md.line-height'),
+};
+
 const EMPTY: EventFormValues = {
   title: '',
   startAt: '',
@@ -49,12 +64,26 @@ const EMPTY: EventFormValues = {
   benefitType: 'none',
   benefitDetail: '',
   bannerLinked: false,
-  bannerLabel: '',
+  bannerId: '',
   description: '',
 };
 
+/**
+ * 저장 시점의 배너명을 카탈로그에서 뜬다 — 목록이 조인 없이 그릴 표시용 사본이다(types.ts 주석).
+ * 카탈로그를 모르거나(미배선) 사라진 id 면 빈 문자열 — 이름을 지어내지 않는다.
+ */
+function bannerTitleOf(bannerId: string): string {
+  if (bannerId === '') return '';
+  const catalog = bannerCatalog();
+  if (catalog === null) return '';
+  const banner = findCatalogBanner(catalog, bannerId);
+  return banner === null ? '' : banner.title;
+}
+
 function toInput(values: EventFormValues): MarketingEventInput {
   const withBenefit = benefitNeedsDetail(values.benefitType);
+  // 토글을 끄면 선택값을 버린다 — '연동 안 함 + 배너 id 남음' 이라는 어긋난 상태를 만들지 않는다
+  const bannerId = values.bannerLinked ? values.bannerId : '';
   return {
     title: values.title.trim(),
     startAt: values.startAt,
@@ -63,8 +92,8 @@ function toInput(values: EventFormValues): MarketingEventInput {
     target: values.target.trim(),
     benefitType: values.benefitType,
     benefitDetail: withBenefit ? values.benefitDetail.trim() : '',
-    bannerLinked: values.bannerLinked,
-    bannerLabel: values.bannerLinked ? values.bannerLabel.trim() : '',
+    bannerId,
+    bannerTitle: bannerTitleOf(bannerId),
     description: values.description.trim(),
   };
 }
@@ -78,8 +107,9 @@ function toValues(event: MarketingEvent): EventFormValues {
     target: event.target,
     benefitType: event.benefitType,
     benefitDetail: event.benefitDetail,
-    bannerLinked: event.bannerLinked,
-    bannerLabel: event.bannerLabel,
+    // 연동 여부는 저장하지 않는다 — id 가 있으면 연동된 것이다(types.ts 의 hasLinkedBanner)
+    bannerLinked: event.bannerId !== '',
+    bannerId: event.bannerId,
     description: event.description,
   };
 }
@@ -120,6 +150,9 @@ export default function EventFormPage() {
   const endAt = watch('endAt');
   const benefitType = watch('benefitType');
   const bannerLinked = watch('bannerLinked');
+  const bannerId = watch('bannerId');
+  // 선택 목록의 정본은 콘텐츠 관리 배너다 — 이 화면은 조회기가 주는 것만 그린다(null = 모른다)
+  const bannerOptions = bannerCatalog();
   const periodError = errors.startAt?.message ?? errors.endAt?.message;
 
   return (
@@ -238,28 +271,53 @@ export default function EventFormPage() {
           offLabel="미연동"
         />
       </div>
-      {bannerLinked && (
-        <FormField
-          htmlFor="event-banner"
-          label="연동 배너명"
-          required
-          error={errors.bannerLabel?.message}
-          hint="배너 관리에서 노출 중인 배너와 연결됩니다."
-        >
-          <input
-            id="event-banner"
-            type="text"
-            className="tds-ui-input tds-ui-focusable"
-            style={controlStyle(errors.bannerLabel !== undefined)}
-            placeholder="예: 메인 상단 여름 배너"
-            disabled={disabled}
-            aria-invalid={errors.bannerLabel !== undefined}
-            aria-describedby={
-              errors.bannerLabel !== undefined ? errorIdOf('event-banner') : undefined
-            }
-            {...register('bannerLabel')}
-          />
-        </FormField>
+      {bannerLinked &&
+        // 카탈로그를 모르면(조회기 미배선) 빈 선택 목록을 그리지 않는다 — '고를 배너가 없다' 는
+        // 완결된 문장이 되어 배선 사고를 데이터 사고로 읽게 만든다(banner-catalog.ts 머리말).
+        (bannerOptions === null ? (
+          <FormField
+            htmlFor="event-banner"
+            label="연동 배너"
+            required
+            error="배너 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."
+          >
+            <SelectField id="event-banner" disabled isInvalid>
+              <option value="">배너 목록을 불러오지 못했습니다</option>
+            </SelectField>
+          </FormField>
+        ) : (
+          <FormField
+            htmlFor="event-banner"
+            label="연동 배너"
+            required
+            error={errors.bannerId?.message}
+            hint="배너 관리에 등록된 배너만 고를 수 있습니다."
+          >
+            <SelectField
+              id="event-banner"
+              disabled={disabled}
+              isInvalid={errors.bannerId !== undefined}
+              aria-describedby={
+                errors.bannerId !== undefined ? errorIdOf('event-banner') : hintIdOf('event-banner')
+              }
+              {...register('bannerId')}
+            >
+              <option value="">배너를 선택하세요</option>
+              {bannerOptions.map((banner) => (
+                <option key={banner.id} value={banner.id}>
+                  {`${banner.title} · ${banner.id}`}
+                </option>
+              ))}
+            </SelectField>
+          </FormField>
+        ))}
+      {bannerLinked && bannerId !== '' && (
+        <p style={bannerLinkStyle}>
+          {/* 참조는 건너갈 수 있어야 참조다 — 자유 텍스트였을 때는 여기서 갈 곳이 없었다 */}
+          <Link to={bannerEditPath(bannerId)} className="tds-ui-link tds-ui-focusable">
+            연동한 배너 상세 보기
+          </Link>
+        </p>
       )}
 
       <TextareaField

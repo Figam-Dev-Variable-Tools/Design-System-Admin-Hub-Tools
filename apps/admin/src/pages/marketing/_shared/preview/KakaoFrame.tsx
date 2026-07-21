@@ -20,8 +20,7 @@
 //   tag · emphasis/subtitle(강조표기형) · imageFileName + wideImage(이미지형·와이드)
 //   itemHeader/highlight*/items(아이템리스트형) · listItems(와이드 리스트형) · cards(캐러셀형)
 //   extraInfo/channelAddGuide(부가정보형·채널추가형·복합형)
-// 전부 선택 prop 이고 기본값이 종전 모습이라, 기존 호출부(marketing/templates 발송 미리보기)는
-// 한 글자도 바뀌지 않는다.
+// 전부 선택 prop 이고 기본값이 종전 모습이라, 슬롯을 쓰지 않는 호출부는 한 글자도 바뀌지 않는다.
 //
 // [호출부가 유형을 판정한다 — 이 파일은 도메인을 모른다]
 // 여기에 `emphasisType === 'title'` 같은 판정을 들이면 _shared 의 목업이 message-templates 의

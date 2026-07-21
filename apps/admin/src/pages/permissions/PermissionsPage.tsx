@@ -13,12 +13,15 @@
 //
 // [저장] localStorage (PermissionProvider). 백엔드 연동 지점:
 // TODO(backend): GET /api/roles · PUT /api/roles/:id/permissions
-import { useId, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
 
 import './permissions.css';
 import { Card, CardTitle, ConfirmDialog, hintStyle, useToast } from '../../shared/ui';
 import { usePermissions } from '../../shared/permissions/PermissionProvider';
+// 배정 인원은 권한의 일부가 아니라 **운영자 명부의 사실**이다 — 권한 스토어는 그것을 직접 읽지
+// 않고 주입된 조회기에 묻는다(shared/permissions/permission-store.ts 의 이음매 머리말).
+import { roleAssigneeCountOf } from '../../shared/permissions/permission-store';
 import { DashboardWidgetsCard } from './components/DashboardWidgetsCard';
 import { PermissionMatrixTable } from './components/PermissionMatrixTable';
 import { RoleFormModal } from './components/RoleFormModal';
@@ -79,6 +82,18 @@ export default function PermissionsPage() {
   const isActive = selectedRoleId === activeRoleId;
   const isSystem = selectedRole.system;
 
+  /**
+   * 역할 id → 배정 인원 (null = 확인 불가).
+   *
+   * 배열 대신 키 있는 Record 다 — 화면 세 곳(좌측 삭제 버튼·헤더 링크·삭제 확인 문구)이 같은
+   * 숫자를 봐야 하는데, 각자 find 로 짚으면 못 찾은 자리만 다른 값으로 흐른다.
+   */
+  const assigneeCounts = useMemo<Readonly<Record<string, number | null>>>(
+    () => Object.fromEntries(roles.map((role) => [role.id, roleAssigneeCountOf(role.id)])),
+    [roles],
+  );
+  const selectedAssigneeCount = assigneeCounts[selectedRoleId] ?? null;
+
   const closeDialog = () => {
     setDialog(null);
   };
@@ -90,6 +105,7 @@ export default function PermissionsPage() {
           roles={roles}
           selectedRoleId={selectedRoleId}
           activeRoleId={activeRoleId}
+          assigneeCounts={assigneeCounts}
           systemReasonId={systemReasonId}
           onSelect={selectRole}
           onCreate={() => setDialog('create')}
@@ -102,6 +118,7 @@ export default function PermissionsPage() {
             role={selectedRole}
             active={isActive}
             activeRoleName={activeRole.name}
+            assigneeCount={selectedAssigneeCount}
             systemReasonId={systemReasonId}
             onActivate={() => {
               activateRole(selectedRoleId);
@@ -172,10 +189,13 @@ export default function PermissionsPage() {
         <ConfirmDialog
           intent="delete"
           title="역할 삭제"
+          /* 다이얼로그는 **배정 0명일 때만** 열린다(배정이 있으면 좌측 삭제 버튼이 잠긴다) —
+             그래서 여기서 말할 것은 '아무도 이 역할을 쓰고 있지 않다' 는 사실 확인이다.
+             운영진 그룹 삭제 다이얼로그가 같은 문장('이 그룹에 속한 운영자는 없으며…')을 쓴다. */
           message={
             isActive
-              ? `'${selectedRole.name}' 은 지금 적용 중인 역할입니다. 삭제하면 남아 있는 첫 역할이 대신 적용됩니다. 삭제할까요?`
-              : `'${selectedRole.name}' 역할을 삭제할까요? 되돌릴 수 없습니다.`
+              ? `'${selectedRole.name}' 은 지금 적용 중인 역할입니다. 이 역할을 쓰는 운영자는 없으며, 삭제하면 남아 있는 첫 역할이 대신 적용됩니다. 삭제할까요?`
+              : `'${selectedRole.name}' 역할을 삭제합니다. 이 역할을 쓰는 운영자는 없습니다. 되돌릴 수 없습니다 — 삭제할까요?`
           }
           confirmLabel="역할 삭제"
           // 역할 저장소는 localStorage(PermissionProvider)라 즉시 끝난다 — 진행 중 상태가 없다

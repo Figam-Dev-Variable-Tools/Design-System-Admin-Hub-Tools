@@ -1,6 +1,10 @@
 // 프로모션 데이터 소스 어댑터
 //
 // [백엔드 연동 지점] createCrudAdapter 에 시드를 넣는다. 실연동 시 // TODO(backend) 로 본문만 바꾼다.
+//
+// [couponId 는 상품 관리 쿠폰의 실제 id 다] 'cpn-1' 같은 값은 지어낸 것이 아니라 쿠폰 카탈로그에
+// 실재하는 키다. 문자열로 적는 이유는 픽스처가 그 모듈을 import 하면 페이지 간 결합이 되기 때문이고,
+// 조인은 shared/domain/coupon-catalog 조회기가 한다. couponName 은 그 시점의 표시용 사본이다.
 import { createCrudAdapter } from '../../../shared/crud';
 import { sortPromotions } from './types';
 import type { Promotion, PromotionInput } from './types';
@@ -16,8 +20,8 @@ const PROMOTION_SEED: readonly Promotion[] = [
     discountType: 'rate',
     discountValue: 20,
     minOrderAmount: 30000,
-    couponLinked: true,
-    couponCode: 'SUMMER20',
+    couponId: 'cpn-1',
+    couponName: '신규 가입 15% 할인',
     description: '3만원 이상 구매 시 전 상품 20% 할인.',
   },
   {
@@ -30,8 +34,8 @@ const PROMOTION_SEED: readonly Promotion[] = [
     discountType: 'amount',
     discountValue: 5000,
     minOrderAmount: 0,
-    couponLinked: true,
-    couponCode: 'WELCOME5000',
+    couponId: 'cpn-2',
+    couponName: '5,000원 재구매 쿠폰',
     description: '신규 가입 회원 대상 즉시 할인.',
   },
   {
@@ -44,8 +48,8 @@ const PROMOTION_SEED: readonly Promotion[] = [
     discountType: 'rate',
     discountValue: 10,
     minOrderAmount: 0,
-    couponLinked: false,
-    couponCode: '',
+    couponId: '',
+    couponName: '',
     description: '봄 시즌 특가(종료).',
   },
 ];

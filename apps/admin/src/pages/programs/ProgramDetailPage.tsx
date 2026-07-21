@@ -13,10 +13,19 @@ import { Card as TdsCard, cssVar, Skeleton } from '@tds/ui';
 
 import { formatNumber } from '../../shared/format';
 import { isNotFound } from '../../shared/errors/http-error';
+import { useRouteWritePermissions } from '../../shared/permissions/RequirePermission';
+// 후원 CTA 는 이 화면이 정하지 않는다 — 결제(PG) 설정에서 파생되는 값이라 규칙 함수를 그대로 부른다
+// (상품 폼의 미리보기도 같은 함수를 쓴다 — 두 화면이 다른 버튼을 말할 수 없게 하는 유일한 방법이다)
+import {
+  checkoutCta,
+  PAYMENT_SETTINGS_PATH,
+  readPaymentSettings,
+} from '../../shared/commerce/payment-settings';
 import {
   Alert,
   alertActionRowStyle,
   Button,
+  buttonStyle,
   Card,
   CardTitle,
   ddStyle,
@@ -69,6 +78,21 @@ const titleRowStyle: CSSProperties = {
   alignItems: 'center',
   gap: cssVar('space.3'),
   flexWrap: 'wrap',
+};
+
+/** 제목 옆 '수정' — 목록의 연필과 같은 곳으로 간다(경로가 갈라지지 않게 같은 상수를 쓴다) */
+const editLinkStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: cssVar('space.2'),
+  marginLeft: 'auto',
+  padding: `${cssVar('space.2')} ${cssVar('space.3')}`,
+  border: `${cssVar('border-width.thin')} solid ${cssVar('color.border.default')}`,
+  borderRadius: cssVar('radius.md'),
+  color: cssVar('color.text.default'),
+  fontSize: cssVar('typography.label.md.font-size'),
+  lineHeight: cssVar('typography.label.md.line-height'),
+  textDecoration: 'none',
 };
 
 const gridStyle: CSSProperties = {
@@ -140,6 +164,18 @@ const numericCellStyle: CSSProperties = {
   textAlign: 'right',
   fontVariantNumeric: 'tabular-nums',
   whiteSpace: 'nowrap',
+};
+
+/* ── 후원 CTA (고객 화면에서 보이는 버튼) ─────────────────────────────────────
+   여기 있는 것은 **버튼처럼 보이는 표시**다 — 이 화면은 읽는 화면이고 관리자가 대신 후원하지
+   않는다. 그래서 DS 버튼의 시각 토큰만 빌려 <span> 으로 그린다(누를 것이 없는 자리에 진짜
+   버튼을 두면 눌러 보고 아무 일도 없는 것을 확인하게 된다). */
+
+const ctaRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: cssVar('space.3'),
+  flexWrap: 'wrap',
 };
 
 /** 스토리는 줄바꿈이 의미다 — 한 문단으로 뭉개지 않는다 */
@@ -222,6 +258,7 @@ function LoadingSkeleton() {
 
 export default function ProgramDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const { canUpdate } = useRouteWritePermissions();
 
   const detailQuery = useQuery({
     queryKey: [PROGRAM_RESOURCE, 'detail', id ?? ''],
@@ -279,6 +316,12 @@ export default function ProgramDetailPage() {
   // 끝난 펀딩에 '0일 남음' 은 거짓이다 — 결론이 난 건은 숫자 대신 그 사실을 적는다
   const leftText = ended ? '종료됨' : left === 0 ? '오늘 마감' : `${formatNumber(left)}일 남음`;
 
+  /**
+   * 고객이 보게 될 후원 버튼 — PG 를 쓰지 않도록 설정돼 있으면 '후원하기' 가 아니라 '문의하기' 이고,
+   * 그 문의는 프로그램 문의로 들어온다. 판정은 shared/commerce 의 규칙 하나가 한다.
+   */
+  const checkout = checkoutCta(readPaymentSettings(), 'program');
+
   return (
     <div style={pageStyle}>
       {backLink}
@@ -289,6 +332,19 @@ export default function ProgramDetailPage() {
           tone={programStatusTone(program.status)}
           label={programStatusLabel(program.status)}
         />
+        {/* 목록에서 행을 눌러 여기로 온다 — 그런데 여기서 고칠 길이 없으면 운영자는 목록으로
+            되돌아가 연필을 다시 찾아야 한다. 공지·운영자 상세가 이미 상세에 수정을 두고 있어
+            프로그램만 예외였다. 권한이 없으면 버튼 자체를 그리지 않는다 (EXC-03). */}
+        {canUpdate && (
+          <Link
+            to={`${LIST_PATH}/${program.id}/edit`}
+            className="tds-ui-focusable"
+            style={editLinkStyle}
+          >
+            <Icon name="pencil" />
+            수정
+          </Link>
+        )}
       </div>
 
       <Card>
@@ -336,6 +392,22 @@ export default function ProgramDetailPage() {
           <dt style={dtStyle}>기간</dt>
           <dd style={ddStyle}>{`${program.startDate} ~ ${program.endDate}`}</dd>
         </dl>
+
+        {/* 결론이 난 펀딩에는 후원 버튼이 없다 — 종료된 건에 '후원하기' 를 그리면 거짓이다.
+            진행 중인 건에서만, 결제 설정이 정한 그대로 보여 준다. */}
+        {!ended && (
+          <div style={ctaRowStyle}>
+            <span style={buttonStyle(checkout.kind === 'purchase' ? 'primary' : 'secondary')}>
+              {checkout.label}
+            </span>
+            <span style={hintStyle}>
+              {checkout.reason}{' '}
+              <Link to={PAYMENT_SETTINGS_PATH} className="tds-ui-link tds-ui-focusable">
+                결제 설정에서 바꾸기
+              </Link>
+            </span>
+          </div>
+        )}
       </Card>
 
       <Card>

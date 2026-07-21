@@ -8,6 +8,13 @@ import { PhoneFrame } from '../../_shared/preview/PhoneFrame';
 
 interface PhoneMessagePreviewProps {
   readonly senderNumber: string;
+  /**
+   * **발송 본문** — 입력칸의 글이 아니라 발신 표시 이름 접두까지 붙은 최종 문구다.
+   *
+   * [왜 여기서 접두를 붙이지 않나] 붙이는 순간 같은 계산이 두 곳이 된다: 폼은 이미 그 값으로
+   * 유형(SMS/LMS)과 바이트 안내를 정했다(SmsFormPage 의 sendBody). 미리보기가 자기 판을 따로
+   * 만들면 '화면이 보여 준 문자' 와 '화면이 말한 등급' 이 갈릴 수 있다.
+   */
   readonly body: string;
   readonly kind: SmsKind;
   readonly hasImage: boolean;

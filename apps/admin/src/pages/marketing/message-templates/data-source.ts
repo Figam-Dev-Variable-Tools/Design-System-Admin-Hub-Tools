@@ -22,8 +22,9 @@ export const MESSAGE_TEMPLATE_RESOURCE = 'marketing-message-templates';
  * [왜 별도 경로를 쓰지 않는가] 운영자가 이미 매일 여는 화면이 이것으로 바뀌는 것이지, 옆에 새 화면이
  * 하나 더 생기는 것이 아니다. 메뉴에 '템플릿' 이 둘이면 어느 쪽에 만들어야 하는지를 매번 고민하게 된다.
  *
- * 알림톡(카카오 심사 모델)은 아직 이 모델이 덮지 못한다 — 그 화면들은 지워지지 않고
- * /marketing/templates/alimtalk 아래에 남아 재구축을 기다린다(App.tsx 참고).
+ * [알림톡도 이제 이 모델이 덮는다] 한때 알림톡만 옛 심사 모델 화면(/marketing/templates/alimtalk)에
+ * 남아 재구축을 기다렸다. 지금은 이 시스템의 종류(TemplateKind)가 알림톡·브랜드메시지까지 포함하고
+ * 편집기도 갖췄으므로 그 화면들은 삭제했다 — 옛 경로는 App.tsx 가 이 목록으로 되돌린다.
  */
 export const MESSAGE_TEMPLATE_LIST_PATH = '/marketing/templates';
 

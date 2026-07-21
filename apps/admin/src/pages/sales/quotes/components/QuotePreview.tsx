@@ -13,7 +13,7 @@ import { formatNumber } from '../../../../shared/format';
 import { StatusBadge } from '../../../../shared/ui';
 import { formatBizNo } from '../../_shared/business';
 import '../quotes.css';
-import { computeTotals, lineSupply, quoteStatusMeta, SUPPLIER, taxModeLabel } from '../types';
+import { computeTotals, lineSupply, quoteSupplier, quoteStatusMeta, taxModeLabel } from '../types';
 import type { QuoteLineItem, QuoteStatus, QuoteTaxMode } from '../types';
 import { cssVar, typography } from '@tds/ui';
 
@@ -217,6 +217,10 @@ export function QuotePreview({
 }: QuotePreviewProps) {
   const totals = computeTotals(items, taxMode);
   const statusMeta = quoteStatusMeta(status);
+  /* 공급자(자사)는 회사 정보에서 온다 — 렌더할 때마다 읽는다(../types 의 quoteSupplier 머리말).
+     배선이 없거나 회사 정보가 아직 비어 있으면 '(회사 정보 미등록)' 자리표시가 그려진다:
+     그럴듯한 가짜 상호를 인쇄하는 것보다, 채워야 할 칸이라는 사실이 종이에 드러나는 편이 낫다. */
+  const supplier = quoteSupplier();
 
   return (
     /* className 은 종이 전용 규칙(../quotes.css)이 이 문서를 집는 손잡이다 — 화면 모습은 style 이 갖는다 */
@@ -245,11 +249,11 @@ export function QuotePreview({
         </div>
         <div style={partyStyle}>
           <span style={partyLabelStyle}>공급자</span>
-          <span style={partyNameStyle}>{SUPPLIER.name}</span>
-          <span style={partyBizNoStyle}>사업자 {formatBizNo(SUPPLIER.bizNo)}</span>
-          <span style={partyLineStyle}>대표 {SUPPLIER.ceoName}</span>
-          <span style={partyLineStyle}>{SUPPLIER.address}</span>
-          <span style={partyLineStyle}>{SUPPLIER.phone}</span>
+          <span style={partyNameStyle}>{supplier.name}</span>
+          <span style={partyBizNoStyle}>사업자 {formatBizNo(supplier.bizNo)}</span>
+          <span style={partyLineStyle}>대표 {supplier.ceoName}</span>
+          <span style={partyLineStyle}>{supplier.address}</span>
+          <span style={partyLineStyle}>{supplier.phone}</span>
         </div>
       </div>
 

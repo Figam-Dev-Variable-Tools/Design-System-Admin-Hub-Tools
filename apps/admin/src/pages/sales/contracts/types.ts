@@ -3,6 +3,7 @@
 // 국내 ERP 계약관리 관례: 계약유형·기간·금액(부가세 포함/별도)·자동갱신(통지기한)·상태 흐름
 // (초안→검토→진행→만료/해지)·전자서명 흐름(미발송→서명대기→일부서명→서명완료)·첨부.
 import type { StatusTone } from '../../../shared/ui';
+import type { AccountRef } from '../_shared/account-reference';
 
 export type ContractType = 'supply' | 'service' | 'maintenance' | 'license' | 'lease' | 'nda';
 /** 계약 상태 — 초안→검토→진행중, 종료는 만료/해지 */
@@ -10,11 +11,17 @@ export type ContractStatus = 'draft' | 'review' | 'active' | 'expired' | 'termin
 /** 전자서명 흐름 */
 export type SignStatus = 'unsigned' | 'sent' | 'partial' | 'signed';
 
-export interface Contract {
+/**
+ * 계약.
+ *
+ * 거래처는 AccountRef 두 필드로 참조한다 — `accountId`(마스터를 가리키는 **정본**, '' 이면 미등록)
+ * 와 `accountName`(저장 시점의 비정규화 표시 라벨). 왜 둘 다 드는지·어느 쪽이 이기는지는
+ * ../_shared/account-reference 머리말에 한 곳으로 적혀 있다. 예전에는 `accountName` 문자열
+ * 하나뿐이었고, 그래서 오타가 거래처를 쪼개고 역방향 조회가 아예 불가능했다.
+ */
+export interface Contract extends AccountRef {
   readonly id: string;
   readonly title: string;
-  /** 거래처명 — FE 전용이라 이름 문자열로 보관(연동 시 거래처 FK) */
-  readonly accountName: string;
   readonly contractType: ContractType;
   readonly startAt: string;
   readonly endAt: string;
@@ -147,6 +154,7 @@ export function sortContracts(list: readonly Contract[]): readonly Contract[] {
 export function toContractInput(contract: Contract): ContractInput {
   return {
     title: contract.title,
+    accountId: contract.accountId,
     accountName: contract.accountName,
     contractType: contract.contractType,
     startAt: contract.startAt,

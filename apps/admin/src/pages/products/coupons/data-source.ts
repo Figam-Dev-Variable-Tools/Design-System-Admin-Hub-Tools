@@ -3,8 +3,9 @@
 // [백엔드 연동 지점] 카테고리 결합이 없어 프레임워크 createCrudAdapter 에 시드를 넣는다.
 // 실제 연동 시 // TODO(backend) 로 어댑터 본문만 교체하고 화면은 그대로 둔다.
 import { createCrudAdapter } from '../../../shared/crud';
-import { sortCoupons } from './types';
+import { discountLabel, sortCoupons } from './types';
 import type { Coupon, CouponInput } from './types';
+import type { CatalogCoupon } from '../../../shared/domain/coupon-catalog';
 
 const COUPON_SEED: readonly Coupon[] = [
   {
@@ -68,6 +69,30 @@ const COUPON_SEED: readonly Coupon[] = [
     enabled: false,
   },
 ];
+
+/**
+ * 다른 도메인이 쿠폰을 **참조**할 때 보는 목록 (shared/domain/coupon-catalog 의 조회기 구현).
+ *
+ * [왜 여기서 내보내나] 프로모션의 쿠폰 연동, 회원 상세의 보유 쿠폰이 이 목록을 참조한다. 그들이
+ * 이 모듈을 직접 import 하면 페이지 간 결합이라 방향을 뒤집었다 — '무엇을 참조할 수 있는가' 는
+ * 정의하는 쪽이 답하는 질문이고, 꽂는 일은 `src/wiring.ts` 가 한다.
+ *
+ * [왜 어댑터가 아니라 시드인가] createCrudAdapter 는 현재 목록을 밖에 내주지 않는다(비공개 클로저).
+ * 픽스처 단계에서는 시드가 곧 카탈로그다 — 이 화면에서 방금 만든 쿠폰이 프로모션 선택 목록에
+ * 나타나지 않는 것은 그 한계다. TODO(backend): GET /api/coupons 응답으로 대체하면 사라진다.
+ *
+ * [왜 중지·만료된 쿠폰까지 주나] 카탈로그는 선택 목록이자 **표시값의 정본**이다. 걸러 내면 이미
+ * 그 쿠폰을 발급받은 회원의 보유 쿠폰이 '삭제된 쿠폰' 으로 보인다 — 끝난 것과 없는 것은 다르다.
+ */
+export function listCatalogCoupons(): readonly CatalogCoupon[] {
+  return COUPON_SEED.map((coupon) => ({
+    id: coupon.id,
+    name: coupon.name,
+    code: coupon.code,
+    benefitLabel: discountLabel(coupon),
+    endAt: coupon.endAt,
+  }));
+}
 
 let seq = COUPON_SEED.length;
 

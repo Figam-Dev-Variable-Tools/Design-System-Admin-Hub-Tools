@@ -24,7 +24,13 @@ import {
   StatusBadge,
   useToast,
 } from '../../../shared/ui';
-import { parseFilter, useCrudDelete, useCrudListQuery, useListState } from '../../../shared/crud';
+import {
+  DetailCellLink,
+  parseFilter,
+  useCrudDelete,
+  useCrudListQuery,
+  useListState,
+} from '../../../shared/crud';
 import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
 import { CATEGORY_RESOURCE, productCategoryAdapter } from './data-source';
 import { CategoryUsageFilter } from './components/CategoryUsageFilter';
@@ -151,6 +157,9 @@ const disclosureSpacerStyle: CSSProperties = {
   flexShrink: 0,
 };
 
+/** 사용 건수 배지가 여는 목록 — 그 카테고리로 이미 걸러진 상품 목록 */
+const PRODUCT_LIST_PATH = '/products';
+
 type ModalState =
   | { kind: 'closed' }
   | { kind: 'create'; parentId: string | null }
@@ -211,7 +220,19 @@ function CategoryRow({
           <span aria-hidden="true" style={disclosureSpacerStyle} />
         )}
         <span style={labelTextStyle}>{category.label}</span>
-        <StatusBadge tone={inUse ? 'info' : 'neutral'} label={usage} />
+        {/* 사용 건수는 **삭제를 막는 근거**다 — 그 근거를 확인할 길이 같은 자리에 있어야 한다.
+            상품 목록은 이미 ?category= 를 URL 로 소유하므로(IA-13) 링크 하나면 '그 상품들'에 닿는다.
+            미사용(0건)은 링크로 만들지 않는다 — 열어 봐야 빈 목록이다. */}
+        {inUse ? (
+          <DetailCellLink
+            to={`${PRODUCT_LIST_PATH}?category=${encodeURIComponent(category.id)}`}
+            ariaLabel={`'${category.label}' 카테고리를 쓰는 상품 ${usage} 보기`}
+          >
+            <StatusBadge tone="info" label={usage} />
+          </DetailCellLink>
+        ) : (
+          <StatusBadge tone="neutral" label={usage} />
+        )}
         {category.hasChildren && (
           <StatusBadge tone="neutral" label={`하위 ${String(childCount)}개`} />
         )}
@@ -463,8 +484,8 @@ export default function ProductCategoriesPage() {
               </ul>
             )}
             <p style={hintStyle}>
-              사용 중인 카테고리는 삭제할 수 없습니다 — 먼저 그 상품들의 카테고리를 바꾸거나
-              삭제하세요.
+              사용 중인 카테고리는 삭제할 수 없습니다 — 건수 배지를 누르면 그 카테고리로 걸러진 상품
+              목록이 열립니다. 거기서 카테고리를 바꾸거나 삭제하세요.
             </p>
           </Card>
         )}

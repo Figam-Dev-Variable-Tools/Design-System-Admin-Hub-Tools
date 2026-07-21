@@ -58,6 +58,16 @@ export const loginSchema = z.object({
   ),
   /** 이메일 저장 — 검증 대상은 아니지만 폼 값이라 스키마에 함께 둔다 (§5.3-2) */
   rememberEmail: z.boolean(),
+  /**
+   * 로그인 유지 — 이메일 저장과 **다른 축**이다.
+   *
+   *   · 이메일 저장 : 다음 방문에 이메일 칸을 채워 준다. 로그인은 다시 해야 한다.
+   *   · 로그인 유지 : 브라우저를 닫았다 열어도 세션이 살아 있다.
+   *
+   * 검증 대상은 아니지만(둘 다 참/거짓뿐) 폼 값이라 스키마가 함께 든다. 초기값은 사이트 기본
+   * 설정의 '로그인 상태 유지' 에서 온다 — LoginPage 의 defaultValues 를 보라.
+   */
+  keepSignedIn: z.boolean(),
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;

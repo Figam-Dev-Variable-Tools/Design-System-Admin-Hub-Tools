@@ -19,6 +19,7 @@ import {
   referenceOf,
 } from '../errors/http-error';
 import { zodResolver } from '../form/zodResolver';
+import { useRouteCanSubmitForm } from '../permissions/RequirePermission';
 import { useToast } from '../ui';
 import { useCrudCreate, useCrudItem, useCrudUpdate } from './crud';
 import type { CrudAdapter } from './crud';
@@ -57,6 +58,14 @@ interface CrudFormController<T, Values extends FieldValues> {
   /** 409/412 — 사용자 입력을 보존한 채 이 다이얼로그를 띄운다 (EXC-04) */
   readonly conflict: ConflictState | null;
   readonly submit: (event: FormEvent<HTMLFormElement>) => void;
+  /**
+   * 이 라우트에서 저장이 허용되는가 — 등록이면 create, 수정이면 update (EXC-03).
+   *
+   * 껍데기(FormPageShell·DocumentFormShell)를 쓰는 폼은 이 값을 볼 필요가 없다: 껍데기가 같은
+   * 판정으로 403 을 그린다. 껍데기를 쓸 수 없어 레이아웃을 직접 조립한 폼(다중 구획 + 미리보기)이
+   * **같은 판정을 다시 적지 않도록** 여기서 내보낸다.
+   */
+  readonly canSubmit: boolean;
   readonly isDirty: boolean;
   /**
    * 서버에서 불러온 원본 — 등록 화면이거나 아직 도착 전이면 undefined.
@@ -83,6 +92,16 @@ export function useCrudForm<T extends { id: string }, Input, Values extends Fiel
   const isEdit = id !== undefined;
   const navigate = useNavigate();
   const toast = useToast();
+
+  /**
+   * [EXC-03] 등록/수정 권한 — **저장 경로의 마지막 문**이다.
+   *
+   * 화면이 아니라 여기가 판정을 소비하는 이유: 폼 껍데기를 쓰지 않고 레이아웃을 직접 조립한
+   * 폼(상품·프로그램처럼 구획이 여럿인 화면)은 껍데기의 403 을 못 받는다. 그런 화면도 저장은
+   * **반드시 이 훅의 submit 을 거치므로**, 여기서 막으면 폼의 생김새와 무관하게 전부 덮인다.
+   * (프론트 게이팅은 UX 다 — 실제 차단은 서버의 몫이다. RequirePermission.tsx 머리말 참조.)
+   */
+  const canSubmit = useRouteCanSubmitForm(isEdit);
 
   const form = useForm<Values>({
     resolver: zodResolver(config.schema),
@@ -265,7 +284,21 @@ export function useCrudForm<T extends { id: string }, Input, Values extends Fiel
     serverError,
     errorReference,
     conflict,
-    submit: (event) => void form.handleSubmit(onValid, onInvalid)(event),
+    submit: (event) => {
+      // 권한이 없으면 검증도 요청도 시작하지 않는다. 조용히 삼키지 않고 폼 배너로 이유를 남긴다 —
+      // 껍데기를 쓰지 않는 폼에서는 이 배너가 사용자가 받는 유일한 설명이다.
+      if (!canSubmit) {
+        event.preventDefault();
+        setServerError(
+          isEdit
+            ? '이 항목을 수정할 권한이 없습니다. 필요하다면 관리자에게 권한을 요청해 주세요.'
+            : '이 항목을 등록할 권한이 없습니다. 필요하다면 관리자에게 권한을 요청해 주세요.',
+        );
+        return;
+      }
+      void form.handleSubmit(onValid, onInvalid)(event);
+    },
+    canSubmit,
     isDirty: form.formState.isDirty,
     loaded,
   };

@@ -11,6 +11,11 @@
 //   SLA 는 우선순위별 목표시간(첫 응답)으로 환산해 임박/초과 배지로 시각화한다.
 //   유형/템플릿은 '참조되면 하드 삭제하지 않는다'(사용 중 차단 + 사용여부 소프트 비활성).
 import type { StatusTone } from '../../../shared/ui';
+import {
+  COMMON_INQUIRY_STATUS_ORDER,
+  isCommonInquiryStatus,
+} from '../../../shared/domain/inquiry-status';
+import type { CommonInquiryStatus } from '../../../shared/domain/inquiry-status';
 
 /* ── 문의 유형(카테고리) ───────────────────────────────────────────────────── */
 
@@ -48,8 +53,14 @@ export function categoryUsageLabel(usage: SupportCategoryUsage): string {
 
 type TicketChannel = 'web' | 'kakao' | 'naver' | 'phone' | 'email';
 type TicketPriority = 'urgent' | 'high' | 'normal' | 'low';
-/** 책임 이관 흐름 — 접수→배정→처리중→답변완료→종결 */
-export type TicketStatus = 'received' | 'assigned' | 'in_progress' | 'answered' | 'closed';
+/**
+ * 책임 이관 흐름 — 접수→배정→처리중→답변완료→종결.
+ *
+ * 상태값과 그 순서는 shared/domain/inquiry-status 가 갖는다(영업 문의와 같은 어휘다 — 두 화면이
+ * 같은 흐름을 각자 선언하던 자리). 여기서 티켓이 더하는 상태는 없어 공통 유니온을 그대로 쓴다.
+ * 문구('답변완료')·색·전이 규칙은 고객센터의 것이라 이 파일에 남는다.
+ */
+export type TicketStatus = CommonInquiryStatus;
 /** 타임라인 이벤트 — 접수/배정/내부메모/고객답변/상태변경 (append-only) */
 export type TicketEventKind = 'received' | 'assign' | 'note' | 'reply' | 'status';
 
@@ -108,13 +119,18 @@ export const TICKET_PRIORITY_OPTIONS: readonly Option<TicketPriority>[] = [
   { id: 'low', label: '낮음' },
 ] as const;
 
-export const TICKET_STATUS_OPTIONS: readonly Option<TicketStatus>[] = [
-  { id: 'received', label: '접수' },
-  { id: 'assigned', label: '배정' },
-  { id: 'in_progress', label: '처리중' },
-  { id: 'answered', label: '답변완료' },
-  { id: 'closed', label: '종결' },
-] as const;
+/** 상태 문구 — **고객센터의 말투다.** 같은 'answered' 를 영업 문의는 '완료' 라 부른다 */
+const TICKET_STATUS_LABEL: Record<TicketStatus, string> = {
+  received: '접수',
+  assigned: '배정',
+  in_progress: '처리중',
+  answered: '답변완료',
+  closed: '종결',
+};
+
+/** 순서는 공통 흐름 그대로 — 옵션은 공통 순서 × 이 화면의 문구로 조립한다 */
+export const TICKET_STATUS_OPTIONS: readonly Option<TicketStatus>[] =
+  COMMON_INQUIRY_STATUS_ORDER.map((id) => ({ id, label: TICKET_STATUS_LABEL[id] }));
 
 const TICKET_EVENT_OPTIONS: readonly Option<TicketEventKind>[] = [
   { id: 'received', label: '접수' },
@@ -130,7 +146,8 @@ const labelOf = <T extends string>(options: readonly Option<T>[], id: T): string
 export const ticketChannelLabel = (v: TicketChannel): string => labelOf(TICKET_CHANNEL_OPTIONS, v);
 export const ticketPriorityLabel = (v: TicketPriority): string =>
   labelOf(TICKET_PRIORITY_OPTIONS, v);
-export const ticketStatusLabel = (v: TicketStatus): string => labelOf(TICKET_STATUS_OPTIONS, v);
+/** 상태만 Record 직접 조회 — 옵션 배열을 훑지 않는다(누락 시 컴파일이 막는다) */
+export const ticketStatusLabel = (v: TicketStatus): string => TICKET_STATUS_LABEL[v];
 export const ticketEventLabel = (v: TicketEventKind): string => labelOf(TICKET_EVENT_OPTIONS, v);
 
 const STATUS_TONE: Record<TicketStatus, StatusTone> = {
@@ -276,12 +293,12 @@ export function canSetStatus(from: TicketStatus, to: TicketStatus, assignee: str
 
 /* ── 타입가드 (select 문자열 → 유니온) ───────────────────────────────────────── */
 
-const STATUS_VALUES = ['received', 'assigned', 'in_progress', 'answered', 'closed'] as const;
 const CHANNEL_VALUES = ['web', 'kakao', 'naver', 'phone', 'email'] as const;
 const PRIORITY_VALUES = ['urgent', 'high', 'normal', 'low'] as const;
 
+/** 티켓 상태 = 공통 상태 — 판정도 공통 가드에 위임한다(값 목록 사본을 두지 않는다) */
 export function isTicketStatus(value: unknown): value is TicketStatus {
-  return typeof value === 'string' && (STATUS_VALUES as readonly string[]).includes(value);
+  return isCommonInquiryStatus(value);
 }
 
 export function isTicketChannel(value: unknown): value is TicketChannel {

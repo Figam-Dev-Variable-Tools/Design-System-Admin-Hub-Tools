@@ -72,7 +72,6 @@ const DIR_OVERRIDES: Readonly<Record<string, string>> = {
   '/products': 'products/items',
   '/users/members': 'members',
   '/users/admins': 'admins',
-  '/marketing/templates/alimtalk': 'marketing/templates',
 };
 
 export function fixtureIdFor(pattern: string): string | null {

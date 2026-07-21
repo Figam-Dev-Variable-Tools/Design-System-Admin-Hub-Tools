@@ -18,7 +18,9 @@ import { useNavigate } from 'react-router-dom';
 import { cssVar, tabId, tabPanelId } from '@tds/ui';
 
 import { isAbort } from '../../shared/async';
+import { parseFilter, useListState } from '../../shared/crud';
 import { adminGroupDeletionBlock } from '../../shared/domain/admin-group';
+import { usePermissions } from '../../shared/permissions/PermissionProvider';
 import { useRouteWritePermissions } from '../../shared/permissions/RequirePermission';
 import {
   Alert,
@@ -42,11 +44,21 @@ import {
   useAdminsQuery,
   useDeleteAdminGroup,
 } from './queries';
-import { ADMIN_TABS, GROUP_ALL, PAGE_SIZE } from './types';
+import { ADMIN_TABS, GROUP_ALL, PAGE_SIZE, ROLE_ALL } from './types';
 import type { AdminTabId } from './types';
 
 /** 검색어 디바운스 — 타이핑 한 글자마다 조회하지 않는다 */
 const SEARCH_DEBOUNCE_MS = 250;
+
+/**
+ * 역할 필터의 URL 기본값 (IA-13).
+ *
+ * [왜 이 축만 URL 인가] 역할 필터는 **다른 화면이 링크로 가리키는** 유일한 조건이다 — 권한 관리의
+ * '이 역할 운영자 N명' 이 `/users/admins?role=<id>` 로 착지한다. 링크가 존재하려면 그 상태의
+ * 소유자가 URL 이어야 한다. (그룹·검색·페이지는 이 화면 안에서만 쓰이므로 지금 구조를 건드리지
+ * 않는다 — 필요해지면 같은 useListState 로 옮기면 된다.)
+ */
+const FILTER_DEFAULTS = { role: ROLE_ALL } as const;
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -123,6 +135,25 @@ export default function AdminsPage() {
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set());
 
+  /* ── 역할 (열 + 필터) ─────────────────────────────────────────────────────
+   *
+   * 역할의 정본은 권한 스토어다 — 운영자 레코드는 roleId 만 들고 있다(types.ts). 표는 이름을
+   * 받아 그리고, 필터는 id 로 건다.
+   */
+  const { roles } = usePermissions();
+
+  // 고른 역할의 단일 원천 = URL (IA-13)
+  const list = useListState({ filterDefaults: FILTER_DEFAULTS });
+  // 손으로 고친 ?role=거짓말 이나 **삭제된 역할을 가리키는 옛 링크**가 목록을 0건으로 만들지
+  // 않게 한다 — 지금 존재하는 역할이 아니면 '전체'로 되돌린다
+  const roleValues = useMemo(() => [ROLE_ALL, ...roles.map((role) => role.id)], [roles]);
+  const roleId = parseFilter(list.filters['role'] ?? ROLE_ALL, roleValues, ROLE_ALL);
+
+  const roleNames = useMemo<Readonly<Record<string, string>>>(
+    () => Object.fromEntries(roles.map((role) => [role.id, role.name])),
+    [roles],
+  );
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setKeyword(keywordInput);
@@ -133,14 +164,17 @@ export default function AdminsPage() {
   // 조건이 바뀌면 1페이지부터 다시 — 뒤쪽 페이지를 보다 검색하면 빈 화면이 뜨는 걸 막는다
   useEffect(() => {
     setPage(1);
-  }, [groupId, keyword]);
+  }, [groupId, keyword, roleId]);
 
   // 페이지/필터가 바뀌면 선택은 무의미해진다 (보이지 않는 행이 선택된 채로 남지 않게)
   useEffect(() => {
     setSelectedIds(new Set());
-  }, [groupId, keyword, page]);
+  }, [groupId, keyword, roleId, page]);
 
-  const query = useMemo(() => ({ groupId, keyword, page }), [groupId, keyword, page]);
+  const query = useMemo(
+    () => ({ groupId, roleId, keyword, page }),
+    [groupId, roleId, keyword, page],
+  );
   const { data, isFetching, error, refetch } = useAdminsQuery(query);
   /**
    * [STATE-01] 스켈레톤은 '데이터가 아직 **없을** 때' 만이다.
@@ -302,7 +336,13 @@ export default function AdminsPage() {
           />
 
           <div id={tabPanelId(tab)} role="tabpanel" aria-labelledby={tabId(tab)} style={panelStyle}>
-            <AdminsSearchCard keyword={keywordInput} onKeywordChange={setKeywordInput} />
+            <AdminsSearchCard
+              keyword={keywordInput}
+              onKeywordChange={setKeywordInput}
+              roles={roles}
+              roleId={roleId}
+              onRoleChange={(next) => list.setFilter('role', next)}
+            />
 
             {error === null ? (
               <>
@@ -322,6 +362,7 @@ export default function AdminsPage() {
                   <div style={tableWrapStyle}>
                     <AdminsTable
                       admins={admins}
+                      roleNames={roleNames}
                       loading={firstLoading}
                       selectedIds={selectedIds}
                       onToggleOne={toggleOne}

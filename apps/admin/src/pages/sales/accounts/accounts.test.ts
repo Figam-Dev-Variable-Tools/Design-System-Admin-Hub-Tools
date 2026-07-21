@@ -1,6 +1,18 @@
 // 거래처 동작 회귀 테스트 — 사업자번호 검증·필터·정렬·대표담당(순수) + 폼 검증
+//   + 거래처 참조 규칙(accountId 가 정본) + 역방향 조회(거래처 → 계약·견적·프로젝트·상담)
 import { describe, expect, it } from 'vitest';
 
+import {
+  currentAccountName,
+  filterByAccount,
+  indexById,
+  isRegisteredAccount,
+} from '../_shared/account-reference';
+import type { AccountRef } from '../_shared/account-reference';
+import { contractAdapter } from '../contracts/data-source';
+import { quoteAdapter } from '../quotes/data-source';
+import { projectAdapter } from '../projects/data-source';
+import { consultationAdapter } from '../consultations/data-source';
 import { bizNoDigits, formatBizNo, formatWon, isValidBizNo } from '../_shared/business';
 import {
   filterAccounts,
@@ -194,5 +206,80 @@ describe('accountSchema — 폼 검증', () => {
       ],
     });
     expect(messageFor(bad, 'contacts')).toContain('이메일');
+  });
+});
+
+/* ── 거래처 참조 — id 가 정본이라는 규칙 ────────────────────────────────────── */
+
+const refOf = (accountId: string, accountName: string): AccountRef => ({ accountId, accountName });
+
+describe('거래처 참조(순수) — accountId 가 정본이다', () => {
+  it('마스터에 연결됐는지는 accountId 로만 판정한다', () => {
+    expect(isRegisteredAccount(refOf('acc-1', '(주)테스트'))).toBe(true);
+    // 이름이 있어도 id 가 없으면 미등록이다 — 예전 자유 입력 데이터가 정확히 이 상태다
+    expect(isRegisteredAccount(refOf('', '(주)테스트'))).toBe(false);
+  });
+
+  it('마스터에 살아 있는 이름이 저장된 라벨을 이긴다(개명 반영)', () => {
+    const byId = indexById([{ id: 'acc-1', name: '(주)한빛소프트' }]);
+    expect(currentAccountName(refOf('acc-1', '(주)한빛소프트웨어'), byId)).toBe('(주)한빛소프트');
+  });
+
+  it('마스터에 없으면 저장된 라벨로 떨어진다 — 이름을 잃지 않는다', () => {
+    expect(currentAccountName(refOf('acc-9', '(주)사라진상사'), indexById([]))).toBe(
+      '(주)사라진상사',
+    );
+  });
+
+  it('indexById 는 없는 키에 첫 항목을 주지 않는다(엉뚱한 거래처로 둔갑 금지)', () => {
+    const byId = indexById([
+      { id: 'acc-1', name: '가' },
+      { id: 'acc-2', name: '나' },
+    ]);
+    expect(byId['acc-3']).toBeUndefined();
+  });
+});
+
+describe('filterByAccount — 거래처 상세의 역방향 조회(순수)', () => {
+  const rows = [
+    { id: 'r1', ...refOf('acc-1', '가상사') },
+    { id: 'r2', ...refOf('acc-2', '나상사') },
+    { id: 'r3', ...refOf('acc-1', '가상사') },
+  ];
+
+  it('그 거래처의 행만 고른다', () => {
+    expect(filterByAccount(rows, 'acc-1').map((row) => row.id)).toEqual(['r1', 'r3']);
+  });
+
+  it('미등록끼리는 묶지 않는다 — 연결이 없다는 뜻이지 같은 거래처라는 뜻이 아니다', () => {
+    const unlinked = [
+      { id: 'u1', ...refOf('', '가상사') },
+      { id: 'u2', ...refOf('', '나상사') },
+    ];
+    expect(filterByAccount(unlinked, '')).toEqual([]);
+  });
+});
+
+describe('시드 무결성 — 네 모듈이 실제 거래처를 가리킨다', () => {
+  // 픽스처가 accountId 를 하나라도 빠뜨리면 거래처 상세의 그 구획이 **조용히 비어** 보인다.
+  // 화면 테스트로는 '원래 없는 것' 과 구분되지 않아, 데이터 쪽에서 못을 박는다.
+  it('계약·견적·프로젝트·상담 시드가 전부 등록된 거래처를 가리킨다', async () => {
+    const signal = new AbortController().signal;
+    const [contracts, quotes, projects, consultations] = await Promise.all([
+      contractAdapter.fetchAll(signal),
+      quoteAdapter.fetchAll(signal),
+      projectAdapter.fetchAll(signal),
+      consultationAdapter.fetchAll(signal),
+    ]);
+
+    for (const row of [...contracts, ...quotes, ...projects, ...consultations]) {
+      expect(isRegisteredAccount(row)).toBe(true);
+    }
+
+    // 그리고 실제로 한 거래처에 네 이력이 모두 걸린다 — 상세의 네 구획이 빈 채 출시되지 않게 한다.
+    expect(filterByAccount(contracts, 'acc-1')).not.toHaveLength(0);
+    expect(filterByAccount(quotes, 'acc-1')).not.toHaveLength(0);
+    expect(filterByAccount(projects, 'acc-1')).not.toHaveLength(0);
+    expect(filterByAccount(consultations, 'acc-1')).not.toHaveLength(0);
   });
 });

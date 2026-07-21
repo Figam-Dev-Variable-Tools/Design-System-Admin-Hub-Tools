@@ -7,10 +7,18 @@
 //
 // [왜 이 테스트가 공허하지 않은가] 조건 배열을 통째로 비교한다. 파서가 조건을 하나 더 만들어
 // 붙이거나(과잉 해석) 빠뜨리면(과소 해석) 배열 비교가 깨진다 — 개수만 세면 둘 다 놓친다.
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
+// 값으로 거는 조건(판매상태·처리상태·우선순위·진행상태)의 목록은 각 도메인이 소유하고
+// 배선이 꽂는다 — 파서 안에는 그 어휘가 없다(pages/ai/_shared/domains.ts 머리말).
+// 배선하지 않고 돌리면 이 파일은 제품이 아니라 '값을 모르는 상태' 를 검증하게 된다.
+import { wireAiDomainValues } from '../../../wiring-ai';
 import { parseQuery } from './parser';
 import type { Condition, ParseResult } from './parser';
+
+beforeAll(() => {
+  wireAiDomainValues();
+});
 
 /** 성공 결과만 꺼낸다 — 실패면 그 자리에서 테스트를 세운다(뒤에서 optional chaining 으로 조용히 통과하지 않게) */
 function expectOk(result: ParseResult) {

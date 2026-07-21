@@ -21,6 +21,7 @@ import {
 } from '../../../shared/ui';
 import {
   CrudListShell,
+  DetailCellLink,
   parseFilter,
   useCrudList,
   useCrudRowUpdate,
@@ -122,7 +123,9 @@ export default function AccountListPage() {
   const columns: readonly CrudColumn<Account>[] = [
     {
       header: '사업자명',
-      render: (item) => item.name,
+      // 행 클릭(마우스)의 **키보드 짝** — 이 링크가 없으면 Tab 으로 상세에 닿을 길이 사라진다
+      // (DetailCellLink 머리말). 경로는 rowTarget 과 같은 값을 쓴다.
+      render: (item) => <DetailCellLink to={`${LIST_PATH}/${item.id}`}>{item.name}</DetailCellLink>,
     },
     { header: '대표자', nowrap: true, render: (item) => item.ceoName },
     {
@@ -232,6 +235,10 @@ export default function AccountListPage() {
       selectAllLabelId="account-select-all"
       toolbar={toolbar}
       onEdit={(item) => navigate(`${LIST_PATH}/${item.id}/edit`)}
+      /* [행 클릭은 상세로 간다] 예전에는 수정 폼이었다 — 담당자·여신한도·결제조건을 **보기만**
+         하려는 조회 전용 역할이 편집 화면을 열어야 했다는 뜻이다. 수정은 연필 액션의 몫으로
+         남기고, 목적지를 이름으로 밝혀 표의 캡션도 '상세 화면으로 이동합니다' 로 따라오게 한다. */
+      rowTarget={{ kind: 'detail', href: (item) => `${LIST_PATH}/${item.id}` }}
     />
   );
 }

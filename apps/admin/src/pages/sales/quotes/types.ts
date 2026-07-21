@@ -3,6 +3,8 @@
 // 국내 견적서 관례: 품목 라인아이템(품목·규격·수량·단가 → 공급가액 자동)·과세유형별 부가세(10%/영세/면세)·
 // 공급가액/세액/합계 자동 합산·유효기간·견적→수주 전환. 세액은 라인별 반올림 후 합산으로 규칙을 고정한다.
 import type { StatusTone } from '../../../shared/ui';
+import { UNREGISTERED_ACCOUNT_ID } from '../_shared/account-reference';
+import type { AccountRef } from '../_shared/account-reference';
 
 /** 라인아이템 — 공급가액은 저장하지 않고 수량·단가에서 파생한다(단일 원천) */
 export interface QuoteLineItem {
@@ -22,11 +24,19 @@ export type QuoteTaxMode = 'standard' | 'zero_rated' | 'exempt';
 /** 견적 상태 — 작성→발송→승인/반려, 만료, 수주전환(종료·잠금) */
 export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired' | 'ordered';
 
-export interface Quote {
+/**
+ * 견적.
+ *
+ * 거래처(공급받는자)는 AccountRef 두 필드로 참조한다 — `accountId`(마스터를 가리키는 **정본**,
+ * '' 이면 미등록)와 `accountName`(견적서에 인쇄되는 비정규화 표시 라벨). 견적서는 발행 시점의
+ * 상호를 그대로 남겨야 하는 문서라 라벨을 **일부러** 함께 보관한다 — 거래처가 나중에 개명해도
+ * 이미 보낸 견적서의 상호가 바뀌어서는 안 된다. 조회·링크의 정본은 언제나 accountId 다.
+ * (근거와 규칙은 ../_shared/account-reference 머리말)
+ */
+export interface Quote extends AccountRef {
   readonly id: string;
   /** 견적번호 — 'Q-YYYYMMDD-NNN' */
   readonly quoteNo: string;
-  readonly accountName: string;
   /** 공급받는자 사업자등록번호(표기용) */
   readonly accountBizNo: string;
   readonly accountCeo: string;
@@ -62,14 +72,23 @@ export const QUOTE_ITEM_NAME_MAX = 60;
 export const QUOTE_MAX_ITEMS = 30;
 export const QUOTE_NOTE_MAX = 500;
 
-/** 공급자(자사) 정보 — 견적서 미리보기 상단에 고정 노출. 연동 시 회사 설정에서 주입한다. */
-export const SUPPLIER = {
-  name: 'TDS 주식회사',
-  bizNo: '211-88-11223',
-  ceoName: '홍대표',
-  address: '서울특별시 강남구 테헤란로 501, 12층',
-  phone: '02-6000-1000',
-} as const;
+/**
+ * 공급자(자사) 정보 — 견적서 상단에 고정 노출.
+ *
+ * [예전에는 여기 하드코딩된 상수였다] 'TDS 주식회사 · 211-88-11223'. 정작 회사 정보 화면에는
+ * 다른 회사가 저장돼 있어서(주식회사 예시플래닝 · 123-45-67890), **회사 정보를 고쳐도 인쇄되는
+ * 견적서는 바뀌지 않았다.** 옛 주석은 '연동 시 회사 설정에서 주입한다' 고 적어 두었지만 그 연동은
+ * 오지 않았고, 주석이 낡은 채로 두 화면이 같은 사실을 다르게 말했다.
+ *
+ * [왜 회사 화면을 직접 부르지 않나] pages/sales → pages/company 는 페이지 간 결합이다
+ * (code-quality 축1, blocker). 값은 공통 층의 조회기가 주고(shared/domain/supplier.ts),
+ * 그 자리를 채우는 것은 두 도메인을 모두 아는 src/wiring.ts 다. 이 화면은 '회사 정보' 라는
+ * 모듈을 끝까지 모른다.
+ *
+ * [상수가 아니라 함수인 이유] 회사 정보는 운영 중에 바뀐다. 모듈 로드 시점에 값을 얼려 두면
+ * 저장한 회사 정보가 다음 새로고침까지 견적서에 나타나지 않는다 — 정확히 예전의 그 증상이다.
+ */
+export { resolveSupplier as quoteSupplier } from '../../../shared/domain/supplier';
 
 interface TaxModeMeta {
   readonly id: QuoteTaxMode;
@@ -186,6 +205,7 @@ export function sortQuotes(list: readonly Quote[]): readonly Quote[] {
 export function toQuoteInput(quote: Quote): QuoteInput {
   return {
     quoteNo: quote.quoteNo,
+    accountId: quote.accountId,
     accountName: quote.accountName,
     accountBizNo: quote.accountBizNo,
     accountCeo: quote.accountCeo,
@@ -240,11 +260,17 @@ export interface QuoteInheritance {
  * 승계된 값으로 신규 견적 입력을 만든다(순수) — 문의에서 넘어오는 필드는 여기 한 곳에서만 정한다.
  * 품목·과세유형·금액은 승계 대상이 아니다(문의는 그 정보를 갖지 않는다) — 운영자가 채운다.
  * 상태는 '작성중'이다: 품목이 비어 있는 견적을 '발송'으로 두면 발송되지 않은 견적이 발송으로 보인다.
+ *
+ * [거래처는 미등록으로 시작한다] 문의는 고객이 적어 넣은 **회사명 문자열**만 갖는다 — 그 회사가
+ * 거래처 마스터의 어느 행인지 문의는 모른다. 여기서 억지로 이름을 맞춰 id 를 추측하면 동명이인
+ * 거래처에 남의 견적이 붙는다. 그래서 accountId 는 ''(미등록)로 두고, 견적 폼이 '거래처 마스터에
+ * 연결되지 않았다'는 사실과 연결 수단을 함께 보여 준다 (../_shared/AccountSelectField).
  */
 export function buildQuoteFromInquiry(inheritance: QuoteInheritance): QuoteInput {
   return {
     // 견적번호는 데이터소스가 채번한다(빈 값 = 자동 부여) — 사람이 정하지 않는다.
     quoteNo: '',
+    accountId: UNREGISTERED_ACCOUNT_ID,
     accountName: inheritance.company,
     accountBizNo: '',
     accountCeo: '',

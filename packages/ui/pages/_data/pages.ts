@@ -117,6 +117,7 @@ const GROUPS: readonly MenuGroupSpec[] = [
       ['/products/coupons', '쿠폰', 'Coupons'],
       ['/products/points', '적립금', 'Points'],
       ['/products/reviews', '리뷰', 'Reviews'],
+      ['/products/inquiries', '문의', 'Inquiries'],
     ],
   },
   {
@@ -124,6 +125,7 @@ const GROUPS: readonly MenuGroupSpec[] = [
     entries: [
       ['/programs', '프로그램', 'Programs'],
       ['/programs/categories', '카테고리', 'Categories'],
+      ['/programs/inquiries', '문의', 'Inquiries'],
     ],
   },
   {
@@ -191,6 +193,7 @@ const GROUPS: readonly MenuGroupSpec[] = [
       ['/settings/site', '사이트 설정', 'Site'],
       ['/settings/api-keys', 'API Key 설정', 'API Keys'],
       ['/settings/oauth', 'OAuth 설정', 'OAuth'],
+      ['/settings/payment', '결제 설정', 'Payment'],
     ],
   },
 ];
@@ -202,7 +205,7 @@ function toMenu([ko, en, basePath, section]: MenuSpec): PageMenu {
 /** 메뉴 13개 — 사이드바 순서 그대로 */
 export const MENUS: readonly PageMenu[] = GROUPS.map((group) => toMenu(group.menu));
 
-/** 화면 65개 — 사이드바 순서 그대로 */
+/** 화면 67개 — 사이드바 순서 그대로 */
 export const PAGES: readonly PageEntry[] = GROUPS.flatMap((group) => {
   const menu = toMenu(group.menu);
   return group.entries.map(([path, ko, en]) => ({ path, ko, en, menu }));

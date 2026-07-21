@@ -97,10 +97,13 @@ const COLUMNS: readonly CrudColumn<Inquiry>[] = [
   },
   {
     header: '견적',
+    // [보기와 고치기는 다르다] 이 링크는 '/:id/edit' 로 갔다 — 이름은 '견적 보기' 인데 열리는
+    // 것은 편집 폼이었고, 발행 완료·수주 전환된 견적까지 수정 화면으로 열렸다. 읽기 전용 상세
+    // (/sales/quotes/:id)로 보낸다. 고치려는 사람은 그 상세에서 '수정' 으로 간다.
     render: (item) =>
       hasIssuedQuote(item) ? (
         <Link
-          to={`${QUOTE_PATH}/${item.quoteId}/edit`}
+          to={`${QUOTE_PATH}/${item.quoteId}`}
           className="tds-ui-link tds-ui-focusable"
           aria-label={`${item.title} 발행 견적`}
         >

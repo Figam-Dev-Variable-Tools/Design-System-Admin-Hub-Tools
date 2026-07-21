@@ -17,6 +17,7 @@ import {
 } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
+import { AccountLink } from '../_shared/AccountLink';
 import { formatWon } from '../_shared/business';
 import { quoteAdapter } from './data-source';
 import {
@@ -119,7 +120,9 @@ export default function QuoteListPage() {
       nowrap: true,
       render: (item) => <span style={monoStyle}>{item.quoteNo}</span>,
     },
-    { header: '거래처', render: (item) => item.accountName },
+    // 거래처 링크와 아래 '원본 문의' 링크는 **다른 목적지**다 — DS Table 가드가 <a> 내부
+    // 클릭을 행 활성화에서 제외해 둘과 행 클릭이 함께 산다
+    { header: '거래처', render: (item) => <AccountLink account={item} /> },
     {
       // 원본 문의로 가는 역링크 — 문의 ↔ 견적은 양방향이다. 수동 등록 견적은 원본이 없다.
       header: '원본 문의',

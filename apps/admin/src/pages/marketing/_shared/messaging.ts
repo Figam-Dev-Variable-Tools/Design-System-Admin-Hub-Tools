@@ -1,10 +1,9 @@
 // 마케팅/메시징 공용 도메인 타입 · 순수 규칙
 //
-// [왜 _shared 인가] SMS 발송·이메일 발송·뉴스레터·발송 템플릿 네 화면이 같은 도메인을 공유한다:
-//   - 세그먼트(수신자 그룹)·발신번호/발신자는 SMS·이메일·뉴스레터가 함께 참조한다.
-//   - 발송 템플릿은 템플릿 화면이 관리하고 SMS·이메일 발송 화면이 삽입한다.
+// [왜 _shared 인가] SMS 발송·이메일 발송·뉴스레터 세 화면이 같은 도메인을 공유한다:
+//   - 세그먼트(수신자 그룹)·발신번호/발신자를 셋이 함께 참조한다.
 //   - 바이트 판정·야간발송 차단·수신거부·치환변수는 전 채널이 같은 규칙을 쓴다.
-//   네 data-source 가 서로를 import 하면 결합이 되므로 도메인 타입·순수 규칙을 이 잎 모듈에 모은다
+//   세 data-source 가 서로를 import 하면 결합이 되므로 도메인 타입·순수 규칙을 이 잎 모듈에 모은다
 //   (고객센터 _shared/domain·상품 _shared/store 와 같은 결 — pages/marketing 한 페이지 안이다).
 //
 // [국내 메시징/광고 규제 채택 — 조사 근거]
@@ -17,43 +16,33 @@
 //   · 발신번호 사전등록제(전기통신사업법 제84조의2): 사전 등록·검증된 번호로만 발신한다.
 //   · 치환변수 문법은 `#{변수}` (솔라피·카카오 공통).
 import type { StatusTone } from '../../../shared/ui';
+import { messagingNameOf } from '../../../shared/domain/site-policy';
 
 /* ── 채널 ──────────────────────────────────────────────────────────────────────
  *
- * 발송 템플릿이 다루는 채널. 유니온을 넓히면(친구톡·푸시 등) 옵션·라벨만 늘리면 되도록 열어 둔다. */
-export type MessageChannel = 'sms' | 'email' | 'alimtalk';
-
+ * 발송이 다루는 채널. 유니온을 넓히면(친구톡·푸시 등) 판정만 늘리면 되도록 열어 둔다. */
 interface Option<T extends string> {
   readonly id: T;
   readonly label: string;
 }
 
-export const MESSAGE_CHANNEL_OPTIONS: readonly Option<MessageChannel>[] = [
-  { id: 'sms', label: 'SMS/문자' },
-  { id: 'email', label: '이메일' },
-  { id: 'alimtalk', label: '카카오 알림톡' },
-] as const;
-
-// [삭제됨] parseMessageChannel / isMessageChannel / CHANNEL_VALUES
-//   목록 필터가 URL 문자열을 좁힐 때 쓰던 사본이다. IA-13 롤아웃으로 그 자리를 공용
-//   `shared/crud/parseFilter` 가 가져갔고 — 허용 목록은 위 MESSAGE_CHANNEL_OPTIONS 의 id 에서
-//   파생한다 — 마지막 소비자가 사라졌다. 소비자 없는 export 는 '나중에 쓸지도 모르는 것'이
-//   아니라 죽은 코드다(클린코드 점검 축5 죽은 코드 0).
+// [삭제됨] MESSAGE_CHANNEL_OPTIONS · messageChannelLabel · usesTitle
+//   채널 셀렉트·목록 필터·제목칸 노출을 정하던 표면이다. 그것을 그리던 화면(옛 발송 템플릿
+//   pages/marketing/templates/**)이 라우트에서 떨어져 나간 뒤 지워지면서 소비자가 0 이 됐다.
+//   채널별 화면(SMS/이메일)은 각자 자기 채널만 알고, 종류 선택은 메시지 템플릿의
+//   TemplateKind 가 가져갔다. 소비자 없는 export 는 '나중에 쓸지도 모르는 것' 이 아니라
+//   죽은 코드다(클린코드 점검 축5 죽은 코드 0).
+//
+// [왜 유니온만 남기나] 아래 isSendableTemplate·isTemplateContentLocked 가 여전히 이 축으로
+//   판정한다(승인은 알림톡만의 개념이다). 밖에서 부르는 곳은 없으므로 export 하지 않는다.
+type MessageChannel = 'sms' | 'email' | 'alimtalk';
 
 const optionLabel = <T extends string>(options: readonly Option<T>[], id: T): string =>
   options.find((option) => option.id === id)?.label ?? id;
 
-export const messageChannelLabel = (v: MessageChannel): string =>
-  optionLabel(MESSAGE_CHANNEL_OPTIONS, v);
-
 /** 알림톡만 사전 승인 대상 — 정보통신망 채널(SMS/이메일)은 승인 개념이 없다 */
-export function requiresApproval(channel: MessageChannel): boolean {
+function requiresApproval(channel: MessageChannel): boolean {
   return channel === 'alimtalk';
-}
-
-/** 제목을 쓰는 채널 — 이메일 제목·알림톡 강조표기. SMS 는 제목이 없다 */
-export function usesTitle(channel: MessageChannel): boolean {
-  return channel !== 'sms';
 }
 
 /* ── 알림톡 템플릿 승인 상태 ─────────────────────────────────────────────────────
@@ -62,26 +51,11 @@ export function usesTitle(channel: MessageChannel): boolean {
  * 재편집·재요청한다. (조사: kakaobusiness 알림톡 심사 가이드) */
 type ApprovalStatus = 'draft' | 'inspecting' | 'approved' | 'rejected';
 
-export const APPROVAL_STATUS_OPTIONS: readonly Option<ApprovalStatus>[] = [
-  { id: 'draft', label: '초안' },
-  { id: 'inspecting', label: '검수중' },
-  { id: 'approved', label: '승인' },
-  { id: 'rejected', label: '반려' },
-] as const;
-
-export const approvalStatusLabel = (v: ApprovalStatus): string =>
-  optionLabel(APPROVAL_STATUS_OPTIONS, v);
-
-const APPROVAL_TONE: Record<ApprovalStatus, StatusTone> = {
-  draft: 'neutral',
-  inspecting: 'info',
-  approved: 'success',
-  rejected: 'danger',
-};
-
-export function approvalStatusTone(status: ApprovalStatus): StatusTone {
-  return APPROVAL_TONE[status];
-}
+// [삭제됨] APPROVAL_STATUS_OPTIONS · approvalStatusLabel · approvalStatusTone
+//   심사 상태를 셀렉트·배지로 그리던 표면이다. 그리는 화면이 사라지면서(위 [삭제됨] 문단)
+//   소비자가 0 이 됐다. 알림톡 심사 상태의 정본은 이제 message-templates/kakao.ts 가 갖는다 —
+//   그쪽은 '잠금 사유' 라는 더 쓸모 있는 형태로 같은 축을 다룬다(alimtalkLockReasonOf).
+//   아래 두 판정만 이 유니온을 계속 쓴다.
 
 /** 발송 가능 여부 — 알림톡은 승인된 템플릿만, 그 외 채널은 항상 가능 */
 export function isSendableTemplate(channel: MessageChannel, status: ApprovalStatus): boolean {
@@ -124,7 +98,7 @@ export function isTemplateContentLocked(channel: MessageChannel, status: Approva
  *
  *   정본은 `shared/domain/template-variable-catalog.ts` 로 옮겼고, 배선은 `wiring.ts` 가 한다.
  *   아래 applyVariableSamples 는 **이름과 계약을 그대로 유지한 채** 그쪽에 위임한다 — 이
- *   함수를 부르는 미리보기 네 곳(EmailPreview·PhoneMessagePreview·TemplatePreview)은
+ *   함수를 부르는 미리보기들(EmailPreview·PhoneMessagePreview 등)은
  *   고치지 않아도 새 카탈로그로 치환된다. 치환 규칙은 데이터 층의 것이지 미리보기의 것이 아니다. */
 
 /** 카카오 알림톡 변수 개수 상한 — 초과 시 반려(조사: 심사 가이드) */
@@ -149,13 +123,72 @@ export function isVariableOnlyBody(text: string): boolean {
  */
 export { applyTemplateVariableSamples as applyVariableSamples } from '../../../shared/domain/template-variables';
 
+/* ── 발신 표시 이름 (메일·SMS 전용 사이트 이름) ────────────────────────────────
+ *
+ * [무엇인가] 사이트 기본 설정(/settings/site)의 '메일·SMS 전용 사이트 이름' 이다. 그 화면은
+ * "전용 이름은 문자 본문 앞에 붙습니다" 라고 안내하면서 이름의 길이를 **바이트로** 센다 —
+ * 90byte 를 넘으면 SMS 가 LMS 로 승격되기 때문이다(위 classifySms). 그런데 정작 발송 화면과
+ * 미리보기는 그 이름을 한 번도 읽지 않았다: 설정은 저장되는데 아무 데도 나타나지 않았고,
+ * 운영자가 화면에서 본 바이트 수는 실제로 나가는 문자의 바이트 수가 아니었다.
+ *
+ * [왜 마케팅이 설정 화면을 import 하지 않나] pages/marketing → pages/settings 는 페이지 간
+ * 결합이다(code-quality 축1, blocker). 값은 공통 층의 조회기가 준다
+ * (shared/domain/site-policy.ts) — 그 자리를 채우는 것은 두 도메인을 모두 아는 src/wiring.ts 다.
+ *
+ * [규칙을 왜 여기 두나] '어떻게 붙는가' 는 메시징 도메인의 규칙이다. SMS 본문·메일 제목 두
+ * 자리가 같은 모양으로 붙어야 하고, 그 판정이 두 벌이면 채널마다 다른 문자가 나간다. */
+
+/** 발신 표시 이름이 붙는 모양 — `[이름] 본문` */
+function bracketed(name: string): string {
+  return `[${name}] `;
+}
+
+/**
+ * 발신 표시 이름을 앞에 붙인다(순수).
+ *
+ * [무엇을 하지 않는가]
+ *   · 이름이 비면 **원문 그대로** 둔다 — '모른다' 와 '안 쓴다' 가 같은 결과로 수렴하는 자리다.
+ *   · 본문/제목이 비어 있어도 그대로 둔다. 아직 아무것도 쓰지 않은 칸에 접두만 붙으면 미리보기가
+ *     `[사이트이름]` 한 줄을 그리며 '입력하지 않았다' 는 안내를 밀어내고, 바이트 카운터는 쓰지도
+ *     않은 글의 무게를 보고한다. 보낼 것이 없으면 붙일 것도 없다.
+ *   · 이미 그 이름으로 시작하면 다시 붙이지 않는다. 템플릿을 불러오거나 저장된 초안을 다시
+ *     열면 본문이 접두를 이미 갖고 있을 수 있는데, 그때마다 한 겹씩 쌓이면 `[A] [A] [A] 본문`
+ *     이 되고 바이트만 먹다가 SMS 가 조용히 LMS 로 승격된다.
+ *   · 본문을 trim 하지 않는다 — 운영자가 넣은 줄바꿈은 발송물의 일부다.
+ */
+export function prefixMessagingName(text: string, name: string): string {
+  const trimmed = name.trim();
+  if (trimmed === '' || text.trim() === '') return text;
+  const prefix = bracketed(trimmed);
+  return text.startsWith(prefix) ? text : `${prefix}${text}`;
+}
+
+/**
+ * 실제로 나가는 문구 — 지금 설정된 발신 표시 이름을 얹는다.
+ *
+ * 발송 폼·미리보기가 부르는 단 하나의 입구다. 배선이 없으면 이름이 빈 문자열이라 원문 그대로
+ * 돌아온다 — 설정 화면이 없는 테스트에서도 이 함수를 그냥 쓸 수 있다.
+ */
+export function withMessagingName(text: string): string {
+  return prefixMessagingName(text, messagingNameOf());
+}
+
+/**
+ * 지금 설정된 발신 표시 이름 — 없으면 ''.
+ *
+ * 발송 폼이 "이 이름이 앞에 붙습니다" 라고 **말해 줄 때** 쓴다. 접두가 본문 바이트를 먹는데
+ * 그 사실을 화면이 숨기면, 운영자는 자기가 쓴 글자 수만 세다가 승격된 문자를 받아 든다.
+ * 조회기는 공통 층에 있지만(shared/domain/site-policy) 발송 화면의 입구는 여기 하나로 모은다.
+ */
+export { messagingNameOf } from '../../../shared/domain/site-policy';
+
 /* ── HTML 본문(이메일) — 순수 판정 ──────────────────────────────────────────────
  *
  * 이메일 템플릿 본문은 리치 텍스트(HTML)다. 검증(zod)·테스트는 DOM 없는 환경에서 도므로
  * @tds/ui 의 DOM 기반 richTextLength 를 쓸 수 없다 — 여기 정규식 근사치를 둔다(검증용으로 충분). */
 
-/** HTML 태그를 걷어낸 대략적 평문 — 길이·빈값 판정의 공통 기반 */
-export function htmlToPlainText(html: string): string {
+/** HTML 태그를 걷어낸 대략적 평문 — 길이·빈값 판정의 공통 기반(파일 안에서만 쓴다) */
+function htmlToPlainText(html: string): string {
   return html
     .replace(/<[^>]*>/g, '')
     .replace(/&nbsp;/gi, ' ')
@@ -179,99 +212,24 @@ export function looksLikeRichText(value: string): boolean {
   return /<[a-z][^>]*>/i.test(value);
 }
 
-/**
- * 리치 텍스트 → **줄바꿈을 살린** 평문.
+// [삭제됨] richTextToPlainText · convertBodyForChannel
+//   채널 전환(이메일 ↔ SMS/알림톡)이 있는 화면 하나를 위해 있던 변환이다. 그 화면이 지워지면서
+//   소비자가 0 이 됐다 — 지금의 메시지 템플릿은 종류를 만들 때 정하고 도중에 갈아타지 않으므로
+//   '전환 시 본문을 옮긴다' 는 문제 자체가 없다. 이메일 블록 → 평문 변환이 필요한 곳
+//   (발송 폼의 템플릿 불러오기)은 message-templates/render-html.ts 의 renderBlocksToPlainText 를
+//   쓴다. 그쪽은 블록 모델에서 곧바로 만들어서, 태그를 벗기다 뜻을 잃는 일이 없다.
+
+/* ── 발송 템플릿 ─────────────────────────────────────────────────────────────
  *
- * htmlToPlainText 는 태그를 지우기만 해서 `<p>가</p><p>나</p>` 를 '가나' 로 붙여 버린다. 길이·빈값
- * 판정에는 충분하지만 사람이 읽을 본문으로 옮길 때는 문단이 뭉개진다. 블록 끝과 <br> 을 줄바꿈으로
- * 바꾼 뒤에 태그를 걷는다.
+ * [삭제됨] MessageTemplate · MessageTemplateInput · TEMPLATE_NAME/TITLE/BODY_MAX ·
+ * TEMPLATE_FILTER_ALL · TemplateChannelFilter · filterTemplatesByChannel · searchTemplates ·
+ * sendableTemplatesFor
+ *
+ * 알림톡 심사 모델의 '발송 템플릿' 도메인이었다. 그 모델의 화면(pages/marketing/templates/**)이
+ * 지워지고 저장소(_shared/store.ts)의 배열도 함께 사라지면서 전부 소비자가 0 이 됐다.
+ * 템플릿의 정본은 `message-templates/types.ts`(TemplateKind 4종)와 그 store 하나다 —
+ * 같은 낱말의 두 번째 모델을 남겨 두면 다음 사람이 어느 쪽에 붙여야 하는지 다시 고민한다.
  */
-export function richTextToPlainText(html: string): string {
-  const withBreaks = html
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/(p|div|li|h[1-6]|blockquote|tr)>/gi, '\n');
-
-  return (
-    htmlToPlainText(withBreaks)
-      // 문단 사이 빈 줄 하나까지만 남긴다 — 에디터가 내는 빈 <p> 가 줄바꿈을 부풀린다
-      .replace(/\n{3,}/g, '\n\n')
-  );
-}
-
-/**
- * 채널이 바뀔 때 본문을 새 채널의 표현으로 옮긴다.
- *
- * [왜 필요한가] body 는 채널이 공유하는 **한 개의 필드**인데 이메일만 HTML 을 쓴다. 변환 없이
- * 채널만 갈아타면 SMS·알림톡 본문에 `<p>…</p>` 가 남고, 그대로 저장돼 **수신자에게 태그가 문자로
- * 발송된다**. 미리보기에서 먼저 눈에 띄지만 문제는 저장 값에 있으므로 경계(채널 전환)에서 고친다.
- *
- * 반대 방향(→ 이메일)은 변환하지 않는다 — 평문은 RichTextField 의 ensureRichText 가 문단으로
- * 승격시키고, 그 승격은 에디터가 소유한 규칙이다.
- */
-export function convertBodyForChannel(
-  body: string,
-  from: MessageChannel,
-  to: MessageChannel,
-): string {
-  if (from === to || to === 'email') return body;
-  return looksLikeRichText(body) ? richTextToPlainText(body) : body;
-}
-
-/* ── 발송 템플릿 ──────────────────────────────────────────────────────────────
- *
- * 채널(SMS/이메일/알림톡)별 재사용 문구. 템플릿 화면이 관리하고 발송 화면이 삽입한다.
- * 알림톡은 승인 상태를 갖고 승인된 것만 발송 가능. title 은 이메일 제목/알림톡 강조표기(SMS 는 ''). */
-export interface MessageTemplate {
-  readonly id: string;
-  readonly name: string;
-  readonly channel: MessageChannel;
-  readonly title: string;
-  readonly body: string;
-  readonly approvalStatus: ApprovalStatus;
-  /** 반려 사유 — approvalStatus 가 'rejected' 일 때 표시 */
-  readonly rejectReason: string;
-  readonly updatedAt: string;
-}
-
-export type MessageTemplateInput = Omit<MessageTemplate, 'id' | 'updatedAt'>;
-
-export const TEMPLATE_NAME_MAX = 60;
-export const TEMPLATE_TITLE_MAX = 100;
-export const TEMPLATE_BODY_MAX = 2000;
-
-export const TEMPLATE_FILTER_ALL = 'all';
-export type TemplateChannelFilter = typeof TEMPLATE_FILTER_ALL | MessageChannel;
-
-export function filterTemplatesByChannel(
-  list: readonly MessageTemplate[],
-  channel: TemplateChannelFilter,
-): readonly MessageTemplate[] {
-  if (channel === TEMPLATE_FILTER_ALL) return list;
-  return list.filter((template) => template.channel === channel);
-}
-
-export function searchTemplates(
-  list: readonly MessageTemplate[],
-  keyword: string,
-): readonly MessageTemplate[] {
-  const needle = keyword.trim().toLowerCase();
-  if (needle === '') return list;
-  return list.filter(
-    (template) =>
-      template.name.toLowerCase().includes(needle) || template.body.toLowerCase().includes(needle),
-  );
-}
-
-/** 발송 화면 삽입 후보 — 해당 채널 + (알림톡이면 승인된 것만) */
-export function sendableTemplatesFor(
-  list: readonly MessageTemplate[],
-  channel: MessageChannel,
-): readonly MessageTemplate[] {
-  return list.filter(
-    (template) =>
-      template.channel === channel && isSendableTemplate(template.channel, template.approvalStatus),
-  );
-}
 
 /* ── 바이트 · SMS 유형 판정 ───────────────────────────────────────────────────── */
 

@@ -114,18 +114,32 @@ const ReturnsListPage = lazy(() => import('./pages/products/returns/ReturnsListP
 const ReturnDetailPage = lazy(() => import('./pages/products/returns/ReturnDetailPage'));
 const ShippingPolicyPage = lazy(() => import('./pages/products/shipping/ShippingPolicyPage'));
 const PointsPolicyPage = lazy(() => import('./pages/products/points/PointsPolicyPage'));
+const ProductInquiryListPage = lazy(
+  () => import('./pages/products/inquiries/ProductInquiryListPage'),
+);
+const ProductInquiryDetailPage = lazy(
+  () => import('./pages/products/inquiries/ProductInquiryDetailPage'),
+);
 const ProgramListPage = lazy(() => import('./pages/programs/ProgramListPage'));
 const ProgramDetailPage = lazy(() => import('./pages/programs/ProgramDetailPage'));
 const ProgramFormPage = lazy(() => import('./pages/programs/ProgramFormPage'));
 const ProgramCategoriesPage = lazy(
   () => import('./pages/programs/categories/ProgramCategoriesPage'),
 );
+const ProgramInquiryListPage = lazy(
+  () => import('./pages/programs/inquiries/ProgramInquiryListPage'),
+);
+const ProgramInquiryDetailPage = lazy(
+  () => import('./pages/programs/inquiries/ProgramInquiryDetailPage'),
+);
 const AccountListPage = lazy(() => import('./pages/sales/accounts/AccountListPage'));
 const AccountFormPage = lazy(() => import('./pages/sales/accounts/AccountFormPage'));
+const AccountDetailPage = lazy(() => import('./pages/sales/accounts/AccountDetailPage'));
 const ContractListPage = lazy(() => import('./pages/sales/contracts/ContractListPage'));
 const ContractFormPage = lazy(() => import('./pages/sales/contracts/ContractFormPage'));
 const QuoteListPage = lazy(() => import('./pages/sales/quotes/QuoteListPage'));
 const QuoteFormPage = lazy(() => import('./pages/sales/quotes/QuoteFormPage'));
+const QuoteDetailPage = lazy(() => import('./pages/sales/quotes/QuoteDetailPage'));
 const InquiryListPage = lazy(() => import('./pages/sales/inquiries/InquiryListPage'));
 const InquiryDetailPage = lazy(() => import('./pages/sales/inquiries/InquiryDetailPage'));
 const ProjectListPage = lazy(() => import('./pages/sales/projects/ProjectListPage'));
@@ -152,10 +166,7 @@ const SmsListPage = lazy(() => import('./pages/marketing/sms/SmsListPage'));
 const SmsFormPage = lazy(() => import('./pages/marketing/sms/SmsFormPage'));
 const EmailListPage = lazy(() => import('./pages/marketing/email/EmailListPage'));
 const EmailFormPage = lazy(() => import('./pages/marketing/email/EmailFormPage'));
-const TemplateListPage = lazy(() => import('./pages/marketing/templates/TemplateListPage'));
-const TemplateFormPage = lazy(() => import('./pages/marketing/templates/TemplateFormPage'));
-/* 메시지 템플릿(이메일·문자) — 발송 템플릿(위)과 생명주기가 다른 별개 모델이다
-   (message-templates/types.ts 머리말: 카카오 심사 상태 vs 운영자가 켜고 끄는 발행 상태) */
+/* 메시지 템플릿 — 이메일·문자·알림톡·브랜드메시지 4종을 한 모델이 덮는다 */
 const MessageTemplateListPage = lazy(
   () => import('./pages/marketing/message-templates/MessageTemplateListPage'),
 );
@@ -184,6 +195,7 @@ const ApiKeysPage = lazy(() => import('./pages/settings/api-keys/ApiKeysPage'));
    AppShell 의 RequirePermission 이 목록과 **똑같이** 덮는다 (shared/permissions/route-resource). */
 const AiConnectionPage = lazy(() => import('./pages/settings/api-keys/AiConnectionPage'));
 const OAuthPage = lazy(() => import('./pages/settings/oauth/OAuthPage'));
+const PaymentSettingsPage = lazy(() => import('./pages/settings/payment/PaymentSettingsPage'));
 /* 소셜 로그인 제공자 상세 — 목록에서 타일(링크)을 누르면 여기로 온다.
    권한은 따로 걸지 않는다: findCoveringLeaf 가 이 경로를 잎 '/settings/oauth' 로 풀어 주므로
    AppShell 의 RequirePermission 이 목록과 **똑같이** 덮는다 (shared/permissions/route-resource). */
@@ -296,6 +308,9 @@ const APP_ROUTES: readonly AppRoute[] = [
   { path: '/products/returns/:id', element: <ReturnDetailPage /> },
   { path: '/products/shipping', element: <ShippingPolicyPage />, implemented: true },
   { path: '/products/points', element: <PointsPolicyPage />, implemented: true },
+  // 문의 — PG 미사용 설정에서 구매 버튼이 '문의하기'가 되면 이리로 들어온다 (shared/commerce)
+  { path: '/products/inquiries', element: <ProductInquiryListPage />, implemented: true },
+  { path: '/products/inquiries/:id', element: <ProductInquiryDetailPage /> },
 
   // 프로그램(후원형 펀딩) — 목록 > 상세 · 등록·수정 · 카테고리(2Depth).
   // 등록(new)과 수정(:id/edit)은 **같은 화면**(ProgramFormPage)이다 — 채워 두느냐 비워 두느냐만 다르다.
@@ -303,6 +318,8 @@ const APP_ROUTES: readonly AppRoute[] = [
   { path: '/programs', element: <ProgramListPage />, implemented: true },
   { path: '/programs/new', element: <ProgramFormPage /> },
   { path: '/programs/categories', element: <ProgramCategoriesPage />, implemented: true },
+  { path: '/programs/inquiries', element: <ProgramInquiryListPage />, implemented: true },
+  { path: '/programs/inquiries/:id', element: <ProgramInquiryDetailPage /> },
   { path: '/programs/:id', element: <ProgramDetailPage /> },
   { path: '/programs/:id/edit', element: <ProgramFormPage /> },
 
@@ -310,12 +327,17 @@ const APP_ROUTES: readonly AppRoute[] = [
   { path: '/sales/accounts', element: <AccountListPage />, implemented: true },
   { path: '/sales/accounts/new', element: <AccountFormPage /> },
   { path: '/sales/accounts/:id/edit', element: <AccountFormPage /> },
+  // 조회 전용 상세 — 읽기 권한만 있는 사람이 값을 보려고 수정 폼을 열지 않게 한다.
+  // 거래처의 계약·견적·프로젝트·상담 역방향 조회도 여기에 있다.
+  { path: '/sales/accounts/:id', element: <AccountDetailPage /> },
   { path: '/sales/contracts', element: <ContractListPage />, implemented: true },
   { path: '/sales/contracts/new', element: <ContractFormPage /> },
   { path: '/sales/contracts/:id/edit', element: <ContractFormPage /> },
   { path: '/sales/quotes', element: <QuoteListPage />, implemented: true },
   { path: '/sales/quotes/new', element: <QuoteFormPage /> },
   { path: '/sales/quotes/:id/edit', element: <QuoteFormPage /> },
+  // 문의의 '견적 보기'가 가는 곳 — 발행·수주된 견적을 편집 폼으로 열지 않는다
+  { path: '/sales/quotes/:id', element: <QuoteDetailPage /> },
   { path: '/sales/inquiries', element: <InquiryListPage />, implemented: true },
   { path: '/sales/inquiries/:id', element: <InquiryDetailPage /> },
   { path: '/sales/projects', element: <ProjectListPage />, implemented: true },
@@ -358,17 +380,24 @@ const APP_ROUTES: readonly AppRoute[] = [
    * 바뀐 것이지 옆에 화면이 하나 더 생긴 것이 아니다 — 메뉴에 '템플릿' 이 둘이면 어디에 만들어야
    * 하는지를 매번 고민하게 된다.
    *
-   * [알림톡은 왜 아래에 남아 있나] 카카오 알림톡은 **심사 주체가 우리가 아닌** 별개 생명주기다
-   * (사전 심사·승인 잠금·반려 사유 — message-templates/types.ts 머리말). 새 모델은 아직 그것을
-   * 덮지 못하므로, 그 화면들을 지우는 대신 /alimtalk 아래에 세워 둔다. 세 번째 종류로 다시
-   * 들어올 때까지 기능도 링크도 잃지 않는다. 사이드바에는 올리지 않는다(재구축 대기 중이다).
+   * [알림톡 화면이 왜 사라졌나] 한동안 옛 알림톡 화면을 /alimtalk 아래에 세워 뒀다 — 카카오
+   * 알림톡은 심사 주체가 우리가 아닌 별개 생명주기라(사전 심사·승인 잠금·반려 사유) 새 모델이
+   * 아직 덮지 못한다고 봤기 때문이다. 그런데 새 모델은 그 사이에 알림톡을 덮었고(종류 4종 ·
+   * AlimtalkTemplateEditor · 승인 잠금), 사이드바에 올리지 않은 그 경로는 앱 안 어디에서도
+   * 링크되지 않아 **아무도 닿을 수 없는 중복 화면**으로 남아 있었다. 지금은 지웠다.
+   * 옛 경로로 저장된 북마크는 아래 리다이렉트가 새 목록으로 넘겨 준다.
    */
   { path: '/marketing/templates', element: <MessageTemplateListPage />, implemented: true },
-  // 등록은 종류를 쿼리로 받는다(?kind=text|email) — 라우트를 종류별로 가르면 수정 경로도 갈라야 한다
+  // 등록은 종류를 쿼리로 받는다(?kind=text|email|alimtalk) — 라우트를 종류별로 가르면 수정 경로도 갈라야 한다
   { path: '/marketing/templates/new', element: <MessageTemplateEditorPage /> },
-  { path: '/marketing/templates/alimtalk', element: <TemplateListPage /> },
-  { path: '/marketing/templates/alimtalk/new', element: <TemplateFormPage /> },
-  { path: '/marketing/templates/alimtalk/:id/edit', element: <TemplateFormPage /> },
+  {
+    path: '/marketing/templates/alimtalk',
+    element: <Navigate to="/marketing/templates" replace />,
+  },
+  {
+    path: '/marketing/templates/alimtalk/*',
+    element: <Navigate to="/marketing/templates" replace />,
+  },
   /* :id 는 alimtalk 뒤에 온다 — 위의 고정 경로들이 먼저 걸리도록 순서를 지킨다 */
   { path: '/marketing/templates/:id', element: <MessageTemplateDetailPage /> },
   { path: '/marketing/templates/:id/edit', element: <MessageTemplateEditorPage /> },
@@ -414,6 +443,8 @@ const APP_ROUTES: readonly AppRoute[] = [
   // 한 화면에 자격증명을 다 펼치면 무엇을 채워야 하는지가 보이지 않는다.
   { path: '/settings/oauth', element: <OAuthPage />, implemented: true },
   { path: '/settings/oauth/:provider', element: <OAuthProviderPage /> },
+  // 결제 연동 여부가 상품·프로그램의 구매/후원 버튼을 '문의하기'로 바꾼다 (shared/commerce)
+  { path: '/settings/payment', element: <PaymentSettingsPage />, implemented: true },
 ];
 
 /**

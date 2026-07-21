@@ -43,8 +43,10 @@ import {
   byteLengthOf,
   formatPhone,
   isNightAt,
+  messagingNameOf,
   sendSubmitLabel,
   totalRecipients,
+  withMessagingName,
 } from '../_shared/messaging';
 import { cssVar } from '@tds/ui';
 
@@ -208,8 +210,22 @@ export default function SmsFormPage() {
   const status = watch('status');
   const scheduledAt = watch('scheduledAt');
 
-  const kind = campaignKind(body, hasImage);
-  const bytes = byteLengthOf(body);
+  /**
+   * **실제로 나가는 본문** — 운영자가 쓴 본문 앞에 발신 표시 이름이 붙은 것이다.
+   *
+   * [왜 여기서 한 번만 계산하나] 이 값이 유형 판정(SMS/LMS)·바이트 안내·미리보기 셋의 기준이다.
+   * 세 곳이 각자 접두를 붙이면 하나만 고쳐진 채 나머지가 남고, 화면이 말하는 등급과 실제로
+   * 과금되는 등급이 갈린다. 접두는 공짜가 아니다 — 이름이 20자면 40byte 를 먹고, 그만큼
+   * 90byte 경계가 앞당겨진다(설정 화면이 이 이름만 바이트로 세는 이유가 그것이다).
+   *
+   * [저장값은 접두를 갖지 않는다] toInput 은 그대로 `values.body` 를 보낸다 — 접두는 발송 시점에
+   * 설정에서 붙는 것이라, 저장해 두면 나중에 사이트 이름을 바꿔도 옛 이름이 초안에 박혀 남는다.
+   */
+  const messagingName = messagingNameOf();
+  const sendBody = withMessagingName(body);
+
+  const kind = campaignKind(sendBody, hasImage);
+  const bytes = byteLengthOf(sendBody);
   const senderNumber = senders.find((sender) => sender.id === senderId)?.number ?? '';
   const recipients = totalRecipients(segments, [...segmentIds]);
 
@@ -370,6 +386,7 @@ export default function SmsFormPage() {
               hasImage={hasImage}
               kind={kind}
               bytes={bytes}
+              messagingName={messagingName}
               errors={errors}
               setValue={setValue}
             />
@@ -416,9 +433,10 @@ export default function SmsFormPage() {
 
           <Card>
             <CardTitle>미리보기</CardTitle>
+            {/* 미리보기가 받는 것은 입력칸의 글이 아니라 **발송 본문**이다 — 접두가 붙은 채로 보인다 */}
             <PhoneMessagePreview
               senderNumber={senderNumber}
-              body={body}
+              body={sendBody}
               kind={kind}
               hasImage={hasImage}
             />

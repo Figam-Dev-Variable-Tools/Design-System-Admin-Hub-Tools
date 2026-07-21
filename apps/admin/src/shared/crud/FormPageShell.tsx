@@ -7,7 +7,9 @@ import { useNavigate } from 'react-router-dom';
 
 import { cssVar, Skeleton } from '@tds/ui';
 
+import { ForbiddenScreen } from '../errors/ErrorScreens';
 import { objectParticle } from '../format';
+import { useRouteCanSubmitForm } from '../permissions/RequirePermission';
 import {
   Alert,
   alertActionRowStyle,
@@ -115,7 +117,19 @@ export function FormPageShell({
   children,
 }: FormPageShellProps) {
   const navigate = useNavigate();
+  /* [EXC-03] 등록/수정 권한을 **껍데기가** 판정한다 — 화면이 아니라.
+     이 폼이 등록인지 수정인지는 이미 껍데기가 알고 있다(isEdit — 제목과 저장 버튼 라벨이 그것으로
+     갈린다). 그러니 '어느 권한을 물어야 하는가' 도 여기서 답할 수 있다.
+
+     [왜 화면마다 적지 않는가] 폼은 25개고 계속 늘어난다. 화면마다 canCreate/canUpdate 를 적게 하면
+     **다음에 추가되는 폼**이 그것을 빠뜨린다 — 목록의 등록 CTA 가 정확히 그렇게 12개 화면에서
+     빠져 있었다. 껍데기가 소유하면 새 폼은 껍데기를 쓰는 것만으로 게이팅된 채 태어난다. */
+  const canSubmit = useRouteCanSubmitForm(isEdit);
   const unsavedDialog = useUnsavedChangesDialog(isDirty && !saving, { message: unsavedMessage });
+
+  /* 쓸 수 없는 폼은 열지 않는다 — 입력을 다 채운 뒤 저장에서 막히는 것보다 먼저 말하는 편이 낫다.
+     조회 실패 분기보다 앞선다: 권한이 없으면 상세를 불러왔는지 여부조차 알릴 일이 아니다. */
+  if (!canSubmit) return <ForbiddenScreen />;
 
   if (loadFailure !== null) {
     /**

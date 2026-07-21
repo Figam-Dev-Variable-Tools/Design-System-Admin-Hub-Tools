@@ -52,6 +52,24 @@ export function useRouteWritePermissions(): RouteWritePermissions {
 }
 
 /**
+ * 등록/수정 폼 라우트가 요구하는 액션 — 등록은 create, 수정은 update.
+ *
+ * [왜 이 한 줄이 훅으로 승격됐는가]
+ * `RequirePermission` 은 read 만 본다. 그래서 폼 라우트(/products/new · /sales/contracts/:id/edit …)는
+ * **read 만 가진 역할에게도 열리고 제출까지 됐다** — 목록의 등록 버튼은 옳게 숨겼는데 URL 을 직접
+ * 치면 그대로 걸어 들어갔다. 이 가드가 없애겠다고 선언한 바로 그 구멍이다.
+ *
+ * 판정 자체는 `isEdit ? update : create` 한 줄이지만, 그 한 줄을 **폼 25개가 각자 적으면**
+ * 하나만 빠뜨려도 그 폼만 조용히 무방비가 된다(등록 CTA 게이팅이 실제로 그랬다). 그래서 판정은
+ * 여기 한 벌만 두고, 껍데기(FormPageShell·DocumentFormShell)와 폼 컨트롤러(useCrudForm)가
+ * **같은 이 함수**를 부른다 — 새 폼은 껍데기를 쓰는 것만으로 게이팅을 물려받는다.
+ */
+export function useRouteCanSubmitForm(isEdit: boolean): boolean {
+  const { canCreate, canUpdate } = useRouteWritePermissions();
+  return isEdit ? canUpdate : canCreate;
+}
+
+/**
  * read 권한이 없는 화면은 본문 대신 403 을 렌더한다.
  *
  * AppShell 의 <Outlet> 을 감싸므로 **모든 라우트가 한 번에** 덮인다 — 화면마다 가드를 붙이는

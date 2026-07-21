@@ -6,6 +6,7 @@ import {
   countPortfolioByCategory,
   filterPortfolioItems,
   MAX_PORTFOLIO_IMAGES,
+  PORTFOLIO_FILTER_ALL,
   sortPortfolioItems,
 } from '../_shared/store';
 import type { PortfolioItem } from '../_shared/store';
@@ -122,5 +123,26 @@ describe('portfolioSchema — 폼 검증', () => {
   it('본문 이미지가 최대 장수를 넘으면 막는다', () => {
     const many = Array.from({ length: MAX_PORTFOLIO_IMAGES + 1 }, (_, i) => `blob:${String(i)}`);
     expect(messageFor(valuesOf({ imageUrls: many }), 'imageUrls')).toContain('최대');
+  });
+});
+
+/* ── URL 이 소유하는 분류 필터 (IA-13) ───────────────────────────────────── */
+
+describe('분류 필터의 URL 값 해석', () => {
+  const list = [
+    itemOf({ id: '1', categoryId: 'office' }),
+    itemOf({ id: '2', categoryId: 'retail' }),
+  ];
+
+  it("기본값('전체')은 전부 통과시킨다 — URL 에 category 가 없을 때의 상태다", () => {
+    expect(filterPortfolioItems(list, PORTFOLIO_FILTER_ALL)).toHaveLength(2);
+  });
+
+  it('분류 id 를 그대로 쓴다 — 카테고리 관리의 배지 링크가 이 값을 넘긴다', () => {
+    expect(filterPortfolioItems(list, 'office').map((item) => item.id)).toEqual(['1']);
+  });
+
+  it('모르는 id 는 빈 목록이다 — 허용값 대조로 되돌리지 않는 대신 조회가 깨지지 않는다', () => {
+    expect(filterPortfolioItems(list, '없는-분류')).toEqual([]);
   });
 });

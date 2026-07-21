@@ -79,6 +79,10 @@ interface MembersTableProps {
   readonly onNotify: (member: Member) => void;
   /** 알림 발송이 진행 중인 회원 — 해당 행의 메뉴 항목이 '발송 중…' 으로 잠긴다 */
   readonly notifyingIds: ReadonlySet<string>;
+  /** 알림 발송 권한 (EXC-03) — 없으면 ⋯ 메뉴에서 그 항목이 사라진다 */
+  readonly canUpdate: boolean;
+  /** 회원 삭제 권한 (EXC-03) — 단건 삭제와 일괄 삭제(체크박스)가 함께 사라진다 */
+  readonly canRemove: boolean;
 }
 
 export function MembersTable({
@@ -90,11 +94,24 @@ export function MembersTable({
   onDelete,
   onNotify,
   notifyingIds,
+  canUpdate,
+  canRemove,
 }: MembersTableProps) {
   // 행 어디를 눌러도 상세로 간다 — 체크박스/메모/⋯ 버튼은 훅이 알아서 제외한다
   const { rowNavProps } = useRowNavigation();
 
   const selection = tableSelectionState(members, selectedIds);
+
+  /**
+   * 행 액션이 하나라도 있는가 (EXC-03).
+   *
+   * 체크박스와 ⋯ 열은 **액션이 있을 때만** 의미가 있다. 삭제도 발송도 못 하는 역할에게 선택
+   * 체크박스를 남기면 '고르고 나서 할 일이 없는' 상태가 된다 — 회원 관리에서 이미 결함으로
+   * 지적된 형태다. CrudListShell 이 canRemove 없이 SelectionBar 를 그리지 않는 것과 같은 판단.
+   */
+  const hasRowActions = canUpdate || canRemove;
+  /** 표의 총 칸 수 — 체크박스·⋯ 두 열은 액션이 있을 때만 존재한다 (빈 상태의 colSpan 이 이걸 쓴다) */
+  const totalColumns = COLUMNS.length + (hasRowActions ? 2 : 0);
 
   return (
     <table style={tableStyle} aria-busy={loading}>
@@ -105,29 +122,33 @@ export function MembersTable({
 
       <thead>
         <tr>
-          <SelectAllHeaderCell
-            label="이 페이지의 회원 전체 선택"
-            labelId={SELECT_ALL_LABEL_ID}
-            selection={selection}
-            onToggleAll={onToggleAll}
-          />
+          {hasRowActions && (
+            <SelectAllHeaderCell
+              label="이 페이지의 회원 전체 선택"
+              labelId={SELECT_ALL_LABEL_ID}
+              selection={selection}
+              onToggleAll={onToggleAll}
+            />
+          )}
           {COLUMNS.map((column) => (
             <th key={column} scope="col" style={thStyle}>
               {column}
             </th>
           ))}
-          <th scope="col" style={thStyle}>
-            <span style={visuallyHiddenStyle}>행 액션</span>
-          </th>
+          {hasRowActions && (
+            <th scope="col" style={thStyle}>
+              <span style={visuallyHiddenStyle}>행 액션</span>
+            </th>
+          )}
         </tr>
       </thead>
 
       <tbody>
         {loading ? (
-          <SkeletonRows rows={PAGE_SIZE} cols={COLUMNS.length + 2} />
+          <SkeletonRows rows={PAGE_SIZE} cols={totalColumns} />
         ) : members.length === 0 ? (
           <tr>
-            <td colSpan={COLUMNS.length + 2} style={emptyCellStyle}>
+            <td colSpan={totalColumns} style={emptyCellStyle}>
               검색 결과가 없습니다.
             </td>
           </tr>
@@ -139,19 +160,21 @@ export function MembersTable({
 
             return (
               <tr key={member.id} className="tds-ui-row" {...rowNavProps(detailPath)}>
-                <td style={checkboxCellStyle}>
-                  <span style={visuallyHiddenStyle} id={`select-${member.id}`}>
-                    {member.nickname} 선택
-                  </span>
-                  <input
-                    type="checkbox"
-                    className="tds-ui-focusable"
-                    style={checkboxStyle}
-                    checked={checked}
-                    aria-labelledby={`select-${member.id}`}
-                    onChange={(event) => onToggleOne(member.id, event.target.checked)}
-                  />
-                </td>
+                {hasRowActions && (
+                  <td style={checkboxCellStyle}>
+                    <span style={visuallyHiddenStyle} id={`select-${member.id}`}>
+                      {member.nickname} 선택
+                    </span>
+                    <input
+                      type="checkbox"
+                      className="tds-ui-focusable"
+                      style={checkboxStyle}
+                      checked={checked}
+                      aria-labelledby={`select-${member.id}`}
+                      onChange={(event) => onToggleOne(member.id, event.target.checked)}
+                    />
+                  </td>
+                )}
 
                 <td style={nicknameCellStyle}>
                   <Link to={detailPath} className="tds-ui-link tds-ui-focusable">
@@ -180,24 +203,31 @@ export function MembersTable({
                   </Link>
                 </td>
 
-                <td style={actionCellStyle}>
-                  <Menu
-                    label={`${member.nickname} 회원 액션`}
-                    items={[
-                      { id: 'delete', label: '회원 삭제', danger: true },
-                      {
-                        id: 'notify',
-                        // 발송 중에는 라벨로 진행을 알리고 재클릭을 막는다
-                        label: notifying ? '발송 중…' : '알림 발송',
-                        disabled: notifying,
-                      },
-                    ]}
-                    onSelect={(id) => {
-                      if (id === 'delete') onDelete(member);
-                      else onNotify(member);
-                    }}
-                  />
-                </td>
+                {/* ⋯ 메뉴는 권한이 있는 항목만 담는다 — 둘 다 없으면 열 자체가 없다 */}
+                {hasRowActions && (
+                  <td style={actionCellStyle}>
+                    <Menu
+                      label={`${member.nickname} 회원 액션`}
+                      items={[
+                        ...(canRemove ? [{ id: 'delete', label: '회원 삭제', danger: true }] : []),
+                        ...(canUpdate
+                          ? [
+                              {
+                                id: 'notify',
+                                // 발송 중에는 라벨로 진행을 알리고 재클릭을 막는다
+                                label: notifying ? '발송 중…' : '알림 발송',
+                                disabled: notifying,
+                              },
+                            ]
+                          : []),
+                      ]}
+                      onSelect={(id) => {
+                        if (id === 'delete') onDelete(member);
+                        else onNotify(member);
+                      }}
+                    />
+                  </td>
+                )}
               </tr>
             );
           })

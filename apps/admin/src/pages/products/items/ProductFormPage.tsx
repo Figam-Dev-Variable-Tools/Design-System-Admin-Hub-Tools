@@ -7,7 +7,7 @@
 import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { cssVar, isRichTextEmpty, sanitizeRichText } from '@tds/ui';
 
 import './product-form.css';
@@ -44,6 +44,12 @@ import {
   submitButtonLabel,
   useCrudForm,
 } from '../../../shared/crud';
+// 구매 CTA 는 이 화면이 정하지 않는다 — 결제(PG) 설정에서 파생되는 값이라 규칙 함수를 그대로 부른다
+import {
+  checkoutCta,
+  PAYMENT_SETTINGS_PATH,
+  readPaymentSettings,
+} from '../../../shared/commerce/payment-settings';
 import { fetchProductCategoryOptions, productAdapter } from './data-source';
 import { productSchema } from './validation';
 import type { ProductFormValues } from './validation';
@@ -397,6 +403,14 @@ export default function ProductFormPage() {
 
   const imagesError = (errors.imageUrls as { message?: string } | undefined)?.message;
   const variantsError = (errors.variants as { message?: string } | undefined)?.message;
+
+  /**
+   * 고객이 보게 될 구매 버튼 — **저장된 상품의 값이 아니라 결제 설정에서 나온다.**
+   *
+   * PG 를 쓰지 않도록 설정돼 있으면 '구매하기' 가 아니라 '문의하기' 다(그 문의는 상품 문의로
+   * 들어온다). 렌더할 때마다 규칙을 다시 부른다 — 설정이 바뀌면 다음 렌더가 곧바로 새 답을 쓴다.
+   */
+  const checkout = checkoutCta(readPaymentSettings(), 'product');
 
   // 적립 미리보기는 순수 규칙(earnedPoints)이 계산한다 — 화면이 적립 산식을 따로 갖지 않는다
   const earnedPreview = earnedPoints(
@@ -789,7 +803,18 @@ export default function ProductFormPage() {
                 discountValue={previewNumber(discountValue)}
                 saleStatus={saleStatus}
                 displayed={displayed}
+                ctaLabel={checkout.label}
+                ctaKind={checkout.kind}
               />
+
+              {/* 왜 지금 저 버튼인지 한 줄로 말한다 — 문구는 규칙이 함께 돌려준다(화면이 짓지 않는다).
+                  링크는 <Link> 다: 미저장 이탈 가드가 앵커 클릭을 가로챈다(navigate 로 가면 그냥 지나친다). */}
+              <p style={hintStyle}>
+                {checkout.reason}{' '}
+                <Link to={PAYMENT_SETTINGS_PATH} className="tds-ui-link tds-ui-focusable">
+                  결제 설정에서 바꾸기
+                </Link>
+              </p>
             </Card>
           </div>
         </div>

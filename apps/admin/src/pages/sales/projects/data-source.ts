@@ -2,6 +2,9 @@
 //
 // [백엔드 연동 지점] 프레임워크 createCrudAdapter 에 시드를 넣는다. 실제 연동 시 // TODO(backend)
 // 로 어댑터 본문만 교체하고 화면은 그대로 둔다.
+//
+// [거래처 참조] 시드의 accountId 는 accounts/data-source 의 실제 거래처 id(acc-1~3)를 가리킨다 —
+// 이름만 같고 연결이 없는 행이 하나라도 있으면 거래처 상세의 역방향 조회가 조용히 비어 보인다.
 import { createCrudAdapter } from '../../../shared/crud';
 import { sortProjects } from './types';
 import type { Project, ProjectInput } from './types';
@@ -10,6 +13,7 @@ const PROJECT_SEED: readonly Project[] = [
   {
     id: 'prj-1',
     name: '한빛소프트 ERP 구축',
+    accountId: 'acc-1',
     accountName: '(주)한빛소프트웨어',
     stage: 'negotiation',
     probability: 70,
@@ -30,6 +34,7 @@ const PROJECT_SEED: readonly Project[] = [
   {
     id: 'prj-2',
     name: '대성물산 유지보수 전환',
+    accountId: 'acc-2',
     accountName: '대성물산 주식회사',
     stage: 'proposal',
     probability: 50,
@@ -46,6 +51,7 @@ const PROJECT_SEED: readonly Project[] = [
   {
     id: 'prj-3',
     name: '미래테크 수출부품 설계',
+    accountId: 'acc-3',
     accountName: '미래테크놀로지',
     stage: 'lost',
     probability: 0,

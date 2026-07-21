@@ -41,7 +41,15 @@ interface SmsMessageCardProps {
   readonly isAd: boolean;
   readonly hasImage: boolean;
   readonly kind: SmsKind;
+  /** 발송 본문(접두 포함) 기준 바이트 — 입력칸에 쓴 글자만 센 값이 아니다 */
   readonly bytes: number;
+  /**
+   * 본문 앞에 붙는 발신 표시 이름 — 설정하지 않았으면 ''.
+   *
+   * 아래 바이트 안내가 **접두를 포함한** 수를 말하므로, 무엇이 더해졌는지 함께 적지 않으면
+   * 운영자는 자기가 쓴 글자보다 큰 수를 보고 계산이 틀렸다고 읽는다.
+   */
+  readonly messagingName: string;
   readonly errors: FieldErrors<SmsFormValues>;
   readonly setValue: UseFormSetValue<SmsFormValues>;
 }
@@ -56,6 +64,7 @@ export function SmsMessageCard({
   hasImage,
   kind,
   bytes,
+  messagingName,
   errors,
   setValue,
 }: SmsMessageCardProps) {
@@ -112,6 +121,15 @@ export function SmsMessageCard({
         {`${String(bytes)} byte · ${smsKindLabel(kind)} (한도 ${String(smsByteLimit(kind))} byte)`}
         {kind === 'lms' && ' — 90 byte 초과로 LMS 로 발송됩니다.'}
       </p>
+      {/*
+        접두가 실제로 붙을 때만 말한다. 늘 띄우면 '설정한 적 없다' 는 사실까지 안내문으로 바뀌어,
+        읽어야 할 때 읽히지 않는다. (기본 설정을 고치는 길도 함께 적는다 — 여기서는 못 고친다.)
+      */}
+      {messagingName !== '' && (
+        <p style={hintStyle}>
+          {`발송 시 본문 앞에 "[${messagingName}] " 가 붙습니다 — 위 byte 는 이 접두를 포함한 수입니다. (시스템 설정 › 기본 설정)`}
+        </p>
+      )}
       <VariableInsertBar
         onInsert={(token) =>
           setValue('body', `${body}${token}`, { shouldDirty: true, shouldValidate: true })

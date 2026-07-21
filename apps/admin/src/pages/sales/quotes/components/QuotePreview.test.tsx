@@ -23,7 +23,9 @@ function renderDoc() {
     <QuotePreview
       quoteNo="Q-20260717-001"
       accountName="스페이스플래닝"
-      // 공급자(SUPPLIER)의 사업자번호와 겹치지 않게 둔다 — 겹치면 두 블록이 같은 텍스트가 된다
+      // 공급자 블록의 사업자번호와 겹치지 않게 둔다 — 겹치면 두 블록이 같은 텍스트가 된다.
+      // (이 파일은 공급자 조회기를 배선하지 않으므로 공급자는 폴백 '000-00-00000' 이다 —
+      //  견적서가 배선 없이도 그려진다는 사실을 함께 고정한다. shared/domain/supplier.ts)
       accountBizNo="1234567890"
       accountCeo="김대표"
       contactName="이담당"

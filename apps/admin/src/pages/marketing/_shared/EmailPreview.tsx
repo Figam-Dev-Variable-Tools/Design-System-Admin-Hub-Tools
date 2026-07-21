@@ -8,7 +8,7 @@
 import type { CSSProperties } from 'react';
 
 import { StatusBadge } from '../../../shared/ui';
-import { applyVariableSamples } from './messaging';
+import { applyVariableSamples, withMessagingName } from './messaging';
 import { MailFrame } from './preview/MailFrame';
 import { cssVar } from '@tds/ui';
 
@@ -32,7 +32,18 @@ export function EmailPreview({
   body,
   includeUnsubscribe,
 }: EmailPreviewProps) {
-  const renderedSubject = applyVariableSamples(subject);
+  /**
+   * 제목에는 발신 표시 이름이 앞에 붙는다 — '메일·SMS 전용 사이트 이름' 설정의 메일 쪽 결과다.
+   *
+   * [왜 본문이 아니라 제목인가] 문자에서는 본문이 수신함에 그대로 보이는 유일한 줄이라 접두가
+   * 본문에 붙는다. 메일에서 그 자리는 **제목**이다 — 수신함 목록에서 보이는 것이 제목이고,
+   * 본문은 HTML 이라 앞에 평문을 끼우면 마크업이 깨진다. 채널이 다르면 '앞' 이 가리키는 자리도
+   * 다르다(규칙 자체는 한 벌이다 — messaging.ts prefixMessagingName).
+   *
+   * [빈 제목은 그대로 빈 제목이다] 접두 규칙이 빈 문자열을 건드리지 않으므로(prefixMessagingName)
+   * 아래 '(제목 미입력)' 안내가 접두에 가려지지 않는다.
+   */
+  const renderedSubject = applyVariableSamples(withMessagingName(subject));
 
   return (
     <MailFrame

@@ -3,6 +3,7 @@
 // 공용 CRUD 프레임워크(useCrudForm + FormPageShell)를 재사용한다. 필드: 프로모션명·기간·상태·대상·할인
 // (정률/정액)·최소주문금액·쿠폰 연동·설명. 검증 정본은 ./validation.
 import type { CSSProperties } from 'react';
+import { Link } from 'react-router-dom';
 
 import {
   controlStyle,
@@ -11,6 +12,7 @@ import {
   fieldLabelStyle,
   fieldStyle,
   FormField,
+  hintIdOf,
   SelectField,
   TextareaField,
   ToggleSwitch,
@@ -22,6 +24,11 @@ import type { PromotionFormValues } from './validation';
 import { DISCOUNT_TYPE_OPTIONS, PROMOTION_DESC_MAX, PROMOTION_TITLE_MAX } from './types';
 import type { Promotion, PromotionInput } from './types';
 import { CAMPAIGN_PHASE_OPTIONS } from '../_shared/campaign';
+import {
+  couponCatalog,
+  couponEditPath,
+  findCatalogCoupon,
+} from '../../../shared/domain/coupon-catalog';
 import { cssVar } from '@tds/ui';
 
 const RESOURCE = 'marketing-promotions';
@@ -36,6 +43,14 @@ const rowStyle: CSSProperties = {
   gap: cssVar('space.4'),
 };
 
+/** 선택한 쿠폰으로 건너뛰는 줄 — 선택 바로 아래에 붙는다 */
+const couponLinkStyle: CSSProperties = {
+  marginTop: 0,
+  marginBottom: 0,
+  fontSize: cssVar('typography.label.md.font-size'),
+  lineHeight: cssVar('typography.label.md.line-height'),
+};
+
 const EMPTY: PromotionFormValues = {
   title: '',
   startAt: '',
@@ -46,7 +61,7 @@ const EMPTY: PromotionFormValues = {
   discountValue: '10',
   minOrderAmount: '0',
   couponLinked: false,
-  couponCode: '',
+  couponId: '',
   description: '',
 };
 
@@ -55,7 +70,21 @@ const digitsToNumber = (raw: string): number => {
   return digits === '' ? 0 : Number(digits);
 };
 
+/**
+ * 저장 시점의 쿠폰명을 카탈로그에서 뜬다 — 목록이 조인 없이 그릴 표시용 사본이다(types.ts 주석).
+ * 카탈로그를 모르거나(미배선) 사라진 id 면 빈 문자열 — 이름을 지어내지 않는다.
+ */
+function couponNameOf(couponId: string): string {
+  if (couponId === '') return '';
+  const catalog = couponCatalog();
+  if (catalog === null) return '';
+  const coupon = findCatalogCoupon(catalog, couponId);
+  return coupon === null ? '' : coupon.name;
+}
+
 function toInput(values: PromotionFormValues): PromotionInput {
+  // 토글을 끄면 선택값을 버린다 — '연동 안 함 + 쿠폰 id 남음' 이라는 어긋난 상태를 만들지 않는다
+  const couponId = values.couponLinked ? values.couponId : '';
   return {
     title: values.title.trim(),
     startAt: values.startAt,
@@ -65,8 +94,8 @@ function toInput(values: PromotionFormValues): PromotionInput {
     discountType: values.discountType,
     discountValue: digitsToNumber(values.discountValue),
     minOrderAmount: digitsToNumber(values.minOrderAmount),
-    couponLinked: values.couponLinked,
-    couponCode: values.couponLinked ? values.couponCode.trim() : '',
+    couponId,
+    couponName: couponNameOf(couponId),
     description: values.description.trim(),
   };
 }
@@ -81,8 +110,9 @@ function toValues(promotion: Promotion): PromotionFormValues {
     discountType: promotion.discountType,
     discountValue: String(promotion.discountValue),
     minOrderAmount: String(promotion.minOrderAmount),
-    couponLinked: promotion.couponLinked,
-    couponCode: promotion.couponCode,
+    // 연동 여부는 저장하지 않는다 — id 가 있으면 연동된 것이다(types.ts 의 hasLinkedCoupon)
+    couponLinked: promotion.couponId !== '',
+    couponId: promotion.couponId,
     description: promotion.description,
   };
 }
@@ -123,6 +153,9 @@ export default function PromotionFormPage() {
   const endAt = watch('endAt');
   const discountType = watch('discountType');
   const couponLinked = watch('couponLinked');
+  const couponId = watch('couponId');
+  // 선택 목록의 정본은 상품 관리 쿠폰이다 — 이 화면은 조회기가 주는 것만 그린다(null = 모른다)
+  const couponOptions = couponCatalog();
   const periodError = errors.startAt?.message ?? errors.endAt?.message;
 
   return (
@@ -257,28 +290,53 @@ export default function PromotionFormPage() {
           offLabel="미연동"
         />
       </div>
-      {couponLinked && (
-        <FormField
-          htmlFor="promo-coupon"
-          label="연동 쿠폰코드"
-          required
-          error={errors.couponCode?.message}
-          hint="상품 관리 쿠폰과 연결됩니다."
-        >
-          <input
-            id="promo-coupon"
-            type="text"
-            className="tds-ui-input tds-ui-focusable"
-            style={controlStyle(errors.couponCode !== undefined)}
-            placeholder="예: SUMMER20"
-            disabled={disabled}
-            aria-invalid={errors.couponCode !== undefined}
-            aria-describedby={
-              errors.couponCode !== undefined ? errorIdOf('promo-coupon') : undefined
-            }
-            {...register('couponCode')}
-          />
-        </FormField>
+      {couponLinked &&
+        // 카탈로그를 모르면(조회기 미배선) 빈 선택 목록을 그리지 않는다 — '고를 쿠폰이 없다' 는
+        // 완결된 문장이 되어 배선 사고를 데이터 사고로 읽게 만든다(coupon-catalog.ts 머리말).
+        (couponOptions === null ? (
+          <FormField
+            htmlFor="promo-coupon"
+            label="연동 쿠폰"
+            required
+            error="쿠폰 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."
+          >
+            <SelectField id="promo-coupon" disabled isInvalid>
+              <option value="">쿠폰 목록을 불러오지 못했습니다</option>
+            </SelectField>
+          </FormField>
+        ) : (
+          <FormField
+            htmlFor="promo-coupon"
+            label="연동 쿠폰"
+            required
+            error={errors.couponId?.message}
+            hint="상품 관리에 등록된 쿠폰만 고를 수 있습니다."
+          >
+            <SelectField
+              id="promo-coupon"
+              disabled={disabled}
+              isInvalid={errors.couponId !== undefined}
+              aria-describedby={
+                errors.couponId !== undefined ? errorIdOf('promo-coupon') : hintIdOf('promo-coupon')
+              }
+              {...register('couponId')}
+            >
+              <option value="">쿠폰을 선택하세요</option>
+              {couponOptions.map((coupon) => (
+                <option key={coupon.id} value={coupon.id}>
+                  {`${coupon.name} · ${coupon.code} · ${coupon.benefitLabel}`}
+                </option>
+              ))}
+            </SelectField>
+          </FormField>
+        ))}
+      {couponLinked && couponId !== '' && (
+        <p style={couponLinkStyle}>
+          {/* 참조는 건너갈 수 있어야 참조다 — 자유 텍스트였을 때는 여기서 갈 곳이 없었다 */}
+          <Link to={couponEditPath(couponId)} className="tds-ui-link tds-ui-focusable">
+            연동한 쿠폰 상세 보기
+          </Link>
+        </p>
       )}
 
       <TextareaField

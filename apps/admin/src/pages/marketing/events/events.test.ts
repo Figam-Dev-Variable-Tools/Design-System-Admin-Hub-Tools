@@ -1,7 +1,7 @@
 // 이벤트 회귀 테스트 — 필터·검색·정렬(순수) + 폼 검증(기간·혜택·배너)
 import { describe, expect, it } from 'vitest';
 
-import { filterEvents, searchEvents, sortEvents, toEventInput } from './types';
+import { filterEvents, hasLinkedBanner, searchEvents, sortEvents, toEventInput } from './types';
 import type { MarketingEvent } from './types';
 import { eventSchema } from './validation';
 import type { EventFormValues } from './validation';
@@ -15,8 +15,8 @@ function eventOf(overrides: Partial<MarketingEvent> & { id: string }): Marketing
     target: '전체 회원',
     benefitType: 'none',
     benefitDetail: '',
-    bannerLinked: false,
-    bannerLabel: '',
+    bannerId: '',
+    bannerTitle: '',
     description: '',
     ...overrides,
   };
@@ -40,6 +40,17 @@ describe('필터·검색·정렬·변환(순수)', () => {
   it('toEventInput 은 id 를 뺀다', () => {
     expect(toEventInput(eventOf({ id: 'a' }))).not.toHaveProperty('id');
   });
+  // [회귀] 연동 여부가 bannerLinked 불리언으로 따로 저장되던 시절에는 '연동함 + 배너명 없음' 이라는
+  // 어긋난 상태가 만들어졌다. 이제 판정의 정본은 참조 하나다.
+  it('연동 여부는 bannerId 하나에서 파생한다', () => {
+    expect(hasLinkedBanner(eventOf({ id: 'a', bannerId: 'BN-002' }))).toBe(true);
+    expect(hasLinkedBanner(eventOf({ id: 'b', bannerId: '' }))).toBe(false);
+  });
+  it('표시용 배너명이 비어도 참조는 남는다 — 링크는 id 로 건다', () => {
+    const event = eventOf({ id: 'a', bannerId: 'BN-007', bannerTitle: '' });
+    expect(hasLinkedBanner(event)).toBe(true);
+    expect(toEventInput(event).bannerId).toBe('BN-007');
+  });
 });
 
 function valuesOf(overrides: Partial<EventFormValues> = {}): EventFormValues {
@@ -52,7 +63,7 @@ function valuesOf(overrides: Partial<EventFormValues> = {}): EventFormValues {
     benefitType: 'none',
     benefitDetail: '',
     bannerLinked: false,
-    bannerLabel: '',
+    bannerId: '',
     description: '',
     ...overrides,
   };
@@ -81,10 +92,15 @@ describe('eventSchema — 폼 검증', () => {
       messageFor(valuesOf({ benefitType: 'coupon', benefitDetail: '' }), 'benefitDetail'),
     ).toContain('혜택');
   });
-  it('배너 연동인데 배너명이 없으면 막는다', () => {
-    expect(messageFor(valuesOf({ bannerLinked: true, bannerLabel: '' }), 'bannerLabel')).toContain(
+  it('배너 연동인데 선택이 없으면 막는다', () => {
+    expect(messageFor(valuesOf({ bannerLinked: true, bannerId: '' }), 'bannerId')).toContain(
       '배너',
     );
+  });
+  it('배너를 고르면 통과한다 — 값은 카탈로그의 id 다', () => {
+    expect(
+      eventSchema.safeParse(valuesOf({ bannerLinked: true, bannerId: 'BN-002' })).success,
+    ).toBe(true);
   });
   // [회귀] 여기 있던 사본 isRealDate 는 형식만 보고 실재 여부를 보지 않아 2026-02-31 을
   // 통과시켰다(Date 가 3/3 으로 굴린 뒤 !Number.isNaN 이 참). 정본 isCalendarDate 로 수렴해 막는다.

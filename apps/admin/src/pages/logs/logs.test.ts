@@ -15,6 +15,7 @@ import { dayCount, formatDate } from '../../shared/format';
 import * as adminSource from './admin/data-source';
 import { adminLogSpec, toCsv as adminToCsv } from './admin/data-source';
 import { ADMIN_LOGS } from './admin/fixtures';
+import { adminLogActorPath, adminLogTargetPath } from './admin/types';
 import * as apiSource from './api/data-source';
 import { apiLogSpec } from './api/data-source';
 import { API_LOGS } from './api/fixtures';
@@ -596,5 +597,52 @@ describe('toCsv — 내보내기', () => {
       { ...(entry ?? ADMIN_LOGS[0] ?? ({} as never)), targetLabel: '가, 나' },
     ]);
     expect(csv).toContain('"가, 나"');
+  });
+});
+
+/* ── 로그에서 화면으로 (id 해석) ─────────────────────────────────────────── */
+
+describe('adminLogActorPath / adminLogTargetPath — 감사의 다음 한 걸음', () => {
+  it('행위자 id 가 있으면 운영자 상세 경로를 만든다', () => {
+    expect(adminLogActorPath({ actorId: 'A-00001' })).toBe('/users/admins/A-00001');
+  });
+
+  it('행위자 id 가 없으면 null 이다 — 옛 기록은 링크 대신 글자로 남는다', () => {
+    expect(adminLogActorPath({ actorId: null })).toBeNull();
+  });
+
+  it('대상 유형별로 서로 다른 화면을 가리킨다', () => {
+    expect(adminLogTargetPath({ targetType: '회원', targetId: 'M-00042' })).toBe(
+      '/users/members/M-00042',
+    );
+    expect(adminLogTargetPath({ targetType: '관리자 계정', targetId: 'A-00004' })).toBe(
+      '/users/admins/A-00004',
+    );
+    expect(adminLogTargetPath({ targetType: '공지사항', targetId: 'NT-003' })).toBe(
+      '/content/notices/NT-003',
+    );
+  });
+
+  it("'역할' 은 단건 상세가 없으므로 권한 관리 화면으로 보낸다 (없는 경로를 지어내지 않는다)", () => {
+    expect(adminLogTargetPath({ targetType: '역할', targetId: 'role-viewer' })).toBe(
+      '/users/roles',
+    );
+  });
+
+  it('모르는 대상 유형은 null 이다 — 첫 항목으로 흘러가 엉뚱한 화면을 열지 않는다', () => {
+    expect(adminLogTargetPath({ targetType: '쿠폰', targetId: 'CP-1' })).toBeNull();
+  });
+
+  it('대상 id 가 없으면 null 이다 — 목록 반출처럼 가리킬 단건이 없는 사건이 있다', () => {
+    expect(adminLogTargetPath({ targetType: '회원 목록', targetId: null })).toBeNull();
+  });
+
+  it('픽스처의 모든 행위자는 운영자 명부의 id 형식을 가진다', () => {
+    const wrong = ADMIN_LOGS.filter((entry) => !/^A-\d{5}$/.test(entry.actorId ?? ''));
+    expect(wrong).toEqual([]);
+  });
+
+  it('픽스처에는 **id 가 없는 행도 있다** — 링크 없는 경로가 실제로 그려지는지 확인한다', () => {
+    expect(ADMIN_LOGS.some((entry) => entry.targetId === null)).toBe(true);
   });
 });

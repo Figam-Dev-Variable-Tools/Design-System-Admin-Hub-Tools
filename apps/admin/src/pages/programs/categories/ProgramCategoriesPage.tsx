@@ -28,7 +28,13 @@ import {
   useToast,
 } from '../../../shared/ui';
 import type { FilterOption } from '../../../shared/ui';
-import { parseFilter, useCrudDelete, useCrudListQuery, useListState } from '../../../shared/crud';
+import {
+  DetailCellLink,
+  parseFilter,
+  useCrudDelete,
+  useCrudListQuery,
+  useListState,
+} from '../../../shared/crud';
 import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
 import { PROGRAM_CATEGORY_RESOURCE, programCategoryAdapter } from '../data-source';
 import { ProgramCategoryFormModal } from './components/ProgramCategoryFormModal';
@@ -172,6 +178,9 @@ const disclosureSpacerStyle: CSSProperties = {
   flexShrink: 0,
 };
 
+/** 사용 건수 배지가 여는 목록 — 그 카테고리로 이미 걸러진 프로그램 목록 */
+const PROGRAM_LIST_PATH = '/programs';
+
 type ModalState =
   | { kind: 'closed' }
   | { kind: 'create'; parentId: string | null }
@@ -232,7 +241,21 @@ function CategoryRow({
           <span aria-hidden="true" style={disclosureSpacerStyle} />
         )}
         <span style={labelTextStyle}>{category.label}</span>
-        <StatusBadge tone={inUse ? 'info' : 'neutral'} label={usage} />
+        {/* 사용 건수는 **삭제를 막는 근거**다 — 그 근거를 확인할 길이 같은 자리에 있어야 한다.
+            프로그램 목록의 카테고리 필터는 2Depth 를 롤업하므로(../types.ts) 대분류를 열면 그
+            아래 중분류까지 함께 보인다 — 배지 숫자(직접 배정 건수)보다 넓을 수 있고, 그것이 맞다:
+            운영자가 알아야 하는 것은 '이 갈래 전체가 무엇을 쓰고 있나' 이기 때문이다.
+            미사용(0건)은 링크로 만들지 않는다 — 열어 봐야 빈 목록이다. */}
+        {inUse ? (
+          <DetailCellLink
+            to={`${PROGRAM_LIST_PATH}?category=${encodeURIComponent(category.id)}`}
+            ariaLabel={`'${category.label}' 카테고리를 쓰는 프로그램 보기 (${usage})`}
+          >
+            <StatusBadge tone="info" label={usage} />
+          </DetailCellLink>
+        ) : (
+          <StatusBadge tone="neutral" label={usage} />
+        )}
         {category.hasChildren && (
           <StatusBadge tone="neutral" label={`하위 ${String(childCount)}개`} />
         )}
@@ -489,8 +512,9 @@ export default function ProgramCategoriesPage() {
               </ul>
             )}
             <p style={hintStyle}>
-              사용 중인 카테고리는 삭제할 수 없습니다 — 먼저 그 프로그램들의 카테고리를 바꾸거나
-              삭제하세요.
+              사용 중인 카테고리는 삭제할 수 없습니다 — 건수 배지를 누르면 그 카테고리로 걸러진
+              프로그램 목록이 열립니다(대분류는 아래 중분류까지 함께 보입니다). 거기서 카테고리를
+              바꾸거나 삭제하세요.
             </p>
           </Card>
         )}

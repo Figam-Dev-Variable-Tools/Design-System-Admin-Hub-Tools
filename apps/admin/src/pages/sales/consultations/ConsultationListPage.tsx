@@ -20,6 +20,7 @@ import {
   type CrudColumn,
   type RowTarget,
 } from '../../../shared/crud';
+import { AccountLink } from '../_shared/AccountLink';
 import { consultationAdapter } from './data-source';
 import {
   CONSULT_FILTER_ALL,
@@ -60,7 +61,7 @@ const ROW_TARGET: RowTarget<Consultation> = {
    DetailCellLink 로 감싼다: 행 클릭은 마우스 전용이라(계약) 키보드 사용자는 이 링크로 상세에 닿는다. */
 const COLUMNS: readonly CrudColumn<Consultation>[] = [
   { header: '상담일시', nowrap: true, render: (item) => formatDateTime(item.consultedAt) },
-  { header: '거래처', render: (item) => item.accountName },
+  { header: '거래처', render: (item) => <AccountLink account={item} /> },
   {
     header: '유형',
     render: (item) => (

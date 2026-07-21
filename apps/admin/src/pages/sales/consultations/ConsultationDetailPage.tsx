@@ -3,7 +3,7 @@
 // 읽기 전용 상세 — 상담 정보 + 상담 내용 + 후속조치. 감사 이력이라 수정/삭제 없이 조회만 한다.
 import type { CSSProperties } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { formatDateTime } from '../../../shared/format';
 import {
@@ -16,11 +16,15 @@ import {
   dtStyle,
   fieldLabelStyle,
   Icon,
+  mutedTextStyle,
   pageTitleStyle,
   StatusBadge,
 } from '../../../shared/ui';
+import { AccountLink } from '../_shared/AccountLink';
 import { consultationAdapter } from './data-source';
 import {
+  CONSULT_NO_RELATION,
+  consultationRelatedLink,
   consultOutcomeLabel,
   consultOutcomeTone,
   consultTypeLabel,
@@ -90,6 +94,8 @@ export default function ConsultationDetailPage() {
     enabled: id !== undefined,
   });
   const consultation = detailQuery.data;
+  // 관련 링크는 순수 규칙이 푼다 — 화면은 '있으면 링크, 없으면 문구' 만 고른다.
+  const relatedLink = consultation === undefined ? null : consultationRelatedLink(consultation);
 
   if (detailQuery.error !== null) {
     return (
@@ -144,7 +150,9 @@ export default function ConsultationDetailPage() {
 
             <dl style={dlStyle}>
               <dt style={dtStyle}>거래처</dt>
-              <dd style={ddStyle}>{consultation.accountName}</dd>
+              <dd style={ddStyle}>
+                <AccountLink account={consultation} />
+              </dd>
               <dt style={dtStyle}>상담 대상자</dt>
               <dd style={ddStyle}>{consultation.contactPerson}</dd>
               <dt style={dtStyle}>상담일시</dt>
@@ -152,7 +160,18 @@ export default function ConsultationDetailPage() {
               <dt style={dtStyle}>상담 담당자</dt>
               <dd style={ddStyle}>{consultation.consultant}</dd>
               <dt style={dtStyle}>관련</dt>
-              <dd style={ddStyle}>{consultation.related === '' ? '—' : consultation.related}</dd>
+              <dd style={ddStyle}>
+                {/* 예전에는 '견적 Q-20260710-001' 이라는 **눌리지 않는 문장**이었다 — 주석은
+                    그것을 '링크' 라 불렀지만 그 견적으로 가려면 목록으로 나가 번호를 다시
+                    검색해야 했다. 이제 종류(relatedKind)와 id(relatedId)로 실제 경로를 만든다. */}
+                {relatedLink === null ? (
+                  <span style={mutedTextStyle}>{CONSULT_NO_RELATION}</span>
+                ) : (
+                  <Link to={relatedLink.to} className="tds-ui-link tds-ui-focusable">
+                    {relatedLink.label}
+                  </Link>
+                )}
+              </dd>
             </dl>
           </Card>
 

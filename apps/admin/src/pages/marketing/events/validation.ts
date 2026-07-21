@@ -1,6 +1,6 @@
 // 이벤트 폼 검증 규칙 (검증의 정본은 이 zod 스키마다)
 //
-// 기간 역전·혜택 상세 누락·배너 연동 시 배너명 누락을 경계값으로 막는다.
+// 기간 역전·혜택 상세 누락·배너 연동 시 선택 누락을 경계값으로 막는다.
 import * as z from 'zod/mini';
 
 import { requiredText } from '../../../shared/crud';
@@ -17,8 +17,9 @@ export const eventSchema = z
     target: requiredText('대상', 60),
     benefitType: z.enum(['none', 'coupon', 'points']),
     benefitDetail: z.string(),
+    // 폼 전용 스위치 — 저장되는 값이 아니다(연동 여부의 정본은 bannerId 가 비었는가다)
     bannerLinked: z.boolean(),
-    bannerLabel: z.string(),
+    bannerId: z.string(),
     description: z.string().check(
       z.refine((value) => value.trim().length <= EVENT_DESC_MAX, {
         error: `설명은 ${String(EVENT_DESC_MAX)}자를 넘을 수 없습니다.`,
@@ -59,13 +60,14 @@ export const eventSchema = z
     }
   })
   .check((ctx) => {
-    // 배너 연동 — 연동 시 배너명 필수.
-    if (ctx.value.bannerLinked && ctx.value.bannerLabel.trim() === '') {
+    // 배너 연동 — 연동 시 배너 선택 필수. 값은 카탈로그의 id 라 '존재하지 않는 배너' 는 여기까지
+    // 오지 않는다(선택 목록 자체가 카탈로그에서 만들어진다).
+    if (ctx.value.bannerLinked && ctx.value.bannerId.trim() === '') {
       ctx.issues.push({
         code: 'custom',
-        input: ctx.value.bannerLabel,
-        path: ['bannerLabel'],
-        message: '연동할 배너명을 입력하세요.',
+        input: ctx.value.bannerId,
+        path: ['bannerId'],
+        message: '연동할 배너를 선택하세요.',
       });
     }
   });

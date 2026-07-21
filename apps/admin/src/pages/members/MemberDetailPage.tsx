@@ -11,12 +11,12 @@
 // 알림 발송·회원 삭제·비밀번호 변경·적립금 조정·내역 삭제·메모 저장은 실패할 수 있다.
 // 성공은 성공 톤, 실패는 **위험 톤 배너 + 복구 경로(다시 시도)** 또는 다이얼로그/폼 안의 안내로 떨어진다.
 //
-// [상세 재사용 — /users/admins/:id]
-// 관리자(운영진) 상세는 이 화면을 **그대로 재사용**한다. 화면을 복제하지 않는다.
-// 컨텍스트에 따라 달라지는 것은 딱 두 가지뿐이라 props 로 주입받는다:
-//   ① 목록 복귀 경로(listPath)  ② 상세 조회 함수(fetchDetail)
-// 둘 다 기본값이 회원(members)이라 /users/members/:id 는 예전과 완전히 동일하게 동작한다.
-// 운영자 라우트는 App.tsx 에서 admins/data-source 의 fetchAdminDetail 을 주입한다.
+// [이 화면은 회원 상세 하나다 — 재사용 주입은 없다]
+// 예전 머리말은 '운영자 상세(/users/admins/:id)가 이 화면을 그대로 재사용한다' 고 적고,
+// 그 재사용을 위해 목록 경로(listPath)와 상세 조회 함수(fetchDetail)를 props 로 받았다.
+// **그 재사용은 이제 없다.** 운영자 상세는 자기 화면을 갖는다(pages/admins/AdminDetailPage.tsx).
+// 남아 있던 두 prop 은 넘기는 곳이 한 군데도 없어 언제나 기본값으로만 돌았다 —
+// 주입 가능한 척하는 상수였고, 다음 사람에게 '어딘가 다른 호출자가 있다' 고 거짓말을 했다.
 //
 // [데이터] 화면은 data-source.ts 하고만 대화한다.
 import { useRef, useState } from 'react';
@@ -27,6 +27,7 @@ import './members.css';
 import { isAbort } from '../../shared/async';
 import { Card as TdsCard, cssVar, Menu, Skeleton } from '@tds/ui';
 
+import { useRouteWritePermissions } from '../../shared/permissions/RequirePermission';
 import { Alert, Button, ConfirmDialog, useToast } from '../../shared/ui';
 import { ActivityCard } from './components/ActivityCard';
 import { ConsentCard } from './components/ConsentCard';
@@ -38,7 +39,6 @@ import { PointsCard } from './components/PointsCard';
 import { fetchMemberDetail } from './data-source';
 import { ArrowLeftIcon } from './icons';
 import { useDeleteMember, useMemberDetailQuery, useSendNotification } from './queries';
-import type { FetchDetail } from './queries';
 
 /** 기본 목록 경로 — 회원 상세의 '리스트로 돌아가기' */
 const LIST_PATH = '/users/members';
@@ -112,23 +112,27 @@ function LoadingSkeleton() {
   );
 }
 
-interface MemberDetailPageProps {
-  /** 목록 복귀 경로 — 기본은 회원 목록. /users/admins/:id 는 운영자 목록을 주입한다 */
-  readonly listPath?: string;
-  /** 상세 조회 함수 — 기본은 회원 상세. /users/admins/:id 는 fetchAdminDetail 을 주입한다 */
-  readonly fetchDetail?: FetchDetail;
-}
-
-export default function MemberDetailPage({
-  listPath = LIST_PATH,
-  fetchDetail = fetchMemberDetail,
-}: MemberDetailPageProps) {
+export default function MemberDetailPage() {
   const { id } = useParams<{ id: string }>();
   const memberId = id ?? '';
   const navigate = useNavigate();
   const toast = useToast();
 
-  // fetchDetail 은 라우트마다 고정된 함수다 — 캐시 키는 id + 컨텍스트(listPath)다.
+  /**
+   * [EXC-03] 쓰기 게이팅 — 삭제는 remove, 알림 발송·비밀번호 변경은 update.
+   *
+   * 이 화면은 회원 정보를 **읽기 전용**으로 보여 주는 곳이라 read 만 있으면 열려도 된다. 막아야
+   * 하는 것은 그 위에 얹힌 액션이다. 리소스는 라우트에서 파생되므로(route-resource.ts) 같은
+   * 컴포넌트가 /users/members/:id 에서 그 라우트의 권한으로 판정된다 — 화면이 자기 리소스를
+   * 이름으로 들고 있지 않아도 된다.
+   */
+  const { canUpdate, canRemove } = useRouteWritePermissions();
+
+  // 캐시 키의 컨텍스트 축은 **더 이상 갈리지 않는다.** 이 화면을 여는 라우트가 하나뿐이고
+  // 조회 함수도 하나뿐이라(위 머리말), 축은 언제나 같은 상수다. 그래도 키에서 빼지 않는 이유:
+  // 축을 없애려면 queries.ts 의 memberKeys.detail 서명을 바꿔야 하고, 그 파일은 이 화면만의
+  // 것이 아니다. 상수로 고정해 두면 '두 컨텍스트가 캐시를 공유한다' 는 옛 위험이 애초에
+  // 성립하지 않고(컨텍스트가 하나다), 키 모양은 그대로라 무효화 규칙도 건드리지 않는다.
   //
   // [STATE-01] 스켈레톤 조건은 `data === undefined` **하나뿐이다** (아래 본문 분기).
   //
@@ -139,7 +143,7 @@ export default function MemberDetailPage({
   // 30초 뒤 상세를 다시 열면 캐시된 데이터를 든 채(data 있음) 재조회가 돈다(isFetching true).
   // 그 순간 예전 조건은 **캐시가 이미 쥐고 있는 회원 카드를 스켈레톤으로 교체**했다 —
   // 캐시를 두고도 캐시의 이득(ADR-0008 §3.2)을 화면이 스스로 버린 셈이다.
-  const { data, error, refetch } = useMemberDetailQuery(memberId, listPath, fetchDetail);
+  const { data, error, refetch } = useMemberDetailQuery(memberId, LIST_PATH, fetchMemberDetail);
 
   const [changingPassword, setChangingPassword] = useState(false);
 
@@ -191,7 +195,7 @@ export default function MemberDetailPage({
           toast.success(
             data === undefined ? '회원을 삭제했습니다.' : `${data.nickname} 회원을 삭제했습니다.`,
           );
-          navigate(listPath, { replace: true });
+          navigate(LIST_PATH, { replace: true });
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
@@ -205,22 +209,27 @@ export default function MemberDetailPage({
   return (
     <div style={pageStyle}>
       <div style={topRowStyle}>
-        <Link to={listPath} style={backLinkStyle} className="tds-ui-link tds-ui-focusable">
+        <Link to={LIST_PATH} style={backLinkStyle} className="tds-ui-link tds-ui-focusable">
           <ArrowLeftIcon />
           리스트로 돌아가기
         </Link>
 
-        {data !== undefined && (
+        {/* 권한이 하나도 없으면 ⋯ 버튼 자체를 그리지 않는다 — 열어 봐야 빈 메뉴다 */}
+        {data !== undefined && (canUpdate || canRemove) && (
           <Menu
             label={`${data.nickname} 회원 액션`}
             items={[
-              { id: 'delete', label: '회원 삭제', danger: true },
-              {
-                id: 'notify',
-                // 발송 중에는 라벨로 진행을 알리고 재클릭을 막는다
-                label: notifying ? '발송 중…' : '알림 발송',
-                disabled: notifying,
-              },
+              ...(canRemove ? [{ id: 'delete', label: '회원 삭제', danger: true }] : []),
+              ...(canUpdate
+                ? [
+                    {
+                      id: 'notify',
+                      // 발송 중에는 라벨로 진행을 알리고 재클릭을 막는다
+                      label: notifying ? '발송 중…' : '알림 발송',
+                      disabled: notifying,
+                    },
+                  ]
+                : []),
             ]}
             onSelect={(id) => {
               if (id === 'delete') {
@@ -251,7 +260,7 @@ export default function MemberDetailPage({
               >
                 다시 시도
               </Button>
-              <Button variant="secondary" onClick={() => navigate(listPath)}>
+              <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
                 목록으로
               </Button>
             </span>
@@ -263,7 +272,11 @@ export default function MemberDetailPage({
         <div style={gridStyle}>
           {/* 좌측 — 회원이 제출한 정보 (전부 읽기 전용) */}
           <div style={columnStyle}>
-            <MemberInfoCard detail={data} onChangePassword={() => setChangingPassword(true)} />
+            {/* 비밀번호 변경은 회원 정보를 바꾸는 유일한 액션이다 — update 권한이 없으면 null */}
+            <MemberInfoCard
+              detail={data}
+              onChangePassword={canUpdate ? () => setChangingPassword(true) : null}
+            />
             <ConsentCard consents={data.consents} />
           </div>
 
@@ -274,9 +287,11 @@ export default function MemberDetailPage({
               memberId={data.id}
               initialPoints={data.points}
               initialHistory={data.pointHistory}
+              canUpdate={canUpdate}
+              canRemove={canRemove}
             />
             <CouponsCard coupons={data.coupons} />
-            <MemoCard memberId={data.id} initialMemo={data.memo} />
+            <MemoCard memberId={data.id} initialMemo={data.memo} canUpdate={canUpdate} />
           </div>
         </div>
       )}

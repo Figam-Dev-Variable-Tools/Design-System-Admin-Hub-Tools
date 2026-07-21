@@ -1,9 +1,14 @@
 // 마케팅/메시징 순수 규칙 회귀 테스트 — 바이트·SMS 판정·야간·광고요건·치환변수·발송상태
-import { describe, expect, it } from 'vitest';
+//   + 발신 표시 이름(사이트 기본 설정) 주입
+import { afterEach, describe, expect, it } from 'vitest';
 
 // 치환은 카탈로그가 배선된 뒤에만 일어난다 — 배선 전에는 '모른다' 라서 원문을 그대로 준다
 // (shared/domain/template-variables.ts 머리말). 그래서 이 테스트는 배선을 명시적으로 건다.
 import { wireDomains } from '../../../wiring';
+import {
+  registerSitePolicyLookup,
+  resetSitePolicyLookup,
+} from '../../../shared/domain/site-policy';
 import {
   applyVariableSamples,
   byteLengthOf,
@@ -18,10 +23,13 @@ import {
   isTemplateContentLocked,
   isVariableOnlyBody,
   meetsAdRequirements,
+  messagingNameOf,
+  prefixMessagingName,
   sendActionsFor,
   smsByteLimit,
   successRate,
   totalRecipients,
+  withMessagingName,
 } from './messaging';
 import type { Segment } from './messaging';
 
@@ -175,6 +183,89 @@ describe('심사에 걸린 템플릿 내용 잠금', () => {
     expect(isTemplateContentLocked('sms', 'approved')).toBe(false);
     expect(isTemplateContentLocked('email', 'approved')).toBe(false);
     expect(isTemplateContentLocked('sms', 'inspecting')).toBe(false);
+  });
+});
+
+/* ── 발신 표시 이름 (사이트 기본 설정 → 발송 본문/제목) ──────────────────────── */
+
+/** 배선을 흉내 낸다 — 진짜 배선(src/wiring.ts)이 하는 일과 계약이 같다 */
+function wireMessagingName(name: string): void {
+  registerSitePolicyLookup(() => ({ messagingName: name, keepSignedIn: false }));
+}
+
+describe('발신 표시 이름 — 순수 규칙(prefixMessagingName)', () => {
+  it('본문 앞에 `[이름] ` 을 붙인다 — 설정 화면이 약속한 바로 그 자리다', () => {
+    expect(prefixMessagingName('여름세일 안내', 'TDS 고객센터')).toBe(
+      '[TDS 고객센터] 여름세일 안내',
+    );
+  });
+
+  it('이름이 비면 원문 그대로 — 미배선과 미사용이 같은 결과로 수렴한다', () => {
+    expect(prefixMessagingName('여름세일 안내', '')).toBe('여름세일 안내');
+    expect(prefixMessagingName('여름세일 안내', '   ')).toBe('여름세일 안내');
+  });
+
+  it('본문이 비면 붙이지 않는다 — 아직 아무것도 안 쓴 칸에 접두만 뜨면 미리보기가 거짓말한다', () => {
+    expect(prefixMessagingName('', 'TDS 고객센터')).toBe('');
+    expect(prefixMessagingName('  ', 'TDS 고객센터')).toBe('  ');
+  });
+
+  /**
+   * 겹쳐 쌓이면 바이트만 먹다가 SMS 가 조용히 LMS 로 승격된다 — 화면에는 아무 사건도 없다.
+   * 템플릿 불러오기·저장된 초안 다시 열기가 실제로 이 경로를 밟는다.
+   */
+  it('이미 그 이름으로 시작하면 다시 붙이지 않는다', () => {
+    const once = prefixMessagingName('여름세일', 'TDS');
+    expect(prefixMessagingName(once, 'TDS')).toBe(once);
+  });
+
+  it('다른 이름의 대괄호는 접두로 보지 않는다 — 운영자가 적은 `[공지]` 는 본문이다', () => {
+    expect(prefixMessagingName('[공지] 점검', 'TDS')).toBe('[TDS] [공지] 점검');
+  });
+});
+
+describe('발신 표시 이름 — 설정 주입 결과(withMessagingName)', () => {
+  afterEach(() => {
+    resetSitePolicyLookup();
+  });
+
+  it('배선이 없으면 원문 그대로다 — 설정 화면이 없는 곳에서도 발송 폼은 돈다', () => {
+    resetSitePolicyLookup();
+    expect(messagingNameOf()).toBe('');
+    expect(withMessagingName('여름세일 안내')).toBe('여름세일 안내');
+  });
+
+  it('설정을 꽂으면 발송 본문에 그 이름이 나타난다', () => {
+    wireMessagingName('TDS 스페이스플래닝 고객센터');
+    expect(messagingNameOf()).toBe('TDS 스페이스플래닝 고객센터');
+    expect(withMessagingName('여름세일 안내')).toBe('[TDS 스페이스플래닝 고객센터] 여름세일 안내');
+  });
+
+  /**
+   * **이 테스트가 이 기능의 이유다.** 설정 화면이 전용 이름만 바이트로 세는 까닭은 그 이름이
+   * 90byte 예산을 먼저 먹기 때문인데, 발송 화면이 접두를 모르면 운영자는 SMS 로 보이는 문자를
+   * LMS 단가로 받아 든다. 접두를 포함해 세야 화면의 등급과 실제 등급이 같아진다.
+   */
+  it('접두가 90byte 경계를 앞당긴다 — 같은 본문이 SMS 에서 LMS 로 넘어간다', () => {
+    const body = '가'.repeat(40); // 80 byte — 접두가 없으면 SMS
+    expect(classifySms(byteLengthOf(body), false)).toBe('sms');
+
+    wireMessagingName('스페이스플래닝'); // '[스페이스플래닝] ' = 14 + 2 + 1 = 17 byte
+    const sendBody = withMessagingName(body);
+    expect(byteLengthOf(sendBody)).toBe(97);
+    expect(classifySms(byteLengthOf(sendBody), false)).toBe('lms');
+  });
+
+  it('빈 본문은 접두도 바이트도 얻지 않는다 — 보낼 것이 없으면 붙일 것도 없다', () => {
+    wireMessagingName('TDS');
+    expect(byteLengthOf(withMessagingName(''))).toBe(0);
+  });
+
+  it('조회기가 던져도 발송 화면은 멈추지 않는다 — 설정 쪽 사고가 여기로 번지지 않는다', () => {
+    registerSitePolicyLookup(() => {
+      throw new Error('설정 저장소 사고');
+    });
+    expect(withMessagingName('여름세일 안내')).toBe('여름세일 안내');
   });
 });
 

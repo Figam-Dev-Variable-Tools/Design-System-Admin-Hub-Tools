@@ -1,7 +1,8 @@
 // CustomerFaqPage — 고객노출 FAQ 큐레이션 (라우트: /support/faq)
 //
 // [콘텐츠 FAQ 와의 관계] 작성·관리(등록/수정/삭제·카테고리)는 콘텐츠 관리 FAQ 소관이라 여기엔 없다.
-// 이 화면은 발행된 FAQ 를 고객센터에서 어떻게 보여줄지만 큐레이션한다: 표시 순서(DnD)·노출·BEST 고정.
+// 이 화면의 행은 **콘텐츠 관리에서 노출 중인 FAQ 를 그대로 가져온 것**이고(data-source), 여기서
+// 얹는 것은 고객센터 노출·BEST 고정·표시 순서(DnD)뿐이다. 질문·카테고리는 읽기만 한다.
 // 작성이 필요하면 상단 안내에서 콘텐츠 관리로 이동한다(페이지 간 직접 import 없이 라우트 링크로 연결).
 import { useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
@@ -198,8 +199,9 @@ export default function CustomerFaqPage() {
       <Alert tone="info">
         <div style={noticeStyle}>
           <span>
-            FAQ 작성·수정·삭제와 카테고리 관리는 콘텐츠 관리에서 합니다. 이 화면은 고객센터 노출
-            순서·노출 여부·BEST 고정만 큐레이션합니다.
+            콘텐츠 관리에서 노출 중인 FAQ 가 이 목록에 그대로 올라옵니다. 질문·답변·카테고리 수정과
+            등록·삭제는 콘텐츠 관리에서 하고, 이 화면은 고객센터 노출 순서·노출 여부·BEST 고정만
+            큐레이션합니다.
           </span>
           <Link to="/content/faq" className="tds-ui-link tds-ui-focusable">
             콘텐츠 관리 FAQ 로 이동

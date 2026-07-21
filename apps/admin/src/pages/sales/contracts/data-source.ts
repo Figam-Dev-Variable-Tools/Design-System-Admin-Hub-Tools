@@ -2,6 +2,9 @@
 //
 // [백엔드 연동 지점] 프레임워크 createCrudAdapter 에 시드를 넣는다. 실제 연동 시 // TODO(backend)
 // 로 어댑터 본문만 교체하고 화면은 그대로 둔다.
+//
+// [거래처 참조] 시드의 accountId 는 accounts/data-source 의 실제 거래처 id(acc-1~3)를 가리킨다 —
+// 이름만 같고 연결이 없는 행이 하나라도 있으면 거래처 상세의 역방향 조회가 조용히 비어 보인다.
 import { createCrudAdapter } from '../../../shared/crud';
 import { sortContracts } from './types';
 import type { Contract, ContractInput } from './types';
@@ -10,6 +13,7 @@ const CONTRACT_SEED: readonly Contract[] = [
   {
     id: 'ct-1',
     title: '2026년 SaaS 연간 이용계약',
+    accountId: 'acc-1',
     accountName: '(주)한빛소프트웨어',
     contractType: 'license',
     startAt: '2026-01-01',
@@ -28,6 +32,7 @@ const CONTRACT_SEED: readonly Contract[] = [
   {
     id: 'ct-2',
     title: '전산시스템 유지보수 계약',
+    accountId: 'acc-2',
     accountName: '대성물산 주식회사',
     contractType: 'maintenance',
     startAt: '2026-03-01',
@@ -46,6 +51,7 @@ const CONTRACT_SEED: readonly Contract[] = [
   {
     id: 'ct-3',
     title: '용역 개발 위탁계약(1차)',
+    accountId: 'acc-3',
     accountName: '미래테크놀로지',
     contractType: 'service',
     startAt: '2025-09-01',

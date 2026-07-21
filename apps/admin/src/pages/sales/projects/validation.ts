@@ -30,6 +30,8 @@ const percentString = (label: string) =>
 export const projectSchema = z
   .object({
     name: requiredText('프로젝트명', PROJECT_NAME_MAX),
+    // 거래처 마스터 참조 — 빈 문자열(미등록)을 허용하는 이유는 contracts/validation 과 같다.
+    accountId: z.string(),
     accountName: requiredText('거래처', 60),
     stage: z.enum(['lead', 'qualified', 'proposal', 'negotiation', 'won', 'lost']),
     probability: percentString('확률'),

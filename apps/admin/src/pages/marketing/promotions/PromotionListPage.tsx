@@ -9,7 +9,7 @@
 // 링크로 공유된다. 검색은 IME 안전이다 (COMP-10) — '봄맞이' 를 치는 도중 자모마다 조회가 나가지 않는다.
 import { useEffect, useMemo } from 'react';
 import type { CSSProperties } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { formatDate } from '../../../shared/format';
 import { Button, Icon, SearchField, SelectField, StatusBadge } from '../../../shared/ui';
@@ -17,8 +17,15 @@ import { CrudListShell, parseFilter, useCrudList, useListState } from '../../../
 import type { CrudColumn } from '../../../shared/crud';
 import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
 import { promotionAdapter } from './data-source';
-import { discountLabel, filterPromotions, PROMOTION_FILTER_ALL, searchPromotions } from './types';
+import {
+  discountLabel,
+  filterPromotions,
+  hasLinkedCoupon,
+  PROMOTION_FILTER_ALL,
+  searchPromotions,
+} from './types';
 import type { Promotion, PromotionInput, PromotionPhaseFilter } from './types';
+import { couponEditPath } from '../../../shared/domain/coupon-catalog';
 import {
   CAMPAIGN_PHASE_OPTIONS,
   campaignPhaseLabel,
@@ -66,6 +73,9 @@ const periodStyle: CSSProperties = {
 };
 
 const numStyle: CSSProperties = { fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' };
+
+/** 값 없음('미연동') — 링크와 시각적으로 구분한다 */
+const mutedStyle: CSSProperties = { color: cssVar('color.text.muted') };
 
 const statusCellStyle: CSSProperties = {
   display: 'inline-flex',
@@ -121,6 +131,18 @@ export default function PromotionListPage() {
       render: (item) => (
         <span style={numStyle}>{discountLabel(item.discountType, item.discountValue)}</span>
       ),
+    },
+    {
+      header: '연동 쿠폰',
+      render: (item) => {
+        if (!hasLinkedCoupon(item)) return <span style={mutedStyle}>미연동</span>;
+        // 표시는 저장된 사본(couponName), 이동은 언제나 id 로 — 이름이 비어도 링크는 살아 있다
+        return (
+          <Link to={couponEditPath(item.couponId)} className="tds-ui-link tds-ui-focusable">
+            {item.couponName === '' ? item.couponId : item.couponName}
+          </Link>
+        );
+      },
     },
     {
       header: '상태',

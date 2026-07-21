@@ -40,7 +40,7 @@ import {
   patchAdmin,
   removeAdmin,
 } from './fixtures';
-import { GROUP_ALL, PAGE_SIZE } from './types';
+import { GROUP_ALL, PAGE_SIZE, ROLE_ALL } from './types';
 import type {
   AdminDraft,
   AdminGroup,
@@ -108,6 +108,14 @@ function failIfRequested(op: FailureOp): void {
 export interface AdminQuery {
   /** 그룹 id 또는 GROUP_ALL */
   readonly groupId: string;
+  /**
+   * 역할 id 또는 ROLE_ALL.
+   *
+   * [왜 화면에서 거르지 않고 조회 조건인가] 목록은 서버 페이지네이션이다(PAGE_SIZE 단위로 잘라
+   * 돌려준다). 받아 온 10건에서 역할을 거르면 '1페이지에 3건, 2페이지에 7건' 처럼 페이지마다
+   * 건수가 들쭉날쭉해지고 total 도 거짓이 된다. 거르는 일은 자르기 **전에** 일어나야 한다.
+   */
+  readonly roleId: string;
   /** 닉네임·계정 검색어 */
   readonly keyword: string;
   readonly page: number;
@@ -123,11 +131,12 @@ function countByGroup(admins: readonly AdminUser[]): AdminGroupCounts {
   return counts;
 }
 
-/** 그룹 + 닉네임/계정 키워드 — 서버 쿼리로 대체될 자리 */
+/** 그룹 + 역할 + 닉네임/계정 키워드 — 서버 쿼리로 대체될 자리 */
 function applyQuery(query: AdminQuery): readonly AdminUser[] {
   const keyword = query.keyword.trim().toLowerCase();
   return listAdmins().filter((admin) => {
     if (query.groupId !== GROUP_ALL && admin.groupId !== query.groupId) return false;
+    if (query.roleId !== ROLE_ALL && admin.roleId !== query.roleId) return false;
     if (keyword === '') return true;
     return (
       admin.nickname.toLowerCase().includes(keyword) ||

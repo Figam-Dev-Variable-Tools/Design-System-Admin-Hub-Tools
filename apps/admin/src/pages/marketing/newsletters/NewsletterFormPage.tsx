@@ -32,7 +32,12 @@ import type { NewsletterIssue, NewsletterIssueInput } from './types';
 import { SegmentPicker } from '../_shared/SegmentPicker';
 import { VariableInsertBar } from '../_shared/VariableInsertBar';
 import { EmailPreview } from '../_shared/EmailPreview';
-import { listSegments, listSenderEmails, listSendableTemplates } from '../_shared/store';
+import { listSegments, listSenderEmails } from '../_shared/store';
+// 발송 화면이 고르는 템플릿은 이제 **메시지 템플릿**(발행 상태 모델)이다 — 레거시 발송 템플릿
+// (알림톡 심사 모델)이 아니다. SMS·이메일 발송이 이미 같은 목록을 보고 있고, 뉴스레터만 옛 배열을
+// 읽는 동안에는 운영자가 템플릿 화면에서 만든 것이 이 셀렉트에 영영 뜨지 않았다.
+import { selectableTemplates } from '../message-templates/store';
+import { renderBlocksToPlainText } from '../message-templates/render-html';
 import { totalRecipients } from '../_shared/messaging';
 import { cssVar } from '@tds/ui';
 
@@ -175,7 +180,7 @@ export default function NewsletterFormPage() {
 
   const segments = useMemo(() => listSegments(), []);
   const senders = useMemo(() => listSenderEmails(), []);
-  const templates = useMemo(() => listSendableTemplates('email'), []);
+  const templates = useMemo(() => selectableTemplates('email'), []);
 
   const senderId = watch('senderId');
   const segmentIds = watch('segmentIds');
@@ -189,14 +194,29 @@ export default function NewsletterFormPage() {
   const insertVariable = (token: string) =>
     setValue('body', `${body}${token}`, { shouldDirty: true, shouldValidate: true });
 
+  /**
+   * 템플릿 적용 — 제목과 본문을 옮긴다.
+   *
+   * [왜 HTML 이 아니라 평문인가] 이메일 템플릿의 본문은 **블록 목록**이고 이 폼의 본문은 textarea 다.
+   * 블록을 HTML 로 만들어 넣으면 운영자 화면에 `<h2>…</h2>` 가 글자 그대로 보이고, 그대로 저장하면
+   * 수신자에게도 태그가 나간다. 그래서 블록 모델에서 직접 평문을 만든다(이메일 발송 폼과 같은 규칙 —
+   * render-html.ts 머리말).
+   *
+   * [왜 제목은 비어 있을 때만 채우나] 뉴스레터의 제목은 '호(issue)' 의 이름이라 운영자가 먼저 적어
+   * 두는 경우가 많다. 템플릿을 고른다고 그 이름을 덮으면 방금 지은 호수(號數)가 사라진다 —
+   * 이 화면이 원래 갖고 있던 배려라 데이터 출처만 바꾸고 그대로 둔다.
+   */
   const applyTemplate = (id: string) => {
     setTemplatePick(id);
     if (id === NO_TEMPLATE) return;
     const picked = templates.find((template) => template.id === id);
-    if (picked !== undefined) {
+    if (picked !== undefined && picked.content.kind === 'email') {
       if (title.trim() === '')
-        setValue('title', picked.title, { shouldDirty: true, shouldValidate: true });
-      setValue('body', picked.body, { shouldDirty: true, shouldValidate: true });
+        setValue('title', picked.content.subject, { shouldDirty: true, shouldValidate: true });
+      setValue('body', renderBlocksToPlainText(picked.content.blocks), {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
     }
   };
 

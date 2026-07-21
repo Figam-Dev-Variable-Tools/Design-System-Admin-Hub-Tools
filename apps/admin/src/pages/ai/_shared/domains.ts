@@ -13,11 +13,28 @@
 //
 // [백엔드 없음] 행(row)의 출처는 픽스처다. 실제 조회로 바뀌는 지점은 data-source.ts 의
 // // TODO(backend) 주석이며, 이 파일의 선언(별칭·필드·능력)은 그때도 그대로 쓰인다.
+//
+// ─────────────────────────────────────────────────────────────────────────────
+// [값 목록은 여기서 손으로 적지 않는다 — 손복사본이었던 시절]
+// 처리상태 5종(접수·배정·처리중·답변완료·종결)과 우선순위 4종을 이 파일이 그대로 다시 타이핑해
+// 갖고 있었다. 정본은 고객센터가 갖는다(pages/support/_shared/domain.ts 의 TICKET_STATUS_OPTIONS ·
+// TICKET_PRIORITY_OPTIONS). 두 벌이 있으면 고객센터가 상태를 하나 늘려도 AI 는 모르고, 라벨을
+// 고치면 사용자가 화면에서 읽은 말로는 질의가 걸리지 않는다 — **조용히** 어긋난다.
+//
+// 그렇다고 여기서 `pages/support` 를 import 할 수는 없다(pages/ai → pages/support 는 축1 위반).
+// 그래서 자리만 만든다: 이 파일은 필드가 **무엇으로 걸리는지**(축·부르는 말·별칭)를 선언하고,
+// 값 목록(id·라벨)은 각 도메인의 `*_OPTIONS` 에서 `src/wiring-ai.ts` 가 꽂는다.
+//
+// [무엇이 여기 남는가 — 별칭] '중지'·'브이아이피' 같은 말은 **사용자가 이 화면에서 쓰는 어휘**지
+// 고객센터·상품 도메인의 사실이 아니다. 그래서 라벨은 도메인이, 별칭은 여기가 갖는다.
+// ─────────────────────────────────────────────────────────────────────────────
+import { TIER_LABEL } from '../../../shared/domain/member';
+import type { MemberTier } from '../../../shared/domain/member';
 
 /* ── 도메인 ──────────────────────────────────────────────────────────────── */
 
 /** 질의 가능한 도메인 — 새 도메인을 붙이면 여기와 DOMAINS 에 한 줄씩 는다 */
-export type DomainId = 'members' | 'products' | 'tickets';
+export type DomainId = 'members' | 'products' | 'tickets' | 'programs';
 
 /**
  * 값 축 — 필드가 어떤 조건으로 걸릴 수 있는가.
@@ -41,7 +58,10 @@ export interface DomainField {
   readonly axes: readonly FieldAxis[];
   /**
    * equality 축 필드의 허용 값 — 라벨로 찾고 id 로 건다.
-   * presence/period 전용 필드는 빈 배열이다.
+   *
+   * **비어 있음은 두 가지 뜻이다**: presence/period 전용 필드이거나, 값 목록의 정본이 다른
+   * 도메인에 있어 배선(`src/wiring-ai.ts`)이 꽂아 줄 때까지 아직 '모른다' 이거나.
+   * 모르는 동안에는 그 필드로 값 조건이 걸리지 않는다 — 없는 값을 지어내 거는 것보다 낫다.
    */
   readonly values: readonly DomainFieldValue[];
 }
@@ -71,13 +91,96 @@ export interface DomainDef {
   readonly defaultPeriodFieldId: string | null;
 }
 
+/* ── 값 목록 주입 ────────────────────────────────────────────────────────── */
+
+/**
+ * 도메인이 소유한 선택지 한 벌 — 각 도메인의 `*_OPTIONS` 가 그대로 이 모양이다
+ * (TICKET_STATUS_OPTIONS · SALE_STATUS_OPTIONS · PROGRAM_STATUS_OPTIONS …).
+ * 배선이 남는 필드(tone·color 등)를 떼지 않고 그대로 넘길 수 있게 최소 두 칸만 요구한다.
+ */
+export interface DomainOption {
+  readonly id: string;
+  readonly label: string;
+}
+
+/** 값 id → 이 화면에서 사용자가 달리 부르는 말 */
+type ValueAliases = Readonly<Record<string, readonly string[]>>;
+
+function valueKey(domainId: DomainId, fieldId: string): string {
+  return `${domainId}::${fieldId}`;
+}
+
+/**
+ * 별칭 사전 — **여기가 소유한다**(머리말). 라벨은 도메인이 주고, 별칭은 이 화면의 어휘다.
+ * 없는 키는 별칭 없음으로 읽는다.
+ */
+const VALUE_ALIASES: Readonly<Record<string, ValueAliases>> = {
+  [valueKey('products', 'saleStatus')]: { stopped: ['중지'] },
+};
+
+/** 배선이 꽂아 준 값 목록 — 키는 `도메인::필드` */
+const injectedValues = new Map<string, readonly DomainFieldValue[]>();
+
+/**
+ * 필드의 값 목록을 꽂는다 — 여러 번 불러도 결과가 같다(멱등). 호출자는 `src/wiring-ai.ts` 다.
+ *
+ * 넘기는 것은 그 도메인의 `*_OPTIONS` **그 자체**다. 여기서 라벨을 다시 적지 않는 것이 요점이다.
+ */
+export function registerDomainFieldValues(
+  domainId: DomainId,
+  fieldId: string,
+  options: readonly DomainOption[],
+): void {
+  const key = valueKey(domainId, fieldId);
+  const aliases = VALUE_ALIASES[key] ?? {};
+  injectedValues.set(
+    key,
+    options.map((option) => ({
+      id: option.id,
+      label: option.label,
+      aliases: aliases[option.id] ?? [],
+    })),
+  );
+}
+
+/** 테스트가 미배선 상태로 되돌린다 — '값을 모르는' 경로를 실제로 밟아 보기 위한 것이다 */
+export function resetDomainFieldValues(): void {
+  injectedValues.clear();
+}
+
+/** 선언 + 주입을 합친 도메인 — 조회기(findDomainBy*)가 이것을 돌려준다 */
+function resolveDomain(domain: DomainDef): DomainDef {
+  const fields = domain.fields.map((field) => {
+    const injected = injectedValues.get(valueKey(domain.id, field.id));
+    return injected === undefined ? field : { ...field, values: injected };
+  });
+  return { ...domain, fields };
+}
+
 /* ── 회원 ────────────────────────────────────────────────────────────────── */
 
-const TIER_VALUES: readonly DomainFieldValue[] = [
-  { id: 'vip', label: 'VIP', aliases: ['브이아이피'] },
-  { id: 'vvip', label: 'VVIP', aliases: ['브이브이아이피'] },
-  { id: 'normal', label: '일반회원', aliases: ['일반'] },
-];
+/**
+ * 등급 — 라벨의 정본은 `shared/domain/member.ts` 의 TIER_LABEL 이다.
+ *
+ * [왜 여기는 배선이 필요 없나] 회원 도메인은 페이지가 아니라 **공통 층**에 산다(그래서
+ * provider-members.ts 도 스스로 등록한다). 결합이 없으므로 여기서 직접 파생해도 축1 에 걸리지
+ * 않는다 — 값 목록을 손으로 옮겨 적을 이유가 없다.
+ *
+ * 순서는 파서가 다시 정한다(긴 라벨 우선 — 'VVIP' 가 'VIP' 보다 먼저 걸려야 한다).
+ */
+const TIER_ORDER: readonly MemberTier[] = ['vip', 'vvip', 'normal'];
+
+const TIER_ALIASES: ValueAliases = {
+  vip: ['브이아이피'],
+  vvip: ['브이브이아이피'],
+  normal: ['일반'],
+};
+
+const TIER_VALUES: readonly DomainFieldValue[] = TIER_ORDER.map((tier) => ({
+  id: tier,
+  label: TIER_LABEL[tier],
+  aliases: TIER_ALIASES[tier] ?? [],
+}));
 
 const MEMBER_FIELDS: readonly DomainField[] = [
   {
@@ -125,19 +228,20 @@ const PRODUCT_FIELDS: readonly DomainField[] = [
     label: '판매상태',
     nouns: ['판매상태', '판매'],
     axes: ['equality'],
-    // 값 id 는 ProductSaleStatus(pages/products/_shared/store.ts:109)와 같아야 한다 —
-    // 제공자가 이 id 를 그대로 비교에 쓴다
-    values: [
-      { id: 'on_sale', label: '판매중', aliases: [] },
-      { id: 'stopped', label: '판매중지', aliases: ['중지'] },
-      { id: 'sold_out', label: '품절', aliases: [] },
-    ],
+    // 값 목록은 상품 도메인의 SALE_STATUS_OPTIONS 에서 배선이 꽂는다(src/wiring-ai.ts).
+    // id 는 ProductSaleStatus 그대로이고, 제공자가 그 id 를 비교에 쓴다.
+    values: [],
   },
   {
     id: 'displayed',
     label: '전시상태',
     nouns: ['전시'],
     axes: ['equality'],
+    /*
+      [여기만 목록이 그대로 남는 이유] 전시상태는 상품 도메인에서 **boolean 한 칸**이다
+      (Product.displayed). 옵션 표가 애초에 없으므로 베껴 온 목록이 아니라, 참/거짓을
+      사람의 말로 옮긴 **이 화면의 인코딩**이다 — 정본이 다른 곳에 없으니 여기가 정본이다.
+    */
     values: [
       { id: 'true', label: '전시중', aliases: ['노출'] },
       { id: 'false', label: '숨김', aliases: ['미노출'] },
@@ -153,32 +257,68 @@ const TICKET_FIELDS: readonly DomainField[] = [
     label: '처리상태',
     nouns: ['상태'],
     axes: ['equality'],
-    // 값 id 는 TicketStatus(pages/support/_shared/domain.ts:52)와 같아야 한다
-    values: [
-      { id: 'received', label: '접수', aliases: [] },
-      { id: 'assigned', label: '배정', aliases: [] },
-      { id: 'in_progress', label: '처리중', aliases: [] },
-      { id: 'answered', label: '답변완료', aliases: [] },
-      { id: 'closed', label: '종결', aliases: [] },
-    ],
+    // 값 목록은 고객센터의 TICKET_STATUS_OPTIONS 에서 배선이 꽂는다(src/wiring-ai.ts).
+    values: [],
   },
   {
     id: 'priority',
     label: '우선순위',
     nouns: ['우선순위'],
     axes: ['equality'],
-    values: [
-      { id: 'urgent', label: '긴급', aliases: [] },
-      { id: 'high', label: '높음', aliases: [] },
-      { id: 'normal', label: '보통', aliases: [] },
-      { id: 'low', label: '낮음', aliases: [] },
-    ],
+    // 값 목록은 고객센터의 TICKET_PRIORITY_OPTIONS 에서 배선이 꽂는다.
+    values: [],
   },
   {
     id: 'receivedAt',
     label: '접수일',
     nouns: ['접수'],
     axes: ['period'],
+    values: [],
+  },
+];
+
+/* ── 프로그램 (후원형 펀딩) ──────────────────────────────────────────────────
+ *
+ * [왜 뒤늦게 붙었나] 프로그램 모듈이 생긴 뒤에도 AI 는 상품·문의·회원 셋만 알았다. 그래서
+ * '@프로그램' 은 '모르는 도메인' 으로 거절됐다 — 앱에 있는 화면을 앱의 조수가 모르는 상태였다.
+ *
+ * [기간이 두 축이다] 상품과 달리 프로그램에는 날짜가 둘 있다: 오픈일과 마감일. '이번달 프로그램'
+ * 처럼 필드를 지목하지 않은 기간은 **오픈일**로 읽는다(defaultPeriodFieldId) — 목록에서 '이번달'
+ * 은 보통 '이번달에 열린' 이라는 뜻이고, 마감은 '마감' 이라는 말과 함께 온다. */
+
+const PROGRAM_FIELDS: readonly DomainField[] = [
+  {
+    id: 'status',
+    label: '진행상태',
+    nouns: ['진행상태', '상태'],
+    axes: ['equality'],
+    // 값 목록은 프로그램의 PROGRAM_STATUS_OPTIONS 에서 배선이 꽂는다(src/wiring-ai.ts).
+    values: [],
+  },
+  {
+    id: 'startDate',
+    label: '오픈일',
+    nouns: ['오픈', '시작'],
+    axes: ['period'],
+    values: [],
+  },
+  {
+    id: 'endDate',
+    label: '마감일',
+    nouns: ['마감', '종료'],
+    axes: ['period'],
+    values: [],
+  },
+  {
+    /**
+     * 모금액 — **기간 축이 없다.** 저장된 값은 '지금까지 얼마 모였나' 하나뿐이고
+     * '언제 후원됐나' 는 프로그램 레코드에 없다(pages/programs/_shared/store.ts 의 Program).
+     * 회원의 누적 구매액과 같은 사정이라 같은 선언을 한다 — 파서가 '이번달 모금' 을 거절한다.
+     */
+    id: 'pledgedAmount',
+    label: '모금액',
+    nouns: ['모금액', '모금', '후원금'],
+    axes: ['presence'],
     values: [],
   },
 ];
@@ -213,21 +353,35 @@ export const DOMAINS: readonly DomainDef[] = [
     fields: TICKET_FIELDS,
     defaultPeriodFieldId: 'receivedAt',
   },
+  {
+    id: 'programs',
+    label: '프로그램',
+    // '펀딩' 도 받아준다 — 사람이 이 화면을 부르는 다른 이름이다. 대표 별칭은 앱의 말('프로그램').
+    aliases: ['프로그램목록', '프로그램', '펀딩'],
+    listPath: '/programs',
+    fields: PROGRAM_FIELDS,
+    defaultPeriodFieldId: 'startDate',
+  },
 ];
 
-/** 별칭으로 도메인을 찾는다 — 못 찾으면 null (파서가 '모르는 도메인' 으로 답한다) */
+/**
+ * 별칭으로 도메인을 찾는다 — 못 찾으면 null (파서가 '모르는 도메인' 으로 답한다).
+ *
+ * 돌려주는 것은 선언 그대로가 아니라 **배선된 값 목록까지 합친** 도메인이다(resolveDomain).
+ * 파서·실행기가 조회기를 지나기만 하면 주입을 신경 쓰지 않아도 된다.
+ */
 export function findDomainByAlias(alias: string): DomainDef | null {
   const normalized = alias.trim().toLowerCase();
   if (normalized === '') return null;
-  return (
-    DOMAINS.find((domain) =>
-      domain.aliases.some((candidate) => candidate.toLowerCase() === normalized),
-    ) ?? null
+  const found = DOMAINS.find((domain) =>
+    domain.aliases.some((candidate) => candidate.toLowerCase() === normalized),
   );
+  return found === undefined ? null : resolveDomain(found);
 }
 
 export function findDomainById(id: DomainId): DomainDef | null {
-  return DOMAINS.find((domain) => domain.id === id) ?? null;
+  const found = DOMAINS.find((domain) => domain.id === id);
+  return found === undefined ? null : resolveDomain(found);
 }
 
 export function findField(domain: DomainDef, fieldId: string): DomainField | null {

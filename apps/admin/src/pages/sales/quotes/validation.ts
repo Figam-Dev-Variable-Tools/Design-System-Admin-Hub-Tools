@@ -22,6 +22,9 @@ export const quoteSchema = z
     // (data-source nextQuote). 여기서 requiredText 로 요구하면 신규 등록이 **영구 불가능**해진다 —
     // 사용자가 채울 수 없는 값을 검증이 요구해 제출이 언제나 실패한다. 아래 승계 값들과 같은 부류다.
     quoteNo: z.string(),
+    // 거래처 마스터 참조 — 문의에서 자동 발행된 견적은 ''(미등록)로 시작한다(types.buildQuoteFromInquiry).
+    // 여기서 요구하면 그 발행 경로가 통째로 막힌다. 연결하지 않은 대가는 폼이 경고로 드러낸다.
+    accountId: z.string(),
     accountName: requiredText('거래처', 60),
     accountBizNo: z.string(),
     accountCeo: z.string(),
@@ -117,6 +120,7 @@ export type QuoteFormValues = z.infer<typeof quoteSchema>;
  */
 export const EMPTY_QUOTE_FORM: QuoteFormValues = {
   quoteNo: '',
+  accountId: '',
   accountName: '',
   accountBizNo: '',
   accountCeo: '',

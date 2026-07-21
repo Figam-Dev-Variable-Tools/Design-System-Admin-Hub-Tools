@@ -2,6 +2,9 @@
 //
 // [백엔드 연동 지점] 프레임워크 createCrudAdapter 에 시드를 넣는다. 상담 이력은 읽기 위주라 화면은
 // fetchAll/fetchOne 만 쓴다(생성/수정/삭제 UI 없음 — 감사 이력). build/patch 는 프레임워크 계약상 둔다.
+//
+// [거래처 참조] 시드의 accountId 는 accounts/data-source 의 실제 거래처 id(acc-1~3)를 가리킨다 —
+// 이름만 같고 연결이 없는 행이 하나라도 있으면 거래처 상세의 역방향 조회가 조용히 비어 보인다.
 import { createCrudAdapter } from '../../../shared/crud';
 import { sortConsultations } from './types';
 import type { Consultation } from './types';
@@ -11,6 +14,7 @@ type ConsultationInput = Omit<Consultation, 'id'>;
 const CONSULTATION_SEED: readonly Consultation[] = [
   {
     id: 'cs-1',
+    accountId: 'acc-1',
     accountName: '(주)한빛소프트웨어',
     contactPerson: '이영업 팀장',
     consultType: 'meeting',
@@ -22,10 +26,12 @@ const CONSULTATION_SEED: readonly Consultation[] = [
     followUpAction: '견적서 발송 및 구축 일정표 공유',
     followUpAt: '2026-07-18',
     followUpDone: false,
-    related: '견적 Q-20260710-001',
+    relatedKind: 'quote',
+    relatedId: 'qt-1',
   },
   {
     id: 'cs-2',
+    accountId: 'acc-2',
     accountName: '대성물산 주식회사',
     contactPerson: '최과장',
     consultType: 'phone',
@@ -37,10 +43,12 @@ const CONSULTATION_SEED: readonly Consultation[] = [
     followUpAction: '갱신 견적 재산정 후 회신',
     followUpAt: '2026-07-20',
     followUpDone: false,
-    related: '계약 CT-2',
+    relatedKind: 'contract',
+    relatedId: 'ct-2',
   },
   {
     id: 'cs-3',
+    accountId: 'acc-3',
     accountName: '미래테크놀로지',
     contactPerson: '오미래 대표',
     consultType: 'visit',
@@ -52,7 +60,8 @@ const CONSULTATION_SEED: readonly Consultation[] = [
     followUpAction: '',
     followUpAt: '',
     followUpDone: true,
-    related: '문의 INQ-20260711-002',
+    relatedKind: 'inquiry',
+    relatedId: 'inq-3',
   },
 ];
 

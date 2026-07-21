@@ -16,6 +16,7 @@ import type { ContractFormValues } from './validation';
 function contractOf(overrides: Partial<Contract> & { id: string }): Contract {
   return {
     title: '계약',
+    accountId: 'acc-1',
     accountName: '(주)테스트',
     contractType: 'supply',
     startAt: '2026-01-01',
@@ -81,11 +82,16 @@ describe('필터·검색·정렬·변환(순수)', () => {
   it('toContractInput 은 id 를 뺀다', () => {
     expect(toContractInput(contractOf({ id: 'a' }))).not.toHaveProperty('id');
   });
+  // 거래처 참조를 실어 나르지 못하면 저장 한 번에 연결이 끊긴다 — 목록·거래처 상세에서 조용히 빠진다
+  it('toContractInput 은 거래처 참조(accountId)를 보존한다', () => {
+    expect(toContractInput(contractOf({ id: 'a', accountId: 'acc-2' })).accountId).toBe('acc-2');
+  });
 });
 
 function valuesOf(overrides: Partial<ContractFormValues> = {}): ContractFormValues {
   return {
     title: '연간 계약',
+    accountId: 'acc-1',
     accountName: '(주)테스트',
     contractType: 'license',
     startAt: '2026-01-01',
@@ -124,6 +130,10 @@ describe('contractSchema — 폼 검증', () => {
     expect(messageFor(valuesOf({ startAt: '2026-12-31', endAt: '2026-01-01' }), 'endAt')).toContain(
       '빠를',
     );
+  });
+  // 미등록 거래처와의 첫 계약을 막지 않는다 — 대신 폼이 그 대가를 경고로 드러낸다
+  it('accountId 가 비어도(미등록 거래처) 통과한다', () => {
+    expect(contractSchema.safeParse(valuesOf({ accountId: '' })).success).toBe(true);
   });
   it('자동갱신인데 통지기한이 숫자가 아니면 막는다', () => {
     expect(messageFor(valuesOf({ renewNoticeDays: '한달' }), 'renewNoticeDays')).toContain('숫자');

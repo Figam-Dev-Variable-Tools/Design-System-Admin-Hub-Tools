@@ -1721,23 +1721,31 @@ components:
           description: |
             **부호 포함** — 양수 = 지급, 음수 = 차감. **프론트가 부호를 만들지 않는다.**
 
-    Coupon:
+    IssuedCoupon:
       type: object
-      title: Coupon
-      description: 보유 쿠폰 1건 (프론트 `Coupon`).
-      required: [id, name, benefit, expiresAt]
+      title: IssuedCoupon
+      description: |
+        회원에게 **발급된 쿠폰 1건** (프론트 `IssuedCoupon` — shared/domain/member.ts).
+        이름·혜택·만료일은 여기 없다 — 쿠폰의 정의는 쿠폰 카탈로그(`GET /api/coupons`)가 갖고,
+        화면이 `couponId` 로 조인한다. 예전에는 표시값을 여기 실어 회원 상세의 보유 쿠폰과
+        쿠폰 관리의 발급 수량이 서로 다른 이야기를 했다.
+      required: [couponId, issuedAt, usedAt]
       additionalProperties: false
       properties:
-        id:
+        couponId:
           type: string
-        name:
-          type: string
-        benefit:
-          type: string
-        expiresAt:
+          description: 쿠폰 카탈로그의 id.
+          examples: [cpn-1]
+        issuedAt:
           type: string
           format: date
-          description: "`YYYY-MM-DD`"
+          description: "발급일 `YYYY-MM-DD`"
+        usedAt:
+          description: "사용일 `YYYY-MM-DD`. **미사용이면 `null`.**"
+          oneOf:
+            - type: string
+              format: date
+            - type: "null"
 
     MemberDetail:
       type: object
@@ -1836,9 +1844,9 @@ components:
             $ref: "#/components/schemas/PointEntry"
         coupons:
           type: array
-          description: 전량 반환한다 (페이징 없음).
+          description: 전량 반환한다 (페이징 없음). **발급 참조만** 담는다 — 표시값은 쿠폰 카탈로그 조인이다.
           items:
-            $ref: "#/components/schemas/Coupon"
+            $ref: "#/components/schemas/IssuedCoupon"
         memo:
           type: string
           description: 관리자 메모. 없으면 빈 문자열.

@@ -26,6 +26,7 @@ import {
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
 import { FormConflictDialog, FormServerError, useCrudForm } from '../../../shared/crud';
+import { AccountSelectField } from '../_shared/AccountSelectField';
 import { formatBizNo } from '../_shared/business';
 import { quoteAdapter } from './data-source';
 import { EMPTY_QUOTE_FORM, quoteSchema } from './validation';
@@ -148,6 +149,7 @@ const systemValueStyle: CSSProperties = {
 function toInput(values: QuoteFormValues): QuoteInput {
   return {
     quoteNo: values.quoteNo.trim(),
+    accountId: values.accountId,
     accountName: values.accountName.trim(),
     accountBizNo: values.accountBizNo.trim() === '' ? '' : formatBizNo(values.accountBizNo),
     accountCeo: values.accountCeo.trim(),
@@ -171,6 +173,7 @@ function toInput(values: QuoteFormValues): QuoteInput {
 function toValues(quote: Quote): QuoteFormValues {
   return {
     quoteNo: quote.quoteNo,
+    accountId: quote.accountId,
     accountName: quote.accountName,
     accountBizNo: quote.accountBizNo,
     accountCeo: quote.accountCeo,
@@ -327,32 +330,38 @@ export default function QuoteFormPage() {
                 </FormField>
               </div>
 
+              {/* [거래처 참조] 이름 문자열이 아니라 거래처 마스터를 가리킨다. 승계 견적은
+                  **이름을 사람이 고쳐 쓰지 못하지만**(nameLocked — 원본 문의와 어긋나면 어느 쪽이
+                  진실인지 알 수 없다) 마스터에서 고르는 것은 허용한다: 그것은 승계 값을 바꾸는
+                  일이 아니라 문의가 애초에 갖지 못한 '어느 거래처인가' 를 뒤늦게 채우는 일이고,
+                  이 연결이 없으면 그 견적은 거래처 상세의 견적 이력에서 영원히 빠진다. */}
+              <AccountSelectField
+                id="quote-account"
+                label="거래처(공급받는자)"
+                accountId={watch('accountId')}
+                accountName={watch('accountName')}
+                required
+                disabled={disabled}
+                nameLocked={inherited}
+                error={errors.accountName?.message}
+                onChange={(next) => {
+                  setValue('accountId', next.accountId, { shouldDirty: true });
+                  setValue('accountName', next.accountName, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                  // 견적서는 공급받는자의 사업자번호·대표자까지 인쇄한다 — 마스터에서 골랐으면
+                  // 그 값도 함께 승계한다(운영자가 세 칸을 손으로 옮겨 적지 않게).
+                  if (next.account !== undefined) {
+                    setValue('accountBizNo', formatBizNo(next.account.bizNo), {
+                      shouldDirty: true,
+                    });
+                    setValue('accountCeo', next.account.ceoName, { shouldDirty: true });
+                  }
+                }}
+              />
+
               <div style={partyRowStyle}>
-                <FormField
-                  htmlFor="quote-account"
-                  label="거래처(공급받는자)"
-                  required
-                  error={errors.accountName?.message}
-                  hint={inherited ? '문의에서 승계한 값입니다 (수정 불가)' : ''}
-                >
-                  <input
-                    id="quote-account"
-                    type="text"
-                    className="tds-ui-input tds-ui-focusable"
-                    style={
-                      inherited ? systemValueStyle : controlStyle(errors.accountName !== undefined)
-                    }
-                    placeholder="예: (주)한빛소프트웨어"
-                    disabled={disabled}
-                    readOnly={inherited}
-                    aria-readonly={inherited || undefined}
-                    aria-invalid={errors.accountName !== undefined}
-                    aria-describedby={
-                      errors.accountName !== undefined ? errorIdOf('quote-account') : undefined
-                    }
-                    {...register('accountName')}
-                  />
-                </FormField>
                 <FormField
                   htmlFor="quote-contact"
                   label="담당자"

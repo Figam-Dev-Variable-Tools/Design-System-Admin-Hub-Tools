@@ -3,6 +3,7 @@
 // 국내 CRM 파이프라인 관례: 단계(리드→상담→제안→협상→수주/실주)·단계별 기본 확률·예상매출·가중예상매출·
 // 기간·진척·마일스톤·산출물. 단계는 데이터(STAGES)로 들고 있어 순서·확률을 확장하기 쉽다.
 import type { StatusTone } from '../../../shared/ui';
+import type { AccountRef } from '../_shared/account-reference';
 
 /** 파이프라인 단계 — 확장 가능하게 메타(순서·기본확률·정상흐름 여부)를 데이터로 둔다 */
 export type PipelineStage = 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'won' | 'lost';
@@ -15,10 +16,16 @@ export interface Milestone {
   readonly done: boolean;
 }
 
-export interface Project {
+/**
+ * 프로젝트(영업 기회).
+ *
+ * 거래처는 AccountRef 두 필드로 참조한다 — `accountId`(마스터를 가리키는 **정본**, '' 이면 미등록)
+ * 와 `accountName`(파이프라인 목록이 쓰는 비정규화 표시 라벨). 두 값이 어긋나면 accountId 가
+ * 이긴다. 근거는 ../_shared/account-reference 머리말.
+ */
+export interface Project extends AccountRef {
   readonly id: string;
   readonly name: string;
-  readonly accountName: string;
   readonly stage: PipelineStage;
   /** 수주 확률(%) 0~100 — 단계 기본값에서 조정 가능 */
   readonly probability: number;
@@ -132,6 +139,7 @@ export function sortProjects(list: readonly Project[]): readonly Project[] {
 export function toProjectInput(project: Project): ProjectInput {
   return {
     name: project.name,
+    accountId: project.accountId,
     accountName: project.accountName,
     stage: project.stage,
     probability: project.probability,

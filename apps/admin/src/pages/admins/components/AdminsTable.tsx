@@ -24,7 +24,24 @@ import { PAGE_SIZE } from '../types';
 import type { AdminUser } from '../types';
 import { cssVar } from '@tds/ui';
 
-const COLUMNS = ['닉네임', '계정', '그룹', '가입일', '부서', '직급', '연락처', '메모'] as const;
+/**
+ * '역할' 은 그룹 바로 뒤다 — 이 화면이 답해야 하는 핵심 질문이 '누가 무슨 권한인가' 인데,
+ * 예전에는 그 답이 등록 폼과 상세에만 있었다(목록 어디에도 없었다).
+ */
+const COLUMNS = [
+  '닉네임',
+  '계정',
+  '그룹',
+  '역할',
+  '가입일',
+  '부서',
+  '직급',
+  '연락처',
+  '메모',
+] as const;
+
+/** 배정된 역할이 사라졌을 때의 표시 — 이름을 지어내지 않는다 (AdminDetailPage 와 같은 태도) */
+const UNKNOWN_ROLE_LABEL = '—';
 
 const nicknameCellStyle: CSSProperties = {
   ...tdStyle,
@@ -55,6 +72,14 @@ const SELECT_ALL_LABEL_ID = 'admins-select-all-label';
 
 interface AdminsTableProps {
   readonly admins: readonly AdminUser[];
+  /**
+   * 역할 id → 역할명. 정본은 권한 스토어이고 이 표는 받아서 그리기만 한다
+   * (운영자 레코드는 id 만 들고 있다 — types.ts 의 roleId 주석).
+   *
+   * 키 있는 Record 인 이유: 배열을 받아 find 하면 못 찾았을 때 **다른 역할 이름**으로 폴백하기
+   * 쉽고, 그 화면은 '권한이 잘못 표시된 목록' 이 된다.
+   */
+  readonly roleNames: Readonly<Record<string, string>>;
   readonly loading: boolean;
   readonly selectedIds: ReadonlySet<string>;
   readonly onToggleOne: (id: string, checked: boolean) => void;
@@ -63,6 +88,7 @@ interface AdminsTableProps {
 
 export function AdminsTable({
   admins,
+  roleNames,
   loading,
   selectedIds,
   onToggleOne,
@@ -133,6 +159,8 @@ export function AdminsTable({
 
                 <td style={nowrapCellStyle}>{admin.account}</td>
                 <td style={nowrapCellStyle}>{admin.group}</td>
+                {/* 역할명은 권한 스토어에서 온다 — 없는 역할을 가리키면 빈칸이 아니라 '—' 로 둔다 */}
+                <td style={nowrapCellStyle}>{roleNames[admin.roleId] ?? UNKNOWN_ROLE_LABEL}</td>
                 <td style={nowrapCellStyle}>{admin.joinedAt}</td>
                 {/* 부서·직급은 비어 있을 수 있다 — 빈 셀 */}
                 <td style={nowrapCellStyle}>{admin.department}</td>

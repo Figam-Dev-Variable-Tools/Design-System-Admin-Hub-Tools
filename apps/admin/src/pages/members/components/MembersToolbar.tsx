@@ -73,6 +73,13 @@ interface MembersToolbarProps {
   readonly onBulkDelete: () => void;
   /** 일괄 발송 진행 중 — 중복 제출을 막는다 */
   readonly bulkNotifying: boolean;
+  /**
+   * 권한 (EXC-03) — 화면이 라우트에서 파생해 넘긴다. 없는 권한의 버튼은 **비활성이 아니라 부재**다.
+   * 내보내기는 개인정보 반출이라 export, 삭제는 remove, 알림 발송은 update 를 요구한다.
+   */
+  readonly canExport: boolean;
+  readonly canUpdate: boolean;
+  readonly canRemove: boolean;
 }
 
 export function MembersToolbar({
@@ -85,6 +92,9 @@ export function MembersToolbar({
   onBulkNotify,
   onBulkDelete,
   bulkNotifying,
+  canExport,
+  canUpdate,
+  canRemove,
 }: MembersToolbarProps) {
   const searchId = useId();
   const hasSelection = selectedCount > 0;
@@ -113,19 +123,26 @@ export function MembersToolbar({
       <div style={actionsStyle}>
         {hasSelection && (
           <>
-            <Button variant="secondary" disabled={bulkNotifying} onClick={onBulkNotify}>
-              {bulkNotifying ? '발송 중…' : `선택 ${formatNumber(selectedCount)}명 알림 발송`}
-            </Button>
-            <Button variant="danger" disabled={bulkNotifying} onClick={onBulkDelete}>
-              {`선택 ${formatNumber(selectedCount)}명 삭제`}
-            </Button>
+            {canUpdate && (
+              <Button variant="secondary" disabled={bulkNotifying} onClick={onBulkNotify}>
+                {bulkNotifying ? '발송 중…' : `선택 ${formatNumber(selectedCount)}명 알림 발송`}
+              </Button>
+            )}
+            {canRemove && (
+              <Button variant="danger" disabled={bulkNotifying} onClick={onBulkDelete}>
+                {`선택 ${formatNumber(selectedCount)}명 삭제`}
+              </Button>
+            )}
           </>
         )}
 
-        <Button variant="secondary" disabled={exporting} onClick={onExport}>
-          <Icon name="download" />
-          {exporting ? '내보내는 중…' : '내보내기'}
-        </Button>
+        {/* 내보내기는 개인정보를 파일로 반출한다 — export 권한 없이는 손잡이 자체를 두지 않는다 */}
+        {canExport && (
+          <Button variant="secondary" disabled={exporting} onClick={onExport}>
+            <Icon name="download" />
+            {exporting ? '내보내는 중…' : '내보내기'}
+          </Button>
+        )}
       </div>
     </div>
   );

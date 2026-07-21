@@ -40,9 +40,11 @@ const counterStyle: CSSProperties = {
 interface MemoCardProps {
   readonly memberId: string;
   readonly initialMemo: string;
+  /** 메모 저장 권한 (EXC-03) — 없으면 읽기 전용이 된다(저장 버튼 없음 · 입력 잠금) */
+  readonly canUpdate: boolean;
 }
 
-export function MemoCard({ memberId, initialMemo }: MemoCardProps) {
+export function MemoCard({ memberId, initialMemo, canUpdate }: MemoCardProps) {
   // 저장 성공은 토스트로, 저장 실패는 **폼 안 인라인 에러**로 알린다 —
   // 실패하면 사용자가 이 카드에서 다시 저장해야 하므로 안내가 카드를 떠나면 안 된다.
   const toast = useToast();
@@ -90,7 +92,11 @@ export function MemoCard({ memberId, initialMemo }: MemoCardProps) {
         aria-describedby={counterId}
         aria-invalid={overflow}
         aria-label="관리자 메모"
-        // 저장 요청 중에 본문을 고치면 전송한 값과 화면 값이 어긋난다 — 응답까지 잠근다
+        // 저장 요청 중에 본문을 고치면 전송한 값과 화면 값이 어긋난다 — 응답까지 잠근다.
+        // 저장 권한이 없으면 readOnly 다 — 고칠 수 있는 것처럼 보이면서 저장할 길이 없으면 거짓말이
+        // 된다. disabled 가 아니라 readOnly 인 이유는 **읽는 것은 허용된 정보**이기 때문이다
+        // (disabled 텍스트는 흐려지고 일부 브라우저에서 선택·복사도 막힌다).
+        readOnly={!canUpdate}
         disabled={saving}
         onChange={(event) => setMemo(event.target.value)}
       />
@@ -105,9 +111,11 @@ export function MemoCard({ memberId, initialMemo }: MemoCardProps) {
         <span id={counterId} style={counterStyle}>
           {`${formatNumber(memo.length)}/${formatNumber(MEMO_MAX_LENGTH)}`}
         </span>
-        <Button variant="primary" disabled={saving || overflow} onClick={submit}>
-          {saving ? '저장 중…' : '저장'}
-        </Button>
+        {canUpdate && (
+          <Button variant="primary" disabled={saving || overflow} onClick={submit}>
+            {saving ? '저장 중…' : '저장'}
+          </Button>
+        )}
       </div>
     </Card>
   );

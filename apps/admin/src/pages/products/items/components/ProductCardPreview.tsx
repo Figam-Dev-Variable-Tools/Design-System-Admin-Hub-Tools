@@ -5,7 +5,8 @@
 import { useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
 
-import { Icon, StatusBadge } from '../../../../shared/ui';
+import { buttonStyle, Icon, StatusBadge } from '../../../../shared/ui';
+import type { CheckoutCtaKind } from '../../../../shared/commerce/payment-settings';
 import { finalPrice } from '../../_shared/store';
 import type { DiscountType, ProductSaleStatus } from '../../_shared/store';
 import { saleStatusLabel, saleStatusTone } from '../types';
@@ -132,6 +133,11 @@ const badgeRowStyle: CSSProperties = {
   flexWrap: 'wrap',
 };
 
+/** 결제로 가는 버튼은 주 동작(primary), 문의로 가는 버튼은 보조(secondary) — 위계가 갈린다 */
+function ctaStyle(kind: CheckoutCtaKind): CSSProperties {
+  return { ...buttonStyle(kind === 'purchase' ? 'primary' : 'secondary'), width: '100%' };
+}
+
 const captionStyle: CSSProperties = {
   marginTop: cssVar('space.3'),
   marginBottom: 0,
@@ -151,6 +157,15 @@ interface ProductCardPreviewProps {
   readonly discountValue: number;
   readonly saleStatus: ProductSaleStatus;
   readonly displayed: boolean;
+  /**
+   * 구매 버튼의 글자·성격 — **이 컴포넌트가 정하지 않는다.**
+   *
+   * 결제(PG) 설정에 따라 '구매하기' 가 되기도 하고 '문의하기' 가 되기도 한다. 그 판정은
+   * shared/commerce 의 checkoutCta 하나뿐이고(프로그램 화면도 같은 함수를 쓴다), 미리보기는
+   * 결과만 받아 그린다 — 여기서 조건을 한 번 더 쓰면 고객 화면과 다른 버튼을 보여 주게 된다.
+   */
+  readonly ctaLabel: string;
+  readonly ctaKind: CheckoutCtaKind;
 }
 
 export function ProductCardPreview({
@@ -162,6 +177,8 @@ export function ProductCardPreview({
   discountValue,
   saleStatus,
   displayed,
+  ctaLabel,
+  ctaKind,
 }: ProductCardPreviewProps) {
   const trimmedImage = coverImageUrl.trim();
   const [loadFailed, setLoadFailed] = useState(false);
@@ -208,6 +225,10 @@ export function ProductCardPreview({
           <div style={badgeRowStyle}>
             <StatusBadge tone={saleStatusTone(saleStatus)} label={saleStatusLabel(saleStatus)} />
           </div>
+
+          {/* 고객이 누르는 자리. 미리보기라 진짜 버튼이 아니다 — DS 버튼의 시각 토큰만 빌린
+              <span> 이다(누를 것이 없는 자리에 버튼을 두면 눌러 보고 아무 일도 없는 것을 확인하게 된다). */}
+          <span style={ctaStyle(ctaKind)}>{ctaLabel}</span>
         </div>
       </div>
 

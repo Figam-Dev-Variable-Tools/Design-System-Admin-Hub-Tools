@@ -17,6 +17,7 @@ import type { ProjectFormValues } from './validation';
 function projectOf(overrides: Partial<Project> & { id: string }): Project {
   return {
     name: '프로젝트',
+    accountId: 'acc-1',
     accountName: '(주)테스트',
     stage: 'proposal',
     probability: 50,
@@ -71,11 +72,15 @@ describe('필터·검색·정렬·변환(순수)', () => {
   it('toProjectInput 은 id 를 뺀다', () => {
     expect(toProjectInput(projectOf({ id: 'a' }))).not.toHaveProperty('id');
   });
+  it('toProjectInput 은 거래처 참조(accountId)를 보존한다', () => {
+    expect(toProjectInput(projectOf({ id: 'a', accountId: 'acc-3' })).accountId).toBe('acc-3');
+  });
 });
 
 function valuesOf(overrides: Partial<ProjectFormValues> = {}): ProjectFormValues {
   return {
     name: 'ERP 구축',
+    accountId: 'acc-1',
     accountName: '(주)테스트',
     stage: 'negotiation',
     probability: '70',

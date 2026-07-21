@@ -31,6 +31,7 @@ import { isAbort } from '../../shared/async';
 import { useListState } from '../../shared/crud';
 import { downloadCsv } from '../../shared/download';
 import { formatNumber } from '../../shared/format';
+import { useRouteWritePermissions } from '../../shared/permissions/RequirePermission';
 import {
   Alert,
   Button,
@@ -110,6 +111,19 @@ function isMemberTier(value: string): value is MemberTier {
 
 export default function MembersPage() {
   const toast = useToast();
+
+  /**
+   * [EXC-03] 쓰기·내보내기 게이팅.
+   *
+   * 이 화면의 액션은 앱에서 가장 민감한 축에 속한다 — CSV 내보내기는 **개인정보를 파일로 반출**하고,
+   * 삭제는 되돌릴 수 없으며, 알림 발송은 회원에게 실제로 나간다. 그런데 이 화면은 권한을 한 번도
+   * 묻지 않아, 읽기만 허용된 역할도 그 네 가지를 그대로 보고 누를 수 있었다.
+   * 리소스는 라우트에서 파생되므로(route-resource.ts) 이 화면이 자기 리소스 이름을 알 필요는 없다 —
+   * /users/members 와 /users/admins 가 같은 컴포넌트를 써도 각자 옳게 판정된다.
+   *
+   * 규칙은 로그·통계 화면과 같다: **누를 수 없는 것은 보여 주지 않는다**(비활성이 아니라 부재).
+   */
+  const { canUpdate, canRemove, canExport } = useRouteWritePermissions();
 
   // page·tier·group·keyword·선택의 단일 원천 = URL (IA-13). 검색은 IME 안전 (COMP-10).
   const list = useListState({ filterDefaults: FILTER_DEFAULTS });
@@ -391,6 +405,9 @@ export default function MembersPage() {
             onBulkNotify={() => onBulkNotify(selectedMembers)}
             onBulkDelete={() => openDelete(selectedMembers)}
             bulkNotifying={bulkNotifying}
+            canExport={canExport}
+            canUpdate={canUpdate}
+            canRemove={canRemove}
           />
 
           {error === null ? (
@@ -417,6 +434,8 @@ export default function MembersPage() {
                 onDelete={(member) => openDelete([member])}
                 onNotify={onNotify}
                 notifyingIds={notifyingIds}
+                canUpdate={canUpdate}
+                canRemove={canRemove}
               />
 
               <Pagination page={page} totalPages={totalPages} onChange={list.setPage} />

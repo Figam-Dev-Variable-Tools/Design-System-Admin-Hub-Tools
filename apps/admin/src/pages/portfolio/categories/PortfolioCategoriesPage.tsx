@@ -19,7 +19,7 @@ import {
   StatusBadge,
   useToast,
 } from '../../../shared/ui';
-import { useCrudDelete, useCrudListQuery } from '../../../shared/crud';
+import { DetailCellLink, useCrudDelete, useCrudListQuery } from '../../../shared/crud';
 import { CATEGORY_RESOURCE, portfolioCategoryAdapter } from './data-source';
 import { PortfolioCategoryFormModal } from './components/PortfolioCategoryFormModal';
 import { usageLabel } from './types';
@@ -103,6 +103,9 @@ const errorBodyStyle: CSSProperties = {
   flexWrap: 'wrap',
 };
 
+/** 사용 건수 배지가 여는 목록 — 그 분류로 이미 걸러진 포트폴리오 목록 */
+const PORTFOLIO_LIST_PATH = '/portfolio/items';
+
 type ModalState =
   { kind: 'closed' } | { kind: 'create' } | { kind: 'edit'; category: PortfolioCategoryUsage };
 
@@ -120,7 +123,19 @@ function CategoryRow({ category, deleting, onEdit, onDelete }: CategoryRowProps)
     <li style={rowStyle}>
       <span style={rowLeftStyle}>
         <span style={labelTextStyle}>{category.label}</span>
-        <StatusBadge tone={inUse ? 'info' : 'neutral'} label={usage} />
+        {/* 사용 건수는 **삭제를 막는 근거**다 — 그 근거를 확인할 길이 같은 자리에 있어야 한다.
+            포트폴리오 목록은 분류를 ?category= 로 URL 이 소유한다(IA-13).
+            미사용(0건)은 링크로 만들지 않는다 — 열어 봐야 빈 목록이다. */}
+        {inUse ? (
+          <DetailCellLink
+            to={`${PORTFOLIO_LIST_PATH}?category=${encodeURIComponent(category.id)}`}
+            ariaLabel={`'${category.label}' 분류를 쓰는 포트폴리오 보기 (${usage})`}
+          >
+            <StatusBadge tone="info" label={usage} />
+          </DetailCellLink>
+        ) : (
+          <StatusBadge tone="neutral" label={usage} />
+        )}
       </span>
       <span style={actionsStyle}>
         <button
@@ -259,8 +274,8 @@ export default function PortfolioCategoriesPage() {
             </ul>
           )}
           <p style={hintStyle}>
-            사용 중인 카테고리는 삭제할 수 없습니다 — 먼저 그 포트폴리오들의 분류를 바꾸거나
-            삭제하세요.
+            사용 중인 카테고리는 삭제할 수 없습니다 — 건수 배지를 누르면 그 분류로 걸러진 포트폴리오
+            목록이 열립니다. 거기서 분류를 바꾸거나 삭제하세요.
           </p>
         </Card>
       )}

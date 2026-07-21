@@ -5,8 +5,9 @@
  * Support 그룹, 화면 en = "FAQ"(자주 묻는 질문).
  *
  * 대응 실화면: apps/admin/src/pages/support/faq/CustomerFaqPage.tsx (라우트 /support/faq) 와 그 하위
- * 조립(components/CustomerFaqTable.tsx). FAQ '작성·관리'는 콘텐츠 관리 소관이고, 이 화면은 발행된 FAQ 를
- * 고객센터에서 어떻게 보여줄지만 큐레이션한다: 표시 순서(재정렬)·노출·BEST 고정. 그래서 등록/삭제·선택 열이 없다.
+ * 조립(components/CustomerFaqTable.tsx). 행은 콘텐츠 관리 FAQ 에서 노출 중인 FAQ 를 그대로 가져온 것이고
+ * (카테고리 어휘도 그쪽 것이다 — 계정·결제·배송·기타), 이 화면은 고객센터에서 어떻게 보여줄지만
+ * 큐레이션한다: 표시 순서(재정렬)·노출·BEST 고정. 그래서 등록/삭제·선택 열이 없다.
  *
  * [조립 원칙] `../../src` public DS 컴포넌트만 조합한다 — 신규 DS 컴포넌트를 만들지 않고 apps/admin 을
  * import 하지 않는다. 실화면 조각을 DS 표면으로 갈음한다:
@@ -65,7 +66,7 @@ interface DemoFaq {
 const DEMO_FAQS: readonly DemoFaq[] = [
   {
     id: 'f-1',
-    question: '주문한 상품은 언제 배송되나요?',
+    question: '배송은 얼마나 걸리나요',
     categoryLabel: '배송',
     visible: true,
     pinned: true,
@@ -73,32 +74,32 @@ const DEMO_FAQS: readonly DemoFaq[] = [
   },
   {
     id: 'f-2',
-    question: '교환/환불은 어떻게 신청하나요?',
-    categoryLabel: '교환/환불',
+    question: '결제 수단은 무엇이 있나요',
+    categoryLabel: '결제',
     visible: true,
     pinned: true,
     order: 2,
   },
   {
     id: 'f-3',
-    question: '적립금은 어디서 확인하나요?',
-    categoryLabel: '적립금',
+    question: '비밀번호를 잊어버렸어요',
+    categoryLabel: '계정',
     visible: true,
     pinned: false,
     order: 3,
   },
   {
     id: 'f-4',
-    question: '세금계산서 발행이 가능한가요?',
-    categoryLabel: '주문/결제',
+    question: '탈퇴는 어떻게 하나요',
+    categoryLabel: '기타',
     visible: true,
     pinned: false,
     order: 4,
   },
   {
     id: 'f-5',
-    question: '회원 등급은 어떻게 올라가나요?',
-    categoryLabel: '회원',
+    question: '주문 내역은 어디서 보나요',
+    categoryLabel: '기타',
     visible: false,
     pinned: false,
     order: 5,
@@ -278,8 +279,9 @@ function CustomerFaqScreen({
       <Alert tone="info">
         <div style={noticeStyle}>
           <span>
-            FAQ 작성·수정·삭제와 카테고리 관리는 콘텐츠 관리에서 합니다. 이 화면은 고객센터 노출
-            순서·노출 여부·BEST 고정만 큐레이션합니다.
+            콘텐츠 관리에서 노출 중인 FAQ 가 이 목록에 그대로 올라옵니다. 질문·답변·카테고리 수정과
+            등록·삭제는 콘텐츠 관리에서 하고, 이 화면은 고객센터 노출 순서·노출 여부·BEST 고정만
+            큐레이션합니다.
           </span>
           <a href="#content-faq" style={noticeLinkStyle}>
             콘텐츠 관리 FAQ 로 이동

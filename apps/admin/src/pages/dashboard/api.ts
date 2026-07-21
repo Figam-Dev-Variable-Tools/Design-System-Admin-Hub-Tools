@@ -48,16 +48,37 @@ function wait(ms: number, signal: AbortSignal): Promise<void> {
 
 /* ── mock 데이터 ────────────────────────────────────────────────────────── */
 
+/**
+ * [라벨과 목적지를 맞춘 자리 — 주문 모듈이 생기면 되돌릴 것]
+ *
+ * 이 앱에는 **주문 모듈이 아직 없다.** 그런데 상품 탭의 세 항목이 주문을 약속하고 엉뚱한 곳으로
+ * 보내고 있었다: '신규주문' → `/products`(상품 목록) · '최근 주문' → `/products`(같음) ·
+ * '판매 신청' → `/products/categories`(카테고리 관리). 대시보드에서 링크는 **다음 할 일**이라
+ * 라벨이 약속한 것과 다른 화면이 열리면 운영자는 매번 뒤로 돌아온다.
+ *
+ * 없는 라우트를 지어내는 대신 **라벨을 실제 목적지에 맞췄다**:
+ *   · '신규주문'(/products)      → '신규 상품'      — 목적지가 상품 목록이다
+ *   · '최근 주문'(/products)     → '최근 등록 상품' — 같음. 행도 상품명·등록자·일자다
+ *   · '판매 신청'(/products/categories) → '최근 구매평'(/products/reviews)
+ *       — 카테고리 관리에는 이 카드의 행(상품명 + 작성자 + 일자)에 해당하는 것이 없다.
+ *         같은 행을 정직하게 담는 화면은 구매평 목록이다.
+ *
+ * **주문 모듈(/orders)이 생기면** 위 셋을 원래 라벨로 되살린다:
+ *   { key: 'new-order', label: '신규주문', to: '/orders' } ·
+ *   { title: '최근 주문', moreTo: '/orders', icon: 'order' } ·
+ *   { title: '판매 신청', moreTo: '/orders/applications', icon: 'tag' }
+ * (남겨 둔 '취소관리'는 교환/반품 화면이 취소 흐름을 함께 다루게 되면 그대로 살아 있으면 된다.)
+ */
 const PRODUCT_DATA: TabData = {
   todos: [
-    { key: 'new-order', label: '신규주문', count: 1, to: '/products' },
+    { key: 'new-product', label: '신규 상품', count: 1, to: '/products' },
     { key: 'cancel', label: '취소관리', count: 0, to: '/products/returns' },
     { key: 'return', label: '반품관리', count: 0, to: '/products/returns' },
     { key: 'exchange', label: '교환관리', count: 0, to: '/products/returns' },
   ],
   cards: [
     {
-      title: '최근 주문',
+      title: '최근 등록 상품',
       count: 0,
       moreTo: '/products',
       icon: 'order',
@@ -77,9 +98,9 @@ const PRODUCT_DATA: TabData = {
       ],
     },
     {
-      title: '판매 신청',
+      title: '최근 구매평',
       count: 4,
-      moreTo: '/products/categories',
+      moreTo: '/products/reviews',
       icon: 'tag',
       rows: [
         { id: 's-1', title: 'Pioneer DJ CDJ-3000', actor: '테스***', date: '2026-07-13' },
@@ -109,7 +130,10 @@ const PRODUCT_DATA: TabData = {
 const INQUIRY_DATA: TabData = {
   todos: [
     { key: 'new-inquiry', label: '신규문의', count: 3, to: '/support/tickets' },
-    { key: 'awaiting-reply', label: '답변대기', count: 2, to: '/support/replies' },
+    // '/support/replies' 는 답변 **템플릿** 관리 화면이다 — 답변을 기다리는 문의가 아니라
+    // 답변할 때 꺼내 쓰는 문구 목록이라, 여기로 보내면 운영자가 찾던 것이 없다.
+    // 티켓 목록은 상태를 URL 로 소유하므로(?status=) 접수 상태로 좁혀 보낸다.
+    { key: 'awaiting-reply', label: '답변대기', count: 2, to: '/support/tickets?status=received' },
     { key: 'on-hold', label: '보류문의', count: 0, to: '/support/tickets' },
   ],
   cards: [
@@ -132,7 +156,8 @@ const INQUIRY_DATA: TabData = {
     {
       title: '답변 대기',
       count: 2,
-      moreTo: '/support/replies',
+      // 위 할일 링크와 같은 이유로 템플릿 화면이 아니라 접수 상태 티켓 목록으로 간다
+      moreTo: '/support/tickets?status=received',
       icon: 'question',
       rows: [
         { id: 'w-1', title: '교환 신청 후 회수 일정 문의', actor: '최유***', date: '2026-07-11' },

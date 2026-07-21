@@ -9,6 +9,7 @@
 //
 // [저장] localStorage(mock). 형태가 바뀌었으므로 version 으로 옛 저장값을 가려낸다.
 // TODO(backend): GET /api/roles · PUT /api/roles/:id/permissions
+import { formatNumber } from '../format';
 import {
   DASHBOARD_WIDGET_KEYS,
   createWidgets,
@@ -305,4 +306,34 @@ export function validateRoleName(
     (role) => role.id !== ignoreRoleId && role.name.trim().toLocaleLowerCase() === key,
   );
   return duplicated ? '이미 같은 이름의 역할이 있습니다.' : null;
+}
+
+/* ── 삭제 가드 ────────────────────────────────────────────────────────────────
+ *
+ * [왜 이것이 이 앱에서 가장 위험한 삭제인가] 역할을 지우면 그 역할을 든 운영자의 `roleId` 가
+ * **존재하지 않는 id** 를 가리킨다(고아 참조). 그 순간 상세 화면의 '역할' 은 조용히 '—' 가 되고,
+ * 그 사람이 무슨 권한이었는지는 아무 데도 남지 않는다 — 되돌리려면 누가 어떤 역할이었는지를
+ * 기억에 의존해 다시 배정해야 한다. 카테고리 삭제(상품·고객센터)는 이미 같은 이유로 사용 중일 때
+ * 막고 있었는데, 정작 더 위험한 역할 삭제만 무방비였다.
+ *
+ * [문구를 도메인이 갖는 이유는 adminGroupDeletionBlock 과 같다] 이 문장은 두 곳에서 쓰인다 —
+ * 화면이 삭제 버튼을 잠그며 다는 사유(aria-label/title)와, 저장소(permission-store)가 삭제를
+ * 거절하며 돌려주는 오류다. 두 곳에 따로 적으면 경합으로 거절됐을 때만 다른 문장이 뜬다.
+ */
+
+/**
+ * 역할 삭제를 막아야 하는 이유 — 없으면 null.
+ *
+ * `assigneeCount === null` 은 '0명' 이 아니라 **'확인 불가'** 다(조회기 미배선 — permission-store.ts
+ * 의 registerRoleAssigneeCountLookup 머리말). 모르는 것을 '없음' 으로 읽으면 배정된 역할이 조용히
+ * 지워지므로 그때도 막는다(fail-closed).
+ */
+export function roleDeletionBlock(roleName: string, assigneeCount: number | null): string | null {
+  if (assigneeCount === null) {
+    return `'${roleName}' 역할을 쓰는 운영자를 확인하지 못해 삭제할 수 없습니다. 잠시 후 다시 시도해 주세요.`;
+  }
+  if (assigneeCount > 0) {
+    return `'${roleName}' 역할을 쓰는 운영자가 ${formatNumber(assigneeCount)}명 있어 삭제할 수 없습니다. 관리자 관리에서 이 운영자들의 역할을 먼저 바꾼 뒤 다시 삭제해 주세요.`;
+  }
+  return null;
 }

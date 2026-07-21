@@ -9,7 +9,7 @@
 // 검색은 IME 안전이다 (COMP-10) — '가정의달' 을 치는 도중 자모마다 조회가 나가지 않는다.
 import { useEffect, useMemo } from 'react';
 import type { CSSProperties } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { formatDate } from '../../../shared/format';
 import { Button, Icon, SearchField, SelectField, StatusBadge } from '../../../shared/ui';
@@ -17,8 +17,9 @@ import { CrudListShell, parseFilter, useCrudList, useListState } from '../../../
 import type { CrudColumn } from '../../../shared/crud';
 import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
 import { eventAdapter } from './data-source';
-import { EVENT_FILTER_ALL, filterEvents, searchEvents } from './types';
+import { EVENT_FILTER_ALL, filterEvents, hasLinkedBanner, searchEvents } from './types';
 import type { EventPhaseFilter, MarketingEvent, MarketingEventInput } from './types';
+import { bannerEditPath } from '../../../shared/domain/banner-catalog';
 import {
   benefitTypeLabel,
   CAMPAIGN_PHASE_OPTIONS,
@@ -65,6 +66,9 @@ const periodStyle: CSSProperties = {
   fontVariantNumeric: 'tabular-nums',
   whiteSpace: 'nowrap',
 };
+
+/** 값 없음('미연동') — 링크와 시각적으로 구분한다 */
+const mutedStyle: CSSProperties = { color: cssVar('color.text.muted') };
 
 const statusCellStyle: CSSProperties = {
   display: 'inline-flex',
@@ -120,6 +124,18 @@ export default function EventListPage() {
     },
     { header: '대상', render: (item) => item.target },
     { header: '혜택', render: (item) => benefitText(item) },
+    {
+      header: '연동 배너',
+      render: (item) => {
+        if (!hasLinkedBanner(item)) return <span style={mutedStyle}>미연동</span>;
+        // 표시는 저장된 사본(bannerTitle), 이동은 언제나 id 로 — 이름이 비어도 링크는 살아 있다
+        return (
+          <Link to={bannerEditPath(item.bannerId)} className="tds-ui-link tds-ui-focusable">
+            {item.bannerTitle === '' ? item.bannerId : item.bannerTitle}
+          </Link>
+        );
+      },
+    },
     {
       header: '상태',
       nowrap: true,

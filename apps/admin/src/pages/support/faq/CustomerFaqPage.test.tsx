@@ -20,10 +20,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ToastProvider } from '../../../shared/ui';
 import type { CustomerFaq } from './types';
 
+// 행은 콘텐츠 관리 FAQ 에서 파생된다 — id·질문·카테고리가 그쪽 모양(FAQ-001 · delivery)인 이유다
 const FAQS: readonly CustomerFaq[] = [
   {
-    id: 'f1',
+    id: 'FAQ-003',
     question: '배송은 얼마나 걸리나요',
+    categoryId: 'delivery',
     categoryLabel: '배송',
     visible: true,
     pinned: false,

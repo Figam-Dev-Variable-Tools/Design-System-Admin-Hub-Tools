@@ -8,6 +8,8 @@
 //
 // [무엇이 여기 없는가] 화면 전용 상수(페이지 크기·모달 입력 폼 옵션·메모 길이 제한)는
 // 여기 두지 않는다 — 그건 그 페이지의 관심사다 (pages/members/types.ts).
+import { couponsById } from './coupon-catalog';
+import type { CatalogCoupon } from './coupon-catalog';
 
 /**
  * 회원 등급.
@@ -122,12 +124,67 @@ export interface PointEntry {
   readonly amount: number;
 }
 
-export interface Coupon {
-  readonly id: string;
-  readonly name: string;
-  readonly benefit: string;
-  /** ISO yyyy-mm-dd */
-  readonly expiresAt: string;
+/* ── 보유 쿠폰 = 발급(issuance) ────────────────────────────────────────────
+ *
+ * [예전엔 '쿠폰' 이 두 개였다] 여기에는 `Coupon { id, name, benefit, expiresAt }` 가 있었고,
+ * 상품 관리(pages/products/coupons)에는 코드·발급유형·수량·기간을 가진 전혀 다른 `Coupon` 이
+ * 있었다. 같은 이름, 다른 것. 회원 픽스처는 '00001-C1' 처럼 카탈로그와 무관한 id 를 지어냈고,
+ * 그래서 **회원 상세의 보유 쿠폰과 쿠폰 관리의 발급 수량은 영원히 어긋났다.**
+ *
+ * 회원이 들고 있는 것은 쿠폰의 '정의' 가 아니라 그 정의의 **발급 1건**이다. 그래서 모델은
+ * 카탈로그를 가리키는 참조(couponId)와 발급/사용 시각만 갖고, 이름·혜택·만료일 같은 표시값은
+ * 카탈로그에서 조인해 온다(joinIssuedCoupons). 이름도 `IssuedCoupon` 으로 갈라 두 낱말이
+ * 다시 겹치지 않게 한다.
+ */
+
+/** 회원에게 발급된 쿠폰 1건 — 표시값을 담지 않는다(카탈로그가 정본) */
+export interface IssuedCoupon {
+  /** 상품 관리 쿠폰의 id — 카탈로그 참조 */
+  readonly couponId: string;
+  /** 발급일 ISO yyyy-mm-dd */
+  readonly issuedAt: string;
+  /** 사용일 ISO yyyy-mm-dd — 미사용이면 null */
+  readonly usedAt: string | null;
+}
+
+/**
+ * 발급 1건 + 카탈로그 조인 결과 — 화면이 그대로 그리는 모양.
+ *
+ * 표시값이 전부 nullable 인 이유: 참조하는 쿠폰이 카탈로그에서 사라질 수 있다(삭제·미배선).
+ * 그때 이름을 지어내면 화면은 없는 쿠폰을 있는 것처럼 말한다 — 모르는 것은 null 로 드러낸다.
+ */
+export interface HeldCoupon {
+  readonly couponId: string;
+  readonly name: string | null;
+  readonly benefitLabel: string | null;
+  /** 사용 종료일 — 카탈로그의 endAt */
+  readonly expiresAt: string | null;
+  readonly issuedAt: string;
+  readonly usedAt: string | null;
+}
+
+/**
+ * 발급 목록 × 쿠폰 카탈로그 → 화면이 쓰는 보유 쿠폰.
+ *
+ * 순수 함수다(카탈로그를 인자로 받는다) — 조회기 배선 여부는 부르는 쪽이 판단한다.
+ * 색인을 한 번만 만들고 재사용한다(couponsById 주석 참조).
+ */
+export function joinIssuedCoupons(
+  issued: readonly IssuedCoupon[],
+  catalog: readonly CatalogCoupon[],
+): readonly HeldCoupon[] {
+  const byId = couponsById(catalog);
+  return issued.map((entry) => {
+    const found = byId[entry.couponId] ?? null;
+    return {
+      couponId: entry.couponId,
+      name: found === null ? null : found.name,
+      benefitLabel: found === null ? null : found.benefitLabel,
+      expiresAt: found === null ? null : found.endAt,
+      issuedAt: entry.issuedAt,
+      usedAt: entry.usedAt,
+    };
+  });
 }
 
 export interface MemberDetail {
@@ -164,8 +221,8 @@ export interface MemberDetail {
   readonly points: number;
   readonly pointHistory: readonly PointEntry[];
 
-  /* 보유 쿠폰 */
-  readonly coupons: readonly Coupon[];
+  /* 보유 쿠폰 — 발급 참조만 담는다. 이름·혜택은 카탈로그 조인이다(joinIssuedCoupons) */
+  readonly coupons: readonly IssuedCoupon[];
 
   /* 관리자 메모 */
   readonly memo: string;

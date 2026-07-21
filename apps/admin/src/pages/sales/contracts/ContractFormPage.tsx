@@ -26,6 +26,7 @@ import {
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
 import { FormConflictDialog, FormServerError, useCrudForm } from '../../../shared/crud';
+import { AccountSelectField } from '../_shared/AccountSelectField';
 import { contractAdapter } from './data-source';
 import { contractSchema } from './validation';
 import type { ContractFormValues } from './validation';
@@ -109,6 +110,7 @@ const actionsStyle: CSSProperties = {
 
 const EMPTY: ContractFormValues = {
   title: '',
+  accountId: '',
   accountName: '',
   contractType: 'supply',
   startAt: '',
@@ -133,6 +135,7 @@ const digitsToNumber = (raw: string): number => {
 function toInput(values: ContractFormValues): ContractInput {
   return {
     title: values.title.trim(),
+    accountId: values.accountId,
     accountName: values.accountName.trim(),
     contractType: values.contractType,
     startAt: values.startAt,
@@ -153,6 +156,7 @@ function toInput(values: ContractFormValues): ContractInput {
 function toValues(contract: Contract): ContractFormValues {
   return {
     title: contract.title,
+    accountId: contract.accountId,
     accountName: contract.accountName,
     contractType: contract.contractType,
     startAt: contract.startAt,
@@ -284,27 +288,25 @@ export default function ContractFormPage() {
                 />
               </FormField>
 
+              {/* 거래처는 **마스터에서 고른다** — 예전에는 자유 입력이라 같은 거래처가 표기
+                  하나로 둘이 됐고, 저장된 뒤엔 어느 거래처인지 앱이 알 수 없었다. */}
+              <AccountSelectField
+                id="contract-account"
+                accountId={watch('accountId')}
+                accountName={watch('accountName')}
+                required
+                disabled={disabled}
+                error={errors.accountName?.message}
+                onChange={(next) => {
+                  setValue('accountId', next.accountId, { shouldDirty: true });
+                  setValue('accountName', next.accountName, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }}
+              />
+
               <div style={rowStyle}>
-                <FormField
-                  htmlFor="contract-account"
-                  label="거래처"
-                  required
-                  error={errors.accountName?.message}
-                >
-                  <input
-                    id="contract-account"
-                    type="text"
-                    className="tds-ui-input tds-ui-focusable"
-                    style={controlStyle(errors.accountName !== undefined)}
-                    placeholder="예: (주)한빛소프트웨어"
-                    disabled={disabled}
-                    aria-invalid={errors.accountName !== undefined}
-                    aria-describedby={
-                      errors.accountName !== undefined ? errorIdOf('contract-account') : undefined
-                    }
-                    {...register('accountName')}
-                  />
-                </FormField>
                 <FormField htmlFor="contract-type" label="계약유형" required>
                   <SelectField id="contract-type" disabled={disabled} {...register('contractType')}>
                     {CONTRACT_TYPE_OPTIONS.map((option) => (
