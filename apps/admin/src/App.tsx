@@ -101,6 +101,8 @@ const PortfolioCategoriesPage = lazy(
 );
 const CaseStudyListPage = lazy(() => import('./pages/portfolio/case-studies/CaseStudyListPage'));
 const CaseStudyFormPage = lazy(() => import('./pages/portfolio/case-studies/CaseStudyFormPage'));
+const OrderListPage = lazy(() => import('./pages/orders/OrderListPage'));
+const OrderDetailPage = lazy(() => import('./pages/orders/OrderDetailPage'));
 const ProductListPage = lazy(() => import('./pages/products/items/ProductListPage'));
 const ProductFormPage = lazy(() => import('./pages/products/items/ProductFormPage'));
 const ProductCategoriesPage = lazy(
@@ -108,6 +110,9 @@ const ProductCategoriesPage = lazy(
 );
 const CouponListPage = lazy(() => import('./pages/products/coupons/CouponListPage'));
 const CouponFormPage = lazy(() => import('./pages/products/coupons/CouponFormPage'));
+const CouponIssuanceListPage = lazy(
+  () => import('./pages/products/coupons/CouponIssuanceListPage'),
+);
 const ReviewListPage = lazy(() => import('./pages/products/reviews/ReviewListPage'));
 const ReviewDetailPage = lazy(() => import('./pages/products/reviews/ReviewDetailPage'));
 const ReturnsListPage = lazy(() => import('./pages/products/returns/ReturnsListPage'));
@@ -294,12 +299,19 @@ const APP_ROUTES: readonly AppRoute[] = [
   { path: '/portfolio/case-studies/new', element: <CaseStudyFormPage /> },
   { path: '/portfolio/case-studies/:id/edit', element: <CaseStudyFormPage /> },
 
+  // 주문 — 목록 > 상세. 등록·삭제 라우트는 없다(고객의 결제가 만들고, 거래 기록은 지우지 않는다).
+  { path: '/orders', element: <OrderListPage />, implemented: true },
+  { path: '/orders/:id', element: <OrderDetailPage /> },
+
   // 상품 — 상품/카테고리/쿠폰/리뷰/교환·반품/배송·적립금.
   { path: '/products', element: <ProductListPage />, implemented: true },
   { path: '/products/new', element: <ProductFormPage /> },
   { path: '/products/:id/edit', element: <ProductFormPage /> },
   { path: '/products/categories', element: <ProductCategoriesPage />, implemented: true },
   { path: '/products/coupons', element: <CouponListPage />, implemented: true },
+  // 발급 현황·이력 — 정적 잎이라 '/products/coupons/:id/edit' 보다 먼저 잡힌다.
+  // 권한은 findCoveringLeaf 가 '/products/coupons' 로 풀어 준다(nav 잎을 새로 만들지 않는다).
+  { path: '/products/coupons/issuance', element: <CouponIssuanceListPage /> },
   { path: '/products/coupons/new', element: <CouponFormPage /> },
   { path: '/products/coupons/:id/edit', element: <CouponFormPage /> },
   { path: '/products/reviews', element: <ReviewListPage />, implemented: true },

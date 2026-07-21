@@ -25,6 +25,7 @@ import { Alert, Button, ConfirmDialog, useToast, useUnsavedChangesDialog } from 
 import { TierCriteriaCard } from './components/TierCriteriaCard';
 import { TierDistributionCard } from './components/TierDistributionCard';
 import { TierPolicyCard } from './components/TierPolicyCard';
+import { TierUpCouponCard } from './components/TierUpCouponCard';
 import { computeDistribution } from './distribution';
 import { useSaveTierPolicy, useTierPolicyQuery } from './queries';
 import { draftFromPolicy, formatAmountOnBlur, sanitizeDigits, serializeDraft } from './types';
@@ -334,6 +335,8 @@ export default function CustomerSettingsPage() {
 
         <div style={columnStyle}>
           <TierDistributionCard distribution={distribution} allowDemotion={draft.allowDemotion} />
+          {/* 승급 규칙의 나머지 절반 — 올라가면 무엇이 나가는가. 읽기 전용이고 정본은 쿠폰이다 */}
+          <TierUpCouponCard />
         </div>
       </div>
 

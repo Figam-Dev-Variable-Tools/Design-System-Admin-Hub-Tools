@@ -6,7 +6,13 @@ import { ensureRichText } from '@tds/ui';
 
 import type { StatusTone } from '../../../shared/ui';
 import { PRODUCT_FILTER_ALL } from '../_shared/store';
-import type { PointsEarnMode, Product, ProductInput, ProductSaleStatus } from '../_shared/store';
+import type {
+  PointsEarnMode,
+  Product,
+  ProductCouponMode,
+  ProductInput,
+  ProductSaleStatus,
+} from '../_shared/store';
 
 /** 판매상태 → 배지 톤·문구 (다중 상태 배지) */
 interface SaleStatusMeta {
@@ -63,6 +69,16 @@ export const POINTS_MODE_OPTIONS: readonly {
   { id: 'none', label: '적립 미적용' },
 ];
 
+/** 쿠폰 적용 범위 선택지 — 상품 폼의 '쿠폰 사용 설정' 카드가 쓴다 */
+export const COUPON_POLICY_MODE_OPTIONS: readonly {
+  readonly id: ProductCouponMode;
+  readonly label: string;
+}[] = [
+  { id: 'all', label: '모든 쿠폰 사용 가능' },
+  { id: 'include', label: '선택한 쿠폰만 사용 가능' },
+  { id: 'exclude', label: '선택한 쿠폰만 사용 불가' },
+];
+
 /**
  * 항목 → 폼/쓰기 입력(id·비정규화 라벨 제외). 목록 인라인 토글과 폼이 함께 쓴다.
  *
@@ -81,6 +97,7 @@ export function toProductInput(product: Product): ProductInput {
     displayed: product.displayed,
     shipping: { ...product.shipping },
     points: { ...product.points },
+    coupons: { ...product.coupons, couponIds: [...product.coupons.couponIds] },
     optionGroups: product.optionGroups.map((group) => ({ ...group, values: [...group.values] })),
     variants: product.variants.map((variant) => ({
       ...variant,

@@ -59,13 +59,18 @@ function escapeHtml(text: string): string {
 }
 
 /**
- * 링크 주소를 안전한 것만 통과시킨다.
+ * 링크 주소를 안전한 것만 통과시킨다. **빈 문자열은 '이 주소로는 아무 데도 못 간다' 는 뜻이다.**
+ *
+ * [왜 export 하나] 발송 전 점검(preflight.ts)이 같은 판정을 해야 한다. 점검이 `url !== ''` 만
+ * 보면 `#{TRACKING_URL}` 처럼 **적혀 있지만 렌더러가 버리는** 주소를 통과시키고, 그러면 버튼은
+ * 그려지는데 눌러도 아무 일이 없는 메일이 나간다. 화면의 판정과 발송물의 판정이 갈리는 순간
+ * 점검은 거짓 안심이 되므로, 규칙은 이 함수 하나뿐이다.
  *
  * [왜 필요한가] 주소는 운영자가 친 자유 문자열이고, 본문에는 마크다운 링크까지 들어온다.
  * `javascript:` 를 그대로 href 에 넣으면 그것을 실행하는 클라이언트(주로 웹메일 미리보기)에서
  * 스크립트가 된다. 화이트리스트로 막는다 — 블랙리스트는 `JaVaScRiPt:` 같은 변형을 놓친다.
  */
-function safeUrl(url: string): string {
+export function safeUrl(url: string): string {
   const trimmed = url.trim();
   if (trimmed === '') return '';
   if (/^(https?:|mailto:|tel:)/i.test(trimmed)) return trimmed;
@@ -724,11 +729,12 @@ export function renderBlocksToPlainText(blocks: readonly EmailBlock[]): string {
 export function renderBlocksToHtml(
   blocks: readonly EmailBlock[],
   canvas: EmailCanvasStyle,
+  preheader = '',
 ): string {
   if (blocks.length === 0) return '';
 
   const rows = blocks.map((block) => renderLeafRow(block, canvas)).join('');
-  return table(rows, [
+  return `${preheaderHtml(preheader)}${table(rows, [
     ['background-color', canvas.canvasColor],
     ['border', `${String(CANVAS_BORDER_WIDTH)}px solid ${canvas.canvasBorderColor}`],
     // Word 는 border-radius 를 그리지 않는다 — 다른 클라이언트를 위해 남기되 기대하지 않는다
@@ -737,5 +743,46 @@ export function renderBlocksToHtml(
     ['font-family', canvas.fontFamily],
     ['max-width', px(EMAIL_BODY_WIDTH)],
     ['width', px(EMAIL_BODY_WIDTH)],
+  ])}`;
+}
+
+/* ── 프리헤더 (감춰진 첫 줄) ──────────────────────────────────────────────────
+ *
+ * [무엇을 만드나] 본문 맨 앞에 놓이는, **화면에는 안 보이고 수신함 목록에만 보이는** 한 줄이다.
+ * 제목 뒤에 이어 붙는 그 자리를 클라이언트가 본문 맨 앞에서 주워 가는데, 우리 본문의 맨 앞은
+ * 대개 로고 밴드라 `[로고: logo.png]` 가 수신함에 뜬다(types.ts PREHEADER_MAX 머리말).
+ *
+ * [왜 display:none 하나로 끝내지 않나] Gmail 을 비롯한 여러 클라이언트가 `display:none` 요소를
+ * 프리뷰 텍스트 수집에서 **빼 버린다** — 감추는 데는 성공하고 목적에는 실패한다. 그래서 업계
+ * 표준은 '보이지 않을 만큼 작게' 만드는 쪽이다: 높이·글자 크기 0 에 투명도 0, 화면 밖 오프셋.
+ * 여기 있는 선언은 하나하나가 특정 클라이언트를 위한 것이라 겹쳐 보여도 뺄 것이 없다.
+ *
+ * [뒤의 &zwnj;&nbsp; 반복은 무엇인가] 프리헤더가 짧으면 클라이언트가 **모자란 만큼 본문에서 더
+ * 끌어와** 붙인다. 폭 없는 문자를 뒤에 깔아 그 자리를 미리 채운다 — 수신함에서는 아무것도
+ * 보이지 않고, 본문이 새어 나오지도 않는다.
+ *
+ * ※ 이 함수가 만드는 것은 **발송되는 메일의 HTML** 이다 — 어드민 화면의 스타일 규칙(토큰만)이
+ *   아니라 메일 클라이언트의 제약(인라인 style·px)을 따른다. 경계는 이 파일 머리말에 있다. */
+
+const PREHEADER_FILLER = '&zwnj;&nbsp;'.repeat(60);
+
+function preheaderHtml(preheader: string): string {
+  const text = preheader.trim();
+  if (text === '') return '';
+  const attr = styleAttr([
+    ['display', 'none'],
+    /* 치수는 px() 를 지난다 — 리터럴 `1px` 은 이 리포의 하드코딩 px 방어선에 걸린다.
+       그 규칙이 막으려는 것은 **화면 스타일의 매직 넘버**이고, 여기 값은 발송 메일의 인라인
+       style 이다(이 파일 머리말의 경계). 방어선을 끄는 대신 같은 헬퍼를 지나게 둔다. */
+    ['font-size', px(1)],
+    ['color', 'transparent'],
+    ['line-height', px(1)],
+    ['max-height', px(0)],
+    ['max-width', px(0)],
+    ['opacity', '0'],
+    ['overflow', 'hidden'],
+    // Outlook(Word)은 위 선언 대부분을 무시한다 — 이것만 존중한다
+    ['mso-hide', 'all'],
   ]);
+  return `<div${attr}>${escapeHtml(text)}${PREHEADER_FILLER}</div>`;
 }

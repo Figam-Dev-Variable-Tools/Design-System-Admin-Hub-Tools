@@ -212,6 +212,48 @@ export function looksLikeRichText(value: string): boolean {
   return /<[a-z][^>]*>/i.test(value);
 }
 
+/* ── 받은편지함 미리보기 (프리헤더) ────────────────────────────────────────────
+ *
+ * [무엇을 흉내 내나] 메일 클라이언트의 목록 화면은 한 통을 세 조각으로 요약한다:
+ *   보낸사람 · 제목 · **그 뒤에 이어 붙는 한 줄**.
+ * 세 번째 조각이 프리헤더다. 운영자가 값을 정해 두지 않으면 클라이언트가 **본문 맨 앞에서
+ * 주워 간다** — 우리 템플릿의 맨 앞은 대개 로고 밴드라 `[로고: logo.png]` 가 그 자리에 뜬다.
+ *
+ * [왜 이것이 화면에 필요한가] 제목만 보이는 미리보기는 '수신함에서 어떻게 보이는가' 라는
+ * 질문에 절반만 답한다. 열람 여부를 가르는 자리를 운영자가 한 번도 보지 못하면, 그 자리는
+ * 아무도 관리하지 않는 채로 발송된다.
+ *
+ * [왜 순수 함수인가] 규칙이 둘(명시값 우선 · 없으면 본문 앞머리)이고, 그 판정을 미리보기
+ * 컴포넌트 안에 두면 템플릿 화면과 발송 화면이 각자 조금씩 다르게 흉내 내게 된다. */
+
+/** 수신함 한 줄에 들어가는 대략의 글자 수 — 이보다 뒤는 어느 클라이언트에서도 잘린다 */
+const INBOX_PREVIEW_MAX = 90;
+
+/**
+ * 본문에서 프리헤더로 끌려 나올 글자.
+ *
+ * HTML 이면 태그를 걷어내고, 평문이면 그대로 쓴다 — 어느 쪽인지는 looksLikeRichText 가 가른다
+ * (MailFrame 과 같은 판단이다. 호출부가 플래그로 알려 주는 방식은 그쪽 머리말의 이유로 쓰지 않는다).
+ */
+function bodyLead(body: string): string {
+  const text = looksLikeRichText(body) ? htmlToPlainText(body) : body;
+  return text.replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * 받은편지함에서 제목 뒤에 이어 보일 한 줄.
+ *
+ * 명시한 프리헤더가 있으면 그것이고, 없으면 본문 앞머리다. 둘 다 없으면 빈 문자열 —
+ * 그때 화면이 '(본문 앞머리가 그대로 보입니다)' 같은 안내를 대신 그린다. **여기서 안내 문구를
+ * 만들어 돌려주지 않는다**: 이 함수의 결과는 '수신자가 볼 글자' 이고, 안내는 운영자만 보는 것이다.
+ * 둘을 한 값에 섞으면 안내 문구가 수신자에게 나가는 날이 온다.
+ */
+export function inboxPreviewText(preheader: string, body: string): string {
+  const explicit = preheader.trim();
+  const text = explicit === '' ? bodyLead(body) : explicit;
+  return text.length <= INBOX_PREVIEW_MAX ? text : `${text.slice(0, INBOX_PREVIEW_MAX)}…`;
+}
+
 // [삭제됨] richTextToPlainText · convertBodyForChannel
 //   채널 전환(이메일 ↔ SMS/알림톡)이 있는 화면 하나를 위해 있던 변환이다. 그 화면이 지워지면서
 //   소비자가 0 이 됐다 — 지금의 메시지 템플릿은 종류를 만들 때 정하고 도중에 갈아타지 않으므로

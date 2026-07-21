@@ -48,9 +48,14 @@ export function EmailPreviewCard({
         onRequestInsert={noop}
         onRequestInsertInColumn={noop}
         onRemoveBlock={noop}
+        onMoveBlock={noop}
+        /* 읽기 전용이라 이동 손잡이가 뜰 일이 없다 — null 은 '자리를 모른다' 이고,
+           캔버스는 그때 손잡이를 그리지 않는다(선택된 블록도 없다). */
+        blockPositionOf={() => null}
         onSenderProfileChange={noop}
         onSenderEmailChange={noop}
         onSubjectChange={noop}
+        onPreheaderChange={noop}
       />
     </Card>
   );

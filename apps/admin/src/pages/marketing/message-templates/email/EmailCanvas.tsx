@@ -7,12 +7,14 @@ import { useId } from 'react';
 import type { CSSProperties } from 'react';
 
 import { cssVar, FormField, SelectField, TextField } from '@tds/ui';
-import { Button } from '../../../../shared/ui';
+import { Button, hintStyle, ReorderMoveButtons } from '../../../../shared/ui';
 import { BlockView } from './BlockView';
 import { BLOCK_KIND_LABEL } from './blocks';
+import { PREHEADER_MAX } from '../types';
 import type { EmailBlock, EmailTemplateContent, SenderProfile } from '../types';
 import {
   blockInsertHandleStyle,
+  blockMoveHandleStyle,
   blockOutlineStyle,
   blockRemoveHandleStyle,
   blockSelectOverlayStyle,
@@ -53,9 +55,16 @@ interface EmailCanvasProps {
   /** 빈 칸의 + — 그 칸 안에 넣는다 */
   readonly onRequestInsertInColumn: (columnId: string) => void;
   readonly onRemoveBlock: (id: string) => void;
+  /** 한 칸 위(-1)/아래(+1)로 — 손잡이의 계약은 DS 의 ReorderMoveButtons 와 같은 (index, delta) 축이다 */
+  readonly onMoveBlock: (id: string, delta: number) => void;
+  /** 이 블록이 형제 중 몇 번째인가 — 첫 줄·끝 줄의 버튼을 잠그는 데 쓴다. 못 찾으면 null */
+  readonly blockPositionOf: (
+    id: string,
+  ) => { readonly index: number; readonly count: number } | null;
   readonly onSenderProfileChange: (id: string) => void;
   readonly onSenderEmailChange: (email: string) => void;
   readonly onSubjectChange: (subject: string) => void;
+  readonly onPreheaderChange: (preheader: string) => void;
 }
 
 export function EmailCanvas({
@@ -70,9 +79,12 @@ export function EmailCanvas({
   onRequestInsert,
   onRequestInsertInColumn,
   onRemoveBlock,
+  onMoveBlock,
+  blockPositionOf,
   onSenderProfileChange,
   onSenderEmailChange,
   onSubjectChange,
+  onPreheaderChange,
 }: EmailCanvasProps) {
   const fieldId = useId();
   const locked = disabled === true;
@@ -143,6 +155,26 @@ export function EmailCanvas({
 
         {active && (
           <>
+            {/* [순서 이동] 선택된 블록에만 뜬다 — 모든 블록에 늘 떠 있으면 캔버스가 손잡이로 덮인다.
+                최상위 블록은 본문 안에서, 칸 안의 블록은 **그 칸 안에서** 움직인다(blockPositionOf). */}
+            {(() => {
+              const position = blockPositionOf(block.id);
+              if (position === null || position.count < 2) return null;
+              return (
+                <div style={blockMoveHandleStyle}>
+                  <ReorderMoveButtons
+                    label={`${BLOCK_KIND_LABEL[block.blockKind]} 블록`}
+                    index={position.index}
+                    count={position.count}
+                    locked={locked}
+                    onMove={(_index, delta) => {
+                      onMoveBlock(block.id, delta);
+                    }}
+                  />
+                </div>
+              );
+            })()}
+
             {deletable && (
               /* 지우기 — 선택된 블록의 오른쪽 위 모서리에 뜬다 */
               <div style={blockRemoveHandleStyle}>
@@ -257,6 +289,29 @@ export function EmailCanvas({
                 onSubjectChange(event.target.value);
               }}
             />
+
+            {/* [프리헤더가 왜 제목 바로 아래인가] 수신함에서 이 둘은 **한 줄로 이어져** 보인다
+                (제목 — 프리헤더). 떨어뜨려 두면 운영자는 둘을 함께 읽히는 문장으로 쓰지 않는다.
+                필수가 아닌 이유는 types.ts PREHEADER_MAX 머리말에 있다 — 없으면 점검이 경고한다. */}
+            <div>
+              <TextField
+                id={`${fieldId}-preheader`}
+                label="프리헤더"
+                placeholder="수신함에서 제목 뒤에 이어 보일 한 줄"
+                maxLength={PREHEADER_MAX}
+                value={value.preheader}
+                disabled={locked}
+                onChange={(event) => {
+                  onPreheaderChange(event.target.value);
+                }}
+              />
+              {/* TextField 계약에는 hint 가 없다(에러만 갖는다) — 안내는 밖에 둔다.
+                  계약을 우회해 prop 을 밀어 넣지 않는다. */}
+              <p style={hintStyle}>
+                비워 두면 본문 맨 앞 글자가 수신함에 그대로 끌려 나옵니다. 메일 본문에는 보이지
+                않습니다.
+              </p>
+            </div>
           </>
         ) : (
           <>
@@ -272,6 +327,12 @@ export function EmailCanvas({
               <span style={senderReadonlyLabelStyle}>제목</span>
               <span style={senderReadonlySubjectStyle}>{value.subject}</span>
             </div>
+            {value.preheader.trim() !== '' && (
+              <div style={senderReadonlyRowStyle}>
+                <span style={senderReadonlyLabelStyle}>프리헤더</span>
+                <span style={senderReadonlyValueStyle}>{value.preheader}</span>
+              </div>
+            )}
           </>
         )}
       </div>

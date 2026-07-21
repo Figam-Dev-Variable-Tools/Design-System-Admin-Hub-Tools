@@ -134,7 +134,11 @@ export const NAV_SECTIONS: readonly NavSection[] = [
   {
     title: '비즈니스',
     entries: [
-      // 5. 포트폴리오 관리
+      // 5. 주문 관리 — 커머스의 뿌리(목록 > 상세). 등록 폼이 없다: 주문은 고객의 결제가 만든다.
+      //    반품·적립 원장·통계가 그동안 해석되지 않는 orderNo 문자열로 가리키던 대상이 여기다.
+      leaf('shopping-bag', 'menu.orders', '주문 관리', '/orders'),
+
+      // 6. 포트폴리오 관리
       branch('image', 'menu.portfolio', '포트폴리오 관리', '/portfolio', [
         ['포트폴리오', '/portfolio/items'],
         ['카테고리', '/portfolio/categories'],

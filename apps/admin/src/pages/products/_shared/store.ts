@@ -115,6 +115,53 @@ interface ProductPoints {
   readonly amount: number;
 }
 
+/* ── 쿠폰 사용 설정 (상품별 — 쿠폰 화면의 '발급 대상' 과 짝을 이룬다) ─────── */
+
+/**
+ * 이 상품에 쿠폰을 어떻게 허용하는가.
+ *
+ * - `all`     : 사용 가능한 모든 쿠폰을 받는다(기본값)
+ * - `include` : 여기 고른 쿠폰**만** 받는다 (기획전 전용 쿠폰 등)
+ * - `exclude` : 여기 고른 쿠폰만 **못 받는다** (전 상품 쿠폰에서 이 상품만 빼는 흔한 운영)
+ */
+export type ProductCouponMode = 'all' | 'include' | 'exclude';
+
+export interface ProductCouponPolicy {
+  /**
+   * 쿠폰 사용 가능 여부 — false 면 **어떤 쿠폰도** 이 상품에 붙지 않는다.
+   *
+   * [왜 이 축이 따로 있나] 쿠폰 불가 상품은 실재한다: 특가·공동구매·역마진 사은품은 마진이
+   * 이미 0 이라 그 위에 할인이 얹히면 팔수록 손해다. 목록에서 쿠폰을 하나씩 빼는 것(exclude)으로는
+   * 표현되지 않는다 — 내일 만드는 새 쿠폰까지 자동으로 막아야 하기 때문이다.
+   */
+  readonly usable: boolean;
+  readonly mode: ProductCouponMode;
+  /** mode 가 include/exclude 일 때 고른 쿠폰 id 들. all 이면 빈 배열 */
+  readonly couponIds: readonly string[];
+}
+
+/** 새 상품의 쿠폰 기본값 — 받는 쪽으로 연다(막는 것은 명시적 결정이어야 한다) */
+export const DEFAULT_COUPONS: ProductCouponPolicy = {
+  usable: true,
+  mode: 'all',
+  couponIds: [],
+};
+
+/**
+ * 이 상품에 이 쿠폰을 쓸 수 있는가 — **주문 시점 판정의 정본**.
+ *
+ * [상품이 이긴다 — 충돌의 승자를 여기서 정한다] 쿠폰이 자기 '발급 대상' 으로 이 상품을 지목해도
+ * `usable === false` 면 false 다. 쿠폰은 **캠페인**(기간이 끝나면 사라진다)이고 쿠폰 불가는
+ * **상품의 원가 사실**(마진이 없다)이라, 둘이 어긋날 때 손해를 보는 쪽은 언제나 상품이다.
+ * 그래서 계산은 상품 편에서 끝내고, 어긋났다는 사실은 화면이 경고로 드러낸다(조용히 지지 않는다).
+ */
+export function productAllowsCoupon(policy: ProductCouponPolicy, couponId: string): boolean {
+  if (!policy.usable) return false;
+  if (policy.mode === 'include') return policy.couponIds.includes(couponId);
+  if (policy.mode === 'exclude') return !policy.couponIds.includes(couponId);
+  return true;
+}
+
 /** 판매상태(다중) — 판매중/품절/판매중지. 전시상태(displayed)는 이진 토글로 별도. */
 export type ProductSaleStatus = 'on_sale' | 'sold_out' | 'stopped';
 
@@ -137,6 +184,8 @@ export interface Product {
   readonly shipping: ProductShipping;
   /** 상품별 적립 설정 — 전역 적립금 정책의 기본 적립률을 이 상품에 한해 덮어쓴다 */
   readonly points: ProductPoints;
+  /** 쿠폰 사용 설정 — 쿠폰 화면의 '발급 대상' 과 어긋나면 이쪽이 이긴다(productAllowsCoupon) */
+  readonly coupons: ProductCouponPolicy;
   /** 대표 이미지 — 목록엔 넣지 않는다(상세/폼 전용) */
   readonly coverImageUrl: string;
   /** 상세 이미지 다중 */
@@ -166,6 +215,7 @@ export interface ProductInput {
   readonly variants: readonly ProductVariant[];
   readonly shipping: ProductShipping;
   readonly points: ProductPoints;
+  readonly coupons: ProductCouponPolicy;
   readonly coverImageUrl: string;
   readonly imageUrls: readonly string[];
   readonly description: string;
@@ -490,6 +540,8 @@ let products: Product[] = [
     shipping: { method: 'courier', feeType: 'conditional', fee: 3000, freeThreshold: 50000 },
     // 밀어주는 주력 상품 — 기본 적립률(1%)보다 높게 잡았다
     points: { mode: 'rate', rate: 2, amount: 0 },
+    // 주력 상품이라 쿠폰을 가리지 않는다
+    coupons: { usable: true, mode: 'all', couponIds: [] },
     coverImageUrl: '/fixtures/placeholder-image.svg',
     imageUrls: ['/fixtures/placeholder-image.svg'],
     description:
@@ -527,6 +579,8 @@ let products: Product[] = [
     ],
     shipping: { method: 'courier', feeType: 'paid', fee: 2500, freeThreshold: 0 },
     points: { mode: 'rate', rate: 1, amount: 0 },
+    // 단가가 낮아 무료배송 쿠폰이 붙으면 배송비가 마진을 넘는다 — 그 쿠폰만 뺀다
+    coupons: { usable: true, mode: 'exclude', couponIds: ['cpn-3'] },
     coverImageUrl: '/fixtures/placeholder-image.svg',
     imageUrls: [],
     description: '<p>두께감 있는 코튼 원단으로 사계절 입기 좋은 기본 티셔츠입니다.</p>',
@@ -572,6 +626,8 @@ let products: Product[] = [
     shipping: { method: 'courier', feeType: 'free', fee: 0, freeThreshold: 0 },
     // 정액 적립 — 가격과 무관하게 2,000P 를 준다
     points: { mode: 'fixed', rate: 0, amount: 2000 },
+    // 재구매 유도 상품 — 재구매 쿠폰 한 장만 받는다
+    coupons: { usable: true, mode: 'include', couponIds: ['cpn-2'] },
     coverImageUrl: '/fixtures/placeholder-image.svg',
     imageUrls: [],
     description: '<p>가벼운 쿠셔닝으로 데일리 착화감이 좋은 스니커즈입니다.</p>',
@@ -616,6 +672,7 @@ let products: Product[] = [
     ],
     shipping: { method: 'courier', feeType: 'conditional', fee: 3000, freeThreshold: 70000 },
     points: { mode: 'rate', rate: 1, amount: 0 },
+    coupons: { usable: true, mode: 'all', couponIds: [] },
     coverImageUrl: '/fixtures/placeholder-image.svg',
     imageUrls: [],
     description: '<p>자연스러운 워싱과 편안한 핏의 데님 팬츠입니다.</p>',
@@ -636,6 +693,9 @@ let products: Product[] = [
     shipping: { method: 'direct', feeType: 'paid', fee: 5000, freeThreshold: 0 },
     // 특가·판매중지 상품 — 적립을 빼 둔다(전역 정책 하나로는 표현되지 않는 바로 그 경우)
     points: { mode: 'none', rate: 0, amount: 0 },
+    // 특가 상품 — 마진이 없어 쿠폰을 아예 막는다. 이 상품을 대상으로 지정한 쿠폰(cpn-5)이
+    // 있어 화면이 충돌 경고를 띄운다 — 승자는 상품이다(productAllowsCoupon 머리말).
+    coupons: { usable: false, mode: 'all', couponIds: [] },
     coverImageUrl: '/fixtures/placeholder-image.svg',
     imageUrls: [],
     description: '<p>가벼운 외출에 어울리는 미니멀한 크로스백입니다.</p>',

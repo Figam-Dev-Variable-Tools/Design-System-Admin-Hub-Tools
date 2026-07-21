@@ -7,7 +7,7 @@
 import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { cssVar, isRichTextEmpty, sanitizeRichText } from '@tds/ui';
 
 import './product-form.css';
@@ -54,6 +54,8 @@ import { fetchProductCategoryOptions, productAdapter } from './data-source';
 import { productSchema } from './validation';
 import type { ProductFormValues } from './validation';
 import { ProductCardPreview } from './components/ProductCardPreview';
+import { ProductCouponCard } from './components/ProductCouponCard';
+import type { CouponChoice } from './components/ProductCouponCard';
 import { ProductOptionMatrix } from './components/ProductOptionMatrix';
 import {
   ProductPointsCard,
@@ -62,6 +64,7 @@ import {
 } from './components/ProductPricingCards';
 import { SALE_STATUS_OPTIONS } from './types';
 import {
+  DEFAULT_COUPONS,
   DEFAULT_POINTS,
   DEFAULT_SHIPPING,
   earnedPoints,
@@ -72,6 +75,9 @@ import {
   PRODUCT_NAME_MAX,
 } from '../_shared/store';
 import type { Product, ProductInput } from '../_shared/store';
+// 같은 섹션(pages/products) 안이라 페이지 간 결합이 아니다 — 그래도 '무엇이 이 상품을 지목했나' 는
+// 쿠폰이 답할 질문이라 시드를 직접 읽지 않고 쿠폰 모듈의 조회기를 부른다.
+import { couponsTargetingProduct, fetchCouponOptions } from '../coupons/data-source';
 
 const RESOURCE = 'products';
 const ENTITY_LABEL = '상품';
@@ -136,6 +142,7 @@ const SECTIONS = [
     fields: ['price', 'discountType', 'discountValue', 'taxable'],
   },
   { id: 'product-section-points', label: '적립금', fields: ['points'] },
+  { id: 'product-section-coupons', label: '쿠폰 사용 설정', fields: ['coupons'] },
   { id: 'product-section-options', label: '옵션 · 재고', fields: ['optionGroups', 'variants'] },
   { id: 'product-section-shipping', label: '배송', fields: ['shipping'] },
   { id: 'product-section-images', label: '이미지', fields: ['coverImageUrl', 'imageUrls'] },
@@ -204,6 +211,12 @@ const EMPTY: ProductFormValues = {
     rate: String(DEFAULT_POINTS.rate),
     amount: '',
   },
+  // 새 상품은 쿠폰을 받는 쪽으로 연다 — 막는 것은 명시적 결정이어야 한다(_shared/store)
+  coupons: {
+    usable: DEFAULT_COUPONS.usable,
+    mode: DEFAULT_COUPONS.mode,
+    couponIds: [],
+  },
   optionGroups: [],
   variants: [
     { id: 'variant-single', sku: '', optionValues: [], addPrice: 0, stock: 0, soldOut: false },
@@ -246,6 +259,13 @@ function toInput(values: ProductFormValues): ProductInput {
       freeThreshold,
     },
     points: { mode: values.points.mode, rate: pointsRate, amount: pointsAmount },
+    // 쓰이지 않는 축은 눕힌다 — '모든 쿠폰 사용 가능' 으로 되돌린 뒤 예전 선택이 되살아나지 않게
+    coupons: {
+      usable: values.coupons.usable,
+      mode: values.coupons.mode,
+      couponIds:
+        values.coupons.usable && values.coupons.mode !== 'all' ? [...values.coupons.couponIds] : [],
+    },
     optionGroups: values.optionGroups,
     variants: values.variants,
     coverImageUrl: values.coverImageUrl,
@@ -294,6 +314,11 @@ function toValues(product: Product): ProductFormValues {
       rate: product.points.mode === 'rate' ? String(product.points.rate) : '',
       amount: product.points.mode === 'fixed' ? String(product.points.amount) : '',
     },
+    coupons: {
+      usable: product.coupons.usable,
+      mode: product.coupons.mode,
+      couponIds: [...product.coupons.couponIds],
+    },
     optionGroups: product.optionGroups.map((group) => ({ ...group, values: [...group.values] })),
     variants: product.variants.map((variant) => ({
       ...variant,
@@ -308,6 +333,8 @@ function toValues(product: Product): ProductFormValues {
 
 export default function ProductFormPage() {
   const navigate = useNavigate();
+  /** 수정 화면의 상품 id — 쿠폰이 이 상품을 지목했는지 맞춰 보는 값 */
+  const { id: productId } = useParams<{ id: string }>();
   const {
     form,
     isEdit,
@@ -386,6 +413,32 @@ export default function ProductFormPage() {
   const pointsMode = watch('points.mode');
   const pointsRate = watch('points.rate');
   const pointsAmount = watch('points.amount');
+  const couponUsable = watch('coupons.usable');
+  const couponMode = watch('coupons.mode');
+  const couponIds = watch('coupons.couponIds');
+
+  /**
+   * 쿠폰 선택지 + '이 상품을 지목했는가'.
+   *
+   * 지목 판정은 저장된 카테고리(categoryId)로 한다 — 폼에서 카테고리를 바꾸면 다음 렌더에 곧바로
+   * 다른 쿠폰이 걸린다. 신규 상품은 아직 id 가 없어 상품 지목은 성립하지 않고 카테고리만 걸린다.
+   */
+  const couponOptionsQuery = useQuery({
+    queryKey: ['coupons', 'options'],
+    queryFn: ({ signal }) => fetchCouponOptions(signal),
+  });
+
+  const couponChoices = useMemo<readonly CouponChoice[]>(() => {
+    const options = couponOptionsQuery.data ?? [];
+    const targeting = new Set(
+      couponsTargetingProduct({ id: productId ?? '', categoryId }).map((coupon) => coupon.id),
+    );
+    return options.map((coupon) => ({
+      id: coupon.id,
+      name: coupon.name,
+      targetsThisProduct: targeting.has(coupon.id),
+    }));
+  }, [couponOptionsQuery.data, productId, categoryId]);
 
   // 좌측 레일 — 지금 보고 있는 구획(스크롤 추적)과 오류가 남은 구획을 함께 말한다
   const activeSectionId = useActiveSection(SECTION_IDS);
@@ -680,8 +733,23 @@ export default function ProductFormPage() {
                 />
               </FormSectionAnchor>
 
-              {/* ── 옵션 · 재고(SKU) ── */}
+              {/* ── 쿠폰 사용 설정 (쿠폰 화면의 '발급 대상' 과 짝 — 어긋나면 상품이 이긴다) ── */}
               <FormSectionAnchor id={SECTIONS[3].id} label={SECTIONS[3].label}>
+                <ProductCouponCard
+                  register={register}
+                  errors={errors}
+                  setValue={setValue}
+                  disabled={disabled}
+                  usable={couponUsable}
+                  mode={couponMode}
+                  couponIds={couponIds}
+                  choices={couponChoices}
+                  loading={couponOptionsQuery.isPending}
+                />
+              </FormSectionAnchor>
+
+              {/* ── 옵션 · 재고(SKU) ── */}
+              <FormSectionAnchor id={SECTIONS[4].id} label={SECTIONS[4].label}>
                 <Card>
                   <CardTitle>옵션 · 재고</CardTitle>
                   <ProductOptionMatrix
@@ -710,7 +778,7 @@ export default function ProductFormPage() {
               </FormSectionAnchor>
 
               {/* ── 배송 ── */}
-              <FormSectionAnchor id={SECTIONS[4].id} label={SECTIONS[4].label}>
+              <FormSectionAnchor id={SECTIONS[5].id} label={SECTIONS[5].label}>
                 <ProductShippingCard
                   register={register}
                   errors={errors}
@@ -720,7 +788,7 @@ export default function ProductFormPage() {
               </FormSectionAnchor>
 
               {/* ── 이미지 ── */}
-              <FormSectionAnchor id={SECTIONS[5].id} label={SECTIONS[5].label}>
+              <FormSectionAnchor id={SECTIONS[6].id} label={SECTIONS[6].label}>
                 <Card>
                   <CardTitle>이미지</CardTitle>
                   <ImageUploadField
@@ -745,7 +813,7 @@ export default function ProductFormPage() {
               </FormSectionAnchor>
 
               {/* ── 상세설명 · 검색태그 ── */}
-              <FormSectionAnchor id={SECTIONS[6].id} label={SECTIONS[6].label}>
+              <FormSectionAnchor id={SECTIONS[7].id} label={SECTIONS[7].label}>
                 <Card>
                   <CardTitle>상세설명 · 검색태그</CardTitle>
                   {/* 상세설명은 서식이 필요한 본문이라 RichTextField(Tiptap) 다 — value/onChange 계약은

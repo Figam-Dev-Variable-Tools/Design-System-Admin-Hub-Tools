@@ -20,6 +20,7 @@ const FEATURE_KEYS = [
   'menu.users',
   'menu.content',
   'menu.company',
+  'menu.orders',
   'menu.portfolio',
   'menu.products',
   'menu.programs',

@@ -20,7 +20,13 @@ import { registerTemplateVariableCatalog } from './shared/domain/template-variab
 import { TEMPLATE_VARIABLE_CATALOG } from './shared/domain/template-variable-catalog';
 import { registerPublishedFaqLookup } from './shared/domain/faq-catalog';
 import { registerCouponCatalogLookup } from './shared/domain/coupon-catalog';
-import { listCatalogCoupons } from './pages/products/coupons/data-source';
+import { listCatalogCoupons, listTierUpCoupons } from './pages/products/coupons/data-source';
+import { registerTierUpCouponLookup } from './shared/domain/coupon-issuance';
+import { registerOrderLookup } from './shared/domain/order-ref';
+import { registerStockApplier, applyMovements } from './shared/domain/stock';
+import { listOrderRefs } from './pages/orders/data-source';
+import { listProducts, updateProduct } from './pages/products/_shared/store';
+import { toProductInput } from './pages/products/items/types';
 import { registerBannerCatalogLookup, toBannerCatalog } from './shared/domain/banner-catalog';
 import { BANNERS } from './pages/content/banners/data-source';
 import { listPublishedFaqs } from './pages/content/faq/data-source';
@@ -66,6 +72,29 @@ export function wireDomains(): void {
   // pages/marketing → pages/products, pages/members → pages/products 는 둘 다 축1(page-coupling)
   // 위반이라, 공통 층이 자리를 만들고(shared/domain/coupon-catalog.ts) 두 도메인을 아는 여기가 꽂는다.
   registerCouponCatalogLookup(listCatalogCoupons);
+
+  // 등급 정책 화면의 '승급 시 발급 쿠폰' 요약이 읽을 원본 — 정본은 상품 관리 쿠폰의 발급 기준이다.
+  // pages/customer-settings → pages/products 는 축1(page-coupling) 위반이라 공통 층이 자리를 만들고
+  // (shared/domain/coupon-issuance.ts) 두 도메인을 아는 여기가 꽂는다.
+  registerTierUpCouponLookup(listTierUpCoupons);
+
+  // 반품의 orderNo·적립 원장의 orderNo·통계가 주문을 가리킬 때 푸는 목록 — 정본은 주문 관리다.
+  // pages/products → pages/orders, pages/members → pages/orders 는 축1 위반이라 방향을 뒤집었다.
+  registerOrderLookup(listOrderRefs);
+
+  // 주문의 재고 차감·복원이 실제로 닿는 곳 — SKU 재고의 정본은 상품 저장소다.
+  // shared → pages 역의존을 피하려고 공통 층은 자리만 만들고 여기가 구현을 꽂는다.
+  // 꽂히지 않으면 어댑터가 멱등키를 찍지 않는다 — 재고가 안 움직였는데 '차감 완료'가 남는 일이 없다.
+  registerStockApplier((movements) => {
+    const skus = new Set(movements.map((movement) => movement.sku));
+    for (const product of listProducts()) {
+      if (!product.variants.some((variant) => skus.has(variant.sku))) continue;
+      updateProduct(product.id, {
+        ...toProductInput(product),
+        variants: applyMovements(product.variants, movements),
+      });
+    }
+  });
 
   // 이벤트의 배너 연동이 참조할 원본 — 정본은 콘텐츠 관리 배너다(pages/marketing → pages/content 역시 축1).
   // BANNERS 는 노출 토글·재정렬이 갱신하는 mutable 바인딩이라 호출 시점에 읽는다.

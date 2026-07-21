@@ -519,10 +519,36 @@ export interface EmailCanvasStyle {
   readonly textColor: string;
 }
 
+/* ── 프리헤더 ────────────────────────────────────────────────────────────────
+ *
+ * [무엇인가] 수신함 목록에서 **제목 바로 뒤에 이어 붙는 한 줄**이다. 메일 클라이언트는 본문의
+ * 맨 앞 글자를 가져다 그 자리에 쓰는데, 우리 본문의 맨 앞은 대개 로고 밴드라 `[로고: logo.png]`
+ * 같은 것이 수신함에 뜬다. 그것이 제목 다음으로 열람 여부를 가르는 자리라서, 클라이언트가
+ * 주워 가게 두지 않고 **운영자가 정하게** 한다.
+ *
+ * [어떻게 나가나] 본문 맨 앞의 **감춰진 한 줄**로 실려 나간다(render-html.ts preheaderHtml).
+ * 화면에는 보이지 않고 수신함 목록에만 보인다 — 이것이 업계 공통 구현이다.
+ *
+ * [왜 선택 필드가 아니라 빈 문자열인가] optional 로 두면 '아직 안 정했다' 와 '일부러 비웠다' 가
+ * 같은 값이 되고, 그 구분이 없으므로 굳이 둘로 나누지 않는다. 비면 발송 전 점검이 경고한다
+ * (막지는 않는다 — 프리헤더 없이 나가는 메일이 잘못된 메일은 아니다).
+ */
+export const PREHEADER_MAX = 120;
+
+/**
+ * 수신함에서 제목이 잘리기 시작하는 대략의 글자 수.
+ *
+ * [왜 '대략' 인가] 실제 경계는 클라이언트·기기·글꼴이 정한다(모바일 Gmail 이 가장 좁다).
+ * 정확한 값을 흉내 내면 거짓 정밀이 되므로, 점검은 '이 근처부터 잘린다' 는 경고만 낸다.
+ */
+export const SUBJECT_TRUNCATE_HINT = 40;
+
 export interface EmailTemplateContent {
   readonly kind: 'email';
   readonly senderEmail: string;
   readonly subject: string;
+  /** 수신함에서 제목 뒤에 붙는 한 줄 (위 [프리헤더] 머리말) */
+  readonly preheader: string;
   readonly blocks: readonly EmailBlock[];
   readonly canvas: EmailCanvasStyle;
 }

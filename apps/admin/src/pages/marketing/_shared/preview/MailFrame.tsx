@@ -10,12 +10,23 @@ import type { CSSProperties, ReactNode } from 'react';
 import { cssVar, sanitizeRichText, typography } from '@tds/ui';
 
 import { isHtmlBodyEmpty, looksLikeRichText } from '../messaging';
-import { MAIL_WIDTH, MOCK_BODY_MIN_HEIGHT } from '../preview-metrics';
+import { MAIL_WIDTH, MAIL_WIDTH_MOBILE, MOCK_BODY_MIN_HEIGHT } from '../preview-metrics';
 
-const frameStyle: CSSProperties = {
+/**
+ * 미리보기 폭.
+ *
+ * [왜 폭을 바꿔 볼 수 있어야 하나] 이메일은 600px 을 기준으로 짜이지만 실제 열람의 절반 이상이
+ * 360px 안팎의 화면에서 일어난다. 데스크톱 폭에서만 확인한 본문은 모바일에서 **버튼 문구가 두 줄로
+ * 접히고 다단이 무너진 채** 나간다 — 그것을 발송 뒤에 알게 되는 것이 지금까지의 미리보기였다.
+ *
+ * 폭만 바꾼다. 기기 껍데기(노치·상태바)를 그리지 않는 이유는 그것이 답하지 않는 질문이기 때문이다 —
+ * 알고 싶은 것은 '이 폭에서 내 본문이 어떻게 접히는가' 지 '아이폰처럼 보이는가' 가 아니다.
+ */
+export type MailDevice = 'desktop' | 'mobile';
+
+const frameBase: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  maxWidth: MAIL_WIDTH,
   marginLeft: 'auto',
   marginRight: 'auto',
   width: '100%',
@@ -99,6 +110,8 @@ interface MailFrameProps {
   readonly emptyLabel: string;
   /** 하단 영역 — 수신거부 안내 등. 없으면 그리지 않는다 */
   readonly footer?: ReactNode;
+  /** 미리보기 폭. 기본은 데스크톱(600px) — 종전 동작 그대로다 */
+  readonly device?: MailDevice;
 }
 
 /**
@@ -108,11 +121,15 @@ interface MailFrameProps {
  * 흘러들어온다**. 호출부가 플래그로 알려주는 방식이면 그 경로에서 틀린 플래그를 넘기게 되고,
  * 실제로 그 자리에서 `<p>` 가 글자로 찍혔다. 값을 보고 판단하면 어느 경로로 들어와도 맞는다.
  */
-export function MailFrame({ subject, from, body, emptyLabel, footer }: MailFrameProps) {
+export function MailFrame({ subject, from, body, emptyLabel, footer, device }: MailFrameProps) {
   const rich = looksLikeRichText(body);
   // sanitize 는 HTML 일 때만 — 평문에 걸면 '<' 를 태그로 오해해 본문을 잘라 먹는다
   const html = rich ? sanitizeRichText(body) : '';
   const empty = rich ? isHtmlBodyEmpty(html) : body.trim() === '';
+  const frameStyle: CSSProperties = {
+    ...frameBase,
+    maxWidth: device === 'mobile' ? MAIL_WIDTH_MOBILE : MAIL_WIDTH,
+  };
 
   return (
     <div style={frameStyle} aria-label="이메일 미리보기">

@@ -14,11 +14,17 @@
 //   배송중 이전에 멈추면  → 주문취소
 //   배송중 이후에 돌아오면 → 반품
 // 같은 '주문을 물렀다'라도 배송이 떠났는지에 따라 이름도 처리도 갈린다.
+//
+// [상태 어휘의 정본은 이제 shared/domain/order.ts 다]
+// 이 7개 상태는 원래 여기 선언되어 **집계 행에만** 쓰였다. 주문 관리(/orders)가 생기면서 같은
+// 낱말을 쓰는 화면이 둘이 됐고, 어휘가 두 벌이면 같은 주문이 두 이름을 갖는다 — 통계의
+// '배송준비중 12건' 과 주문 목록의 건수가 영원히 어긋난다. 그래서 타입과 라벨은 도메인 층으로
+// 올라갔고, 이 파일은 그것을 재수출한다(통계의 소비자는 예전과 똑같이 './types' 에서 가져간다).
+import { ORDER_STATUS_LABEL, ORDER_STATUS_SEQUENCE } from '../../../shared/domain/order';
+import type { OrderStatus } from '../../../shared/domain/order';
 import type { SegmentOption } from '../_shared/types';
 
-/** 카페24의 주문 상태 — 입금 전부터 구매확정까지 한 방향으로 흐른다 */
-export type OrderStatus =
-  'pending' | 'preparing' | 'holding' | 'waiting' | 'shipping' | 'delivered' | 'confirmed';
+export type { OrderStatus } from '../../../shared/domain/order';
 
 interface OrderStatusDef {
   readonly id: OrderStatus;
@@ -26,15 +32,10 @@ interface OrderStatusDef {
 }
 
 /** 표시 순서 = 주문이 실제로 흘러가는 순서다 — 운영자가 흐름대로 읽는다 */
-export const ORDER_STATUSES: readonly OrderStatusDef[] = [
-  { id: 'pending', label: '입금전' },
-  { id: 'preparing', label: '배송준비중' },
-  { id: 'holding', label: '배송보류' },
-  { id: 'waiting', label: '배송대기' },
-  { id: 'shipping', label: '배송중' },
-  { id: 'delivered', label: '배송완료' },
-  { id: 'confirmed', label: '구매확정' },
-];
+export const ORDER_STATUSES: readonly OrderStatusDef[] = ORDER_STATUS_SEQUENCE.map((id) => ({
+  id,
+  label: ORDER_STATUS_LABEL[id],
+}));
 
 /** 주문 상태 세그먼트 — 전체 + 상태 7종 */
 export type OrderSegment = 'all' | OrderStatus;

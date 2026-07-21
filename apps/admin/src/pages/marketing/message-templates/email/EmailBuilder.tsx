@@ -13,20 +13,26 @@ import { useCallback, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { Card } from '../../../../shared/ui';
-import { Tabs } from '@tds/ui';
+import { moveArrayItem, Tabs } from '@tds/ui';
 import { activeCaretRange, insertAtCaret } from '../../_shared/caret';
 import { BlockPicker } from './BlockPicker';
 import {
+  blockPositionOf,
   createBlock,
   createLeafBlock,
   findBlockById,
   insertBlockAfter,
   insertBlockInColumn,
+  insertBlocksAfter,
   isColumnChildKind,
+  moveBlock,
   removeBlock,
   replaceBlock,
   withColumnPadding,
 } from './blocks';
+import { findBlockGroup } from './groups';
+import type { EmailBlockGroupId } from './groups';
+import { PreflightPanel } from './PreflightPanel';
 import { EmailCanvas } from './EmailCanvas';
 import { EmailToolbar } from './EmailToolbar';
 import type { DeviceMode, EditorTab } from './EmailToolbar';
@@ -40,7 +46,7 @@ import { useHistory } from './useHistory';
 import { hasLegalFooter } from '../types';
 import type { EmailBlock, EmailBlockKind, EmailTemplateContent, SenderProfile } from '../types';
 
-type PanelTab = 'style' | 'inspect';
+type PanelTab = 'style' | 'inspect' | 'preflight';
 
 /** 새 블록이 들어갈 자리 (위 insertTarget 주석 참조) */
 type InsertTarget =
@@ -49,12 +55,16 @@ type InsertTarget =
   | { readonly kind: 'column'; readonly columnId: string };
 
 function isPanelTab(value: string): value is PanelTab {
-  return value === 'style' || value === 'inspect';
+  return value === 'style' || value === 'inspect' || value === 'preflight';
 }
 
 const PANEL_TABS = [
   { id: 'style', label: '스타일' },
   { id: 'inspect', label: '속성' },
+  /* [왜 패널의 탭인가 — 저장 버튼 옆이 아니라] 점검은 '저장을 누른 뒤에 듣는 판정' 이 아니라
+     편집하는 내내 곁에 있어야 하는 것이다. 저장 옆에 두면 다 만든 뒤에야 열어 보게 되고,
+     그때는 고칠 것이 가장 많이 쌓여 있다. */
+  { id: 'preflight', label: '점검' },
 ] as const;
 
 interface EmailBuilderProps {
@@ -156,8 +166,36 @@ export function EmailBuilder({
     setPickerOpen(false);
   };
 
+  /**
+   * 블록 묶음 — 다단 행 한 장(과 그 안의 블록들)이 지금 자리에 들어온다.
+   *
+   * [왜 첫 블록을 고르지 않나] 단일 블록을 넣을 때는 곧바로 속성을 만지는 것이 자연스럽지만,
+   * 묶음은 **여러 장이 한꺼번에** 들어와서 어느 하나를 골라 주면 나머지가 안 보이는 것처럼 된다.
+   * 갓 들어온 배치를 통째로 보게 두고, 고를 블록은 운영자가 정하게 한다.
+   */
+  const insertGroup = (id: EmailBlockGroupId) => {
+    const group = findBlockGroup(id);
+    if (group === undefined) return;
+    const blocks = group.build(nextId);
+    const afterId = insertTarget.kind === 'after' ? insertTarget.blockId : null;
+    commit({ ...value, blocks: insertBlocksAfter(value.blocks, afterId, blocks) });
+    setSelectedBlockId(null);
+    setPickerOpen(false);
+  };
+
   const updateBlock = (next: EmailBlock) => {
     commit({ ...value, blocks: replaceBlock(value.blocks, next) });
+  };
+
+  /**
+   * 한 칸 위/아래로.
+   *
+   * [왜 자리 바꾸기를 직접 적지 않나] 정본은 DS 의 moveArrayItem 이다 — 목록 표 재정렬이 이미
+   * 같은 함수를 쓰고 있어서, 여기서 splice 를 다시 적으면 경계(첫 줄·끝 줄) 처리가 화면마다
+   * 달라진다. 블록 트리를 훑는 부분만 우리 것이다(blocks.ts moveBlock).
+   */
+  const moveSelectedBlock = (id: string, delta: number) => {
+    commit({ ...value, blocks: moveBlock(value.blocks, id, delta, moveArrayItem) });
   };
 
   const deleteBlock = (id: string) => {
@@ -178,7 +216,14 @@ export function EmailBuilder({
    * 붙이면 운영자가 매번 잘라내어 옮겨야 한다 — 근거와 자리 읽는 법은 `_shared/caret.ts` 머리말.
    * 포커스가 본문 밖이면 range 가 null 이 되고 끝에 붙는다(안전한 퇴화).
    *
-   * 본문을 갖지 않는 블록(이미지·로고·아바타·구분선)은 꽂을 자리가 없으므로 아무 일도 하지 않는다.
+   * [어디까지 꽂히나 — '사람이 읽는 글자' 가 있는 곳 전부]
+   * 처음에는 제목·본문·버튼·목록·푸터 다섯 곳뿐이었다. 그런데 이미지의 **대체 텍스트**와 비디오의
+   * 설명, 메뉴 항목의 이름도 수신자가 읽는 글자다 — '#{member.name}님의 지난 주문' 같은 대체
+   * 텍스트가 실제로 필요하고, 그 자리에서만 변수 버튼이 아무 반응이 없으면 운영자는 기능이 고장난
+   * 줄 안다. 반대로 **주소·파일명**에는 꽂지 않는다: 토큰만 적힌 주소는 렌더러가 통째로 버려서
+   * (render-html safeUrl) 눌러도 아무 데도 가지 않는 링크가 된다.
+   *
+   * 꽂을 글자가 없는 블록(로고·아바타·구분선·여백·소셜·다단)에서는 아무 일도 하지 않는다.
    */
   const insertVariable = (token: string) => {
     if (selectedBlock === undefined) return;
@@ -212,15 +257,32 @@ export function EmailBuilder({
           companyName: insertAtCaret(selectedBlock.companyName, token, range),
         });
         return;
-      // 아래는 꽂을 본문이 없다 — 주소·파일명은 치환 토큰을 받을 자리가 아니다
       case 'image':
+      case 'video':
+        // 대체 텍스트도 수신자가 읽는 글자다 — 이미지를 차단하는 클라이언트에서는 **이것만** 읽힌다
+        updateBlock({ ...selectedBlock, alt: insertAtCaret(selectedBlock.alt, token, range) });
+        return;
+      case 'menu': {
+        // 목록과 같은 이유로 마지막 항목의 **이름**에 넣는다(주소가 아니다)
+        const lastIndex = selectedBlock.items.length - 1;
+        const last = selectedBlock.items[lastIndex];
+        if (last === undefined) return;
+        updateBlock({
+          ...selectedBlock,
+          items: selectedBlock.items.map((item, index) =>
+            index === lastIndex
+              ? { ...item, label: insertAtCaret(last.label, token, range) }
+              : item,
+          ),
+        });
+        return;
+      }
+      // 아래는 꽂을 글자가 없다 — 파일명·주소는 치환 토큰을 받을 자리가 아니다
       case 'logo':
       case 'avatar':
       case 'divider':
       case 'spacer':
       case 'social':
-      case 'menu':
-      case 'video':
       case 'columns':
         return;
     }
@@ -281,6 +343,8 @@ export function EmailBuilder({
             setPickerOpen(true);
           }}
           onRemoveBlock={deleteBlock}
+          onMoveBlock={moveSelectedBlock}
+          blockPositionOf={(id) => blockPositionOf(value.blocks, id)}
           onSenderProfileChange={(id) => {
             onSenderProfileChange?.(id);
           }}
@@ -289,6 +353,9 @@ export function EmailBuilder({
           }}
           onSubjectChange={(subject) => {
             commit({ ...value, subject });
+          }}
+          onPreheaderChange={(preheader) => {
+            commit({ ...value, preheader });
           }}
         />
       </div>
@@ -306,7 +373,7 @@ export function EmailBuilder({
               }}
             />
 
-            {panelTab === 'style' ? (
+            {panelTab === 'style' && (
               <StylePanel
                 value={value.canvas}
                 blankPreset={presetId === 'blank'}
@@ -315,14 +382,27 @@ export function EmailBuilder({
                   commit({ ...value, canvas });
                 }}
               />
-            ) : selectedBlock === undefined ? (
-              <p style={panelEmptyStyle}>블록을 선택하면 설정을 편집할 수 있습니다.</p>
-            ) : (
-              <>
-                <h3 style={panelHeadingStyle}>{inspectHeadingOf(selectedBlock)}</h3>
-                <InspectPanel block={selectedBlock} disabled={locked} onChange={updateBlock} />
-              </>
             )}
+
+            {panelTab === 'preflight' && (
+              <PreflightPanel
+                value={value}
+                onSelectBlock={(id) => {
+                  setSelectedBlockId(id);
+                  setPanelTab('inspect');
+                }}
+              />
+            )}
+
+            {panelTab === 'inspect' &&
+              (selectedBlock === undefined ? (
+                <p style={panelEmptyStyle}>블록을 선택하면 설정을 편집할 수 있습니다.</p>
+              ) : (
+                <>
+                  <h3 style={panelHeadingStyle}>{inspectHeadingOf(selectedBlock)}</h3>
+                  <InspectPanel block={selectedBlock} disabled={locked} onChange={updateBlock} />
+                </>
+              ))}
           </Card>
         </div>
       )}
@@ -332,6 +412,7 @@ export function EmailBuilder({
         insideColumn={insertTarget.kind === 'column'}
         footerPresent={hasLegalFooter(value.blocks)}
         onPick={insertBlock}
+        onPickGroup={insertGroup}
         onClose={() => {
           setPickerOpen(false);
         }}

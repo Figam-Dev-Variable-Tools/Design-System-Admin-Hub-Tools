@@ -6,7 +6,19 @@
 // [재고 연동] 옵션(SKU)·재고의 정본은 상품 저장소(../_shared/store)다 — 여기서 옵션 매트릭스를
 // 재정의하지 않고 ProductVariant 를 그대로 소비한다. 요청은 '어떤 SKU 를 몇 개' 움직이는지만 안다.
 import type { StatusTone } from '../../../shared/ui';
+import type { StockMovement } from '../../../shared/domain/stock';
 import type { ProductVariant } from '../_shared/store';
+
+/**
+ * 재고 이동 기록과 그 적용 산술은 **공통 층이 소유한다**(shared/domain/stock.ts).
+ *
+ * 원래 이 파일에 있었으나 주문(/orders)이 같은 이동을 기록하게 되면서 밖으로 나갔다 — 페이지가
+ * 페이지를 가로질러 import 할 수는 없고(축1 page-coupling), 두 벌로 적으면 같은 SKU 의 증감이
+ * 두 이야기가 된다. 이름은 여기서 그대로 재수출하므로 이 모듈의 소비자(data-source·테스트·
+ * StockMovementTable)는 예전과 똑같이 './types' 에서 가져간다.
+ */
+export type { StockMovement } from '../../../shared/domain/stock';
+export { applyMovements } from '../../../shared/domain/stock';
 
 /** 요청 유형 — 교환/반품 */
 export type ReturnKind = 'exchange' | 'return';
@@ -20,24 +32,6 @@ const RETURN_STATUSES = ['requested', 'collecting', 'inspecting', 'completed', '
 /** 상태 타입가드 — select 값(문자열)을 ReturnStatus 로 안전하게 좁힌다(as 캐스팅 대신) */
 export function isReturnStatus(value: unknown): value is ReturnStatus {
   return typeof value === 'string' && (RETURN_STATUSES as readonly string[]).includes(value);
-}
-
-/** 재고 이동 방향 — 입고(회수분이 창고로) / 출고(교환 재발송분이 고객에게) */
-type StockDirection = 'in' | 'out';
-
-/**
- * 확정된 재고 이동 한 건 — 완료 처리 시점에 기록되어 요청에 남는다(감사 이력).
- * 어떤 SKU 가 몇 개 움직였는지를 상품 옵션이 나중에 바뀌어도 읽을 수 있게 스냅숏으로 들고 있다.
- */
-export interface StockMovement {
-  readonly id: string;
-  /** 이동 시각 ISO */
-  readonly at: string;
-  readonly direction: StockDirection;
-  readonly sku: string;
-  /** 이동 시점의 옵션 표기 — '블랙 / M' */
-  readonly optionLabel: string;
-  readonly quantity: number;
 }
 
 export interface ReturnRequest {
@@ -285,21 +279,4 @@ export function planStockMovements(
     }
   }
   return movements;
-}
-
-/** 재고 이동을 SKU 재고에 적용한다(순수) — 입고 +, 출고 −. 음수 재고는 만들지 않는다. */
-export function applyMovements(
-  variants: readonly ProductVariant[],
-  movements: readonly StockMovement[],
-): readonly ProductVariant[] {
-  return variants.map((variant) => {
-    const delta = movements.reduce(
-      (sum, movement) =>
-        movement.sku === variant.sku
-          ? sum + (movement.direction === 'in' ? movement.quantity : -movement.quantity)
-          : sum,
-      0,
-    );
-    return delta === 0 ? variant : { ...variant, stock: Math.max(0, variant.stock + delta) };
-  });
 }

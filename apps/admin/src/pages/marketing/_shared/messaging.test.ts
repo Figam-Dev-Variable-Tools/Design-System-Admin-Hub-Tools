@@ -22,6 +22,7 @@ import {
   isSendableTemplate,
   isTemplateContentLocked,
   isVariableOnlyBody,
+  inboxPreviewText,
   meetsAdRequirements,
   messagingNameOf,
   prefixMessagingName,
@@ -278,5 +279,47 @@ describe('세그먼트 수신자 합산', () => {
   it('선택한 세그먼트 수신자 수를 합한다', () => {
     expect(totalRecipients(segments, ['a', 'c'])).toBe(130);
     expect(totalRecipients(segments, [])).toBe(0);
+  });
+});
+
+/* ── 받은편지함 미리보기 (프리헤더) ────────────────────────────────────────────
+ *
+ * [무엇을 지키는 테스트인가] 이 한 줄은 수신자가 메일을 **열기 전에** 보는 전부다. 규칙이 둘뿐이라
+ * 단순해 보이지만, 조용히 틀리는 방식이 있다: 명시한 프리헤더가 있는데 본문을 끌어오거나, HTML
+ * 본문에서 태그를 걷어내지 못해 `<p>` 가 수신함 문구로 나가거나, 잘림이 없어 화면만 무너지거나. */
+describe('inboxPreviewText — 제목 뒤에 이어 붙는 한 줄', () => {
+  it('명시한 프리헤더가 본문보다 우선한다', () => {
+    expect(inboxPreviewText('이달의 혜택을 모았습니다', '안녕하세요 회원님')).toBe(
+      '이달의 혜택을 모았습니다',
+    );
+  });
+
+  it('프리헤더가 비면 본문 앞머리가 그 자리를 대신한다 — 클라이언트가 실제로 그렇게 한다', () => {
+    expect(inboxPreviewText('', '안녕하세요 회원님, 이번 달 소식입니다.')).toBe(
+      '안녕하세요 회원님, 이번 달 소식입니다.',
+    );
+  });
+
+  it('HTML 본문에서는 태그를 걷어낸다 — 마크업이 수신함 문구로 나가면 안 된다', () => {
+    expect(inboxPreviewText('', '<h2>이달의 소식</h2><p>새 상품이 나왔습니다.</p>')).toBe(
+      '이달의 소식새 상품이 나왔습니다.',
+    );
+  });
+
+  it('줄바꿈·연속 공백은 한 칸으로 접는다 — 수신함은 한 줄이다', () => {
+    expect(inboxPreviewText('', '첫 줄\n\n  둘째 줄')).toBe('첫 줄 둘째 줄');
+  });
+
+  it('둘 다 비면 빈 문자열이다 — 안내 문구를 만들어 돌려주지 않는다', () => {
+    // 이 함수의 결과는 '수신자가 볼 글자' 다. 운영자용 안내를 여기 섞으면 언젠가 발송된다.
+    expect(inboxPreviewText('', '')).toBe('');
+    expect(inboxPreviewText('   ', '  \n ')).toBe('');
+  });
+
+  it('너무 길면 말줄임으로 자른다', () => {
+    const long = '가'.repeat(200);
+    const preview = inboxPreviewText(long, '');
+    expect(preview.length).toBeLessThan(long.length);
+    expect(preview.endsWith('…')).toBe(true);
   });
 });

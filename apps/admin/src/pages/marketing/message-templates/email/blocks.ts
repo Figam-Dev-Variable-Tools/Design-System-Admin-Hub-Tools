@@ -504,6 +504,82 @@ export function insertBlockAfter(
   });
 }
 
+/**
+ * `afterId` 바로 뒤에 **여러 장**을 한꺼번에 넣는다 — 블록 묶음(groups.ts)이 쓰는 경로.
+ *
+ * [왜 insertBlockAfter 를 반복해서 부르지 않나] 한 장씩 넣으면 두 번째 장은 첫 장 뒤로 가야 하는데,
+ * 호출부가 매번 '방금 넣은 것의 id' 를 추적해야 한다. 그 추적을 빠뜨리면 묶음이 **역순으로** 쌓인다
+ * (실제로 그렇게 뒤집히기 쉬운 자리다). 순서의 주인을 여기 하나로 둔다.
+ */
+export function insertBlocksAfter(
+  blocks: readonly EmailBlock[],
+  afterId: string | null,
+  next: readonly EmailBlock[],
+): readonly EmailBlock[] {
+  if (next.length === 0) return blocks;
+  return next.reduce<readonly EmailBlock[]>(
+    (acc, block, index) =>
+      insertBlockAfter(acc, index === 0 ? afterId : (next[index - 1]?.id ?? null), block),
+    blocks,
+  );
+}
+
+/**
+ * 블록을 한 칸 위/아래로 옮긴다 — 최상위든 칸 안이든 같은 함수로.
+ *
+ * [왜 배열 조작을 여기서 하지 않나] 자리 바꾸기의 정본은 DS 의 `moveArrayItem` 이다(@tds/ui).
+ * 목록 표 재정렬이 이미 그 함수를 쓰고 있어서, 여기서 splice 를 다시 적으면 같은 규칙이 두 벌이
+ * 된다 — 경계(첫 줄에서 위로·끝 줄에서 아래로)의 처리가 화면마다 달라진다.
+ *
+ * [왜 delta 인가] 호출부는 ReorderMoveButtons 다. 그 컴포넌트의 계약이 `(index, delta)` 라서
+ * 같은 축으로 받는다. 다만 여기서는 **id** 로 찾는다 — 칸 안의 블록에는 전역 인덱스가 없다.
+ */
+export function moveBlock(
+  blocks: readonly EmailBlock[],
+  id: string,
+  delta: number,
+  move: <T>(items: readonly T[], from: number, to: number) => T[],
+): readonly EmailBlock[] {
+  const topIndex = blocks.findIndex((block) => block.id === id);
+  if (topIndex >= 0) return move(blocks, topIndex, topIndex + delta);
+
+  // 최상위에 없으면 어느 칸 안이다 — 그 칸 안에서만 움직인다(칸을 넘나드는 이동은 없다)
+  return blocks.map((block) => {
+    if (block.blockKind !== 'columns') return block;
+    return {
+      ...block,
+      columns: block.columns.map((column) => {
+        const index = column.blocks.findIndex((child) => child.id === id);
+        if (index < 0) return column;
+        return { ...column, blocks: move(column.blocks, index, index + delta) };
+      }),
+    };
+  });
+}
+
+/**
+ * 이 블록이 놓인 자리 — 몇 번째이고, 형제가 몇인가.
+ *
+ * 이동 버튼이 '첫 줄' · '끝 줄' 을 잠그려면 두 숫자가 필요하다. 최상위와 칸 안의 차이를
+ * 호출부가 알 필요는 없으므로 여기서 한 번에 답한다. 찾지 못하면 null 이다.
+ */
+export function blockPositionOf(
+  blocks: readonly EmailBlock[],
+  id: string,
+): { readonly index: number; readonly count: number } | null {
+  const topIndex = blocks.findIndex((block) => block.id === id);
+  if (topIndex >= 0) return { index: topIndex, count: blocks.length };
+
+  for (const block of blocks) {
+    if (block.blockKind !== 'columns') continue;
+    for (const column of block.columns) {
+      const index = column.blocks.findIndex((child) => child.id === id);
+      if (index >= 0) return { index, count: column.blocks.length };
+    }
+  }
+  return null;
+}
+
 /** 빈 칸의 + 로 넣는다 — 칸 id 를 직접 가리키는 경로 */
 export function insertBlockInColumn(
   blocks: readonly EmailBlock[],
@@ -538,5 +614,12 @@ export function removeBlock(blocks: readonly EmailBlock[], id: string): readonly
 
 /** 빈 이메일 본문 — 새 템플릿과 Blank 프리셋이 함께 쓴다 */
 export function emptyEmailContent(): EmailTemplateContent {
-  return { kind: 'email', senderEmail: '', subject: '', blocks: [], canvas: DEFAULT_CANVAS };
+  return {
+    kind: 'email',
+    senderEmail: '',
+    subject: '',
+    preheader: '',
+    blocks: [],
+    canvas: DEFAULT_CANVAS,
+  };
 }

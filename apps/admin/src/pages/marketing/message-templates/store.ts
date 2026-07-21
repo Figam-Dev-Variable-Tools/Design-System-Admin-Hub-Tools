@@ -181,6 +181,8 @@ let templates: readonly MessageTemplate[] = [
       kind: 'email',
       senderEmail: 'news@spaceplanning.ai',
       subject: '[스페이스플래닝] #{이름}님을 위한 이달의 소식',
+      // 프리헤더가 채워진 유일한 픽스처 — 인박스 프리뷰가 '제목 뒤 한 줄' 을 그리는 경로를 덮는다
+      preheader: '이번 달 신상품과 회원 전용 혜택을 모았습니다.',
       blocks: [
         contentBlock('heading', 'blk-heading', '이달의 소식'),
         contentBlock(
@@ -205,6 +207,7 @@ let templates: readonly MessageTemplate[] = [
       kind: 'email',
       senderEmail: 'support@spaceplanning.ai',
       subject: '설 연휴 배송 일정 안내',
+      preheader: '',
       blocks: [],
       canvas: DEFAULT_EMAIL_CANVAS,
     },
@@ -222,6 +225,7 @@ let templates: readonly MessageTemplate[] = [
       kind: 'email',
       senderEmail: 'marketing@spaceplanning.ai',
       subject: '#{이름}님, 오랜만이에요',
+      preheader: '',
       blocks: [],
       canvas: DEFAULT_EMAIL_CANVAS,
     },

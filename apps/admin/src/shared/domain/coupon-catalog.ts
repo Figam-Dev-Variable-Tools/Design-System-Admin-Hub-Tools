@@ -40,7 +40,14 @@ export interface CatalogCoupon {
   readonly code: string;
   /** 할인 요약 문구('15% 할인') — 표기 규칙의 정본은 쿠폰 모듈의 discountLabel 이다 */
   readonly benefitLabel: string;
-  /** 사용 종료일 'YYYY-MM-DD' — 보유 쿠폰의 '언제까지' 가 이 값이다 */
+  /**
+   * 캠페인 종료일 'YYYY-MM-DD' — 보유 쿠폰의 '언제까지' 가 이 값이다.
+   *
+   * [알려진 한계] 쿠폰이 '발급일 기준 N일' 사용 기간을 쓰면 한 장의 실제 만료일은 회원마다 다르고
+   * 이 값보다 이르다(쿠폰 모듈의 couponExpiryFor 가 정본). 여기는 발급일을 모르므로 캠페인
+   * 종료일을 준다 — **상한으로는 언제나 참**이다. 정확한 만료일이 필요해지면 계약에 사용기간을
+   * 얹지 말고 조인하는 쪽(joinIssuedCoupons)에 발급일을 함께 넘기는 방향이 맞다.
+   */
   readonly endAt: string;
 }
 

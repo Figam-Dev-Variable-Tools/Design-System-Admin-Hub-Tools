@@ -26,7 +26,11 @@ import { publishedStatusOf } from './status';
 import { TemplateEditorShell } from './TemplateEditorShell';
 import { isPublished, TEMPLATE_KIND_LABEL } from './types';
 import type { EmailTemplateContent, MessageTemplate } from './types';
-import { emailTemplateSchema, isEmailTemplateValid } from './validation';
+import {
+  emailTemplateSchema,
+  isEmailTemplatePublishable,
+  isEmailTemplateValid,
+} from './validation';
 import type { EmailTemplateFormValues } from './validation';
 
 const ENTITY_LABEL = '메시지 템플릿';
@@ -37,6 +41,7 @@ const EMPTY_CONTENT: EmailTemplateContent = {
   kind: 'email',
   senderEmail: '',
   subject: '',
+  preheader: '',
   blocks: [],
   canvas: DEFAULT_EMAIL_CANVAS,
 };
@@ -109,15 +114,21 @@ export default function EmailTemplateEditor() {
   const unsavedDialog = useUnsavedChangesDialog(isDirty && !saving, { message: UNSAVED_MESSAGE });
 
   const valid = useMemo(() => isEmailTemplateValid(values), [values]);
+  /**
+   * 발행 문턱은 초안 저장보다 높다 — 발송 전 점검(수신거부·CTA 링크·이미지 대체 텍스트)이
+   * 여기서만 걸린다. 근거는 validation.ts 의 [발송 전 점검 — 발행할 때만] 머리말.
+   */
+  const publishable = useMemo(() => isEmailTemplatePublishable(values), [values]);
   /** 발행본을 고치는 중인가 — 근거는 폼 값이 아니라 **서버가 돌려준 원본**이다 */
   const editingPublished = loaded !== undefined && isPublished(loaded.status);
 
   const actions = editingPublished ? (
+    /* 이미 발행된 템플릿을 고치는 중이다 — 저장하면 그대로 발행본이 되므로 발행과 같은 문턱을 쓴다 */
     <Button
       type="submit"
       variant="primary"
       size="md"
-      disabled={disabled || !valid}
+      disabled={disabled || !publishable}
       onClick={() => setValue('status', loaded.status)}
     >
       {ACTION_SAVE_CHANGE}
@@ -138,7 +149,7 @@ export default function EmailTemplateEditor() {
         type="submit"
         variant="primary"
         size="md"
-        disabled={disabled || !valid}
+        disabled={disabled || !publishable}
         onClick={() => setValue('status', publishedStatusOf('draft'))}
       >
         {ACTION_PUBLISH}

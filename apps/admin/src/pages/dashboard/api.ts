@@ -49,38 +49,31 @@ function wait(ms: number, signal: AbortSignal): Promise<void> {
 /* ── mock 데이터 ────────────────────────────────────────────────────────── */
 
 /**
- * [라벨과 목적지를 맞춘 자리 — 주문 모듈이 생기면 되돌릴 것]
+ * [주문 모듈이 생겨 되돌린 자리]
  *
- * 이 앱에는 **주문 모듈이 아직 없다.** 그런데 상품 탭의 세 항목이 주문을 약속하고 엉뚱한 곳으로
- * 보내고 있었다: '신규주문' → `/products`(상품 목록) · '최근 주문' → `/products`(같음) ·
- * '판매 신청' → `/products/categories`(카테고리 관리). 대시보드에서 링크는 **다음 할 일**이라
- * 라벨이 약속한 것과 다른 화면이 열리면 운영자는 매번 뒤로 돌아온다.
+ * 한동안 이 앱에는 주문 모듈이 없었다. 그런데 상품 탭의 세 항목이 주문을 약속하고 엉뚱한 곳으로
+ * 보내고 있어(‘신규주문’ → 상품 목록 등), 없는 라우트를 지어내는 대신 **라벨을 실제 목적지에
+ * 맞춰** 두었다. 이제 `/orders` 가 생겼으므로 주문을 말하던 둘은 원래 라벨과 목적지로 돌아간다.
  *
- * 없는 라우트를 지어내는 대신 **라벨을 실제 목적지에 맞췄다**:
- *   · '신규주문'(/products)      → '신규 상품'      — 목적지가 상품 목록이다
- *   · '최근 주문'(/products)     → '최근 등록 상품' — 같음. 행도 상품명·등록자·일자다
- *   · '판매 신청'(/products/categories) → '최근 구매평'(/products/reviews)
- *       — 카테고리 관리에는 이 카드의 행(상품명 + 작성자 + 일자)에 해당하는 것이 없다.
- *         같은 행을 정직하게 담는 화면은 구매평 목록이다.
+ * 하나는 돌아가지 않는다 — **'판매 신청'**. 예정 목적지였던 `/orders/applications` 화면이 없고,
+ * 이 카드의 행(상품명 + 작성자 + 일자)을 정직하게 담는 것은 구매평 목록이다. 없는 화면을 가리키느니
+ * 지금 담고 있는 것의 이름으로 남는다. 판매 신청 화면이 생기면 그때 옮긴다.
  *
- * **주문 모듈(/orders)이 생기면** 위 셋을 원래 라벨로 되살린다:
- *   { key: 'new-order', label: '신규주문', to: '/orders' } ·
- *   { title: '최근 주문', moreTo: '/orders', icon: 'order' } ·
- *   { title: '판매 신청', moreTo: '/orders/applications', icon: 'tag' }
- * (남겨 둔 '취소관리'는 교환/반품 화면이 취소 흐름을 함께 다루게 되면 그대로 살아 있으면 된다.)
+ * 취소·반품·교환 셋은 여전히 `/products/returns` 한 곳으로 간다 — 클레임(취소 포함) 통합 전까지는
+ * 그 화면이 실제로 셋을 함께 다루는 유일한 자리다.
  */
 const PRODUCT_DATA: TabData = {
   todos: [
-    { key: 'new-product', label: '신규 상품', count: 1, to: '/products' },
+    { key: 'new-order', label: '신규주문', count: 1, to: '/orders' },
     { key: 'cancel', label: '취소관리', count: 0, to: '/products/returns' },
     { key: 'return', label: '반품관리', count: 0, to: '/products/returns' },
     { key: 'exchange', label: '교환관리', count: 0, to: '/products/returns' },
   ],
   cards: [
     {
-      title: '최근 등록 상품',
+      title: '최근 주문',
       count: 0,
-      moreTo: '/products',
+      moreTo: '/orders',
       icon: 'order',
       rows: [
         {

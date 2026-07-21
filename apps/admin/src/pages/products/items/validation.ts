@@ -73,6 +73,12 @@ export const productSchema = z
       rate: z.string(),
       amount: z.string(),
     }),
+    // 쿠폰 사용 설정 — 값의 의미가 usable/mode 에 달려 있어 목록 필요 여부는 아래 .check 가 맡는다
+    coupons: z.object({
+      usable: z.boolean(),
+      mode: z.enum(['all', 'include', 'exclude']),
+      couponIds: z.array(z.string()),
+    }),
     optionGroups: z.array(optionGroupSchema),
     variants: z.array(variantSchema).check(
       z.refine((values) => values.length > 0, { error: '옵션/재고를 한 줄 이상 구성하세요.' }),
@@ -184,6 +190,22 @@ export const productSchema = z
         });
       }
     }
+  })
+  .check((ctx) => {
+    // 쿠폰 — '선택한 쿠폰만' 이라고 해 놓고 아무것도 고르지 않으면 그 설정은 아무 말도 하지 않는다.
+    // (include 로 비워 두면 모든 쿠폰이 막히고, exclude 로 비워 두면 아무것도 막히지 않는다 —
+    //  둘 다 운영자가 의도한 '선택' 이 아니라 미완성이다.)
+    const { usable, mode, couponIds } = ctx.value.coupons;
+    if (!usable || mode === 'all' || couponIds.length > 0) return;
+    ctx.issues.push({
+      code: 'custom',
+      input: couponIds,
+      path: ['coupons', 'couponIds'],
+      message:
+        mode === 'include'
+          ? '허용할 쿠폰을 한 개 이상 선택하세요. 비워 두면 모든 쿠폰이 막힙니다.'
+          : '제외할 쿠폰을 한 개 이상 선택하세요.',
+    });
   })
   .check((ctx) => {
     // 배송비 — 유료/조건부면 기본 배송비가 필요하고, 조건부면 무료 기준 금액도 필요하다.

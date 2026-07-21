@@ -457,6 +457,140 @@ export const blockPickerItemStyle: CSSProperties = {
   cursor: 'pointer',
 };
 
+/* ── 블록 묶음(구성) ─────────────────────────────────────────────────────────
+ *
+ * [왜 종류 격자와 다른 모양인가] 블록 종류는 이름 하나로 무엇인지 알 수 있어서 작은 정사각 칸에
+ * 아이콘 + 낱말이면 충분하다. 묶음은 그렇지 않다 — '상품 카드 2단' 이 몇 장의 블록으로 들어오는지,
+ * 사진이 포함되는지는 이름이 말해 주지 않는다. 그래서 한 줄에 하나씩, 설명을 데리고 선다. */
+
+export const blockGroupListStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: cssVar('space.2'),
+  minWidth: 0,
+};
+
+export const blockGroupItemStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  gap: cssVar('space.1'),
+  width: '100%',
+  boxSizing: 'border-box',
+  paddingTop: cssVar('space.3'),
+  paddingBottom: cssVar('space.3'),
+  paddingLeft: cssVar('space.3'),
+  paddingRight: cssVar('space.3'),
+  borderStyle: 'solid',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.default'),
+  color: cssVar('color.text.default'),
+  textAlign: 'left',
+  cursor: 'pointer',
+};
+
+export const blockGroupLabelStyle: CSSProperties = {
+  fontSize: cssVar('typography.label.md.font-size'),
+  fontWeight: cssVar('primitive.typography.font-weight.semibold'),
+  lineHeight: cssVar('typography.label.md.line-height'),
+};
+
+export const blockGroupDescriptionStyle: CSSProperties = {
+  color: cssVar('color.text.muted'),
+  fontSize: cssVar('typography.label.sm.font-size'),
+  lineHeight: cssVar('typography.label.sm.line-height'),
+};
+
+/** 모달 안 구획 제목 — '블록 종류' / '구성' */
+export const pickerSectionTitleStyle: CSSProperties = {
+  marginTop: 0,
+  marginBottom: cssVar('space.2'),
+  marginLeft: 0,
+  marginRight: 0,
+  color: cssVar('color.text.muted'),
+  fontSize: cssVar('typography.label.sm.font-size'),
+  fontWeight: cssVar('primitive.typography.font-weight.bold'),
+  lineHeight: cssVar('typography.label.sm.line-height'),
+};
+
+/** 구획 사이 간격 — 모달 안에서 두 목록이 붙어 보이지 않게 */
+export const pickerSectionStyle: CSSProperties = {
+  marginTop: cssVar('space.5'),
+};
+
+/* ── 블록 이동 손잡이 ─────────────────────────────────────────────────────────
+ *
+ * [왜 지우기 반대편인가] 지우기는 오른쪽 위에 있다(blockRemoveHandleStyle). 이동을 그 옆에 붙이면
+ * '한 칸 아래로' 를 누르려다 '삭제' 를 누르는 일이 반드시 생긴다 — 되돌릴 수 있는 조작과 파괴적인
+ * 조작은 손가락 거리가 멀어야 한다. */
+export const blockMoveHandleStyle: CSSProperties = {
+  position: 'absolute',
+  left: 0,
+  top: 0,
+  display: 'flex',
+  alignItems: 'center',
+  transform: 'translate(0, -50%)',
+  // 덮개(1·2)와 칸의 +(3) 보다 위 — 선택된 블록 위에서 눌려야 한다
+  zIndex: 4,
+};
+
+/* ── 발송 전 점검 패널 ───────────────────────────────────────────────────────── */
+
+export const preflightListStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: cssVar('space.2'),
+  listStyle: 'none',
+  marginTop: cssVar('space.3'),
+  marginBottom: 0,
+  marginLeft: 0,
+  marginRight: 0,
+  paddingTop: 0,
+  paddingBottom: 0,
+  paddingLeft: 0,
+  paddingRight: 0,
+};
+
+/** 지적 한 줄 — 왼쪽에 심각도 색 띠. 색만으로 구분하지 않는다(배지가 글자로도 말한다) */
+export function preflightItemStyle(blocking: boolean): CSSProperties {
+  return {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: cssVar('space.1'),
+    paddingTop: cssVar('space.2'),
+    paddingBottom: cssVar('space.2'),
+    paddingLeft: cssVar('space.3'),
+    paddingRight: cssVar('space.3'),
+    borderLeftStyle: 'solid',
+    borderLeftWidth: cssVar('border-width.thick'),
+    borderLeftColor: blocking
+      ? cssVar('color.feedback.danger.border')
+      : cssVar('color.feedback.warning.border'),
+    borderRadius: cssVar('radius.sm'),
+    background: cssVar('color.surface.raised'),
+  };
+}
+
+export const preflightMessageStyle: CSSProperties = {
+  color: cssVar('color.text.default'),
+  fontSize: cssVar('typography.label.sm.font-size'),
+  lineHeight: cssVar('typography.label.sm.line-height'),
+};
+
+/** 지적이 하나도 없을 때 — 빈 화면이 아니라 '통과' 라고 말한다 */
+export const preflightOkStyle: CSSProperties = {
+  marginTop: cssVar('space.3'),
+  marginBottom: 0,
+  marginLeft: 0,
+  marginRight: 0,
+  color: cssVar('color.text.muted'),
+  fontSize: cssVar('typography.label.sm.font-size'),
+  lineHeight: cssVar('typography.label.sm.line-height'),
+};
+
 /* ── 변수 패널 ───────────────────────────────────────────────────────────── */
 
 /** 툴바 아래로 내려오는 드롭다운 — 툴바 버튼이 position:relative 를 갖는다 */

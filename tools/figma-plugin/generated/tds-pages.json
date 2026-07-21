@@ -123,6 +123,12 @@
       "menu": "기업 관리"
     },
     {
+      "id": "/orders",
+      "name": "주문 관리",
+      "section": "비즈니스",
+      "menu": "주문 관리"
+    },
+    {
       "id": "/portfolio/items",
       "name": "포트폴리오",
       "section": "비즈니스",

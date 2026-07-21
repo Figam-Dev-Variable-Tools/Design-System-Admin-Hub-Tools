@@ -11,6 +11,7 @@ import * as z from 'zod/mini';
 import { requiredText } from '../../../shared/crud';
 import { unknownTemplateVariableKeys } from '../../../shared/domain/template-variables';
 import { byteLengthOf, hasAdPrefix, hasOptOut, LMS_SUBJECT_MAX_BYTES } from '../_shared/messaging';
+import { blockingIssues, emailPreflight } from './email/preflight';
 import {
   alimtalkBodyError,
   alimtalkVariableBearingText,
@@ -274,6 +275,9 @@ function isEmailContent(value: unknown): value is EmailTemplateContent {
     return false;
   }
   if (!('subject' in value) || typeof value.subject !== 'string') return false;
+  // 프리헤더도 확인한다 — 발송 전 점검이 이 값을 읽으므로(preflight.ts), 없는 채로 통과시키면
+  // '문자열인 줄 알았는데 undefined' 가 점검 안에서 터진다. 얕은 가드의 목적은 그대로다.
+  if (!('preheader' in value) || typeof value.preheader !== 'string') return false;
   return 'senderEmail' in value && typeof value.senderEmail === 'string';
 }
 
@@ -313,7 +317,7 @@ export const emailTemplateSchema = z
     }
   })
   .check((ctx) => {
-    // 제목은 수신함에서 이 메일을 여는 유일한 단서다 — 비운 채로는 발행하지 않는다
+    // 제목은 수신함에서 이 메일을 여는 유일한 단서다 — 비운 채로는 저장하지 않는다
     if (!isEmailContent(ctx.value.content)) return;
     if (ctx.value.content.subject.trim() === '') {
       ctx.issues.push({
@@ -340,12 +344,56 @@ export const emailTemplateSchema = z
         message: '본문 블록을 하나 이상 추가하세요.',
       });
     }
+  })
+  .check((ctx) => {
+    /* ── 발송 전 점검 — **발행할 때만** ─────────────────────────────────────────
+     *
+     * [왜 초안에는 걸지 않는가] `draft` 는 '작성 중' 이라는 뜻이다(types.ts TemplateStatus).
+     * 작성 중인 본문에 CTA 링크가 비어 있고 이미지 파일이 아직 없는 것은 **정상 상태**다. 거기에
+     * 점검을 걸면 운영자는 오후에 하던 작업을 저장조차 못 하고 화면을 떠나야 한다 — 그러면 다음에
+     * 하는 일은 점검을 통과하는 가짜 값(`https://a.com`)을 채워 넣는 것이고, 점검은 그 순간
+     * 아무것도 막지 못하는 장식이 된다.
+     *
+     * 반대로 **발행은 '이제 이 템플릿으로 발송한다' 는 선언**이다. 되돌릴 수 없는 사고
+     * (수신거부 누락·눌러도 안 가는 버튼·빈 상자로 도착하는 이미지)는 정확히 이 문턱에서 막는다.
+     *
+     * [판정을 여기서 세지 않는다] 규칙의 정본은 email/preflight.ts 하나다. 편집기의 [점검] 탭과
+     * 이 스키마가 **같은 함수**를 부른다 — 화면은 빨간데 저장은 통과하는(혹은 그 반대의) 어긋남이
+     * 생기지 않게. 경고(severity==='warning')는 걸러진다: 막을 수 없는 것을 막으면 운영자는 경고를
+     * 끄는 법부터 배운다(preflight.ts 머리말).
+     *
+     * [path 를 왜 content 로 모으나] 어느 블록인지까지 짚어 주는 것은 캔버스의 일이고, 폼 오류에는
+     * 그럴 자리가 없다(블록 트리는 폼 필드가 아니다). 메시지가 문제를 그대로 적어 주므로 운영자는
+     * 편집기의 [점검] 탭에서 같은 문구를 찾아 '해당 블록으로' 를 누를 수 있다. */
+    if (ctx.value.status === 'draft') return;
+    if (!isEmailContent(ctx.value.content)) return;
+    for (const issue of blockingIssues(emailPreflight(ctx.value.content))) {
+      ctx.issues.push({
+        code: 'custom',
+        input: ctx.value.content,
+        path: ['content'],
+        message: issue.message,
+      });
+    }
   });
 
 export type EmailTemplateFormValues = z.infer<typeof emailTemplateSchema>;
 
+/** 헤더의 저장 버튼을 열어 줄지 — 지금 폼이 든 상태(초안/발행) 기준 */
 export function isEmailTemplateValid(values: EmailTemplateFormValues): boolean {
   return emailTemplateSchema.safeParse(values).success;
+}
+
+/**
+ * **발행** 버튼을 열어 줄지 — 폼이 아직 초안 상태여도 '발행했을 때' 를 미리 판정한다.
+ *
+ * [왜 isEmailTemplateValid 로 대신할 수 없나] 그 함수는 폼에 들어 있는 status 로 검사한다.
+ * 편집 중인 새 템플릿의 status 는 'draft' 라서, 발행 버튼까지 그 결과로 잠그면 **점검을
+ * 통과하지 못한 본문에도 발행 버튼이 열린다** — 눌러 봐야 오류가 뜨는 버튼은 거짓말이다.
+ * 상태만 바꿔 끼워 같은 스키마에 물어본다(규칙을 두 번 적지 않는다).
+ */
+export function isEmailTemplatePublishable(values: EmailTemplateFormValues): boolean {
+  return emailTemplateSchema.safeParse({ ...values, status: 'active' }).success;
 }
 
 /* ── 카카오 템플릿 폼 (알림톡 · 브랜드 메시지) ─────────────────────────────────

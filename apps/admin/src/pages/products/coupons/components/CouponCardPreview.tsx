@@ -4,8 +4,7 @@
 // 쿠폰 폼 1곳만 쓰므로 페이지 전용으로 둔다(README 규칙 1 — 소비자 1개).
 import type { CSSProperties } from 'react';
 
-import { formatNumber } from '../../../../shared/format';
-import { discountLabel, targetLabel } from '../types';
+import { conditionSummary, discountLabel, targetLabel } from '../types';
 import type { CouponIssueType, CouponTarget } from '../types';
 import { cssVar } from '@tds/ui';
 
@@ -98,9 +97,12 @@ interface CouponCardPreviewProps {
   readonly discountValue: number;
   readonly minOrderAmount: number;
   readonly maxDiscount: number;
+  readonly stackable: boolean;
   readonly target: CouponTarget;
-  readonly startAt: string;
-  readonly endAt: string;
+  /** 사용 기간 문구 — 고정 기간이냐 발급일 기준이냐를 페이지가 규칙(usagePeriodLabel)으로 만든다 */
+  readonly periodText: string;
+  /** 발급 기준 요약 — 고객에게 보이는 값은 아니지만 운영자가 함께 확인해야 하는 축이다 */
+  readonly triggerText: string;
   readonly enabled: boolean;
 }
 
@@ -110,19 +112,14 @@ export function CouponCardPreview({
   discountValue,
   minOrderAmount,
   maxDiscount,
+  stackable,
   target,
-  startAt,
-  endAt,
+  periodText,
+  triggerText,
   enabled,
 }: CouponCardPreviewProps) {
-  const conditions: string[] = [];
-  if (minOrderAmount > 0) conditions.push(`${formatNumber(minOrderAmount)}원 이상 구매 시`);
-  if (issueType === 'percent' && maxDiscount > 0) {
-    conditions.push(`최대 ${formatNumber(maxDiscount)}원`);
-  }
-  conditions.push(targetLabel(target));
-
-  const period = startAt !== '' && endAt !== '' ? `${startAt} ~ ${endAt}` : '사용 기간 미설정';
+  // 조건 문구의 정본은 순수 규칙이다 — 미리보기와 목록이 다른 말을 하지 않게 한다
+  const conditions = `${conditionSummary({ issueType, minOrderAmount, maxDiscount, stackable })} · ${targetLabel(target)}`;
 
   return (
     <div>
@@ -131,8 +128,8 @@ export function CouponCardPreview({
           <div style={leftStyle}>
             <span style={discountStyle}>{discountLabel({ issueType, discountValue })}</span>
             <span style={nameStyle}>{name.trim() === '' ? '쿠폰명' : name}</span>
-            <span style={metaStyle}>{conditions.join(' · ')}</span>
-            <span style={metaStyle}>{period}</span>
+            <span style={metaStyle}>{conditions}</span>
+            <span style={metaStyle}>{periodText}</span>
           </div>
           <span style={dividerStyle}>COUPON</span>
         </div>
@@ -140,7 +137,7 @@ export function CouponCardPreview({
 
       <p style={captionStyle}>
         {enabled
-          ? '발급중 — 고객 쿠폰함에 이 모습으로 노출됩니다.'
+          ? `발급중 — ${triggerText} 이 모습으로 고객 쿠폰함에 들어갑니다.`
           : '중지 — 저장해도 고객에게 발급되지 않습니다.'}
       </p>
     </div>

@@ -25,6 +25,16 @@ export const PHONE_WIDTH = 'calc(var(--tds-space-6) * 15)';
 export const MAIL_WIDTH = 'calc(var(--tds-space-6) * 25)';
 
 /**
+ * 모바일 메일 본문 폭 — 360px (space.6 × 15).
+ *
+ * [왜 휴대폰 폭과 같은 값을 따로 두나] 숫자는 같지만 **뜻이 다르다**. PHONE_WIDTH 는 문자
+ * 미리보기의 '기기 화면 폭' 이고, 이것은 메일 미리보기가 좁은 화면에서 어떻게 접히는지를 보는
+ * '본문 폭' 이다. 한쪽 값을 조정할 이유(문자 목업을 실기기에 더 맞춘다 등)가 다른 쪽까지 끌고
+ * 가면 그때부터 두 화면 중 하나는 거짓말을 한다.
+ */
+export const MAIL_WIDTH_MOBILE = 'calc(var(--tds-space-6) * 15)';
+
+/**
  * 목업 본문의 최소 높이 — 72px (space.6 × 3).
  *
  * 비었을 때 프레임이 납작해지지 않을 만큼만. 이보다 키우면 '큰 빈 판' 문제가 돌아온다.

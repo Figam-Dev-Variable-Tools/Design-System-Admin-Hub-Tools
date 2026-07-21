@@ -13,6 +13,7 @@ import {
   finalPrice,
   isLowStock,
   PRODUCT_DESCRIPTION_MAX,
+  productAllowsCoupon,
   searchProducts,
   sortProducts,
   totalStock,
@@ -40,6 +41,7 @@ function productOf(overrides: Partial<Product> & { id: string }): Product {
     variants: [variantOf({ id: 'v1', stock: 10 })],
     shipping: { method: 'courier', feeType: 'free', fee: 0, freeThreshold: 0 },
     points: { mode: 'rate', rate: 1, amount: 0 },
+    coupons: { usable: true, mode: 'all', couponIds: [] },
     coverImageUrl: 'blob:cover',
     imageUrls: [],
     description: '',
@@ -267,6 +269,7 @@ function valuesOf(overrides: Partial<ProductFormValues> = {}): ProductFormValues
     displayed: true,
     shipping: { method: 'courier', feeType: 'conditional', fee: '3000', freeThreshold: '50000' },
     points: { mode: 'rate', rate: '1', amount: '' },
+    coupons: { usable: true, mode: 'all', couponIds: [] },
     optionGroups: [],
     variants: [
       { id: 'v', sku: 'LMN-001', optionValues: [], addPrice: 0, stock: 10, soldOut: false },
@@ -368,5 +371,74 @@ describe('productSchema — 폼 검증', () => {
         'shipping.freeThreshold',
       ),
     ).toContain('기준');
+  });
+});
+
+describe('productAllowsCoupon — 상품별 쿠폰 허용(순수)', () => {
+  // 승자는 상품이다 — 쿠폰이 이 상품을 지목했어도 여기가 false 면 붙지 않는다
+  it('쿠폰 사용 불가 상품은 어떤 쿠폰도 받지 않는다', () => {
+    expect(productAllowsCoupon({ usable: false, mode: 'all', couponIds: [] }, 'cpn-1')).toBe(false);
+    // 허용 목록에 들어 있어도 마찬가지다 — 상위 스위치가 이긴다
+    expect(
+      productAllowsCoupon({ usable: false, mode: 'include', couponIds: ['cpn-1'] }, 'cpn-1'),
+    ).toBe(false);
+  });
+
+  it('전체 허용이면 모두 받는다', () => {
+    expect(productAllowsCoupon({ usable: true, mode: 'all', couponIds: [] }, 'cpn-9')).toBe(true);
+  });
+
+  it('허용 목록(include)은 목록에 있는 것만 받는다', () => {
+    const policy = { usable: true, mode: 'include' as const, couponIds: ['cpn-1'] };
+    expect(productAllowsCoupon(policy, 'cpn-1')).toBe(true);
+    expect(productAllowsCoupon(policy, 'cpn-2')).toBe(false);
+  });
+
+  it('제외 목록(exclude)은 목록에 있는 것만 막는다', () => {
+    const policy = { usable: true, mode: 'exclude' as const, couponIds: ['cpn-1'] };
+    expect(productAllowsCoupon(policy, 'cpn-1')).toBe(false);
+    expect(productAllowsCoupon(policy, 'cpn-2')).toBe(true);
+  });
+});
+
+describe('productSchema — 쿠폰 사용 설정', () => {
+  it('기본값(모든 쿠폰 사용 가능)은 통과한다', () => {
+    expect(productSchema.safeParse(valuesOf()).success).toBe(true);
+  });
+
+  // include 로 비워 두면 모든 쿠폰이 막히고 exclude 로 비워 두면 아무것도 막히지 않는다 —
+  // 둘 다 운영자가 의도한 '선택' 이 아니라 미완성이다
+  it('허용 목록을 비워 두면 막고, 무슨 일이 벌어지는지 말해 준다', () => {
+    expect(
+      messageFor(
+        valuesOf({ coupons: { usable: true, mode: 'include', couponIds: [] } }),
+        'coupons.couponIds',
+      ),
+    ).toContain('모든 쿠폰이 막힙니다');
+  });
+
+  it('제외 목록을 비워 두면 막는다', () => {
+    expect(
+      messageFor(
+        valuesOf({ coupons: { usable: true, mode: 'exclude', couponIds: [] } }),
+        'coupons.couponIds',
+      ),
+    ).toContain('제외할 쿠폰');
+  });
+
+  it('쿠폰 사용 불가면 목록이 비어도 통과한다 — 고를 것이 없다', () => {
+    expect(
+      productSchema.safeParse(
+        valuesOf({ coupons: { usable: false, mode: 'include', couponIds: [] } }),
+      ).success,
+    ).toBe(true);
+  });
+
+  it('한 개 이상 고르면 통과한다', () => {
+    expect(
+      productSchema.safeParse(
+        valuesOf({ coupons: { usable: true, mode: 'include', couponIds: ['cpn-1'] } }),
+      ).success,
+    ).toBe(true);
   });
 });
