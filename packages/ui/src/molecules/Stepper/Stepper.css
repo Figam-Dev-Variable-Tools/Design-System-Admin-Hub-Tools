@@ -37,6 +37,10 @@
   background: var(--tds-color-surface-default);
   color: var(--tds-color-text-muted);
   font-size: var(--tds-typography-caption-md-font-size);
+  /* line-height:1 — 없으면 상속된 큰 줄높이의 line box 안에서 숫자가 baseline 쪽(아래)으로
+     치우쳐 원 안에서 살짝 내려가 보였다. flex 중앙정렬은 line box 를 가운데 두므로 line box 를
+     글자 크기에 맞춰 1 로 좁히면 숫자가 원의 정중앙에 온다(가로는 justify-center + tabular-nums). */
+  line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 

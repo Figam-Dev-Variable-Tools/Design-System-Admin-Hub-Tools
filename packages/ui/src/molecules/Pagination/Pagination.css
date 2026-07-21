@@ -48,10 +48,13 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  /* 정사각 기준 — 최소 너비 = 높이(space.6). 한 자리 페이지는 정사각, 여러 자리만 옆으로 늘어난다.
+     좌우 여백은 space.1 로 얕게 준다: 활성 페이지가 굵은 글씨(--active)라 space.2 여백에서는
+     한 자리 숫자도 min-inline-size 를 넘겨 세로보다 가로가 길어졌다(활성 버튼만 정사각이 깨졌다). */
   min-inline-size: var(--tds-space-6);
   block-size: var(--tds-space-6);
   padding-block: 0;
-  padding-inline: var(--tds-space-2);
+  padding-inline: var(--tds-space-1);
   border-style: solid;
   border-width: var(--tds-border-width-thin);
   border-color: transparent;
