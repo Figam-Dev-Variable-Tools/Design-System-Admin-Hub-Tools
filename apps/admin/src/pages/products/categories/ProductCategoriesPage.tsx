@@ -137,6 +137,20 @@ const groupStyle: CSSProperties = {
   flexDirection: 'column',
 };
 
+/** 펼침 토글 — 아이콘만 있는 작은 버튼 */
+const disclosureStyle: CSSProperties = {
+  ...buttonStyle('ghost'),
+  paddingLeft: cssVar('space.1'),
+  paddingRight: cssVar('space.1'),
+};
+
+/** 토글이 없는 행의 자리맞춤 — 토글 버튼과 같은 폭 */
+const disclosureSpacerStyle: CSSProperties = {
+  display: 'inline-block',
+  inlineSize: cssVar('space.6'),
+  flexShrink: 0,
+};
+
 type ModalState =
   | { kind: 'closed' }
   | { kind: 'create'; parentId: string | null }
@@ -146,6 +160,11 @@ interface CategoryRowProps {
   readonly category: ProductCategoryUsage;
   readonly deleting: boolean;
   readonly canCreate: boolean;
+  /** 하위를 펼쳤나 — 대분류에만 준다. undefined 면 펼침 토글 자체가 없다(중분류 행) */
+  readonly expanded?: boolean;
+  readonly childPanelId?: string;
+  readonly childCount?: number;
+  readonly onToggle?: () => void;
   readonly onEdit: (category: ProductCategoryUsage) => void;
   readonly onDelete: (category: ProductCategoryUsage) => void;
   readonly onAddChild: (parent: ProductCategoryUsage) => void;
@@ -155,6 +174,10 @@ function CategoryRow({
   category,
   deleting,
   canCreate,
+  expanded,
+  childPanelId,
+  childCount = 0,
+  onToggle,
   onEdit,
   onDelete,
   onAddChild,
@@ -165,13 +188,33 @@ function CategoryRow({
   // 삭제 차단 사유는 둘이다 — 쓰는 상품이 있거나, 하위 카테고리가 달려 있거나
   const blockReason = inUse ? usage : category.hasChildren ? '하위 카테고리 있음' : null;
   const blocked = blockReason !== null;
+  const togglable = expanded !== undefined && onToggle !== undefined && childCount > 0;
 
   return (
     <li style={rowStyle}>
       <span style={rowLeftStyle}>
+        {/* 하위를 접었다 폈다 하는 드롭다운 — 하위가 있는 대분류에만 붙는다 */}
+        {togglable ? (
+          <button
+            type="button"
+            className="tds-ui-btn-ghost tds-ui-focusable"
+            style={disclosureStyle}
+            aria-expanded={expanded}
+            aria-controls={childPanelId}
+            aria-label={`${category.label} 하위 카테고리 ${expanded ? '접기' : '펼치기'} (${String(childCount)}개)`}
+            onClick={onToggle}
+          >
+            <Icon name={expanded ? 'chevron-down' : 'chevron-right'} />
+          </button>
+        ) : (
+          // 토글이 없는 행도 라벨 시작점을 맞춘다(들쭉날쭉하지 않게)
+          <span aria-hidden="true" style={disclosureSpacerStyle} />
+        )}
         <span style={labelTextStyle}>{category.label}</span>
         <StatusBadge tone={inUse ? 'info' : 'neutral'} label={usage} />
-        {category.hasChildren && <StatusBadge tone="neutral" label="하위 있음" />}
+        {category.hasChildren && (
+          <StatusBadge tone="neutral" label={`하위 ${String(childCount)}개`} />
+        )}
       </span>
       <span style={actionsStyle}>
         {/* 하위(2Depth) 추가는 대분류에만 — 2Depth 아래로는 만들지 않는다(2단계 제한) */}
@@ -224,6 +267,8 @@ export default function ProductCategoriesPage() {
   const { canCreate } = useRouteWritePermissions();
   const [modal, setModal] = useState<ModalState>({ kind: 'closed' });
   const [pendingDelete, setPendingDelete] = useState<ProductCategoryUsage | null>(null);
+  /** 접은 대분류 id — 기본은 전부 펼침(숨겨진 정보 없이 시작한다) */
+  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(() => new Set<string>());
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const deleteControllerRef = useRef<AbortController | null>(null);
 
@@ -271,6 +316,15 @@ export default function ProductCategoriesPage() {
       children: visible.filter((category) => category.parentId === root.id),
     }));
   }, [categories, visible]);
+
+  const toggleRoot = (rootId: string) => {
+    setCollapsed((previous) => {
+      const next = new Set(previous);
+      if (next.has(rootId)) next.delete(rootId);
+      else next.add(rootId);
+      return next;
+    });
+  };
 
   const closeDelete = () => {
     deleteControllerRef.current?.abort();
@@ -363,41 +417,49 @@ export default function ProductCategoriesPage() {
             ) : (
               <ul style={listStyle}>
                 {/* 대분류(1Depth) → 그 아래 중분류(2Depth) 를 들여써 계층을 그대로 보인다 */}
-                {tree.map((group) => (
-                  <li key={group.root.id} style={groupStyle}>
-                    <ul style={listStyle}>
-                      <CategoryRow
-                        category={group.root}
-                        deleting={deleting}
-                        canCreate={canCreate}
-                        onEdit={(target) => setModal({ kind: 'edit', category: target })}
-                        onDelete={(target) => {
-                          setDeleteError(null);
-                          setPendingDelete(target);
-                        }}
-                        onAddChild={(parent) => setModal({ kind: 'create', parentId: parent.id })}
-                      />
-                    </ul>
-                    {group.children.length > 0 && (
-                      <ul style={childListStyle}>
-                        {group.children.map((child) => (
-                          <CategoryRow
-                            key={child.id}
-                            category={child}
-                            deleting={deleting}
-                            canCreate={canCreate}
-                            onEdit={(target) => setModal({ kind: 'edit', category: target })}
-                            onDelete={(target) => {
-                              setDeleteError(null);
-                              setPendingDelete(target);
-                            }}
-                            onAddChild={() => undefined}
-                          />
-                        ))}
+                {tree.map((group) => {
+                  const panelId = `category-children-${group.root.id}`;
+                  const expanded = !collapsed.has(group.root.id);
+                  return (
+                    <li key={group.root.id} style={groupStyle}>
+                      <ul style={listStyle}>
+                        <CategoryRow
+                          category={group.root}
+                          deleting={deleting}
+                          canCreate={canCreate}
+                          expanded={expanded}
+                          childPanelId={panelId}
+                          childCount={group.children.length}
+                          onToggle={() => toggleRoot(group.root.id)}
+                          onEdit={(target) => setModal({ kind: 'edit', category: target })}
+                          onDelete={(target) => {
+                            setDeleteError(null);
+                            setPendingDelete(target);
+                          }}
+                          onAddChild={(parent) => setModal({ kind: 'create', parentId: parent.id })}
+                        />
                       </ul>
-                    )}
-                  </li>
-                ))}
+                      {group.children.length > 0 && expanded && (
+                        <ul id={panelId} style={childListStyle}>
+                          {group.children.map((child) => (
+                            <CategoryRow
+                              key={child.id}
+                              category={child}
+                              deleting={deleting}
+                              canCreate={canCreate}
+                              onEdit={(target) => setModal({ kind: 'edit', category: target })}
+                              onDelete={(target) => {
+                                setDeleteError(null);
+                                setPendingDelete(target);
+                              }}
+                              onAddChild={() => undefined}
+                            />
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             )}
             <p style={hintStyle}>
