@@ -14,14 +14,24 @@
 
 /* ── 카테고리 ─────────────────────────────────────────────────────────────── */
 
+/**
+ * 상품 카테고리 — **최대 2단계**(대분류 → 중분류).
+ *
+ * `parentId === null` 이면 1Depth(대분류), 값이 있으면 그 대분류의 2Depth(중분류)다.
+ * 3단계는 만들지 않는다 — 2Depth 를 부모로 지정하려는 시도는 저장소가 막는다(addProductCategory).
+ */
 export interface ProductCategory {
   readonly id: string;
   readonly label: string;
+  /** 상위 카테고리 id. null 이면 최상위(1Depth) */
+  readonly parentId: string | null;
 }
 
 /** 카테고리 + 사용 중 상품 수 — 삭제 차단 판단·목록 배지에 쓴다 */
 export interface ProductCategoryUsage extends ProductCategory {
   readonly productCount: number;
+  /** 하위(2Depth)를 가진 대분류인가 — 있으면 삭제를 막는다 */
+  readonly hasChildren: boolean;
 }
 
 /* ── 가격 정책 (확장 가능하게 분리) ───────────────────────────────────────── */
@@ -366,11 +376,19 @@ export function sortProducts(list: readonly Product[]): readonly Product[] {
 /* ── 픽스처 (가상 데이터 — 실명 없음) ─────────────────────────────────────── */
 
 let categories: ProductCategory[] = [
-  { id: 'outer', label: '아우터' },
-  { id: 'top', label: '상의' },
-  { id: 'bottom', label: '하의' },
-  { id: 'shoes', label: '신발' },
-  { id: 'acc', label: '액세서리' },
+  // 1Depth (대분류)
+  { id: 'outer', label: '아우터', parentId: null },
+  { id: 'top', label: '상의', parentId: null },
+  { id: 'bottom', label: '하의', parentId: null },
+  { id: 'shoes', label: '신발', parentId: null },
+  { id: 'acc', label: '액세서리', parentId: null },
+  // 2Depth (중분류)
+  { id: 'outer-coat', label: '코트', parentId: 'outer' },
+  { id: 'outer-jacket', label: '재킷', parentId: 'outer' },
+  { id: 'top-tee', label: '티셔츠', parentId: 'top' },
+  { id: 'top-shirt', label: '셔츠', parentId: 'top' },
+  { id: 'bottom-pants', label: '팬츠', parentId: 'bottom' },
+  { id: 'bottom-skirt', label: '스커트', parentId: 'bottom' },
 ];
 
 const labelOf = (categoryId: string): string =>
@@ -671,24 +689,80 @@ export function listProductCategoryUsage(): readonly ProductCategoryUsage[] {
   return categories.map((category) => ({
     ...category,
     productCount: countProductsUsingCategory(category.id, products),
+    hasChildren: categories.some((child) => child.parentId === category.id),
   }));
 }
 
 export function getProductCategoryUsage(id: string): ProductCategoryUsage {
   const found = categories.find((category) => category.id === id);
   if (found === undefined) throw new Error('카테고리를 찾을 수 없습니다');
-  return { ...found, productCount: countProductsUsingCategory(found.id, products) };
+  return {
+    ...found,
+    productCount: countProductsUsingCategory(found.id, products),
+    hasChildren: categories.some((child) => child.parentId === found.id),
+  };
 }
 
-export function addProductCategory(label: string): void {
+/** 1Depth(대분류)만 — 상위 선택지·상품 폼의 첫 번째 셀렉트가 쓴다 */
+export function listProductCategoryRoots(): readonly ProductCategory[] {
+  return categories.filter((category) => category.parentId === null);
+}
+
+/** 특정 대분류의 2Depth(중분류) 목록 — 상품 폼의 두 번째 셀렉트가 쓴다 */
+export function listProductCategoryChildren(parentId: string): readonly ProductCategory[] {
+  return categories.filter((category) => category.parentId === parentId);
+}
+
+/** 하위(2Depth)를 가진 대분류인가 — 삭제 차단·부모 재지정 차단에 쓴다 */
+export function hasProductCategoryChildren(id: string): boolean {
+  return categories.some((category) => category.parentId === id);
+}
+
+/** '아우터 > 코트' 표기 — 목록·상품 폼에서 어느 갈래인지 한눈에 보이게 한다 */
+export function productCategoryPath(id: string): string {
+  const found = categories.find((category) => category.id === id);
+  if (found === undefined) return id;
+  if (found.parentId === null) return found.label;
+  const parent = categories.find((category) => category.id === found.parentId);
+  return parent === undefined ? found.label : `${parent.label} > ${found.label}`;
+}
+
+/** 부모로 지정할 수 있는가 — 없음(최상위)이거나, **1Depth 인 카테고리**만 부모가 된다(3단계 금지) */
+function assertAssignableParent(parentId: string | null, selfId?: string): void {
+  if (parentId === null) return;
+  if (selfId !== undefined && parentId === selfId) {
+    throw new Error('자기 자신을 상위 카테고리로 지정할 수 없습니다.');
+  }
+  const parent = categories.find((category) => category.id === parentId);
+  if (parent === undefined) throw new Error('상위 카테고리를 찾을 수 없습니다.');
+  if (parent.parentId !== null) {
+    throw new Error('카테고리는 2단계까지만 만들 수 있습니다.');
+  }
+}
+
+export function addProductCategory(label: string, parentId: string | null = null): void {
+  assertAssignableParent(parentId);
   categorySeq += 1;
-  categories = [...categories, { id: `prd-cat-${String(categorySeq)}`, label: label.trim() }];
+  categories = [
+    ...categories,
+    { id: `prd-cat-${String(categorySeq)}`, label: label.trim(), parentId },
+  ];
 }
 
-export function updateProductCategory(id: string, label: string): void {
+export function updateProductCategory(
+  id: string,
+  label: string,
+  parentId: string | null = null,
+): void {
+  assertAssignableParent(parentId, id);
+  // 하위를 가진 대분류를 다른 대분류 밑으로 넣으면 3단계가 된다 — 막는다
+  if (parentId !== null && hasProductCategoryChildren(id)) {
+    throw new Error('하위 카테고리가 있는 카테고리는 다른 카테고리 밑으로 옮길 수 없습니다.');
+  }
+
   const trimmed = label.trim();
   categories = categories.map((category) =>
-    category.id === id ? { ...category, label: trimmed } : category,
+    category.id === id ? { ...category, label: trimmed, parentId } : category,
   );
   // 라벨 변경을 상품의 비정규화 라벨에도 반영한다(백엔드가 붙으면 서버가 정합성을 맡는다)
   products = products.map((product) =>
@@ -696,10 +770,13 @@ export function updateProductCategory(id: string, label: string): void {
   );
 }
 
-/** 사용 중이면 삭제하지 않는다(서버는 409 로 막는다). 프론트도 버튼을 잠근다. */
+/** 사용 중이거나 하위가 있으면 삭제하지 않는다(서버는 409 로 막는다). 프론트도 버튼을 잠근다. */
 export function removeProductCategory(id: string): void {
   if (countProductsUsingCategory(id, products) > 0) {
     throw new Error('사용 중인 카테고리는 삭제할 수 없습니다.');
+  }
+  if (hasProductCategoryChildren(id)) {
+    throw new Error('하위 카테고리가 있는 카테고리는 삭제할 수 없습니다.');
   }
   categories = categories.filter((category) => category.id !== id);
 }

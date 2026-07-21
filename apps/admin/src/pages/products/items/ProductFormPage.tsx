@@ -341,6 +341,26 @@ export default function ProductFormPage() {
   });
   const categories = categoriesQuery.data ?? [];
 
+  /**
+   * 카테고리는 2단계다 — 폼이 저장하는 값(`categoryId`)은 **최종 선택 하나**이고,
+   * 중분류를 고르면 그 id, 고르지 않으면 대분류 id 가 들어간다. 두 셀렉트는 그 값에서 되짚어 그린다.
+   */
+  const categoryId = watch('categoryId');
+  const selectedCategory = categories.find((category) => category.id === categoryId);
+  const categoryRootId =
+    selectedCategory === undefined ? '' : (selectedCategory.parentId ?? selectedCategory.id);
+  const categoryChildId =
+    selectedCategory !== undefined && selectedCategory.parentId !== null ? selectedCategory.id : '';
+  const categoryRootOptions = categories.filter((category) => category.parentId === null);
+  const categoryChildOptions =
+    categoryRootId === ''
+      ? []
+      : categories.filter((category) => category.parentId === categoryRootId);
+
+  /** 대분류를 바꾸면 중분류 선택은 버린다 — 다른 갈래의 중분류가 남아 있으면 안 된다 */
+  const setCategory = (next: string) =>
+    setValue('categoryId', next, { shouldDirty: true, shouldValidate: true });
+
   const name = watch('name');
   const brand = watch('brand');
   const code = watch('code');
@@ -535,7 +555,7 @@ export default function ProductFormPage() {
                   <div style={rowStyle}>
                     <FormField
                       htmlFor="product-category"
-                      label="카테고리"
+                      label="카테고리 (대분류)"
                       required
                       error={errors.categoryId?.message}
                     >
@@ -549,10 +569,44 @@ export default function ProductFormPage() {
                             ? errorIdOf('product-category')
                             : undefined
                         }
-                        {...register('categoryId')}
+                        value={categoryRootId}
+                        onChange={(event) => setCategory(event.target.value)}
                       >
-                        <option value="">카테고리 선택</option>
-                        {categories.map((category) => (
+                        <option value="">대분류 선택</option>
+                        {categoryRootOptions.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.label}
+                          </option>
+                        ))}
+                      </SelectField>
+                    </FormField>
+
+                    {/* 2Depth — 고르지 않으면 대분류에 등록된다. 하위가 없는 대분류면 잠근다 */}
+                    <FormField
+                      htmlFor="product-category-child"
+                      label="카테고리 (중분류)"
+                      hint={
+                        categoryRootId === ''
+                          ? '대분류를 먼저 선택하세요.'
+                          : categoryChildOptions.length === 0
+                            ? '이 대분류에는 중분류가 없습니다.'
+                            : '선택하지 않으면 대분류에 등록됩니다.'
+                      }
+                    >
+                      <SelectField
+                        id="product-category-child"
+                        disabled={disabled || categoryChildOptions.length === 0}
+                        value={categoryChildId}
+                        onChange={(event) =>
+                          setCategory(
+                            event.target.value === '' ? categoryRootId : event.target.value,
+                          )
+                        }
+                      >
+                        <option value="">
+                          {categoryChildOptions.length === 0 ? '없음' : '선택 안 함'}
+                        </option>
+                        {categoryChildOptions.map((category) => (
                           <option key={category.id} value={category.id}>
                             {category.label}
                           </option>

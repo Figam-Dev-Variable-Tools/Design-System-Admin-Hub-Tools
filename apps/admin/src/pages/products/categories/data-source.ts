@@ -25,7 +25,7 @@ export const productCategoryAdapter = createStoreAdapter<
   scope: SCOPE,
   list: listProductCategoryUsage,
   getOne: getProductCategoryUsage,
-  add: (input) => addProductCategory(input.name),
-  update: (id, input) => updateProductCategory(id, input.name),
+  add: (input) => addProductCategory(input.name, input.parentId),
+  update: (id, input) => updateProductCategory(id, input.name, input.parentId),
   remove: removeProductCategory,
 });

@@ -20,10 +20,11 @@ import {
 } from '../../../../shared/ui';
 import { CATEGORY_RESOURCE, productCategoryAdapter } from '../data-source';
 import { CATEGORY_NAME_MAX } from '../types';
+import { listProductCategoryRoots } from '../../_shared/store';
 import type { ProductCategoryUsage } from '../../_shared/store';
 import { productCategorySchema } from '../validation';
 import type { ProductCategoryFormValues } from '../validation';
-import { cssVar } from '@tds/ui';
+import { cssVar, SelectField } from '@tds/ui';
 
 const bodyStyle: CSSProperties = {
   display: 'flex',
@@ -34,16 +35,29 @@ const bodyStyle: CSSProperties = {
 interface ProductCategoryFormModalProps {
   /** 수정 대상 — null 이면 등록 */
   readonly editing: ProductCategoryUsage | null;
+  /** 등록 시 미리 고정할 상위 카테고리 — '하위 카테고리 추가' 로 열면 채워진다 */
+  readonly presetParentId?: string | null;
   readonly onClose: () => void;
   readonly onSaved: (name: string, isEdit: boolean) => void;
 }
 
 export function ProductCategoryFormModal({
   editing,
+  presetParentId = null,
   onClose,
   onSaved,
 }: ProductCategoryFormModalProps) {
   const isEdit = editing !== null;
+
+  /**
+   * 상위로 고를 수 있는 것은 **1Depth 뿐**이다(2단계 제한). 수정 중이면 자기 자신과,
+   * 하위를 가진 카테고리(옮기면 3단계가 된다)는 후보에서 뺀다.
+   */
+  const parentOptions = listProductCategoryRoots().filter(
+    (candidate) => editing === null || candidate.id !== editing.id,
+  );
+  /** 하위를 이미 가진 대분류는 다른 대분류 밑으로 옮길 수 없다 — 상위 선택 자체를 잠근다 */
+  const parentLocked = isEdit && editing.hasChildren;
 
   const {
     register,
@@ -52,7 +66,10 @@ export function ProductCategoryFormModal({
     formState: { errors, isDirty },
   } = useForm<ProductCategoryFormValues>({
     resolver: zodResolver(productCategorySchema),
-    defaultValues: { name: editing?.label ?? '' },
+    defaultValues: {
+      name: editing?.label ?? '',
+      parentId: editing?.parentId ?? presetParentId ?? '',
+    },
   });
 
   const create = useCrudCreate(CATEGORY_RESOURCE, productCategoryAdapter);
@@ -75,6 +92,8 @@ export function ProductCategoryFormModal({
     const controller = new AbortController();
     controllerRef.current = controller;
     const name = values.name.trim();
+    // 빈 문자열(셀렉트의 '없음')은 최상위를 뜻한다 — 저장소에는 null 로 넘긴다
+    const parentId = values.parentId === '' ? null : values.parentId;
 
     const onError = (cause: unknown) => {
       if (isAbort(cause)) return;
@@ -83,14 +102,14 @@ export function ProductCategoryFormModal({
 
     if (isEdit && editing !== null) {
       update.mutate(
-        { id: editing.id, input: { name }, signal: controller.signal },
+        { id: editing.id, input: { name, parentId }, signal: controller.signal },
         { onSuccess: () => onSaved(name, true), onError },
       );
       return;
     }
 
     create.mutate(
-      { input: { name }, signal: controller.signal },
+      { input: { name, parentId }, signal: controller.signal },
       { onSuccess: () => onSaved(name, false), onError },
     );
   };
@@ -147,6 +166,30 @@ export function ProductCategoryFormModal({
               onChange={nameField.onChange}
               onBlur={nameField.onBlur}
             />
+          </FormField>
+
+          {/* 상위 카테고리 — 없음이면 1Depth(대분류), 고르면 그 아래 2Depth(중분류)로 만들어진다 */}
+          <FormField
+            htmlFor="product-category-parent"
+            label="상위 카테고리"
+            hint={
+              parentLocked
+                ? '하위 카테고리가 있어 상위를 바꿀 수 없습니다.'
+                : '선택하지 않으면 대분류(1Depth)로 만들어집니다. 카테고리는 2단계까지 만들 수 있습니다.'
+            }
+          >
+            <SelectField
+              id="product-category-parent"
+              disabled={saving || parentLocked}
+              {...register('parentId')}
+            >
+              <option value="">없음 (대분류)</option>
+              {parentOptions.map((parent) => (
+                <option key={parent.id} value={parent.id}>
+                  {parent.label}
+                </option>
+              ))}
+            </SelectField>
           </FormField>
         </div>
       </Modal>

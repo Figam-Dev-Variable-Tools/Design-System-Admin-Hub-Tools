@@ -125,26 +125,68 @@ const errorBodyStyle: CSSProperties = {
   flexWrap: 'wrap',
 };
 
+/** 2Depth 행은 상위 아래에 들여쓴다 — 계층이 한눈에 보이게 */
+const childListStyle: CSSProperties = {
+  ...listStyle,
+  marginTop: cssVar('space.2'),
+  paddingLeft: cssVar('space.6'),
+};
+
+const groupStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+};
+
 type ModalState =
-  { kind: 'closed' } | { kind: 'create' } | { kind: 'edit'; category: ProductCategoryUsage };
+  | { kind: 'closed' }
+  | { kind: 'create'; parentId: string | null }
+  | { kind: 'edit'; category: ProductCategoryUsage };
 
 interface CategoryRowProps {
   readonly category: ProductCategoryUsage;
   readonly deleting: boolean;
+  readonly canCreate: boolean;
   readonly onEdit: (category: ProductCategoryUsage) => void;
   readonly onDelete: (category: ProductCategoryUsage) => void;
+  readonly onAddChild: (parent: ProductCategoryUsage) => void;
 }
 
-function CategoryRow({ category, deleting, onEdit, onDelete }: CategoryRowProps) {
+function CategoryRow({
+  category,
+  deleting,
+  canCreate,
+  onEdit,
+  onDelete,
+  onAddChild,
+}: CategoryRowProps) {
   const inUse = category.productCount > 0;
   const usage = usageLabel(category.productCount);
+  const isRoot = category.parentId === null;
+  // 삭제 차단 사유는 둘이다 — 쓰는 상품이 있거나, 하위 카테고리가 달려 있거나
+  const blockReason = inUse ? usage : category.hasChildren ? '하위 카테고리 있음' : null;
+  const blocked = blockReason !== null;
+
   return (
     <li style={rowStyle}>
       <span style={rowLeftStyle}>
         <span style={labelTextStyle}>{category.label}</span>
         <StatusBadge tone={inUse ? 'info' : 'neutral'} label={usage} />
+        {category.hasChildren && <StatusBadge tone="neutral" label="하위 있음" />}
       </span>
       <span style={actionsStyle}>
+        {/* 하위(2Depth) 추가는 대분류에만 — 2Depth 아래로는 만들지 않는다(2단계 제한) */}
+        {isRoot && canCreate && (
+          <button
+            type="button"
+            className="tds-ui-btn-ghost tds-ui-focusable"
+            style={buttonStyle('ghost')}
+            aria-label={`${category.label} 하위 카테고리 추가`}
+            title="하위 카테고리 추가"
+            onClick={() => onAddChild(category)}
+          >
+            <Icon name="plus-circle" />
+          </button>
+        )}
         <button
           type="button"
           className="tds-ui-btn-ghost tds-ui-focusable"
@@ -157,12 +199,14 @@ function CategoryRow({ category, deleting, onEdit, onDelete }: CategoryRowProps)
         <button
           type="button"
           className="tds-ui-btn-ghost tds-ui-focusable"
-          style={inUse ? buttonStyle('ghost', true) : dangerGhostStyle}
+          style={blocked ? buttonStyle('ghost', true) : dangerGhostStyle}
           aria-label={
-            inUse ? `${category.label} — ${usage}라 삭제할 수 없습니다` : `${category.label} 삭제`
+            blocked
+              ? `${category.label} — ${blockReason}이라 삭제할 수 없습니다`
+              : `${category.label} 삭제`
           }
-          title={inUse ? `${usage} — 삭제할 수 없습니다` : undefined}
-          disabled={inUse || deleting}
+          title={blocked ? `${blockReason} — 삭제할 수 없습니다` : undefined}
+          disabled={blocked || deleting}
           onClick={() => onDelete(category)}
         >
           <Icon name="trash" />
@@ -210,6 +254,24 @@ export default function ProductCategoriesPage() {
   );
   const visible = useMemo(() => filterCategoriesByUsage(categories, usage), [categories, usage]);
 
+  /**
+   * 필터 결과를 2단계 트리로 묶는다. 필터에 걸린 중분류의 **부모는 화면에 남긴다** —
+   * 부모가 사라지면 자식이 어디 소속인지 알 수 없다(계층이 곧 정보다).
+   */
+  const tree = useMemo(() => {
+    const visibleIds = new Set(visible.map((category) => category.id));
+    const roots = categories.filter(
+      (category) =>
+        category.parentId === null &&
+        (visibleIds.has(category.id) ||
+          categories.some((child) => child.parentId === category.id && visibleIds.has(child.id))),
+    );
+    return roots.map((root) => ({
+      root,
+      children: visible.filter((category) => category.parentId === root.id),
+    }));
+  }, [categories, visible]);
+
   const closeDelete = () => {
     deleteControllerRef.current?.abort();
     deleteControllerRef.current = null;
@@ -250,7 +312,11 @@ export default function ProductCategoriesPage() {
 
   // 추가 버튼은 create 권한이 있을 때만 존재한다 — 누를 수 없는 것을 보여 주지 않는다 (EXC-03)
   const createButton = canCreate ? (
-    <Button variant="primary" size="md" onClick={() => setModal({ kind: 'create' })}>
+    <Button
+      variant="primary"
+      size="md"
+      onClick={() => setModal({ kind: 'create', parentId: null })}
+    >
       <Icon name="plus-circle" />
       카테고리 추가
     </Button>
@@ -296,17 +362,41 @@ export default function ProductCategoriesPage() {
               />
             ) : (
               <ul style={listStyle}>
-                {visible.map((category) => (
-                  <CategoryRow
-                    key={category.id}
-                    category={category}
-                    deleting={deleting}
-                    onEdit={(target) => setModal({ kind: 'edit', category: target })}
-                    onDelete={(target) => {
-                      setDeleteError(null);
-                      setPendingDelete(target);
-                    }}
-                  />
+                {/* 대분류(1Depth) → 그 아래 중분류(2Depth) 를 들여써 계층을 그대로 보인다 */}
+                {tree.map((group) => (
+                  <li key={group.root.id} style={groupStyle}>
+                    <ul style={listStyle}>
+                      <CategoryRow
+                        category={group.root}
+                        deleting={deleting}
+                        canCreate={canCreate}
+                        onEdit={(target) => setModal({ kind: 'edit', category: target })}
+                        onDelete={(target) => {
+                          setDeleteError(null);
+                          setPendingDelete(target);
+                        }}
+                        onAddChild={(parent) => setModal({ kind: 'create', parentId: parent.id })}
+                      />
+                    </ul>
+                    {group.children.length > 0 && (
+                      <ul style={childListStyle}>
+                        {group.children.map((child) => (
+                          <CategoryRow
+                            key={child.id}
+                            category={child}
+                            deleting={deleting}
+                            canCreate={canCreate}
+                            onEdit={(target) => setModal({ kind: 'edit', category: target })}
+                            onDelete={(target) => {
+                              setDeleteError(null);
+                              setPendingDelete(target);
+                            }}
+                            onAddChild={() => undefined}
+                          />
+                        ))}
+                      </ul>
+                    )}
+                  </li>
                 ))}
               </ul>
             )}
@@ -320,6 +410,7 @@ export default function ProductCategoriesPage() {
         {modal.kind !== 'closed' && (
           <ProductCategoryFormModal
             editing={modal.kind === 'edit' ? modal.category : null}
+            presetParentId={modal.kind === 'create' ? modal.parentId : null}
             onClose={() => setModal({ kind: 'closed' })}
             onSaved={onSaved}
           />

@@ -5,9 +5,10 @@
 import { formatNumber } from '../../../shared/format';
 import type { ProductCategoryUsage } from '../_shared/store';
 
-/** 카테고리 등록/수정 입력 */
+/** 카테고리 등록/수정 입력 — parentId 가 null 이면 1Depth(대분류), 값이 있으면 그 아래 2Depth */
 export interface ProductCategoryInput {
   readonly name: string;
+  readonly parentId: string | null;
 }
 
 export const CATEGORY_NAME_MAX = 40;
