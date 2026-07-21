@@ -1,5 +1,3 @@
-{/* Toast — Docs 페이지. 서술의 근거는 contracts/Toast.contract.json 이다 (스토리 파일·타 문서 인용 금지 — ssot-pipeline §7). */}
-
 import { Controls, Meta, Story } from '@storybook/blocks';
 
 import * as ToastStories from './Toast.stories';
@@ -8,103 +6,51 @@ import * as ToastStories from './Toast.stories';
 
 # Toast
 
-<code>molecule</code> · <code>Feedback</code> · <code>taxonomyItem: toast</code> · <code>v1.1.0</code> · <code>status: beta</code>
+작업 결과를 사용자에게 짧게 알려주는 피드백 컴포넌트입니다.
 
-토스트 1건 — 아이콘 + 문구 + (실패면) '다시 시도' + 닫기(×). **결과 통지의 시각 단위**다.
-큐/위치/최대 개수는 조립하는 쪽(ToastProvider)이 소유한다 (ADR-0003).
+## 언제 사용하나요?
+
+- 작업이 성공했을 때
+- 오류가 발생했을 때
+- 작업이 취소되었을 때
+- 사용자에게 짧은 상태를 알려줄 때
+
+## Examples
+
+<Story of={ToastStories.Success} />
+<Story of={ToastStories.Error} />
+<Story of={ToastStories.Info} />
+<Story of={ToastStories.Cancelled} />
 
 ## Props
 
 <Controls />
 
-계약 `props` 는 **디자인이 보는 표면만** 기술한다.
+| Prop         | Description                                                            |
+| ------------ | --------------------------------------------------------------------- |
+| `kind`       | 토스트의 종류입니다. 종류에 따라 아이콘·색상·자동 닫힘 여부가 달라집니다. |
+| `message`    | 사용자에게 표시할 메시지입니다.                                        |
+| `onRetry`    | 제공하면 오류 토스트에 '다시 시도' 버튼이 표시됩니다.                   |
+| `onDismiss`  | 토스트를 닫을 때 호출됩니다.                                           |
 
-| prop | 타입 | 기본값 | 의미 |
-|---|---|---|---|
-| `kind` | `success \| cancelled \| error \| info` | `info` | 토스트의 의미 — 톤(feedback 토큰) · 아이콘 · 라이브 리전 시맨틱(error=alert/assertive · 그 외=status/polite) · 자동소멸 시간(success/info 4초 · cancelled 2초 · error 없음)을 함께 결정한다. |
-| `message` | `string` | — (필수) | 표시 문구. 아이콘 옆 `<span>` 으로 렌더된다. |
+## Behavior
 
-### 계약이 명시한 예외 — `[imperative props — 계약 밖 컴포넌트 경계]`
+| kind        | Auto dismiss |
+| ----------- | ------------ |
+| `success`   | 4s           |
+| `info`      | 4s           |
+| `cancelled` | 2s           |
+| `error`     | 없음         |
 
-계약 `description` 이 직접 허용한 항목이다. `id`(큐 키 · `onDismiss` 인자) · `onDismiss` · `onRetry` 는
-**명령형 배선이라 Figma 대응이 없다.** 그래서 계약 `props` 에 열거되지 않고 `events` 에만 있거나
-아예 없다 (Alert 와 동일 판정). 이 셋은 Controls 표에서 argTypes 로 보이지 않을 수 있으며, 그것이 정상이다.
+`error` 는 사용자가 닫거나 다시 시도할 때까지 유지됩니다.
 
-| 배선 | payload | 의미 |
-|---|---|---|
-| `onDismiss` | `string` | 토스트를 닫는다 — 자동소멸 타이머 · 닫기(×) 버튼 · 재시도 버튼이 이 토스트의 `id` 를 인자로 부른다. **큐에서 제거하는 것은 호출부(ToastProvider)의 책임**이다. |
-| `onRetry` | `void` | **핸들러를 주면 '다시 시도' 버튼이 나타나고, 주지 않으면 나타나지 않는다** (해제 가능 여부가 아니라 복구 경로 유무를 핸들러로 표현 — Alert `onClose` 선례). 누르면 이 토스트를 닫고(`onDismiss`) 재시도를 실행한다. 실패(error) 토스트에만 실제로 붙는다. |
+## Accessibility
 
-## kind — 톤·아이콘·라이브·자동소멸을 한꺼번에 정한다
+- 오류는 우선순위가 높은 방식으로 안내됩니다.
+- 그 외 토스트는 일반 상태 알림으로 안내됩니다.
+- 닫기 버튼에는 접근 가능한 이름이 제공됩니다.
+- `prefers-reduced-motion` 을 지원합니다.
 
-| kind | 자동소멸 | 라이브 영역 |
-|---|---|---|
-| `success` | 4초 | `status` (polite) |
-| `cancelled` | 2초 | `status` (polite) |
-| `info` | 4초 | `status` (polite) |
-| `error` | **없음** | `alert` (assertive) |
+## Notes
 
-실패를 조용히 삼키지 않기 위해 `error` 는 **사용자가 닫거나 재시도할 때까지 남는다.**
-
-<Story of={ToastStories.Success} />
-<Story of={ToastStories.Cancelled} />
-<Story of={ToastStories.Info} />
-<Story of={ToastStories.Error} />
-
-## 재시도와 닫기
-
-<Story of={ToastStories.ErrorWithRetry} />
-<Story of={ToastStories.CloseButton} />
-
-## States
-
-계약 `states` 는 `default` 하나뿐이다 — Toast 는 hover/active 변형을 갖지 않는다.
-
-## 접근성 계약
-
-계약 `a11y`:
-
-- **role**: `none` — 아래 설명을 반드시 함께 읽는다.
-- **keyboard**: `Tab` · `Enter` · `Space`
-- **focusVisible**: `true`
-- **contrastMin**: 4.5
-
-### 1.1.0 — 라이브 영역을 소유하지 않는다 (A11Y-01)
-
-계약 `description` 과 `a11y.aria.role` 이 함께 선언한 설계 결정이다.
-
-토스트는 **동적으로 삽입되는 노드**이고, 내용과 함께 생성된 라이브 영역은 스크린리더에서 신뢰성 있게
-announce 되지 않는다. 그래서 `role`/`aria-live` 를 Toast 에서 **떼고**, 토스트보다 먼저·항상 존재하는
-ToastProvider 의 **지속 라이브 영역 2개**(비-error=polite · error=assertive)가 통지를 소유한다.
-
-Toast 는 시각 표현(tone·아이콘)과 자동소멸·닫기/재시도 배선만 담당한다. `kind` 는 여전히
-**어느 라이브 영역으로 갈지**를 결정하며, 그 **분배는 ToastProvider 가 수행한다.**
-
-> 즉 `a11y.role: "none"` 은 결손이 아니라 **의도된 제거**다. Toast 단독 스토리에서 스크린리더 통지를
-> 관찰할 수 없는 것은 정상이며, 통지는 ToastProvider 조립 층에서 확인해야 한다.
-
-### 나머지 aria 항목
-
-- `a11y.aria.aria-live`: Toast 에 **없다.** ToastProvider 가 항상 마운트된 뷰포트에 라이브 영역 2개를 둔다 —
-  비-error(success/cancelled/info)는 polite(`role=status`), error 는 assertive.
-- `a11y.aria.close-button`: 닫기(×) — `aria-label="알림 닫기"`. 아이콘만 있으므로 접근 가능한 이름을
-  `aria-label` 로 준다.
-- `a11y.aria.reduced-motion`: 등장 모션은 `prefers-reduced-motion: reduce` 에서 꺼진다.
-
-## 토큰
-
-계약 `tokens` 의 공통 토큰: `radius.md` · `shadow.overlay` · `space.4`(paddingX) · `space.3`(paddingY·gap) ·
-`color.border.focus`(focusRing) · `typography.label.md` · `motion.duration.normal`.
-
-`variantTokens.kind` 가 kind 마다 `surface`/`border`/`text` 를 갈아끼운다:
-
-| kind | surface · border · text |
-|---|---|
-| `success` | `color.feedback.success.*` |
-| `cancelled` | `color.feedback.info.*` |
-| `info` | `color.feedback.info.*` |
-| `error` | `color.feedback.danger.*` |
-
-`cancelled` 와 `info` 는 **같은 토큰 그룹을 쓴다** — 구분은 아이콘과 자동소멸 시간(2초 vs 4초)에 있다.
-
-`responsive.behavior` 는 `fluid` (sm·md·lg). 의존 없음.
+- 여러 개의 Toast 관리(큐·위치·최대 개수)는 ToastProvider 가 담당합니다.
