@@ -1,5 +1,3 @@
-{/* TriStateCheckbox — Docs 페이지. 서술의 근거는 contracts/TriStateCheckbox.contract.json 이다. */}
-
 import { Controls, Meta, Story } from '@storybook/blocks';
 
 import * as TriStateCheckboxStories from './TriStateCheckbox.stories';
@@ -8,86 +6,48 @@ import * as TriStateCheckboxStories from './TriStateCheckbox.stories';
 
 # TriStateCheckbox
 
-<code>atom</code> · <code>Inputs</code> · <code>v1.0.0</code> · <code>status: beta</code>
+선택·미선택·부분선택 3상태를 가지는 체크박스입니다. 전체선택 헤더나 그룹 선택처럼 하위 항목이 일부만 선택된 상태를 나타낼 때 씁니다.
 
-3상태 체크박스 — on/off/mixed. 출처: `apps/admin/src/shared/ui/TriStateCheckbox.tsx`
-(소비: 권한 매트릭스의 부모(그룹) 행·열·마스터 전체선택, 목록 표의 전체선택 헤더(TableSelection)).
+## 언제 사용하나요?
 
-**도메인을 모른다** — `checked`/`indeterminate` 두 플래그와 콜백·접근성 라벨만 받는다.
-동반 헬퍼 `triStateProps(state: 'on'|'off'|'mixed')` → `{checked, indeterminate}` 로 모델의 3상태를 props 로 옮긴다.
+- 목록 표의 전체선택 헤더 (일부만 선택되면 부분선택으로 표시)
+- 권한 매트릭스의 그룹(부모) 행·열 선택
+- 하위 항목의 선택이 섞여 있음을 한눈에 보여줄 때
 
-> 이 컴포넌트의 계약에는 `taxonomyItem` 이 없다.
+## Examples
+
+<Story of={TriStateCheckboxStories.Overview} />
+<Story of={TriStateCheckboxStories.Off} />
+<Story of={TriStateCheckboxStories.On} />
+<Story of={TriStateCheckboxStories.Mixed} />
 
 ## Props
 
 <Controls />
 
-| prop | 타입 | 기본값 | 의미 |
-|---|---|---|---|
-| `checked` | `boolean` | — (필수) | 체크 상태 (모델의 `'on'`). 제어 값 — `onChange` 로만 바뀐다. |
-| `indeterminate` | `boolean` | — (필수) | 부분 선택(`'mixed'`) — **`checked` 보다 우선해 표시된다.** HTML 속성이 아니라 DOM 프로퍼티라 `ref` 로만 설정되며 `aria-checked="mixed"` 로 노출된다. |
-| `disabled` | `boolean` | `false` | 비활성 — native `disabled`. `onChange` 발화 없음. **`disabled` 이면 `indeterminate` 표시도 끈다**(잠긴 시스템 역할 등). |
-| `id` | `string` | `''` | input 의 id — 감싸는 `<label>` 이 `htmlFor` 로 가리킬 때 쓴다. 빈 문자열이면 부여하지 않는다. |
-| `labelledBy` | `string` | `''` | 라벨 요소의 id (`aria-labelledby`) — **보이는 텍스트가 있으면 이걸 쓴다.** 빈 문자열이면 부여하지 않는다. |
-| `label` | `string` | `''` | 접근 가능한 이름(`aria-label`) — **보이는 라벨이 없을 때만** 쓴다(`'{리소스명} {액션명}'`). |
-| `describedBy` | `string` | `''` | 비활성 사유 문구의 id (`aria-describedby`) — 잠긴 시스템 역할 안내 등. |
+| Prop            | Description                                                              |
+| --------------- | ----------------------------------------------------------------------- |
+| `checked`       | 선택 여부입니다. 제어 값이라 `onChange` 로만 바뀝니다.                   |
+| `indeterminate` | 부분선택입니다. `checked` 보다 우선해 표시됩니다.                        |
+| `disabled`      | 비활성입니다. `onChange` 가 발화하지 않습니다.                          |
+| `label`         | 보이는 라벨이 없을 때 접근 가능한 이름(`aria-label`)을 줍니다.          |
+| `labelledBy`    | 라벨 요소의 id 입니다. 보이는 텍스트가 있으면 이걸 씁니다.               |
+| `describedBy`   | 비활성 사유 등 부가 설명 요소의 id 입니다.                              |
+| `onChange`      | 다음 체크 상태(`boolean`)를 인자로 호출됩니다.                          |
 
-### `indeterminate` 는 DOM 프로퍼티다
+## Behavior
 
-계약 `description`: HTML **속성이 아니라 DOM 프로퍼티**라 `ref` 로만 설정할 수 있다 — 구현은 `useEffect` 로
-`ref.current.indeterminate` 를 쓴다. `aria-checked="mixed"` 로 스크린리더에 부분 선택을 알린다
-(**손복사 체크박스가 빠뜨렸던 결함을 이 공통 컴포넌트가 회복한다**).
-
-### 접근성 이름 — 세 경로의 우선순위
-
-계약 `description`: 보이는 라벨이 없는 자리(매트릭스 칸·표 헤더)에서는 `labelledBy` 로 숨긴 라벨을,
-없으면 `label` 로 이름을 준다. 비활성 사유는 `describedBy` 로 잇는다.
-**빈 문자열이면 해당 aria 속성을 부여하지 않는다.**
-
-## 3상태
-
-계약 `states`: `default` · `focus-visible` · `disabled` · `checked` · `indeterminate`.
-
-<Story of={TriStateCheckboxStories.Off} />
-<Story of={TriStateCheckboxStories.On} />
-<Story of={TriStateCheckboxStories.Mixed} />
-
-`indeterminate` 는 `checked` 보다 우선해 표시된다 — `checked`+`indeterminate` 조합은 Playground 의 Controls 로 확인한다.
-
-## 잠금
-
-`disabled` 이면 `indeterminate` 표시도 함께 꺼진다. off/mixed 등 세부 잠금 조합은 Playground 에서 확인한다.
+- `indeterminate` 가 `true` 면 `checked` 보다 우선해 부분선택으로 표시됩니다.
+- `disabled` 면 클릭해도 `onChange` 가 발화하지 않고, `indeterminate` 표시도 함께 꺼집니다.
 
 <Story of={TriStateCheckboxStories.Disabled} />
 
-## 이벤트 — `onChange`
+## Accessibility
 
-payload `boolean`(다음 체크 상태) · **`blockedWhen: ["disabled"]`**.
-native `disabled` 가 막는다 — Storybook Play Function 이 전수 검증한다.
+- 부분선택은 `aria-checked="mixed"` 로 스크린리더에 알립니다.
+- 키보드 `Space` 로 토글, `Tab` · `Shift+Tab` 으로 이동합니다.
+- 보이는 라벨이 있으면 `labelledBy`, 없으면 `label` 로 이름을 줍니다.
 
-<Story of={TriStateCheckboxStories.BlockedWhenDisabled} />
-<Story of={TriStateCheckboxStories.FiresWhenEnabled} />
+## Notes
 
-## 접근성 계약
-
-- **role**: `checkbox`
-- **keyboard**: `Space` · `Tab` · `Shift+Tab`
-- **focusVisible**: `true`
-- **contrastMin**: 4.5
-
-계약 `a11y.aria`:
-
-- `aria-checked`: `indeterminate && !checked` → `aria-checked="mixed"`, 그 외에는 `checked` 값.
-- `indeterminate-dom-property`: `ref` 로만 설정한다 (`useEffect`). `disabled` 이면 표시를 끈다.
-- `naming`: `labelledBy`(`aria-labelledby`) 우선, 없으면 `label`(`aria-label`).
-  비활성 사유는 `describedBy`(`aria-describedby`). 빈 문자열이면 부여하지 않는다.
-- `blocked`: `disabled` 이면 native `disabled` 로 `onChange` 를 막는다.
-
-## 토큰
-
-`color.action.primary.default`(control) · `color.border.focus`(focusRing) · `space.4`(size) · `radius.sm`.
-
-`responsive.behavior` 는 `size-fixed`. 의존 없음 —
-다만 **SelectAllHeaderCell 이 이 컴포넌트에 의존한다.**
-
-<Story of={TriStateCheckboxStories.RightToLeft} />
+- 제어 컴포넌트입니다 — `checked` 를 직접 상태로 관리하고 `onChange` 로 갱신하세요.

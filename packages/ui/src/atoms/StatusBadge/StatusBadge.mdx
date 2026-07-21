@@ -1,5 +1,3 @@
-{/* StatusBadge — Docs 페이지. 서술의 근거는 contracts/StatusBadge.contract.json 이다. */}
-
 import { Controls, Meta, Story } from '@storybook/blocks';
 
 import * as StatusBadgeStories from './StatusBadge.stories';
@@ -8,67 +6,34 @@ import * as StatusBadgeStories from './StatusBadge.stories';
 
 # StatusBadge
 
-<code>atom</code> · <code>Feedback</code> · <code>taxonomyItem: status-badge</code> · <code>v1.0.0</code> · <code>status: beta</code>
+상태를 색(tone)과 라벨(label)로 함께 표시하는 비대화형 배지입니다.
 
-상태 배지 — 게시/노출/시행 등 도메인 상태를 **색(tone)과 문구(label)로 이중 전달하는** 비대화형 pill.
-출처: `apps/admin/src/shared/ui/StatusBadge.tsx` (소비 54곳: 마케팅·상품·예약·영업·고객지원·회사·콘텐츠
-목록의 상태 열).
+## 언제 사용하나요?
 
-**도메인을 모른다** — 무엇의 상태인지 알지 못하고 `tone`(색 의도)과 `label`(문구)만 받는다.
-호출부가 '게시→success', '임시저장→neutral' 처럼 도메인 상태→tone 을 정한다.
+- 목록의 상태 열에서 항목 상태를 표시할 때 (게시·예약·만료·임시저장 등)
+- 좋음/주의/위험/정보 같은 의미를 색으로 구분해 보여줄 때
+- 클릭·포커스가 필요 없는 단순 상태 표시가 필요할 때
+
+## Examples
+
+<Story of={StatusBadgeStories.Overview} />
+<Story of={StatusBadgeStories.Variants} />
+<Story of={StatusBadgeStories.LongLabel} />
+<Story of={StatusBadgeStories.RightToLeft} />
 
 ## Props
 
 <Controls />
 
-| prop | 타입 | 기본값 | 의미 |
-|---|---|---|---|
-| `tone` | `neutral \| success \| warning \| danger \| info` | — (필수) | 색 의도 — **무엇의 상태인지가 아니라 '중립/좋음/주의/위험/정보'만 표현한다.** `neutral` 은 회색 표면(`surface-raised`)+테두리(`border-default`), 나머지 4종은 feedback 토큰 페어(surface/border/text). 호출부가 도메인 상태→tone 매핑을 소유한다. |
-| `label` | `string` | — (필수) | 상태 문구 — **색만으로 의미를 전달하지 않도록(WCAG 1.4.1)** 상태 의미를 담는 텍스트. 예: '게시', '임시저장', '노출', '만료'. |
+| Prop    | Description                                                                                        |
+| ------- | ------------------------------------------------------------------------------------------------- |
+| `tone`  | 색 의도입니다. `neutral·success·warning·danger·info` 중 하나로 중립/좋음/주의/위험/정보를 표현합니다.    |
+| `label` | 상태 문구입니다. 색만으로 의미를 전달하지 않도록 상태 의미를 담는 텍스트를 넣습니다. 예: '게시', '만료'. |
 
-**이벤트가 없다** — 비대화형이다.
+호출부가 도메인 상태(예: '게시')를 `tone`에 매핑합니다. 배지 자체는 무엇의 상태인지 알지 못합니다.
 
-## tone
+## Accessibility
 
-다섯 tone(neutral·success·warning·danger·info)을 한 화면에서 비교한다.
-
-<Story of={StatusBadgeStories.Variants} />
-<Story of={StatusBadgeStories.LongLabel} />
-
-## States
-
-계약 `states` 는 `default` 하나뿐이다.
-
-## 접근성 계약
-
-계약의 `a11y.role` 필드는 값이 아니라 **한 문단의 산문이다.** 그대로 옮긴다:
-
-> `none — 비대화형 텍스트 배지. label 텍스트가 상태 의미를 전달하고(색은 보조 · WCAG 1.4.1 충족) 별도 ARIA
-> role 을 두지 않는다 (현행 구현: 단순 <span>). 인접 문맥이 이 배지가 무엇의 상태인지 제공한다`
-
-- **keyboard**: `none` — 비대화형. 포커스 순서에 들어가지 않는다.
-- **focusVisible**: `false`
-- **contrastMin**: 4.5
-
-계약 `a11y.aria`:
-
-- `color-not-alone`: 색만으로 의미를 전달하지 않는다 (WCAG 1.4.1) — `label` 문구가 상태 의미를 담는다.
-- `no-live-region`: **`role=status`(`aria-live`) 를 두지 않는다** — 목록에 다수가 렌더되므로 라이브 통지가
-  과도해진다. 인접 제목/행이 접근 문맥을 제공한다.
-
-### Badge 와 대비되는 판정
-
-계약 `description` 이 이 대비를 명시한다. 루트는 별도 role 없는 `<span>` 이며,
-`role="status"` 라이브 리전으로 만들면 **목록의 수십 개 배지가 과도하게 통지된다.**
-Badge 는 카운트 단독 표시라 `role=status` 를 갖는다 — 같은 pill 모양이지만 반대 판정이다.
-
-## 토큰
-
-`neutral` 은 `color.surface.raised` / `color.text.muted` / `color.border.default` 를 쓰고,
-나머지 4종은 `color.feedback.{success|warning|danger|info}.{surface|border|text}` 페어를 쓴다.
-
-공통: `border-width.thin` · `radius.full` · `space.2`(paddingX) · `typography.label.sm`.
-
-`responsive.behavior` 는 `size-fixed`. 의존 없음 — 다만 **Timeline 이 이 컴포넌트에 의존한다.**
-
-<Story of={StatusBadgeStories.RightToLeft} />
+- 색만으로 의미를 전달하지 않고 `label` 문구가 상태 의미를 함께 전달합니다 (WCAG 1.4.1).
+- 비대화형이라 포커스 순서에 들어가지 않습니다.
+- 어떤 항목의 상태인지는 인접한 제목·행이 문맥으로 제공합니다.

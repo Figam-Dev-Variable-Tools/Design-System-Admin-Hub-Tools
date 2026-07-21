@@ -1,5 +1,3 @@
-{/* ToggleSwitch — Docs 페이지. 서술의 근거는 contracts/ToggleSwitch.contract.json 이다. */}
-
 import { Controls, Meta, Story } from '@storybook/blocks';
 
 import * as ToggleSwitchStories from './ToggleSwitch.stories';
@@ -8,96 +6,45 @@ import * as ToggleSwitchStories from './ToggleSwitch.stories';
 
 # ToggleSwitch
 
-<code>atom</code> · <code>Inputs</code> · <code>taxonomyItem: switch</code> · <code>v1.0.0</code> · <code>status: beta</code>
+즉시 반영되는 ON/OFF 토글 스위치입니다.
 
-ON/OFF 토글 스위치 — 이진 노출 상태를 목록/폼에서 바로 켜고 끈다.
-출처: `apps/admin/src/shared/ui/ToggleSwitch.tsx` (소비 30곳: FAQ 노출·팝업/배너 ON/OFF·상품 전시·리뷰
-노출·계정 거래 등).
+## 언제 사용하나요?
 
-**도메인을 모른다** — 무엇을 켜는지 알지 못하고 `checked` 불리언과 콜백·접근성 라벨만 받는다.
-`role="switch"` + `aria-checked` 이며 `<button>` 이라 **Space/Enter 로 토글된다**(버튼 기본 동작).
-보이는 ON/OFF 문구로 상태를 **색과 글자로 이중 전달한다**(WCAG 1.4.1).
+- 목록·폼에서 노출 여부를 바로 켜고 끌 때
+- 팝업·배너·상품·리뷰 등의 표시 상태를 전환할 때
+- 저장 버튼 없이 값이 즉시 반영되어야 할 때
+
+## Examples
+
+<Story of={ToggleSwitchStories.Overview} />
+<Story of={ToggleSwitchStories.Off} />
+<Story of={ToggleSwitchStories.On} />
+<Story of={ToggleSwitchStories.Disabled} />
+<Story of={ToggleSwitchStories.Busy} />
+<Story of={ToggleSwitchStories.CustomLabels} />
 
 ## Props
 
 <Controls />
 
-| prop | 타입 | 기본값 | 의미 |
-|---|---|---|---|
-| `checked` | `boolean` | — (필수) | ON 상태 — 트랙 색과 손잡이 위치를 결정한다. 제어 값이며 `onChange` 로만 바뀐다. |
-| `label` | `string` | — (필수) | 스크린 리더용 이름(`aria-label`) — 보이는 라벨이 없는 표 안에서 무엇을 켜는지 알린다('FAQ 노출 여부' 등). |
-| `disabled` | `boolean` | `false` | 비활성 — 잠그고 흐리게 표시한다. `onChange` 발화 없음. |
-| `busy` | `boolean` | `false` | 낙관적 업데이트 요청 진행 중 — `disabled` 와 동일하게 잠그고 `aria-busy=true` 로 진행을 알린다. |
-| `onLabel` | `string` | `'ON'` | ON 상태 문구. 색+글자로 상태를 이중 전달한다. |
-| `offLabel` | `string` | `'OFF'` | OFF 상태 문구. |
+| Prop       | Description                                                       |
+| ---------- | ----------------------------------------------------------------- |
+| `checked`  | ON 상태 여부입니다. `onChange` 로만 바뀌는 제어 값입니다.         |
+| `label`    | 스크린 리더용 이름입니다. 표 안에서 무엇을 켜는지 알립니다.       |
+| `disabled` | 잠그고 흐리게 표시합니다. 값이 바뀌지 않습니다.                   |
+| `busy`     | 요청 진행 중 잠금입니다. `disabled` 처럼 막고 진행 중을 알립니다. |
+| `onLabel`  | ON 상태 문구입니다. 기본값 `'ON'`.                                |
+| `offLabel` | OFF 상태 문구입니다. 기본값 `'OFF'`.                              |
 
-### `checked` 의 `figmaVariant` — React 타입은 그대로 boolean 이다
+## Behavior
 
-계약 `props.checked.description` 이 명시한 예외다. Figma 에서는 BOOLEAN 속성이 아니라
-**Variant 축(true/false)으로 만든다.** 이 값은 레이어를 보이고 감추는 축이 아니라
-**문구 자체를 가르는** 축이기 때문이다(React: `{checked ? onLabel : offLabel}`).
+- `disabled` 또는 `busy` 이면 값이 바뀌지 않고 `onChange` 도 발화하지 않습니다.
+- `onChange` 는 다음 상태(`!checked`)를 인자로 전달합니다.
+- ON/OFF 문구로 상태를 색과 글자로 함께 전달합니다.
 
-Figma 의 BOOLEAN→visible 바인딩에는 **부정이 없어** ON/OFF 두 레이어를 상호배타로 만들 수 없다 —
-Variant 축이라야 anatomy 의 `when` 이 각 상태에서 한쪽만 그린다.
+## Accessibility
 
-### `busy` = 낙관적 업데이트 잠금
-
-계약 `description`: 요청 진행 중에는 잠그고(`disabled`) `aria-busy` 로 진행을 알리며 흐리게 표시한다 —
-disabled 와 **같은 시각 잠금**이라 별도 Figma Variant 축을 만들지 않아도 되지만,
-스키마가 boolean 에 `figmaProperty` 를 요구하므로 `Busy` 로 매핑한다.
-
-## 상태 — checked × 잠금
-
-상태 축만 대표로 싣는다. `disabled`·`busy` 의 on/off 세부 조합(2^3=8)은 Playground Controls 로 확인한다 —
-전수 잠금 검증은 `ToggleSwitch.test.tsx` 가 소유한다.
-
-<Story of={ToggleSwitchStories.Off} />
-<Story of={ToggleSwitchStories.On} />
-<Story of={ToggleSwitchStories.Disabled} />
-<Story of={ToggleSwitchStories.Busy} />
-
-## 이벤트 — `onChange`
-
-payload `boolean`(다음 상태 `!checked`) · **`blockedWhen: ["disabled", "busy"]`**.
-두 잠금 상태 모두에서 발화 금지 — `<button disabled>` 가 네이티브로 막는다.
-
-<Story of={ToggleSwitchStories.BlockedWhenDisabled} />
-<Story of={ToggleSwitchStories.BlockedWhenBusy} />
-<Story of={ToggleSwitchStories.FiresWhenEnabled} />
-
-## 문구 교체
-
-<Story of={ToggleSwitchStories.CustomLabels} />
-
-## 접근성 계약
-
-- **role**: `switch`
-- **keyboard**: `Space` · `Enter` · `Tab`
-- **focusVisible**: `true`
-- **aria-busy**: `busy` 일 때
-- **contrastMin**: 4.5
-
-계약 `a11y.aria`:
-
-- `aria-checked`: `checked` 상태를 `aria-checked` 로 노출한다 (`role=switch`).
-- `label`: 보이는 라벨이 없는 표 안에서는 `aria-label` 로 무엇을 켜는지 알린다.
-  **ON/OFF 문구 span 은 `aria-hidden` 장식이다**(라벨과 중복 통지 방지).
-- `aria-busy`: `busy=true` 이면 `aria-busy` 로 진행 중임을 알린다.
-- `locking`: `disabled` 또는 `busy` 이면 `<button disabled>` 로 잠근다.
-
-## 토큰
-
-`color.border.default`(knobBorder) · `color.surface.default`(knobSurface) · `radius.full` ·
-`color.border.focus`(focusRing) · `space.2`(gap) · `typography.label.sm` ·
-`motion.duration.fast`(transitionDuration).
-
-`variantTokens.checked` 가 상태마다 트랙/문구 색을 갈아끼운다:
-
-| checked | track · stateLabel |
-|---|---|
-| `true` | `color.action.primary.default` |
-| `false` | `color.border.default` · `color.text.muted` |
-
-`responsive.behavior` 는 `size-fixed`. 의존 없음.
-
-<Story of={ToggleSwitchStories.RightToLeft} />
+- `role="switch"` 로 상태를 `aria-checked` 에 노출합니다.
+- `Space` · `Enter` 로 토글하며 `Tab` 으로 포커스합니다.
+- `busy` 일 때 `aria-busy` 로 진행 중임을 알립니다.
+- 보이는 라벨이 없어도 `label` 이 이름을 제공합니다.

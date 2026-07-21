@@ -1,5 +1,3 @@
-{/* Spinner — Docs 페이지. 서술의 근거는 contracts/Spinner.contract.json 이다. */}
-
 import { Controls, Meta, Story } from '@storybook/blocks';
 
 import * as SpinnerStories from './Spinner.stories';
@@ -8,72 +6,43 @@ import * as SpinnerStories from './Spinner.stories';
 
 # Spinner
 
-<code>atom</code> · <code>Feedback</code> · <code>taxonomyItem: spinner</code> · <code>v1.0.0</code> · <code>status: beta</code>
+작업이 진행 중임을 알리는 원형 로딩 표시입니다.
 
-원형 로딩 인디케이터. 출처는 `packages/ui/src/atoms/Button/Button.tsx` 의 **비공개** `function Spinner()` 다 —
-이미 구현돼 있었으나 배럴로 나가지 않아 Button 밖에서는 쓸 수 없었다.
+## 언제 사용하나요?
 
-**이 계약은 없던 것을 만드는 것이 아니라 갇혀 있던 것을 꺼내는 것이다.** Button 은 이제 이 컴포넌트를 소비한다.
+- 버튼이 작업을 처리하는 중일 때
+- 영역·패널의 콘텐츠를 불러오는 중일 때
+- 짧은 대기 상태를 시각적으로 알릴 때
+
+## Examples
+
+<Story of={SpinnerStories.Overview} />
+<Story of={SpinnerStories.Sizes} />
+<Story of={SpinnerStories.CurrentColor} />
+<Story of={SpinnerStories.LoadingArea} />
 
 ## Props
 
 <Controls />
 
-| prop | 타입 | 기본값 | 의미 |
-|---|---|---|---|
-| `size` | `inherit \| sm \| md \| lg` | `inherit` | 지름. `inherit` = `1em` 으로 부모 글자 크기를 따른다(Button 이 쓰는 값). `sm`/`md`/`lg` 는 space 토큰 고정값이며 글자 문맥이 없는 자리에 쓴다. |
-| `label` | `string` | `""` | 스크린리더에 낭독할 진행 문구. 빈 문자열(기본)이면 장식으로 보고 `aria-hidden="true"` 를 낸다. 값이 있으면 `role="status"` + `aria-label` 로 승격된다. |
+| Prop    | Description                                                                                  |
+| ------- | ------------------------------------------------------------------------------------------- |
+| `size`  | 지름입니다. `inherit`(기본)은 부모 글자 크기를 따르고, `sm`/`md`/`lg`는 고정 크기입니다.     |
+| `label` | 스크린리더에 낭독할 진행 문구입니다. 비우면 장식으로 처리됩니다.                             |
 
-## size
+색은 `currentColor`를 따르므로 부모의 글자색과 같은 색으로 표시됩니다.
 
-<Story of={SpinnerStories.Sizes} />
+## Accessibility
 
-`inherit` 만 상대 단위다. Button 이 size `sm`/`md`/`lg` 마다 다른 `font-size` 를 갖는데
-**스피너가 따라 커지던 승계 동작이 이 `1em` 하나에 담겨 있다.** 아래 버튼 맥락에서 스피너가
-버튼 글자 크기를 따라 커지는 것을 볼 수 있다.
-
-<Story of={SpinnerStories.CurrentColor} />
-
-## 색은 `currentColor` 다
-
-토큰을 직접 읽지 않고 부모의 글자색을 따른다 — 그래야 Button 의 네 variant 위에서 각각 옳은 색이 나온다.
-
-> 이 규칙을 색 토큰으로 바꾸면 **danger 버튼 위에서 스피너만 파랗게 남는다.**
-
-<Story of={SpinnerStories.CurrentColor} />
-
-## `label` 과 aria — 기본이 '장식' 인 이유
-
-Button 안에서는 `aria-busy` 가 **이미 버튼에** 붙어 로딩을 알린다. 그래서 스피너는 장식이어야 한다.
+- `label`이 있으면 `role="status"`로 표시되고 그 이름이 낭독됩니다.
+- `label`이 비어 있으면(기본) 장식으로 보고 `aria-hidden="true"` 처리됩니다.
+- `prefers-reduced-motion`을 지원합니다 — 회전이 멈춥니다.
 
 <Story of={SpinnerStories.Decorative} />
 <Story of={SpinnerStories.Labelled} />
-
-> **기본을 반대로 잡으면 Button 하나가 로딩 상태에서 두 번 낭독된다.** 그래서 `label` 의 기본값이
-> 빈 문자열이고, 독립적으로 쓸 때만(패널 로딩 등) `label` 을 주어 `role="status"` 로 승격시킨다.
-
-## States
-
-계약 `states` 는 `default` 하나뿐이다. 시각 축은 `size` 가 전부다.
-
-<Story of={SpinnerStories.Overview} />
-
-## 접근성 계약
-
-- **role**: `status` — `label` 이 있을 때만. 비면 role 없이 `aria-hidden="true"` 다.
-- **keyboard**: `none` — 비대화형. 포커스 순서에 들어가지 않는다.
-- **focusVisible**: `false`
-- **contrastMin**: 3
-- **ariaBusy**: 스피너 자신은 `aria-busy` 를 갖지 않는다. **로딩 중인 영역(Button · 패널)이 갖는다.**
-
-## 토큰
-
-`border-width.medium`(thickness) · `radius.full` · `motion.duration.slow`(회전 주기) ·
-`space.4`/`space.5`/`space.7`(sm/md/lg 지름) · `color.transparent`(비운 한 변).
-
-한 변만 비워 회전이 눈에 보이게 한다 — 원이 균일하면 도는 것이 보이지 않는다.
-`prefers-reduced-motion: reduce` 에서는 회전이 멈춘다 (`Spinner.css`). 의존 없음(atom).
-
-`responsive.behavior` 는 `size-fixed` — 브레이크포인트에 따라 크기가 변하지 않는다.
-
 <Story of={SpinnerStories.RightToLeft} />
+
+## Notes
+
+- 버튼 안에서는 버튼이 이미 `aria-busy`로 로딩을 알리므로 `label` 없이(장식으로) 사용합니다.
+- 독립된 로딩 영역에서 쓸 때만 `label`을 주어 상태로 승격시킵니다.

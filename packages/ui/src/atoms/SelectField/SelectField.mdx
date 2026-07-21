@@ -1,5 +1,3 @@
-{/* SelectField — Docs 페이지. 서술의 근거는 contracts/SelectField.contract.json 이다. */}
-
 import { Controls, Meta, Story } from '@storybook/blocks';
 
 import * as SelectFieldStories from './SelectField.stories';
@@ -8,83 +6,40 @@ import * as SelectFieldStories from './SelectField.stories';
 
 # SelectField
 
-<code>atom</code> · <code>Inputs</code> · <code>taxonomyItem: select</code> · <code>v1.1.0</code> · <code>status: beta</code>
+옵션 중 하나를 고르는 드롭다운 컨트롤입니다. 네이티브 `<select>` 를 그대로 대체합니다.
 
-드롭다운 컨트롤 — **raw `<select>` 의 무손실 드롭인.** 출처: `apps/admin/src/shared/ui/SelectField.tsx`
-(소비 63곳: 콘텐츠·회원·권한·마케팅·상품·영업 폼).
+## 언제 사용하나요?
 
-네이티브 화살표를 지우고(`appearance:none`) 토큰 여백을 둔 커스텀 chevron 을 얹어 모든 화면에서 같은
-드롭다운을 낸다. 입력(TextField)과 **높이·테두리·radius·포커스링을 공유한다.**
+- 정해진 목록에서 하나를 선택할 때
+- 폼에서 구분·상태·카테고리 같은 값을 고를 때
+- 목록을 좁히는 필터 드롭다운이 필요할 때
+
+## Examples
+
+<Story of={SelectFieldStories.Overview} />
+<Story of={SelectFieldStories.Invalid} />
+<Story of={SelectFieldStories.Disabled} />
+<Story of={SelectFieldStories.Required} />
 
 ## Props
 
 <Controls />
 
-계약이 열거하는 prop 은 **둘뿐이다.** 나머지는 아래 패스스루 절을 읽는다.
+| Prop        | Description                                                             |
+| ----------- | ---------------------------------------------------------------------- |
+| `isInvalid` | 오류 상태로 표시합니다. 붉은 테두리를 내고 `aria-invalid` 를 붙입니다.  |
+| `children`  | 표시할 `<option>` 들입니다. 호출부가 직접 넣습니다.                     |
 
-| prop | 타입 | 기본값 | 의미 |
-|---|---|---|---|
-| `isInvalid` | `boolean` | `false` | 오류 상태 — 입력의 `controlStyle(invalid)` 와 같은 붉은(`feedback.danger`) 테두리를 낸다. **메시지는 감싸는 FormField 가 렌더한다**(이 컨트롤은 테두리만 바꾼다). |
-| `children` | `node` | — (필수) | `<option>` 들 — 호출부가 넣는다 (raw `<select>` 와 동일). **커스텀 컴포넌트로 감싸지 않고** 그대로 `<select>` 자식으로 렌더한다. |
+표준 `<select>` 속성(`value`·`defaultValue`·`onChange`·`name`·`id`·`disabled`·`required`·`ref`·`aria-*` …)은 그대로 전달됩니다. 제어형 `value` 와 RHF `register` 를 모두 쓸 수 있습니다. `className`·`style` 은 받지 않습니다.
 
-### 계약이 명시한 예외 — 네이티브 속성 패스스루
+## Behavior
 
-계약 `description` 과 `a11y.aria.native-passthrough` 가 함께 선언한 **의도된 예외**다.
+- 오류 메시지는 이 컨트롤이 아니라 감싸는 FormField 가 렌더합니다.
+- `required` 를 주면 네이티브 `required` 와 `aria-required` 를 함께 냅니다.
 
-계약 props(`isInvalid`·`children`) 외의 표준 `<select>` 속성
-(`value` · `defaultValue` · `onChange` · `name` · `id` · `disabled` · `ref` · `aria-*` …)은 구현이
-`<select>` 로 그대로 전달한다 (Button/Card 선례). **그래서 raw `<select>` 의 무손실 드롭인이다**
-(RHF `register` spread · 제어형 `value` 모두 그대로).
+## Accessibility
 
-E2E 가 `getByLabel(...).selectOption(...)` 로 조작하므로 **네이티브 combobox 시맨틱 유지가 계약이다.**
-`className`/`style` 은 토큰 규칙 보호를 위해 차단한다. `ref` 는 계약 prop 이 아니라 `forwardRef` 로
-노출한다 (TextField/Alert 선례).
-
-> 이 때문에 위 Controls 표에는 `value`·`onChange` 같은 흔한 prop 이 **보이지 않는다.** 결손이 아니라 설계다.
-
-### `isInvalid` 이름
-
-오류 상태 boolean 은 naming-guard(`boolean-prop`) 규칙상 `is` 접두가 필요하다 — 앱 원안의 `invalid` 는
-Button 의 `fullWidth`→`isFullWidth` 와 **같은 판정으로** `isInvalid` 로 좁혔다 (호출부 10곳 동시 이관).
-`aria-invalid` 는 이와 별개로 호출부가 네이티브 패스스루로 함께 준다.
-
-## States
-
-계약 `states`: `default` · `focus-visible` · `disabled` · `error`.
-
-<Story of={SelectFieldStories.Overview} />
-<Story of={SelectFieldStories.Invalid} />
-<Story of={SelectFieldStories.Disabled} />
-
-## 접근성 계약
-
-- **role**: `combobox`
-- **keyboard**: `Tab` · `ArrowUp` · `ArrowDown` · `Enter` · `Space`
-- **focusVisible**: `true`
-- **contrastMin**: 4.5
-
-계약 `a11y.aria`:
-
-- `native-select`: 네이티브 `<select>` 라 `role=combobox`·키보드·옵션 목록이 **브라우저 기본으로 동작한다** —
-  커스텀 리스트박스가 아니다 (무손실 드롭인).
-- `aria-invalid`: `isInvalid=true` 면 `<select aria-invalid="true">` 를 렌더해 AT 에 무효를 알린다
-  (색상만의 red border 금지 — WCAG 1.4.1/3.3.1). 에러 메시지 연결(`aria-describedby`)은 호출부가
-  네이티브 패스스루로 준다 (TextField 미러). **native 를 마지막에 spread 하므로 호출부가 `aria-invalid` 를
-  직접 주면 그 값이 우선한다.**
-- `chevron`: 커스텀 chevron 은 `pointer-events:none` 장식 — `aria-hidden`. **클릭은 아래 `<select>` 로 통과한다.**
-- `aria-required`: `required` 는 네이티브 패스스루로 들어오지만 구현이 그것을 받아
-  `<select required aria-required="true">` 로 **함께** 낸다 — 네이티브→AT 매핑에 기대지 않고 필수 여부를
-  명시한다 (A11Y-11, TextField 미러). `required=false` 면 두 속성 모두 부여하지 않는다.
-  감싸는 FormField 가 `required` 를 받은 경우엔 FormField 가 이 컨트롤에 `aria-required` 를 주입한다
-  (FormField `a11y.aria.required-wiring`) — **두 경로 모두 같은 결과로 수렴한다.**
-
-## 토큰
-
-`color.surface.default` · `color.text.default` · `color.border.default` ·
-`color.feedback.danger.border`(borderInvalid) · `color.text.muted`(chevron) ·
-`color.border.focus`(focusRing) · `radius.md` · `space.3`(paddingX) · `space.2`(paddingY) ·
-`typography.label.md`.
-
-`responsive.behavior` 는 `fluid`. 의존 없음 — 다만 **FormField 와 Pagination 이 이 컴포넌트에 의존한다.**
-
-<Story of={SelectFieldStories.RightToLeft} />
+- 네이티브 `<select>` 이므로 `combobox` 역할과 키보드 조작(`Tab`·`↑`·`↓`·`Enter`·`Space`)이 기본 동작합니다.
+- 키보드 포커스 시 포커스 링이 표시됩니다.
+- `isInvalid` 는 색상뿐 아니라 `aria-invalid` 로도 오류를 알립니다.
+- 커스텀 chevron 은 장식(`aria-hidden`)이며 클릭은 아래 `<select>` 로 통과합니다.

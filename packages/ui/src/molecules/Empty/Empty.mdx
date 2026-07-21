@@ -1,5 +1,3 @@
-{/* Empty — Docs 페이지. 서술의 근거는 contracts/Empty.contract.json 이다. */}
-
 import { Controls, Meta, Story } from '@storybook/blocks';
 
 import * as EmptyStories from './Empty.stories';
@@ -8,87 +6,50 @@ import * as EmptyStories from './Empty.stories';
 
 # Empty
 
-<code>molecule</code> · <code>Feedback</code> · <code>taxonomyItem: empty-state</code> · <code>v1.1.0</code> ·
-<code>status: beta</code>
+목록이 0행일 때 '왜 비었는지'와 '어떻게 벗어나는지'를 안내하는 빈 상태 컴포넌트입니다.
 
-빈 결과 상태 — data view 가 0행일 때 **'왜 비었는지'와 '어떻게 벗어나는지'를 구분해** 보여주는 전용 컴포넌트.
+## 언제 사용하나요?
 
-계약 `description`: 단일 '표시할 항목이 없습니다' 문구는 **'아직 없으니 추가하라'와 '검색이 안 맞으니 지워라'를
-구분할 수 없다** (STATE-05).
+- 아직 등록된 항목이 없을 때 (진짜 비어있음)
+- 검색 결과가 없을 때
+- 필터 결과가 없을 때
+- 사용자에게 다음 행동(추가·검색 지우기·필터 초기화)을 안내할 때
 
-## Props
-
-<Controls />
-
-| prop               | 타입      | 기본값   | 의미                                                                                                                                        |
-| ------------------ | --------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `label`            | `string`  | — (필수) | 대상 명사 — '회원', '공지', '문의' 등. **조사('이/가')는 마지막 음절 받침으로 자동 선택된다.**                                              |
-| `createVerb`       | `string`  | `'등록'` | 진짜 비어있음 상태 문구의 동사 — '등록'/'접수' 등. `'{createVerb}된 {label}…'` 로 조립된다.                                                 |
-| `hasQuery`         | `boolean` | `false`  | 검색어가 적용된 상태. `true` 면 '검색 결과 없음'(b) 으로 분기한다 (filter/empty 보다 **우선**).                                             |
-| `hasActiveFilters` | `boolean` | `false`  | 필터가 적용된 상태. `hasQuery` 가 false 이고 이것이 true 면 '필터 결과 없음'(c) 으로 분기한다.                                              |
-| `action`           | `slot`    | `null`   | **진짜 비어있음(a) 상태의** primary 생성 CTA 슬롯 — 대상 route 를 아는 앱이 `<Button>` 을 넣는다. **검색/필터 상태에서는 렌더하지 않는다.** |
-
-## 3가지 상태 — context 로 자동 분기
-
-계약 `description` 이 선언한 분기표다. `hasQuery` / `hasActiveFilters` 로 상태를 고른다.
-
-| 상태               | 조건                  | 문구                                      | 복구 경로                        |
-| ------------------ | --------------------- | ----------------------------------------- | -------------------------------- |
-| (a) 진짜 비어있음  | no query · no filters | `'{createVerb}된 {label}이(가) 없습니다'` | (있으면) 생성 CTA 슬롯(`action`) |
-| (b) 검색 결과 없음 | `hasQuery`            | `'조건에 맞는 {label}이(가) 없습니다'`    | '검색 지우기'(`onClearSearch`)   |
-| (c) 필터 결과 없음 | `hasActiveFilters`    | `'필터에 맞는 {label}이(가) 없습니다'`    | '필터 초기화'(`onResetFilters`)  |
-
-**분기 우선순위: `hasQuery` > `hasActiveFilters` > 진짜 비어있음.**
+## Examples
 
 <Story of={EmptyStories.Overview} />
 <Story of={EmptyStories.SearchNoResults} />
 <Story of={EmptyStories.FilterNoResults} />
 
-## 조사(助詞) 처리 — ERP-13
+## Props
 
-계약 `description`: `label` 의 마지막 한글 음절 **받침 유무**로 '이/가' 를 고른다 — '회원이' vs '카페가'.
-**리터럴 '이(가)' 를 출하하지 않는다.**
+<Controls />
 
-<Story of={EmptyStories.JosaParticle} />
+| Prop               | Description                                                                |
+| ------------------ | -------------------------------------------------------------------------- |
+| `label`            | 대상 명사('회원', '공지' 등). 조사('이/가')는 받침에 따라 자동 선택됩니다. |
+| `createVerb`       | 진짜 비어있음 문구의 동사입니다. 기본값 `'등록'`.                          |
+| `hasQuery`         | `true` 면 '검색 결과 없음'으로 분기합니다.                                 |
+| `hasActiveFilters` | `true` 면 '필터 결과 없음'으로 분기합니다.                                 |
+| `action`           | 진짜 비어있음 상태에서 표시할 생성 버튼 슬롯입니다.                        |
+| `onClearSearch`    | 제공하면 검색 결과 없음 상태에 '검색 지우기' 버튼이 표시됩니다.            |
+| `onResetFilters`   | 제공하면 필터 결과 없음 상태에 '필터 초기화' 버튼이 표시됩니다.            |
 
-## 이벤트 — 계약이 명시한 예외
+## Behavior
 
-계약 `description`: `[imperative props — 계약 밖 경계]` `onClearSearch`·`onResetFilters` 는
-**명령형 배선이라 Figma 대응이 없다.** 지정되지 않으면 해당 복구 버튼을 그리지 않는다.
+세 상태는 `hasQuery` / `hasActiveFilters` 조합으로 자동 분기합니다. 우선순위는 검색 > 필터 > 진짜 비어있음입니다.
 
-| 이벤트           | payload | 의미                                                                                             |
-| ---------------- | ------- | ------------------------------------------------------------------------------------------------ |
-| `onClearSearch`  | `void`  | 검색 결과 없음(b)에서 '검색 지우기' 클릭. **지정되면 버튼을 그린다 — 미지정이면 그리지 않는다.** |
-| `onResetFilters` | `void`  | 필터 결과 없음(c)에서 '필터 초기화' 클릭. 지정되면 버튼을 그린다.                                |
+| 상태           | 조건               | 복구 수단                        |
+| -------------- | ------------------ | -------------------------------- |
+| 진짜 비어있음  | 검색·필터 없음     | 생성 버튼 슬롯(`action`, 있으면) |
+| 검색 결과 없음 | `hasQuery`         | '검색 지우기'(`onClearSearch`)   |
+| 필터 결과 없음 | `hasActiveFilters` | '필터 초기화'(`onResetFilters`)  |
 
-## 도메인 무지
+복구 콜백이 지정되지 않으면 해당 버튼은 그려지지 않습니다.
 
-무엇이 비었는지(`label`)·동사(`createVerb`)·context(`hasQuery`/`hasActiveFilters`)·복구 콜백만 받는다.
-생성 CTA 는 **대상 route 를 아는 앱이** 슬롯(`action`)으로 넣는다.
+## Accessibility
 
-## States
-
-계약 `states` 는 `default` 하나뿐이다 — 위 3분기는 state 가 아니라 **prop 조합**이다.
-
-## 접근성 계약
-
-- **role**: `status`
-- **keyboard**: `Tab` · `Enter` · `Space`
-- **focusVisible**: `true`
-- **contrastMin**: 4.5
-
-계약 `a11y.aria`:
-
-- `role`: `status`(=`aria-live` polite) — **빈 상태가 렌더되면 스크린리더가 '왜 비었는지'를 읽는다.**
-  삽화 아이콘은 `aria-hidden`.
-- `recovery`: 복구 버튼(검색 지우기/필터 초기화)은 **DS Button 이라** focus-visible 링·키보드 활성화를 상속한다.
-
-## 토큰
-
-`color.text.muted`(iconColor·descriptionText) · `color.text.default`(titleText) ·
-`space.4`(gap) · `space.3`(actionGap) · `typography.title.md` · `typography.body.md` ·
-`space.10`(paddingBlock) · `space.7`(paddingInline) · `space.9`(glyphSize).
-
-`responsive.behavior` 는 `fluid`. 의존: `Button`.
-
-<Story of={EmptyStories.RightToLeft} />
+- 빈 상태는 `role="status"` 라이브 영역으로 안내되어, 렌더 즉시 스크린리더가 사유를 읽습니다.
+- 삽화 아이콘은 `aria-hidden` 으로 처리됩니다.
+- 복구 버튼은 DS Button 이라 focus-visible 링·키보드 활성화를 상속합니다.
+- RTL(`dir="rtl"`) 흐름을 지원합니다.

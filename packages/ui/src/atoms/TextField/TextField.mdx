@@ -1,5 +1,3 @@
-{/* TextField — Docs 페이지. 서술의 근거는 contracts/TextField.contract.json 이다. */}
-
 import { Controls, Meta, Story } from '@storybook/blocks';
 
 import * as TextFieldStories from './TextField.stories';
@@ -8,118 +6,49 @@ import * as TextFieldStories from './TextField.stories';
 
 # TextField
 
-<code>atom</code> · <code>Inputs</code> · <code>taxonomyItem: text-field</code> · <code>v1.2.0</code> · <code>status: beta</code>
+라벨 + 단일행 입력 + 인라인 에러 메시지를 함께 렌더하는 제어 입력 컴포넌트입니다.
 
-라벨 + 단일행 입력 + 인라인 에러 메시지. 출처: `apps/admin/src/pages/login/components/TextField.tsx`.
+## 언제 사용하나요?
 
-**값과 콜백만 받는 제어 컴포넌트다** — 유효성 규칙·상태 머신·API 는 소유하지 않는다.
-에러가 있으면 `aria-invalid=true` 와 `aria-describedby="{id}-error"` 로 메시지를 연결한다.
+- 이메일·이름·수량 등 한 줄 텍스트를 입력받을 때
+- 라벨과 입력을 항상 짝으로 두어야 할 때
+- 검증 실패 메시지를 입력 바로 아래에 보여줄 때
+- 비밀번호·숫자 등 다양한 input type 이 필요할 때
 
-> 스토리는 type·상태를 낱개로 폭발시키지 않는다 — 대표 Story 를 두고 type·error·disabled·required 는
-> Playground 의 Controls 로 조정한다(운영 가이드 §10·§12). 이 문서는 그 대표만 싣는다.
+## Examples
+
+<Story of={TextFieldStories.Overview} />
+<Story of={TextFieldStories.Error} />
+<Story of={TextFieldStories.Disabled} />
+<Story of={TextFieldStories.TypeEmail} />
+<Story of={TextFieldStories.TypePassword} />
+<Story of={TextFieldStories.TypeNumber} />
+<Story of={TextFieldStories.Required} />
 
 ## Props
 
 <Controls />
 
-| prop | 타입 | 기본값 | 의미 |
-|---|---|---|---|
-| `id` | `string` | — (필수) | input 의 id. `label htmlFor` 및 에러 메시지 id(`{id}-error`)의 기준. |
-| `label` | `string` | — (필수) | 가시 라벨. `<label htmlFor={id}>` 로 렌더 — **placeholder 로 대체 금지.** |
-| `value` | `string` | — (필수) | 제어 값. `onChange` 와 항상 짝을 이룬다. |
-| `type` | `text \| email \| password \| number` | `text` | input type. |
-| `error` | `string` | `''` | 위반 메시지. 빈 문자열이면 정상 상태 — 비어있지 않으면 error 상태(테두리 danger + 메시지 렌더 + `aria-invalid`). |
-| `disabled` | `boolean` | `false` | 비활성. native `disabled` — `onBlur`/`onChange` 발화 없음. |
-| `required` | `boolean` | `false` | 필수 입력. native `required` + `aria-required` 로 노출한다. **라벨에 시각 마커(\*)를 주입하지 않는다** — 아래 절 참조. |
-| `placeholder` | `string` | `''` | 보조 예시 텍스트. **라벨을 대체하지 않는다.** |
-| `name` | `string` | `''` | 폼 제출 키이자 브라우저 자동완성·비밀번호 관리자의 필드 판정 근거. 실사용: LoginForm(`name="email"`). |
-| `autoComplete` | `string` | `''` | 브라우저 자동완성 힌트 (`username` · `email` · `current-password` …). **없으면 자격증명 자동완성이 퇴행한다 — 기능 손실이지 장식이 아니다.** |
-| `inputMode` | `string` | `''` | 모바일 소프트 키보드 힌트 (`email` · `numeric` · `tel` …). |
-| `trailing` | `slot` | `null` | 입력 오른쪽에 겹쳐 놓는 요소(비밀번호 표시 토글 등). 있으면 입력의 오른쪽 여백을 넓혀 텍스트와 겹치지 않게 한다. |
+| Prop          | Description                                                                       |
+| ------------- | -------------------------------------------------------------------------------- |
+| `label`       | 가시 라벨입니다. placeholder 로 대체하지 않습니다.                               |
+| `type`        | input 종류입니다 (`text` · `email` · `password` · `number`).                     |
+| `error`       | 위반 메시지입니다. 비어 있지 않으면 error 상태로 바뀝니다.                        |
+| `required`    | 필수 입력 여부입니다.                                                             |
+| `placeholder` | 입력 예시 텍스트입니다. 라벨을 대체하지 않습니다.                                 |
+| `disabled`    | 비활성 여부입니다. 입력·포커스·`onBlur` 가 막힙니다.                              |
 
-### `required` 가 라벨에 마커를 넣지 않는 이유 — 계약의 명시적 판단
+## Behavior
 
-`<label>` 의 `textContent` 가 곧 접근 가능한 이름이므로 마커를 넣으면 이름이 `"이메일*"` 이 되어
-**`getByLabel`/`getByLabelText` 정확일치 셀렉터가 깨지고**(E2E FS-001), 오너 확정 로그인 화면에 없던
-표식이 새로 나타난다. 표식이 필요한 화면이 실제로 생기면 그때 실호출부와 함께 prop 을 추가한다.
+- `error` 가 비어 있지 않으면 테두리가 danger 로 바뀌고 메시지가 입력에 연결됩니다.
+- `disabled` 면 입력과 포커스가 막혀 `onBlur` 가 발화하지 않습니다.
 
-마커가 필요한 폼은 **FormField 껍데기가 그린다** — 그쪽은 마커를 `<label>` 밖 `<span aria-hidden>` 으로 두어
-이름을 오염시키지 않는다.
+## Accessibility
 
-<Story of={TextFieldStories.Required} />
-<Story of={TextFieldStories.Optional} />
+- 라벨이 `htmlFor` 로 입력에 연결되어 접근 가능한 이름이 됩니다.
+- 에러는 `aria-invalid` 와 `aria-describedby` 로 안내되고, 색상만이 아니라 텍스트로도 전달됩니다.
+- `Tab`·`Shift+Tab` 으로 이동하고 표준 텍스트 편집 키를 지원합니다.
 
-### 계약이 명시한 예외 — `ref` 와 네이티브 패스스루
+## Notes
 
-- **`ref`**: input 요소 참조는 계약 prop 이 아니라 **`forwardRef` 로 노출한다** (제출 실패 시 첫 오류 필드로
-  포커스를 옮기는 데 필요 — LoginPage). `ref` 는 Figma/Storybook 대응이 없고, 스키마의 `slot` 타입은
-  `ReactNode` 를 생성하므로 `RefObject` 를 담을 수 없다.
-  구현: `forwardRef<HTMLInputElement, TextFieldProps & NativeInputProps>`.
-- **네이티브 패스스루**: 계약 props 외의 표준 input 속성은 구현이 `<input>` 으로 전달한다 (Card 선례).
-  단 폼 동작에 직접 관여하는 `name` · `autoComplete` · `inputMode` 는 호출부가 반드시 쓰는 표면이라
-  **계약에 명시한다** (`id` · `placeholder` 선례와 동일).
-
-## States
-
-계약 `states`: `default` · `hover` · `focus-visible` · `disabled` · `error`. type 은 이 축과 직교하므로
-낱개 조합으로 나누지 않고 Controls 로 바꾼다.
-
-<Story of={TextFieldStories.FocusVisible} />
-<Story of={TextFieldStories.Disabled} />
-<Story of={TextFieldStories.Error} />
-
-## Types
-
-<Story of={TextFieldStories.TypeEmail} />
-<Story of={TextFieldStories.TypePassword} />
-<Story of={TextFieldStories.TypeNumber} />
-
-## `trailing` 슬롯
-
-<Story of={TextFieldStories.TrailingContent} />
-<Story of={TextFieldStories.MinimalContent} />
-<Story of={TextFieldStories.LongContent} />
-
-## 이벤트
-
-| 이벤트 | payload | blockedWhen |
-|---|---|---|
-| `onChange` | `ChangeEvent<HTMLInputElement>` | — (제어 컴포넌트이므로 필수) |
-| `onBlur` | `FocusEvent<HTMLInputElement>` | `["disabled"]` |
-
-<Story of={TextFieldStories.BlurDisabled} />
-<Story of={TextFieldStories.BlurEnabled} />
-
-## 접근성 계약
-
-- **role**: `textbox`
-- **keyboard**: `Tab` · `Shift+Tab` · 텍스트 편집 키(문자·Backspace·Delete·화살표)
-- **focusVisible**: `true`
-- **contrastMin**: 4.5
-
-계약 `a11y.aria`:
-
-- `aria-invalid`: `error` 가 비어있지 않으면 `true` — **항상 `aria-describedby` 와 짝을 이룬다**
-  (describedby 없는 `aria-invalid` 금지, A11Y-11).
-- `aria-describedby`: `error` 가 비어있지 않으면 `{id}-error` 를 가리킨다.
-- `error-alert`: 에러 메시지 `<p>` 는 `role="alert"` 를 가진다 — 이미 포커스된 필드에 on-blur/변경으로
-  나타나는 에러도 announce 된다 (FormField/ImageUploadField 와 일치, A11Y-10).
-- `aria-required`: `required=true` 이면 native `required` 속성 **과 `aria-required="true"` 를 함께** 낸다.
-  native `required` 만으로는 `<form noValidate>` 아래에서 필수 여부가 확실히 노출된다고 보장할 수 없다 —
-  **명시 속성으로 못 박는다** (A11Y-11). `required=false` 면 두 속성 모두 부여하지 않는다.
-- `accessible-name`: `<label>` 의 `textContent` = input 의 접근 가능한 이름이다. **라벨 안에 마커·배지·카운터
-  등 부가 텍스트를 넣지 않는다** — `aria-hidden` 을 붙여도 Testing Library/Playwright 의 라벨 텍스트 수집은
-  `textContent` 기반이라 이름이 오염된다.
-- `error-color`: 에러는 색상만으로 전달하지 않는다 (WCAG 1.4.1) — 텍스트 메시지를 함께 렌더한다.
-
-## 토큰
-
-`color.surface.default` · `color.text.default` · `color.text.disabled` · `color.border.default` ·
-`color.feedback.danger.border`(borderError) · `color.feedback.danger.text`(errorText) ·
-`color.border.focus`(focusRing) · `space.1`(focusRingOffset·gap) · `radius.md` ·
-`space.3`(paddingX·paddingY) · `typography.label.md`(labelTypography·errorTypography) ·
-`typography.body.md`(inputTypography) · `space.9`(trailingInset).
-
-`responsive.behavior` 는 `fluid`. 의존 없음 — 다만 **PasswordField 가 이 컴포넌트에 의존한다.**
-
-<Story of={TextFieldStories.RightToLeft} />
+- 여러 필드의 검증·표식 관리(필수 마커 등)는 상위 FormField 껍데기가 담당합니다.
