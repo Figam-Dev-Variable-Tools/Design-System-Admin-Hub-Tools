@@ -14,6 +14,7 @@
 import { createCrudAdapter, failIfRequested, LATENCY_MS } from '../../../shared/crud';
 import { wait } from '../../../shared/async';
 import { HTTP_STATUS, HttpError } from '../../../shared/errors/http-error';
+import type { FieldViolation, HttpStatus } from '../../../shared/errors/http-error';
 import { findOrderRef, orderCatalog } from '../../../shared/domain/order-ref';
 import type { OrderRef } from '../../../shared/domain/order-ref';
 import { appendPointRestore } from '../../../shared/domain/point-ledger';
@@ -22,6 +23,7 @@ import { variantsOf } from '../../../shared/domain/variant-ref';
 import type { VariantRef } from '../../../shared/domain/variant-ref';
 import {
   claimTransitionBlock,
+  CLAIM_NOTE_MAX,
   isStockApplied,
   movesStock,
   planStockMovements,
@@ -30,7 +32,13 @@ import {
   validateStockPlan,
 } from './types';
 import type { Claim, ClaimInput } from './types';
-import { NO_REFUND, planRefundRestoration, refundTransitionBlock, restoreReason } from './refund';
+import {
+  NO_REFUND,
+  planRefundRestoration,
+  refundTransitionBlock,
+  REFUND_FEE_INVALID,
+  restoreReason,
+} from './refund';
 
 const SCOPE = 'claims';
 
@@ -268,13 +276,70 @@ function reject(message: string, field: string): never {
   });
 }
 
+/**
+ * 모인 위반을 한 번에 거절한다 — **하나만 돌려주지 않는다**.
+ *
+ * [왜 첫 위반에서 멈추지 않나] 서버 계약(BE-044 §6.1)의 `error.fields` 는 필드→문구 **map** 이다.
+ * 한 번의 저장이 여러 칸을 동시에 어길 수 있고, 그때 하나씩만 돌려주면 운영자는 고치고 저장하고
+ * 또 거절당하기를 반복하며 **몇 번 남았는지 알 수 없는** 상태에 놓인다.
+ *
+ * `message`(응답 본문의 top-level 문구)는 호출부가 정한다. 전부를 보이는 일은 위반을 읽는 쪽,
+ * 즉 화면의 `placeViolations` 가 한다.
+ */
+function rejectAll(
+  status: HttpStatus,
+  message: string,
+  violations: readonly FieldViolation[],
+): never {
+  throw new HttpError(status, message, { violations });
+}
+
+/**
+ * 400 응답의 top-level 문구 — **어느 칸인지는 `error.fields` 에만 있다**(BE-044 §6.1).
+ *
+ * 전이 위반(422)은 가드가 돌려준 한 문장이 곧 사유라 그것을 message 로 올리지만, 형식 위반은
+ * 한 번에 여러 칸을 훑으므로 대표 문장이 없다. 그래서 여기는 일부러 일반 문구다 — 화면이
+ * `violations` 를 읽지 않으면 **어느 칸이 틀렸는지 알 방법이 없다**(그게 결함 c 였다).
+ */
+const VALIDATION_FAILED = '입력값을 확인해 주세요.';
+
+/**
+ * 형식 위반 — 400 `VALIDATION_FAILED` (BE-044 §6.1 의 `error.fields`).
+ *
+ * [왜 화면이 이미 막는 것을 다시 보는가] 화면의 `maxLength`·select 선택지·`parseFeeInput` 은
+ * **브라우저 입력만** 막는다. 프로그램적으로 채워진 값(자동입력·확장·구형 클라이언트)은 그대로
+ * 나가고, 그것을 거르는 것은 서버의 일이다. 이 픽스처가 그 서버 자리에 있다.
+ *
+ * TODO(backend): 실제 응답의 `error.fields`(필드→문구 map) → `HttpError.violations` 변환은
+ *   **응답 인터셉터 한 곳**의 일이다(shared/api/client.ts — status→HttpError 변환의 정본).
+ *   여기서는 픽스처가 서버 역할을 하므로 같은 모양을 직접 싣는다 — 화면이 읽는 표면
+ *   (`HttpError.violations`)은 백엔드가 붙어도 그대로다.
+ */
+function assertFormat(next: Claim): void {
+  const fields: FieldViolation[] = [];
+
+  if (next.adminNote.length > CLAIM_NOTE_MAX) {
+    fields.push({
+      field: 'adminNote',
+      message: `처리 메모는 ${String(CLAIM_NOTE_MAX)}자를 넘을 수 없습니다.`,
+    });
+  }
+
+  if (!Number.isSafeInteger(next.refund.returnShippingFee) || next.refund.returnShippingFee < 0) {
+    fields.push({ field: 'returnShippingFee', message: REFUND_FEE_INVALID });
+  }
+
+  if (fields.length > 0) rejectAll(HTTP_STATUS.badRequest, VALIDATION_FAILED, fields);
+}
+
 /** 전이 합법성 — 화면의 버튼과 **같은 술어**를 읽는다(머리말) */
 function assertTransitions(current: Claim, next: Claim): void {
   const order = findClaimOrder(current.orderId);
+  const violations: FieldViolation[] = [];
 
   if (next.status !== current.status) {
     const blocked = claimTransitionBlock(current, next.status, order);
-    if (blocked !== null) reject(blocked, 'status');
+    if (blocked !== null) violations.push({ field: 'status', message: blocked });
   }
 
   if (next.refund.status !== current.refund.status) {
@@ -282,7 +347,7 @@ function assertTransitions(current: Claim, next: Claim): void {
     // 경로가 있고, 그때 이전 상태로 판정하면 방금 완료한 클레임을 '아직 완료 전' 이라며 막는다.
     const gate = { ...current, status: next.status, refund: current.refund };
     const blocked = refundTransitionBlock(gate, next.refund.status);
-    if (blocked !== null) reject(blocked, 'refundStatus');
+    if (blocked !== null) violations.push({ field: 'refundStatus', message: blocked });
   }
 
   // 환불이 끝난 뒤에는 차감을 바꿀 수 없다 — 이미 나간 돈의 근거를 사후에 고치는 일이다.
@@ -291,8 +356,18 @@ function assertTransitions(current: Claim, next: Claim): void {
       next.refund.returnShippingFee !== current.refund.returnShippingFee ||
       next.refund.couponRestored !== current.refund.couponRestored ||
       next.refund.paidAmount !== current.refund.paidAmount;
-    if (frozen) reject('환불이 완료되어 차감 내역을 바꿀 수 없습니다.', 'returnShippingFee');
+    if (frozen) {
+      violations.push({
+        field: 'returnShippingFee',
+        message: '환불이 완료되어 차감 내역을 바꿀 수 없습니다.',
+      });
+    }
   }
+
+  // 422 의 top-level 문구는 첫 위반 그대로다 — 위반을 읽지 않는 소비자(토스트·로그)도 사람이
+  // 읽는 한 문장을 받는다. 전이 가드가 돌려준 문장이 곧 사유라 대표로 세울 수 있다.
+  const first = violations[0];
+  if (first !== undefined) rejectAll(HTTP_STATUS.unprocessable, first.message, violations);
 }
 
 /** 옵션·재고를 읽는다 — 모르면 422 로 막는다(모르는 채로 재고를 움직이지 않는다) */
@@ -376,9 +451,15 @@ function applyRefundEffects(next: Claim): Claim {
   };
 }
 
-/** 저장 한 번의 부수효과 — 전이 검사 → 재고 → 환불 복원 순서로 한 덩이에서 일어난다 */
+/**
+ * 저장 한 번의 부수효과 — 형식 검사 → 전이 검사 → 재고 → 환불 복원 순서로 한 덩이에서 일어난다.
+ *
+ * 형식(400)이 규칙(422)보다 먼저인 이유: 값이 형식조차 맞지 않으면 전이 판정이 무엇을 근거로
+ * 했는지 말할 수 없다. 서버가 400 을 422 보다 먼저 내는 것과 같은 순서다(BE-044 §6.1).
+ */
 function patchClaim(current: Claim, input: ClaimInput): Claim {
   const next: Claim = { ...current, ...input, id: current.id };
+  assertFormat(next);
   assertTransitions(current, next);
   return applyRefundEffects(applyStockEffects(next));
 }

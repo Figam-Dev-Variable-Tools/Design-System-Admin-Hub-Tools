@@ -354,9 +354,16 @@ function InquiryListScreen({
       />,
       // 견적 열은 발행된 문의만 견적으로 가는 역링크를 준다(문의 ↔ 견적 양방향)
       item.quoteNo === '' ? (
-        <span style={dashStyle}>—</span>
+        <span key="quote" style={dashStyle}>
+          —
+        </span>
       ) : (
-        <a href={`#quote-${item.quoteNo}`} style={linkStyle} aria-label={`${item.title} 발행 견적`}>
+        <a
+          key="quote"
+          href={`#quote-${item.quoteNo}`}
+          style={linkStyle}
+          aria-label={`${item.title} 발행 견적`}
+        >
           견적 보기
         </a>
       ),

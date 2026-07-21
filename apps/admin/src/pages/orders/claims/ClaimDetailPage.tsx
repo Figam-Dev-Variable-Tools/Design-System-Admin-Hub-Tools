@@ -11,6 +11,11 @@
 //
 // [옵션·재고의 정본은 상품이다] 이 화면은 조회기(shared/domain/variant-ref)가 준 옵션만 그리고,
 // 실제 증감은 어댑터가 클레임 갱신과 한 덩이로 처리한다. 재고 부족은 422 로 되돌아와 인라인 오류가 된다.
+//
+// [실패의 표면은 셋이다 — 문구 · 자리 · 포커스] 서버가 필드를 지목한 거절(400 형식 · 422 규칙)은
+// ① 위반을 **하나도 버리지 않고**(placeViolations) ② 인라인 자리가 있으면 그 입력으로, 없으면
+// 배너로 보내고 ③ **포커스까지 그리로 옮긴다**(A11Y-13). 셋 중 하나라도 빠지면 실패는 화면에
+// 떠 있어도 사용자에게 도달하지 않는다.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -19,12 +24,7 @@ import { cssVar, Stepper } from '@tds/ui';
 
 import { isAbort } from '../../../shared/async';
 import { formatNumber } from '../../../shared/format';
-import {
-  isHttpError,
-  isNotFound,
-  isUnprocessable,
-  referenceOf,
-} from '../../../shared/errors/http-error';
+import { isHttpError, isNotFound, referenceOf } from '../../../shared/errors/http-error';
 import { orderDetailPath } from '../../../shared/domain/order-ref';
 import { orderStatusLabel } from '../../../shared/domain/order';
 import { policyReturnFee } from '../../../shared/domain/shipping-policy';
@@ -60,14 +60,15 @@ import {
   claimFlow,
   claimTransitionBlock,
   CLAIM_NOTE_MAX,
-  hasInlineErrorSlot,
   isClaimStatus,
+  isFieldRejection,
   isStockApplied,
   kindLabel,
   kindTone,
   movesStock,
   nextClaimStatuses,
   optionLabel,
+  placeViolations,
   statusLabel,
   statusMeta,
   stockIssueMessage,
@@ -159,8 +160,14 @@ export default function ClaimDetailPage() {
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [confirmStock, setConfirmStock] = useState(false);
   const [confirmRefund, setConfirmRefund] = useState(false);
+  /** [A11Y-13] 이번 실패의 포커스 착지점 — 옮기고 나면 즉시 비운다(한 실패에 한 번) */
+  const [focusTarget, setFocusTarget] = useState<'inline' | 'banner' | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
   useEffect(() => () => controllerRef.current?.abort(), []);
+
+  // @tds/ui Alert 의 루트는 <div> 이고 tabIndex=-1 을 갖는다 — 바깥에서 포커스를 옮기라고 있는 자리다
+  const alertRef = useRef<HTMLDivElement>(null);
+  const optionSelectRef = useRef<HTMLSelectElement>(null);
 
   /**
    * 반품배송비의 출발값 — **아직 환불을 접수하지 않은 건에만** 정책 기본값을 넣는다.
@@ -256,11 +263,35 @@ export default function ClaimDetailPage() {
     isExchange && variantQuery.error === null && variants !== undefined && !applied;
   const confirmOpen = confirmStock || confirmRefund;
 
+  /**
+   * [A11Y-13] 실패는 **포커스도 옮긴다.**
+   *
+   * 배너·인라인 문구가 떠도 포커스가 방금 누른 버튼에 남아 있으면, 스크린리더 사용자는 저장이
+   * 실패했다는 사실 자체를 모른 채 서 있게 된다. 관용구는 이 리포의 두 선례를 그대로 쓴다 —
+   * 그 입력으로 되돌린 실패는 **그 입력으로**(useCrudForm 의 `setFocus(first.field)`), 배너로 간
+   * 실패는 **배너로**(LoginPage 의 `alertRef.current?.focus()`). 새 패턴을 만들지 않는다.
+   *
+   * [왜 onError 안이 아니라 렌더 뒤인가] 실패 시점에는 `saving` 이 아직 true 라 select 가
+   * disabled 이고 배너는 아직 마운트되지 않았다. disabled 요소의 `focus()` 는 브라우저가 조용히
+   * 무시하므로, 저장이 끝나 화면이 다시 그려진 뒤에 옮긴다.
+   *
+   * [확인 다이얼로그가 떠 있을 때는 옮기지 않는다] 그 실패는 다이얼로그 안의 danger 배너
+   * (role="alert")가 즉시 읽어 준다. 모달 밖으로 포커스를 끌어내면 포커스 트랩이 깨져 Esc·Tab 이
+   * 어디로 가는지 알 수 없게 된다 — 그래서 착지점을 아예 세우지 않는다(아래 onError).
+   */
+  useEffect(() => {
+    if (focusTarget === null || saving) return;
+    if (focusTarget === 'inline') optionSelectRef.current?.focus();
+    else alertRef.current?.focus();
+    setFocusTarget(null);
+  }, [focusTarget, saving]);
+
   const submit = (patch: Partial<ClaimInput>, message: string) => {
     if (claim === undefined || id === undefined) return;
     setServerError(null);
     setErrorReference(null);
     setFieldError(null);
+    setFocusTarget(null);
     const controller = new AbortController();
     controllerRef.current = controller;
     update.mutate(
@@ -280,25 +311,29 @@ export default function ClaimDetailPage() {
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          // 422 는 어느 입력이 틀렸는지 아는 실패다 — 그릴 자리가 있으면 그 필드로 되돌린다.
+          // 400·422 는 어느 입력이 틀렸는지 아는 실패다 — 그릴 자리가 있으면 그 필드로 되돌린다.
           // 자리가 없으면(취소·반품에는 교환 옵션 필드가 없다) 배너로 보낸다: 인라인만 시도하고
           // 마는 예전 코드에서는 실패가 아무 데도 뜨지 않은 채 버튼만 되살아났다 (EXC-07).
           // 확인 다이얼로그가 떠 있는 동안은 인라인이 모달 뒤에 가리므로 배너(=다이얼로그의
           // error prop)로 보낸다 — 사유를 못 보면 재시도할지 말지 판단할 수 없다.
-          if (isUnprocessable(cause) && isHttpError(cause)) {
-            const violation = cause.violations[0];
-            const reason = violation?.message ?? cause.message;
-            if (hasInlineErrorSlot(violation?.field, exchangeFieldRendered && !confirmOpen)) {
-              setFieldError(reason);
-              return;
-            }
-            setServerError(reason);
+          // 위반이 여럿이면 **전부** 배치한다 — 예전에는 violations[0] 만 읽어 나머지가 조용히
+          // 사라졌고, 하나를 고쳐 다시 저장하면 또 실패하는 경험이 됐다(./types 의 placeViolations).
+          if (isFieldRejection(cause) && isHttpError(cause)) {
+            const placement = placeViolations(
+              cause.violations,
+              cause.message,
+              exchangeFieldRendered && !confirmOpen,
+            );
+            setFieldError(placement.inline);
+            setServerError(placement.banner);
+            if (!confirmOpen) setFocusTarget(placement.inline === null ? 'banner' : 'inline');
             return;
           }
           setServerError(
             isHttpError(cause) ? cause.message : '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
           );
           setErrorReference(referenceOf(cause));
+          if (!confirmOpen) setFocusTarget('banner');
         },
       },
     );
@@ -382,7 +417,7 @@ export default function ClaimDetailPage() {
             </CardTitle>
 
             {serverError !== null && (
-              <Alert tone="danger">
+              <Alert tone="danger" ref={alertRef}>
                 <div style={alertActionRowStyle}>
                   <span>{serverError}</span>
                   {errorReference !== null && (
@@ -534,6 +569,7 @@ export default function ClaimDetailPage() {
                   quantity={claim.quantity}
                   disabled={saving || optionLocked}
                   error={exchangeFieldError ?? undefined}
+                  selectRef={optionSelectRef}
                   onChange={setExchangeValues}
                 />
               )}

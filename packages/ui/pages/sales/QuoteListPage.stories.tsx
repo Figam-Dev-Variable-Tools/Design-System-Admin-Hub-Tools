@@ -371,9 +371,12 @@ function QuoteListScreen({
       quote.accountName,
       // 원본 문의로 가는 역링크 — 수동 등록 견적은 원본이 없다
       quote.inquiryNo === '' ? (
-        <span style={mutedStyle}>—</span>
+        <span key="inquiryNo" style={mutedStyle}>
+          —
+        </span>
       ) : (
         <a
+          key="inquiryNo"
           href={`#inquiry-${quote.inquiryNo}`}
           style={linkStyle}
           aria-label={`${quote.quoteNo} 원본 문의 ${quote.inquiryNo}`}
@@ -391,11 +394,13 @@ function QuoteListScreen({
         label={STATUS_LABEL[quote.status]}
       />,
       canConvert(quote.status) ? (
-        <Button variant="secondary" size="sm">
+        <Button key="convert" variant="secondary" size="sm">
           수주 전환
         </Button>
       ) : (
-        <span style={mutedStyle}>—</span>
+        <span key="convert" style={mutedStyle}>
+          —
+        </span>
       ),
     ],
     trailing: [

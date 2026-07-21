@@ -9,7 +9,9 @@
 //      → 버튼만 조용히 다시 활성화된다(EXC-07).
 //   ③ 확인 다이얼로그가 확인 즉시 닫혀 실패를 되받지 못했다 → busy·error prop 이 죽은 배선
 //      (FEEDBACK-02 의 '실패하면 남아서 재시도를 받는다').
-// 셋 다 '어떤 노드가 화면에 있는가' 의 문제라 순수 테스트로는 고정되지 않는다.
+//   ④ 실패가 떠도 **포커스는 눌렀던 버튼에 남았다** → 스크린리더 사용자는 실패를 모른다(A11Y-13).
+//   ⑤ 400 은 필드 거절 경로를 타지 않아 `error.fields` 가 버려졌다 → 어느 칸이 틀렸는지 알 수 없다.
+// 다섯 다 '어떤 노드가 화면에 있는가 · 포커스가 어디에 있는가' 의 문제라 순수 테스트로는 고정되지 않는다.
 // 관용구는 shared/crud/form-permission.test.tsx 를 따른다(권한 시드 + 라우트 렌더).
 //
 // [실패는 지어내지 않는다] 422 는 스위치로 흉내 내지 않고 **도메인 규칙으로** 만든다: 반품 클레임의
@@ -36,11 +38,14 @@ import { OPERATOR_ROLE_ID, ROLE_STATE_VERSION } from '../../../shared/permission
 import { ToastProvider } from '../../../shared/ui';
 import ClaimDetailPage from './ClaimDetailPage';
 import { REFUND_CLAIM_INCOMPLETE, REFUND_UNSAVED_CLAIM } from './refund';
-import { stockIssueMessage } from './types';
+import { CLAIM_NOTE_MAX, stockIssueMessage } from './types';
 
 /** 픽스처 clm-3 — 반품 · 검수중 · 환불 미접수(prd-2 '화이트' 2개) */
 const CLAIM_ID = 'clm-3';
 const ROUTE = '/orders/claims/:id';
+
+/** 서버가 400 으로 거절하는 길이 — 화면의 maxLength 는 사람의 키 입력만 막는다 */
+const NOTE_OVER_MAX = CLAIM_NOTE_MAX + 1;
 
 /** 재고 반영이 422 로 막히는 이유 — 주문된 옵션이 상품에서 사라졌다 */
 const STOCK_422 = stockIssueMessage('unknown-origin');
@@ -192,5 +197,59 @@ describe('취소·반품의 422 도 보인다 · 다이얼로그는 실패해도
       expect(screen.queryByText('반품 재고 반영')).toBeNull();
     }, WAIT);
     expect(screen.getByText(STOCK_422)).not.toBeNull();
+  });
+});
+
+/**
+ * [결함 a·c 회귀] 실패가 **포커스도 옮기는가** · 400 이 어느 칸인지 말하는가.
+ *
+ * 예전에는 배너가 떠도 포커스가 눌렀던 '처리 저장' 버튼에 그대로 남았다 — 스크린리더 사용자는
+ * 저장이 실패했다는 사실 자체를 듣지 못한 채 서 있었다(A11Y-13). 그리고 400 은 필드 거절 경로를
+ * 타지 않아, 서버가 `error.fields` 로 어느 칸이 틀렸는지 알려 주는데도 화면은 그것을 버렸다.
+ *
+ * [왜 500자를 넘길 수 있나 — 지어낸 상황이 아니다] textarea 의 `maxLength` 는 **사람의 키 입력**만
+ * 막는다. 프로그램적으로 채워진 값(자동입력·브라우저 확장·구형 클라이언트)은 그대로 제출되고,
+ * 그것을 거르는 것은 서버의 일이다(BE-044 §6.1 의 400 `VALIDATION_FAILED`).
+ */
+describe('저장 실패는 포커스를 옮긴다 · 400 도 어느 칸인지 말한다 (결함 a · c)', () => {
+  it('400 이 지목한 칸의 사유가 배너에 뜨고 포커스가 그 배너로 간다', async () => {
+    renderDetail();
+    await loaded();
+
+    const note = screen.getByLabelText('처리 메모');
+    fireEvent.change(note, { target: { value: 'ㄱ'.repeat(NOTE_OVER_MAX) } });
+
+    // 재고를 움직이지 않는 저장이라 확인 다이얼로그가 끼지 않는다 — 실패가 곧장 카드 배너로 온다
+    const save = screen.getByRole('button', { name: '처리 저장' });
+    save.focus();
+    fireEvent.click(save);
+
+    const banner = await screen.findByRole('alert', {}, WAIT);
+    // 서버가 지목한 칸(adminNote)의 사유가 그대로 읽힌다. 400 본문의 top-level 문구는 일반문이라
+    // (`입력값을 확인해 주세요.`) `error.fields` 를 읽지 않으면 이 문장이 나올 수 없다 — 결함 c 의 반증점.
+    expect(banner.textContent).toContain(`${String(CLAIM_NOTE_MAX)}자를 넘을 수 없습니다`);
+    // 필드 거절은 예상외 실패가 아니다 — 참조 코드를 붙여 '장애처럼' 보이게 하지 않는다(EXC-20)
+    expect(banner.textContent).not.toContain('오류 코드');
+    // 포커스가 배너로 옮겨 온다 — 예전에는 눌렀던 버튼에 그대로 남았다
+    await waitFor(() => {
+      expect(document.activeElement).toBe(banner);
+    }, WAIT);
+  });
+
+  it('확인 다이얼로그가 떠 있으면 포커스를 밖으로 끌어내지 않는다 — 트랩이 깨진다', async () => {
+    renderDetail();
+    const statusSelect = await loaded();
+    fireEvent.change(statusSelect, { target: { value: 'completed' } });
+
+    fireEvent.click(screen.getByRole('button', { name: '처리 저장' }));
+    fireEvent.click(screen.getByRole('button', { name: '재고 반영' }));
+
+    await waitFor(() => {
+      expect(screen.getAllByText(STOCK_422).length).toBeGreaterThan(0);
+    }, WAIT);
+
+    // 사유는 다이얼로그 안 danger 배너(role=alert)가 즉시 읽어 준다 — 포커스는 모달 안에 남는다
+    const dialog = screen.getByRole('dialog');
+    expect(dialog.contains(document.activeElement)).toBe(true);
   });
 });

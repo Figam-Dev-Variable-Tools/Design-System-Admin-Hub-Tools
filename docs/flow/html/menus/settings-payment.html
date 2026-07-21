@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>결제 설정 · 어드민 플로우</title>
+<style>
+ :root{--bg:#ffffff;--fg:#111827;--muted:#6b7280;--line:#e5e7eb;--chip:#f3f4f6;--accent:#2563eb}
+ @media (prefers-color-scheme:dark){:root{--bg:#0b0f19;--fg:#e5e7eb;--muted:#9ca3af;--line:#1f2937;--chip:#111827;--accent:#60a5fa}}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 -apple-system,"Segoe UI","Malgun Gothic",sans-serif;background:var(--bg);color:var(--fg)}
+  header{position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+         padding:10px 16px;border-bottom:1px solid var(--line);background:var(--bg)}
+  h1{font-size:15px;margin:0;font-weight:600}
+  .sub{color:var(--muted);font-size:12px;font-family:ui-monospace,Consolas,monospace}
+  .spacer{flex:1}
+  a,button{font:inherit}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  button{border:1px solid var(--line);background:var(--chip);color:var(--fg);border-radius:6px;
+         padding:4px 10px;cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  #stage{position:relative;overflow:hidden;height:calc(100vh - 49px);cursor:grab;background:var(--bg)}
+  #stage.grabbing{cursor:grabbing}
+  #pan{transform-origin:0 0;position:absolute;top:0;left:0}
+  /* 다크에서도 도형 안 글자가 읽히게 — mermaid 가 흰 배경 전제로 그린다 */
+  @media (prefers-color-scheme:dark){#stage{background:#f8fafc}}
+  /* 그리기 전의 원문이 잠깐 보이지 않게 숨긴다. 렌더가 끝나면 스크립트가 드러낸다. */
+  #src{margin:0;visibility:hidden}
+  #src.ready{visibility:visible}
+  #err{display:none;padding:16px;color:#b91c1c;white-space:pre-wrap;
+       font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  .hint{position:fixed;right:14px;bottom:12px;color:var(--muted);font-size:11px;
+        background:var(--chip);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>결제 설정</h1>
+  <span class="sub">/settings/payment</span>
+  <span class="spacer"></span>
+  <button id="fit">전체 보기</button>
+  <button id="reset">100%</button>
+  <a href="../../mmd/menus/settings-payment.mmd" download>mermaid 원본</a>
+  <a href="../index.html">← 목록</a>
+</header>
+<div id="stage"><div id="pan"><pre class="mermaid" id="src">%% 결제 설정 · /settings/payment
+%%{init: {&quot;flowchart&quot;: {&quot;curve&quot;: &quot;step&quot;, &quot;nodeSpacing&quot;: 25, &quot;rankSpacing&quot;: 38, &quot;wrappingWidth&quot;: 170}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;13px&quot;}} }%%
+flowchart TD
+  S([&quot;진입 /settings/payment&quot;]) --&gt; Q[&quot;useSettingsQuery(paymentSettingsKey, paymentSettingsStore)&lt;br/&gt;Revisioned&amp;lt;PaymentSettings&amp;gt; — 값 + revision + audit&lt;br/&gt;useForm(zodResolver(paymentSettingsSchema))&lt;br/&gt;data 도착 시 reset(toPaymentFormValues(data.value)) 로 기준선 설정&quot;]
+  Q --&gt; LS{&quot;SettingsFormShell 상태&quot;}
+  LS --&gt;|&quot;loadFailed (error !== null)&quot;| E1[&quot;폼 대신 실패 화면 + '다시 시도'(refetch)&lt;br/&gt;재현: ?fail=load&quot;]
+  LS --&gt;|&quot;isFetching &amp;&amp; data===undefined&quot;| L1[&quot;카드 골격 + 스켈레톤 (STATE-01)&lt;br/&gt;재조회 중에는 이전 값을 유지한다&quot;]
+  LS --&gt;|&quot;!canUpdate&quot;| RO[&quot;info 배너 '조회 권한만 있습니다. 결제 설정을 바꾸려면&lt;br/&gt;시스템 설정 수정 권한이 필요합니다.'&lt;br/&gt;저장 컨트롤 자체를 렌더하지 않는다 (EXC-03)&quot;]
+  LS --&gt;|&quot;성공 · canUpdate&quot;| OK1[&quot;폼 본문 + AuditNote(최종 수정자·시각)&quot;]
+  E1 --&gt; Q
+  L1 --&gt; OK1
+  RO --&gt; OK1
+
+  OK1 --&gt; SW{&quot;**구획 1 · 결제 연동** — ToggleSwitch 'PG 결제 사용'&lt;br/&gt;이 스위치 하나가 판매 방식을 정한다&quot;}
+  SW --&gt;|&quot;usePg === true&quot;| SEC2[&quot;**구획 2 · PG 설정** (켰을 때만 존재)&lt;br/&gt;PG사 toss 토스페이먼츠 / inicis KG이니시스 / nice 나이스페이먼츠 / kakaopay 카카오페이&lt;br/&gt;연동 모드 test 테스트 / live 운영&lt;br/&gt;상점 ID (MERCHANT_ID_MAX 60)&lt;br/&gt;결제수단 다중선택 card·transfer·vbank·phone·easypay&lt;br/&gt;toggleMethod 는 카탈로그 순서로 되맞춘다(켰다 껐다 한 순서가 저장값에 남지 않게)&lt;br/&gt;※ 꺼져 있을 때는 **자리를 없앤다** — 잠가 두면 지금 무엇을 정할지 흐려진다&quot;]
+  SW --&gt;|&quot;usePg === false&quot;| SEC3[&quot;**구획 3 · 문의 전환 안내** (껐을 때만 존재)&lt;br/&gt;안내 문구 TextareaField (INQUIRY_GUIDE_MAX 200)&lt;br/&gt;hint '상품 카드와 프로그램 상세의 문의하기 버튼 아래에 그대로 보입니다.'&lt;br/&gt;+ 상주 Alert info '지금은 PG 결제를 쓰지 않는 상태입니다…&lt;br/&gt;상품 문의 · 프로그램 문의로 들어옵니다.' (INQUIRY_PATH 링크 둘)&quot;]
+
+  SEC2 --&gt; AXIS
+  SEC3 --&gt; AXIS
+
+  AXIS{&quot;**pgSellable = usePg &amp;&amp; merchantId.trim() !== ''** (fail-closed)&lt;br/&gt;usePg 만 보지 않는다 — 켜 두고 상점 ID 가 비면 결제창을 못 연다&lt;br/&gt;그 상태로 '구매하기' 를 그리면 눌러도 아무 일 없는 버튼이 된다&quot;}
+  AXIS --&gt;|&quot;false&quot;| CTA1[&quot;checkoutCta → kind 'inquiry' · label '문의하기'&lt;br/&gt;reason: usePg 면 'PG 상점 ID 가 비어 있어 결제창을 열 수 없습니다. 지금은 문의로 받습니다.'&lt;br/&gt;아니면 'PG 결제를 쓰지 않도록 설정되어 있어 결제 대신 문의로 받습니다.'&lt;br/&gt;inquiryPath = INQUIRY_PATH[domain]&quot;]
+  AXIS --&gt;|&quot;true&quot;| CTA2[&quot;checkoutCta → kind 'purchase'&lt;br/&gt;label: product '구매하기' / program '후원하기'&lt;br/&gt;reason: mode==='test' 면 '… 테스트 모드로 결제창이 열립니다.&lt;br/&gt;실제 결제는 일어나지 않습니다.' 아니면 '… 결제창이 열립니다.'&lt;br/&gt;inquiryPath = null&quot;]
+  CTA1 --&gt; PREV
+  CTA2 --&gt; PREV[&quot;CheckoutCtaPreview — 스위치 **바로 아래**에 두 도메인 모두 그린다&lt;br/&gt;여기서 정한 값은 이 화면 밖에서만 눈에 띄기 때문이다&lt;br/&gt;라벨을 이 화면이 고르지 않는다 — checkoutCta 가 정한다&lt;br/&gt;(미리보기가 자기 문구를 쓰면 고객 화면과 다른 미리보기가 된다)&quot;]
+
+  AXIS -.-&gt;|&quot;같은 술어를 읽는 다른 축들&quot;| FANOUT[&quot;pgLock(settings, section) — 잠금은 **값을 지우지 않는다**&lt;br/&gt;product-points · product-coupons · product-stock&lt;br/&gt;· product-shipping · coupon-admin · points-policy&lt;br/&gt;(옵션 구성과 상품 등록 자체는 잠기지 않는다)&lt;br/&gt;&lt;br/&gt;resolvePriceDisplay — 축 B(상품 단위)와 합쳐 금액 칸 하나를 낸다&lt;br/&gt;**전역이 이긴다**: pgSellable 이 false 면 상품이 '금액 노출' 이라도&lt;br/&gt;'가격문의' 문구로 대체하고 amountFieldsLocked = true&lt;br/&gt;&lt;br/&gt;ordersCanArrive · inquiryMenuState 도 같은 술어 위에 선다&quot;]
+
+  OK1 ~~~ SUB1
+
+  subgraph SUB1[&quot;검증 — 전부 **교차 필드**다 (필수 여부가 usePg 에 달려 있다)&quot;]
+    PREV --&gt; V{&quot;paymentSettingsSchema .check(ctx)&quot;}
+    V --&gt;|&quot;merchantId 길이&quot;| V0[&quot;'상점 ID 는 60자를 넘을 수 없습니다.'&lt;br/&gt;**켜짐과 무관하게** 본다 — 꺼진 채로도 저장되는 값이라&quot;]
+    V --&gt;|&quot;usePg &amp;&amp; merchantId 공백&quot;| V1[&quot;'PG 결제를 켰다면 상점 ID 를 입력하세요. PG 사에서 발급한 값입니다.'&lt;br/&gt;※ 형식(길이·문자셋·접두어)은 검사하지 않는다 —&lt;br/&gt;PG 사마다 다르고, 박아 두면 채번 규칙이 바뀌는 날 멀쩡한 값이 거절된다&quot;]
+    V --&gt;|&quot;usePg &amp;&amp; methods.length === 0&quot;| V2[&quot;'결제수단을 하나 이상 선택하세요.'&lt;br/&gt;묶음에 role='group' aria-label='결제수단 (필수)'&lt;br/&gt;+ aria-describedby=methodsErrorId (A11Y-11)&quot;]
+    V --&gt;|&quot;!usePg &amp;&amp; inquiryGuide 공백&quot;| V3[&quot;'PG 결제를 끄면 고객에게 보일 안내 문구가 필요합니다.'&quot;]
+    V --&gt;|&quot;inquiryGuide 길이&quot;| V4[&quot;'안내 문구는 200자를 넘을 수 없습니다.'&quot;]
+    V0 --&gt; VE[&quot;필드 인라인 오류 · 입력 보존&lt;br/&gt;저장 버튼은 !dirty || saving || loading 이면 비활성&quot;]
+    V1 --&gt; VE
+    V2 --&gt; VE
+    V3 --&gt; VE
+    V4 --&gt; VE
+    VE --&gt; OK1
+    V --&gt;|&quot;통과&quot;| ONV[&quot;onValid — **여기서 저장하지 않는다**&lt;br/&gt;merchantId·inquiryGuide 를 trim 한 값을 쥐고 setPending&quot;]
+  end
+
+  ONV --&gt; CD{&quot;ConfirmDialog intent='update' '결제 설정 저장'&lt;br/&gt;saveConfirmMessage(next, savedUsingPg) — 판매 방식이 바뀌는 저장이면 그 사실을 앞세운다&quot;}
+  CD --&gt;|&quot;켜짐 → 꺼짐&quot;| CD1[&quot;'PG 결제를 끕니다. 저장하는 즉시 상품의 구매하기와 프로그램의 후원하기가&lt;br/&gt;문의하기로 바뀌고, 접수된 문의는 상품 문의·프로그램 문의로 들어옵니다. 저장할까요?'&quot;]
+  CD --&gt;|&quot;꺼짐 → 켜짐 (test)&quot;| CD2[&quot;'PG 결제를 켭니다. 지금은 테스트 모드라 결제창은 열리지만&lt;br/&gt;실제 결제는 일어나지 않습니다. 저장할까요?'&quot;]
+  CD --&gt;|&quot;꺼짐 → 켜짐 (live)&quot;| CD3[&quot;'PG 결제를 켭니다. 저장하는 즉시 고객이 상품·프로그램을&lt;br/&gt;실제로 결제할 수 있습니다. 저장할까요?'&quot;]
+  CD --&gt;|&quot;그 외&quot;| CD4[&quot;'결제 설정을 저장하면 상품·프로그램 화면에 즉시 반영됩니다. 저장할까요?'&quot;]
+  CD --&gt;|&quot;취소·Esc·딤&quot;| CX[&quot;cancelSave — controller.abort() + save.reset() + lock.release()&lt;br/&gt;진행 중이던 저장도 함께 취소한다&quot;]
+  CX --&gt; OK1
+
+  CD1 --&gt; M
+  CD2 --&gt; M
+  CD3 --&gt; M
+  CD4 --&gt; M[&quot;confirmSave → runSave(pending, force=false)&lt;br/&gt;[EXC-08] useSubmitLock 동기 잠금 — disabled 렌더를 기다리지 않는다&lt;br/&gt;save.mutate({value, expectedRevision: data.revision, force, signal})&lt;br/&gt;내가 읽은 revision 을 함께 보낸다&quot;]
+
+  M --&gt; MR{&quot;결과&quot;}
+  MR --&gt;|&quot;성공&quot;| MOK[&quot;**저장이 성립한 뒤에만** writePaymentSettings(saved.value)&lt;br/&gt;(data-source 의 store.save 안 — 이 한 줄이 없으면 설정은 저장됐는데&lt;br/&gt;상품 카드의 버튼은 그대로인 어긋남이 생긴다)&lt;br/&gt;reset(toPaymentFormValues(next)) — 새 기준선 · dirty 해제 → 이탈 가드도 내려감&lt;br/&gt;toast: usePg 면 '결제 설정을 저장했습니다. 상품·프로그램에서 결제로 판매합니다.'&lt;br/&gt;아니면 '결제 설정을 저장했습니다. 상품·프로그램의 버튼이 문의하기로 바뀌었습니다.'&quot;]
+  MR --&gt;|&quot;409 isSettingsConflict&quot;| CF[&quot;setConflict(cause.latest) — **덮어쓰지 않는다** (EXC-04)&lt;br/&gt;**실패·409 에서는 writePaymentSettings 를 부르지 않는다**&lt;br/&gt;거절된 저장이 판매 방식을 바꾸면 화면과 앱이 갈라진다&quot;]
+  MR --&gt;|&quot;실패&quot;| ME[&quot;saveError '결제 설정을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'&lt;br/&gt;확인 다이얼로그 안 danger 배너 — 재클릭이 재시도 (재현: ?fail=save)&quot;]
+  MR --&gt;|&quot;isAbort&quot;| AB[&quot;[EXC-09] 취소는 실패가 아니다 — 무시&quot;]
+  ME --&gt; M
+
+  CF --&gt; CFD{&quot;ConflictDialog subject='결제 설정'&lt;br/&gt;latestBy/latestAt + divergedLabels(getValues(), latest.value, PAYMENT_FIELD_LABELS)&lt;br/&gt;PG 결제 사용 · PG사 · 상점 ID · 연동 모드 · 결제수단 · 문의 전환 안내 문구&quot;}
+  CFD --&gt;|&quot;최신 내용 불러오기&quot;| CF1[&quot;reset(toPaymentFormValues(latest.value)) + refetch&lt;br/&gt;내 입력을 버린다 · toast '최신 결제 설정을 불러왔습니다.'&quot;]
+  CFD --&gt;|&quot;내 변경으로 덮어쓰기&quot;| CF2[&quot;runSave(getValues(), force=true) → 다시 M&quot;]
+  CFD --&gt;|&quot;닫기&quot;| CF3[&quot;closeConflict — abort + save.reset() + lock.release()&quot;]
+  CF1 --&gt; OK1
+  CF2 --&gt; M
+  CF3 --&gt; OK1
+  MOK --&gt; Q
+
+  OK1 --&gt; GUARD[&quot;미저장 이탈 가드 — SettingsFormShell 이 dirty &amp;&amp; !saving 으로 세운다&lt;br/&gt;'결제 설정에 저장하지 않은 변경 사항이 있습니다.&lt;br/&gt;이 화면을 벗어나면 입력한 내용이 사라집니다.'&quot;]
+  GUARD --&gt; S
+
+  classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
+  classDef err fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#14532d
+
+  class LS,SW,AXIS,V,CD,MR,CFD gate
+  class E1,V0,V1,V2,V3,V4,VE,ME,CF,CTA1 err
+  class OK1,MOK,CTA2 ok
+</pre></div></div>
+<pre id="err"></pre>
+<div class="hint">휠 = 확대 · 드래그 = 이동</div>
+<script src="../_assets/mermaid.min.js"></script>
+<script>
+(function(){
+  var stage=document.getElementById('stage'),pan=document.getElementById('pan'),
+      src=document.getElementById('src'),err=document.getElementById('err');
+  var W=1000,H=1000,scale=1,x=0,y=0,svg=null;
+  function apply(){pan.style.transform='translate('+x+'px,'+y+'px) scale('+scale+')';}
+  function fit(){
+    var r=stage.getBoundingClientRect();
+    scale=Math.min(r.width/W,r.height/H)*0.96;
+    x=(r.width-W*scale)/2;y=(r.height-H*scale)/2;apply();
+  }
+  function measure(){
+    svg=pan.querySelector('svg');
+    if(!svg)return;
+    var vb=(svg.getAttribute('viewBox')||'0 0 1000 1000').split(/\s+/).map(Number);
+    W=vb[2];H=vb[3];
+    // mermaid 는 max-width 로 폭을 접는다 — 팬/줌은 고유 크기를 알아야 하므로 되돌린다.
+    svg.removeAttribute('style');
+    svg.setAttribute('width',W);svg.setAttribute('height',H);
+    svg.style.display='block';svg.style.width=W+'px';svg.style.height=H+'px';
+  }
+  document.getElementById('fit').onclick=fit;
+  document.getElementById('reset').onclick=function(){scale=1;x=0;y=0;apply();};
+  stage.addEventListener('wheel',function(e){
+    e.preventDefault();
+    var r=stage.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+    var k=Math.exp(-e.deltaY*0.0015),ns=Math.min(8,Math.max(0.05,scale*k));
+    x=mx-(mx-x)*(ns/scale);y=my-(my-y)*(ns/scale);scale=ns;apply();
+  },{passive:false});
+  var dragging=false,px=0,py=0;
+  stage.addEventListener('pointerdown',function(e){
+    dragging=true;px=e.clientX;py=e.clientY;stage.classList.add('grabbing');
+    stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener('pointermove',function(e){
+    if(!dragging)return;x+=e.clientX-px;y+=e.clientY-py;px=e.clientX;py=e.clientY;apply();
+  });
+  stage.addEventListener('pointerup',function(){dragging=false;stage.classList.remove('grabbing');});
+  window.addEventListener('resize',fit);
+
+  if(!window.mermaid){
+    err.style.display='block';
+    err.textContent='mermaid 번들을 불러오지 못했습니다 — ../_assets/mermaid.min.js 가 있는지 확인하세요. '+
+                    '(pnpm flow:render 로 다시 만듭니다)';
+    return;
+  }
+  // theme:'default' 고정 — 다크에서도 #stage 배경을 밝게 두고 밝은 테마로 그린다.
+  //   mermaid 의 dark 테마는 도형 배경만 어둡게 바꾸고 이 셸의 변수와는 무관해, 섞으면
+  //   대비가 무너진다. 배경을 통제하는 쪽(#stage)에 테마를 맞추는 편이 읽힌다.
+  window.mermaid.initialize({startOnLoad:false,theme:'default',securityLevel:'strict',
+                             maxTextSize:500000,maxEdges:2000});
+  window.mermaid.run({nodes:[src]}).then(function(){
+    src.classList.add('ready');measure();fit();
+  }).catch(function(e){
+    src.classList.add('ready');
+    err.style.display='block';err.textContent='mermaid 렌더 실패\n'+(e&&e.message?e.message:String(e));
+  });
+})();
+</script>
+</body>
+</html>

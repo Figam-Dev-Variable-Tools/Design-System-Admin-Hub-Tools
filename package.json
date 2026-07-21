@@ -19,6 +19,8 @@
     "reuse:check": "pnpm --filter @tds/reuse-guard run check",
     "reuse:scan": "pnpm --filter @tds/reuse-guard run scan",
     "nav:check": "pnpm --filter @tds/nav-sync run check",
+    "flow:render": "pnpm --filter @tds/flow-render run render",
+    "flow:check": "pnpm --filter @tds/flow-render run check",
     "drift:check": "pnpm --filter @tds/drift run check",
     "vrt": "pnpm --filter @tds/vrt run test",
     "a11y": "pnpm --filter @tds/a11y run audit",

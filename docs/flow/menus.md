@@ -8,7 +8,8 @@
 
 > **HTML 렌더가 `.mmd` 보다 낡을 수 있다.** `docs/flow/html/**` 는 `.mmd` 의 렌더 산출물인데
 > **그 렌더를 도는 스크립트가 `package.json` 에 등록돼 있지 않다**(`.prettierignore` 가 같은 사실을 적어 두었다).
-> 그래서 아래 표의 HTML 열이 `렌더 대기` 인 행은 **원본(`.mmd`)만 최신**이다. 판단의 근거는 언제나 `.mmd` 다.
+> 이제 HTML 은 `pnpm flow:render` 가 `.mmd` 에서 뽑는다(`pnpm flow:check` 가 낡음·누락·고아를 잡는다).
+> 그래도 판단의 근거는 언제나 `.mmd` 다 — HTML 은 파생물이다.
 
 | 메뉴 | 경로 | 보기 | mermaid 원본 |
 |---|---|---|---|
@@ -39,24 +40,24 @@
 | 프로모션 | `/marketing/promotions` | [HTML](html/menus/marketing-promotions.html) | [mmd](mmd/menus/marketing-promotions.mmd) |
 | SMS 발송 | `/marketing/sms` | [HTML](html/menus/marketing-sms.html) | [mmd](mmd/menus/marketing-sms.mmd) |
 | 발송 템플릿 관리 | `/marketing/templates` | [HTML](html/menus/marketing-templates.html) | [mmd](mmd/menus/marketing-templates.mmd) |
-| 취소/교환/반품 | `/orders/claims` | 렌더 대기 | [mmd](mmd/menus/orders-claims.mmd) |
-| 배송 처리 | `/orders/shipments` | 렌더 대기 | [mmd](mmd/menus/orders-shipments.mmd) |
-| 주문 | `/orders` | 렌더 대기 | [mmd](mmd/menus/orders.mmd) |
+| 취소/교환/반품 | `/orders/claims` | [HTML](html/menus/orders-claims.html) | [mmd](mmd/menus/orders-claims.mmd) |
+| 배송 처리 | `/orders/shipments` | [HTML](html/menus/orders-shipments.html) | [mmd](mmd/menus/orders-shipments.mmd) |
+| 주문 | `/orders` | [HTML](html/menus/orders.html) | [mmd](mmd/menus/orders.mmd) |
 | 성공 사례 | `/portfolio/case-studies` | [HTML](html/menus/portfolio-case-studies.html) | [mmd](mmd/menus/portfolio-case-studies.mmd) |
 | 포트폴리오 카테고리 | `/portfolio/categories` | [HTML](html/menus/portfolio-categories.html) | [mmd](mmd/menus/portfolio-categories.mmd) |
 | 포트폴리오 | `/portfolio/items` | [HTML](html/menus/portfolio-items.html) | [mmd](mmd/menus/portfolio-items.mmd) |
 | 상품 카테고리 | `/products/categories` | [HTML](html/menus/products-categories.html) | [mmd](mmd/menus/products-categories.mmd) |
 | 쿠폰 | `/products/coupons` | [HTML](html/menus/products-coupons.html) | [mmd](mmd/menus/products-coupons.mmd) |
-| 문의 (상품) | `/products/inquiries` | 렌더 대기 | [mmd](mmd/menus/products-inquiries.mmd) |
+| 문의 (상품) | `/products/inquiries` | [HTML](html/menus/products-inquiries.html) | [mmd](mmd/menus/products-inquiries.mmd) |
 | 상품 | `/products` | [HTML](html/menus/products-items.html) | [mmd](mmd/menus/products-items.mmd) |
 | 적립금 | `/products/points` | [HTML](html/menus/products-points.html) | [mmd](mmd/menus/products-points.mmd) |
 | 리뷰 | `/products/reviews` | [HTML](html/menus/products-reviews.html) | [mmd](mmd/menus/products-reviews.mmd) |
 | 배송 | `/products/shipping` | [HTML](html/menus/products-shipping.html) | [mmd](mmd/menus/products-shipping.mmd) |
-| 프로그램 카테고리 | `/programs/categories` | 렌더 대기 | [mmd](mmd/menus/programs-categories.mmd) |
-| 문의 (프로그램) | `/programs/inquiries` | 렌더 대기 | [mmd](mmd/menus/programs-inquiries.mmd) |
-| 프로그램 | `/programs` | 렌더 대기 | [mmd](mmd/menus/programs-items.mmd) |
+| 프로그램 카테고리 | `/programs/categories` | [HTML](html/menus/programs-categories.html) | [mmd](mmd/menus/programs-categories.mmd) |
+| 문의 (프로그램) | `/programs/inquiries` | [HTML](html/menus/programs-inquiries.html) | [mmd](mmd/menus/programs-inquiries.mmd) |
+| 프로그램 | `/programs` | [HTML](html/menus/programs-items.html) | [mmd](mmd/menus/programs-items.mmd) |
 | 거래처 | `/sales/accounts` | [HTML](html/menus/sales-accounts.html) | [mmd](mmd/menus/sales-accounts.mmd) |
-| 청구·입금 | `/sales/billing` | 렌더 대기 | [mmd](mmd/menus/sales-billing.mmd) |
+| 청구·입금 | `/sales/billing` | [HTML](html/menus/sales-billing.html) | [mmd](mmd/menus/sales-billing.mmd) |
 | 상담 이력 | `/sales/consultations` | [HTML](html/menus/sales-consultations.html) | [mmd](mmd/menus/sales-consultations.mmd) |
 | 계약 | `/sales/contracts` | [HTML](html/menus/sales-contracts.html) | [mmd](mmd/menus/sales-contracts.mmd) |
 | 문의 (영업) | `/sales/inquiries` | [HTML](html/menus/sales-inquiries.html) | [mmd](mmd/menus/sales-inquiries.mmd) |
@@ -64,8 +65,8 @@
 | 견적 | `/sales/quotes` | [HTML](html/menus/sales-quotes.html) | [mmd](mmd/menus/sales-quotes.mmd) |
 | API Key 설정 | `/settings/api-keys` | [HTML](html/menus/settings-api-keys.html) | [mmd](mmd/menus/settings-api-keys.mmd) |
 | OAuth 설정 | `/settings/oauth` | [HTML](html/menus/settings-oauth.html) | [mmd](mmd/menus/settings-oauth.mmd) |
-| 결제 설정 | `/settings/payment` | 렌더 대기 | [mmd](mmd/menus/settings-payment.mmd) |
-| 플랜·이용 현황 | `/settings/plan` | 렌더 대기 | [mmd](mmd/menus/settings-plan.mmd) |
+| 결제 설정 | `/settings/payment` | [HTML](html/menus/settings-payment.html) | [mmd](mmd/menus/settings-payment.mmd) |
+| 플랜·이용 현황 | `/settings/plan` | [HTML](html/menus/settings-plan.html) | [mmd](mmd/menus/settings-plan.mmd) |
 | 사이트 설정 | `/settings/site` | [HTML](html/menus/settings-site.html) | [mmd](mmd/menus/settings-site.mmd) |
 | 검색어 분석 | `/stats/keywords` | [HTML](html/menus/stats-keywords.html) | [mmd](mmd/menus/stats-keywords.mmd) |
 | 회원 통계 | `/stats/members` | [HTML](html/menus/stats-members.html) | [mmd](mmd/menus/stats-members.mmd) |

@@ -41,29 +41,69 @@ import tseslint from 'typescript-eslint';
  */
 const HEX_COLOR_PATTERN = '#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![0-9a-zA-Z_-])';
 
-/** 하드코딩 색상(hex) · px 문자열 리터럴 검출 규칙 — apps/admin/eslint.config.js와 동일 기준 */
-const noRawValueRules = {
-  'no-restricted-syntax': [
-    'error',
-    {
-      selector: `Literal[value=/${HEX_COLOR_PATTERN}/]`,
-      message:
-        '하드코딩 색상(hex) 금지 — generated/tokens의 CSS 변수만 사용한다 (G5/G6 체크리스트, 토큰 필요 시 토큰 소유 영역에 요청)',
-    },
-    {
-      selector: `TemplateElement[value.raw=/${HEX_COLOR_PATTERN}/]`,
-      message:
-        '하드코딩 색상(hex) 금지 — generated/tokens의 CSS 변수만 사용한다 (G5/G6 체크리스트, 토큰 필요 시 토큰 소유 영역에 요청)',
-    },
-    {
-      selector: 'Literal[value=/[0-9]px/]',
-      message: '하드코딩 px 금지 — spacing/size 토큰 참조만 허용한다 (G5/G6 체크리스트)',
-    },
-    {
-      selector: 'TemplateElement[value.raw=/[0-9]px/]',
-      message: '하드코딩 px 금지 — spacing/size 토큰 참조만 허용한다 (G5/G6 체크리스트)',
-    },
-  ],
+/** 하드코딩 색상(hex) · px 문자열 리터럴 검출 셀렉터 — apps/admin/eslint.config.js와 동일 기준 */
+const rawValueSelectors = [
+  {
+    selector: `Literal[value=/${HEX_COLOR_PATTERN}/]`,
+    message:
+      '하드코딩 색상(hex) 금지 — generated/tokens의 CSS 변수만 사용한다 (G5/G6 체크리스트, 토큰 필요 시 토큰 소유 영역에 요청)',
+  },
+  {
+    selector: `TemplateElement[value.raw=/${HEX_COLOR_PATTERN}/]`,
+    message:
+      '하드코딩 색상(hex) 금지 — generated/tokens의 CSS 변수만 사용한다 (G5/G6 체크리스트, 토큰 필요 시 토큰 소유 영역에 요청)',
+  },
+  {
+    selector: 'Literal[value=/[0-9]px/]',
+    message: '하드코딩 px 금지 — spacing/size 토큰 참조만 허용한다 (G5/G6 체크리스트)',
+  },
+  {
+    selector: 'TemplateElement[value.raw=/[0-9]px/]',
+    message: '하드코딩 px 금지 — spacing/size 토큰 참조만 허용한다 (G5/G6 체크리스트)',
+  },
+];
+
+/**
+ * `react/jsx-key` 가 **보지 않는 자리** — 배열 원소의 삼항 분기.
+ *
+ * [무엇이 새는가] react/jsx-key 는 배열 리터럴의 원소를 **구조적으로만** 훑는다. 원소가 JSX 면
+ * key 를 요구하지만, 원소가 `cond ? <A/> : <B/>` 이면 ConditionalExpression 안으로 내려가지
+ * 않아 두 가지가 **모두** 검사에서 빠진다. 린트 스코프를 pages/ 로 넓혀 key 누락 56건을 고친
+ * 직후에도 이 형태 6건이 그대로 남아 있었다(전부 pages/sales 의 `cells:` 배열) — 규칙은 도는데
+ * 걸리지 않는, 방어선의 구멍이다.
+ *
+ * [왜 가드 테스트가 아니라 셀렉터인가] 구멍의 모양이 AST 로 정확히 그려진다. 그러면 원래 규칙과
+ * **같은 명령·같은 자리·같은 시점**에 걸리고(`pnpm lint`), 소스 텍스트를 다시 훑는 가드가 반드시
+ * 안고 가는 문자열 오탐도 없다. 새 검사 관용구를 하나 더 만들 이유가 없다.
+ *
+ * [왜 JSXElement 가 아니라 JSXOpeningElement 를 겨누는가] esquery 의 `:has()` 는 **자손까지**
+ * 훑으므로 JSXElement 에 걸면 `<s><em key="x"/></s>` 처럼 **자식이 가진 key 를 부모의 것으로
+ * 오인**해 놓친다. 여는 태그에 걸면 그 태그의 속성만 본다. (같은 이유로 `:has(> …)` 는 쓸 수
+ * 없다 — 이 esquery 버전은 `:has()` 안의 조합자를 해석하지 못해 조건이 **항상 참**이 된다.
+ * 실측으로 확인했다: key 가 멀쩡히 있는 분기까지 전부 신고됐다.)
+ *
+ * 중첩 삼항(`a ? (b ? <X/> : <Y/>) : <Z/>`)을 위해 한 단계를 더 둔다. 자손 조합자(공백)로
+ * 뭉뚱그리지 않는 이유는 그러면 **분기 안 JSX 의 자식 JSX**까지 걸려 오탐이 나기 때문이다 —
+ * 그 자리의 key 는 React 가 요구하지 않는다.
+ */
+const JSX_KEY_MESSAGE =
+  '배열 원소의 삼항 분기 JSX 에도 key 가 필요하다 — react/jsx-key 는 이 자리를 보지 않는다 (eslint-disable 이 아니라 key 를 붙인다)';
+const UNKEYED_OPENING_ELEMENT =
+  "JSXElement > JSXOpeningElement:not(:has(JSXAttribute[name.name='key']))";
+const jsxKeySelectors = [
+  {
+    selector: `ArrayExpression > ConditionalExpression > ${UNKEYED_OPENING_ELEMENT}`,
+    message: JSX_KEY_MESSAGE,
+  },
+  {
+    selector: `ArrayExpression > ConditionalExpression > ConditionalExpression > ${UNKEYED_OPENING_ELEMENT}`,
+    message: JSX_KEY_MESSAGE,
+  },
+];
+
+/** no-restricted-syntax 는 한 벌뿐이다 — 방어선 셀렉터를 모아 한 번에 건다 */
+const noRestrictedSyntaxRules = {
+  'no-restricted-syntax': ['error', ...rawValueSelectors, ...jsxKeySelectors],
 };
 
 /** 레이어 역방향 의존 차단 패턴 생성기 — 방향: atoms ← molecules ← organisms ← templates */
@@ -159,7 +199,7 @@ export default tseslint.config(
   {
     files: ['src/**/*.{ts,tsx}', 'pages/**/*.{ts,tsx}'],
     rules: {
-      ...noRawValueRules,
+      ...noRestrictedSyntaxRules,
       'no-restricted-imports': ['error', { patterns: [banApps] }],
     },
   },

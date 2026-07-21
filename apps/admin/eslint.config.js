@@ -36,27 +36,55 @@ import tseslint from 'typescript-eslint';
  */
 const HEX_COLOR_PATTERN = '#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![0-9a-zA-Z_-])';
 
-/** 하드코딩 색상(hex) · px 문자열 리터럴 검출 규칙 — packages/ui/eslint.config.js와 동일 기준 */
-const noRawValueRules = {
-  'no-restricted-syntax': [
-    'error',
-    {
-      selector: `Literal[value=/${HEX_COLOR_PATTERN}/]`,
-      message: '하드코딩 색상(hex) 금지 — 토큰 파이프라인의 CSS 변수만 사용한다 (G6 체크리스트)',
-    },
-    {
-      selector: `TemplateElement[value.raw=/${HEX_COLOR_PATTERN}/]`,
-      message: '하드코딩 색상(hex) 금지 — 토큰 파이프라인의 CSS 변수만 사용한다 (G6 체크리스트)',
-    },
-    {
-      selector: 'Literal[value=/[0-9]px/]',
-      message: '하드코딩 px 금지 — spacing/size 토큰 참조만 허용한다 (G6 체크리스트)',
-    },
-    {
-      selector: 'TemplateElement[value.raw=/[0-9]px/]',
-      message: '하드코딩 px 금지 — spacing/size 토큰 참조만 허용한다 (G6 체크리스트)',
-    },
-  ],
+/** 하드코딩 색상(hex) · px 문자열 리터럴 검출 셀렉터 — packages/ui/eslint.config.js와 동일 기준 */
+const rawValueSelectors = [
+  {
+    selector: `Literal[value=/${HEX_COLOR_PATTERN}/]`,
+    message: '하드코딩 색상(hex) 금지 — 토큰 파이프라인의 CSS 변수만 사용한다 (G6 체크리스트)',
+  },
+  {
+    selector: `TemplateElement[value.raw=/${HEX_COLOR_PATTERN}/]`,
+    message: '하드코딩 색상(hex) 금지 — 토큰 파이프라인의 CSS 변수만 사용한다 (G6 체크리스트)',
+  },
+  {
+    selector: 'Literal[value=/[0-9]px/]',
+    message: '하드코딩 px 금지 — spacing/size 토큰 참조만 허용한다 (G6 체크리스트)',
+  },
+  {
+    selector: 'TemplateElement[value.raw=/[0-9]px/]',
+    message: '하드코딩 px 금지 — spacing/size 토큰 참조만 허용한다 (G6 체크리스트)',
+  },
+];
+
+/**
+ * `react/jsx-key` 가 **보지 않는 자리** — 배열 원소의 삼항 분기.
+ *
+ * [무엇이 새는가] react/jsx-key 는 배열 리터럴의 원소를 **구조적으로만** 훑는다. 원소가 JSX 면
+ * key 를 요구하지만, 원소가 `cond ? <A/> : <B/>` 이면 ConditionalExpression 안으로 내려가지
+ * 않아 두 가지가 **모두** 검사에서 빠진다. 규칙은 도는데 걸리지 않는, 방어선의 구멍이다.
+ *
+ * 근거·셀렉터 설계(왜 JSXOpeningElement 를 겨누는지, 왜 `:has(> …)` 를 쓸 수 없는지, 왜 중첩
+ * 삼항을 자손 조합자로 뭉뚱그리지 않는지)는 packages/ui/eslint.config.js 의 같은 블록에 있다.
+ * ⚠ 두 파일의 셀렉터는 **같은 문자열이어야 한다** — 한쪽만 고치지 않는다.
+ */
+const JSX_KEY_MESSAGE =
+  '배열 원소의 삼항 분기 JSX 에도 key 가 필요하다 — react/jsx-key 는 이 자리를 보지 않는다 (eslint-disable 이 아니라 key 를 붙인다)';
+const UNKEYED_OPENING_ELEMENT =
+  "JSXElement > JSXOpeningElement:not(:has(JSXAttribute[name.name='key']))";
+const jsxKeySelectors = [
+  {
+    selector: `ArrayExpression > ConditionalExpression > ${UNKEYED_OPENING_ELEMENT}`,
+    message: JSX_KEY_MESSAGE,
+  },
+  {
+    selector: `ArrayExpression > ConditionalExpression > ConditionalExpression > ${UNKEYED_OPENING_ELEMENT}`,
+    message: JSX_KEY_MESSAGE,
+  },
+];
+
+/** no-restricted-syntax 는 한 벌뿐이다 — 방어선 셀렉터를 모아 한 번에 건다 */
+const noRestrictedSyntaxRules = {
+  'no-restricted-syntax': ['error', ...rawValueSelectors, ...jsxKeySelectors],
 };
 
 export default tseslint.config(
@@ -150,7 +178,7 @@ export default tseslint.config(
   {
     files: ['src/**/*.{ts,tsx}'],
     rules: {
-      ...noRawValueRules,
+      ...noRestrictedSyntaxRules,
       'no-restricted-imports': [
         'error',
         {

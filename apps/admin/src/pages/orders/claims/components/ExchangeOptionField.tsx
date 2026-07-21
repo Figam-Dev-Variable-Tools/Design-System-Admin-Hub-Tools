@@ -7,7 +7,7 @@
 //
 // 선택 값은 옵션 조합이 아니라 **variant.id** 다 — 단일 SKU 상품의 빈 조합('')이 '미선택'과 부딪히지
 // 않게 하려는 것이다.
-import type { CSSProperties } from 'react';
+import type { CSSProperties, RefObject } from 'react';
 
 import { errorIdOf, FormField, hintStyle, SelectField, StatusBadge } from '../../../../shared/ui';
 import { formatNumber } from '../../../../shared/format';
@@ -55,6 +55,12 @@ interface ExchangeOptionFieldProps {
   readonly quantity: number;
   readonly disabled: boolean;
   readonly error: string | undefined;
+  /**
+   * [A11Y-13] 저장 실패가 이 필드로 되돌아왔을 때 화면이 포커스를 옮길 자리.
+   * 화면이 `document.getElementById` 로 찾아가지 않는 이유는 useCrudForm 의 `setFocus` 와 같다 —
+   * 포커스 대상을 **소유한 컴포넌트가 내보내야** 마크업이 바뀌어도 배선이 끊기지 않는다.
+   */
+  readonly selectRef: RefObject<HTMLSelectElement>;
   readonly onChange: (next: readonly string[]) => void;
 }
 
@@ -65,6 +71,7 @@ export function ExchangeOptionField({
   quantity,
   disabled,
   error,
+  selectRef,
   onChange,
 }: ExchangeOptionFieldProps) {
   const selected = value.length === 0 ? undefined : findVariant(variants, value);
@@ -83,6 +90,7 @@ export function ExchangeOptionField({
         hint="재고가 남은 옵션만 선택할 수 있습니다. 완료 처리 시 이 옵션으로 재발송됩니다."
       >
         <SelectField
+          ref={selectRef}
           id="claim-exchange-option"
           value={selected?.id ?? OPTION_NONE}
           disabled={disabled}

@@ -6,7 +6,7 @@
 // 같은 이름으로 계속 지켜지는지가 이 파일의 일이다.
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { isHttpError } from '../../../shared/errors/http-error';
+import { HTTP_STATUS, HttpError, isHttpError } from '../../../shared/errors/http-error';
 import { registerOrderLookup, resetOrderLookup } from '../../../shared/domain/order-ref';
 import type { OrderRef } from '../../../shared/domain/order-ref';
 import {
@@ -31,6 +31,7 @@ import {
   claimFlow,
   claimTransitionBlock,
   CLAIM_CANCEL_SHIPPED,
+  CLAIM_NOTE_MAX,
   CLAIM_ORDER_UNKNOWN,
   CLAIM_TRANSITION_BACKWARD,
   CLAIM_TRANSITION_OFF_FLOW,
@@ -41,6 +42,7 @@ import {
   findVariant,
   hasInlineErrorSlot,
   isClaimStatus,
+  isFieldRejection,
   isStockApplied,
   isTerminal,
   kindLabel,
@@ -48,6 +50,7 @@ import {
   movesStock,
   nextClaimStatuses,
   optionLabel,
+  placeViolations,
   planStockMovements,
   searchClaims,
   sortClaims,
@@ -74,6 +77,7 @@ import {
   refundTransitionBlock,
   restoreReason,
   REFUND_CLAIM_CLOSED,
+  REFUND_FEE_INVALID,
   REFUND_CLAIM_INCOMPLETE,
   REFUND_NOT_REFUNDABLE,
   REFUND_NO_MEMBER,
@@ -465,6 +469,65 @@ describe('422 를 그리는 자리(순수) — 결함 2 회귀', () => {
 
   it('필드를 지목하지 않는 422 도 배너로 간다 — 조용히 사라지지 않는다', () => {
     expect(hasInlineErrorSlot(undefined, true)).toBe(false);
+  });
+});
+
+/**
+ * [결함 b·c 회귀] 위반이 여럿이어도 하나도 버리지 않는다 · 400 도 422 와 같은 길로 간다.
+ *
+ * 예전 화면은 `violations[0]` 만 읽었다 — 나머지는 조용히 사라져, 하나를 고치고 다시 저장하면
+ * 또 실패하는 경험이 됐다. 그리고 400 은 이 경로 자체를 타지 않아, 서버가 `error.fields` 로
+ * 어느 칸이 틀렸는지 알려 주는데도 '요청이 올바르지 않습니다' 한 줄만 남았다.
+ */
+describe('위반 배치(순수) — 결함 b·c 회귀', () => {
+  const violations = [
+    { field: 'exchangeOptionValues', message: '교환 옵션 재고가 부족합니다.' },
+    { field: 'status', message: '되돌리는 전이는 할 수 없습니다.' },
+    { field: 'returnShippingFee', message: '차감을 바꿀 수 없습니다.' },
+  ];
+
+  it('인라인 자리가 열려 있으면 그 필드만 인라인, 나머지는 전부 배너로 간다', () => {
+    const placed = placeViolations(violations, '폴백', true);
+    expect(placed.inline).toBe('교환 옵션 재고가 부족합니다.');
+    // 남은 둘이 **둘 다** 배너에 있다 — 예전에는 첫 위반 하나만 살아남았다
+    expect(placed.banner).toBe('되돌리는 전이는 할 수 없습니다. 차감을 바꿀 수 없습니다.');
+  });
+
+  it('인라인 자리가 없으면(취소·반품·모달 뒤) 셋 다 배너로 수렴한다', () => {
+    const placed = placeViolations(violations, '폴백', false);
+    expect(placed.inline).toBeNull();
+    for (const violation of violations) {
+      expect(placed.banner).toContain(violation.message);
+    }
+  });
+
+  it('필드를 지목하지 않은 거절은 서버 문구가 유일한 설명이다 — 침묵하지 않는다', () => {
+    expect(placeViolations([], '요청이 올바르지 않습니다.', true)).toEqual({
+      inline: null,
+      banner: '요청이 올바르지 않습니다.',
+    });
+  });
+
+  it('같은 필드에 위반이 둘이면 그 자리에 둘 다 쓴다 — 하나를 골라 버리지 않는다', () => {
+    const placed = placeViolations(
+      [
+        { field: 'exchangeOptionValues', message: '옵션을 고르세요.' },
+        { field: 'exchangeOptionValues', message: '재고가 부족합니다.' },
+      ],
+      '폴백',
+      true,
+    );
+    expect(placed.inline).toBe('옵션을 고르세요. 재고가 부족합니다.');
+    expect(placed.banner).toBeNull();
+  });
+
+  it('400 과 422 를 한 갈래로 센다 — 원인은 달라도 화면이 하는 일이 같다', () => {
+    expect(isFieldRejection(new HttpError(HTTP_STATUS.badRequest, '형식 위반'))).toBe(true);
+    expect(isFieldRejection(new HttpError(HTTP_STATUS.unprocessable, '규칙 위반'))).toBe(true);
+    // 재시도·재인증·목록복귀로 푸는 실패는 이 길이 아니다
+    expect(isFieldRejection(new HttpError(HTTP_STATUS.conflict, '충돌'))).toBe(false);
+    expect(isFieldRejection(new HttpError(HTTP_STATUS.serverError, '장애'))).toBe(false);
+    expect(isFieldRejection(new Error('status 없는 실패'))).toBe(false);
   });
 });
 
@@ -915,6 +978,84 @@ describe('완료 · 환불완료의 부수효과(어댑터)', () => {
     // 교환 옵션 필드는 반품 화면에 없다 — 그리는 자리가 없으므로 인라인으로 보내면 침묵이다
     expect(hasInlineErrorSlot(failure.violations[0]?.field, true)).toBe(false);
     expect(failure.message).toBe(CLAIM_TRANSITION_BACKWARD);
+  });
+
+  /**
+   * [결함 b 회귀 — 경계까지] 한 저장이 여러 규칙을 동시에 어기면 **전부** 실어 보낸다.
+   *
+   * 화면은 자기 가드로 이 조합을 만들지 못한다(버튼이 먼저 잠긴다 — 그게 설계다). 그래서 여러
+   * 위반이 한꺼번에 오는 것은 **서버 쪽 사실**이고, 그 사실을 여기서 고정한다. 예전 어댑터는
+   * 첫 위반에서 throw 해 나머지를 아예 만들지 않았다 — 화면이 다 읽어도 볼 것이 없었다.
+   */
+  it('한 번에 어긴 규칙을 전부 싣는다 — 첫 위반에서 멈추지 않는다', async () => {
+    // clm-4: 반품 · 완료 · 환불완료(completedAt 이 찍혀 차감이 얼어 있다)
+    const done = await claimAdapter.fetchOne('clm-4', signal);
+    const failure: unknown = await claimAdapter
+      .update('clm-4', {
+        ...toClaimInput(done),
+        status: 'requested', // 역방향 전이
+        refund: { ...done.refund, status: 'requested', returnShippingFee: 5000 }, // 완료 후 되돌리기 + 차감 변경
+      })
+      .then(() => null)
+      .catch((cause: unknown) => cause);
+
+    expect(isHttpError(failure)).toBe(true);
+    if (!isHttpError(failure)) return;
+    expect(failure.status).toBe(422);
+    expect(failure.violations.map((violation) => violation.field)).toEqual([
+      'status',
+      'refundStatus',
+      'returnShippingFee',
+    ]);
+    // message 는 첫 위반 그대로다 — 위반을 읽지 않는 소비자도 사람이 읽는 문장을 받는다
+    expect(failure.message).toBe(CLAIM_TRANSITION_TERMINAL);
+    // 화면은 이제 셋을 전부 그린다(반품이라 인라인 자리가 없어 배너로 수렴)
+    expect(placeViolations(failure.violations, failure.message, false).banner).toContain(
+      REFUND_TRANSITION_DONE,
+    );
+  });
+
+  /**
+   * [결함 c 회귀 — 경계까지] 형식 위반은 400 `VALIDATION_FAILED` 로, `error.fields` 를 그대로 싣는다.
+   *
+   * 화면의 `maxLength`·`parseFeeInput` 은 브라우저 입력만 막는다 — 값이 그 밖에서 들어오면
+   * 거르는 것은 서버의 일이다(BE-044 §6.1). 예전에는 이 검사가 없어 500자를 넘긴 메모가 그대로
+   * 저장됐고, 400 이 오더라도 화면이 `error.fields` 를 읽지 않아 '요청이 올바르지 않습니다'
+   * 한 줄로 뭉개졌다.
+   */
+  it('형식 위반은 400 으로 거절하고 어느 칸인지 지목한다', async () => {
+    const claim = await claimAdapter.fetchOne('clm-3', signal);
+    const failure: unknown = await claimAdapter
+      .update('clm-3', {
+        ...toClaimInput(claim),
+        adminNote: 'ㄱ'.repeat(CLAIM_NOTE_MAX + 1),
+        refund: { ...claim.refund, returnShippingFee: -1 },
+      })
+      .then(() => null)
+      .catch((cause: unknown) => cause);
+
+    expect(isHttpError(failure)).toBe(true);
+    if (!isHttpError(failure)) return;
+    expect(failure.status).toBe(HTTP_STATUS.badRequest);
+    expect(failure.violations.map((violation) => violation.field)).toEqual([
+      'adminNote',
+      'returnShippingFee',
+    ]);
+    // 화면은 400 도 422 와 같은 길로 보낸다 — 둘 다 어느 칸이 틀렸는지 아는 실패다
+    expect(isFieldRejection(failure)).toBe(true);
+    const placed = placeViolations(failure.violations, failure.message, false);
+    expect(placed.banner).toContain(REFUND_FEE_INVALID);
+    expect(placed.banner).toContain(String(CLAIM_NOTE_MAX));
+
+    // 거절이므로 아무것도 저장되지 않는다
+    expect((await claimAdapter.fetchOne('clm-3', signal)).adminNote).toBe(claim.adminNote);
+  });
+
+  it('경계값은 통과한다 — 규칙이 정상 저장을 막지 않는다', async () => {
+    const claim = await claimAdapter.fetchOne('clm-3', signal);
+    const note = 'ㄴ'.repeat(CLAIM_NOTE_MAX);
+    await claimAdapter.update('clm-3', { ...toClaimInput(claim), adminNote: note });
+    expect((await claimAdapter.fetchOne('clm-3', signal)).adminNote).toBe(note);
   });
 
   it('클레임을 완료하지 않은 채 환불만 완료할 수는 없다', async () => {

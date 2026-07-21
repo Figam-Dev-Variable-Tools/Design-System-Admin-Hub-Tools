@@ -24,6 +24,8 @@
 // (선례이자 정본: shared/domain/order.ts 의 orderTransitionBlock).
 // ─────────────────────────────────────────────────────────────────────────────
 import { hasLeftWarehouse } from '../../../shared/domain/order';
+import { HTTP_STATUS, isHttpError } from '../../../shared/errors/http-error';
+import type { FieldViolation } from '../../../shared/errors/http-error';
 import type { OrderRef } from '../../../shared/domain/order-ref';
 import type { StockMovement } from '../../../shared/domain/stock';
 import type { StatusTone } from '../../../shared/ui';
@@ -418,11 +420,11 @@ export function planStockMovements(
   return movements;
 }
 
-/* ── 422 를 어디에 그리는가(순수) ─────────────────────────────────────────── */
+/* ── 필드 단위 거절을 어디에 그리는가(순수) ───────────────────────────────── */
 
 /**
- * 필드 단위 거절(422)을 인라인으로 받는 필드 — **이 화면에 인라인 자리는 이것 하나뿐이다.**
- * 어댑터가 내는 나머지 위반(status · refundStatus · returnShippingFee · optionValues)에는
+ * 필드 단위 거절을 인라인으로 받는 필드 — **이 화면에 인라인 자리는 이것 하나뿐이다.**
+ * 어댑터가 내는 나머지 위반(status · refundStatus · returnShippingFee · optionValues · adminNote)에는
  * 그것을 그리는 입력이 없다.
  */
 const INLINE_ERROR_FIELD = 'exchangeOptionValues';
@@ -440,6 +442,72 @@ const INLINE_ERROR_FIELD = 'exchangeOptionValues';
  */
 export function hasInlineErrorSlot(field: string | undefined, visible: boolean): boolean {
   return visible && field === INLINE_ERROR_FIELD;
+}
+
+/**
+ * 서버가 **어느 입력이 틀렸는지 지목한** 거절인가 — 400 과 422 를 한 갈래로 묶는다.
+ *
+ * [왜 둘을 같이 다루나] 원인은 다르다: 400 은 형식 위반(유니온 밖 값·길이 초과·비정수),
+ * 422 는 규칙 위반(전이·재고·환불)이다. 그러나 **화면이 하는 일은 같다** — 위반을 그 입력으로
+ * 되돌리고, 되돌릴 자리가 없는 것은 배너로 모은다. 예전에는 422 만 이 경로를 탔고 400 은
+ * '저장하지 못했습니다' 계열의 마지막 가지로 떨어져, 서버가 `error.fields` 로 **어느 칸이
+ * 틀렸는지 알려 주는데도** 운영자는 그것을 볼 수 없었다(BE-044 §7.12 #7).
+ *
+ * [왜 shared/errors 가 아니라 여기인가] `http-error.ts` 에 `isBadRequest` 가 없다 — 400 을
+ * 404·5xx 와 다르게 그리는 화면이 지금 이 화면뿐이기 때문이다. 공용 표면을 늘리는 판단은 그
+ * 파일의 소유자 몫이라, 400 을 세는 일만 여기서 한다.
+ */
+export function isFieldRejection(cause: unknown): boolean {
+  return (
+    isHttpError(cause) &&
+    (cause.status === HTTP_STATUS.badRequest || cause.status === HTTP_STATUS.unprocessable)
+  );
+}
+
+/** 위반 문구를 어느 표면에 그릴 것인가 — 둘 다 null 이 되는 경우는 없다 */
+export interface ViolationPlacement {
+  /** 교환 옵션 필드에 꽂을 문구 — 그 자리로 갈 위반이 없으면 null */
+  readonly inline: string | null;
+  /** 카드 배너(확인 다이얼로그가 떠 있으면 그 배너)로 모을 문구 — 없으면 null */
+  readonly banner: string | null;
+}
+
+/** 문구 목록 → 한 문장. 빈 목록은 '그릴 것이 없다'(null) 다 */
+function joinMessages(messages: readonly string[]): string | null {
+  return messages.length === 0 ? null : messages.join(' ');
+}
+
+/**
+ * 위반 전부를 **보이는 자리에** 배치한다 — 하나도 버리지 않는다.
+ *
+ * [무엇이 결함이었나] 화면은 `violations[0]` 만 읽었다. 어댑터·서버는 한 응답에 여러 위반을
+ * 실을 수 있고(BE-044 §6.1 의 `error.fields` 는 필드→문구 **map** 이다), 그때 나머지는 조용히
+ * 사라졌다. 운영자는 첫 번째를 고쳐 다시 저장하고, 또 실패하고, 또 하나를 고친다 — 몇 번을
+ * 눌러야 끝나는지 아무도 모르는 상태가 된다.
+ *
+ * [규칙은 직전 수정의 것을 그대로 넓힌 것이다] 인라인 자리가 있는 위반은 인라인으로
+ * (`hasInlineErrorSlot`), 나머지는 **전부** 배너로 수렴한다. 하나였을 때의 판정을 N 개로 편 것뿐,
+ * 새 규칙이 아니다.
+ *
+ * @param fallback 필드를 하나도 지목하지 않은 거절의 문구(서버 message) — 그것이 유일한 설명이다
+ */
+export function placeViolations(
+  violations: readonly FieldViolation[],
+  fallback: string,
+  slotOpen: boolean,
+): ViolationPlacement {
+  const inline: string[] = [];
+  const banner: string[] = [];
+
+  for (const violation of violations) {
+    if (hasInlineErrorSlot(violation.field, slotOpen)) inline.push(violation.message);
+    else banner.push(violation.message);
+  }
+
+  // 필드를 지목하지 않은 거절도 반드시 어딘가에 보인다 — 침묵하지 않는 것이 이 규칙의 목적이다.
+  if (inline.length === 0 && banner.length === 0) banner.push(fallback);
+
+  return { inline: joinMessages(inline), banner: joinMessages(banner) };
 }
 
 /* ── 목록 표시 규칙(순수) ─────────────────────────────────────────────────── */
