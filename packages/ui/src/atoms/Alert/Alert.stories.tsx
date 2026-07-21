@@ -53,11 +53,13 @@ export const Warning: Story = {
 
 /** 슬롯 최소 — 아주 짧은 메시지 */
 export const SlotMinimal: Story = {
+  name: 'Minimal Content',
   args: { tone: 'info', children: '저장됨' },
 };
 
 /** 슬롯 최대 — 긴 본문에서 아이콘이 첫 줄에 정렬되고 텍스트만 줄바꿈되는지 */
 export const SlotLongContent: Story = {
+  name: 'Long Content',
   args: {
     tone: 'warning',
     children:
@@ -68,6 +70,7 @@ export const SlotLongContent: Story = {
 
 /** id — 폼 컨트롤의 aria-describedby 가 이 메시지를 가리킬 때 쓴다 */
 export const WithId: Story = {
+  name: 'With Id',
   args: { tone: 'danger', id: 'login-form-error', children: '로그인에 실패했습니다.' },
 };
 
@@ -76,6 +79,7 @@ export const WithId: Story = {
  * 루트가 <p> 였을 때는 브라우저가 <p> 를 자동으로 닫아 이 블록이 배너 바깥으로 밀려났다.
  */
 export const WithBlockChildren: Story = {
+  name: 'Block Children',
   args: {
     tone: 'danger',
     children: (
@@ -124,6 +128,7 @@ export const NotDismissible: Story = {
 
 /** RTL */
 export const RightToLeft: Story = {
-  args: { tone: 'info', children: 'كلمة المرور غير صحيحة' },
+  name: 'RTL',
+  args: { tone: 'info', children: '비밀번호는 90일마다 변경해야 합니다.' },
   decorators: [rtlFrame],
 };

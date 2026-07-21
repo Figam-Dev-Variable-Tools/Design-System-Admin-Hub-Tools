@@ -52,21 +52,25 @@ export const VisibleWhenZero: Story = {
 
 /** 음수 — hideWhenZero=false 면 그대로 표시된다 (계약: count<=0 판정) */
 export const NegativeVisible: Story = {
+  name: 'Negative Value',
   args: { count: -1, hideWhenZero: false },
 };
 
 /** 최소 콘텐츠 — 한 자리 수 */
 export const MinimalCount: Story = {
+  name: 'Small Count',
   args: { count: 1 },
 };
 
 /** 최대 콘텐츠 — 자릿수가 늘어도 pill 이 깨지지 않는다 (min-inline-size + padding) */
 export const LargeCount: Story = {
+  name: 'Large Count',
   args: { count: 129384, tone: 'danger' },
 };
 
 /** RTL */
 export const RightToLeft: Story = {
+  name: 'RTL',
   args: { count: 42, tone: 'success' },
   decorators: [rtlFrame],
 };
