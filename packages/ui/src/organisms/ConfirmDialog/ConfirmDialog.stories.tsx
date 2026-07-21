@@ -57,7 +57,12 @@ const meta: Meta<typeof ConfirmDialog> = {
     onConfirm: fn(),
     onCancel: fn(),
   },
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    // 다이얼로그는 body 로 포탈된다 — Docs 에서 여러 스토리를 인라인으로 겹쳐 열면 페이지를
+    // 가린다. Docs 임베드는 각 스토리를 독립 iframe 으로 렌더해 포탈을 그 안에 가둔다.
+    docs: { story: { inline: false, height: '27.5rem' } },
+  },
 };
 
 export default meta;

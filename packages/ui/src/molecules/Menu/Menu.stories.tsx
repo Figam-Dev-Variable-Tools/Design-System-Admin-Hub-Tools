@@ -51,7 +51,12 @@ const meta: Meta<typeof Menu> = {
     onOpenChange: fn(),
   },
   decorators: [popupFrame],
-  parameters: { layout: 'padded' },
+  parameters: {
+    layout: 'padded',
+    // 팝업은 absolute 라 Docs 인라인 미리보기 블록을 넘쳐 잘리고 겹친다. Docs 임베드는 각 스토리를
+    // 독립 iframe 으로 렌더해 팝업을 그 안에 담고 스토리끼리 겹치지 않게 한다.
+    docs: { story: { inline: false, height: '22rem' } },
+  },
 };
 
 export default meta;
