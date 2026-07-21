@@ -1,5 +1,3 @@
-{/* Sidebar — Docs 페이지. 서술의 근거는 contracts/Sidebar.contract.json 과 Sidebar.tsx 구현이다. */}
-
 import { Controls, Meta, Story } from '@storybook/blocks';
 
 import * as SidebarStories from './Sidebar.stories';
@@ -8,123 +6,60 @@ import * as SidebarStories from './Sidebar.stories';
 
 # Sidebar
 
-<code>organism</code> · <code>Navigation</code> · <code>taxonomyItem: sidebar</code> · <code>v1.0.0</code> · <code>status: beta</code>
+좌측 내비게이션 — 메뉴 그룹과 활성 항목을 보여주는 고정 사이드바입니다.
 
-좌측 고정 내비게이션 껍데기 — 브랜드 슬롯과 주 내비게이션(`role=navigation`)을 담는다.
+## 언제 사용하나요?
 
-## 승격 근거
+- 화면 좌측에 주 내비게이션을 고정해 둘 때
+- 메뉴를 섹션 그룹으로 묶어 보여줄 때
+- 하위 메뉴를 가진 항목을 펼치고 접을 때
+- 지금 보고 있는 화면을 활성 항목으로 표시할 때
 
-실물이 `apps/admin/src/shared/layout/AppShell.tsx` 에 약 460줄로 있었고 **어떤 계약·스토리·Figma 에도 없었다.**
-2026-07-20 B단 감사가 스캔 대상을 `shared/ui/` · `components/` · `_shared/` 로 잡아 **`shared/layout/` 을
-통째로 빠뜨린 것**이 원인이다. 분류표 `Navigation/sidebar` 행은 그동안 `component: null` 이었다.
+## Examples
 
-## 무엇이 DS 이고 무엇이 앱인가
-
-이 계약에서 가장 중요한 판단이다. 어드민 사이드바는 네 가지를 한 파일에서 하고 있었다.
-
-| 하던 일 | 어디로 갔나 | 왜 |
-|---|---|---|
-| 껍데기·행의 시각과 상호작용 | **DS** | 도메인을 모르는 순수 표현이다 |
-| 내비게이션 트리 데이터 | 앱 (`nav-config.ts`) | 이 앱에만 있는 라우트 목록이다 |
-| 경로 → 활성 잎 판정 | 앱 (`findCoveringLeaf`) | 헤더 `<h1>` 이 **같은 함수**를 쓴다. 판정이 두 벌이 되면 헤더와 사이드바가 서로 다른 곳을 가리킨다 |
-| 권한에 따른 항목 가시성 | 앱 (`usePermissions`) | 어떤 역할이 무엇을 보는지는 제품의 사실이다 |
-
-**DS 는 판정하지 않고 그린다.** `sections` 는 이미 걸러진 데이터로 들어오고, 켜질 잎은 `activeHref` 로
-**계산 결과만** 들어오며, 펼친 가지도 `openId` 로 주입된다. DS 가 이것들을 배우면 다른 앱에서 쓸 수 없는
-컴포넌트가 된다.
+<Story of={SidebarStories.Overview} />
+<Story of={SidebarStories.ActiveLeaf} />
+<Story of={SidebarStories.OpenBranch} />
+<Story of={SidebarStories.Minimal} />
+<Story of={SidebarStories.ManyItems} />
 
 ## Props
 
 <Controls />
 
-| prop | 타입 | 기본값 | 의미 |
-|---|---|---|---|
-| `label` | `string` | — (필수) | `<nav aria-label>`. 랜드마크가 여럿일 때 이름으로 갈린다 |
-| `sections` | `array` | — (필수) | 섹션 목록. 데이터 prop — Figma Component Property 대응 없음 (ADR-0003) |
-| `activeHref` | `string` | `''` | 지금 켜져야 할 링크의 href. 빈 문자열이면 아무것도 켜지 않는다 |
-| `openId` | `string` | `''` | 펼쳐진 가지의 id. 제어 prop 이다 |
-| `brand` | `node` | `null` | 상단 브랜드 슬롯 |
+| Prop         | Description                                                              |
+| ------------ | ----------------------------------------------------------------------- |
+| `label`      | `<nav>` 의 접근성 이름입니다. 랜드마크가 여럿일 때 서로 구분됩니다.       |
+| `sections`   | 화면에 그릴 섹션 목록입니다. `{ id, title, items }` 모양입니다.           |
+| `activeHref` | 지금 켜져야 할 링크의 href 입니다. 빈 문자열이면 아무것도 켜지 않습니다.  |
+| `openId`     | 펼쳐진 가지의 id 입니다. 호출부가 소유하는 제어 값입니다.                 |
+| `brand`      | 상단 브랜드/로고 슬롯입니다.                                             |
+| `onNavigate` | 링크 이동 의사를 알립니다. 인자로 href 를 받습니다.                      |
+| `onToggle`   | 가지를 여닫으려는 의사를 알립니다. 인자로 가지 id 를 받습니다.           |
 
-`sections[]` 의 모양은 `{ id, title, items }` 이고, `items[]` 는
-`{ id, label, href?, icon?, children? }` 이다.
-**`href` 를 가지면 잎(링크), `children` 을 가지면 가지(펼침 버튼)** 다.
+`items[]` 는 `{ id, label, href?, icon?, children? }` 모양입니다. `href` 를 가지면 잎(링크),
+`children` 을 가지면 가지(펼침 버튼)입니다.
 
-### 이벤트
+## Behavior
 
-- `onNavigate` — payload `string`(href). 수식키 없는 왼쪽 클릭에서만 발화한다.
-- `onToggle` — payload `string`(가지 id). 열지 닫을지는 DS 가 정하지 않는다.
-
-## 상태
-
-<Story of={SidebarStories.Overview} />
-<Story of={SidebarStories.ActiveLeaf} />
-<Story of={SidebarStories.OpenBranch} />
-<Story of={SidebarStories.FocusVisible} />
-
-## 펼침은 제어 prop 이다
-
-'한 번에 하나만 펼친다' 와 '화면을 옮기면 그 화면이 속한 가지가 열려 있다' 는 둘 다 **경로를 아는 쪽만**
-강제할 수 있는 규칙이다. DS 가 자기 상태를 들면 앱이 라우트 이동에 맞춰 되돌릴 수 없다.
-`onToggle` 로 의사만 올리고 `openId` 로 결과를 받는다.
+- **항목 이동** — 진짜 `<a href>` 를 그립니다. 가운데 클릭·새 탭 열기가 그대로 동작하고,
+  수식키 없는 왼쪽 클릭에서만 `onNavigate(href)` 를 올립니다. `onNavigate` 가 없으면 평범한
+  링크로 동작합니다.
+- **그룹 펼침** — 가지를 누르면 `onToggle(id)` 를 올릴 뿐, 여닫는 결과는 `openId` 로 다시
+  주입받는 제어 방식입니다. 접힌 하위 링크는 DOM 에 두지 않습니다.
 
 <Story of={SidebarStories.ControlledToggle} />
 
-## 라우터를 의존하지 않는다
+## Accessibility
 
-DS 는 `react-router` 를 모른다. 대신 **진짜 `<a href>`** 를 그린다.
+- 바깥은 보조(`complementary`) 랜드마크, 안쪽 `<nav>` 가 `label` 로 이름을 갖습니다.
+- 활성 링크에는 `aria-current="page"`, 가지에는 `aria-expanded` 가 붙습니다.
+- 활성 표시는 색뿐 아니라 굵기·마커로도 나타나 색만으로 의미를 전달하지 않습니다.
+- 키보드 포커스 시 포커스 링이 보이고, 접힌 하위 링크는 탭 순서에 남지 않습니다.
 
-1. 접근성·가운데 클릭·새 탭 열기가 그대로 산다.
-2. 수식키(Ctrl/Cmd/Shift/Alt) 없는 왼쪽 클릭에서만 `preventDefault` 후 `onNavigate(href)` 를 올린다.
-3. `onNavigate` 를 주지 않으면 `preventDefault` 도 **하지 않는다** — 그때는 평범한 링크로 동작하는 것이 옳다.
+<Story of={SidebarStories.FocusVisible} />
 
-덕분에 앱은 `useNavigate` 한 줄로 SPA 이동을 잇고, DS 는 라우터가 없는 곳(Storybook·Figma 문서)에서도
-그대로 렌더된다.
+## Notes
 
-<Story of={SidebarStories.Navigation} />
-
-## 콘텐츠 양
-
-<Story of={SidebarStories.Minimal} />
-<Story of={SidebarStories.ManyItems} />
-
-## 접근성 계약
-
-- **role**: `navigation` — 바깥 `<aside>` 는 `complementary` 다. 사이드바의 존재 이유는 보조 영역이 아니라 **이동**이므로 계약의 role 은 안쪽 `<nav>` 를 가리킨다
-- **focusVisible**: `true` · **contrastMin**: 4.5
-- `aria-current="page"` — `activeHref` 와 같은 href 를 가진 링크에. **시각 표시만 고치고 이걸 빠뜨리면 스크린리더 사용자에겐 하나도 고쳐지지 않는다**
-- `aria-expanded` — 가지의 펼침 버튼에 항상
-- `aria-controls` — **펼쳐져 있을 때만.** 접히면 그 id 를 가진 요소가 없으므로 속성 자체를 내린다
-- **접힌 하위 링크는 DOM 에 없다** — 보이지 않는 것이 탭 순서에 남으면 키보드 사용자가 허공을 지난다
-- 색만으로 의미를 전달하지 않는다 (WCAG 1.4.1) — 활성은 색·굵기·시작 모서리 마커가 함께 바뀐다
-- 섹션 제목은 `<h2>`, 항목은 `<ul>`/`<li>` — 스크린리더가 개수를 읽는다
-
-<Story of={SidebarStories.Aria} />
-
-## 접기(collapse) 축을 만들지 않았다
-
-폭을 줄이는 아이콘 전용 모드는 어드민에 **존재하지 않고 요구한 호출부도 없다.** 없는 상호작용을 계약에
-넣으면 검증되지 않은 축이 Storybook 조합 행렬만 두 배로 만든다 — Skeleton·Spinner 승격에서 지킨
-'실물이 있는 것만 올린다' 규율을 여기서도 지켰다.
-
-## 로고는 슬롯이다
-
-DS 가 특정 회사의 로고를 담지 않는다. 그래서 `brand` 가 `node` 슬롯이고, 분류표 `Foundation/logos`
-항목은 **이 계약이 채우지 않는다.** 어드민의 `LogoPlaceholder` 는 앱에 그대로 남아 이 슬롯으로 들어간다.
-
-## 토큰
-
-`color.surface.default`(surface) · `color.border.default`(border) · `border-width.thin`(borderWidth) ·
-`color.text.default`(itemText) · `color.text.muted`(sectionTitleText · subItemText · chevronText) ·
-`color.action.primary.default`(itemActiveText) · `color.surface.raised`(itemHoverBackground) ·
-`border-width.medium`(itemMarkerWidth) · `color.border.focus`(focusRing) ·
-`typography.label.md` · `primitive.typography.font-size.12`(sectionTitleFontSize) ·
-`space.1`·`space.2`·`space.3`·`space.4`·`space.5`·`space.6`(widthUnit · brandHeightUnit · subItemIndent) ·
-`motion.duration.fast` · `motion.easing.standard`.
-
-**치수의 정본이 DS 로 옮겨 왔다.** 폭은 `space.6` 의 12배, 브랜드 영역 높이는 `space.6` 의 3.5배이며
-`Header` 가 같은 배수를 써 두 구분선이 한 줄로 이어진다. 예전에는 앱이 상수 두 개로 들고 있었고 값이
-두 곳에 있었다.
-
-`responsive.behavior` 는 `size-fixed`. 의존: `Icon`(가지의 chevron).
-
-<Story of={SidebarStories.RightToLeft} />
+- 브랜드/로고는 `brand` 슬롯으로 주입합니다. Sidebar 자체는 특정 로고를 담지 않습니다.
+- 라우트·권한·활성 판정은 앱의 몫입니다. Sidebar 는 걸러진 데이터를 받아 그리기만 합니다.

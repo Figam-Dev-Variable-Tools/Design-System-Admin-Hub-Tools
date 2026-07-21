@@ -1,5 +1,3 @@
-{/* Modal — Docs 페이지. 서술의 근거는 contracts/Modal.contract.json 이다. */}
-
 import { Controls, Meta, Story } from '@storybook/blocks';
 
 import * as ModalStories from './Modal.stories';
@@ -8,83 +6,50 @@ import * as ModalStories from './Modal.stories';
 
 # Modal
 
-<code>organism</code> · <code>Dialogs & Overlays</code> · <code>taxonomyItem: modal</code> · <code>v1.1.0</code> · <code>status: beta</code>
+화면 위에 띄워 확인·입력을 받는 대화 상자(다이얼로그)입니다.
 
-모달 다이얼로그 **껍데기** — 딤(backdrop) + 가운데 정렬 다이얼로그 + 헤더(아이콘·제목·닫기) +
-본문 슬롯 + 푸터 슬롯.
+## 언제 사용하나요?
 
-**도메인을 모른다** — 무엇을 확인/입력받는지는 조립하는 쪽(ConfirmDialog·폼 모달)이 정한다 (ADR-0003).
+- 삭제·이탈처럼 되돌리기 어려운 작업을 확인받을 때
+- 짧은 폼(이름 입력 등)을 흐름을 벗어나지 않고 받을 때
+- 약관·상세처럼 별도 화면 없이 겹쳐 보여줄 때
+
+## Examples
+
+<Story of={ModalStories.Overview} />
+<Story of={ModalStories.WithIcon} />
+<Story of={ModalStories.AsForm} />
+<Story of={ModalStories.LongContent} />
+<Story of={ModalStories.Minimal} />
 
 ## Props
 
 <Controls />
 
-계약이 열거하는 prop 은 **넷뿐이다.** 나머지는 아래 '계약 밖 경계' 절을 읽는다.
+| Prop              | Description                                                       |
+| ----------------- | ---------------------------------------------------------------- |
+| `title`           | 다이얼로그 제목. 접근성 이름으로도 쓰입니다.                     |
+| `icon`            | 제목 왼쪽 아이콘 슬롯. 없으면 제목만 표시됩니다.                 |
+| `children`        | 본문 슬롯. 확인 문구·폼 필드 등을 넣습니다.                      |
+| `footer`          | 푸터 슬롯. 오른쪽 정렬된 액션 버튼(취소·확인)을 넣습니다.        |
+| `onClose`         | 닫기가 요청될 때 호출됩니다(Escape·배경 클릭·닫기 버튼).         |
+| `onSubmit`        | 제공하면 본문·푸터가 `<form>` 으로 감싸져 Enter 로 확인됩니다.   |
+| `initialFocusRef` | 열릴 때 포커스를 받을 요소. 없으면 첫 포커스 가능 요소로 갑니다. |
+| `describedBy`     | 본문 요소 id 를 연결하면 열릴 때 제목과 함께 읽힙니다.           |
 
-| prop | 타입 | 기본값 | 의미 |
-|---|---|---|---|
-| `title` | `string` | — (필수) | 다이얼로그 제목 — `aria-labelledby` 로 `role=dialog` 에 접근성 이름을 준다. |
-| `icon` | `slot` | `null` | 제목 왼쪽 아이콘 슬롯 — **의도(생성/수정/삭제/이탈)를 색과 함께 이중으로 전달한다.** 없으면 제목만 렌더. |
-| `children` | `node` | — (필수) | 본문 슬롯. 확인 문구·폼 필드 등 조립하는 쪽이 주입한다. |
-| `footer` | `node` | — (필수) | 푸터 슬롯 — **오른쪽 정렬된 액션 버튼들**(취소/확인 등). 조립하는 쪽이 주입한다. |
+## Behavior
 
-### 계약이 명시한 예외 — `[imperative props — 계약 밖 컴포넌트 경계]`
+- `Escape` · 배경(딤) 클릭 · 닫기 버튼(×) 이 `onClose` 를 호출합니다.
+- 열려 있는 동안 배경 스크롤이 잠깁니다.
+- 닫기에는 퇴장 애니메이션이 붙고, 부모가 언마운트하면서 실제로 사라집니다.
 
-계약 `description` 이 직접 허용한 항목이다.
+## Accessibility
 
-`onClose`(**필수**) · `onSubmit`(폼 모달) · `initialFocusRef` 는 **명령형 배선이라 Figma Component
-Property 대응이 없다.** Card 의 네이티브 속성 패스스루와 **같은 원리로 컴포넌트 경계에서 받는다** —
-계약 props(제목·아이콘·본문·푸터)는 **디자인이 보는 표면만** 기술한다.
+- `role="dialog"` · `aria-modal` 로 배경을 보조기술에서 격리합니다.
+- 제목은 `aria-labelledby` 로 접근성 이름이 됩니다.
+- `Tab` / `Shift+Tab` 은 다이얼로그 안에서 순환합니다(포커스 트랩).
+- 열릴 때 지정 요소로 포커스가 가고, 닫히면 열기 직전 요소로 복귀합니다.
 
-또 `describedBy` 도 명령형 prop 으로 받는다 (`a11y.aria.aria-describedby` 참조).
+## Notes
 
-> 그래서 위 Controls 표에 `onClose` 가 **보이지 않는데도 필수다.** 결손이 아니라 설계다.
-> `docs/architecture/work-cycle.md` §4 가 기록한 대로, 이 항목을 '계약외 prop 결함' 으로 올렸던
-> 과거 감사는 **반박 패스에서 가짜로 판명됐다** — 계약 description 본문이 명시적으로 허용하고 있었다.
-
-## 라이프사이클 · a11y
-
-계약 `description` 이 한 문단으로 선언한다:
-
-`role="dialog"` + `aria-modal` + `aria-labelledby`(제목). 열릴 때 **지정 요소(또는 첫 포커스 가능 요소)로
-포커스를 옮기고, 닫히면 열기 직전 요소로 포커스를 복귀한다.** 열려 있는 동안 **배경 스크롤을 잠근다.**
-`Tab`/`Shift+Tab` 은 다이얼로그 안에서 **순환(포커스 트랩)** 하고, `Esc`·딤 클릭·닫기 버튼이 닫는다
-(**`Esc` 는 `stopPropagation` 으로 최상단 모달만 닫아 중첩을 보존한다**).
-
-<Story of={ModalStories.Overview} />
-<Story of={ModalStories.WithIcon} />
-<Story of={ModalStories.AsForm} />
-<Story of={ModalStories.ClosesOnEscape} />
-<Story of={ModalStories.ClosesOnCloseButton} />
-
-## States
-
-계약 `states` 는 **`open` 하나뿐이다** — 닫힌 모달은 렌더되지 않으므로 상태가 아니다.
-
-## 접근성 계약
-
-- **role**: `dialog`
-- **keyboard**: `Tab` · `Shift+Tab` · `Escape`
-- **focusVisible**: `true`
-- **contrastMin**: 4.5
-
-계약 `a11y.aria`:
-
-- `aria-modal`: `true` — **배경 요소를 보조기술에서 격리한다.**
-- `aria-labelledby`: 제목 요소를 가리켜 다이얼로그에 접근성 이름을 부여한다.
-- `aria-describedby`: 조립하는 쪽이 본문(목적) 요소 id 를 `describedBy`(명령형 prop)로 주면
-  open 시 `title` 과 함께 본문 메시지가 announce 된다 — **`aria-labelledby` 만으로는 제목만 읽힌다**
-  (A11Y-02).
-- `focus`: 열릴 때 `initialFocusRef`(없으면 첫 포커스 가능 요소)로 포커스, 닫히면 열기 직전 요소로 복귀.
-
-## 토큰
-
-`space.6`(overlayPaddingY) · `space.4`(overlayPaddingX) · `color.overlay`(backdrop) ·
-`color.surface.default` · `shadow.modal` · `color.border.default` · `component.modal.radius` ·
-`space.5`(padding) · `space.4`(gap) · `space.3`(headerGap) ·
-`color.text.default`(title) · `typography.title.xl` · `color.text.muted`(closeIcon) ·
-`color.border.focus`(focusRing).
-
-`responsive.behavior` 는 `fluid`. **의존 없음** — ConfirmDialog 가 반대로 Modal 에 의존한다.
-
-<Story of={ModalStories.LongContent} />
+- 여러 모달을 겹칠 수 있으며, 닫기 동작은 항상 최상단 모달에만 전달됩니다.

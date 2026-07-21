@@ -1,5 +1,3 @@
-{/* Table — Docs 페이지. 서술의 근거는 contracts/Table.contract.json 과 Table.tsx 구현이다. */}
-
 import { Controls, Meta, Story } from '@storybook/blocks';
 
 import * as TableStories from './Table.stories';
@@ -8,146 +6,70 @@ import * as TableStories from './Table.stories';
 
 # Table
 
-<code>organism</code> · <code>Data Display</code> · <code>taxonomyItem: table</code> · <code>v1.0.0</code> · <code>status: beta</code>
+정렬·행 톤·선택·행 클릭 등을 갖춘 데이터 목록 표입니다. 셀 내용은 호출부가 만든 `ReactNode` 로 들어옵니다.
 
-상호작용 목록 표 — `<table>` 골격과 그 안의 캡션·정렬 헤더·본문 행을 소유한다.
-셀 내용은 전부 호출부가 만든 `ReactNode` 로 들어온다.
+## 언제 사용하나요?
 
-## DataTable 과 무엇이 다른가
+- 목록 화면에서 데이터를 행/열로 보여줄 때
+- 열 기준 정렬이 필요할 때
+- 행을 눌러 상세로 이동하는 목록일 때
+- 행 상태를 색조(성공·경고·위험 등)로 강조할 때
+- 체크박스·순번·액션 같은 열을 붙여야 할 때
 
-분류표에 `Tables/basic-table`(DataTable) 과 `Data Display/table`(이 계약) **두 행이 따로 있다.**
-합치지 않은 이유는 겹치는 prop 이 `caption` 하나뿐이기 때문이다.
+## Examples
 
-| | `DataTable` | `Table` (이 계약) |
-|---|---|---|
-| 셀 값 | `string \| number` | `ReactNode` — 배지·링크·버튼이 들어간다 |
-| 수치 처리 | 천 단위 구분·단위 접미사·0 이하 흐리기를 **스스로 계산** | 하지 않는다 — 셀은 이미 완성돼 들어온다 |
-| 합계 | `tfoot` 요약 행 | 없다 |
-| 정렬·선택·행 액션·로딩 | 없다 | 있다 |
-| 쓰이는 곳 | 대시보드 통계처럼 **읽는** 표 | 목록 화면의 **조작하는** 표 |
+### Overview
 
-## 승격 근거
+<Story of={TableStories.Default} />
 
-실물이 `apps/admin/src/shared/crud/CrudTable.tsx` 에 384줄로 있었고 **어떤 계약·스토리·Figma 에도
-없었다.** 선언적 CRUD 껍데기 뒤의 5개 화면이 전부 이 표를 쓴다.
-분류표 `Data Display/table` 행은 그동안 `component: null` 이었다.
+### States
 
-## 무엇이 DS 이고 무엇이 앱인가
+<Story of={TableStories.Empty} />
+<Story of={TableStories.Loading} />
+<Story of={TableStories.SelectedRows} />
 
-`CrudTable` 은 다섯 가지를 한 파일에서 하고 있었다.
+### Features
 
-| 하던 일 | 어디로 갔나 | 왜 |
-|---|---|---|
-| 표 골격·정렬 헤더·스켈레톤·빈 행의 시각과 상호작용 | **DS** | 도메인을 모르는 순수 표현이다 |
-| 행 모델과 정렬 비교 (`@tanstack/react-table`) | 앱 | 무엇을 어떤 순서로 그릴지는 그 화면의 데이터 계약이다 |
-| 권한(`canUpdate`·`canRemove`)에 따른 열 가감 | 앱 (`usePermissions`) | 어떤 역할이 무엇을 고칠 수 있는지는 제품의 사실이다 |
-| 선택 상태와 체크박스 | 앱 | 무엇이 선택됐는지는 화면의 상태다 |
-| 빈 상태의 한국어 카피와 조사(이/가) | 앱 (`Empty`) | 한국어와 이 제품의 정보구조에 묶여 있다 |
+<Story of={TableStories.Sorted} />
+<Story of={TableStories.RowTones} />
+<Story of={TableStories.WithSlotColumns} />
 
-**DS 는 판정하지 않고 그린다.** Sidebar 승격이 세운 규율(`sections` 는 이미 걸러진 데이터,
-`activeHref` 는 판정의 **결과**)을 그대로 따른다.
+### Content
+
+<Story of={TableStories.ManyRows} />
+<Story of={TableStories.LongCell} />
 
 ## Props
 
 <Controls />
 
-| prop | 타입 | 기본값 | 의미 |
-|---|---|---|---|
-| `caption` | `string` | — (필수) | 시각적으로 숨긴 `<caption>`. 표의 접근 가능한 이름이 된다 |
-| `columns` | `array` | — (필수) | **데이터 열**만. 데이터 prop — Figma Component Property 대응 없음 (ADR-0003) |
-| `rows` | `array` | — (필수) | 본문 행. 정렬은 이미 끝난 상태로 들어온다 |
-| `leadingHead` | `array` | `[]` | 데이터 헤더 **앞**의 완성된 `<th>` 들 |
-| `trailingHead` | `array` | `[]` | 데이터 헤더 **뒤**의 완성된 `<th>` 들 |
-| `sortKey` | `string` | `''` | 지금 정렬 기준인 열의 id. 판정은 앱이 한다 |
-| `sortDirection` | `'asc' \| 'desc'` | `'asc'` | 정렬 방향 |
-| `loading` | `boolean` | `false` | **최초 로드만** true (STATE-01) |
-| `skeletonRows` | `number` | `5` | 로딩 중 스켈레톤 행 수 |
-| `empty` | `node` | `null` | 비었을 때의 내용. **슬롯이다** |
+| Prop                           | Description                                                                 |
+| ------------------------------ | -------------------------------------------------------------------------- |
+| `caption`                      | 표의 접근 가능한 이름. 시각적으로 숨겨집니다. (필수)                        |
+| `columns`                      | 데이터 열 목록. `{ id, header, align?, nowrap?, sortable? }` (필수)         |
+| `rows`                         | 본문 행 목록. `{ id, cells, selected?, tone?, onActivate? }` (필수)         |
+| `leadingHead` / `trailingHead` | 데이터 열 앞/뒤에 붙는 완성된 `<th>` 배열 (체크박스·순번·액션 열 등)        |
+| `sortKey` / `sortDirection`    | 현재 정렬 중인 열 id 와 방향(`asc`/`desc`). 판정 결과를 그대로 받습니다.    |
+| `onSortToggle`                 | 정렬 헤더를 눌렀을 때 열 id 를 넘겨 호출됩니다. 없으면 정렬 버튼이 안 생김. |
+| `loading` / `skeletonRows`     | 로딩 중이면 본문을 스켈레톤 행으로 대체합니다.                             |
+| `empty`                        | 행이 없을 때 표시할 내용 슬롯.                                              |
 
-`columns[]` 는 `{ id, header, align?, nowrap?, sortable? }`,
-`rows[]` 는 `{ id, cells, leading?, trailing?, onActivate? }` 다.
+행의 `tone` 은 `danger`·`warning`·`success`·`info` 를 지원합니다.
 
-### 이벤트
+## Behavior
 
-- `onSortToggle` — payload `string`(열 id). 다음 정렬 상태는 DS 가 정하지 않는다.
+- **정렬**: `sortable` 열의 헤더만 버튼이 되며, 눌러도 표가 스스로 상태를 바꾸지 않고 `onSortToggle` 로 열 id 만 올립니다. 다음 정렬 상태는 호출부가 정합니다.
+- **행 클릭**: `onActivate` 가 있는 행은 어디를 눌러도 활성화됩니다. 단, 셀 안의 링크·버튼·입력 요소에서 시작한 클릭과 텍스트 드래그 중의 클릭은 활성화로 치지 않습니다.
 
-## 권한이 만든 열은 배열의 길이로 들어온다
+## Accessibility
 
-체크박스 열·순번 열·행 액션 열은 **데이터 열이 아니라 표의 골격**이고, 그중 무엇을 그릴지는 권한이
-정한다. DS 가 `canRemove` 를 배우는 대신 호출부가 **완성된 `<th>`/`<td>` 요소의 배열**을 넘긴다.
+- `<caption>` 은 시각적으로 숨기되 접근성 트리에 남아 표의 이름이 됩니다.
+- 정렬 상태(`aria-sort`)는 버튼이 아니라 `<th>` 가 가집니다.
+- 방향 표식(▲▼↕)은 `aria-hidden` 이라 중복 낭독되지 않습니다.
+- 행 자체에는 `role`·`tabIndex` 를 씌우지 않아 표의 행·열 탐색이 유지됩니다. 키보드 사용자는 행 안의 링크·버튼으로 이동합니다.
+- 로딩 중에는 `aria-busy="true"` 이며 스켈레톤 칸은 낭독되지 않습니다.
 
-배열이라 **길이가 곧 열 수**이고, 스켈레톤과 빈 행의 `colSpan` 이 거기서 자동으로 나온다.
-예전에는 호출부가 `columns.length + 1 + (showSelect?1:0) + (showActions?1:0)` 를 손으로 셌고,
-그 식이 틀리면 조용히 어긋난 표가 나온다.
+## Notes
 
-<Story of={TableStories.WithSlotColumns} />
-
-## 정렬은 제어된다
-
-`sortKey`·`sortDirection` 은 **판정의 결과**로 들어온다. 어드민에서 정렬의 단일 원천은
-URL(`useListState.sort`)이라 DS 가 자기 상태를 들면 뒤로 가기로 되돌릴 수 없다.
-
-`sortable` 을 선언한 열만 헤더가 버튼이 되며, **`onSortToggle` 을 주지 않으면 버튼도 그리지
-않는다** — 눌러도 조용한 버튼은 어포던스가 거짓말을 한다.
-
-<Story of={TableStories.Default} />
-<Story of={TableStories.Sorted} />
-<Story of={TableStories.ControlledSort} />
-
-## 상태
-
-<Story of={TableStories.Loading} />
-<Story of={TableStories.Empty} />
-<Story of={TableStories.ActivatableRows} />
-<Story of={TableStories.FocusVisible} />
-
-## 행 활성화는 마우스 보조 수단이다
-
-행 어디를 눌러도 상세로 가는 규칙은 있으나 **`<tr>` 에 `role`·`tabIndex` 를 씌우지 않는다.**
-표 시맨틱을 덮으면 행·열 탐색이 사라지고, 행마다 정지점이 생겨 키보드 사용자가 행 수만큼 Tab 을
-눌러야 한다.
-
-키보드 사용자는 행 안의 링크·버튼으로 이동한다 — **같은 목적지로 가는 접근 가능한 경로가 항상 함께
-있어야 한다**는 전제 위에서만 `onActivate` 를 쓴다.
-
-두 가지 클릭은 활성화로 치지 않는다.
-
-1. **행 안의 인터랙티브 요소**(`a`·`button`·`input`·`select`·`textarea`·`label`·menu)에서 시작한 클릭 — 이 가드가 없으면 체크박스를 누를 때마다 화면이 튄다.
-2. **텍스트를 드래그 선택하던 중**의 클릭 — 셀 값 복사를 막지 않기 위해서다.
-
-## 접근성 계약
-
-- **role**: `table` · **focusVisible**: `true` · **contrastMin**: 4.5
-- `<caption>` 은 시각적으로 숨기되 접근성 트리에는 남긴다 — 표의 접근 가능한 이름이다
-- `aria-sort` 는 **`<th>` 가 갖는다**(ERP-04). 버튼에 붙이면 보조기술이 '이 버튼이 정렬돼 있다' 로 읽어 열과 조작을 혼동한다
-- 방향 표식 `▲▼↕` 는 `aria-hidden` — `aria-sort` 가 이미 같은 사실을 말하므로 두 번 읽히면 안 된다
-- 정렬 버튼 안에 시각적으로 숨긴 안내('이 열로 정렬' / '정렬 기준 · 다시 누르면 방향 전환')를 둔다
-- `aria-busy` — `loading` 이면 `<table aria-busy="true">`. 스켈레톤이 실제 데이터로 오인되지 않게 한다
-- **스켈레톤 칸은 `aria-hidden`** — 내용 없는 셀이 낭독되면 '빈 값' 으로 오해된다
-
-## 빈 상태의 카피를 계약에 넣지 않았다
-
-`empty` 는 `node` 슬롯이다. '등록된 인증서**가** 없습니다' 의 조사 처리와
-'검색을 지우세요 / 필터를 초기화하세요' 의 3분기 판단은 한국어와 이 제품의 정보구조에 묶인 앱의
-지식이라 DS 가 문자열로 들지 않는다. 어드민은 이 슬롯에 자기 `Empty` 를 넣는다.
-
-## 가로 스크롤을 표가 스스로 갖지 않는다
-
-`overflow-x` 를 두르면 표가 자기 스크롤 컨테이너를 만들어 sticky 헤더·행 확장 같은 다음 축을 막는다.
-폭 대응은 **감싸는 쪽의 일**이며 `responsive.behavior` 는 `fluid` 다.
-
-## 토큰
-
-`color.surface.default`(surface) · `color.surface.raised`(headSurface · rowHoverBackground) ·
-`color.text.muted`(headText · emptyText) · `color.text.default`(cellText) ·
-`component.table.cell-padding-x`·`component.table.cell-padding-y`(cellPadX · cellPadY) ·
-`component.table.divider`(divider) · `color.border.default`(headBorder) ·
-`border-width.thin`(borderWidth) · `border-width.medium`(focusRingWidth) ·
-`color.border.focus`(focusRing) · `typography.label.sm`(headTypography) ·
-`typography.label.md`(cellTypography) · `space.1`(sortGap) · `space.3`(headPadY) ·
-`space.6`(emptyPadY · actionColumnWidthUnit) · `motion.duration.fast` · `motion.easing.standard`.
-
-**밀도의 정본은 `component.table.*` 스코프다**(ERP-02) — 밀도를 바꾸려면 `tokens.json` 한 곳만
-고치면 이 표와 `DataTable` 이 함께 움직인다. 의존: `Skeleton`(로딩 격자).
-
-<Story of={TableStories.RightToLeft} />
+- 정적 수치 표(천 단위 구분·합계 등)가 필요하면 `Table` 대신 `DataTable` 을 사용하세요.
+- 가로 스크롤은 표가 아니라 감싸는 쪽에서 처리합니다.

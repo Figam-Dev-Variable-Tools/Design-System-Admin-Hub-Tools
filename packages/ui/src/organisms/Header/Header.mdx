@@ -1,5 +1,3 @@
-{/* Header — Docs 페이지. 서술의 근거는 contracts/Header.contract.json 과 Header.tsx 구현이다. */}
-
 import { Controls, Meta, Story } from '@storybook/blocks';
 
 import * as HeaderStories from './Header.stories';
@@ -8,83 +6,41 @@ import * as HeaderStories from './Header.stories';
 
 # Header
 
-<code>organism</code> · <code>Navigation</code> · <code>taxonomyItem: header</code> · <code>v1.0.0</code> · <code>status: beta</code>
+콘텐츠 영역 맨 위에서 화면 제목(`<h1>`)과 눈썹 문구, 우측 액션·메타 영역을 담는 상단 바입니다.
 
-콘텐츠 영역 맨 위에 붙는 `banner` 랜드마크 — 눈썹 문구 + 화면 제목(`<h1>`) + 우측 메타 슬롯.
+## 언제 사용하나요?
 
-## 승격 근거
+- 화면 상단에 그 화면의 제목을 보여줄 때
+- 제목 위에 경로·브랜드·역할 같은 눈썹 문구를 함께 둘 때
+- 우측에 오늘 날짜·로그인 계정 같은 메타 정보를 놓을 때
+- 우측에 내보내기·추가 같은 화면의 주요 액션 버튼을 놓을 때
 
-실물이 `apps/admin/src/shared/layout/AppHeader.tsx` 에 112줄로 있었고 계약·스토리·Figma 어디에도 없었다.
-`Sidebar` 와 **같은 뿌리의 결손**이다 — 2026-07-20 감사가 `shared/layout/` 을 스캔 대상에서 빠뜨렸다.
+## Examples
 
-그리고 그 파일에는 **검사가 하나도 없었다.** 그래서 이관보다 `Header.test.tsx` 를 먼저 만들었다
-(`work-cycle.md` §6 — "어떤 화면의 a11y 표면을 이관하기 전에 그 표면을 보는 검사를 먼저 만든다").
-
-## 이 컴포넌트가 `<h1>` 을 소유한다
-
-어드민의 화면 130여 개가 자기 제목을 그리지 않고 이 헤더 하나에 맡긴다 (IA-02).
-그래서 `title` 은 슬롯이 아니라 `string` 이다 — **화면이 자기 `<h1>` 을 또 그리면 문서에 h1 이 둘이 된다.**
-
-## Navbar 가 아니다
-
-이 바에는 **링크가 하나도 없다.** 화면의 현재 위치를 말할 뿐 이동을 제공하지 않으므로 role 은
-`navigation` 이 아니라 `banner` 이고, 분류표의 `navbar` 항목을 이 계약이 채우지 않는다
-(그 항목은 실물이 없어 비워 뒀다).
+<Story of={HeaderStories.Overview} />
+<Story of={HeaderStories.Minimal} />
+<Story of={HeaderStories.WithActions} />
+<Story of={HeaderStories.LongTitle} />
+<Story of={HeaderStories.Breadcrumb} />
+<Story of={HeaderStories.PageHeader} />
 
 ## Props
 
 <Controls />
 
-| prop | 타입 | 기본값 | 의미 |
-|---|---|---|---|
-| `title` | `string` | — (필수) | 지금 화면의 이름. `<h1>` 이 된다 |
-| `eyebrow` | `string` | `''` | 제목 위 작은 문구(브랜드·역할). 빈 문자열이면 그 줄을 그리지 않는다 |
-| `meta` | `node` | `null` | 오른쪽 끝 슬롯 — 오늘 날짜·로그인 계정 등 |
+| Prop      | Description                                                        |
+| --------- | ----------------------------------------------------------------- |
+| `title`   | 화면 이름(필수). `<h1>` 으로 렌더됩니다.                          |
+| `eyebrow` | 제목 위 작은 문구(경로·브랜드·역할). 빈 문자열이면 그리지 않습니다. |
+| `meta`    | 우측 슬롯. 날짜·계정 같은 정보나 버튼 같은 액션을 넣습니다.        |
 
-이벤트는 없다. 이 컴포넌트 자체에는 상호작용 요소가 없고, 탭 순서에 끼는 것은 `meta` 슬롯에 주입된
-요소뿐이며 그 키보드 계약은 **주입한 쪽이 진다.**
+## Accessibility
 
-## 무엇이 DS 이고 무엇이 앱인가
+- 네이티브 `<header>` 가 `banner` 랜드마크가 됩니다.
+- 제목은 화면당 하나뿐인 `<h1>` 입니다. 화면이 자기 `<h1>` 을 또 그리지 마세요.
+- 눈썹은 제목이 아니라 `<p>` 이므로 제목 계층에 끼지 않습니다.
+- 헤더 자체에는 상호작용 요소가 없습니다. 탭 순서에 끼는 것은 `meta` 슬롯에 넣은 요소뿐이며, 그 키보드 계약은 넣은 쪽이 집니다.
 
-제목 문자열이 어디서 나오는지(어드민은 `nav-config` 의 `findCoveringLeaf` 로 경로에서 유도한다),
-오늘이 며칠인지, 누가 로그인해 있는지는 **전부 앱의 사실**이다. DS 는 받아서 배치만 한다 —
-`meta` 가 `node` 슬롯인 이유이며, 날짜 포맷·세션 조회가 DS 로 새어 들어오지 않게 하는 경계다.
+## Notes
 
-<Story of={HeaderStories.Overview} />
-
-## 선택 요소
-
-눈썹도 메타도 선택이다. 최소 형태는 제목 하나로 성립하고, 메타 슬롯은 정보 대신 액션을 실을 수도 있다.
-
-<Story of={HeaderStories.Minimal} />
-<Story of={HeaderStories.WithActions} />
-
-## 높이는 고정이다
-
-제목이 길어져도 높이가 흘러가지 않는다. `Sidebar` 의 브랜드 영역과 같은 배수(`space.6` × 3.5)라
-**두 영역의 아래 구분선이 한 줄로 이어져야** 하기 때문이다.
-
-<Story of={HeaderStories.LongTitle} />
-
-## 접근성 계약
-
-- **role**: `banner` — 네이티브 `<header>` 의 암묵 role 이다. **중복 `role` 속성을 달지 않는다**
-- **focusVisible**: `false` (상호작용 요소 없음) · **contrastMin**: 4.5
-- 제목은 `<h1>` 이며 화면당 하나다
-- **눈썹 문구는 `<p>` 다** — 제목이 아니므로 제목 계층에 넣지 않는다. `<h2>` 로 만들면 스크린리더
-  제목 목록이 브랜드 이름으로 오염된다
-
-## 토큰
-
-`color.surface.default`(surface) · `color.border.default`(border) · `border-width.thin`(borderWidth) ·
-`color.text.default`(titleText) · `color.text.muted`(eyebrowText · metaText) ·
-`typography.title.xl`(titleTypography) · `typography.label.md`(eyebrowTypography · metaTypography) ·
-`space.1`(stackGap) · `space.4`(gap) · `space.6`(padX · heightUnit).
-
-제목은 **semantic 합성 토큰(`title.xl`)만** 읽는다. 예전 구현은 primitive(`font-size-18` ·
-`font-weight-bold` · `line-height-tight`)를 직접 읽어 `title.xl` 의 값을 손으로 재현한 사본이었고,
-토큰을 바꿔도 따라오지 않았다 (TOKEN-05). 그 회귀를 `Header.test.tsx` 가 지킨다.
-
-`responsive.behavior` 는 `fluid`. 의존 없음.
-
-<Story of={HeaderStories.RightToLeft} />
+- 제목 문자열·날짜·로그인 계정은 앱이 정합니다. Header 는 받아서 배치만 합니다.

@@ -1,5 +1,3 @@
-{/* Tabs — Docs 페이지. 서술의 근거는 contracts/Tabs.contract.json 이다. */}
-
 import { Controls, Meta, Story } from '@storybook/blocks';
 
 import * as TabsStories from './Tabs.stories';
@@ -8,71 +6,51 @@ import * as TabsStories from './Tabs.stories';
 
 # Tabs
 
-<code>molecule</code> · <code>Navigation</code> · <code>taxonomyItem: tabs</code> · <code>v1.0.0</code> ·
-<code>status: beta</code>
+여러 패널 사이를 탭으로 전환하는 하단 밑줄형 탭 목록입니다.
 
-하단 밑줄형 탭 목록.
+## 언제 사용하나요?
 
-계약 `description`: 선택된 탭만 액션 컬러 밑줄을 갖고, **비선택 탭도 동일 두께의 투명 밑줄을 둬
-전환 시 라벨이 밀리지 않는다.**
+- 한 화면에서 여러 영역을 탭으로 나눠 보여줄 때
+- 목록의 상태·범위를 탭으로 걸러 볼 때
+- 선택된 탭만 강조하고 나머지는 대기 상태로 둘 때
 
-**탭 패널은 이 컴포넌트가 렌더하지 않는다** — `aria-controls` 로 바깥 패널을 가리킨다.
-**도메인 중립**: 탭 항목은 `items` prop 으로 주입한다 (ADR-0003).
-출처 구현: `apps/admin/src/pages/dashboard/components/TabBar.tsx`.
+## Examples
+
+<Story of={TabsStories.Overview} />
+<Story of={TabsStories.Selected} />
+<Story of={TabsStories.FewTabs} />
+<Story of={TabsStories.ManyTabs} />
+<Story of={TabsStories.LongLabels} />
+<Story of={TabsStories.ListFilter} />
 
 ## Props
 
 <Controls />
 
-| prop        | 타입     | 기본값   | 의미                                                                  |
-| ----------- | -------- | -------- | --------------------------------------------------------------------- |
-| `value`     | `string` | — (필수) | 선택된 탭의 id. `items[].id` 중 하나여야 한다.                        |
-| `items`     | `array`  | — (필수) | 탭 목록. 데이터 prop — Figma Component Property 대응 없음 (ADR-0003). |
-| `ariaLabel` | `string` | — (필수) | tablist 의 접근 가능한 이름 (예: '업무 영역').                        |
+| Prop        | Description                                            |
+| ----------- | ----------------------------------------------------- |
+| `value`     | 선택된 탭의 id. `items[].id` 중 하나여야 합니다.      |
+| `items`     | 탭 목록(`{ id, label }`).                             |
+| `ariaLabel` | 탭 목록의 접근 가능한 이름 (예: '업무 영역').         |
+| `onChange`  | 탭이 선택되면 해당 탭의 id 로 호출됩니다.             |
 
-### 이벤트 — `onChange`
+## Behavior
 
-payload `string`(선택된 탭의 id) · `blockedWhen` **없음** — Tabs 에는 `disabled` prop 이 없다.
+- 탭을 클릭하면 `onChange` 가 선택된 탭의 id 로 발화합니다.
+- 선택된 탭만 액션 컬러 밑줄을 갖고, 비선택 탭도 같은 두께의 투명 밑줄을 둬 전환 시 라벨이 밀리지 않습니다.
+- 탭 패널은 이 컴포넌트가 렌더하지 않습니다 — `aria-controls` 로 바깥 패널을 가리키므로 패널은 조립하는 쪽에서 렌더합니다.
 
-## States
+## Accessibility
 
-계약 `states`: `default` · `hover` · `focus-visible` · `selected`. **disabled 상태가 없다.**
-
-<Story of={TabsStories.Overview} />
-<Story of={TabsStories.Selected} />
-<Story of={TabsStories.Focus} />
-
-## 항목 개수
-
-<Story of={TabsStories.FewTabs} />
-<Story of={TabsStories.ManyTabs} />
-<Story of={TabsStories.LongLabels} />
-
-## 키보드 이동
+- `ArrowLeft` · `ArrowRight` 로 이전·다음 탭으로 이동하며 선택과 포커스가 함께 옮겨갑니다.
+- `Home` · `End` 로 첫·마지막 탭으로 바로 이동합니다.
+- 로빙 tabindex — 선택된 탭만 탭 순서에 있고 나머지는 건너뜁니다.
+- 현재 탭은 `aria-selected` 로 안내됩니다.
 
 <Story of={TabsStories.KeyboardNavigation} />
-
-## 접근성 계약
-
-- **role**: `tablist`
-- **keyboard**: `Tab` · `ArrowLeft` · `ArrowRight` · `Home` · `End`
-- **focusVisible**: `true`
-- **contrastMin**: 4.5
-
-계약 `a11y.aria`:
-
-- `aria-label`: `ariaLabel` prop — tablist 의 이름.
-- `aria-selected`: 각 탭(`role=tab`) — `value` 와 일치하면 `true`.
-- `aria-controls`: 각 탭 — **대응하는 tabpanel 의 id.**
-  패널을 렌더하지 않으므로 **그 id 가 실제로 존재하는지는 조립하는 쪽의 책임이다.**
-
-## 토큰
-
-`color.border.default`(listBorder) · `color.action.primary.default`(indicatorSelected) ·
-`color.text.muted`(text) · `color.text.default`(textSelected) · `typography.label.md` ·
-`space.2`(paddingTop) · `space.3`(paddingBottom) · `space.5`(gap) ·
-`color.border.focus`(focusRing) · `motion.duration.fast` · `motion.easing.standard`.
-
-`responsive.behavior` 는 `fluid`. 의존 없음.
-
+<Story of={TabsStories.Focus} />
 <Story of={TabsStories.RightToLeft} />
+
+## Notes
+
+- 패널 id 규약은 `tabPanelId(id)` 로 공개됩니다. 그 id 로 패널이 실제 존재하는지는 조립하는 쪽의 책임입니다.

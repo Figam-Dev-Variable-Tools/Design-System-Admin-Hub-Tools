@@ -1,5 +1,3 @@
-{/* Timeline — Docs 페이지. 서술의 근거는 contracts/Timeline.contract.json 이다. */}
-
 import { Controls, Meta, Story } from '@storybook/blocks';
 
 import * as TimelineStories from './Timeline.stories';
@@ -8,62 +6,38 @@ import * as TimelineStories from './Timeline.stories';
 
 # Timeline
 
-<code>molecule</code> · <code>Data Display</code> · <code>taxonomyItem: timeline</code> · <code>v1.0.0</code> · <code>status: beta</code>
+시간순으로 쌓인 이벤트 이력을 목록으로 보여주는 컴포넌트입니다.
 
-이벤트 타임라인 — 시간순 이력 목록. **StatusBadge 를 조립해** 각 이벤트를 배지 톤·라벨·작성자·시각·본문으로
-보여준다 (ADR-0003).
+## 언제 사용하나요?
 
-**도메인을 모른다** — 무슨 이벤트인지 알지 못하고, 각 페이지가 자기 이벤트(문의·티켓·예약)를
-표시용 `TimelineEvent` 로 **매핑해 넘긴다.**
+- 문의·티켓·주문 등 처리 이력을 시간순으로 보여줄 때
+- 각 이벤트의 상태를 배지 톤·라벨로 구분해 알릴 때
+- 작성자와 시각이 있는 활동 로그를 표시할 때
+
+## Examples
+
+<Story of={TimelineStories.Overview} />
+<Story of={TimelineStories.Tones} />
+<Story of={TimelineStories.SingleEvent} />
+<Story of={TimelineStories.LongContent} />
+<Story of={TimelineStories.Empty} />
+<Story of={TimelineStories.OrderHistory} />
 
 ## Props
 
 <Controls />
 
-| prop | 타입 | 기본값 | 의미 |
-|---|---|---|---|
-| `events` | `array` | — (필수) | 표시용으로 환산된 타임라인 이벤트 목록. `at` 은 ISO 시각, `badgeTone`/`badgeLabel` 은 StatusBadge 로 렌더, `author`/`text` 는 작성자/본문. 빈 배열이면 `emptyLabel` 을 렌더한다. 데이터 prop — Figma 대응 없음 (ADR-0003). |
-| `label` | `string` | — (필수) | 스크린 리더용 목록 이름 — '문의 처리 이력' 등. **`<ol>` 의 `aria-label` 이 된다.** |
-| `emptyLabel` | `string` | `'기록된 이력이 없습니다.'` | `events` 가 빈 배열일 때 표시할 문구. |
+| Prop         | Description                                                                              |
+| ------------ | --------------------------------------------------------------------------------------- |
+| `events`     | 표시할 이벤트 목록입니다. 각 항목은 시각(`at`)·배지 톤/라벨·작성자·본문을 담습니다. 빈 배열이면 `emptyLabel` 이 표시됩니다. |
+| `label`      | 목록의 이름입니다. 스크린 리더가 읽어 주는 접근 가능한 이름이 됩니다.                                  |
+| `emptyLabel` | 이벤트가 없을 때 표시할 문구입니다.                                                          |
 
-**이벤트가 없다** — 계약에 `events`(이벤트) 항목이 없다. 정적 이력 목록이다.
+- 각 페이지는 자기 도메인 이벤트(문의·주문 등)를 위 형태로 매핑해 넘깁니다.
+- `at` 은 ISO 시각 문자열이며 `YYYY-MM-DD HH:mm`(로컬 타임존)으로 표시됩니다.
 
-### 시각 포맷 — 의존을 끌어오지 않는다
+## Accessibility
 
-계약 `description`: `at` 은 ISO 문자열이고 컴포넌트가 `'YYYY-MM-DD HH:mm'` 로 표기한다(**로컬 타임존**).
-
-포맷터는 **외부 의존이 없는 순수 함수로 컴포넌트에 co-locate 한다**
-(앱 `shared/format` 을 끌어오지 않는다 — **`@tds/ui` 자립**).
-
-## 이벤트 목록
-
-<Story of={TimelineStories.Overview} />
-<Story of={TimelineStories.SingleEvent} />
-<Story of={TimelineStories.Empty} />
-
-## States
-
-계약 `states` 는 `default` 하나뿐이다.
-
-## 접근성 계약
-
-- **role**: `list` (`<ol>`)
-- **keyboard**: `none` — **정적 이력 목록이라 상호작용 키가 없다** (탭 순서에 들어가지 않는다).
-- **focusVisible**: `false`
-- **contrastMin**: 4.5
-
-계약 `a11y.aria`:
-
-- `aria-label`: `label` prop — `<ol>` 에 목록 이름을 부여한다.
-- `badge`: 각 이벤트의 상태는 **StatusBadge(tone+label)로 색과 문구로 이중 전달한다**
-  (`dependencies: StatusBadge`).
-
-## 토큰
-
-`color.border.default`(itemBorder) · `color.surface.raised`(itemSurface) · `radius.md` ·
-`color.text.default`(author·text) · `color.text.muted`(time·empty) ·
-`space.3`(gap) · `typography.label.md`.
-
-**배지 자체의 토큰은 여기 없다** — StatusBadge 가 소유한다.
-
-`responsive.behavior` 는 `fluid`. 의존: `StatusBadge`.
+- 목록은 `<ol>` 로 렌더되어 순서 있는 목록으로 안내됩니다.
+- 각 이벤트의 상태는 배지 색과 라벨 문구로 함께 전달됩니다(색에만 의존하지 않음).
+- 정적 이력 목록이라 상호작용 키가 없으며 탭 순서에 들어가지 않습니다.
