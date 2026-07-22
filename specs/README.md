@@ -252,7 +252,7 @@
 > §5 로 이관돼 있다. 가장 무거운 둘은 **EXC-04**(낙관적 동시성 토큰 부재 → 동시 편집 last-write-wins)와
 > **EXC-08**(멱등키 미전달 — `crud.ts` 에 자리와 원장이 있는데 호출부가 비어 있다)이며 **아홉 화면 중 일곱에 공통**이다.
 
-### 4.1 NFR 문서가 없는 화면 — 14개
+### 4.1 NFR 문서가 없는 화면 — 14개 (+ §4.2 의 10개)
 
 `quality-bar.md` 판정을 아직 받지 않은 화면들이다. **001–014 번대 전체**가 여기 해당한다 —
 NFR 문서는 015(회사 정보)부터 쓰이기 시작했고, 그 앞 번호대는 소급되지 않았다.
@@ -284,17 +284,45 @@ NFR 문서는 015(회사 정보)부터 쓰이기 시작했고, 그 앞 번호대
 그 판정의 결론은 NFR-079 §2 에 있다: **엔타이틀먼트 축은 fail-open** 이고, 그것이
 **결제 설정(078)의 fail-closed 와 정확히 반대 방향**이라는 사실을 두 문서가 서로를 참조해 못박는다.
 
-### 4.2 코드는 있으나 살아 있는 명세가 없는 화면 — 0개
+**이 14개는 '번호는 있는데 NFR 만 없는' 화면이다.** §4.2 의 신설 10화면은 여기 세지 않았다 —
+그쪽은 NFR 만이 아니라 FS·BE 도 없어 성격이 다르다. 두 표를 합치면 지금 NFR 판정을 받지 않은
+화면은 **24개**다.
 
-**알림톡 화면이 사라지면서 이 항목이 비었다**(2026-07-22). `/marketing/templates/alimtalk` 과 그 하위는
-이제 `/marketing/templates` 로 `Navigate replace` 하고, 템플릿 종류는 등록 화면의
-`?kind=text|email|alimtalk` 쿼리가 고른다. 즉 옛 FS/BE-036 이 기술하던 화면은
-**되살릴 대상이 아니라 흡수된 것**이다.
+### 4.2 코드는 있으나 명세가 **하나도** 없는 화면 — 10개 (2026-07-22 신설)
+
+**이 항목은 한 번 비었다가 다시 찼다.** 알림톡 화면이 사라지며 0개가 됐었는데
+(`/marketing/templates/alimtalk` 은 `/marketing/templates` 로 `Navigate replace` 하고 종류는
+`?kind=text|email|alimtalk` 가 고른다 — 옛 FS/BE-036 의 화면은 **되살릴 대상이 아니라 흡수된 것**이다),
+그 뒤 홈페이지 콘텐츠 가지가 신설되며 **잎 10개가 명세 없이 들어왔다**(커밋 `31ae647`).
+
+**FS 도 BE 도 NFR 도 없다.** 셋 중 하나라도 있는 것처럼 적지 않는다 — 지금 이 열 화면의 정본은
+코드와 플로우 차트(`docs/flow/mmd/menus/*.mmd`)뿐이다.
+
+| 화면 | 라우트 | 명세 | 지금 정본 |
+|---|---|---|---|
+| 페이지 관리 | `/content/pages` | **FS·BE·NFR 없음** | `pages/content/pages/**` · [content-pages.mmd](../docs/flow/mmd/menus/content-pages.mmd) |
+| 메뉴 관리 | `/content/menus` | **FS·BE·NFR 없음** | `pages/content/menus/**` · [content-menus.mmd](../docs/flow/mmd/menus/content-menus.mmd) |
+| 뉴스·보도자료 | `/content/news` | **FS·BE·NFR 없음** | `pages/content/news/**` · [content-news.mmd](../docs/flow/mmd/menus/content-news.mmd) |
+| 폼 관리 | `/content/forms` | **FS·BE·NFR 없음** | `pages/content/forms/**` · [content-forms.mmd](../docs/flow/mmd/menus/content-forms.mmd) |
+| 미디어 라이브러리 | `/content/media` | **FS·BE·NFR 없음** | `pages/content/media/**` · [content-media.mmd](../docs/flow/mmd/menus/content-media.mmd) |
+| 동의 이력 | `/users/consents` | **FS·BE·NFR 없음** | `pages/users/consents/**` · [users-consents.mmd](../docs/flow/mmd/menus/users-consents.mmd) |
+| 채용 공고 | `/company/careers` | **FS·BE·NFR 없음** | `pages/company/careers/**` · [company-careers.mmd](../docs/flow/mmd/menus/company-careers.mmd) |
+| 사이트 연동 | `/settings/site-connect` | **FS·BE·NFR 없음** | `pages/settings/site-connect/**` · [settings-site-connect.mmd](../docs/flow/mmd/menus/settings-site-connect.mmd) |
+| 알림 설정 | `/settings/notifications` | **FS·BE·NFR 없음** | `pages/settings/notifications/**` · `shared/notifications/**` · [settings-notifications.mmd](../docs/flow/mmd/menus/settings-notifications.mmd) |
+| 다국어 설정 | `/settings/languages` | **FS·BE·NFR 없음** | `pages/settings/languages/**` · [settings-languages.mmd](../docs/flow/mmd/menus/settings-languages.mmd) |
+
+**번호도 아직 배정되지 않았다.** 마지막으로 배정된 번호는 `079`(플랜·이용 현황)이고, 이 열 화면은
+`080` 이후를 받게 된다 — 그 배정은 문서를 쓰는 배치가 §2 의 규칙(결번 재사용 금지)에 따라 한다.
+여기에 미리 번호를 적어 두면 **문서가 없는 번호**가 색인에 남는다.
+
+> **`/settings/languages` 는 결번 068 을 되찾은 것이 아니다.** §2 결번 표의 068 은 2026-07-18 에
+> 삭제된 **옛 '언어 관리'** 화면의 번호다. 지금 화면은 언어×지역·URL 전략·번역 현황을 다루는 다른
+> 설계이고, §2 의 "번호는 재사용하지 않는다" 가 그대로 적용된다 — 068 은 결번으로 남는다.
 
 ### 4.3 명세는 있으나 코드가 없는 화면 — 0개
 
-사이드바 잎(leaf) 전수(71건)와 FS 문서의 `route` 를 대조한 결과 **불일치가 없다**.
-모든 FS 문서가 실재하는 라우트를 가리키고, 모든 사이드바 잎이 FS 문서를 갖는다.
+FS 문서의 `route` 는 **전부 실재하는 라우트를 가리킨다**. 반대 방향은 더 이상 1:1 이 아니다:
+사이드바 잎은 **81건**인데 FS 를 가진 잎은 71건이고, 나머지 10건이 §4.2 다.
 
 ### 4.4 SCR(화면 설계서) 미작성 — 70개 문서가 참조 중
 

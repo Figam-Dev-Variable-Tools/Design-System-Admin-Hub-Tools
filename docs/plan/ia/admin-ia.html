@@ -189,7 +189,7 @@
         <tr>
           <td>잎 목록 생성물</td>
           <td>
-            <code>tools/figma-plugin/generated/tds-pages.json</code> (71건) —
+            <code>tools/figma-plugin/generated/tds-pages.json</code> (81건) —
             <code>pnpm nav:check</code> 가 대조한다
           </td>
         </tr>
@@ -204,12 +204,19 @@
     <pre><code>AppShell
 └── 그룹 (5)           NavSection.title — 사이드바의 구분 제목. 클릭 대상이 아니다.
     └── 메뉴 (15)      NavEntry — 가지(14) 또는 잎(1: 대시보드). 가지는 자기 라우트가 없다.
-        └── 잎 (71)    사이드바 리프. 라우트를 갖는다. = 권한 단위.
+        └── 잎 (81)    사이드바 리프. 라우트를 갖는다. = 권한 단위.
             └── 하위 라우트  상세 /:id · 등록 /new · 수정 /:id/edit. 사이드바에 없다.
 </code></pre>
     <p>
-      그룹 5개: <strong>일반 관리</strong>(잎 20) · <strong>비즈니스</strong>(34) ·
-      <strong>AI</strong>(2) · <strong>분석 · 운영</strong>(10) · <strong>시스템</strong>(5).
+      그룹 5개: <strong>일반 관리</strong>(잎 27) · <strong>비즈니스</strong>(34) ·
+      <strong>AI</strong>(2) · <strong>분석 · 운영</strong>(10) · <strong>시스템</strong>(8).
+    </p>
+    <p>
+      메뉴 15개는 그대로이고 <strong>잎만 10개 늘었다</strong>(2026-07-22 · 커밋
+      <code>31ae647</code>) — 콘텐츠 관리 +5, 사용자 관리 +1, 기업 관리 +1, 시스템 설정 +3. 가지를
+      늘리지 않은 것이 판단이다: 홈페이지 콘텐츠(페이지·메뉴·뉴스·폼·미디어)는 이미 있는 &#39;콘텐츠
+      관리&#39; 가 덮는 범위이고, 새 가지를 만들면 운영자가 &#39;공지사항은 어느 쪽이었지&#39; 를
+      매번 고르게 된다.
     </p>
     <p>
       <strong>가지 안에 가지를 넣지 않는다.</strong> 이건 권고가 아니라 타입이 막는다 —
@@ -452,6 +459,30 @@
       클레임은 고객의 신청이 만들고, 청구는 <strong>견적 상세의 버튼</strong>이 만든다. 어드민에
       <code>new</code> 라우트를 두면 존재하지 않는 생성 경로를 약속하게 된다.
     </p>
+    <p>
+      <strong>신설 10화면이 D 와 C 의 경계를 넓혔다 — 그 사실을 감추지 않는다.</strong>
+    </p>
+    <ul>
+      <li>
+        <code>메뉴 관리</code>·<code>미디어 라이브러리</code>는
+        <strong>라우트 모양이 D 와 같다</strong>(목록 1개 + 모달 편집). 그러나 taxonomy 가 아니다 —
+        하나는 2뎁스 트리이고 하나는 자산 목록이다. <code>IA-06</code>(짧은 taxonomy 는 모달) 의
+        근거는 그대로 성립하지만(편집 대상이 이름·링크·메타 몇 칸), 유형 이름이 내용을 정확히
+        부르지는 못한다. 배송 처리를 G 로 갈랐던 것과 같은 갈래가 여기서도 필요할 수 있다 —
+        <strong>미결</strong>로 남긴다.
+      </li>
+      <li>
+        <code>동의 이력</code>은 한 화면 안에 <strong>탭 3개</strong>가 있고 그중 하나(동의 항목)만
+        저장 표면을 갖는다. 나머지 둘(동의 이력 · 재동의·파기)은
+        <strong>쓰기 라우트도 쓰기 컨트롤도 없다</strong> — append-only 원장이라 유형 F 의 성질이다.
+        한 잎이 C 와 F 를 겸하는 첫 사례다.
+      </li>
+      <li>
+        <code>사이트 연동</code>도 같은 겹침을 갖는다: 설정 폼은 C 이고 &#39;최근 유입 관측&#39;
+        표는 <strong>편집 표면이 없는 F</strong> 다(관측값을 고칠 수 있으면 측정이 아니라 의견이
+        된다).
+      </li>
+    </ul>
     <hr />
     <h2>4. 사이트맵</h2>
     <p>
@@ -529,6 +560,13 @@
           <td>—</td>
           <td>—</td>
         </tr>
+        <tr>
+          <td>동의 이력</td>
+          <td><code>/users/consents</code></td>
+          <td>C + F</td>
+          <td>—</td>
+          <td>— (탭 3개 · 이력은 append-only 조회 전용)</td>
+        </tr>
       </tbody>
     </table>
     <h4>콘텐츠 관리</h4>
@@ -543,6 +581,43 @@
         </tr>
       </thead>
       <tbody>
+        <tr>
+          <td>페이지 관리</td>
+          <td><code>/content/pages</code></td>
+          <td>B</td>
+          <td><code>cms.pages</code></td>
+          <td>
+            <code>new</code> · <code>:id/edit</code> (버전 이력·되돌리기·미리보기 토큰은 폼 안)
+          </td>
+        </tr>
+        <tr>
+          <td>메뉴 관리</td>
+          <td><code>/content/menus</code></td>
+          <td>D</td>
+          <td><code>cms.pages</code></td>
+          <td>— (2뎁스 트리 · 모달 등록/수정)</td>
+        </tr>
+        <tr>
+          <td>뉴스·보도자료</td>
+          <td><code>/content/news</code></td>
+          <td>B</td>
+          <td><code>cms.pages</code></td>
+          <td><code>new</code> · <code>:id/edit</code></td>
+        </tr>
+        <tr>
+          <td>폼 관리</td>
+          <td><code>/content/forms</code></td>
+          <td>B</td>
+          <td><code>cms.pages</code></td>
+          <td><code>new</code> · <code>:id/edit</code> (항목 편집기는 폼 안)</td>
+        </tr>
+        <tr>
+          <td>미디어 라이브러리</td>
+          <td><code>/content/media</code></td>
+          <td>D</td>
+          <td><code>cms.pages</code></td>
+          <td>— (모달 등록/수정 · 사용처 펼침)</td>
+        </tr>
         <tr>
           <td>공지사항</td>
           <td><code>/content/notices</code></td>
@@ -655,8 +730,20 @@
           <td>—</td>
           <td><code>new</code> · <code>:id/edit</code></td>
         </tr>
+        <tr>
+          <td>채용 공고</td>
+          <td><code>/company/careers</code></td>
+          <td>B</td>
+          <td><code>cms.pages</code></td>
+          <td><code>new</code> · <code>:id/edit</code></td>
+        </tr>
       </tbody>
     </table>
+    <p>
+      <strong>채용 공고만 이 가지에서 플랜 키를 갖는다.</strong> 기업 관리에 있을 뿐
+      <strong>파는 단위는 CMS</strong> 이기 때문이다 — 홈페이지 게시판 하나이고,
+      페이지·메뉴·뉴스·폼·미디어와 같은 계약으로 나간다(<code>module-resources.ts</code>).
+    </p>
     <h3>비즈니스</h3>
     <h4>주문 관리</h4>
     <table>
@@ -1167,6 +1254,13 @@
           <td>—</td>
         </tr>
         <tr>
+          <td>사이트 연동</td>
+          <td><code>/settings/site-connect</code></td>
+          <td>C + F</td>
+          <td>—</td>
+          <td>— (유입 관측 표는 편집 표면이 없다)</td>
+        </tr>
+        <tr>
           <td>API Key 설정</td>
           <td><code>/settings/api-keys</code></td>
           <td>B</td>
@@ -1194,12 +1288,34 @@
           <td>—</td>
           <td>—</td>
         </tr>
+        <tr>
+          <td>알림 설정</td>
+          <td><code>/settings/notifications</code></td>
+          <td>C</td>
+          <td>—</td>
+          <td>— (문서의 정본은 알림 층 · 이 화면은 편집 표면 하나다)</td>
+        </tr>
+        <tr>
+          <td>다국어 설정</td>
+          <td><code>/settings/languages</code></td>
+          <td>C</td>
+          <td>—</td>
+          <td>— (번역 본문은 각 작성 화면이 갖는다)</td>
+        </tr>
       </tbody>
     </table>
     <p>
       두 설정 화면은 <strong>다른 화면들의 모양을 바꾼다</strong> — 결제 설정은 판매 방식을(§5.3),
       플랜은 무엇을 샀는지를(§5.2) 말한다. 플랜 화면 자신은 조회 전용이며 어떤 엔타이틀먼트로도
       잠그지 않는다 — 잠긴 사람이 왜 잠겼는지 볼 곳이 그 화면이기 때문이다.
+    </p>
+    <p>
+      신설 셋도 <strong>자기 화면 밖에 자국을 남긴다.</strong> 사이트 연동은 유입원 조회기를 배선해
+      주문·문의·회원이 같은 좌표계로 &#39;어디서 왔는가&#39; 를 읽게
+      하고(<code>registerTrafficSourceLookup</code>), 알림 설정은 헤더 벨의 목록에 무엇을 넣을지를
+      정한다(끈 종류는 감추는 것이 아니라 <strong>만들어지지도 않는다</strong>), 다국어 설정은 공개
+      언어의 주소 전략을 정한다. 셋 다 <strong>IA 를 접지는 않는다</strong> — 사이드바의 잎을
+      지우거나 잠그는 축은 여전히 §5 의 넷뿐이다.
     </p>
     <hr />
     <h2>5. 판정 축 — 권한 하나에서 <strong>권한 · 플랜 둘</strong>로</h2>
@@ -1286,6 +1402,17 @@
       >
       — 미결이다.
     </p>
+    <p>
+      <strong>신설 10잎 중 여섯은 <code>cms.pages</code> 에 들어갔다</strong>(2026-07-22):
+      <code>/content/pages</code> · <code>/content/menus</code> · <code>/content/news</code> ·
+      <code>/content/forms</code> · <code>/content/media</code> · <code>/company/careers</code>.
+      페이지만 팔고 메뉴를 안 파는 계약은 없다 — 메뉴가 가리킬 대상이 페이지이기 때문이다. 나머지
+      넷(<code>/users/consents</code> · <code>/settings/site-connect</code> ·
+      <code>/settings/notifications</code> · <code>/settings/languages</code>)은
+      <strong>의도적으로 매핑이 없다</strong>: 사용자 관리와 시스템 설정은 플랜과 무관하게 늘 열려
+      있어야 하는 앱의 뼈대다(<code>module-resources.ts</code> 머리말). 위의 프로그램
+      관리·청구·입금과 달리 이 넷은 미결이 아니라 &#39;해당 없음&#39; 이다.
+    </p>
     <h3>5.3 네 번째 축(설정)이 IA 에 남기는 자국</h3>
     <p>
       결제(PG) 설정은 판정 축이 아니라 <strong>도메인 설정</strong>이지만, 결과적으로 사이트맵을
@@ -1345,7 +1472,7 @@ pendingRoutes = collectNavRoutes().filter(leaf =&gt; !IMPLEMENTED.has(leaf.to))
 </code></pre>
     <p>
       화면을 완성하면 <code>implemented: true</code> 한 줄을 붙인다. 그러면 자리표시가 저절로
-      사라진다. <strong>현재 미구현 0건</strong> — 잎 71개가 전부 구현돼 있다.
+      사라진다. <strong>현재 미구현 0건</strong> — 잎 81개가 전부 구현돼 있다.
     </p>
     <hr />
     <h2>8. 메뉴를 추가할 때</h2>

@@ -26,7 +26,7 @@
     "a11y": "pnpm --filter @tds/a11y run audit",
     "perf": "pnpm --filter @tds/perf run audit",
     "gate:precheck": "pnpm validate:contracts && pnpm naming:check && pnpm contract-test && pnpm coverage:check && pnpm quality:check",
-    "verify:all": "pnpm codegen:check && pnpm nav:check && pnpm validate:contracts && pnpm contract-test && pnpm coverage:check && pnpm quality:check && pnpm naming:check && pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm perf:gate",
+    "verify:all": "pnpm codegen:check && pnpm nav:check && pnpm flow:check && pnpm validate:contracts && pnpm contract-test && pnpm coverage:check && pnpm quality:check && pnpm naming:check && pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm perf:gate",
     "perf:gate": "pnpm --filter @tds/ui run build && pnpm perf",
     "a11y:gate": "pnpm sb:build && pnpm a11y",
     "verify:full": "pnpm verify:all && pnpm e2e && pnpm a11y:gate",

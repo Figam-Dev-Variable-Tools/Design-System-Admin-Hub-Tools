@@ -1,4 +1,4 @@
-%% IA 트리 · 어드민 전체 구조 (루트 → 그룹 5 → 메뉴 15 → 잎 71)
+%% IA 트리 · 어드민 전체 구조 (루트 → 그룹 5 → 메뉴 15 → 잎 81)
 %%{init: {"flowchart": {"curve": "step", "nodeSpacing": 26, "rankSpacing": 34, "wrappingWidth": 165, "htmlLabels": true}, "themeVariables": {"fontSize": "13px"}} }%%
 flowchart TD
     ROOT["<b>TDS Admin Hub</b>"]
@@ -34,14 +34,20 @@ flowchart TD
     S1_1 ~~~ S1_2["관리자 관리<br/><small>/users/admins</small>"]
     S1_2 ~~~ S1_3["권한 관리<br/><small>/users/roles</small>"]
     S1_3 ~~~ S1_4["로그인 이력<br/><small>/users/login-history</small>"]
+    S1_4 ~~~ S1_5["동의 이력<br/><small>/users/consents</small>"]
 
-    %% 콘텐츠 관리
-    S2 ~~~ S2_0["공지사항<br/><small>/content/notices</small>"]
-    S2_0 ~~~ S2_1["FAQ<br/><small>/content/faq</small>"]
-    S2_1 ~~~ S2_2["팝업 관리<br/><small>/content/popups</small>"]
-    S2_2 ~~~ S2_3["배너 관리<br/><small>/content/banners</small>"]
-    S2_3 ~~~ S2_4["약관 관리<br/><small>/content/terms</small>"]
-    S2_4 ~~~ S2_5["개인정보 처리방침<br/><small>/content/privacy</small>"]
+    %% 콘텐츠 관리 — 홈페이지 구조 → 게시판 → 자산 → 정책 순
+    S2 ~~~ S2_0["페이지 관리<br/><small>/content/pages</small>"]
+    S2_0 ~~~ S2_1["메뉴 관리<br/><small>/content/menus</small>"]
+    S2_1 ~~~ S2_2["뉴스·보도자료<br/><small>/content/news</small>"]
+    S2_2 ~~~ S2_3["폼 관리<br/><small>/content/forms</small>"]
+    S2_3 ~~~ S2_4["미디어 라이브러리<br/><small>/content/media</small>"]
+    S2_4 ~~~ S2_5["공지사항<br/><small>/content/notices</small>"]
+    S2_5 ~~~ S2_6["FAQ<br/><small>/content/faq</small>"]
+    S2_6 ~~~ S2_7["팝업 관리<br/><small>/content/popups</small>"]
+    S2_7 ~~~ S2_8["배너 관리<br/><small>/content/banners</small>"]
+    S2_8 ~~~ S2_9["약관 관리<br/><small>/content/terms</small>"]
+    S2_9 ~~~ S2_10["개인정보 처리방침<br/><small>/content/privacy</small>"]
 
     %% 기업 관리
     S3 ~~~ S3_0["회사 정보<br/><small>/company/profile</small>"]
@@ -52,6 +58,7 @@ flowchart TD
     S3_4 ~~~ S3_5["파트너사<br/><small>/company/partners</small>"]
     S3_5 ~~~ S3_6["고객사<br/><small>/company/clients</small>"]
     S3_6 ~~~ S3_7["ESG<br/><small>/company/esg</small>"]
+    S3_7 ~~~ S3_8["채용 공고<br/><small>/company/careers</small>"]
 
     %% 주문 관리 — 등록 폼이 없다. 주문은 고객의 결제가 만든다.
     S4 ~~~ S4_0["주문<br/><small>/orders</small>"]
@@ -121,10 +128,13 @@ flowchart TD
 
     %% 시스템 설정
     S14 ~~~ S14_0["사이트 설정<br/><small>/settings/site</small>"]
-    S14_0 ~~~ S14_1["API Key 설정<br/><small>/settings/api-keys</small>"]
-    S14_1 ~~~ S14_2["OAuth 설정<br/><small>/settings/oauth</small>"]
-    S14_2 ~~~ S14_3["결제 설정<br/><small>/settings/payment</small>"]
-    S14_3 ~~~ S14_4["플랜·이용 현황<br/><small>/settings/plan</small>"]
+    S14_0 ~~~ S14_1["사이트 연동<br/><small>/settings/site-connect</small>"]
+    S14_1 ~~~ S14_2["API Key 설정<br/><small>/settings/api-keys</small>"]
+    S14_2 ~~~ S14_3["OAuth 설정<br/><small>/settings/oauth</small>"]
+    S14_3 ~~~ S14_4["결제 설정<br/><small>/settings/payment</small>"]
+    S14_4 ~~~ S14_5["플랜·이용 현황<br/><small>/settings/plan</small>"]
+    S14_5 ~~~ S14_6["알림 설정<br/><small>/settings/notifications</small>"]
+    S14_6 ~~~ S14_7["다국어 설정<br/><small>/settings/languages</small>"]
 
     classDef grp fill:#e2e8f0,stroke:#475569,color:#0f172a,font-weight:bold
     class G0,G1,G2,G3,G4 grp
@@ -136,15 +146,15 @@ flowchart TD
     classDef sec1 fill:#93c5fd,stroke:#2563eb,color:#1e3a8a,font-weight:bold
     classDef lf1 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
     class S1 sec1
-    class S1_0,S1_1,S1_2,S1_3,S1_4 lf1
+    class S1_0,S1_1,S1_2,S1_3,S1_4,S1_5 lf1
     classDef sec2 fill:#86efac,stroke:#16a34a,color:#14532d,font-weight:bold
     classDef lf2 fill:#dcfce7,stroke:#16a34a,color:#14532d
     class S2 sec2
-    class S2_0,S2_1,S2_2,S2_3,S2_4,S2_5 lf2
+    class S2_0,S2_1,S2_2,S2_3,S2_4,S2_5,S2_6,S2_7,S2_8,S2_9,S2_10 lf2
     classDef sec3 fill:#d8b4fe,stroke:#9333ea,color:#4c1d95,font-weight:bold
     classDef lf3 fill:#f3e8ff,stroke:#9333ea,color:#4c1d95
     class S3 sec3
-    class S3_0,S3_1,S3_2,S3_3,S3_4,S3_5,S3_6,S3_7 lf3
+    class S3_0,S3_1,S3_2,S3_3,S3_4,S3_5,S3_6,S3_7,S3_8 lf3
     classDef sec4 fill:#fca5a5,stroke:#b91c1c,color:#7f1d1d,font-weight:bold
     classDef lf4 fill:#fee2e2,stroke:#b91c1c,color:#7f1d1d
     class S4 sec4
@@ -188,7 +198,7 @@ flowchart TD
     classDef sec14 fill:#c4b5fd,stroke:#7c3aed,color:#3b0764,font-weight:bold
     classDef lf14 fill:#ede9fe,stroke:#7c3aed,color:#3b0764
     class S14 sec14
-    class S14_0,S14_1,S14_2,S14_3,S14_4 lf14
+    class S14_0,S14_1,S14_2,S14_3,S14_4,S14_5,S14_6,S14_7 lf14
 
     classDef root fill:#1e293b,stroke:#0f172a,color:#f8fafc,font-weight:bold
     class ROOT root

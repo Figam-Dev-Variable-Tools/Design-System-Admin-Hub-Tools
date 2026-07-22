@@ -37,14 +37,14 @@
 <body>
 <header>
   <h1>IA 트리</h1>
-  <span class="sub">어드민 전체 구조 (루트 → 그룹 5 → 메뉴 15 → 잎 71)</span>
+  <span class="sub">어드민 전체 구조 (루트 → 그룹 5 → 메뉴 15 → 잎 81)</span>
   <span class="spacer"></span>
   <button id="fit">전체 보기</button>
   <button id="reset">100%</button>
   <a href="../mmd/09-ia-tree.mmd" download>mermaid 원본</a>
   <a href="./index.html">← 목록</a>
 </header>
-<div id="stage"><div id="pan"><pre class="mermaid" id="src">%% IA 트리 · 어드민 전체 구조 (루트 → 그룹 5 → 메뉴 15 → 잎 71)
+<div id="stage"><div id="pan"><pre class="mermaid" id="src">%% IA 트리 · 어드민 전체 구조 (루트 → 그룹 5 → 메뉴 15 → 잎 81)
 %%{init: {&quot;flowchart&quot;: {&quot;curve&quot;: &quot;step&quot;, &quot;nodeSpacing&quot;: 26, &quot;rankSpacing&quot;: 34, &quot;wrappingWidth&quot;: 165, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;13px&quot;}} }%%
 flowchart TD
     ROOT[&quot;&lt;b&gt;TDS Admin Hub&lt;/b&gt;&quot;]
@@ -80,14 +80,20 @@ flowchart TD
     S1_1 ~~~ S1_2[&quot;관리자 관리&lt;br/&gt;&lt;small&gt;/users/admins&lt;/small&gt;&quot;]
     S1_2 ~~~ S1_3[&quot;권한 관리&lt;br/&gt;&lt;small&gt;/users/roles&lt;/small&gt;&quot;]
     S1_3 ~~~ S1_4[&quot;로그인 이력&lt;br/&gt;&lt;small&gt;/users/login-history&lt;/small&gt;&quot;]
+    S1_4 ~~~ S1_5[&quot;동의 이력&lt;br/&gt;&lt;small&gt;/users/consents&lt;/small&gt;&quot;]
 
-    %% 콘텐츠 관리
-    S2 ~~~ S2_0[&quot;공지사항&lt;br/&gt;&lt;small&gt;/content/notices&lt;/small&gt;&quot;]
-    S2_0 ~~~ S2_1[&quot;FAQ&lt;br/&gt;&lt;small&gt;/content/faq&lt;/small&gt;&quot;]
-    S2_1 ~~~ S2_2[&quot;팝업 관리&lt;br/&gt;&lt;small&gt;/content/popups&lt;/small&gt;&quot;]
-    S2_2 ~~~ S2_3[&quot;배너 관리&lt;br/&gt;&lt;small&gt;/content/banners&lt;/small&gt;&quot;]
-    S2_3 ~~~ S2_4[&quot;약관 관리&lt;br/&gt;&lt;small&gt;/content/terms&lt;/small&gt;&quot;]
-    S2_4 ~~~ S2_5[&quot;개인정보 처리방침&lt;br/&gt;&lt;small&gt;/content/privacy&lt;/small&gt;&quot;]
+    %% 콘텐츠 관리 — 홈페이지 구조 → 게시판 → 자산 → 정책 순
+    S2 ~~~ S2_0[&quot;페이지 관리&lt;br/&gt;&lt;small&gt;/content/pages&lt;/small&gt;&quot;]
+    S2_0 ~~~ S2_1[&quot;메뉴 관리&lt;br/&gt;&lt;small&gt;/content/menus&lt;/small&gt;&quot;]
+    S2_1 ~~~ S2_2[&quot;뉴스·보도자료&lt;br/&gt;&lt;small&gt;/content/news&lt;/small&gt;&quot;]
+    S2_2 ~~~ S2_3[&quot;폼 관리&lt;br/&gt;&lt;small&gt;/content/forms&lt;/small&gt;&quot;]
+    S2_3 ~~~ S2_4[&quot;미디어 라이브러리&lt;br/&gt;&lt;small&gt;/content/media&lt;/small&gt;&quot;]
+    S2_4 ~~~ S2_5[&quot;공지사항&lt;br/&gt;&lt;small&gt;/content/notices&lt;/small&gt;&quot;]
+    S2_5 ~~~ S2_6[&quot;FAQ&lt;br/&gt;&lt;small&gt;/content/faq&lt;/small&gt;&quot;]
+    S2_6 ~~~ S2_7[&quot;팝업 관리&lt;br/&gt;&lt;small&gt;/content/popups&lt;/small&gt;&quot;]
+    S2_7 ~~~ S2_8[&quot;배너 관리&lt;br/&gt;&lt;small&gt;/content/banners&lt;/small&gt;&quot;]
+    S2_8 ~~~ S2_9[&quot;약관 관리&lt;br/&gt;&lt;small&gt;/content/terms&lt;/small&gt;&quot;]
+    S2_9 ~~~ S2_10[&quot;개인정보 처리방침&lt;br/&gt;&lt;small&gt;/content/privacy&lt;/small&gt;&quot;]
 
     %% 기업 관리
     S3 ~~~ S3_0[&quot;회사 정보&lt;br/&gt;&lt;small&gt;/company/profile&lt;/small&gt;&quot;]
@@ -98,6 +104,7 @@ flowchart TD
     S3_4 ~~~ S3_5[&quot;파트너사&lt;br/&gt;&lt;small&gt;/company/partners&lt;/small&gt;&quot;]
     S3_5 ~~~ S3_6[&quot;고객사&lt;br/&gt;&lt;small&gt;/company/clients&lt;/small&gt;&quot;]
     S3_6 ~~~ S3_7[&quot;ESG&lt;br/&gt;&lt;small&gt;/company/esg&lt;/small&gt;&quot;]
+    S3_7 ~~~ S3_8[&quot;채용 공고&lt;br/&gt;&lt;small&gt;/company/careers&lt;/small&gt;&quot;]
 
     %% 주문 관리 — 등록 폼이 없다. 주문은 고객의 결제가 만든다.
     S4 ~~~ S4_0[&quot;주문&lt;br/&gt;&lt;small&gt;/orders&lt;/small&gt;&quot;]
@@ -167,10 +174,13 @@ flowchart TD
 
     %% 시스템 설정
     S14 ~~~ S14_0[&quot;사이트 설정&lt;br/&gt;&lt;small&gt;/settings/site&lt;/small&gt;&quot;]
-    S14_0 ~~~ S14_1[&quot;API Key 설정&lt;br/&gt;&lt;small&gt;/settings/api-keys&lt;/small&gt;&quot;]
-    S14_1 ~~~ S14_2[&quot;OAuth 설정&lt;br/&gt;&lt;small&gt;/settings/oauth&lt;/small&gt;&quot;]
-    S14_2 ~~~ S14_3[&quot;결제 설정&lt;br/&gt;&lt;small&gt;/settings/payment&lt;/small&gt;&quot;]
-    S14_3 ~~~ S14_4[&quot;플랜·이용 현황&lt;br/&gt;&lt;small&gt;/settings/plan&lt;/small&gt;&quot;]
+    S14_0 ~~~ S14_1[&quot;사이트 연동&lt;br/&gt;&lt;small&gt;/settings/site-connect&lt;/small&gt;&quot;]
+    S14_1 ~~~ S14_2[&quot;API Key 설정&lt;br/&gt;&lt;small&gt;/settings/api-keys&lt;/small&gt;&quot;]
+    S14_2 ~~~ S14_3[&quot;OAuth 설정&lt;br/&gt;&lt;small&gt;/settings/oauth&lt;/small&gt;&quot;]
+    S14_3 ~~~ S14_4[&quot;결제 설정&lt;br/&gt;&lt;small&gt;/settings/payment&lt;/small&gt;&quot;]
+    S14_4 ~~~ S14_5[&quot;플랜·이용 현황&lt;br/&gt;&lt;small&gt;/settings/plan&lt;/small&gt;&quot;]
+    S14_5 ~~~ S14_6[&quot;알림 설정&lt;br/&gt;&lt;small&gt;/settings/notifications&lt;/small&gt;&quot;]
+    S14_6 ~~~ S14_7[&quot;다국어 설정&lt;br/&gt;&lt;small&gt;/settings/languages&lt;/small&gt;&quot;]
 
     classDef grp fill:#e2e8f0,stroke:#475569,color:#0f172a,font-weight:bold
     class G0,G1,G2,G3,G4 grp
@@ -182,15 +192,15 @@ flowchart TD
     classDef sec1 fill:#93c5fd,stroke:#2563eb,color:#1e3a8a,font-weight:bold
     classDef lf1 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
     class S1 sec1
-    class S1_0,S1_1,S1_2,S1_3,S1_4 lf1
+    class S1_0,S1_1,S1_2,S1_3,S1_4,S1_5 lf1
     classDef sec2 fill:#86efac,stroke:#16a34a,color:#14532d,font-weight:bold
     classDef lf2 fill:#dcfce7,stroke:#16a34a,color:#14532d
     class S2 sec2
-    class S2_0,S2_1,S2_2,S2_3,S2_4,S2_5 lf2
+    class S2_0,S2_1,S2_2,S2_3,S2_4,S2_5,S2_6,S2_7,S2_8,S2_9,S2_10 lf2
     classDef sec3 fill:#d8b4fe,stroke:#9333ea,color:#4c1d95,font-weight:bold
     classDef lf3 fill:#f3e8ff,stroke:#9333ea,color:#4c1d95
     class S3 sec3
-    class S3_0,S3_1,S3_2,S3_3,S3_4,S3_5,S3_6,S3_7 lf3
+    class S3_0,S3_1,S3_2,S3_3,S3_4,S3_5,S3_6,S3_7,S3_8 lf3
     classDef sec4 fill:#fca5a5,stroke:#b91c1c,color:#7f1d1d,font-weight:bold
     classDef lf4 fill:#fee2e2,stroke:#b91c1c,color:#7f1d1d
     class S4 sec4
@@ -234,7 +244,7 @@ flowchart TD
     classDef sec14 fill:#c4b5fd,stroke:#7c3aed,color:#3b0764,font-weight:bold
     classDef lf14 fill:#ede9fe,stroke:#7c3aed,color:#3b0764
     class S14 sec14
-    class S14_0,S14_1,S14_2,S14_3,S14_4 lf14
+    class S14_0,S14_1,S14_2,S14_3,S14_4,S14_5,S14_6,S14_7 lf14
 
     classDef root fill:#1e293b,stroke:#0f172a,color:#f8fafc,font-weight:bold
     class ROOT root

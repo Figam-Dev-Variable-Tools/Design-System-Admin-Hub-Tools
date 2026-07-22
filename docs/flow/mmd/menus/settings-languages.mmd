@@ -1,0 +1,97 @@
+%% 다국어 설정 · /settings/languages
+%%{init: {"flowchart": {"curve": "step", "nodeSpacing": 25, "rankSpacing": 38, "wrappingWidth": 170}, "themeVariables": {"fontSize": "13px"}} }%%
+flowchart TD
+  S(["진입 /settings/languages"]) --> SCOPE["다국어는 번역이 아니라 **사이트 축**이다<br/>언어와 함께 지역·시간대·통화·사이트명·도메인이 통째로 갈린다<br/>**번역 본문은 여기 없다** — 각 작성 화면이 갖는다"]
+  SCOPE --> Q["useSettingsQuery(languageSettingsKey, languageSettingsStore)<br/>Revisioned&lt;LanguageSettingsDoc&gt; — 값 + revision + audit<br/>data 도착 시 setDraft(data.value) 로 기준선 설정"]
+
+  Q --> ST{"조회 상태"}
+  ST -->|"error !== null"| ERR1["폼 대신 Alert danger '다국어 설정을 불러오지 못했습니다.' + [다시 시도]"]
+  ST -->|"isFetching && data===undefined"| SKEL["Skeleton (aria-busy · '다국어 설정을 불러오는 중')"]
+  ST -->|"성공"| DOC["doc = draft ?? data.value<br/>dirty = JSON.stringify(doc) !== JSON.stringify(data.value) (파생값)"]
+  ERR1 --> Q
+  SKEL --> DOC
+
+  DOC --> PERM{"canUpdate"}
+  PERM -->|"false"| RO["Alert info '조회 권한만 있습니다. 다국어 설정을 바꾸려면<br/>시스템 설정 수정 권한이 필요합니다.'<br/>토글·버튼 disabled + 저장 컨트롤 자체를 렌더하지 않는다 (EXC-03)"]
+  PERM -->|"true"| CARDS
+
+  CARDS["카드 셋 — 주소 전략 · 언어·지역 · 번역 현황"] --> URLS{"주소 전략 RadioCardGroup — **하나만 고른다**"}
+  URLS -->|"path-prefix 경로 접두"| U1["example.com/en/… — 도메인 하나로 운영"]
+  URLS -->|"subdomain 서브도메인"| U2["en.example.com — 지역별 인프라·인증서를 나눠야 한다"]
+  U1 --> UPRE
+  U2 --> UPRE["localeUrlOf(strategy, baseHost, locale, isDefault)<br/>**기본 언어에는 접두를 붙이지 않는다** — example.com 과 example.com/ko 가<br/>같은 문서를 가리키면 중복 색인이 된다(전략을 하나만 고르게 한 이유와 같다)<br/>둘 다 열어 두면 검색엔진이 어느 쪽도 제대로 색인하지 않는다"]
+
+  CARDS --> LOC["언어·지역 행 — localeLabelOf · 기본 언어 배지 · 공개/비공개<br/>regionSummaryOf(regionId) = '{통화명} ({ISO 4217}) · {IANA 시간대}'<br/>**통화·시간대 입력 칸이 없다** — REGIONS 가 갖는다<br/>'en' 하나로는 USD 인지 GBP 인지 정할 수 없고,<br/>'zh' 에 CNY 를 매달면 대만·홍콩 사이트가 위안화로 값을 매긴다"]
+
+  LOC --> ADD{"addLocaleBlock(locales, languageId, regionId)"}
+  ADD -->|"언어 또는 지역 미선택"| AD1["'언어와 지역을 모두 고르세요.'"]
+  ADD -->|"이미 있는 조합"| AD2["'이미 추가된 언어·지역 조합입니다.'"]
+  ADD -->|"통과"| ADOK["locales 에 추가 — id = localeIdOf(lang, region) 'ko-KR'<br/>urlKey 는 언어 코드로 시작 · published=false(비공개로 태어난다)"]
+
+  LOC --> DEFT{"setDefaultBlock(locale) — '기본으로' 버튼"}
+  DEFT -->|"!locale.published"| DF1["'비공개 언어는 기본 언어가 될 수 없습니다.<br/>번역되지 않은 항목이 방문자에게 보이지 않는 언어로 떨어집니다.'"]
+  DEFT -->|"통과"| DFOK["defaultLocaleId 교체"]
+
+  LOC --> RM{"removeLocaleBlock(doc, localeId) — '삭제' 버튼"}
+  RM -->|"defaultLocaleId 와 같음"| RM1["'기본 언어는 삭제할 수 없습니다. 번역되지 않은 항목이 돌아갈 곳이<br/>없어집니다 — 다른 언어를 먼저 기본으로 지정하세요.'"]
+  RM -->|"locales.length &lt;= 1"| RM2["'언어를 하나도 남기지 않을 수는 없습니다.'"]
+  RM -->|"통과"| RMOK["locales 에서 제거"]
+
+  AD1 --> REJ
+  AD2 --> REJ
+  DF1 --> REJ
+  RM1 --> REJ
+  RM2 --> REJ
+  REJ["setRejected → Alert danger (사유 문자열 그대로)<br/>버튼의 잠금과 저장의 거절이 **같은 술어**를 읽는다"] --> CARDS
+  ADOK --> DOC
+  DFOK --> DOC
+  RMOK --> DOC
+
+  %% ── 저장 ──
+  DOC --> SUBMIT{"저장 — saveBlock(doc) 이 마지막 관문"}
+  SUBMIT -->|"baseHost 공백"| SB1["'기준 도메인을 입력하세요. 언어별 주소를 만들 수 없습니다.'"]
+  SUBMIT -->|"기본 언어가 목록에 없음"| SB2["'기본 언어가 목록에 없습니다. 기본 언어를 다시 지정하세요.'"]
+  SUBMIT -->|"기본 언어가 비공개"| SB3["setDefaultBlock 의 사유 그대로"]
+  SUBMIT -->|"urlKey 가 공백이거나 [a-z0-9-] 밖"| SB4["'{id} 의 URL 키가 올바르지 않습니다…'<br/>서브도메인 전략에서 비면 그 로케일은 **주소를 갖지 못한다**<br/>저장은 되는데 열리지 않는 사이트가 생기고, 방문자가 404 를 만나야 알려진다"]
+  SUBMIT -->|"urlKey 중복"| SB5["'URL 키 {key} 가 두 번 쓰였습니다. 같은 주소를 두 언어가 나눠 가질 수 없습니다.'"]
+  SB1 --> REJ
+  SB2 --> REJ
+  SB3 --> REJ
+  SB4 --> REJ
+  SB5 --> REJ
+  SUBMIT -->|"통과"| PEND["setPending(doc)"]
+
+  PEND --> CD{"ConfirmDialog intent='update' '다국어 설정 저장'<br/>'저장하는 즉시 공개된 언어의 주소가 바뀝니다. 기존 주소로 들어온 링크는<br/>더 이상 같은 문서를 가리키지 않을 수 있습니다. 저장할까요?'"}
+  CD -->|"취소·Esc·딤"| CX["cancelSave — abort + save.reset() + lock.release()"]
+  CX --> DOC
+  CD -->|"확인"| M["runSave(pending, force=false)<br/>[EXC-08] useSubmitLock 동기 잠금<br/>save.mutate({value, expectedRevision: data.revision, force, signal})"]
+
+  M --> MR{"결과"}
+  MR -->|"성공"| MOK["setDraft(saved.value) — 새 기준선 · toast '다국어 설정을 저장했습니다.'"]
+  MR -->|"409 isSettingsConflict"| CF["setConflict(cause.latest) — **덮어쓰지 않는다** (EXC-04)"]
+  MR -->|"isAbort"| AB["[EXC-09] 취소는 실패가 아니다 — 무시"]
+  MR -->|"실패 · ?fail=save"| ME["saveError '다국어 설정을 저장하지 못했습니다…'"]
+  ME --> M
+  MOK --> Q
+
+  CF --> CFD{"ConflictDialog subject='다국어 설정'<br/>divergedLabels(doc, latest.value, LANGUAGE_FIELD_LABELS)"}
+  CFD -->|"최신 내용 불러오기"| CF1["setDraft(latest.value) + refetch · toast '최신 다국어 설정을 불러왔습니다.'"]
+  CFD -->|"내 변경으로 덮어쓰기"| CF2["runSave(doc, force=true) → 다시 M"]
+  CFD -->|"닫기"| CF3["closeConflict — abort + save.reset() + lock.release()"]
+  CF1 --> DOC
+  CF2 --> M
+  CF3 --> DOC
+
+  %% ── 번역 현황 ──
+  CARDS --> TR{"translatableEntries() — 조회기(shared/domain/translatable-catalog)"}
+  TR -->|"null (미배선)"| TRN["Alert warning '번역 대상 목록을 확인할 수 없어 현황을 표시하지<br/>못했습니다. 대상이 없다는 뜻이 아닙니다…'<br/>빈 배열을 주면 화면이 '번역할 항목이 없습니다' 라고 완결되게 말하고<br/>운영자는 다국어 준비가 끝났다고 판단한다"]
+  TR -->|"기본 언어 말고 다른 로케일이 없음"| TRE["'기본 언어 외의 언어를 추가하면 번역 현황이 나타납니다.'"]
+  TR -->|"목록 있음"| TRT["translationRowsOf(entries, localeId, index)<br/>**발행된 항목만** 들어온다(조회기 계약) — 초안을 번역하면<br/>발행 직전에 원문이 바뀌어 그 작업이 버려진다<br/>index = fetchTranslationIndex() — `${entryId} ${localeId}` 집합<br/>표: 종류 · 제목 · 상태(translated 번역됨 / missing 미번역)<br/>미번역이면 **기본 언어의 제목을 그대로** 쓴다 —<br/>빈 칸으로 두면 실제 사이트도 비어 있다고 믿게 된다<br/>missingCountOf(rows) — 파생값(저장하지 않는다)"]
+
+  classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
+  classDef err fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#14532d
+
+  class ST,PERM,URLS,ADD,DEFT,RM,SUBMIT,CD,MR,CFD,TR gate
+  class ERR1,RO,AD1,AD2,DF1,RM1,RM2,REJ,SB1,SB2,SB3,SB4,SB5,ME,CF,TRN err
+  class DOC,ADOK,DFOK,RMOK,MOK,TRT ok

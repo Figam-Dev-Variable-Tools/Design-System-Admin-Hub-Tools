@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>메뉴 관리 · 어드민 플로우</title>
+<style>
+ :root{--bg:#ffffff;--fg:#111827;--muted:#6b7280;--line:#e5e7eb;--chip:#f3f4f6;--accent:#2563eb}
+ @media (prefers-color-scheme:dark){:root{--bg:#0b0f19;--fg:#e5e7eb;--muted:#9ca3af;--line:#1f2937;--chip:#111827;--accent:#60a5fa}}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 -apple-system,"Segoe UI","Malgun Gothic",sans-serif;background:var(--bg);color:var(--fg)}
+  header{position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+         padding:10px 16px;border-bottom:1px solid var(--line);background:var(--bg)}
+  h1{font-size:15px;margin:0;font-weight:600}
+  .sub{color:var(--muted);font-size:12px;font-family:ui-monospace,Consolas,monospace}
+  .spacer{flex:1}
+  a,button{font:inherit}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  button{border:1px solid var(--line);background:var(--chip);color:var(--fg);border-radius:6px;
+         padding:4px 10px;cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  #stage{position:relative;overflow:hidden;height:calc(100vh - 49px);cursor:grab;background:var(--bg)}
+  #stage.grabbing{cursor:grabbing}
+  #pan{transform-origin:0 0;position:absolute;top:0;left:0}
+  /* 다크에서도 도형 안 글자가 읽히게 — mermaid 가 흰 배경 전제로 그린다 */
+  @media (prefers-color-scheme:dark){#stage{background:#f8fafc}}
+  /* 그리기 전의 원문이 잠깐 보이지 않게 숨긴다. 렌더가 끝나면 스크립트가 드러낸다. */
+  #src{margin:0;visibility:hidden}
+  #src.ready{visibility:visible}
+  #err{display:none;padding:16px;color:#b91c1c;white-space:pre-wrap;
+       font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  .hint{position:fixed;right:14px;bottom:12px;color:var(--muted);font-size:11px;
+        background:var(--chip);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>메뉴 관리</h1>
+  <span class="sub">/content/menus</span>
+  <span class="spacer"></span>
+  <button id="fit">전체 보기</button>
+  <button id="reset">100%</button>
+  <a href="../../mmd/menus/content-menus.mmd" download>mermaid 원본</a>
+  <a href="../index.html">← 목록</a>
+</header>
+<div id="stage"><div id="pan"><pre class="mermaid" id="src">%% 메뉴 관리 · /content/menus
+%%{init: {&quot;flowchart&quot;: {&quot;curve&quot;: &quot;step&quot;, &quot;nodeSpacing&quot;: 25, &quot;rankSpacing&quot;: 38, &quot;wrappingWidth&quot;: 170}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;13px&quot;}} }%%
+flowchart TD
+  S([&quot;진입 · /content/menus&quot;]) --&gt; SCOPE[&quot;**B2C 홈페이지의 메뉴 트리**다&lt;br/&gt;어드민 사이드바(nav-config.ts)와는 다른 세계이고&lt;br/&gt;이 화면은 그것을 알지 못한다 (types.ts 머리말)&quot;]
+  SCOPE --&gt; URL[&quot;useListState (IA-13)&lt;br/&gt;FILTER_DEFAULTS location='header'&lt;br/&gt;parseFilter(filters['location'], MENU_LOCATIONS, 'header')&lt;br/&gt;header 상단 · footer 하단 · mobile 모바일&quot;]
+  URL --&gt; Q[&quot;useCrudListQuery('site-menus', siteMenuAdapter)&quot;]
+  Q --&gt; ST{&quot;조회 상태&quot;}
+  ST --&gt;|&quot;isFetching &amp;&amp; data===undefined&quot;| SKEL[&quot;'불러오는 중…' (STATE-01 · 재조회 중에는 이전 행 유지)&quot;]
+  ST --&gt;|&quot;error !== null&quot;| ERR1[&quot;Alert danger '메뉴를 불러오지 못했습니다.'&lt;br/&gt;[다시 시도] → refetch&quot;]
+  ST --&gt;|&quot;roots.length === 0&quot;| EMP[&quot;Empty label='메뉴' + createButton&quot;]
+  ST --&gt;|&quot;성공&quot;| TREE[&quot;Card + 2뎁스 트리&lt;br/&gt;rootMenus(menus, location) — order 오름차순&lt;br/&gt;childMenus(menus, root.id) — 들여쓰기 + 접기/펼치기&lt;br/&gt;aria-expanded · aria-controls (collapsed Set 은 화면 상태)&quot;]
+  ERR1 --&gt; Q
+  SKEL --&gt; TREE
+
+  %% ── 내부 참조의 건강 상태 ──
+  TREE --&gt; HEALTH{&quot;menuLinkHealth(target, catalog)&lt;br/&gt;catalog = sitePageCatalog() — **저장하지 않고 볼 때마다 조회**한다&lt;br/&gt;외부 URL·게시판은 판정하지 않는다('ok')&quot;}
+  HEALTH --&gt;|&quot;catalog === null&quot;| H_UNK[&quot;**unknown** — '모른다' 이지 '없다' 가 아니다&lt;br/&gt;Alert warning '페이지 목록을 불러올 수 없어 내부 링크가&lt;br/&gt;살아 있는지 확인하지 못했습니다.'&lt;br/&gt;빈 배열로 뭉개면 멀쩡한 트리가 전부 붉게 칠해진다&quot;]
+  HEALTH --&gt;|&quot;가리키는 페이지가 없음&quot;| H_MISS[&quot;**missing** — StatusBadge danger '끊긴 링크'&lt;br/&gt;SITE_PAGE_REF_MISSING · brokenMenuCount 만큼 상단 Alert danger&quot;]
+  HEALTH --&gt;|&quot;페이지가 아직 공개 전&quot;| H_HID[&quot;**hidden** — StatusBadge warning '공개 전'&lt;br/&gt;SITE_PAGE_REF_HIDDEN '발행하면 저절로 풀립니다'&quot;]
+  HEALTH --&gt;|&quot;공개된 페이지&quot;| H_OK[&quot;**ok** — DetailCellLink '페이지 열기'&lt;br/&gt;sitePageEditPath(pageId) → /content/pages/:id/edit&quot;]
+
+  TREE --&gt; ROW{&quot;행 액션&quot;}
+  ROW --&gt;|&quot;메뉴 추가 · canCreate&quot;| MCREATE[&quot;modal = create · parentId=null&quot;]
+  ROW --&gt;|&quot;하위 메뉴 추가 (1뎁스에만)&quot;| MCHILD[&quot;modal = create · parentId=root.id&quot;]
+  ROW --&gt;|&quot;연필 · canUpdate&quot;| MEDIT[&quot;modal = edit · menu&quot;]
+  ROW --&gt;|&quot;노출 토글 · canUpdate&quot;| VIS
+  ROW --&gt;|&quot;순서 위·아래 · canUpdate&quot;| MOVE
+  ROW --&gt;|&quot;휴지통 · canRemove&quot;| DGATE
+
+  %% ── 노출 토글 ──
+  VIS[&quot;useSetSiteMenuVisible → setSiteMenuVisible(id, visible)&lt;br/&gt;지우지 않고 잠깐 내리는 손잡이&lt;br/&gt;TODO(backend): PATCH /api/site-menus/:id/visible&quot;] --&gt; VISR{&quot;결과&quot;}
+  VISR --&gt;|&quot;성공&quot;| VISOK[&quot;toast '{label} 메뉴를 노출/숨김으로 바꿨습니다.'&lt;br/&gt;invalidate ['site-menus','list']&quot;]
+  VISR --&gt;|&quot;isAbort&quot;| VISAB[&quot;[EXC-09] 취소는 실패가 아니다 — 무시&quot;]
+  VISR --&gt;|&quot;실패 · ?fail=save&quot;| VISER[&quot;toast '노출 여부를 바꾸지 못했습니다…'&quot;]
+  VISOK --&gt; Q
+  VISER --&gt; TREE
+
+  %% ── 순서 이동 ──
+  MOVE[&quot;moveArrayItem(형제 id 배열, index, index+delta)&lt;br/&gt;**형제 안에서만** 움직인다&lt;br/&gt;useReorderSiteMenus → renumberSiblings(1..n 재번호)&lt;br/&gt;reorder.isPending 동안 locked (ReorderMoveButtons)&quot;] --&gt; MOVER{&quot;결과&quot;}
+  MOVER --&gt;|&quot;성공&quot;| MOVEOK[&quot;invalidate ['site-menus','list']&quot;]
+  MOVER --&gt;|&quot;실패&quot;| MOVEER[&quot;toast '순서를 바꾸지 못했습니다…'&quot;]
+  MOVEOK --&gt; Q
+  MOVEER --&gt; TREE
+
+  %% ── 삭제 가드 ──
+  DGATE{&quot;menuDeleteBlock(menus, menuId)&quot;} --&gt;|&quot;하위 메뉴가 있음&quot;| DBLOCK[&quot;MENU_DELETE_HAS_CHILDREN&lt;br/&gt;'하위 메뉴가 있어 삭제할 수 없습니다…'&lt;br/&gt;버튼 disabled + title/aria-label 이 **그 사유 문자열 그대로**&lt;br/&gt;부모를 지우면 자식이 유령이 된다&quot;]
+  DGATE --&gt;|&quot;자식 없음&quot;| DLG{&quot;ConfirmDialog intent='delete' '메뉴 삭제'&quot;}
+  DBLOCK --&gt; TREE
+  DLG --&gt;|&quot;취소 closeDelete (abort + reset)&quot;| TREE
+  DLG --&gt;|&quot;확인&quot;| DELM[&quot;useCrudDelete → removeSiteMenu(id)&lt;br/&gt;저장소가 같은 술어를 다시 읽는다 → HttpError 409&quot;]
+  DELM --&gt; DELR{&quot;결과&quot;}
+  DELR --&gt;|&quot;성공&quot;| DELOK[&quot;toast '{label} 메뉴를 삭제했습니다.' · invalidate list&quot;]
+  DELR --&gt;|&quot;실패&quot;| DELER[&quot;다이얼로그 안 Alert '삭제하지 못했습니다…' · 재클릭 = 재시도&quot;]
+  DELOK --&gt; Q
+  DELER --&gt; DLG
+
+  SUB1 ~~~ SUB2
+
+  subgraph SUB1[&quot;SiteMenuFormModal — 등록·수정 공용 (editing 유무로 갈린다)&quot;]
+    MCREATE --&gt; MODAL
+    MCHILD --&gt; MODAL
+    MEDIT --&gt; MODAL
+    MODAL[&quot;메뉴 이름(MENU_LABEL_MAX 30) · 위치 · 상위 메뉴 · 링크 대상&lt;br/&gt;**폼 값은 평면**이다 — 종류를 바꿔도 방금 쓴 URL 이 사라지지 않게&lt;br/&gt;상위 후보 = parentCandidates(같은 위치의 1뎁스만)&quot;] --&gt; TKIND{&quot;링크 대상 targetKind&quot;}
+    TKIND --&gt;|&quot;page 내부 페이지&quot;| TP{&quot;sitePageCatalog()&quot;}
+    TP --&gt;|&quot;null&quot;| TPN[&quot;Alert warning '페이지 목록을 불러올 수 없어 지금은&lt;br/&gt;내부 페이지를 고를 수 없습니다…'&lt;br/&gt;**빈 목록이 아니라 문장으로** 알린다&quot;]
+    TP --&gt;|&quot;목록 있음&quot;| TPS[&quot;SelectField — '{title} (/{slug})' · 미공개면 ' · 공개 전' 꼬리표&quot;]
+    TKIND --&gt;|&quot;external 외부 링크&quot;| TE[&quot;type='url' · http:// 또는 https://&quot;]
+    TKIND --&gt;|&quot;board 게시판&quot;| TB[&quot;BOARD_LABEL — news 뉴스·보도자료 / notices 공지사항 / faq FAQ&quot;]
+    TPN --&gt; TYPE
+    TPS --&gt; TYPE
+    TE --&gt; TYPE
+    TB --&gt; TYPE
+    TYPE[&quot;입력 · isDirty&quot;] --&gt; CLOSE{&quot;닫기 시도 — useModalDirtyGuard(isDirty &amp;&amp; !saving)&lt;br/&gt;Esc·딤·×·취소 4경로 (FEEDBACK-06)&quot;}
+    CLOSE --&gt;|&quot;계속 편집&quot;| TYPE
+    CLOSE --&gt;|&quot;버리기&quot;| TREE
+    TYPE --&gt; SUBMIT[&quot;Modal onSubmit → clearErrors → handleSubmit(onValid, focus)&quot;]
+  end
+
+  subgraph SUB2[&quot;검증 · 저장&quot;]
+    SUBMIT --&gt; ZOD{&quot;siteMenuSchema&quot;}
+    ZOD --&gt;|&quot;메뉴 이름 공백·30자 초과&quot;| ZE1[&quot;requiredText 메시지&quot;]
+    ZOD --&gt;|&quot;page 인데 pageId 공백&quot;| ZE2[&quot;MENU_PAGE_REQUIRED '연결할 페이지를 고르세요.'&quot;]
+    ZOD --&gt;|&quot;external 인데 url 공백&quot;| ZE3[&quot;MENU_URL_REQUIRED&quot;]
+    ZOD --&gt;|&quot;url 이 MENU_URL_MAX 300 초과&quot;| ZE4[&quot;'주소는 300자를 넘을 수 없습니다.'&quot;]
+    ZOD --&gt;|&quot;http(s):// 로 시작하지 않음&quot;| ZE5[&quot;MENU_URL_FORMAT&quot;]
+    ZE1 --&gt; TYPE
+    ZE2 --&gt; TYPE
+    ZE3 --&gt; TYPE
+    ZE4 --&gt; TYPE
+    ZE5 --&gt; TYPE
+    ZOD --&gt;|&quot;통과&quot;| FOLD[&quot;toMenuTarget(values) — 평면 값을 판별 유니온으로 접는다&lt;br/&gt;parentId '' → null · order 는 등록이면 저장소가 다시 계산&quot;]
+    FOLD --&gt; ASSERT{&quot;assertSavable(input, selfId) — 손으로 만든 요청이 여기서 막힌다&quot;}
+    ASSERT --&gt;|&quot;parentId = selfId&quot;| A1[&quot;MENU_PARENT_SELF '자기 자신을 상위 메뉴로 둘 수 없습니다.'&quot;]
+    ASSERT --&gt;|&quot;상위를 못 찾음&quot;| A2[&quot;MENU_PARENT_MISSING&quot;]
+    ASSERT --&gt;|&quot;상위가 이미 2뎁스&quot;| A3[&quot;MENU_DEPTH_LIMIT '메뉴는 2단계까지만…'&quot;]
+    ASSERT --&gt;|&quot;자식이 있는 메뉴를 남의 하위로&quot;| A3
+    ASSERT --&gt;|&quot;상위와 위치가 다름&quot;| A4[&quot;MENU_PARENT_LOCATION&quot;]
+    ASSERT --&gt;|&quot;menuTargetBlock 위반&quot;| A5[&quot;대상 사유 문자열 그대로 · HttpError 422&quot;]
+    A1 --&gt; SERR
+    A2 --&gt; SERR
+    A3 --&gt; SERR
+    A4 --&gt; SERR
+    A5 --&gt; SERR
+    ASSERT --&gt;|&quot;통과&quot;| MUT[&quot;create.mutate / update.mutate&lt;br/&gt;addSiteMenu → nextMenuOrder 로 자리를 저장소가 정한다&quot;]
+    MUT --&gt; RES{&quot;결과&quot;}
+    RES --&gt;|&quot;성공&quot;| OK[&quot;modal 닫힘 + toast '{label} 메뉴를 추가/저장했습니다.'&lt;br/&gt;invalidate ['site-menus','list']&quot;]
+    RES --&gt;|&quot;isAbort&quot;| ABORT[&quot;무시&quot;]
+    RES --&gt;|&quot;그 외&quot;| SERR[&quot;Alert danger '저장하지 못했습니다…' · 모달 유지&quot;]
+    SERR --&gt; TYPE
+  end
+
+  OK --&gt; Q
+  ABORT --&gt; TREE
+
+  classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
+  classDef err fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#14532d
+
+  class ST,HEALTH,ROW,DGATE,DLG,VISR,MOVER,DELR,TKIND,TP,CLOSE,ZOD,ASSERT,RES gate
+  class ERR1,EMP,H_UNK,H_MISS,H_HID,DBLOCK,DELER,VISER,MOVEER,TPN,ZE1,ZE2,ZE3,ZE4,ZE5,A1,A2,A3,A4,A5,SERR err
+  class H_OK,OK,DELOK,VISOK,MOVEOK ok
+</pre></div></div>
+<pre id="err"></pre>
+<div class="hint">휠 = 확대 · 드래그 = 이동</div>
+<script src="../_assets/mermaid.min.js"></script>
+<script>
+(function(){
+  var stage=document.getElementById('stage'),pan=document.getElementById('pan'),
+      src=document.getElementById('src'),err=document.getElementById('err');
+  var W=1000,H=1000,scale=1,x=0,y=0,svg=null;
+  function apply(){pan.style.transform='translate('+x+'px,'+y+'px) scale('+scale+')';}
+  function fit(){
+    var r=stage.getBoundingClientRect();
+    scale=Math.min(r.width/W,r.height/H)*0.96;
+    x=(r.width-W*scale)/2;y=(r.height-H*scale)/2;apply();
+  }
+  function measure(){
+    svg=pan.querySelector('svg');
+    if(!svg)return;
+    var vb=(svg.getAttribute('viewBox')||'0 0 1000 1000').split(/\s+/).map(Number);
+    W=vb[2];H=vb[3];
+    // mermaid 는 max-width 로 폭을 접는다 — 팬/줌은 고유 크기를 알아야 하므로 되돌린다.
+    svg.removeAttribute('style');
+    svg.setAttribute('width',W);svg.setAttribute('height',H);
+    svg.style.display='block';svg.style.width=W+'px';svg.style.height=H+'px';
+  }
+  document.getElementById('fit').onclick=fit;
+  document.getElementById('reset').onclick=function(){scale=1;x=0;y=0;apply();};
+  stage.addEventListener('wheel',function(e){
+    e.preventDefault();
+    var r=stage.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+    var k=Math.exp(-e.deltaY*0.0015),ns=Math.min(8,Math.max(0.05,scale*k));
+    x=mx-(mx-x)*(ns/scale);y=my-(my-y)*(ns/scale);scale=ns;apply();
+  },{passive:false});
+  var dragging=false,px=0,py=0;
+  stage.addEventListener('pointerdown',function(e){
+    dragging=true;px=e.clientX;py=e.clientY;stage.classList.add('grabbing');
+    stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener('pointermove',function(e){
+    if(!dragging)return;x+=e.clientX-px;y+=e.clientY-py;px=e.clientX;py=e.clientY;apply();
+  });
+  stage.addEventListener('pointerup',function(){dragging=false;stage.classList.remove('grabbing');});
+  window.addEventListener('resize',fit);
+
+  if(!window.mermaid){
+    err.style.display='block';
+    err.textContent='mermaid 번들을 불러오지 못했습니다 — ../_assets/mermaid.min.js 가 있는지 확인하세요. '+
+                    '(pnpm flow:render 로 다시 만듭니다)';
+    return;
+  }
+  // theme:'default' 고정 — 다크에서도 #stage 배경을 밝게 두고 밝은 테마로 그린다.
+  //   mermaid 의 dark 테마는 도형 배경만 어둡게 바꾸고 이 셸의 변수와는 무관해, 섞으면
+  //   대비가 무너진다. 배경을 통제하는 쪽(#stage)에 테마를 맞추는 편이 읽힌다.
+  window.mermaid.initialize({startOnLoad:false,theme:'default',securityLevel:'strict',
+                             maxTextSize:500000,maxEdges:2000});
+  window.mermaid.run({nodes:[src]}).then(function(){
+    src.classList.add('ready');measure();fit();
+  }).catch(function(e){
+    src.classList.add('ready');
+    err.style.display='block';err.textContent='mermaid 렌더 실패\n'+(e&&e.message?e.message:String(e));
+  });
+})();
+</script>
+</body>
+</html>

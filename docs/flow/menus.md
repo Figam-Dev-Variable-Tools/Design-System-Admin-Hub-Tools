@@ -1,20 +1,21 @@
 # 메뉴별 플로우 차트
 
-사이드바 메뉴 **전수 71장**. 각 장이 그 메뉴의 진입 → 조회 상태 → 액션 → 게이트·검증 → mutation → 성공·실패 → 복귀를 담는다.
+사이드바 메뉴 **전수 81장**. 각 장이 그 메뉴의 진입 → 조회 상태 → 액션 → 게이트·검증 → mutation → 성공·실패 → 복귀를 담는다.
 코드(페이지 컴포넌트·types.ts·data-source.ts·queries.ts)를 읽고 그린 것이라 상태값과 가드 이름이 실제와 일치한다.
 
 **[전체 목차(HTML)](html/index.html)** — 브라우저로 열면 휠 확대·드래그 이동이 된다.
 `.mmd` 는 mermaid.live 에 붙여넣는 원본이다(펜스 없이 통째로 복사).
 
-> **HTML 렌더가 `.mmd` 보다 낡을 수 있다.** `docs/flow/html/**` 는 `.mmd` 의 렌더 산출물인데
-> **그 렌더를 도는 스크립트가 `package.json` 에 등록돼 있지 않다**(`.prettierignore` 가 같은 사실을 적어 두었다).
-> 이제 HTML 은 `pnpm flow:render` 가 `.mmd` 에서 뽑는다(`pnpm flow:check` 가 낡음·누락·고아를 잡는다).
+> **`.mmd` 를 고쳤으면 `pnpm flow:render` 를 돌려야 한다.** `docs/flow/html/**` 는 `.mmd` 의 렌더
+> 산출물이고, `pnpm flow:check` 가 낡음·누락·고아를 잡아 exit 1 로 떨어진다.
+> **그 검사는 이제 `verify:all` 에 들어 있다** — HTML 을 맞추지 않으면 커밋이 통과하지 않는다.
 > 그래도 판단의 근거는 언제나 `.mmd` 다 — HTML 은 파생물이다.
 
 | 메뉴 | 경로 | 보기 | mermaid 원본 |
 |---|---|---|---|
 | 새 채팅 | `/ai/chat` | [HTML](html/menus/ai-chat.html) | [mmd](mmd/menus/ai-chat.mmd) |
 | 대화 목록 | `/ai/conversations` | [HTML](html/menus/ai-conversations.html) | [mmd](mmd/menus/ai-conversations.mmd) |
+| 채용 공고 | `/company/careers` | [HTML](html/menus/company-careers.html) | [mmd](mmd/menus/company-careers.mmd) |
 | CEO 인사말 | `/company/ceo-message` | [HTML](html/menus/company-ceo-message.html) | [mmd](mmd/menus/company-ceo-message.mmd) |
 | 인증서/특허 | `/company/certificates` | [HTML](html/menus/company-certificates.html) | [mmd](mmd/menus/company-certificates.mmd) |
 | 고객사 | `/company/clients` | [HTML](html/menus/company-clients.html) | [mmd](mmd/menus/company-clients.mmd) |
@@ -25,7 +26,12 @@
 | 회사 정보 | `/company/profile` | [HTML](html/menus/company-profile.html) | [mmd](mmd/menus/company-profile.mmd) |
 | 배너 관리 | `/content/banners` | [HTML](html/menus/content-banners.html) | [mmd](mmd/menus/content-banners.mmd) |
 | FAQ | `/content/faq` | [HTML](html/menus/content-faq.html) | [mmd](mmd/menus/content-faq.mmd) |
+| 폼 관리 | `/content/forms` | [HTML](html/menus/content-forms.html) | [mmd](mmd/menus/content-forms.mmd) |
+| 미디어 라이브러리 | `/content/media` | [HTML](html/menus/content-media.html) | [mmd](mmd/menus/content-media.mmd) |
+| 메뉴 관리 | `/content/menus` | [HTML](html/menus/content-menus.html) | [mmd](mmd/menus/content-menus.mmd) |
+| 뉴스·보도자료 | `/content/news` | [HTML](html/menus/content-news.html) | [mmd](mmd/menus/content-news.mmd) |
 | 공지사항 | `/content/notices` | [HTML](html/menus/content-notices.html) | [mmd](mmd/menus/content-notices.mmd) |
+| 페이지 관리 | `/content/pages` | [HTML](html/menus/content-pages.html) | [mmd](mmd/menus/content-pages.mmd) |
 | 팝업 관리 | `/content/popups` | [HTML](html/menus/content-popups.html) | [mmd](mmd/menus/content-popups.mmd) |
 | 개인정보 처리방침 | `/content/privacy` | [HTML](html/menus/content-privacy.html) | [mmd](mmd/menus/content-privacy.mmd) |
 | 약관 관리 | `/content/terms` | [HTML](html/menus/content-terms.html) | [mmd](mmd/menus/content-terms.mmd) |
@@ -64,9 +70,12 @@
 | 프로젝트 | `/sales/projects` | [HTML](html/menus/sales-projects.html) | [mmd](mmd/menus/sales-projects.mmd) |
 | 견적 | `/sales/quotes` | [HTML](html/menus/sales-quotes.html) | [mmd](mmd/menus/sales-quotes.mmd) |
 | API Key 설정 | `/settings/api-keys` | [HTML](html/menus/settings-api-keys.html) | [mmd](mmd/menus/settings-api-keys.mmd) |
+| 다국어 설정 | `/settings/languages` | [HTML](html/menus/settings-languages.html) | [mmd](mmd/menus/settings-languages.mmd) |
+| 알림 설정 | `/settings/notifications` | [HTML](html/menus/settings-notifications.html) | [mmd](mmd/menus/settings-notifications.mmd) |
 | OAuth 설정 | `/settings/oauth` | [HTML](html/menus/settings-oauth.html) | [mmd](mmd/menus/settings-oauth.mmd) |
 | 결제 설정 | `/settings/payment` | [HTML](html/menus/settings-payment.html) | [mmd](mmd/menus/settings-payment.mmd) |
 | 플랜·이용 현황 | `/settings/plan` | [HTML](html/menus/settings-plan.html) | [mmd](mmd/menus/settings-plan.mmd) |
+| 사이트 연동 | `/settings/site-connect` | [HTML](html/menus/settings-site-connect.html) | [mmd](mmd/menus/settings-site-connect.mmd) |
 | 사이트 설정 | `/settings/site` | [HTML](html/menus/settings-site.html) | [mmd](mmd/menus/settings-site.mmd) |
 | 검색어 분석 | `/stats/keywords` | [HTML](html/menus/stats-keywords.html) | [mmd](mmd/menus/stats-keywords.mmd) |
 | 회원 통계 | `/stats/members` | [HTML](html/menus/stats-members.html) | [mmd](mmd/menus/stats-members.mmd) |
@@ -80,6 +89,7 @@
 | 문의 답변 | `/support/replies` | [HTML](html/menus/support-replies.html) | [mmd](mmd/menus/support-replies.mmd) |
 | 1:1 문의 | `/support/tickets` | [HTML](html/menus/support-tickets.html) | [mmd](mmd/menus/support-tickets.mmd) |
 | 관리자 관리 | `/users/admins` | [HTML](html/menus/users-admins.html) | [mmd](mmd/menus/users-admins.mmd) |
+| 동의 이력 | `/users/consents` | [HTML](html/menus/users-consents.html) | [mmd](mmd/menus/users-consents.mmd) |
 | 로그인 이력 | `/users/login-history` | [HTML](html/menus/users-login-history.html) | [mmd](mmd/menus/users-login-history.mmd) |
 | 회원 관리 | `/users/members` | [HTML](html/menus/users-members.html) | [mmd](mmd/menus/users-members.mmd) |
 | 권한 관리 | `/users/roles` | [HTML](html/menus/users-roles.html) | [mmd](mmd/menus/users-roles.mmd) |

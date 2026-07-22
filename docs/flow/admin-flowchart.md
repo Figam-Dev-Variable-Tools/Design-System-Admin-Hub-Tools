@@ -23,10 +23,28 @@ App.tsx 의 `APP_ROUTES`, nav-config.ts 의 사이드바 정의, 각 도메인 `
 서브그래프를 쓰는 06·08 은 `~~~` 보이지 않는 링크로 세로로 쌓아 뒀다. 이 줄을 지우면 서브그래프가
 옆으로 늘어서 폭이 5000px 를 넘고, 그때부터 "빈 화면"으로 보이기 시작한다.
 
-## 메뉴별 플로우 (전수 71장)
+## 메뉴별 플로우 (전수 81장)
 
 사이드바 메뉴 하나하나의 상세 플로우는 [menus.md](menus.md) 에 표로 있다.
 아래 12장은 그 위를 덮는 **횡단 다이어그램**이다 — 전체 흐름과 도메인별 워크플로.
+
+**이번에 10장이 늘었다**(홈페이지 콘텐츠 가지 신설 · 커밋 `31ae647`).
+
+| 신설 차트 | 메뉴 | 이 장이 붙잡는 규칙 |
+|---|---|---|
+| [content-pages](mmd/menus/content-pages.mmd) | 페이지 관리 `/content/pages` | 저장하는 것은 `status`+`publishAt` 둘뿐 · **'예약' 은 파생**(`effectivePublishStatus`) · 슬러그 변경은 막지 않고 경고하며 옛 슬러그를 보관한다 |
+| [content-menus](mmd/menus/content-menus.mmd) | 메뉴 관리 `/content/menus` | **2뎁스 상한**(`menuParentBlock`) · 내부 참조가 `ok`·`missing`·`hidden`·`unknown` 넷으로 갈린다(`sitePageRefHealth`) |
+| [content-news](mmd/menus/content-news.mmd) | 뉴스·보도자료 `/content/news` | 페이지와 **같은 예약 판정 한 벌**을 읽는다 · 첨부는 사본이 아니라 미디어 자산 참조다 |
+| [content-forms](mmd/menus/content-forms.mmd) | 폼 관리 `/content/forms` | `privacy-consent` 를 특수 타입으로 분리 · 발행 후 필드는 **삭제 금지·숨김만**(`fieldDeleteBlock`) |
+| [content-media](mmd/menus/content-media.mmd) | 미디어 라이브러리 `/content/media` | 사용처가 있으면 삭제 차단, **사용처 조회기가 미배선이면 전면 차단**(`mediaDeleteBlock` — fail-closed) |
+| [users-consents](mmd/menus/users-consents.mmd) | 동의 이력 `/users/consents` | 이력은 **append-only** · 마케팅·선택 개인정보·제3자 제공 세 목적은 필수가 될 수 없다(`necessityChangeBlock`) |
+| [company-careers](mmd/menus/company-careers.mmd) | 채용 공고 `/company/careers` | 상태는 파생(`careerStateOf` — `draft`·`always`·`open`·`closed`) · 마감 여부를 저장하지 않는다 |
+| [settings-site-connect](mmd/menus/settings-site-connect.mmd) | 사이트 연동 `/settings/site-connect` | 유입원은 **최초 접점 하나만 불변 저장**(`firstTouch`) — 수정 표면이 없다 |
+| [settings-notifications](mmd/menus/settings-notifications.mmd) | 알림 설정 `/settings/notifications` | 알림은 **읽음/안읽음만** 갖고 권한을 통과한 것만 목록에 들어간다(fail-closed) |
+| [settings-languages](mmd/menus/settings-languages.mmd) | 다국어 설정 `/settings/languages` | 통화·시간대는 언어가 아니라 **지역**이 갖는다 · URL 전략은 사이트당 하나 |
+
+신설 6화면(`/content/*` 5 + `/company/careers`)은 엔타이틀먼트 `cms.pages` 에 매핑됐다.
+`/users/consents`·`/settings/*` 셋은 매핑이 없다 — **매핑이 없으면 fail-open** 이라 언제나 열린다.
 
 ## 다이어그램
 
@@ -41,7 +59,7 @@ App.tsx 의 `APP_ROUTES`, nav-config.ts 의 사이드바 정의, 각 도메인 `
 | 06 | [06-content-publish.mmd](mmd/06-content-publish.mmd) | 콘텐츠 발행 — 공지 · 팝업/배너 · 약관/개인정보 버전 |
 | 07 | [07-marketing-send.mmd](mmd/07-marketing-send.mmd) | 캠페인 발송 · 발송 템플릿 발행 · 알림톡 심사 |
 | 08 | [08-users-permissions.mmd](mmd/08-users-permissions.mmd) | 회원 · 운영자 · 권한 역할 |
-| 09 | [09-ia-tree.mmd](mmd/09-ia-tree.mmd) | IA 트리 — 루트 → 그룹 5 → 메뉴 15 → 잎 71 (플로우가 아닌 참고용) |
+| 09 | [09-ia-tree.mmd](mmd/09-ia-tree.mmd) | IA 트리 — 루트 → 그룹 5 → 메뉴 15 → 잎 81 (플로우가 아닌 참고용) |
 | 09a | [09a-ia-tree-overview.mmd](mmd/09a-ia-tree-overview.mmd) | IA 트리 · 상위 구조 한 화면 (그룹 5 · 메뉴 15 와 각 잎 수) |
 | 09b | [09b-ia-tree-sections.mmd](mmd/09b-ia-tree-sections.mmd) | IA 트리 · 메뉴별 피라미드 (메뉴 15 × 그 잎들) |
 
@@ -101,14 +119,16 @@ App.tsx 의 `APP_ROUTES`, nav-config.ts 의 사이드바 정의, 각 도메인 `
 
 12개 파일 전부 mermaid 11.16(= mermaid.live 와 같은 엔진)으로 **파싱 + 실제 SVG 렌더**까지 확인했다.
 결과물은 [html/](html/) 의 페이지로 들어 있다 — `.mmd` 원본을 페이지에 심고 브라우저가 그린다.
-mermaid 번들은 `html/_assets/` 에 한 벌만 두고 상대 경로로 부른다(3.4MB 를 83벌 복제하지 않기 위해서다).
+mermaid 번들은 `html/_assets/` 에 한 벌만 두고 상대 경로로 부른다(3.4MB 를 93벌 복제하지 않기 위해서다).
 네트워크 의존은 0건이다.
 다이어그램을 고치면 아래로 다시 뽑는다.
 
-> **렌더는 이제 생성기가 돈다.** `pnpm flow:render` 가 `.mmd` 83장을 `html/` 로 뽑고,
+> **렌더는 이제 생성기가 돈다.** `pnpm flow:render` 가 `.mmd` 93장을 `html/` 로 뽑고,
 > `pnpm flow:check` 가 누락·낡음·고아를 잡아 exit 1 로 떨어진다(`nav:check` 와 같은 결).
-> 한동안 이 자리에는 "생성기가 등록돼 있지 않아 HTML 이 표류한다" 는 경고가 있었다 — 그것이
-> 이 표류의 원인이었고, 생성기를 등록하면서 사라졌다. **정본은 여전히 `.mmd`** 다.
+> **`flow:check` 는 `verify:all` 에 편입됐다** — `.mmd` 를 고치거나 더하고 렌더를 돌리지 않으면
+> 커밋 게이트가 막는다. 한동안 이 자리에는 "생성기가 등록돼 있지 않아 HTML 이 표류한다" 는
+> 경고가 있었다 — 그것이 이 표류의 원인이었고, 생성기를 등록하면서 사라졌다.
+> **정본은 여전히 `.mmd`** 다.
 ```sh
 npx -p @mermaid-js/mermaid-cli mmdc -i docs/flow/mmd/00-master-flow.mmd -o /tmp/00.svg
 ```

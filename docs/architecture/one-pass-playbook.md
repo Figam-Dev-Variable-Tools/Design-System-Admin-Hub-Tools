@@ -8,8 +8,10 @@
 ## 규칙 1 — 착수 전에 `pnpm verify:all` 을 먼저 돌린다
 
 **빨간불의 목록을 먼저 확보한다.** 무엇을 만들기 전에, 지금 리포가 어디서 깨지는지를 안다.
-- `verify:all` = 전체 게이트 무중단 체인 (codegen 최신성 · 레지스트리 · 계약 · 경계 · 4자 일치 · 커버리지 · 클린코드 · 네이밍 · tsc · lint · format · 유닛). 브라우저 불필요.
+- `verify:all` = 전체 게이트 무중단 체인 (codegen 최신성 · 레지스트리 · **플로우 차트 신선도** · 계약 · 경계 · 4자 일치 · 커버리지 · 클린코드 · 네이밍 · tsc · lint · format · 유닛). 브라우저 불필요.
 - `verify:full` = 위 + `pnpm e2e` (Playwright — 동작 보존 안전망).
+- **`flow:check` 가 그 체인에 들어 있다.** `docs/flow/mmd/**/*.mmd` 를 고치거나 추가했으면
+  `pnpm flow:render` 로 `docs/flow/html/**` 를 맞춰야 통과한다 — `.mmd` 가 정본이고 HTML 은 파생물이다.
 
 **끝날 때도 `verify:all` 한 번.** 조각조각 재실행하지 않는다 — 한 명령이 전부를 판정한다.
 

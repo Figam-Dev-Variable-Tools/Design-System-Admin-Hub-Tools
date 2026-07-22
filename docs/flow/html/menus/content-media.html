@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>미디어 라이브러리 · 어드민 플로우</title>
+<style>
+ :root{--bg:#ffffff;--fg:#111827;--muted:#6b7280;--line:#e5e7eb;--chip:#f3f4f6;--accent:#2563eb}
+ @media (prefers-color-scheme:dark){:root{--bg:#0b0f19;--fg:#e5e7eb;--muted:#9ca3af;--line:#1f2937;--chip:#111827;--accent:#60a5fa}}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 -apple-system,"Segoe UI","Malgun Gothic",sans-serif;background:var(--bg);color:var(--fg)}
+  header{position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+         padding:10px 16px;border-bottom:1px solid var(--line);background:var(--bg)}
+  h1{font-size:15px;margin:0;font-weight:600}
+  .sub{color:var(--muted);font-size:12px;font-family:ui-monospace,Consolas,monospace}
+  .spacer{flex:1}
+  a,button{font:inherit}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  button{border:1px solid var(--line);background:var(--chip);color:var(--fg);border-radius:6px;
+         padding:4px 10px;cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  #stage{position:relative;overflow:hidden;height:calc(100vh - 49px);cursor:grab;background:var(--bg)}
+  #stage.grabbing{cursor:grabbing}
+  #pan{transform-origin:0 0;position:absolute;top:0;left:0}
+  /* 다크에서도 도형 안 글자가 읽히게 — mermaid 가 흰 배경 전제로 그린다 */
+  @media (prefers-color-scheme:dark){#stage{background:#f8fafc}}
+  /* 그리기 전의 원문이 잠깐 보이지 않게 숨긴다. 렌더가 끝나면 스크립트가 드러낸다. */
+  #src{margin:0;visibility:hidden}
+  #src.ready{visibility:visible}
+  #err{display:none;padding:16px;color:#b91c1c;white-space:pre-wrap;
+       font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  .hint{position:fixed;right:14px;bottom:12px;color:var(--muted);font-size:11px;
+        background:var(--chip);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>미디어 라이브러리</h1>
+  <span class="sub">/content/media</span>
+  <span class="spacer"></span>
+  <button id="fit">전체 보기</button>
+  <button id="reset">100%</button>
+  <a href="../../mmd/menus/content-media.mmd" download>mermaid 원본</a>
+  <a href="../index.html">← 목록</a>
+</header>
+<div id="stage"><div id="pan"><pre class="mermaid" id="src">%% 미디어 라이브러리 · /content/media
+%%{init: {&quot;flowchart&quot;: {&quot;curve&quot;: &quot;step&quot;, &quot;nodeSpacing&quot;: 25, &quot;rankSpacing&quot;: 38, &quot;wrappingWidth&quot;: 170}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;13px&quot;}} }%%
+flowchart TD
+  S([&quot;진입 · /content/media&quot;]) --&gt; URL[&quot;useListState (IA-13)&lt;br/&gt;FILTER_DEFAULTS folder='all' · tag='' · q&quot;]
+  URL --&gt; Q[&quot;useCrudListQuery('media-assets', mediaAssetAdapter)&quot;]
+  Q --&gt; ST{&quot;조회 상태&quot;}
+  ST --&gt;|&quot;isFetching &amp;&amp; data===undefined&quot;| SKEL[&quot;'불러오는 중…' (STATE-01)&quot;]
+  ST --&gt;|&quot;error !== null&quot;| ERR1[&quot;Alert danger '파일 목록을 불러오지 못했습니다.'&lt;br/&gt;[다시 시도] → refetch · counts = null&quot;]
+  ST --&gt;|&quot;visible.length === 0&quot;| EMP[&quot;Empty label='파일' · 검색어 지우기 · 필터 초기화 · createButton&quot;]
+  ST --&gt;|&quot;성공&quot;| LIST[&quot;좌 FilterRail/FilterPanel — 폴더 · countByFolder 배지&lt;br/&gt;우 카드 목록 (표가 아니다 — 행마다 삭제 가능 여부와 사유가 다르다)&lt;br/&gt;ImageThumb · 파일명 · 대체텍스트 · 폴더 · 확장자·용량 · 태그&lt;br/&gt;정렬 sortMediaAssets — uploadedAt 내림차순&quot;]
+  ERR1 --&gt; Q
+  SKEL --&gt; LIST
+
+  LIST --&gt; F{&quot;조회 조건 변경&quot;}
+  F --&gt;|&quot;폴더 FilterPanel&quot;| SETQ
+  F --&gt;|&quot;태그 SelectField · collectTags(파생 목록)&quot;| SETQ
+  F --&gt;|&quot;파일명·대체텍스트 검색&quot;| SETQ
+  SETQ[&quot;URL 쿼리 갱신 · filterMediaAssets(assets, folderId, tag, keyword)&quot;] --&gt; Q
+
+  %% ── 사용처는 삭제를 막는 근거다 ──
+  LIST --&gt; USE[&quot;usageById — 목록을 그릴 때 **한 번에** 모은다&lt;br/&gt;행마다 부르면 한 화면의 두 행이 서로 다른 시점의 답을 갖는다&lt;br/&gt;mediaUsage(assetId) — shared/domain/media-library&quot;]
+  USE --&gt; UG{&quot;조회기 상태&quot;}
+  UG --&gt;|&quot;registerMediaUsageLookup 이 한 건도 없음&quot;| U_NULL[&quot;**null — '모른다'**&lt;br/&gt;배지 usageTone(null)=warning · usageLabel '확인 불가'&lt;br/&gt;펼치면 '사용처를 확인할 수 없습니다. 확인되기 전에는 삭제할 수 없습니다.'&quot;]
+  UG --&gt;|&quot;0건&quot;| U_ZERO[&quot;배지 neutral '미사용' — 지워도 된다&quot;]
+  UG --&gt;|&quot;N건&quot;| U_SOME[&quot;배지 info 'N곳 사용 중'&lt;br/&gt;펼치면 MediaUsageRef 링크 목록 ('뉴스 · {제목}' → /content/news/:id/edit)&quot;]
+
+  LIST --&gt; ROW{&quot;행 액션&quot;}
+  ROW --&gt;|&quot;사용처 배지 (aria-expanded/controls)&quot;| USE
+  ROW --&gt;|&quot;파일 등록 · canCreate&quot;| MCREATE[&quot;modal = create&quot;]
+  ROW --&gt;|&quot;연필 · canUpdate&quot;| MEDIT[&quot;modal = edit · asset&quot;]
+  ROW --&gt;|&quot;휴지통 · canRemove&quot;| DGATE
+
+  %% ── 삭제 가드 — fail-closed ──
+  DGATE{&quot;mediaDeleteBlock(usage)&lt;br/&gt;버튼의 disabled 와 저장소의 거절이 **이 한 함수**를 함께 읽는다&quot;} --&gt;|&quot;usage === null&quot;| DB1[&quot;MEDIA_DELETE_UNKNOWN&lt;br/&gt;'사용처를 확인할 수 없어 삭제할 수 없습니다…'&lt;br/&gt;**모르면 더 막는다** — '모른다' 를 '안 쓰인다' 로 뭉개면&lt;br/&gt;배선이 빠진 날 라이브러리가 통째로 비워진다 (fail-closed)&quot;]
+  DGATE --&gt;|&quot;usage.length &amp;gt; 0&quot;| DB2[&quot;mediaDeleteInUse(N) 'N곳에서 사용 중이라 삭제할 수 없습니다.&lt;br/&gt;사용처에서 먼저 연결을 끊어 주세요.'&quot;]
+  DGATE --&gt;|&quot;0건&quot;| DLG{&quot;ConfirmDialog intent='delete' '파일 삭제'&quot;}
+  DB1 --&gt; BLOCKED[&quot;버튼 disabled + title/aria-label 이 **그 사유 문자열 그대로**&lt;br/&gt;화면이 사유를 다시 지어내지 않는다&quot;]
+  DB2 --&gt; BLOCKED
+  BLOCKED --&gt; LIST
+
+  DLG --&gt;|&quot;취소 closeDelete (abort + reset)&quot;| LIST
+  DLG --&gt;|&quot;확인&quot;| DELM[&quot;useCrudDelete → removeMediaAsset(id)&lt;br/&gt;저장소가 mediaDeleteBlock(mediaUsage(id)) 를 다시 읽는다 → HttpError 409&quot;]
+  DELM --&gt; DELR{&quot;결과&quot;}
+  DELR --&gt;|&quot;성공&quot;| DELOK[&quot;toast '{fileName} 파일을 삭제했습니다.' · invalidate list&quot;]
+  DELR --&gt;|&quot;isAbort&quot;| DELAB[&quot;[EXC-09] 취소는 실패가 아니다 — 무시&quot;]
+  DELR --&gt;|&quot;실패&quot;| DELER[&quot;다이얼로그 안 Alert '삭제하지 못했습니다…' · 재클릭 = 재시도&quot;]
+  DELOK --&gt; Q
+  DELER --&gt; DLG
+
+  SUB1 ~~~ SUB2
+
+  subgraph SUB1[&quot;MediaAssetFormModal — 등록·수정 공용&quot;]
+    MCREATE --&gt; MODAL
+    MEDIT --&gt; MODAL
+    MODAL[&quot;파일 이름 · 용량(바이트) · 폴더 · 태그 · **대체텍스트**&lt;br/&gt;url 은 수정 시 기존 값 · 등록은 MEDIA_PLACEHOLDER_URL&lt;br/&gt;실제 업로드는 없다 — 백엔드가 붙으면 File 이 값을 준다&quot;] --&gt; DUP{&quot;findDuplicate(assets, {fileName, sizeBytes})&lt;br/&gt;이름 + 크기로 본다(해시는 내용을 읽을 수 있게 된 뒤)&quot;}
+    DUP --&gt;|&quot;같은 이름·크기가 이미 있음&quot;| DUPW[&quot;Alert warning duplicateWarningMessage&lt;br/&gt;**막지 않고 알린다** — 같은 이름의 다른 개정본을 올리는 일은 정당하다&quot;]
+    DUP --&gt;|&quot;없음&quot;| TYPE
+    DUPW --&gt; TYPE
+    TYPE[&quot;입력 · isDirty&quot;] --&gt; CLOSE{&quot;닫기 시도 — useModalDirtyGuard(isDirty &amp;&amp; !saving)&lt;br/&gt;Esc·딤·×·취소 4경로 (FEEDBACK-06)&quot;}
+    CLOSE --&gt;|&quot;계속 편집&quot;| TYPE
+    CLOSE --&gt;|&quot;버리기&quot;| LIST
+    TYPE --&gt; SUBMIT[&quot;Modal onSubmit → clearErrors → handleSubmit(onValid, focus)&quot;]
+  end
+
+  subgraph SUB2[&quot;검증 · 저장 — 규칙의 정본은 types.uploadBlock 이다&quot;]
+    SUBMIT --&gt; ZOD{&quot;mediaAssetSchema&quot;}
+    ZOD --&gt;|&quot;파일 이름 공백&quot;| Z1[&quot;FILE_NAME_REQUIRED&quot;]
+    ZOD --&gt;|&quot;ALLOWED_EXTENSIONS 밖&quot;| Z2[&quot;extensionBlockedMessage&lt;br/&gt;이미지 jpg·jpeg·png·gif·webp·svg / 문서 pdf·dwg·zip·xlsx·docx·pptx&lt;br/&gt;exe·sh·html 을 받지 않는 이유는 용량이 아니라 **안전**이다&quot;]
+    ZOD --&gt;|&quot;용량이 숫자가 아니거나 0 이하&quot;| Z3[&quot;'용량을 바이트 단위 숫자로 입력하세요.'&quot;]
+    ZOD --&gt;|&quot;MAX_SIZE_BYTES 20MB 초과&quot;| Z4[&quot;sizeBlockedMessage&quot;]
+    ZOD --&gt;|&quot;대체텍스트 공백&quot;| Z5[&quot;ALT_REQUIRED '…화면을 읽어 주는 사용자에게는 이 문장이 곧 이미지입니다.'&lt;br/&gt;**올리는 순간에 받는다** — 나중에 채우겠다는 약속은 지켜지지 않는다&quot;]
+    ZOD --&gt;|&quot;ALT_MAX 100 초과&quot;| Z6[&quot;ALT_TOO_LONG&quot;]
+    Z1 --&gt; TYPE
+    Z2 --&gt; TYPE
+    Z3 --&gt; TYPE
+    Z4 --&gt; TYPE
+    Z5 --&gt; TYPE
+    Z6 --&gt; TYPE
+    ZOD --&gt;|&quot;통과&quot;| MUT[&quot;parseTags(쉼표·줄바꿈 · 중복 제거) · extensionOf(fileName)&lt;br/&gt;create.mutate / update.mutate&quot;]
+    MUT --&gt; ASSERT{&quot;저장 경로가 uploadBlock 을 다시 읽는다&quot;}
+    ASSERT --&gt;|&quot;위반&quot;| SERR[&quot;HttpError 422 → Alert danger '저장하지 못했습니다…' · 모달 유지&quot;]
+    ASSERT --&gt;|&quot;통과&quot;| RES{&quot;결과&quot;}
+    RES --&gt;|&quot;성공&quot;| OK[&quot;modal 닫힘 + toast '{fileName} 파일을 등록/저장했습니다.'&lt;br/&gt;invalidate ['media-assets','list']&quot;]
+    RES --&gt;|&quot;isAbort&quot;| ABORT[&quot;무시&quot;]
+    RES --&gt;|&quot;그 외&quot;| SERR
+    SERR --&gt; TYPE
+  end
+
+  OK --&gt; Q
+  ABORT --&gt; LIST
+
+  %% ── 이 화면 밖으로 나가는 실 ──
+  Q -.-&gt;|&quot;첨부하는 쪽이 읽는다&quot;| CAT[&quot;listCatalogMediaAssets → CatalogMediaAsset{id, fileName, url, alt, sizeBytes}&lt;br/&gt;alt 를 함께 넘긴다 — 접근성은 복사되지 않으면 사라진다&lt;br/&gt;registerMediaCatalogLookup 은 src/wiring.ts 가 건다&lt;br/&gt;**카탈로그는 fail-open('못 고름'), 사용처는 fail-closed('못 지움')** — 기본값이 다른 것은 규칙이다&quot;]
+
+  classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
+  classDef err fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#14532d
+
+  class ST,F,UG,ROW,DGATE,DLG,DELR,DUP,CLOSE,ZOD,ASSERT,RES gate
+  class ERR1,EMP,U_NULL,DB1,DB2,BLOCKED,DELER,DUPW,Z1,Z2,Z3,Z4,Z5,Z6,SERR err
+  class U_ZERO,U_SOME,OK,DELOK ok
+</pre></div></div>
+<pre id="err"></pre>
+<div class="hint">휠 = 확대 · 드래그 = 이동</div>
+<script src="../_assets/mermaid.min.js"></script>
+<script>
+(function(){
+  var stage=document.getElementById('stage'),pan=document.getElementById('pan'),
+      src=document.getElementById('src'),err=document.getElementById('err');
+  var W=1000,H=1000,scale=1,x=0,y=0,svg=null;
+  function apply(){pan.style.transform='translate('+x+'px,'+y+'px) scale('+scale+')';}
+  function fit(){
+    var r=stage.getBoundingClientRect();
+    scale=Math.min(r.width/W,r.height/H)*0.96;
+    x=(r.width-W*scale)/2;y=(r.height-H*scale)/2;apply();
+  }
+  function measure(){
+    svg=pan.querySelector('svg');
+    if(!svg)return;
+    var vb=(svg.getAttribute('viewBox')||'0 0 1000 1000').split(/\s+/).map(Number);
+    W=vb[2];H=vb[3];
+    // mermaid 는 max-width 로 폭을 접는다 — 팬/줌은 고유 크기를 알아야 하므로 되돌린다.
+    svg.removeAttribute('style');
+    svg.setAttribute('width',W);svg.setAttribute('height',H);
+    svg.style.display='block';svg.style.width=W+'px';svg.style.height=H+'px';
+  }
+  document.getElementById('fit').onclick=fit;
+  document.getElementById('reset').onclick=function(){scale=1;x=0;y=0;apply();};
+  stage.addEventListener('wheel',function(e){
+    e.preventDefault();
+    var r=stage.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+    var k=Math.exp(-e.deltaY*0.0015),ns=Math.min(8,Math.max(0.05,scale*k));
+    x=mx-(mx-x)*(ns/scale);y=my-(my-y)*(ns/scale);scale=ns;apply();
+  },{passive:false});
+  var dragging=false,px=0,py=0;
+  stage.addEventListener('pointerdown',function(e){
+    dragging=true;px=e.clientX;py=e.clientY;stage.classList.add('grabbing');
+    stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener('pointermove',function(e){
+    if(!dragging)return;x+=e.clientX-px;y+=e.clientY-py;px=e.clientX;py=e.clientY;apply();
+  });
+  stage.addEventListener('pointerup',function(){dragging=false;stage.classList.remove('grabbing');});
+  window.addEventListener('resize',fit);
+
+  if(!window.mermaid){
+    err.style.display='block';
+    err.textContent='mermaid 번들을 불러오지 못했습니다 — ../_assets/mermaid.min.js 가 있는지 확인하세요. '+
+                    '(pnpm flow:render 로 다시 만듭니다)';
+    return;
+  }
+  // theme:'default' 고정 — 다크에서도 #stage 배경을 밝게 두고 밝은 테마로 그린다.
+  //   mermaid 의 dark 테마는 도형 배경만 어둡게 바꾸고 이 셸의 변수와는 무관해, 섞으면
+  //   대비가 무너진다. 배경을 통제하는 쪽(#stage)에 테마를 맞추는 편이 읽힌다.
+  window.mermaid.initialize({startOnLoad:false,theme:'default',securityLevel:'strict',
+                             maxTextSize:500000,maxEdges:2000});
+  window.mermaid.run({nodes:[src]}).then(function(){
+    src.classList.add('ready');measure();fit();
+  }).catch(function(e){
+    src.classList.add('ready');
+    err.style.display='block';err.textContent='mermaid 렌더 실패\n'+(e&&e.message?e.message:String(e));
+  });
+})();
+</script>
+</body>
+</html>
