@@ -68,8 +68,17 @@ export function requestedStatus(scope: string, op: string): HttpStatus | null {
   if (raw === null) return null;
 
   for (const entry of raw.split(',')) {
-    const [target, code] = entry.trim().split(':');
-    if (target === undefined || code === undefined) continue;
+    /*
+     * **마지막 ':' 에서만 가른다.** 스코프를 붙인 형태가 `orders:save:409` 라 조각이 셋인데,
+     * split(':') 을 두 변수에 담으면 code 가 'save' 가 되어 parseInt 가 NaN 이 된다 —
+     * 그래서 스코프 지정이 통째로 죽어 있었고, `?status=save:409` 가 주문·배송처럼
+     * 같은 op 를 가진 **모든 어댑터에 한꺼번에** 걸렸다. 코드는 언제나 맨 뒤 한 조각이다.
+     */
+    const trimmed = entry.trim();
+    const at = trimmed.lastIndexOf(':');
+    if (at <= 0) continue;
+    const target = trimmed.slice(0, at);
+    const code = trimmed.slice(at + 1);
     if (target !== 'all' && target !== op && target !== `${scope}:${op}`) continue;
 
     const parsed = Number.parseInt(code, 10);

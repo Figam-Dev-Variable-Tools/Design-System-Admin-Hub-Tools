@@ -73,11 +73,17 @@ const GROUPS: readonly MenuGroupSpec[] = [
       ['/users/admins', '관리자 관리', 'Admins'],
       ['/users/roles', '권한 관리', 'Roles'],
       ['/users/login-history', '로그인 이력', 'Login History'],
+      ['/users/consents', '동의 이력', 'Consents'],
     ],
   },
   {
     menu: ['콘텐츠 관리', 'Content', '/content', SECTION_GENERAL],
     entries: [
+      ['/content/pages', '페이지 관리', 'Pages'],
+      ['/content/menus', '메뉴 관리', 'Menus'],
+      ['/content/news', '뉴스·보도자료', 'News'],
+      ['/content/forms', '폼 관리', 'Forms'],
+      ['/content/media', '미디어 라이브러리', 'Media Library'],
       ['/content/notices', '공지사항', 'Notices'],
       ['/content/faq', 'FAQ', 'FAQ'],
       ['/content/popups', '팝업 관리', 'Popups'],
@@ -97,6 +103,7 @@ const GROUPS: readonly MenuGroupSpec[] = [
       ['/company/partners', '파트너사', 'Partners'],
       ['/company/clients', '고객사', 'Clients'],
       ['/company/esg', 'ESG', 'ESG'],
+      ['/company/careers', '채용 공고', 'Careers'],
     ],
   },
   {
@@ -199,10 +206,13 @@ const GROUPS: readonly MenuGroupSpec[] = [
     menu: ['시스템 설정', 'Settings', '/settings', SECTION_SYSTEM],
     entries: [
       ['/settings/site', '사이트 설정', 'Site'],
+      ['/settings/site-connect', '사이트 연동', 'Site Connect'],
       ['/settings/api-keys', 'API Key 설정', 'API Keys'],
       ['/settings/oauth', 'OAuth 설정', 'OAuth'],
       ['/settings/payment', '결제 설정', 'Payment'],
       ['/settings/plan', '플랜·이용 현황', 'Plan'],
+      ['/settings/notifications', '알림 설정', 'Notifications'],
+      ['/settings/languages', '다국어 설정', 'Languages'],
     ],
   },
 ];

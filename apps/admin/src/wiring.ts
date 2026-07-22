@@ -29,6 +29,24 @@ import {
   registerQuoteFunnelLookup,
 } from './shared/commerce/inquiry-backlog';
 import { registerQuoteIssuer } from './shared/domain/quote-issue';
+import { registerSitePageCatalogLookup } from './shared/domain/site-page-catalog';
+import { listCatalogSitePages } from './pages/content/pages/data-source';
+import {
+  registerMediaCatalogLookup,
+  registerMediaUsageLookup,
+} from './shared/domain/media-library';
+import { listCatalogMediaAssets } from './pages/content/media/data-source';
+import { listNewsMediaUsage } from './pages/content/news/data-source';
+import { registerTrafficSourceLookup } from './shared/domain/traffic-source';
+import { findTrafficSource } from './pages/settings/site-connect/data-source';
+import { registerActiveTermsLookup } from './shared/domain/terms-version';
+import type { ActiveTermsVersion } from './shared/domain/terms-version';
+import { fetchTermsTypes, fetchTermsVersions } from './pages/content/terms/data-source';
+import { registerTranslatableLookup } from './shared/domain/translatable-catalog';
+import type { TranslatableEntry } from './shared/domain/translatable-catalog';
+import { NOTICES } from './pages/content/notices/data-source';
+import { registerApplicationFormLookup } from './shared/domain/application-form';
+import { listContentForms } from './pages/content/forms/data-source';
 import { issueQuoteRef, listQuotes } from './pages/sales/quotes/data-source';
 import { listProductInquiries } from './pages/products/inquiries/_shared/store';
 import { listProgramInquiries } from './pages/programs/inquiries/_shared/store';
@@ -102,6 +120,45 @@ function inquiryBacklogOf(rows: readonly InquiryBacklogRow[]) {
           ) / answered.length,
     byTarget,
   };
+}
+
+/**
+ * 동의 이력(/users/consents)이 재동의 대상을 산출할 때 읽는 것 — 정본은 콘텐츠 관리 약관이다.
+ *
+ * [왜 다 읽은 뒤에 등록하나] 조회기 계약은 동기인데 약관 data-source 는 async 뿐이다.
+ * 읽기 전에 빈 배열을 등록하면 화면이 '재동의 대상 0명' 이라는 **완결된 거짓말**을 그리고
+ * 운영자는 개정 공지를 보내지 않는다. 그래서 성공했을 때만 등록하고, 그 전까지 조회기는
+ * null('판정 못 함')로 남아 화면이 그 사실을 말한다.
+ */
+function wireActiveTerms(): void {
+  void (async () => {
+    try {
+      const controller = new AbortController();
+      const types = await fetchTermsTypes(controller.signal);
+      const resolved = (
+        await Promise.all(
+          types.map(async (type) => {
+            const versions = await fetchTermsVersions(type.id, controller.signal);
+            const active = versions.find((version) => version.status === 'active');
+            return active === undefined
+              ? []
+              : [
+                  {
+                    typeId: type.id,
+                    typeLabel: type.label,
+                    version: active.version,
+                    effectiveDate: active.effectiveDate,
+                  } satisfies ActiveTermsVersion,
+                ];
+          }),
+        )
+      ).flat();
+
+      registerActiveTermsLookup(() => resolved);
+    } catch {
+      // 읽지 못하면 등록하지 않는다 — 조회기는 계속 null 이고 화면이 '판정 못 함' 을 말한다
+    }
+  })();
 }
 
 export function wireDomains(): void {
@@ -186,6 +243,53 @@ export function wireDomains(): void {
   // 상품·프로그램 문의의 '견적 발행' 이 닿는 곳 — 정본은 영업 관리 견적이다.
   // pages/products → pages/sales 는 축1 위반이라 공통 층이 자리를 만들고 여기가 꽂는다.
   registerQuoteIssuer(issueQuoteRef);
+
+  // 메뉴 관리가 가리킬 수 있는 페이지 — 정본은 페이지 관리다.
+  // 미배선이면 null('모른다')이라 메뉴 화면은 내부 페이지를 고를 수 없다고 문장으로 말하고
+  // 끊긴 링크 판정을 아예 하지 않는다 — 빈 배열을 주면 멀쩡한 메뉴가 전부 '끊김'으로 붉어진다.
+  registerSitePageCatalogLookup(listCatalogSitePages);
+
+  // 뉴스 첨부가 고를 수 있는 파일 — 정본은 미디어 라이브러리다.
+  // 미배선이면 '첨부를 고를 수 없다'고 알리되 이미 붙은 첨부는 그대로 둔다
+  // (모르는 것을 삭제로 해석하지 않는다).
+  registerMediaCatalogLookup(listCatalogMediaAssets);
+
+  // 미디어 삭제 차단의 근거 — '이 파일이 어디에 쓰이나'. 답은 쓰는 쪽이 갖고 있다.
+  // 등록기가 이름표를 갖는 이유: 나중에 다른 도메인이 붙어도 앞의 것을 덮지 않는다.
+  // **미배선이면 삭제가 전부 막힌다(fail-closed)** — 0건이 아니다. 모르는 채로 지우면
+  // 홈페이지의 이미지가 조용히 깨지고 되돌릴 수 없다.
+  registerMediaUsageLookup('news', listNewsMediaUsage);
+
+  // 주문·문의·회원이 '어디서 왔는가' 를 물을 때 답하는 곳 — 정본은 사이트 연동의 관측 원장이다.
+  // 미배선이면 null('모른다')이지 'direct 유입' 이 아니다. 둘을 뭉개면 배선 사고가
+  // '직접 유입 100%' 라는 그럴듯한 통계로 둔갑한다.
+  // 짝이 되는 setter 는 없다(앞으로도 만들지 않는다) — 유입은 관측값이지 의견이 아니다.
+  registerTrafficSourceLookup(findTrafficSource);
+
+  // 다국어 설정의 번역 현황이 읽는 원본 — 정본은 각 작성 화면이다.
+  // 계약이 '발행분만' 이라 여기서 거른다: 초안을 번역시키면 발행 직전에 원문이 바뀌어 그 작업이 버려진다.
+  // 미배선이면 null('모른다')이지 [] 가 아니다 — 빈 배열은 '번역이 끝났다' 로 읽힌다.
+  registerTranslatableLookup(() =>
+    NOTICES.filter((notice) => notice.status === 'published').map((notice): TranslatableEntry => ({
+      id: notice.id,
+      kindLabel: '공지사항',
+      title: notice.title,
+      publishedAt: notice.publishedAtIso,
+    })),
+  );
+
+  // 채용 공고의 '지원 방법: 폼' 이 가리킬 목록 — 정본은 폼 관리 화면이다.
+  // 미배선이어도 화면은 돈다: 조회기가 null 이면 선택지가 잠기고 이유를 말한다. 빈 목록으로
+  // 뭉개면 '등록된 폼이 없습니다' 라는 완결된 문장이 되어 운영자가 이미 있는 폼을 다시 만든다.
+  registerApplicationFormLookup(() =>
+    listContentForms().map((form) => ({
+      id: form.id,
+      name: form.name,
+      published: form.status === 'published',
+    })),
+  );
+
+  wireActiveTerms();
 
   // 결제가 없을 때 매출 자리를 대신하는 지표 — 정본은 견적이다
   registerQuoteFunnelLookup(() => {

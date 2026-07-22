@@ -63,6 +63,14 @@ const AdminDetailPage = lazy(() => import('./pages/admins/AdminDetailPage'));
 const AdminFormPage = lazy(() => import('./pages/admins/AdminFormPage'));
 const CustomerSettingsPage = lazy(() => import('./pages/customer-settings/CustomerSettingsPage'));
 const LoginHistoryPage = lazy(() => import('./pages/login-history/LoginHistoryPage'));
+const ConsentsPage = lazy(() => import('./pages/users/consents/ConsentsPage'));
+const CareersListPage = lazy(() => import('./pages/company/careers/CareersListPage'));
+const CareersFormPage = lazy(() => import('./pages/company/careers/CareersFormPage'));
+const SiteConnectPage = lazy(() => import('./pages/settings/site-connect/SiteConnectPage'));
+const NotificationSettingsPage = lazy(
+  () => import('./pages/settings/notifications/NotificationSettingsPage'),
+);
+const LanguagesPage = lazy(() => import('./pages/settings/languages/LanguagesPage'));
 const NoticesPage = lazy(() => import('./pages/content/notices/NoticesPage'));
 const NoticeDetailPage = lazy(() => import('./pages/content/notices/NoticeDetailPage'));
 const NoticeFormPage = lazy(() => import('./pages/content/notices/NoticeFormPage'));
@@ -79,6 +87,14 @@ const TermsFormPage = lazy(() => import('./pages/content/terms/TermsFormPage'));
 const PrivacyPage = lazy(() => import('./pages/content/privacy/PrivacyPage'));
 const PrivacyDetailPage = lazy(() => import('./pages/content/privacy/PrivacyDetailPage'));
 const PrivacyFormPage = lazy(() => import('./pages/content/privacy/PrivacyFormPage'));
+const SitePagesPage = lazy(() => import('./pages/content/pages/SitePagesPage'));
+const SitePageFormPage = lazy(() => import('./pages/content/pages/SitePageFormPage'));
+const SiteMenusPage = lazy(() => import('./pages/content/menus/SiteMenusPage'));
+const ContentFormsPage = lazy(() => import('./pages/content/forms/ContentFormsPage'));
+const ContentFormEditPage = lazy(() => import('./pages/content/forms/ContentFormEditPage'));
+const MediaLibraryPage = lazy(() => import('./pages/content/media/MediaLibraryPage'));
+const NewsPage = lazy(() => import('./pages/content/news/NewsPage'));
+const NewsFormPage = lazy(() => import('./pages/content/news/NewsFormPage'));
 const CompanyProfilePage = lazy(() => import('./pages/company/profile/CompanyProfilePage'));
 const CeoMessagePage = lazy(() => import('./pages/company/ceo-message/CeoMessagePage'));
 const DirectionsPage = lazy(() => import('./pages/company/directions/DirectionsPage'));
@@ -247,6 +263,8 @@ const APP_ROUTES: readonly AppRoute[] = [
   { path: '/users/admins/:id/edit', element: <AdminFormPage /> },
   // 로그인 이력 — 읽기 전용 감사 로그(상세·쓰기 라우트 없음).
   { path: '/users/login-history', element: <LoginHistoryPage />, implemented: true },
+  // 동의 이력 — 개인정보보호법상 동의·철회 기록은 append-only 다
+  { path: '/users/consents', element: <ConsentsPage />, implemented: true },
 
   // 콘텐츠 — 공지/FAQ (목록·등록·상세·수정). 등록/수정은 하나의 폼이 :id 유무로 겸한다.
   { path: '/content/notices', element: <NoticesPage />, implemented: true },
@@ -276,6 +294,20 @@ const APP_ROUTES: readonly AppRoute[] = [
   { path: '/content/privacy/:id', element: <PrivacyDetailPage /> },
   { path: '/content/privacy/:id/edit', element: <PrivacyFormPage /> },
 
+  // 홈페이지 콘텐츠 — 임의 페이지·메뉴 트리·문의 폼·미디어·뉴스.
+  // 상세(:id) 라우트가 없는 것은 의도다: 다섯 화면 모두 행 클릭이 편집으로 간다.
+  { path: '/content/pages', element: <SitePagesPage />, implemented: true },
+  { path: '/content/pages/new', element: <SitePageFormPage /> },
+  { path: '/content/pages/:id/edit', element: <SitePageFormPage /> },
+  { path: '/content/menus', element: <SiteMenusPage />, implemented: true },
+  { path: '/content/forms', element: <ContentFormsPage />, implemented: true },
+  { path: '/content/forms/new', element: <ContentFormEditPage /> },
+  { path: '/content/forms/:id/edit', element: <ContentFormEditPage /> },
+  { path: '/content/media', element: <MediaLibraryPage />, implemented: true },
+  { path: '/content/news', element: <NewsPage />, implemented: true },
+  { path: '/content/news/new', element: <NewsFormPage /> },
+  { path: '/content/news/:id/edit', element: <NewsFormPage /> },
+
   // 기업 — 단일 문서형 3종 + 로고형 2종(파트너사·고객사).
   { path: '/company/profile', element: <CompanyProfilePage />, implemented: true },
   { path: '/company/ceo-message', element: <CeoMessagePage />, implemented: true },
@@ -293,6 +325,9 @@ const APP_ROUTES: readonly AppRoute[] = [
   { path: '/company/esg', element: <EsgListPage />, implemented: true },
   { path: '/company/esg/new', element: <EsgFormPage /> },
   { path: '/company/esg/:id/edit', element: <EsgFormPage /> },
+  { path: '/company/careers', element: <CareersListPage />, implemented: true },
+  { path: '/company/careers/new', element: <CareersFormPage /> },
+  { path: '/company/careers/:id/edit', element: <CareersFormPage /> },
 
   // 포트폴리오 — 포트폴리오/카테고리/성공사례.
   { path: '/portfolio/items', element: <PortfolioListPage />, implemented: true },
@@ -463,6 +498,8 @@ const APP_ROUTES: readonly AppRoute[] = [
   // AppShell 이 <Outlet> 을 RequirePermission 으로 감싸 모든 라우트를 한 번에 덮는다
   // (shared/permissions · EXC-03).
   { path: '/settings/site', element: <SiteSettingsPage />, implemented: true },
+  // 사이트 설정과 짝이다 — 하나는 우리 사이트의 값, 하나는 바깥과의 연결
+  { path: '/settings/site-connect', element: <SiteConnectPage />, implemented: true },
   { path: '/settings/api-keys', element: <ApiKeysPage />, implemented: true },
   { path: '/settings/api-keys/:providerId', element: <AiConnectionPage /> },
   // AI 연동과 OAuth 가 목록/상세로 갈린다 — 붙일 수 있는 대상이 13종·6종이라
@@ -473,6 +510,8 @@ const APP_ROUTES: readonly AppRoute[] = [
   { path: '/settings/payment', element: <PaymentSettingsPage />, implemented: true },
   // 구독·계약이 무엇을 열어 주는지 보는 화면 — 읽기 전용이다(플랜 변경은 사내 홈페이지 소관)
   { path: '/settings/plan', element: <PlanPage />, implemented: true },
+  { path: '/settings/notifications', element: <NotificationSettingsPage />, implemented: true },
+  { path: '/settings/languages', element: <LanguagesPage />, implemented: true },
 ];
 
 /**

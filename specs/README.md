@@ -127,7 +127,7 @@
 | 쿠폰 (목록·등록·수정 · 발급 현황) | `/products/coupons` | [FS-045](products/coupons/FS-045-coupons.md) · [BE-045](products/coupons/BE-045-coupons.md) · [NFR-045](products/coupons/NFR-045-coupons.md) |
 | 적립금 정책 (단일 문서 설정) | `/products/points` | [FS-046](products/points/FS-046-points.md) · [BE-046](products/points/BE-046-points.md) · [NFR-046](products/points/NFR-046-points.md) |
 | 리뷰 (목록·상세 노출/답변) | `/products/reviews` | [FS-047](products/reviews/FS-047-reviews.md) · [BE-047](products/reviews/BE-047-reviews.md) · [NFR-047](products/reviews/NFR-047-reviews.md) |
-| 상품 문의 (목록·상세 처리·견적 발행) | `/products/inquiries` | [FS-073](products/inquiries/FS-073-product-inquiries.md) · BE-073 **없음** · NFR-073 **없음** |
+| 상품 문의 (목록·상세 처리·견적 발행) | `/products/inquiries` | [FS-073](products/inquiries/FS-073-product-inquiries.md) · [BE-073](products/inquiries/BE-073-product-inquiries.md) · [NFR-073](products/inquiries/NFR-073-product-inquiries.md) |
 
 > 교환/반품(044)은 이 섹션을 떠나 **주문 관리**로 갔다 — 아래 '주문 관리' 표 참조.
 
@@ -135,8 +135,8 @@
 
 | 화면 | 라우트 | 명세 |
 |---|---|---|
-| 주문 (목록·상세 처리 — **등록 폼 없음**) | `/orders` | [FS-071](orders/FS-071-orders.md) · BE-071 **없음** · NFR-071 **없음** |
-| 배송 처리 (목록 · 송장 모달) | `/orders/shipments` | [FS-072](orders/shipments/FS-072-shipments.md) · BE-072 **없음** · NFR-072 **없음** |
+| 주문 (목록·상세 처리 — **등록 폼 없음**) | `/orders` | [FS-071](orders/FS-071-orders.md) · [BE-071](orders/BE-071-orders.md) · [NFR-071](orders/NFR-071-orders.md) |
+| 배송 처리 (목록 · 송장 모달) | `/orders/shipments` | [FS-072](orders/shipments/FS-072-shipments.md) · [BE-072](orders/shipments/BE-072-shipments.md) · [NFR-072](orders/shipments/NFR-072-shipments.md) |
 | 취소/교환/반품 (목록·상세 처리 · 환불 축) | `/orders/claims` | [FS-044](orders/claims/FS-044-claims.md) · [BE-044](orders/claims/BE-044-claims.md) ⚠ · [NFR-044](orders/claims/NFR-044-claims.md) ⚠ |
 
 ⚠ **세 문서 모두 본문이 아직 옛 `/products/returns` 화면을 기술한다** — 폴더·파일명·`route` 만 옮겼고 재도출되지 않았다(§4.5).
@@ -145,9 +145,9 @@
 
 | 화면 | 라우트 | 명세 |
 |---|---|---|
-| 프로그램 (목록·상세·등록/수정) | `/programs` | [FS-074](programs/items/FS-074-programs.md) · BE-074 **없음** · NFR-074 **없음** |
-| 프로그램 카테고리 (목록·모달 등록/수정) | `/programs/categories` | [FS-075](programs/categories/FS-075-program-categories.md) · BE-075 **없음** · NFR-075 **없음** |
-| 프로그램 문의 (목록·상세 처리·견적 발행) | `/programs/inquiries` | [FS-076](programs/inquiries/FS-076-program-inquiries.md) · BE-076 **없음** · NFR-076 **없음** |
+| 프로그램 (목록·상세·등록/수정) | `/programs` | [FS-074](programs/items/FS-074-programs.md) · [BE-074](programs/items/BE-074-programs.md) · [NFR-074](programs/items/NFR-074-programs.md) |
+| 프로그램 카테고리 (목록·모달 등록/수정) | `/programs/categories` | [FS-075](programs/categories/FS-075-program-categories.md) · [BE-075](programs/categories/BE-075-program-categories.md) · [NFR-075](programs/categories/NFR-075-program-categories.md) |
+| 프로그램 문의 (목록·상세 처리·견적 발행) | `/programs/inquiries` | [FS-076](programs/inquiries/FS-076-program-inquiries.md) · [BE-076](programs/inquiries/BE-076-program-inquiries.md) · [NFR-076](programs/inquiries/NFR-076-program-inquiries.md) |
 
 ### 영업 관리
 
@@ -156,7 +156,7 @@
 | 거래처 (목록·등록·수정) | `/sales/accounts` | [FS-048](sales/accounts/FS-048-accounts.md) · [BE-048](sales/accounts/BE-048-accounts.md) · [NFR-048](sales/accounts/NFR-048-accounts.md) |
 | 계약 (목록·등록·수정) | `/sales/contracts` | [FS-049](sales/contracts/FS-049-contracts.md) · [BE-049](sales/contracts/BE-049-contracts.md) · [NFR-049](sales/contracts/NFR-049-contracts.md) |
 | 견적 (목록·등록·수정 · 견적 바구니) | `/sales/quotes` | [FS-050](sales/quotes/FS-050-quotes.md) · [BE-050](sales/quotes/BE-050-quotes.md) · [NFR-050](sales/quotes/NFR-050-quotes.md) |
-| 청구·입금 (목록·상세 처리 — **등록 폼 없음**) | `/sales/billing` | [FS-077](sales/billing/FS-077-billing.md) · BE-077 **없음** · NFR-077 **없음** |
+| 청구·입금 (목록·상세 처리 — **등록 폼 없음**) | `/sales/billing` | [FS-077](sales/billing/FS-077-billing.md) · [BE-077](sales/billing/BE-077-billing.md) · [NFR-077](sales/billing/NFR-077-billing.md) |
 | 문의 (목록·상세 처리·견적 발행) | `/sales/inquiries` | [FS-051](sales/inquiries/FS-051-inquiries.md) · [BE-051](sales/inquiries/BE-051-inquiries.md) · [NFR-051](sales/inquiries/NFR-051-inquiries.md) |
 | 프로젝트 (영업 기회 — 목록·등록/수정) | `/sales/projects` | [FS-052](sales/projects/FS-052-projects.md) · [BE-052](sales/projects/BE-052-projects.md) · [NFR-052](sales/projects/NFR-052-projects.md) |
 | 상담 이력 (영업 — 목록·읽기 전용 상세) | `/sales/consultations` | [FS-053](sales/consultations/FS-053-sales-consultations.md) · [BE-053](sales/consultations/BE-053-sales-consultations.md) · [NFR-053](sales/consultations/NFR-053-sales-consultations.md) |
@@ -220,34 +220,39 @@
 | 사이트 설정 | `/settings/site` | [FS-067](settings/site/FS-067-site-settings.md) · [BE-067](settings/site/BE-067-site-settings.md) · [NFR-067](settings/site/NFR-067-site-settings.md) |
 | API Key 관리 | `/settings/api-keys` | [FS-069](settings/api-keys/FS-069-api-keys.md) · [BE-069](settings/api-keys/BE-069-api-keys.md) · [NFR-069](settings/api-keys/NFR-069-api-keys.md) |
 | OAuth 설정 | `/settings/oauth` | [FS-070](settings/oauth/FS-070-oauth.md) · [BE-070](settings/oauth/BE-070-oauth.md) · [NFR-070](settings/oauth/NFR-070-oauth.md) |
-| 결제 설정 (PG 스위치 — 다른 화면들을 바꾼다) | `/settings/payment` | [FS-078](settings/payment/FS-078-payment-settings.md) · BE-078 **없음** · NFR-078 **없음** |
-| 플랜·이용 현황 (읽기 전용) | `/settings/plan` | [FS-079](settings/plan/FS-079-plan.md) · BE-079 **없음** · NFR-079 **없음** |
+| 결제 설정 (PG 스위치 — 다른 화면들을 바꾼다) | `/settings/payment` | [FS-078](settings/payment/FS-078-payment-settings.md) · [BE-078](settings/payment/BE-078-payment-settings.md) · [NFR-078](settings/payment/NFR-078-payment-settings.md) |
+| 플랜·이용 현황 (읽기 전용) | `/settings/plan` | [FS-079](settings/plan/FS-079-plan.md) · [BE-079](settings/plan/BE-079-plan.md) · [NFR-079](settings/plan/NFR-079-plan.md) |
 
 ## 4. 명세 공백 (이 색인의 본론)
 
 색인의 값어치는 '무엇이 있는가' 보다 **'무엇이 없는가'** 에 있다. 아래 여섯 항목은 판정된 공백이다.
 
-### 4.0 신설 9화면에 **BE·NFR 이 없다** (2026-07-22)
+### 4.0 ~~신설 9화면에 **BE·NFR 이 없다**~~ — **해소됨**(2026-07-22)
 
-이번 라운드에 들어온 화면 아홉은 **FS 만 있다.**
+이번 라운드에 들어온 화면 아홉은 FS 만 있었다. **BE·NFR 18문서를 코드 대조로 도출해 채웠다.**
 
-| 번호 | 화면 | 라우트 |
-|---|---|---|
-| 071 | 주문 | `/orders` |
-| 072 | 배송 처리 | `/orders/shipments` |
-| 073 | 상품 문의 | `/products/inquiries` |
-| 074 | 프로그램 | `/programs` |
-| 075 | 프로그램 카테고리 | `/programs/categories` |
-| 076 | 프로그램 문의 | `/programs/inquiries` |
-| 077 | 청구·입금 | `/sales/billing` |
-| 078 | 결제 설정 | `/settings/payment` |
-| 079 | 플랜·이용 현황 | `/settings/plan` |
+| 번호 | 화면 | 라우트 | 이번에 확정한 계약의 중심 |
+|---|---|---|---|
+| 071 | 주문 | `/orders` | 멱등키 2개(`stockAppliedAt`·`stockRestoredAt`) · 전이/취소 가드 표 · 금액 비저장 |
+| 072 | 배송 처리 | `/orders/shipments` | 멱등키 = 송장 유일성 `(carrierId, normalize(invoiceNo))` · 커버리지 비저장 |
+| 073 | 상품 문의 | `/products/inquiries` | 답변·종결 가드 · 견적 발행 멱등(`quoteId`) |
+| 074 | 프로그램 | `/programs` | 공개 가드 · 모금 파생값 · PG fail-closed 파급 |
+| 075 | 프로그램 카테고리 | `/programs/categories` | 삭제 가드(미배선 시 fail-closed) · 2Depth 제약 |
+| 076 | 프로그램 문의 | `/programs/inquiries` | 073 과 같은 축 + 유형(topic) · SLA 임계 2일 |
+| 077 | 청구·입금 | `/sales/billing` | **`Billing.quoteId` 멱등** · 입금 상태 파생(누적 합) · lost update |
+| 078 | 결제 설정 | `/settings/payment` | **fail-closed**(`pgSellable` — MID 공란이면 판매 불가) |
+| 079 | 플랜·이용 현황 | `/settings/plan` | **fail-open**(엔타이틀먼트 — 모르면 연다). 078 과 **실패 방향이 반대다** |
 
-**BE 부재가 특히 아픈 자리 셋**: 주문·클레임·청구는 **금액과 재고를 움직이는** 화면들이라
-멱등성·동시성 계약이 FS 의 서술로만 존재한다. 프론트가 `stockAppliedAt`·`refund.completedAt`·
-`Billing.quoteId` 를 멱등키로 쓰기로 정해 두었으나 그것을 받을 엔드포인트 계약이 없다.
+**BE 부재가 특히 아팠던 자리 셋이 닫혔다**: 주문·배송·청구의 멱등성·동시성 계약이 FS 의 서술로만
+존재했으나, 이제 세 BE 가 **멱등키를 이름으로 지목하고 어떤 재시도가 안전하고 어떤 것이 거절되는지**를
+표로 못박는다. 세 문서가 공유하는 규약 하나: **미배선 이음매는 성공을 흉내 내지 않는다** —
+재고 적용기가 없으면 멱등키를 찍지 않고, 원장 적립기가 없으면 거절한다(BE-044 §7.11 의 형식).
 
-### 4.1 NFR 문서가 없는 화면 — 14개(구) + 9개(신)
+> **남은 것은 계약의 부재가 아니라 구현의 결함이다.** 18문서가 판정한 P0 gap 은 화면마다
+> §5 로 이관돼 있다. 가장 무거운 둘은 **EXC-04**(낙관적 동시성 토큰 부재 → 동시 편집 last-write-wins)와
+> **EXC-08**(멱등키 미전달 — `crud.ts` 에 자리와 원장이 있는데 호출부가 비어 있다)이며 **아홉 화면 중 일곱에 공통**이다.
+
+### 4.1 NFR 문서가 없는 화면 — 14개
 
 `quality-bar.md` 판정을 아직 받지 않은 화면들이다. **001–014 번대 전체**가 여기 해당한다 —
 NFR 문서는 015(회사 정보)부터 쓰이기 시작했고, 그 앞 번호대는 소급되지 않았다.
@@ -273,9 +278,11 @@ NFR 문서는 015(회사 정보)부터 쓰이기 시작했고, 그 앞 번호대
 `/users/roles`(006)는 권한 모델 자체를 다루는 화면이라 NFR 부재의 위험이 가장 크다:
 다른 화면의 NFR 이 EXC-03(권한 게이팅) 판정을 내릴 때 근거로 삼는 화면인데 정작 자신은 판정을 받지 않았다.
 
-여기에 §4.0 의 신설 9화면이 더해져 **NFR 부재는 23화면**이 됐다. 그중 `/settings/plan`(079)이
-새로 위험한 자리다 — `quality-bar.md` 에 이번에 들어온 **EXC-21(거절 4계열 · P0)** 의 판정을
-가장 먼저 받아야 할 화면인데 그 판정 문서가 없다.
+**§4.0 의 신설 9화면은 여기서 빠졌다**(2026-07-22) — 아홉 모두 NFR 을 받아 **부재는 다시 14화면**이다.
+그중 `/settings/plan`(079)은 가장 위험했던 자리였고 이제 판정을 받았다 — `quality-bar.md` 에
+이번에 들어온 **EXC-21(거절 4계열 · P0)** 을 가장 먼저 받아야 할 화면이었기 때문이다.
+그 판정의 결론은 NFR-079 §2 에 있다: **엔타이틀먼트 축은 fail-open** 이고, 그것이
+**결제 설정(078)의 fail-closed 와 정확히 반대 방향**이라는 사실을 두 문서가 서로를 참조해 못박는다.
 
 ### 4.2 코드는 있으나 살아 있는 명세가 없는 화면 — 0개
 

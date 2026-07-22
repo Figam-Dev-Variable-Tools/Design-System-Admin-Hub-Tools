@@ -13,6 +13,7 @@ import { useLocation } from 'react-router-dom';
 import { cssVar, Header } from '@tds/ui';
 
 import { findNavLabel } from './nav-config';
+import { NotificationBell } from '../notifications';
 
 /** 브랜드 워드마크 — 로고 자산 확정 전까지 자리표시 (사이드바 LogoPlaceholder 와 동일 문구) */
 const BRAND_LABEL = 'LOGO';
@@ -61,6 +62,9 @@ export default function AppHeader() {
             <time dateTime={now.toISOString().slice(0, 10)}>{formatToday(now)}</time>
           </p>
           <p style={accountStyle}>{ACCOUNT_EMAIL}</p>
+          {/* 알림 벨 — 안읽음 수·목록·이동이 전부 알림 층 안에서 끝난다(shared/notifications).
+              헤더는 '어디에 놓을지' 만 정하고 알림이 무엇인지 알지 못한다. */}
+          <NotificationBell />
         </>
       }
     />

@@ -22,7 +22,7 @@ date: 2026-07-22
 | 전제 | BE-003 §2·§3 을 상속한다. 인증은 세션 쿠키 기반. 모든 경로는 `/api` 프리픽스. 응답 본문은 `application/json; charset=utf-8`. 시각은 ISO 8601(오프셋 포함) |
 | 프론트 어댑터 | **없다 — 이 화면은 `data-source.ts` 를 갖지 않는다.** 값은 전역 스토어(`shared/entitlements/entitlement-store.ts:98-133`)가 들고 있고 화면은 조각 구독으로 읽는다(`usePlan` — `RequireEntitlement.tsx:36-38`). 현재 출처는 **localStorage `'tds-admin.plan'`**(`entitlement-store.ts:29,40-49`) |
 | 도메인 타입 | `apps/admin/src/shared/entitlements/plan.ts` — `PlanState`(`:272-289`) · `Entitlement` 3종(`:90-93`) · `EntitlementState` 3상태(`:109-112`) · `ENTITLEMENT_KEYS` 11개(`:126-138`) · `MODULE_SPECS`(`:173-257`) |
-| 검증 정본 | **zod 가 없다.** 이 축의 정본은 **순수 함수**다 — `normalizePlanState`(`plan.ts:575-603`) · `entitlementStateOf`(`:380-392`) · `resolveEntitlement`(`:357-359`) · `entitlementEnabled`(`:362-367`) · `quotaStatusOf`(`:431-456`) · `quotaCreateBlock`(`:465-473`) · `planChangeNotice`(`:484-489`) · `entitlementStateForResource`/`ForPath`(`route-entitlement.ts:23-42`). 회귀 `plan.test.ts`(270행) · `route-entitlement.test.ts`(99행) |
+| 검증 정본 | **zod 가 없다.** 이 축의 정본은 **순수 함수**다 — `normalizePlanState`(`plan.ts:575-603`) · `entitlementStateOf`(`:380-392`) · `resolveEntitlement`(`:357-359`) · `entitlementEnabled`(`:362-367`) · `quotaStatusOf`(`:431-456`) · `quotaCreateBlock`(`:465-473`) · `planChangeNotice`(`:484-489`) · `entitlementStateForResource`/`ForPath`(`route-entitlement.ts:23-42`). 회귀 `plan.test.ts`(270행) · `route-entitlement.test.ts`(99행) · **렌더 회귀 `RequireEntitlement.test.tsx`(418행) · `AppShell.entitlement-nav.test.tsx`(153행)**(2026-07-22 신설) |
 | **결정 근거** | `docs/adr/0013-entitlement-layer.md`(ADR-0013, accepted, 2026-07-22) 가 판정 순서·3상태·fail 방향·플랜 변경 UI 부재의 근거를 소유한다. **이 문서는 그것을 복제하지 않고 계약으로만 옮긴다** |
 
 > **에러 봉투·권한 모델 상속**: BE-003 §2·§3 을 그대로 상속한다. 아래는 엔타이틀먼트 고유 차이만 기술하며 **그 중심은 §7.2 fail-open 축과 §7.3 서버 강제**다.
@@ -387,7 +387,7 @@ date: 2026-07-22
 | 6 | **매핑 누락을 잡는 배포 검증이 없다**(§7.4) — '새 nav 잎 중 `MODULE_RESOURCES` 에도 명시적 제외 목록에도 없는 것'을 세는 검사. **명시적 제외 목록 자체가 아직 없다**(지금은 '매핑에 없으면 뼈대'라는 암묵이다) | **아키텍처 · 프론트 구현 (검증 신설)** |
 | 7 | **화면 안 잠금이 어디에도 배선되지 않았다**(§7.6) — 네 훅의 소비처가 0건이라 **쿼터 소진도 미납 쓰기 잠금도 실제로 일어나지 않는다.** 이 화면의 배너가 사실이 아닌 것을 말한다 | **UI 기획 (최우선) · 프론트 구현** |
 | 8 | **`absent` 가 오늘 이 앱에서 발현되지 않는다**(FS-079 §7 #7) — `marketing.sms` 를 명시적으로 꺼서 보내는 통로(`receivePlan`)의 호출부가 0건이고 DEV 패널로도 재현할 수 없다. **서버가 그 값을 보내기 시작하는 날이 세 경로(행 제외·메뉴 삭제·대시보드 리다이렉트)의 첫 실행이 된다** | 백엔드 명세 · 프론트 구현(DEV 패널에 overrides 주입) |
-| 9 | **엔타이틀먼트 축에 컴포넌트 테스트가 0건이다**(FS-079 §7 #2) — 순수 규칙은 촘촘한데(`plan.test.ts` 270행 · `route-entitlement.test.ts` 99행) `UpgradeScreen`·`RequireEntitlement`·`LOCKED_NAV_SUFFIX` 를 **렌더하는 테스트가 리포 전체에 없다.** §7.3 의 4계열 분리가 화면에서 실제로 성립하는지 아무도 지키지 않는다 | **프론트 구현 (테스트 신설)** |
+| 9 | **⚠ FS-079 §7 #2 의 '컴포넌트 테스트 0건'은 2026-07-22 에 대부분 해소됐다** — `RequireEntitlement.test.tsx`(418행)·`AppShell.entitlement-nav.test.tsx`(153행)가 신설돼 §7.3 의 **4계열 분리**(잠금 화면에 403 문구가 없다는 사실 · 판정 순서 · absent 의 `replace` 되돌림)와 §7.2 의 **fail-open 4갈래**를 렌더로 고정한다. **남은 잔여 둘**: ① `PlanPage` 를 렌더하는 테스트가 여전히 0건이라 **이 화면의 표(absent 행 제외 · locked 배지 · 쿼터 문자열)** 가 비어 있다 ② `module-resources.ts:97` 이 인용하는 `module-resources.test.ts` 는 **실재하지 않는다**(그 단언은 `route-entitlement.test.ts:36-51` 에 있다) | 프론트 구현 (테스트 보완 · 주석 정정) |
 | 10 | **거절 응답의 코드·형태가 미정이다**(§7.3) — 402 를 쓸지 전용 코드를 쓸지, `upgradeTo`·`reason` 을 봉투의 어디에 실을지가 BE-003 §2 에 없다. **4계열 분리는 봉투 계약이 먼저 정해져야 성립한다** | **백엔드 명세 (BE-003 개정)** |
 | 11 | **`PLAN_PORTAL_URL` 이 하드코딩 상수다**(`plan.ts:507`) — 스테이징·데모·온프레미스가 같은 주소를 가리킨다. 서버가 테넌트별 포털 주소를 내려줄지, 빌드 환경 변수로 둘지 미정 | 아키텍처 (환경 설정) |
 

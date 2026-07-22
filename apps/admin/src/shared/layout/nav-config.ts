@@ -130,10 +130,18 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         ['관리자 관리', '/users/admins'],
         ['권한 관리', '/users/roles'],
         ['로그인 이력', '/users/login-history'],
+        // 동의·철회 기록 — 개인정보보호법상 의무이고 약관 개정 시 재동의 대상이 여기서 나온다
+        ['동의 이력', '/users/consents'],
       ]),
 
       // 3. 콘텐츠 관리
       branch('file-text', 'menu.content', '콘텐츠 관리', '/content', [
+        // 홈페이지 구조 → 게시판 → 자산 → 정책 순. 페이지가 먼저 있어야 메뉴가 가리킬 대상이 생긴다.
+        ['페이지 관리', '/content/pages'],
+        ['메뉴 관리', '/content/menus'],
+        ['뉴스·보도자료', '/content/news'],
+        ['폼 관리', '/content/forms'],
+        ['미디어 라이브러리', '/content/media'],
         ['공지사항', '/content/notices'],
         ['FAQ', '/content/faq'],
         ['팝업 관리', '/content/popups'],
@@ -152,6 +160,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         ['파트너사', '/company/partners'],
         ['고객사', '/company/clients'],
         ['ESG', '/company/esg'],
+        ['채용 공고', '/company/careers'],
       ]),
     ],
   },
@@ -277,6 +286,8 @@ export const NAV_SECTIONS: readonly NavSection[] = [
       // 12. 시스템 설정
       branch('settings', 'menu.settings', '시스템 설정', '/settings', [
         ['사이트 설정', '/settings/site'],
+        // 바깥(B2C 홈페이지)과의 연결 — 유입 채널의 정본이 여기다
+        ['사이트 연동', '/settings/site-connect'],
         // [경로는 라벨을 따라 바꾸지 않는다] 경로는 북마크와 권한 리소스 키(navPageResourceId)가
         // 매달린 내부 식별자다 — 라벨을 고칠 때 같이 바꾸면 저장된 역할의 권한 키가 어긋나 화면이
         // 통째로 안 보인다. 경로 정리는 권한 마이그레이션을 동반하는 별도 판단이다.
@@ -291,6 +302,8 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         ['결제 설정', '/settings/payment'],
         // 구독·계약이 무엇을 열어 주는지 보는 화면 — 읽기 전용이다(플랜 변경은 사내 홈페이지 소관)
         ['플랜·이용 현황', '/settings/plan'],
+        ['알림 설정', '/settings/notifications'],
+        ['다국어 설정', '/settings/languages'],
       ]),
     ],
   },
