@@ -124,15 +124,17 @@ export function SegmentPicker({
         {required && <span aria-hidden="true"> *</span>}
       </span>
 
-      {/* 묶음 이름이 필수를 싣는다 — 개별 체크박스가 아니라 '고르는 행위' 가 필수다 (A11Y-11) */}
-      <ul
+      {/* 묶음 이름이 필수를 싣는다 — 개별 체크박스가 아니라 '고르는 행위' 가 필수다 (A11Y-11).
+          role="group" 은 암묵 list 역할을 덮으므로 자식은 <li> 가 될 수 없다(그러면 listitem 이
+          list 밖에 놓여 axe `listitem` 위반). 이 묶음은 목록이 아니라 체크박스 그룹이라 <div> 로 담는다. */}
+      <div
         style={listStyle}
         role="group"
         aria-label={`${label}${required ? ' (필수)' : ''}`}
         aria-describedby={noteId}
       >
         {segments.map((segment) => (
-          <li key={segment.id} style={itemStyle}>
+          <div key={segment.id} style={itemStyle}>
             <label style={labelRowStyle}>
               <input
                 type="checkbox"
@@ -149,9 +151,9 @@ export function SegmentPicker({
               </span>
             </label>
             <span style={countStyle}>{`${formatNumber(segment.recipientCount)}명`}</span>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
 
       {invalid ? (
         <p id={noteId} role="alert" style={errorTextStyle}>

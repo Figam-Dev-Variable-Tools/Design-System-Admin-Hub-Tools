@@ -532,14 +532,15 @@ function SegmentPicker({
         <span aria-hidden="true"> *</span>
       </span>
 
-      <ul
+      {/* role="group" 이 암묵 list 역할을 덮으므로 자식은 <li> 가 아니라 <div> — 체크박스 그룹이지 목록이 아니다 */}
+      <div
         style={segmentListStyle}
         role="group"
         aria-label="구독자 세그먼트 (필수)"
         aria-describedby={noteId}
       >
         {SEGMENTS.map((segment) => (
-          <li key={segment.id} style={segmentItemStyle}>
+          <div key={segment.id} style={segmentItemStyle}>
             <Checkbox
               id={`nl-segment-${segment.id}`}
               label={`${segment.label} · ${segment.description}`}
@@ -550,9 +551,9 @@ function SegmentPicker({
             <span style={segmentCountStyle}>
               {`${segment.recipientCount.toLocaleString('ko-KR')}명`}
             </span>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
 
       {invalid ? (
         <p id={noteId} role="alert" style={errorTextStyle}>

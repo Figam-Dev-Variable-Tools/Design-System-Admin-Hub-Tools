@@ -137,7 +137,9 @@ export function ReviewPreview({
 }: ReviewPreviewProps) {
   return (
     <div style={stageStyle}>
-      <div style={{ ...cardStyle, opacity: visible ? 1 : 0.55 }}>
+      {/* 숨김을 opacity 로 흐리지 않는다 — 컨테이너 opacity 는 안의 글자를 배경으로 합성해 대비를
+          4.5:1 아래로 떨어뜨린다(axe color-contrast). 숨김 사실은 아래 안내가 글자로 전한다(WCAG 1.4.1). */}
+      <div style={cardStyle}>
         <div style={headRowStyle}>
           <span style={starStyle} role="img" aria-label={`5점 만점에 ${String(rating)}점`}>
             {starText(rating)}

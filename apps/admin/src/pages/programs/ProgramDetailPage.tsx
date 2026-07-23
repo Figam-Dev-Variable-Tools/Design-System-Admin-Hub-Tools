@@ -404,6 +404,7 @@ export default function ProgramDetailPage() {
               숫자가 읽혀야 하기 때문이다. 채움 폭만 100 에서 자른다(초과 달성은 숫자가 말한다). */}
           <div
             role="progressbar"
+            aria-label="펀딩 달성률"
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={Math.max(0, Math.min(100, rate))}

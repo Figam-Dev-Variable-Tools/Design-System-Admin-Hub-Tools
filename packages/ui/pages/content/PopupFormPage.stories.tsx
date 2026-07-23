@@ -236,7 +236,9 @@ const stageStyle: CSSProperties = {
   background: cssVar('color.surface.raised'),
 };
 
-const previewCardStyle = (enabled: boolean): CSSProperties => ({
+// 노출 OFF 를 opacity 로 흐리지 않는다 — 컨테이너 opacity 는 안의 글자(제목 h3·링크)를 배경으로
+// 합성해 대비를 4.5:1 아래로 떨어뜨린다(axe color-contrast). OFF 사실은 아래 상태 줄이 글자로 전한다.
+const previewCardStyle: CSSProperties = {
   position: 'relative',
   display: 'flex',
   flexDirection: 'column',
@@ -253,8 +255,7 @@ const previewCardStyle = (enabled: boolean): CSSProperties => ({
   borderColor: cssVar('color.border.default'),
   borderRadius: cssVar('radius.lg'),
   background: cssVar('color.surface.default'),
-  opacity: enabled ? 1 : 0.55,
-});
+};
 
 const closeStyle: CSSProperties = {
   position: 'absolute',
@@ -370,7 +371,7 @@ function PopupPreview({
   return (
     <div>
       <div style={stageStyle}>
-        <div style={previewCardStyle(enabled)}>
+        <div style={previewCardStyle}>
           <span style={closeStyle} aria-hidden="true">
             <Icon name="close" />
           </span>

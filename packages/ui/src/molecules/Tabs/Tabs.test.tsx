@@ -24,13 +24,18 @@ function ruleBody(css: string, selector: string): string | null {
 }
 
 describe('Tabs — 계약 states[]', () => {
-  it('Tabs: default 상태 — tablist 가 ariaLabel 로 이름을 갖고 각 탭이 패널 id 를 aria-controls 로 가리킨다', () => {
+  it('Tabs: default 상태 — tablist 가 ariaLabel 로 이름을 갖고 각 탭이 안정적인 id(tabId)를 노출해 패널이 aria-labelledby 로 되짚을 수 있다', () => {
     render(<Tabs value="product" items={items} ariaLabel="업무 구분" />);
 
     expect(screen.getByRole('tablist', { name: '업무 구분' })).not.toBeNull();
     const tab = screen.getByRole('tab', { name: '문의' });
+    // 탭↔패널 연결은 패널이 `aria-labelledby={tabId(id)}` 로 건다(늘 유효). 그 되짚기의 대상이 되는
+    // 탭 id 가 규약대로인지 고정한다. 반대 방향(탭→패널 aria-controls)은 두지 않는다 — 이 컴포넌트가
+    // 패널을 소유하지 않아 그 참조의 유효성을 보장할 수 없기 때문이다(Tabs.tsx 머리말).
     expect(tab.id).toBe(tabId('inquiry'));
-    expect(tab.getAttribute('aria-controls')).toBe(tabPanelId('inquiry'));
+    expect(tab.getAttribute('aria-controls')).toBeNull();
+    // 패널 id 규약은 조립부용으로 계속 공개된다
+    expect(tabPanelId('inquiry')).toBe('inquiry-panel');
   });
 
   it('Tabs: hover 상태 — :hover 규칙이 탭 텍스트를 진하게 만든다', () => {

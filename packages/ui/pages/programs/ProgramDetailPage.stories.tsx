@@ -535,6 +535,7 @@ function ProgramDetailScreen({
               숫자가 읽혀야 하기 때문이다. */}
           <div
             role="progressbar"
+            aria-label="펀딩 달성률"
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={Math.max(0, Math.min(100, rate))}

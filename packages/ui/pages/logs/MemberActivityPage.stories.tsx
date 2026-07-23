@@ -343,9 +343,12 @@ const stackStyle: CSSProperties = { display: 'flex', flexDirection: 'column', ga
 
 const mutedStyle: CSSProperties = { color: cssVar('color.text.muted') };
 
-/** 등록 회원 계정 — 실화면은 회원 상세로 가는 링크. 템플릿에선 링크 스타일만(이동 없음) */
+/** 등록 회원 계정 — 실화면은 회원 상세로 가는 링크. 템플릿에선 링크 스타일만(이동 없음).
+    색은 text.default 다(실화면 .tds-ui-link 과 같은 값): 실패 행은 tone='danger'(red.100 surface)라
+    action.primary(blue.600)를 얹으면 4.23:1 로 axe color-contrast 미달이다. text.default(gray.900)는
+    흰 행·danger 행 어디서나 통과하고, 밑줄이 링크 어포던스를 유지한다. */
 const accountLinkStyle: CSSProperties = {
-  color: cssVar('color.action.primary.default'),
+  color: cssVar('color.text.default'),
   textDecoration: 'underline',
 };
 

@@ -138,7 +138,9 @@ export default function ApiKeysPage() {
       {loading ? (
         // 이관 전에는 aria-busy·aria-label 이 스켈레톤 자신에게 붙어 있었다 — Skeleton 계약은
         // 블록이 항상 aria-hidden 이고 로딩 고지는 **담은 영역**의 몫이라고 못박는다. 그래서 여기로 옮긴다.
-        <div aria-busy="true" aria-label="연동 목록을 불러오는 중">
+        // role="status" 를 둔다: 역할 없는 <div>(generic)엔 aria-label 이 금지라(axe aria-prohibited-attr)
+        // 이름을 실을 수 없다. status 는 author 이름을 허용하고 로딩을 polite 로 알린다.
+        <div role="status" aria-busy="true" aria-label="연동 목록을 불러오는 중">
           <Skeleton />
         </div>
       ) : (

@@ -480,7 +480,7 @@ function ApiKeysScreen({ loading = false, loadFailed = false }: ApiKeysScreenPro
       ) : null}
 
       {loading ? (
-        <div aria-busy="true" aria-label="연동 목록을 불러오는 중">
+        <div role="status" aria-busy="true" aria-label="연동 목록을 불러오는 중">
           <Skeleton />
         </div>
       ) : (

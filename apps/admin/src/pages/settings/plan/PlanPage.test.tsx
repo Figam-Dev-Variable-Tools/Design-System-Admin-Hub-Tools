@@ -149,10 +149,13 @@ describe('PlanPage — 탭 3개와 주소', () => {
     await user.click(screen.getByRole('tab', { name: '결제' }));
 
     const panel = activePanel();
+    // 연결은 패널→탭 방향(aria-labelledby → 탭 버튼 id)으로 건다 — 늘 유효하다(탭 id 는 항상 있다).
+    // 반대 방향(탭→패널 aria-controls)은 DS Tabs 가 더 이상 두지 않는다(패널을 소유하지 않아
+    // 지킬 수 없는 참조라 axe aria-valid-attr-value 를 유발했다 — Tabs.tsx 머리말).
     const labelledBy = panel.getAttribute('aria-labelledby');
     expect(labelledBy).not.toBeNull();
     expect(screen.getByRole('tab', { name: '결제' }).id).toBe(labelledBy);
-    expect(panel.id).toBe(screen.getByRole('tab', { name: '결제' }).getAttribute('aria-controls'));
+    expect(screen.getByRole('tab', { name: '결제' }).getAttribute('aria-controls')).toBeNull();
   });
 });
 

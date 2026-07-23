@@ -398,7 +398,12 @@ function AiConnectionScreen({
           ) : null}
 
           {loading ? (
-            <div style={skeletonBodyStyle} aria-busy="true" aria-label="자격증명을 불러오는 중">
+            <div
+              style={skeletonBodyStyle}
+              role="status"
+              aria-busy="true"
+              aria-label="자격증명을 불러오는 중"
+            >
               <Skeleton />
               <Skeleton />
               <Skeleton />

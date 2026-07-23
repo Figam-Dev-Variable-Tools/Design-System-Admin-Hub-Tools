@@ -431,9 +431,13 @@ const accountStyle: CSSProperties = {
   fontWeight: cssVar('primitive.typography.font-weight.medium'),
 };
 
+// 색은 text.default 다(실화면 .tds-ui-link 과 같은 값): 실패 행은 tone='danger'(red.100 surface)라
+// action.primary(blue.600)를 얹으면 4.23:1 로 axe color-contrast 미달이다. text.default(gray.900)는
+// 흰 행·danger 행 어디서나 통과한다. 색만으로 링크를 표시하지 않도록 밑줄로 어포던스를 준다.
 const accountLinkStyle: CSSProperties = {
   ...accountStyle,
-  color: cssVar('color.action.primary.default'),
+  color: cssVar('color.text.default'),
+  textDecoration: 'underline',
 };
 
 const outcomeInnerStyle: CSSProperties = {

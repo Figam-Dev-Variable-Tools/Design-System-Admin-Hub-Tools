@@ -208,7 +208,9 @@ export function ProductCardPreview({
   return (
     <div>
       <div style={stageStyle}>
-        <div style={{ ...cardStyle, opacity: displayed ? 1 : 0.55 }}>
+        {/* 숨김을 opacity 로 흐리지 않는다 — 컨테이너 opacity 는 안의 글자를 배경으로 합성해 대비를
+            4.5:1 아래로 떨어뜨린다(axe color-contrast). 숨김은 아래 캡션이 글자로 전한다. */}
+        <div style={cardStyle}>
           <div style={thumbStyle}>
             {trimmedImage !== '' && !loadFailed ? (
               <img

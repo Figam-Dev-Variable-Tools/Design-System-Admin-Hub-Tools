@@ -396,6 +396,7 @@ function OAuthScreen({
           {loading ? (
             <div
               style={skeletonBodyStyle}
+              role="status"
               aria-busy="true"
               aria-label="소셜 로그인 설정을 불러오는 중"
             >

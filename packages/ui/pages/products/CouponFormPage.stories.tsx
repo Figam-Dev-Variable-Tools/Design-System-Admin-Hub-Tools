@@ -539,7 +539,9 @@ const stageStyle: CSSProperties = {
   background: cssVar('color.surface.raised'),
 };
 
-const cardChipStyle = (enabled: boolean): CSSProperties => ({
+// 중지(enabled=false)를 opacity 로 흐리지 않는다 — 컨테이너 opacity 는 안의 글자(할인·쿠폰명·조건)를
+// 배경으로 합성해 대비를 4.5:1 아래로 떨어뜨린다(axe color-contrast). 중지 사실은 아래 캡션이 글자로 전한다.
+const cardChipStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'minmax(0, 1fr) auto',
   alignItems: 'center',
@@ -556,8 +558,7 @@ const cardChipStyle = (enabled: boolean): CSSProperties => ({
   borderColor: cssVar('color.action.primary.default'),
   borderRadius: cssVar('radius.lg'),
   background: cssVar('color.surface.default'),
-  opacity: enabled ? 1 : 0.55,
-});
+};
 
 const chipLeftStyle: CSSProperties = {
   display: 'flex',
@@ -637,7 +638,7 @@ function CouponCardPreview({
   return (
     <div>
       <div style={stageStyle}>
-        <div style={cardChipStyle(enabled)}>
+        <div style={cardChipStyle}>
           <div style={chipLeftStyle}>
             <span style={chipDiscountStyle}>{discountLabel(issueType, discountValue)}</span>
             <span style={chipNameStyle}>{name.trim() === '' ? '쿠폰명' : name}</span>

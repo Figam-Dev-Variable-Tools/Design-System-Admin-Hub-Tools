@@ -152,7 +152,7 @@ export default function ConsentsPage() {
       <div id={tabPanelId(tab)} role="tabpanel" aria-labelledby={tabId(tab)}>
         {tab === 'items' &&
           (loadingItems ? (
-            <div aria-busy="true" aria-label="동의 항목을 불러오는 중">
+            <div role="status" aria-busy="true" aria-label="동의 항목을 불러오는 중">
               <Skeleton />
             </div>
           ) : (

@@ -227,6 +227,7 @@ export function RichTextField({
         fallback={
           <div
             className="tds-richtext__skeleton"
+            role="status"
             aria-busy="true"
             aria-label="편집기를 불러오는 중"
             style={{ '--tds-richtext-rows': String(rows) } as Record<string, string>}

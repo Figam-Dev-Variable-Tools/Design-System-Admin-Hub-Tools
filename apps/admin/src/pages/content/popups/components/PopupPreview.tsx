@@ -156,7 +156,9 @@ export function PopupPreview({
   return (
     <div>
       <div style={stageStyle}>
-        <div style={{ ...cardStyle, opacity: enabled ? 1 : 0.55 }}>
+        {/* 노출 OFF 를 opacity 로 흐리지 않는다 — 컨테이너 opacity 는 안의 글자를 배경으로 합성해
+            대비를 4.5:1 아래로 떨어뜨린다(axe color-contrast). OFF 는 아래 상태 줄이 글자로 전한다. */}
+        <div style={cardStyle}>
           <span style={closeStyle} aria-hidden="true">
             <Icon name="close" />
           </span>

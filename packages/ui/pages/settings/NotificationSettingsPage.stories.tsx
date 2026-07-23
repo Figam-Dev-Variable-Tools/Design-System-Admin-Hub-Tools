@@ -314,7 +314,12 @@ function NotificationSettingsScreen({
           )}
 
           {loading ? (
-            <div style={skeletonBodyStyle} aria-busy="true" aria-label="알림 설정을 불러오는 중">
+            <div
+              style={skeletonBodyStyle}
+              role="status"
+              aria-busy="true"
+              aria-label="알림 설정을 불러오는 중"
+            >
               {[0, 1, 2, 3].map((row) => (
                 <Skeleton key={`row-${String(row)}`} />
               ))}

@@ -315,7 +315,10 @@ function ReviewPreview({
 }) {
   return (
     <div style={stageStyle}>
-      <div style={{ ...previewCardStyle, opacity: visible ? 1 : 0.55 }}>
+      {/* 숨김 상태를 opacity 로 흐리지 않는다 — 컨테이너 opacity 는 안의 글자를 배경으로 합성해
+          대비를 4.5:1 아래로 떨어뜨린다(axe color-contrast: muted/기본 글자 모두 미달). 숨김 사실은
+          아래 '숨김 상태' 안내가 글자로 전한다(색·투명도에만 기대지 않는다 — WCAG 1.4.1). */}
+      <div style={previewCardStyle}>
         <div style={previewHeadStyle}>
           <span
             style={previewStarStyle}
@@ -524,7 +527,7 @@ export const Reported: Story = {
   ),
 };
 
-/** 숨김: 노출 off — 미리보기가 흐려지고 '숨김 상태' 안내가 붙는다 */
+/** 숨김: 노출 off — '숨김 상태' 안내가 글자로 붙는다(투명도로 흐리지 않는다 — 대비 보존) */
 export const Hidden: Story = {
   render: () => <ReviewDetailScreen review={BASE_REVIEW} initialVisible={false} />,
 };

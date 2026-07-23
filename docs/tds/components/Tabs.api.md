@@ -5,7 +5,7 @@
 > ⚠️ **자동 생성 문서** — 이 파일은 계약에서 생성됩니다. 직접 수정하지 마세요.
 > 변경이 필요하면 `contracts/Tabs.contract.json` 을 수정한 뒤 `pnpm codegen` 을 실행하세요.
 
-하단 밑줄형 탭 목록. 선택된 탭만 액션 컬러 밑줄을 갖고, 비선택 탭도 동일 두께의 투명 밑줄을 둬 전환 시 라벨이 밀리지 않는다. 탭 패널은 이 컴포넌트가 렌더하지 않는다 — aria-controls 로 바깥 패널을 가리킨다. 도메인 중립: 탭 항목은 items prop 으로 주입한다 (ADR-0003). 출처 구현: apps/admin/src/pages/dashboard/components/TabBar.tsx
+하단 밑줄형 탭 목록. 선택된 탭만 액션 컬러 밑줄을 갖고, 비선택 탭도 동일 두께의 투명 밑줄을 둬 전환 시 라벨이 밀리지 않는다. 탭 패널은 이 컴포넌트가 렌더하지 않는다 — 패널을 소유하지 않으므로 탭→패널 aria-controls 를 두지 않고(지킬 수 없는 참조라 axe aria-valid-attr-value 를 유발), 패널→탭 연결은 조립부가 패널에 aria-labelledby={tabId(id)} 로 건다. 도메인 중립: 탭 항목은 items prop 으로 주입한다 (ADR-0003). 출처 구현: apps/admin/src/pages/dashboard/components/TabBar.tsx
 
 ## 개요
 
@@ -47,7 +47,6 @@
 | focus-visible | 필수 |
 | `aria-label` | ariaLabel prop — tablist 의 이름 |
 | `aria-selected` | 각 탭(role=tab) — value 와 일치하면 true |
-| `aria-controls` | 각 탭 — 대응하는 tabpanel 의 id |
 | 최소 대비 | 4.5:1 |
 
 ## Tokens

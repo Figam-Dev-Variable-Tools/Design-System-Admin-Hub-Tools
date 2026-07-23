@@ -234,7 +234,9 @@ const stageStyle: CSSProperties = {
   background: cssVar('color.surface.raised'),
 };
 
-const previewStripStyle = (enabled: boolean): CSSProperties => ({
+// 노출 OFF 를 opacity 로 흐리지 않는다 — 컨테이너 opacity 는 안의 글자를 배경으로 합성해 대비를
+// 4.5:1 아래로 떨어뜨린다(axe color-contrast). OFF 사실은 아래 상태 줄이 글자로 전한다(WCAG 1.4.1).
+const previewStripStyle: CSSProperties = {
   position: 'relative',
   display: 'flex',
   flexDirection: 'column',
@@ -247,8 +249,7 @@ const previewStripStyle = (enabled: boolean): CSSProperties => ({
   borderColor: cssVar('color.border.default'),
   borderRadius: cssVar('radius.lg'),
   background: cssVar('color.surface.default'),
-  opacity: enabled ? 1 : 0.55,
-});
+};
 
 const previewImageStyle: CSSProperties = {
   display: 'block',
@@ -355,7 +356,7 @@ function BannerPreview({
   return (
     <div>
       <div style={stageStyle}>
-        <div style={previewStripStyle(enabled)}>
+        <div style={previewStripStyle}>
           {trimmedImage !== '' ? (
             <img src={trimmedImage} alt="" style={previewImageStyle} />
           ) : (

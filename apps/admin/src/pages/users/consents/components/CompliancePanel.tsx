@@ -79,7 +79,7 @@ export function CompliancePanel({ items, events, loading, onRetry, today }: Comp
     return (
       <div style={columnStyle}>
         {historyState === 'loading' ? (
-          <div aria-busy="true" aria-label="동의 이력을 불러오는 중">
+          <div role="status" aria-busy="true" aria-label="동의 이력을 불러오는 중">
             <Skeleton />
           </div>
         ) : (

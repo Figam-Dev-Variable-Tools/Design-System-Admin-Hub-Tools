@@ -625,8 +625,10 @@ const lockRowStyle: CSSProperties = {
   flexWrap: 'wrap',
 };
 
+// info Alert(파란 surface) 안의 링크 — action.primary(blue.600)는 그 배경(blue.200) 위 3.64:1 로
+// 미달(axe color-contrast)이다. 그 surface 와 짝지어진 feedback.info.text(blue.800, 6.02:1)로 바꾼다.
 const lockLinkStyle: CSSProperties = {
-  color: cssVar('color.action.primary.default'),
+  color: cssVar('color.feedback.info.text'),
   textDecoration: 'underline',
   whiteSpace: 'nowrap',
 };
@@ -650,7 +652,9 @@ const stageStyle: CSSProperties = {
   background: cssVar('color.surface.raised'),
 };
 
-const previewCardStyle = (displayed: boolean): CSSProperties => ({
+// 숨김(displayed=false)을 opacity 로 흐리지 않는다 — 컨테이너 opacity 는 안의 글자(상품명·가격·브랜드)를
+// 배경으로 합성해 대비를 4.5:1 아래로 떨어뜨린다(axe color-contrast). 숨김 사실은 아래 캡션이 글자로 전한다.
+const previewCardStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: cssVar('space.2'),
@@ -663,8 +667,7 @@ const previewCardStyle = (displayed: boolean): CSSProperties => ({
   borderColor: cssVar('color.border.default'),
   borderRadius: cssVar('radius.lg'),
   background: cssVar('color.surface.default'),
-  opacity: displayed ? 1 : 0.55,
-});
+};
 
 const thumbStyle: CSSProperties = {
   position: 'relative',
@@ -988,7 +991,7 @@ function ProductCardPreview({
   return (
     <div>
       <div style={stageStyle}>
-        <div style={previewCardStyle(displayed)}>
+        <div style={previewCardStyle}>
           <div style={thumbStyle}>
             {trimmedImage !== '' ? (
               <img src={trimmedImage} alt="" style={thumbImageStyle} />

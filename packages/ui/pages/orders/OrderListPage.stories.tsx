@@ -677,6 +677,14 @@ const linkStyle: CSSProperties = {
   textDecoration: 'underline',
 };
 
+// info Alert(파란 surface) 안의 링크 — action.primary(blue.600)는 그 배경(blue.200) 위에서 3.64:1 로
+// 미달(axe color-contrast)이다. 이 문맥의 링크는 그 surface 와 짝지어진 feedback.info.text(blue.800,
+// 6.02:1)를 쓴다. '더 진한 텍스트 토큰으로 바꾼' 마크업 수정이며 밑줄로 링크임을 유지한다.
+const alertInfoLinkStyle: CSSProperties = {
+  color: cssVar('color.feedback.info.text'),
+  textDecoration: 'underline',
+};
+
 const tableScrollStyle: CSSProperties = {
   overflowX: 'auto',
   minWidth: 0,
@@ -839,10 +847,10 @@ function OrderListScreen({
             &lsquo;구매하기&rsquo; 대신 &lsquo;문의하기&rsquo;이며, 고객의 글은 상품 문의로
             접수돼요.
           </span>
-          <a href="#payment-settings" style={linkStyle}>
+          <a href="#payment-settings" style={alertInfoLinkStyle}>
             결제 설정 열기
           </a>
-          <a href="#product-inquiries" style={linkStyle}>
+          <a href="#product-inquiries" style={alertInfoLinkStyle}>
             상품 문의 열기
           </a>
         </div>

@@ -199,7 +199,7 @@ export default function NotificationSettingsPage() {
         )}
 
         {loading ? (
-          <div aria-busy="true" aria-label="알림 설정을 불러오는 중">
+          <div role="status" aria-busy="true" aria-label="알림 설정을 불러오는 중">
             <Skeleton />
           </div>
         ) : (

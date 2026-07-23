@@ -124,7 +124,9 @@ export function CouponCardPreview({
   return (
     <div>
       <div style={stageStyle}>
-        <div style={{ ...cardStyle, opacity: enabled ? 1 : 0.55 }}>
+        {/* 중지를 opacity 로 흐리지 않는다 — 컨테이너 opacity 는 안의 글자를 배경으로 합성해 대비를
+            4.5:1 아래로 떨어뜨린다(axe color-contrast). 중지는 아래 캡션이 글자로 전한다. */}
+        <div style={cardStyle}>
           <div style={leftStyle}>
             <span style={discountStyle}>{discountLabel({ issueType, discountValue })}</span>
             <span style={nameStyle}>{name.trim() === '' ? '쿠폰명' : name}</span>
