@@ -144,8 +144,8 @@ export function FormPageShell({
           <div style={alertActionRowStyle}>
             <span>
               {notFound
-                ? `${entityLabel}${objectParticle(entityLabel)} 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.`
-                : `${entityLabel}${objectParticle(entityLabel)} 불러오지 못했습니다.`}
+                ? `${entityLabel}${objectParticle(entityLabel)} 찾을 수 없어요. 이미 삭제되었을 수 있어요.`
+                : `${entityLabel}${objectParticle(entityLabel)} 불러오지 못했어요.`}
             </span>
             {!notFound && onRetryLoad !== undefined && (
               <Button variant="secondary" onClick={onRetryLoad}>

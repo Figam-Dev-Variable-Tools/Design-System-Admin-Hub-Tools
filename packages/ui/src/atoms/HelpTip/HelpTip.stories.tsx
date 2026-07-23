@@ -16,7 +16,7 @@ const meta: Meta<typeof HelpTip> = {
   argTypes: { ...HelpTipArgTypes },
   args: {
     label: '그룹 유형 설명',
-    children: '시스템 역할은 슈퍼어드민 전용이며 권한을 수정할 수 없습니다.',
+    children: '시스템 역할은 슈퍼어드민 전용이며 권한을 수정할 수 없어요.',
   },
   parameters: { layout: 'padded' },
 };
@@ -56,7 +56,7 @@ export const LongContent: Story = {
   args: {
     label: '적립금 정책 설명',
     children:
-      '적립금은 구매 확정 시점에 지급되며, 지급된 적립금은 다음 결제부터 사용할 수 있습니다. 유효기간이 지난 적립금은 자동 소멸합니다.',
+      '적립금은 구매 확정 시점에 지급되며, 지급된 적립금은 다음 결제부터 사용할 수 있어요. 유효기간이 지난 적립금은 자동 소멸해요.',
   },
   play: async ({ canvasElement }) => {
     await userEvent.click(within(canvasElement).getByRole('button', { name: '적립금 정책 설명' }));
@@ -93,7 +93,7 @@ export const Opened: Story = {
 
     await expect(trigger).toHaveAttribute('aria-expanded', 'true');
     await expect(
-      canvas.getByText('시스템 역할은 슈퍼어드민 전용이며 권한을 수정할 수 없습니다.'),
+      canvas.getByText('시스템 역할은 슈퍼어드민 전용이며 권한을 수정할 수 없어요.'),
     ).toBeVisible();
   },
 };

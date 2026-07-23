@@ -20,7 +20,7 @@ export function ListCard({
   count = 0,
   rows,
   loading = false,
-  empty = '표시할 항목이 없습니다.',
+  empty = '표시할 항목이 없어요.',
   icon = null,
   onRowClick,
 }: ListCardProps) {

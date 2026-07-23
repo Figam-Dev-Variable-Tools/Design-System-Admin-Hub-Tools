@@ -68,7 +68,7 @@ const endInputOf = (canvasElement: HTMLElement) =>
 
 /** Overview — 대표 쓰임새. 시작~종료 두 칸 + 보조 안내 힌트 */
 export const Overview: Story = {
-  args: { hint: '비워 두면 상시 노출됩니다' },
+  args: { hint: '비워 두면 상시 노출돼요' },
 };
 
 /** Playground — Controls 에서 required·disabled·error·hint 를 바꿔 전 조합을 여기서 본다 */
@@ -146,7 +146,7 @@ export const LongContent: Story = {
   name: 'Content/Long Content',
   args: {
     label: '프로모션 노출 기간 (등록 시점부터 종료일 자정까지 상시 노출)',
-    hint: '시작일과 종료일을 모두 비워 두면 저장 시점부터 별도 종료 없이 상시 노출됩니다',
+    hint: '시작일과 종료일을 모두 비워 두면 저장 시점부터 별도 종료 없이 상시 노출돼요',
   },
 };
 
@@ -210,11 +210,11 @@ export const RangeValidation: Story = {
   args: {
     startValue: '2026-07-31',
     endValue: '2026-07-01',
-    error: '종료일은 시작일 이후여야 합니다',
+    error: '종료일은 시작일 이후여야 해요',
   },
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getByRole('alert')).toHaveTextContent(
-      '종료일은 시작일 이후여야 합니다',
+      '종료일은 시작일 이후여야 해요',
     );
     await expect(startInputOf(canvasElement)).toHaveAttribute('aria-invalid', 'true');
   },

@@ -90,7 +90,7 @@ function renderFormShell(isEdit: boolean) {
     <FormPageShell
       entityLabel="연혁"
       cardTitle="연혁 정보"
-      description="별표(*) 항목은 필수입니다."
+      description="별표(*) 항목은 필수예요."
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={false}
@@ -98,7 +98,7 @@ function renderFormShell(isEdit: boolean) {
       serverError={null}
       saving={false}
       isDirty={false}
-      unsavedMessage="저장하지 않은 변경 사항이 있습니다."
+      unsavedMessage="저장하지 않은 변경 사항이 있어요."
       onSubmit={(event) => event.preventDefault()}
     >
       <input aria-label="내용" />
@@ -114,7 +114,7 @@ function renderFormShell(isEdit: boolean) {
 
 /** 403 이 그려졌는가 — 폼(제출 버튼·입력)은 하나도 남지 않아야 한다 */
 function expectForbidden(): void {
-  expect(screen.getByText('접근 권한이 없습니다')).not.toBeNull();
+  expect(screen.getByText('접근 권한이 없어요')).not.toBeNull();
   expect(screen.queryByRole('button', { name: '등록' })).toBeNull();
   expect(screen.queryByRole('button', { name: '저장' })).toBeNull();
   expect(screen.queryByLabelText('내용')).toBeNull();
@@ -183,7 +183,7 @@ function renderDocumentShell() {
       serverError={null}
       saving={false}
       dirty
-      unsavedMessage="저장하지 않은 변경 사항이 있습니다."
+      unsavedMessage="저장하지 않은 변경 사항이 있어요."
       onSubmit={(event) => event.preventDefault()}
     >
       <input aria-label="회사명" />
@@ -196,7 +196,7 @@ describe('DocumentFormShell — 단일 문서 편집은 update 를 요구한다 
     seedPermissions(['update']);
     renderDocumentShell();
 
-    expect(screen.getByText('접근 권한이 없습니다')).not.toBeNull();
+    expect(screen.getByText('접근 권한이 없어요')).not.toBeNull();
     expect(screen.queryByRole('button', { name: '저장' })).toBeNull();
     expect(screen.queryByLabelText('회사명')).toBeNull();
   });
@@ -263,7 +263,7 @@ describe('useCrudForm — 권한 없는 제출은 요청이 되지 않는다 (EX
 
     // 조용히 삼키지 않는다 — 왜 저장되지 않았는지 폼 안에 남는다
     expect(await screen.findByRole('alert')).not.toBeNull();
-    expect(screen.getByRole('alert').textContent).toContain('등록할 권한이 없습니다');
+    expect(screen.getByRole('alert').textContent).toContain('등록할 권한이 없어요');
     expect(create).not.toHaveBeenCalled();
   });
 

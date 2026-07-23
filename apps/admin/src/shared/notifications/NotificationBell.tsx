@@ -20,16 +20,48 @@ import { Button, hintStyle, visuallyHiddenStyle } from '../ui';
 import { notificationKindOf } from './catalog';
 import { useNotifications } from './useNotifications';
 
+/**
+ * 배지가 버튼 밖으로 나가는 길이 — **배지 크기의 절반**이다.
+ *
+ * 상수를 손으로 적지 않고 배지 토큰에서 계산한다: 아래 `transform` 이 배지를 자기 크기의 50%
+ * 만큼 밀어내므로, 밀려나는 길이는 정의상 배지 크기의 절반이다. 배지 크기가 바뀌면 여백도
+ * 함께 따라온다(@tds/ui Badge.css — block-size: space.5).
+ */
+const BADGE_OVERHANG = `calc(${cssVar('space.5')} / 2)`;
+
+/**
+ * 벨과 배지를 함께 담는 앵커.
+ *
+ * 네 방향 여백이 있는 이유는 둘이다: ① 밖으로 밀려난 배지가 헤더 상자 가장자리에서 **잘리지
+ * 않게** 하고 ② 여백이 한쪽에만 있으면 헤더의 `align-items: center` 안에서 벨이 그만큼
+ * 치우쳐 보인다. 대칭이라야 벨이 제자리에 남는다.
+ */
 const wrapStyle: CSSProperties = {
   position: 'relative',
   display: 'inline-flex',
   alignItems: 'center',
+  paddingTop: BADGE_OVERHANG,
+  paddingBottom: BADGE_OVERHANG,
+  paddingLeft: BADGE_OVERHANG,
+  paddingRight: BADGE_OVERHANG,
 };
 
+/**
+ * 안읽음 배지의 자리 — 아이콘을 **덮지 않고 모서리에 걸친다.**
+ *
+ * [왜 오프셋이 필요한가] 예전에는 `top: 0; right: 0` 뿐이라 배지가 버튼 상자 **안쪽** 우상단에
+ * 그대로 앉았다. 벨은 `stroke` 만 있는 선 아이콘이고 안읽음 배지는 채워진 danger 색이라, 그
+ * 배지가 아이콘 위에 겹치면 아이콘이 **사라진 것처럼 보인다**(운영자 보고: '아이콘이 안 보이는
+ * 경향이 있음'). 사라진 것은 아이콘이 아니라 그것을 가린 배지였다.
+ *
+ * 그래서 버튼의 우상단 꼭짓점에 붙인 뒤 자기 크기의 절반만큼 바깥으로 민다 — 절반은 밖,
+ * 절반은 안이라 배지가 어디에 속한 것인지도 그대로 읽힌다.
+ */
 const badgeAnchorStyle: CSSProperties = {
   position: 'absolute',
-  top: 0,
-  right: 0,
+  top: BADGE_OVERHANG,
+  right: BADGE_OVERHANG,
+  transform: 'translate(50%, -50%)',
   pointerEvents: 'none',
 };
 
@@ -192,11 +224,11 @@ export function NotificationBell() {
           </div>
 
           {error !== null ? (
-            <p style={hintStyle}>알림을 불러오지 못했습니다.</p>
+            <p style={hintStyle}>알림을 불러오지 못했어요.</p>
           ) : firstLoading ? (
             <p style={hintStyle}>불러오는 중…</p>
           ) : rows.length === 0 ? (
-            <p style={hintStyle}>새 알림이 없습니다.</p>
+            <p style={hintStyle}>새 알림이 없어요.</p>
           ) : (
             <ul style={listStyle}>
               {rows.map((row) => (

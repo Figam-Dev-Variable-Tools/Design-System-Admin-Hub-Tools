@@ -125,7 +125,7 @@ export function BrandListItemsCard({ items, disabled, error, onChange }: BrandLi
 
       {items.length === 0 ? (
         <p style={emptyStyle}>
-          {`항목이 없습니다. 아래에서 추가하세요(3~${String(BRAND_LIST_ITEM_MAX)}개).`}
+          {`항목이 없어요. 아래에서 추가하세요(3~${String(BRAND_LIST_ITEM_MAX)}개).`}
         </p>
       ) : (
         <div style={listStyle}>
@@ -226,7 +226,7 @@ export function BrandCarouselCardsCard({
 
       {cards.length === 0 ? (
         <p style={emptyStyle}>
-          {`카드가 없습니다. 아래에서 추가하세요(2~${String(BRAND_CAROUSEL_CARD_MAX)}장).`}
+          {`카드가 없어요. 아래에서 추가하세요(2~${String(BRAND_CAROUSEL_CARD_MAX)}장).`}
         </p>
       ) : (
         <div style={listStyle}>

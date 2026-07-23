@@ -36,6 +36,7 @@ import {
   Card,
   DateRangeField,
   FormField,
+  formRowStyle,
   Icon,
   ImageGalleryField,
   SelectField,
@@ -146,6 +147,19 @@ interface FormValues {
   readonly note: string;
 }
 
+/** 차단 안내의 문장 + 두 링크를 한 줄에 — 좁은 화면에서는 접힌다 */
+const blockedRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: cssVar('space.3'),
+  flexWrap: 'wrap',
+};
+
+const blockedLinkStyle: CSSProperties = {
+  color: cssVar('color.action.primary.default'),
+  textDecoration: 'underline',
+};
+
 const EMPTY_SEED: FormValues = {
   title: '',
   accountName: '',
@@ -201,7 +215,7 @@ interface FieldErrors {
 const DEMO_ERRORS: FieldErrors = {
   title: '계약명을 입력하세요.',
   accountName: '거래처를 입력하세요.',
-  amount: '계약금액은 0보다 커야 합니다.',
+  amount: '계약금액은 0보다 커야 해요.',
   period: '계약 기간을 YYYY-MM-DD 형식으로 입력하세요.',
 };
 
@@ -259,12 +273,6 @@ const cardTitleStyle: CSSProperties = {
   ...typography('typography.title.md'),
   margin: 0,
   color: cssVar('color.text.default'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const fieldStyle: CSSProperties = {
@@ -395,7 +403,6 @@ function ContractSummaryPreview({ values }: { values: FormValues }) {
 /* ── 제어형 화면(hooks-of-rules 준수: Capitalized 컴포넌트에서 useState) ───────────────────────── */
 
 interface ContractFormScreenProps {
-  readonly isEdit?: boolean;
   /** 상세 조회 스켈레톤 — useCrudForm loadingDetail 미러 */
   readonly loadingDetail?: boolean;
   /** 검증 오류 노출 — 제출 실패 상태 재현 */
@@ -404,7 +411,6 @@ interface ContractFormScreenProps {
 }
 
 function ContractFormScreen({
-  isEdit = false,
   loadingDetail = false,
   errors = {},
   seed = EMPTY_SEED,
@@ -426,15 +432,15 @@ function ContractFormScreen({
       </div>
 
       <div>
-        <h1 style={pageTitleStyle}>{isEdit ? '계약 수정' : '계약 등록'}</h1>
-        <p style={descriptionStyle}>별표(*) 항목은 필수입니다. 계약 기간·금액을 확인하세요.</p>
+        <h1 style={pageTitleStyle}>'계약 수정'</h1>
+        <p style={descriptionStyle}>별표(*) 항목은 필수예요. 계약 기간·금액을 확인하세요.</p>
       </div>
 
       <form onSubmit={(event) => event.preventDefault()} noValidate style={pageStyle}>
         {/* 서버 오류 배너 — 검증 오류 데모에서 요약을 알린다(실화면 FormServerError 자리) */}
         {Object.keys(errors).length > 0 && (
           <Alert tone="danger">
-            입력한 내용을 다시 확인하세요. 표시된 항목을 수정해야 저장됩니다.
+            입력한 내용을 다시 확인하세요. 표시된 항목을 수정해야 저장돼요.
           </Alert>
         )}
 
@@ -460,7 +466,7 @@ function ContractFormScreen({
                     disabled={disabled}
                     error={errors.title ?? ''}
                   />
-                  <div style={rowStyle}>
+                  <div style={formRowStyle}>
                     <TextField
                       id="contract-account"
                       label="거래처"
@@ -501,7 +507,7 @@ function ContractFormScreen({
             </FormCard>
 
             <FormCard title="금액 · 기간">
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <TextField
                   id="contract-amount"
                   label="계약금액 (원)"
@@ -540,7 +546,7 @@ function ContractFormScreen({
             </FormCard>
 
             <FormCard title="갱신 · 서명 · 상태">
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <div style={fieldStyle}>
                   <span style={fieldLabelStyle}>자동갱신</span>
                   <ToggleSwitch
@@ -567,7 +573,7 @@ function ContractFormScreen({
                 )}
               </div>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="contract-status" label="계약 상태" required>
                   <SelectField
                     id="contract-status"
@@ -643,7 +649,7 @@ function ContractFormScreen({
             취소
           </Button>
           <Button type="submit" variant="primary" size="md" disabled={disabled}>
-            {isEdit ? '저장' : '등록'}
+            저장
           </Button>
         </div>
       </form>
@@ -651,19 +657,52 @@ function ContractFormScreen({
   );
 }
 
-/** 정상(등록): 빈 폼 — 신규 계약 입력 + 우측 요약 미리보기 */
+/**
+ * 사슬 밖 생성 차단 — `/new` 주소로 들어왔을 때 그리는 것.
+ *
+ * 목록의 등록 버튼만 숨기면 막은 것이 아니다: 주소창·즐겨찾기·옛 링크가 그대로 살아 있다.
+ * 조용한 404 나 빈 화면은 고장과 구분되지 않으므로 **왜 못 만드는지와 어디서 만드는지**를 말한다
+ * (실화면 pages/sales/_shared/ChainOnlyCreateNotice · 시스템 설정의 '알 수 없는 프로바이더'와 같은 관용구).
+ */
+function ContractCreateBlockedScreen() {
+  return (
+    <div style={pageStyle}>
+      <div>
+        <h1 style={pageTitleStyle}>계약 등록</h1>
+        <p style={descriptionStyle}>
+          영업 파이프라인(문의 → 견적 → 계약 → 프로젝트)은 앞 칸에서만 다음 칸이 생겨요.
+        </p>
+      </div>
+      <Alert tone="warning">
+        <div style={blockedRowStyle}>
+          <span>
+            계약은 견적에서 만들어져요. 고객이 승인한 견적 상세에서 ‘계약 만들기’를 누르세요.
+          </span>
+          <a href="#견적-list" style={blockedLinkStyle}>
+            견적 목록으로
+          </a>
+          <a href="#계약-list" style={blockedLinkStyle}>
+            계약 목록으로
+          </a>
+        </div>
+      </Alert>
+    </div>
+  );
+}
+
+/** 사슬 밖 생성 차단 — 빈 폼이 아니라 다음 행동을 알려 주는 문장이 뜬다 */
 export const Default: Story = {
-  render: () => <ContractFormScreen />,
+  render: () => <ContractCreateBlockedScreen />,
 };
 
 /** 수정: 기존 값이 채워진 폼(첨부 미리보기·자동갱신 통지기한 포함) */
 export const Edit: Story = {
-  render: () => <ContractFormScreen isEdit seed={EDIT_SEED} />,
+  render: () => <ContractFormScreen seed={EDIT_SEED} />,
 };
 
 /** 로딩: 상세 조회 중 계약 정보 카드 본문 스켈레톤(useCrudForm loadingDetail 미러) */
 export const Loading: Story = {
-  render: () => <ContractFormScreen isEdit loadingDetail />,
+  render: () => <ContractFormScreen loadingDetail />,
 };
 
 /** 검증 오류: 필수 항목을 비우고 제출했을 때 서버 오류 배너 + 각 필드 인라인 오류 노출 */

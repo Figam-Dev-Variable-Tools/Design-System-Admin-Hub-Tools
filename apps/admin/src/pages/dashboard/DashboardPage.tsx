@@ -86,9 +86,7 @@ export default function DashboardPage() {
 
   // 위젯이 하나도 없으면 셸만 남기고 안내 한 줄로 대체한다 (FS-002-EL-044)
   if (visibleTabs.length === 0 && !hasStats) {
-    return (
-      <p style={emptyStyle}>표시할 수 있는 대시보드 항목이 없습니다. 권한 설정을 확인하세요.</p>
-    );
+    return <p style={emptyStyle}>표시할 수 있는 대시보드 항목이 없어요. 권한 설정을 확인하세요.</p>;
   }
 
   return (
@@ -105,7 +103,7 @@ export default function DashboardPage() {
 
       {error !== null && (
         <Alert tone="danger">
-          대시보드 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+          대시보드 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </Alert>
       )}
 

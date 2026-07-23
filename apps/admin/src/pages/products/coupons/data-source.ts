@@ -5,7 +5,7 @@
 import { wait } from '../../../shared/async';
 import { createCrudAdapter, failIfRequested, LATENCY_MS } from '../../../shared/crud';
 import { conflictingProducts, discountLabel, sortCoupons } from './types';
-import type { Coupon, CouponInput, CouponIssuance } from './types';
+import type { Coupon, CouponInput, CouponIssuance, ScopeProduct } from './types';
 import type { CatalogCoupon } from '../../../shared/domain/coupon-catalog';
 import type { TierUpCoupon } from '../../../shared/domain/coupon-issuance';
 import { listProducts } from '../_shared/store';
@@ -318,6 +318,27 @@ export function couponsTargetingProduct(
     if (coupon.target === 'category') return coupon.targetIds.includes(product.categoryId);
     return false;
   });
+}
+
+/**
+ * 쿠폰의 '특정 상품' 대상이 고를 수 있는 상품 목록.
+ *
+ * [왜 listProducts() 를 화면이 직접 부르지 않게 바꿨나] 동기 호출은 **실패할 수 없다** — 그래서
+ * 화면이 '목록을 모른다' 는 상태를 가질 수 없고, 배선이 끊겨도 빈 셀렉트를 '고를 것이 없다' 로
+ * 그린다. 조회로 바꾸면 대기·실패가 값에 드러나고, 화면이 그 셋을 다른 말로 말할 수 있다.
+ */
+// TODO(backend): GET /api/products (쿠폰 대상 선택 목록)
+export async function fetchCouponTargetProducts(
+  signal?: AbortSignal,
+): Promise<readonly ScopeProduct[]> {
+  await wait(LATENCY_MS, signal);
+  failIfRequested('products', 'list');
+  return listProducts().map((product) => ({
+    id: product.id,
+    name: product.name,
+    code: product.code,
+    categoryId: product.categoryId,
+  }));
 }
 
 /** 쿠폰 선택 목록 — 상품 폼의 '허용/제외할 쿠폰' 피커가 쓴다 */

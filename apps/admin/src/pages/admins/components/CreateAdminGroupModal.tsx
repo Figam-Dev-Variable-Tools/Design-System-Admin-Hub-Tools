@@ -36,6 +36,7 @@ import {
   useModalDirtyGuard,
 } from '../../../shared/ui';
 import { zodResolver } from '../../../shared/form/zodResolver';
+import { useRouteCan, WRITE_DENIED } from '../../../shared/permissions/RequirePermission';
 import { useCreateAdminGroup, useRegisteredSenderPhonesQuery } from '../queries';
 import { createAdminGroupSchema } from '../validation';
 import type { CreateAdminGroupFormValues } from '../validation';
@@ -86,6 +87,8 @@ export function CreateAdminGroupModal({ onClose, onCreated }: CreateAdminGroupMo
   const [confirming, setConfirming] = useState<string | null>(null);
 
   const create = useCreateAdminGroup();
+  /** 부모가 버튼을 없앨 때 읽은 것과 **같은 술어**다 (같은 라우트의 create) */
+  const canCreate = useRouteCan('create');
   const saving = create.isPending;
 
   // 사전등록 풀 — 실패해도 폼을 막지 않는다. 발신 자격을 끈 그룹은 번호가 필요 없기 때문이다
@@ -117,6 +120,14 @@ export function CreateAdminGroupModal({ onClose, onCreated }: CreateAdminGroupMo
 
   const confirmCreate = () => {
     if (confirming === null) return;
+    /* 팝업은 부모의 판정을 물려받지 않는다 — 부모(AdminsPage)는 create 가 없으면 여는 버튼을
+       만들지 않지만, 그것은 '열리지 않는다' 는 보장일 뿐 '저장되지 않는다' 는 보장이 아니다.
+       같은 라우트의 같은 술어를 여기서 다시 읽고, 거절은 사유 문장으로 남긴다. */
+    if (!canCreate) {
+      setConfirming(null);
+      setServerError(WRITE_DENIED.create);
+      return;
+    }
     const trimmed = confirming;
     const { senderPhone, senderEmail, usableAsSender } = getValues();
 
@@ -150,7 +161,7 @@ export function CreateAdminGroupModal({ onClose, onCreated }: CreateAdminGroupMo
           setServerError(
             cause instanceof Error && cause.message !== ''
               ? cause.message
-              : '그룹을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.',
+              : '그룹을 만들지 못했어요. 잠시 후 다시 시도해 주세요.',
           );
         },
       },
@@ -235,8 +246,8 @@ export function CreateAdminGroupModal({ onClose, onCreated }: CreateAdminGroupMo
                 발신 프로필로 사용
               </label>
               <HelpTip label="발신 프로필 설명">
-                켜면 이 그룹을 메시지 템플릿의 '발신 프로필' 로 고를 수 있습니다. 조회·권한 필터
-                용도로만 쓸 그룹은 꺼 두세요 — 발송 화면 목록이 보낼 수 없는 이름으로 채워집니다.
+                켜면 이 그룹을 메시지 템플릿의 '발신 프로필' 로 고를 수 있어요. 조회·권한 필터
+                용도로만 쓸 그룹은 꺼 두세요 — 발송 화면 목록이 보낼 수 없는 이름으로 채워져요.
               </HelpTip>
             </span>
             <label htmlFor={senderId} style={checkboxRowStyle}>
@@ -250,7 +261,7 @@ export function CreateAdminGroupModal({ onClose, onCreated }: CreateAdminGroupMo
                 onChange={senderField.onChange}
                 onBlur={senderField.onBlur}
               />
-              <span style={hintStyle}>메시지 템플릿의 발신 프로필 목록에 표시합니다.</span>
+              <span style={hintStyle}>메시지 템플릿의 발신 프로필 목록에 표시해요.</span>
             </label>
           </div>
 
@@ -260,9 +271,8 @@ export function CreateAdminGroupModal({ onClose, onCreated }: CreateAdminGroupMo
                 대표 발신번호
               </label>
               <HelpTip label="대표 발신번호 설명">
-                문자 발신번호는 사전등록제입니다. 통신사에 등록을 마친 번호만 목록에 나타나며,
-                등록되지 않은 번호로는 발송이 거절됩니다. 번호는 그룹을 만든 뒤 더 추가할 수
-                있습니다.
+                문자 발신번호는 사전등록제예요. 통신사에 등록을 마친 번호만 목록에 나타나며,
+                등록되지 않은 번호로는 발송이 거절돼요. 번호는 그룹을 만든 뒤 더 추가할 수 있어요.
               </HelpTip>
             </span>
             <SelectField
@@ -285,8 +295,7 @@ export function CreateAdminGroupModal({ onClose, onCreated }: CreateAdminGroupMo
             </SelectField>
             {phonesError !== null && (
               <p style={hintStyle} role="alert">
-                등록된 발신번호 목록을 불러오지 못했습니다. 번호는 그룹을 만든 뒤 추가할 수
-                있습니다.
+                등록된 발신번호 목록을 불러오지 못했어요. 번호는 그룹을 만든 뒤 추가할 수 있어요.
               </p>
             )}
             {phoneError !== undefined && (
@@ -329,8 +338,8 @@ export function CreateAdminGroupModal({ onClose, onCreated }: CreateAdminGroupMo
 
           <p style={hintStyle}>
             {usableAsSender
-              ? '그룹을 만들어도 운영자가 자동으로 들어가지는 않습니다. 발신번호와 발신 이메일은 그룹을 만든 뒤 더 추가할 수 있습니다.'
-              : '그룹을 만들어도 운영자가 자동으로 들어가지는 않습니다. 이 그룹은 메시지 템플릿의 발신 프로필 목록에 나타나지 않습니다.'}
+              ? '그룹을 만들어도 운영자가 자동으로 들어가지는 않아요. 발신번호와 발신 이메일은 그룹을 만든 뒤 더 추가할 수 있어요.'
+              : '그룹을 만들어도 운영자가 자동으로 들어가지는 않아요. 이 그룹은 메시지 템플릿의 발신 프로필 목록에 나타나지 않아요.'}
           </p>
         </div>
       </Modal>
@@ -341,8 +350,8 @@ export function CreateAdminGroupModal({ onClose, onCreated }: CreateAdminGroupMo
           title="운영진 그룹 만들기"
           message={
             usableAsSender
-              ? `'${confirming}' 그룹을 만듭니다. 메시지 템플릿의 발신 프로필로 고를 수 있게 됩니다.`
-              : `'${confirming}' 그룹을 만듭니다.`
+              ? `'${confirming}' 그룹을 만들어요. 메시지 템플릿의 발신 프로필로 고를 수 있게 돼요.`
+              : `'${confirming}' 그룹을 만들어요.`
           }
           confirmLabel="그룹 만들기"
           busy={saving}

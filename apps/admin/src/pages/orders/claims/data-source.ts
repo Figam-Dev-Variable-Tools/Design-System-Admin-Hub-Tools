@@ -61,7 +61,7 @@ const CLAIM_SEED: readonly Claim[] = [
     optionValues: ['블랙', 'M'],
     exchangeOptionValues: [],
     reason: '사이즈 교환',
-    reasonDetail: 'M 사이즈가 작아 L 로 교환 요청합니다.',
+    reasonDetail: 'M 사이즈가 작아 L 로 교환 요청해요.',
     quantity: 1,
     requestedAt: '2026-07-12',
     status: 'requested',
@@ -81,7 +81,7 @@ const CLAIM_SEED: readonly Claim[] = [
     optionValues: ['260'],
     exchangeOptionValues: [],
     reason: '단순 변심',
-    reasonDetail: '착용감이 기대와 달라 반품합니다.',
+    reasonDetail: '착용감이 기대와 달라 반품해요.',
     quantity: 1,
     requestedAt: '2026-07-10',
     status: 'collecting',
@@ -107,7 +107,7 @@ const CLAIM_SEED: readonly Claim[] = [
     optionValues: ['화이트'],
     exchangeOptionValues: [],
     reason: '상품 불량',
-    reasonDetail: '봉제 마감 불량으로 반품 및 환불 요청합니다.',
+    reasonDetail: '봉제 마감 불량으로 반품 및 환불 요청해요.',
     quantity: 2,
     requestedAt: '2026-07-08',
     status: 'inspecting',
@@ -128,7 +128,7 @@ const CLAIM_SEED: readonly Claim[] = [
     optionValues: [],
     exchangeOptionValues: [],
     reason: '단순 변심',
-    reasonDetail: '색상이 화면과 달라 반품합니다.',
+    reasonDetail: '색상이 화면과 달라 반품해요.',
     quantity: 1,
     requestedAt: '2026-07-05',
     status: 'completed',
@@ -163,7 +163,7 @@ const CLAIM_SEED: readonly Claim[] = [
     optionValues: ['30'],
     exchangeOptionValues: ['32'],
     reason: '변심 교환',
-    reasonDetail: '착용 흔적이 있어 교환 규정에 맞지 않습니다.',
+    reasonDetail: '착용 흔적이 있어 교환 규정에 맞지 않아요.',
     quantity: 1,
     requestedAt: '2026-07-03',
     status: 'rejected',
@@ -183,7 +183,7 @@ const CLAIM_SEED: readonly Claim[] = [
     optionValues: ['250'],
     exchangeOptionValues: [],
     reason: '주문 실수',
-    reasonDetail: '사이즈를 잘못 골라 취소하고 다시 주문하겠습니다.',
+    reasonDetail: '사이즈를 잘못 골라 취소하고 다시 주문할게요.',
     quantity: 1,
     requestedAt: '2026-07-17',
     status: 'requested',
@@ -209,7 +209,7 @@ const CLAIM_SEED: readonly Claim[] = [
     optionValues: ['베이지', 'M'],
     exchangeOptionValues: [],
     reason: '입금 전 취소',
-    reasonDetail: '가상계좌 입금 전에 취소를 요청했습니다.',
+    reasonDetail: '가상계좌 입금 전에 취소를 요청했어요.',
     quantity: 1,
     requestedAt: '2026-07-19',
     status: 'requested',
@@ -231,7 +231,7 @@ const CLAIM_SEED: readonly Claim[] = [
     optionValues: [],
     exchangeOptionValues: [],
     reason: '배송 지연',
-    reasonDetail: '배송이 늦어져 주문 전체를 취소합니다.',
+    reasonDetail: '배송이 늦어져 주문 전체를 취소해요.',
     quantity: 1,
     requestedAt: '2026-07-21',
     status: 'requested',
@@ -321,7 +321,7 @@ function assertFormat(next: Claim): void {
   if (next.adminNote.length > CLAIM_NOTE_MAX) {
     fields.push({
       field: 'adminNote',
-      message: `처리 메모는 ${String(CLAIM_NOTE_MAX)}자를 넘을 수 없습니다.`,
+      message: `처리 메모는 ${String(CLAIM_NOTE_MAX)}자를 넘을 수 없어요.`,
     });
   }
 
@@ -359,7 +359,7 @@ function assertTransitions(current: Claim, next: Claim): void {
     if (frozen) {
       violations.push({
         field: 'returnShippingFee',
-        message: '환불이 완료되어 차감 내역을 바꿀 수 없습니다.',
+        message: '환불이 완료되어 차감 내역을 바꿀 수 없어요.',
       });
     }
   }
@@ -376,7 +376,7 @@ function variantsOrReject(productId: string): readonly VariantRef[] {
   if (variants === null) {
     throw new HttpError(
       HTTP_STATUS.unprocessable,
-      '연결된 상품의 옵션을 확인할 수 없어 재고를 반영할 수 없습니다.',
+      '연결된 상품의 옵션을 확인할 수 없어 재고를 반영할 수 없어요.',
     );
   }
   return variants;
@@ -438,7 +438,7 @@ function applyRefundEffects(next: Claim): Claim {
   if (!appended) {
     throw new HttpError(
       HTTP_STATUS.serverError,
-      '적립금 원장에 연결되지 않아 환불을 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+      '적립금 원장에 연결되지 않아 환불을 완료하지 못했어요. 잠시 후 다시 시도해 주세요.',
     );
   }
 
@@ -491,7 +491,7 @@ export async function fetchClaimVariants(
   failIfRequested(SCOPE, 'detail');
   const variants = variantsOf(productId);
   if (variants === null) {
-    throw new HttpError(HTTP_STATUS.notFound, '연결된 상품의 옵션을 찾을 수 없습니다.');
+    throw new HttpError(HTTP_STATUS.notFound, '연결된 상품의 옵션을 찾을 수 없어요.');
   }
   return variants;
 }

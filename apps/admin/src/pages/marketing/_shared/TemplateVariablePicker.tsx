@@ -148,7 +148,7 @@ export function TemplateVariablePicker({
   if (catalog === null) {
     return (
       <div style={wrapStyle}>
-        <p style={noticeStyle}>변수 목록을 불러오지 못했습니다. 화면을 새로 고쳐 주세요.</p>
+        <p style={noticeStyle}>변수 목록을 불러오지 못했어요. 화면을 새로 고쳐 주세요.</p>
       </div>
     );
   }
@@ -167,7 +167,7 @@ export function TemplateVariablePicker({
         onChange={setQuery}
       />
 
-      {groups.length === 0 && <p style={noticeStyle}>검색 결과가 없습니다.</p>}
+      {groups.length === 0 && <p style={noticeStyle}>검색 결과가 없어요.</p>}
 
       <ul style={scrollStyle}>
         {groups.map((group) => {

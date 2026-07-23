@@ -127,13 +127,13 @@ export const LoadingWithDisabledAction: Story = {
 /** error — 본문 대신 role="alert" 문구. loading 보다 우선한다 */
 export const ErrorState: Story = {
   name: 'States/Error',
-  args: { error: '통계를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.' },
+  args: { error: '통계를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.' },
 };
 
 /** error + loading — error 가 우선한다 */
 export const ErrorTakesPrecedence: Story = {
   name: 'States/Error Precedence',
-  args: { loading: true, error: '통계 서버에 연결할 수 없습니다.' },
+  args: { loading: true, error: '통계 서버에 연결할 수 없어요.' },
 };
 
 /* ── Content ────────────────────────────────────────────────────────────── */
@@ -246,7 +246,7 @@ export const RightToLeft: Story = {
  */
 export const Accessibility: Story = {
   name: 'Accessibility/ARIA',
-  args: { error: '통계를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.' },
+  args: { error: '통계를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
@@ -254,7 +254,7 @@ export const Accessibility: Story = {
     await expect(canvas.getByRole('region', { name: '방문자' })).toBeInTheDocument();
     // error 는 role=alert 로 즉시 통지된다
     await expect(canvas.getByRole('alert')).toHaveTextContent(
-      '통계를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.',
+      '통계를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.',
     );
   },
 };

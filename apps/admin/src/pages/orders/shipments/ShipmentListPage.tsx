@@ -228,13 +228,13 @@ export default function ShipmentListPage() {
         }
         // 실패가 남으면 다이얼로그를 닫지 않는다 — 재클릭이 곧 재시도다(ConfirmDialog 계약).
         setActionError(
-          `${formatNumber(failed)}건을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.`,
+          `${formatNumber(failed)}건을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.`,
         );
       })
       .catch((cause: unknown) => {
         if (isAbort(cause)) return;
         setBusy(false);
-        setActionError('처리하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+        setActionError('처리하지 못했어요. 잠시 후 다시 시도해 주세요.');
       });
   };
 
@@ -249,7 +249,7 @@ export default function ShipmentListPage() {
           input: toOrderInput(applyOrderStatus(row.order, 'preparing', at, '운영자')),
           signal,
         }),
-      (count) => `${formatNumber(count)}건을 배송준비중으로 처리했습니다.`,
+      (count) => `${formatNumber(count)}건을 배송준비중으로 처리했어요.`,
     );
   };
 
@@ -291,7 +291,7 @@ export default function ShipmentListPage() {
           signal,
         });
       },
-      (count) => `${formatNumber(count)}건에 송장을 등록했습니다. 발송처리하면 배송중이 됩니다.`,
+      (count) => `${formatNumber(count)}건에 송장을 등록했어요. 발송처리하면 배송중이 돼요.`,
     );
   };
 
@@ -340,7 +340,7 @@ export default function ShipmentListPage() {
           signal,
         });
       },
-      (count) => `${formatNumber(count)}건을 발송처리했습니다.`,
+      (count) => `${formatNumber(count)}건을 발송처리했어요.`,
     );
   };
 
@@ -373,17 +373,17 @@ export default function ShipmentListPage() {
         notice={
           <>
             <p style={hintStyle}>
-              송장을 등록하면 배송대기, 발송처리하면 배송중이 됩니다. 일부만 나간 주문은 남은 품목
-              기준으로 발송대기에 남습니다.
+              송장을 등록하면 배송대기, 발송처리하면 배송중이 돼요. 일부만 나간 주문은 남은 품목
+              기준으로 발송대기에 남아요.
             </p>
             <p style={hintStyle}>
               택배사는{' '}
               <Link to={CARRIER_SETTINGS_PATH} className="tds-ui-link tds-ui-focusable">
                 배송 설정
               </Link>
-              에 등록된 목록에서만 고를 수 있습니다.
+              에 등록된 목록에서만 고를 수 있어요.
             </p>
-            {!canUpdate && <p style={hintStyle}>배송을 처리할 권한이 없어 조회만 가능합니다.</p>}
+            {!canUpdate && <p style={hintStyle}>배송을 처리할 권한이 없어 조회만 가능해요.</p>}
           </>
         }
       >
@@ -405,10 +405,10 @@ export default function ShipmentListPage() {
           {firstLoading
             ? ''
             : loadError !== null
-              ? `${ENTITY_LABEL} 목록을 불러오지 못했습니다.`
+              ? `${ENTITY_LABEL} 목록을 불러오지 못했어요.`
               : visible.length === 0
-                ? `조건에 맞는 ${ENTITY_LABEL} 결과가 없습니다.`
-                : `${ENTITY_LABEL} ${formatNumber(visible.length)}건을 찾았습니다.`}
+                ? `조건에 맞는 ${ENTITY_LABEL} 결과가 없어요.`
+                : `${ENTITY_LABEL} ${formatNumber(visible.length)}건을 찾았어요.`}
         </div>
 
         <div style={toolbarStyle}>
@@ -474,7 +474,7 @@ export default function ShipmentListPage() {
         ) : (
           <Alert tone="danger">
             <div style={alertActionRowStyle}>
-              <span>배송 목록을 불러오지 못했습니다.</span>
+              <span>배송 목록을 불러오지 못했어요.</span>
               <Button
                 variant="secondary"
                 onClick={() => {
@@ -495,8 +495,8 @@ export default function ShipmentListPage() {
           title="배송준비중 일괄 처리"
           message={
             prepareTargets.length === selectedCount
-              ? `선택한 주문 ${formatNumber(selectedCount)}건을 배송준비중으로 진행합니다. 주문 상태는 되돌릴 수 없습니다.`
-              : `선택한 ${formatNumber(selectedCount)}건 중 ${formatNumber(prepareTargets.length)}건만 배송준비중으로 진행합니다. 나머지는 이미 지난 단계이거나 입금이 확인되지 않은 주문입니다.`
+              ? `선택한 주문 ${formatNumber(selectedCount)}건을 배송준비중으로 진행해요. 주문 상태는 되돌릴 수 없어요.`
+              : `선택한 ${formatNumber(selectedCount)}건 중 ${formatNumber(prepareTargets.length)}건만 배송준비중으로 진행해요. 나머지는 이미 지난 단계이거나 입금이 확인되지 않은 주문이에요.`
           }
           confirmLabel={`${formatNumber(prepareTargets.length)}건 처리`}
           busy={busy}
@@ -524,7 +524,7 @@ export default function ShipmentListPage() {
         <ConfirmDialog
           intent="update"
           title="발송처리"
-          message={`선택한 ${formatNumber(dispatchTargets.length)}건을 발송처리합니다. 전 품목이 나간 주문만 배송중이 되고, 일부만 나간 주문은 발송대기에 남습니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 ${formatNumber(dispatchTargets.length)}건을 발송처리해요. 전 품목이 나간 주문만 배송중이 되고, 일부만 나간 주문은 발송대기에 남아요. 되돌릴 수 없어요.`}
           confirmLabel={`${formatNumber(dispatchTargets.length)}건 발송처리`}
           busy={busy}
           {...(actionError !== null && { error: actionError })}

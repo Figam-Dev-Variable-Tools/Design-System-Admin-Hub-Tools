@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { isAbort } from '../../../shared/async';
+import { useRouteCan, WRITE_DENIED } from '../../../shared/permissions/RequirePermission';
 import {
   Alert,
   Button,
@@ -40,7 +41,7 @@ import { cssVar } from '@tds/ui';
 const LIST_PATH = '/support/tickets';
 const NO_TEMPLATE = '';
 const UNSAVED_MESSAGE =
-  '처리 내용에 저장하지 않은 변경이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '처리 내용에 저장하지 않은 변경이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -80,6 +81,16 @@ export default function TicketDetailPage() {
 
   const update = useCrudUpdate(TICKET_RESOURCE, ticketAdapter);
   const saving = update.isPending;
+
+  /**
+   * [EXC-03] 이 화면의 쓰기는 **한 종류다** — 처리 저장(담당 배정 · 상태 전이 · 답변/메모 추가).
+   * 셋 다 같은 update 뮤테이션 한 번으로 나가므로 판정도 한 값이고, 그 값이 작업 영역의 컨트롤과
+   * 저장 경로의 거절을 동시에 정한다. 삭제는 없다(문의는 고객이 만든다).
+   *
+   * 특히 **종결은 되돌릴 수 없다**(STATUS_FLOW.closed 가 빈 배열이다) — 조회 권한만 가진 사람이
+   * 도달할 수 있는 상태가 아니다.
+   */
+  const canUpdate = useRouteCan('update');
 
   const [assignee, setAssignee] = useState('');
   const [status, setStatus] = useState<TicketStatus>('received');
@@ -136,8 +147,13 @@ export default function TicketDetailPage() {
   const onSave = () => {
     if (ticket === undefined || id === undefined) return;
     setConfirmClose(false);
+    // 저장 버튼을 없앤 술어가 저장 경로도 막는다 (EXC-03)
+    if (!canUpdate) {
+      setServerError(WRITE_DENIED.update);
+      return;
+    }
     if (!canSetStatus(ticket.status, status, assignee)) {
-      setServerError(assigneeRequiredError ?? '허용되지 않는 상태 전이입니다.');
+      setServerError(assigneeRequiredError ?? '허용되지 않는 상태 전이예요.');
       return;
     }
     setServerError(null);
@@ -159,12 +175,12 @@ export default function TicketDetailPage() {
           if (controller.signal.aborted) return;
           setComposer('');
           setTemplateId(NO_TEMPLATE);
-          toast.success('문의 처리 내용을 저장했습니다.');
+          toast.success('문의 처리 내용을 저장했어요.');
           void detailQuery.refetch();
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setServerError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setServerError('저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -178,7 +194,7 @@ export default function TicketDetailPage() {
     return (
       <div style={pageStyle}>
         <Alert tone="danger">
-          <span>문의를 불러오지 못했습니다. </span>
+          <span>문의를 불러오지 못했어요. </span>
           <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
             목록으로
           </Button>
@@ -231,6 +247,7 @@ export default function TicketDetailPage() {
             else onSave();
           }}
           onBack={() => navigate(LIST_PATH)}
+          canUpdate={canUpdate}
         />
       )}
 
@@ -240,7 +257,7 @@ export default function TicketDetailPage() {
         <ConfirmDialog
           intent="update"
           title="문의 종결"
-          message={`'${ticket.ticketNo}' 문의를 종결합니다. 종결한 문의는 다시 열 수 없으며, 추가 문의는 새 문의로 접수해야 합니다.`}
+          message={`'${ticket.ticketNo}' 문의를 종결해요. 종결한 문의는 다시 열 수 없으며, 추가 문의는 새 문의로 접수해야 해요.`}
           confirmLabel="종결"
           busy={saving}
           {...(serverError !== null && { error: serverError })}

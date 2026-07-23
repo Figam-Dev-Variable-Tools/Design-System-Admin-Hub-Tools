@@ -17,7 +17,8 @@ import { useSearchParams } from 'react-router-dom';
 
 import './ai.css';
 import { isAbort } from '../../shared/async';
-import { Alert, Button, visuallyHiddenStyle } from '../../shared/ui';
+import { useRouteCan, WRITE_DENIED } from '../../shared/permissions/RequirePermission';
+import { Alert, Button, useToast, visuallyHiddenStyle } from '../../shared/ui';
 import { AnswerView } from './components/AnswerView';
 import { Composer } from './components/Composer';
 import { ConversationRail } from './components/ConversationRail';
@@ -158,6 +159,15 @@ export default function NewChatPage() {
   const conversation = useConversationQuery(conversationId);
   const ask = useAskAgent();
   const abortRef = useRef<AbortController | null>(null);
+  const toast = useToast();
+
+  /**
+   * [EXC-03] 질문을 보내는 것이 이 화면의 **생성**이다 — 한 번 보내면 대화가 만들어지고 저장된다.
+   * 그런데 입력줄에는 쓰기 판정이 하나도 없어, 조회 권한만 가진 역할이 대화를 만들 수 있었다.
+   *
+   * 지난 대화를 **읽는 것**은 그대로 열린다 — 막는 것은 새로 쓰는 일뿐이다.
+   */
+  const canCreate = useRouteCan('create');
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -180,6 +190,12 @@ export default function NewChatPage() {
   const send = (question: string): void => {
     const text = question.trim();
     if (text === '') return;
+    // 입력줄을 없앤 술어가 전송 경로도 막는다. 화면에는 이미 사유 배너가 서 있지만, 이 경로는
+    // 렌더 이후 다른 탭에서 강등된 세션의 잔여 Enter 로도 닿는다 — 그때는 토스트가 사유를 말한다.
+    if (!canCreate) {
+      toast.error(WRITE_DENIED.create);
+      return;
+    }
 
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -226,7 +242,7 @@ export default function NewChatPage() {
 
   const failedAnswer: AgentAnswer | null =
     ask.isError && !gone && !isAbort(ask.error)
-      ? errorAnswer('조회하지 못했습니다. 잠시 후 다시 시도해 주세요.')
+      ? errorAnswer('조회하지 못했어요. 잠시 후 다시 시도해 주세요.')
       : null;
 
   const renderFollowUps = (followUps: readonly FollowUp[]) => (
@@ -262,7 +278,7 @@ export default function NewChatPage() {
       <section style={mainStyle} aria-label="대화">
         {deletedWhileOpen || gone ? (
           <div style={agentRowStyle}>
-            <Alert tone="warning">이 대화는 삭제되었습니다. 새 채팅을 시작해 주세요.</Alert>
+            <Alert tone="warning">이 대화는 삭제되었어요. 새 채팅을 시작해 주세요.</Alert>
             <span>
               <Button type="button" size="sm" variant="secondary" onClick={startNew}>
                 새 채팅 시작
@@ -278,9 +294,9 @@ export default function NewChatPage() {
         */}
         <p role="status" aria-live="polite" aria-label="응답 상태" style={visuallyHiddenStyle}>
           {ask.isPending
-            ? '조회 중입니다.'
+            ? '조회 중이에요.'
             : messages.length > 0
-              ? `응답이 도착했습니다. 메시지 ${String(messages.length)}건.`
+              ? `응답이 도착했어요. 메시지 ${String(messages.length)}건.`
               : ''}
         </p>
 
@@ -295,7 +311,7 @@ export default function NewChatPage() {
             <h2 style={headingStyle}>무엇을 조회할까요?</h2>
             <p style={thinkingStyle}>
               `@` 로 데이터를 지목하고 조건을 적어 주세요. 저장된 데이터를 조건으로 거르는 조회만
-              합니다 — 요약·분석·예측은 하지 않습니다.
+              해요 — 요약·분석·예측은 하지 않아요.
             </p>
             {renderFollowUps(STARTER_FOLLOW_UPS)}
           </div>
@@ -336,16 +352,21 @@ export default function NewChatPage() {
           ) : null}
         </ul>
 
-        <Composer
-          value={draft}
-          onChange={setDraft}
-          onSubmit={() => {
-            send(draft);
-          }}
-          busy={ask.isPending}
-          modeId={modeId}
-          onModeChange={setModeId}
-        />
+        {/* 권한이 없으면 입력줄은 '비활성' 이 아니라 '부재' 다 — 대신 왜 없는지가 그 자리에 선다 */}
+        {canCreate ? (
+          <Composer
+            value={draft}
+            onChange={setDraft}
+            onSubmit={() => {
+              send(draft);
+            }}
+            busy={ask.isPending}
+            modeId={modeId}
+            onModeChange={setModeId}
+          />
+        ) : (
+          <Alert tone="warning">{WRITE_DENIED.create}</Alert>
+        )}
       </section>
     </div>
   );

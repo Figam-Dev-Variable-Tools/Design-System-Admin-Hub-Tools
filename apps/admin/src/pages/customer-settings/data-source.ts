@@ -7,6 +7,7 @@
 //
 // [쓰기 계열] saveTierPolicy 는 **모듈 안 픽스처 저장소**를 갱신한다 (아래 currentPolicy).
 import { wait } from '../../shared/async';
+import type { MemberTierEntry } from '../../shared/domain/member-tier-catalog';
 import { DEFAULT_TIER_POLICY } from './fixtures';
 import type { TierPolicy } from './types';
 
@@ -46,7 +47,7 @@ function failIfRequested(op: FailureOp): void {
 
   const requested = flags.split(',').map((flag) => flag.trim());
   if (requested.includes('all') || requested.includes(op)) {
-    throw new Error('요청을 처리하지 못했습니다.');
+    throw new Error('요청을 처리하지 못했어요.');
   }
 }
 
@@ -68,10 +69,33 @@ export async function fetchTierPolicy(signal: AbortSignal): Promise<TierPolicy> 
  * 재시도 경로를 밟아 볼 수 없다(성공한 적 없는 저장이 반영된 화면을 보게 된다).
  */
 // TODO(backend): PUT /api/member-tiers
-//   바디: { rules: { normal|vip|vvip: { threshold, discountPercent } }, period, allowDemotion, recalcTrigger }
-//   422 → 규칙 위반(승급 조건 역전 등) / 200 → 저장된 정책 반환
+//   바디: { tiers: [{ id, label, system, threshold, discountPercent }], period, allowDemotion, recalcTrigger }
+//   - 목록이 곧 등급의 전부다: 빠진 등급은 삭제, 새 id 는 추가, 바뀐 label 은 개명이다.
+//   - id 는 프론트가 만든다(createTierId). 서버가 다른 id 를 발급한다면 200 응답의 목록으로 갈아탄다.
+//   - 서버도 같은 규칙을 다시 검증해야 한다: 기본 제공 등급 존재 · 승급 조건 중복 금지 ·
+//     회원이 붙어 있는 등급의 삭제 거부(409). 프론트 검증은 UX 이지 보증이 아니다.
+//   422 → 규칙 위반(승급 조건 역전·중복 등) / 409 → 사용 중인 등급 삭제 / 200 → 저장된 정책 반환
 export async function saveTierPolicy(policy: TierPolicy, signal?: AbortSignal): Promise<void> {
   await wait(LATENCY_MS, signal);
   failIfRequested('save');
   currentPolicy = policy;
+}
+
+/**
+ * 다른 화면이 읽는 등급 목록 — `shared/domain/member-tier-catalog` 조회기의 구현이다.
+ *
+ * [왜 이 화면이 정본인가] 등급을 만들고 고치는 화면이 여기 하나다. 다른 화면이 이 모듈을 직접
+ * import 하면 pages ↔ pages 결합이라 code-quality 축1 이 잡는다 — 그래서 공통 층이 자리를 만들고
+ * `src/wiring.ts` 가 이 함수를 꽂는다 (쿠폰 카탈로그·역할 배정 수와 같은 이음매).
+ *
+ * 저장된 정책을 그대로 옮기기만 한다 — 여기서 파생값을 새로 만들지 않는다.
+ */
+export function listMemberTierCatalog(): readonly MemberTierEntry[] {
+  return currentPolicy.tiers.map((tier) => ({
+    id: tier.id,
+    label: tier.label,
+    system: tier.system,
+    threshold: tier.threshold,
+    discountPercent: tier.discountPercent,
+  }));
 }

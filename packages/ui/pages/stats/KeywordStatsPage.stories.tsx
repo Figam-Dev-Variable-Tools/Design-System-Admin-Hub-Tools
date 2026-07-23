@@ -27,6 +27,7 @@ import {
   Button,
   Empty,
   Icon,
+  inlineBadgeRowStyle,
   LineAreaChart,
   Pagination,
   SearchField,
@@ -384,16 +385,10 @@ interface Column {
   readonly cell: (row: KeywordRow) => ReactNode;
 }
 
-const keywordCellStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: cssVar('space.2'),
-};
-
 /** 결과 없음 검색어는 색이 아니라 배지 문구로 '지금 손대야 하는' 행을 말한다 (원본 KeywordCell) */
 function KeywordCell({ row }: { readonly row: KeywordRow }) {
   return (
-    <span style={keywordCellStyle}>
+    <span style={inlineBadgeRowStyle}>
       {row.keyword}
       {isZeroResultKeyword(row) ? <StatusBadge tone="warning" label="결과 없음" /> : null}
     </span>
@@ -632,7 +627,7 @@ function KeywordStatsScreen({ state }: { state: ScreenState }) {
         unit: 'count',
         value: search,
         compareValue: cmp(search),
-        hint: '조회 조건에 걸린 검색어로 유입된 검색 횟수의 합입니다.',
+        hint: '조회 조건에 걸린 검색어로 유입된 검색 횟수의 합이에요.',
       },
       {
         id: 'unique',
@@ -640,7 +635,7 @@ function KeywordStatsScreen({ state }: { state: ScreenState }) {
         unit: 'count',
         value: rows.length,
         compareValue: cmp(rows.length),
-        hint: '중복을 제거한 서로 다른 검색어의 개수입니다.',
+        hint: '중복을 제거한 서로 다른 검색어의 개수예요.',
       },
       {
         id: 'zeroResult',
@@ -649,7 +644,7 @@ function KeywordStatsScreen({ state }: { state: ScreenState }) {
         value: zeroResult,
         compareValue: cmp(zeroResult),
         isLowerBetter: true,
-        hint: '걸리는 상품이 0개인 검색어입니다. 상품을 추가하거나 동의어를 걸면 줄어듭니다.',
+        hint: '걸리는 상품이 0개인 검색어예요. 상품을 추가하거나 동의어를 걸면 줄어들어요.',
       },
       {
         id: 'clickRate',
@@ -657,7 +652,7 @@ function KeywordStatsScreen({ state }: { state: ScreenState }) {
         unit: 'percent',
         value: rateOf(clicks, search),
         compareValue: compareOn ? rateOf(Math.round(clicks * 0.9), search) : null,
-        hint: '클릭수를 검색수로 나눈 값이며, 검색수로 가중평균합니다.',
+        hint: '클릭수를 검색수로 나눈 값이며, 검색수로 가중평균해요.',
       },
       {
         id: 'conversion',
@@ -665,7 +660,7 @@ function KeywordStatsScreen({ state }: { state: ScreenState }) {
         unit: 'percent',
         value: rateOf(purchases, visits),
         compareValue: compareOn ? rateOf(Math.round(purchases * 0.9), visits) : null,
-        hint: '구매건수를 방문수로 나눈 값입니다.',
+        hint: '구매건수를 방문수로 나눈 값이에요.',
       },
     ];
   }, [rows, compare, isEmpty]);
@@ -696,8 +691,8 @@ function KeywordStatsScreen({ state }: { state: ScreenState }) {
   return (
     <div style={pageStyle}>
       <p style={descriptionStyle}>
-        손님이 무엇을 찾아 들어왔는지, 그중 우리 카탈로그가 받아내지 못한 검색어가 무엇인지 봅니다.
-        결과 없음으로 표시된 검색어는 상품을 추가하거나 동의어를 걸어 지금 메울 수 있는 자리입니다.
+        손님이 무엇을 찾아 들어왔는지, 그중 우리 카탈로그가 받아내지 못한 검색어가 무엇인지 봐요.
+        결과 없음으로 표시된 검색어는 상품을 추가하거나 동의어를 걸어 지금 메울 수 있는 자리예요.
       </p>
 
       {/* 조회 조건 바 — 통계 중 유일하게 검색 입력이 있다 (원본 StatsFilterBar) */}
@@ -821,7 +816,7 @@ function KeywordStatsScreen({ state }: { state: ScreenState }) {
       >
         {currentSeries.length === 0 ? (
           <p style={{ ...hintStyle, textAlign: 'center', paddingBlock: cssVar('space.6') }}>
-            선택한 기간에 집계된 값이 없습니다.
+            선택한 기간에 집계된 값이 없어요.
           </p>
         ) : (
           <LineAreaChart

@@ -64,20 +64,20 @@ const JPG_RE = /\.jpe?g$/i;
 /** JPG 만 허용 — 화면 안내('첨부할 수 있는 이미지 형식은 JPG 입니다.')와 같은 규칙 */
 export function imageFormatError(fileName: string): string | null {
   if (fileName.trim() === '') return null;
-  return JPG_RE.test(fileName.trim()) ? null : `${TEXT_IMAGE_FORMAT} 파일만 첨부할 수 있습니다.`;
+  return JPG_RE.test(fileName.trim()) ? null : `${TEXT_IMAGE_FORMAT} 파일만 첨부할 수 있어요.`;
 }
 
 /** 용량 상한 — 화면 안내('500KB 이하 이미지만 첨부할 수 있습니다.')와 같은 상수 */
 export function imageSizeError(byteLength: number): string | null {
   return byteLength > TEXT_IMAGE_MAX_BYTES
-    ? `이미지 용량은 ${String(TEXT_IMAGE_MAX_BYTES / 1024)}KB 를 넘을 수 없습니다.`
+    ? `이미지 용량은 ${String(TEXT_IMAGE_MAX_BYTES / 1024)}KB 를 넘을 수 없어요.`
     : null;
 }
 
 /** 픽셀 크기 상한 — 화면 안내(Required size: 1000×1000px or less.)와 같은 상수 */
 export function imageEdgeError(width: number, height: number): string | null {
   return width > TEXT_IMAGE_MAX_EDGE || height > TEXT_IMAGE_MAX_EDGE
-    ? `이미지 크기는 ${String(TEXT_IMAGE_MAX_EDGE)}×${String(TEXT_IMAGE_MAX_EDGE)}px 이하여야 합니다.`
+    ? `이미지 크기는 ${String(TEXT_IMAGE_MAX_EDGE)}×${String(TEXT_IMAGE_MAX_EDGE)}px 이하여야 해요.`
     : null;
 }
 
@@ -129,14 +129,14 @@ export function pickedImageError(file: {
 export function unknownVariableError(text: string): string | null {
   const support = [...new Set(text.match(/\{\{[^}]*\}\}/g) ?? [])];
   if (support.length > 0) {
-    return `고객센터 답변 템플릿 문법이 섞였습니다: ${support.join(' · ')} — 발송 템플릿의 치환변수는 #{member.name} 처럼 #{...} 표기입니다. {{...}} 는 발송 시점에 치환되지 않고 수신자에게 그대로 보입니다.`;
+    return `고객센터 답변 템플릿 문법이 섞였어요: ${support.join(' · ')} — 발송 템플릿의 치환변수는 #{member.name} 처럼 #{...} 표기예요. {{...}} 는 발송 시점에 치환되지 않고 수신자에게 그대로 보여요.`;
   }
 
   const unknown = unknownTemplateVariableKeys(text);
   if (unknown === null || unknown.length === 0) return null;
 
   const shown = unknown.map((key) => `#{${key}}`).join(' · ');
-  return `변수 목록에 없는 치환변수가 있습니다: ${shown} — 이대로 발송하면 수신자에게 이 글자가 그대로 보입니다. 오타를 고치거나 ✨ 변수에서 다시 고르세요.`;
+  return `변수 목록에 없는 치환변수가 있어요: ${shown} — 이대로 발송하면 수신자에게 이 글자가 그대로 보여요. 오타를 고치거나 ✨ 변수에서 다시 고르세요.`;
 }
 
 /**
@@ -180,7 +180,7 @@ export const textTemplateSchema = z
         code: 'custom',
         input: ctx.value.subject,
         path: ['subject'],
-        message: `제목은 ${String(LMS_SUBJECT_MAX_BYTES)} byte 를 넘을 수 없습니다(현재 ${String(bytes)} byte).`,
+        message: `제목은 ${String(LMS_SUBJECT_MAX_BYTES)} byte 를 넘을 수 없어요(현재 ${String(bytes)} byte).`,
       });
     }
   })
@@ -221,7 +221,7 @@ export const textTemplateSchema = z
         code: 'custom',
         input: body,
         path: ['body'],
-        message: `본문은 ${String(TEXT_BODY_MAX)}자를 넘을 수 없습니다.`,
+        message: `본문은 ${String(TEXT_BODY_MAX)}자를 넘을 수 없어요.`,
       });
     }
   })
@@ -288,7 +288,7 @@ export const emailTemplateSchema = z
     senderProfileId: z.string(),
     /** 제목·발신 주소·블록·캔버스가 한 덩어리로 들어 있다 (EmailBuilder 가 통째로 편집한다) */
     content: z.custom<EmailTemplateContent>(isEmailContent, {
-      error: '이메일 본문을 불러오지 못했습니다.',
+      error: '이메일 본문을 불러오지 못했어요.',
     }),
   })
   .check((ctx) => {
@@ -433,7 +433,7 @@ function isVariableSampleMap(value: unknown): value is VariableSampleMap {
 }
 
 const buttonsField = z.custom<readonly KakaoButton[]>(isButtonList, {
-  error: '버튼 목록을 불러오지 못했습니다.',
+  error: '버튼 목록을 불러오지 못했어요.',
 });
 
 /* ── 배열 필드의 얕은 가드 ─────────────────────────────────────────────────────
@@ -477,19 +477,19 @@ function isCarouselCards(value: unknown): value is readonly BrandCarouselCard[] 
 }
 
 const itemsField = z.custom<readonly AlimtalkItem[]>(isItemList, {
-  error: '아이템 목록을 불러오지 못했습니다.',
+  error: '아이템 목록을 불러오지 못했어요.',
 });
 
 const listItemsField = z.custom<readonly BrandListItem[]>(isBrandListItems, {
-  error: '리스트 항목을 불러오지 못했습니다.',
+  error: '리스트 항목을 불러오지 못했어요.',
 });
 
 const cardsField = z.custom<readonly BrandCarouselCard[]>(isCarouselCards, {
-  error: '캐러셀 카드를 불러오지 못했습니다.',
+  error: '캐러셀 카드를 불러오지 못했어요.',
 });
 
 const variableSamplesField = z.custom<VariableSampleMap>(isVariableSampleMap, {
-  error: '치환변수 예시값을 불러오지 못했습니다.',
+  error: '치환변수 예시값을 불러오지 못했어요.',
 });
 
 /* ── 알림톡 ────────────────────────────────────────────────────────────────── */
@@ -627,7 +627,7 @@ export const alimtalkTemplateSchema = z
           code: 'custom',
           input: ctx.value.emphasisImageFileName,
           path: ['emphasisImageFileName'],
-          message: '이미지형은 이미지를 첨부해야 합니다.',
+          message: '이미지형은 이미지를 첨부해야 해요.',
         });
       }
       return;
@@ -836,7 +836,7 @@ export const brandMessageTemplateSchema = z
         code: 'custom',
         input: ctx.value.body,
         path: ['body'],
-        message: '광고성 메시지는 본문이 (광고) 로 시작해야 합니다.',
+        message: '광고성 메시지는 본문이 (광고) 로 시작해야 해요.',
       });
       return;
     }
@@ -845,7 +845,7 @@ export const brandMessageTemplateSchema = z
         code: 'custom',
         input: ctx.value.body,
         path: ['body'],
-        message: '광고성 메시지는 무료수신거부 방법을 본문에 적어야 합니다.',
+        message: '광고성 메시지는 무료수신거부 방법을 본문에 적어야 해요.',
       });
     }
   });

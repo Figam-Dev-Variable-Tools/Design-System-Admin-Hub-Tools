@@ -129,7 +129,7 @@ export function SettingsFormShell({
       <div style={pageStyle}>
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>설정을 불러오지 못했습니다.</span>
+            <span>설정을 불러오지 못했어요.</span>
             <Button variant="secondary" onClick={onRetry}>
               다시 시도
             </Button>
@@ -169,10 +169,10 @@ export function SettingsFormShell({
               <>
                 <p style={footerHintStyle}>
                   {saving
-                    ? '저장하는 중입니다…'
+                    ? '저장하는 중이에요…'
                     : dirty
-                      ? '저장하지 않은 변경 사항이 있습니다.'
-                      : '변경 사항이 없습니다.'}
+                      ? '저장하지 않은 변경 사항이 있어요.'
+                      : '변경 사항이 없어요.'}
                 </p>
                 <Button
                   type="submit"

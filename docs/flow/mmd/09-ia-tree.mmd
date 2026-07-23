@@ -1,4 +1,6 @@
-%% IA 트리 · 어드민 전체 구조 (루트 → 그룹 5 → 메뉴 15 → 잎 81)
+%% IA 트리 · 어드민 전체 구조 (루트 → 그룹 5 → 메뉴 15 → 잎 74)
+%% Sn 은 **고정 id** 이지 표시 순서가 아니다 — 비즈니스 묶음은 사용 빈도순으로 재정렬됐고
+%% (2026-07-22) 색 지정이 메뉴에 붙어 있어 id 는 그대로 둔다. 순서는 G1 --> Sn 줄이 정한다.
 %%{init: {"flowchart": {"curve": "step", "nodeSpacing": 26, "rankSpacing": 34, "wrappingWidth": 165, "htmlLabels": true}, "themeVariables": {"fontSize": "13px"}} }%%
 flowchart TD
     ROOT["<b>TDS Admin Hub</b>"]
@@ -14,12 +16,12 @@ flowchart TD
     G0 --> S2["<b>콘텐츠 관리</b>"]
     G0 --> S3["<b>기업 관리</b>"]
     G1 --> S4["<b>주문 관리</b>"]
-    G1 --> S5["<b>포트폴리오 관리</b>"]
     G1 --> S6["<b>상품 관리</b>"]
     G1 --> S7["<b>프로그램 관리</b>"]
-    G1 --> S8["<b>영업 관리</b>"]
     G1 --> S9["<b>고객센터</b>"]
     G1 --> S10["<b>마케팅 관리</b>"]
+    G1 --> S8["<b>영업 관리</b>"]
+    G1 --> S5["<b>포트폴리오 관리</b>"]
     G2 --> S11["<b>AI 에이전트</b>"]
     G3 --> S12["<b>통계</b>"]
     G3 --> S13["<b>로그 관리</b>"]
@@ -36,18 +38,14 @@ flowchart TD
     S1_3 ~~~ S1_4["로그인 이력<br/><small>/users/login-history</small>"]
     S1_4 ~~~ S1_5["동의 이력<br/><small>/users/consents</small>"]
 
-    %% 콘텐츠 관리 — 홈페이지 구조 → 게시판 → 자산 → 정책 순
-    S2 ~~~ S2_0["페이지 관리<br/><small>/content/pages</small>"]
-    S2_0 ~~~ S2_1["메뉴 관리<br/><small>/content/menus</small>"]
-    S2_1 ~~~ S2_2["뉴스·보도자료<br/><small>/content/news</small>"]
-    S2_2 ~~~ S2_3["폼 관리<br/><small>/content/forms</small>"]
-    S2_3 ~~~ S2_4["미디어 라이브러리<br/><small>/content/media</small>"]
-    S2_4 ~~~ S2_5["공지사항<br/><small>/content/notices</small>"]
-    S2_5 ~~~ S2_6["FAQ<br/><small>/content/faq</small>"]
-    S2_6 ~~~ S2_7["팝업 관리<br/><small>/content/popups</small>"]
-    S2_7 ~~~ S2_8["배너 관리<br/><small>/content/banners</small>"]
-    S2_8 ~~~ S2_9["약관 관리<br/><small>/content/terms</small>"]
-    S2_9 ~~~ S2_10["개인정보 처리방침<br/><small>/content/privacy</small>"]
+    %% 콘텐츠 관리 — 게시판 → 정책 순 (페이지·메뉴·폼·미디어 화면은 IA 에서 제거됐다)
+    S2 ~~~ S2_0["뉴스·보도자료<br/><small>/content/news</small>"]
+    S2_0 ~~~ S2_1["공지사항<br/><small>/content/notices</small>"]
+    S2_1 ~~~ S2_2["FAQ<br/><small>/content/faq</small>"]
+    S2_2 ~~~ S2_3["팝업 관리<br/><small>/content/popups</small>"]
+    S2_3 ~~~ S2_4["배너 관리<br/><small>/content/banners</small>"]
+    S2_4 ~~~ S2_5["약관 관리<br/><small>/content/terms</small>"]
+    S2_5 ~~~ S2_6["개인정보 처리방침<br/><small>/content/privacy</small>"]
 
     %% 기업 관리
     S3 ~~~ S3_0["회사 정보<br/><small>/company/profile</small>"]
@@ -65,11 +63,6 @@ flowchart TD
     S4_0 ~~~ S4_1["배송 처리<br/><small>/orders/shipments</small>"]
     S4_1 ~~~ S4_2["취소/교환/반품<br/><small>/orders/claims</small>"]
 
-    %% 포트폴리오 관리
-    S5 ~~~ S5_0["포트폴리오<br/><small>/portfolio/items</small>"]
-    S5_0 ~~~ S5_1["카테고리<br/><small>/portfolio/categories</small>"]
-    S5_1 ~~~ S5_2["성공 사례<br/><small>/portfolio/case-studies</small>"]
-
     %% 상품 관리 — '문의' 는 visibleWhen: 'pg-off' 조건부 잎
     S6 ~~~ S6_0["상품<br/><small>/products</small>"]
     S6_0 ~~~ S6_1["카테고리<br/><small>/products/categories</small>"]
@@ -83,15 +76,6 @@ flowchart TD
     S7 ~~~ S7_0["프로그램<br/><small>/programs</small>"]
     S7_0 ~~~ S7_1["카테고리<br/><small>/programs/categories</small>"]
     S7_1 ~~~ S7_2["문의 · pg-off<br/><small>/programs/inquiries</small>"]
-
-    %% 영업 관리
-    S8 ~~~ S8_0["거래처<br/><small>/sales/accounts</small>"]
-    S8_0 ~~~ S8_1["계약<br/><small>/sales/contracts</small>"]
-    S8_1 ~~~ S8_2["견적<br/><small>/sales/quotes</small>"]
-    S8_2 ~~~ S8_3["청구·입금<br/><small>/sales/billing</small>"]
-    S8_3 ~~~ S8_4["문의<br/><small>/sales/inquiries</small>"]
-    S8_4 ~~~ S8_5["프로젝트<br/><small>/sales/projects</small>"]
-    S8_5 ~~~ S8_6["상담 이력<br/><small>/sales/consultations</small>"]
 
     %% 고객센터
     S9 ~~~ S9_0["1:1 문의<br/><small>/support/tickets</small>"]
@@ -107,6 +91,19 @@ flowchart TD
     S10_2 ~~~ S10_3["SMS 발송<br/><small>/marketing/sms</small>"]
     S10_3 ~~~ S10_4["이메일 발송<br/><small>/marketing/email</small>"]
     S10_4 ~~~ S10_5["발송 템플릿 관리<br/><small>/marketing/templates</small>"]
+
+    %% 영업 관리
+    S8 ~~~ S8_0["거래처<br/><small>/sales/accounts</small>"]
+    S8_0 ~~~ S8_1["계약<br/><small>/sales/contracts</small>"]
+    S8_1 ~~~ S8_2["견적<br/><small>/sales/quotes</small>"]
+    S8_2 ~~~ S8_3["청구·입금<br/><small>/sales/billing</small>"]
+    S8_3 ~~~ S8_4["문의<br/><small>/sales/inquiries</small>"]
+    S8_4 ~~~ S8_5["프로젝트<br/><small>/sales/projects</small>"]
+
+    %% 포트폴리오 관리 — 비즈니스 묶음에서 가장 드물게 여는 화면이라 맨 뒤다
+    S5 ~~~ S5_0["포트폴리오<br/><small>/portfolio/items</small>"]
+    S5_0 ~~~ S5_1["카테고리<br/><small>/portfolio/categories</small>"]
+    S5_1 ~~~ S5_2["성공 사례<br/><small>/portfolio/case-studies</small>"]
 
     %% AI 에이전트
     S11 ~~~ S11_0["새 채팅<br/><small>/ai/chat</small>"]
@@ -128,13 +125,11 @@ flowchart TD
 
     %% 시스템 설정
     S14 ~~~ S14_0["사이트 설정<br/><small>/settings/site</small>"]
-    S14_0 ~~~ S14_1["사이트 연동<br/><small>/settings/site-connect</small>"]
-    S14_1 ~~~ S14_2["API Key 설정<br/><small>/settings/api-keys</small>"]
-    S14_2 ~~~ S14_3["OAuth 설정<br/><small>/settings/oauth</small>"]
-    S14_3 ~~~ S14_4["결제 설정<br/><small>/settings/payment</small>"]
-    S14_4 ~~~ S14_5["플랜·이용 현황<br/><small>/settings/plan</small>"]
-    S14_5 ~~~ S14_6["알림 설정<br/><small>/settings/notifications</small>"]
-    S14_6 ~~~ S14_7["다국어 설정<br/><small>/settings/languages</small>"]
+    S14_0 ~~~ S14_1["API Key 설정<br/><small>/settings/api-keys</small>"]
+    S14_1 ~~~ S14_2["OAuth 설정<br/><small>/settings/oauth</small>"]
+    S14_2 ~~~ S14_3["결제 설정<br/><small>/settings/payment</small>"]
+    S14_3 ~~~ S14_4["플랜·이용 현황<br/><small>/settings/plan</small>"]
+    S14_4 ~~~ S14_5["알림 설정<br/><small>/settings/notifications</small>"]
 
     classDef grp fill:#e2e8f0,stroke:#475569,color:#0f172a,font-weight:bold
     class G0,G1,G2,G3,G4 grp
@@ -150,7 +145,7 @@ flowchart TD
     classDef sec2 fill:#86efac,stroke:#16a34a,color:#14532d,font-weight:bold
     classDef lf2 fill:#dcfce7,stroke:#16a34a,color:#14532d
     class S2 sec2
-    class S2_0,S2_1,S2_2,S2_3,S2_4,S2_5,S2_6,S2_7,S2_8,S2_9,S2_10 lf2
+    class S2_0,S2_1,S2_2,S2_3,S2_4,S2_5,S2_6 lf2
     classDef sec3 fill:#d8b4fe,stroke:#9333ea,color:#4c1d95,font-weight:bold
     classDef lf3 fill:#f3e8ff,stroke:#9333ea,color:#4c1d95
     class S3 sec3
@@ -174,7 +169,7 @@ flowchart TD
     classDef sec8 fill:#f9a8d4,stroke:#db2777,color:#831843,font-weight:bold
     classDef lf8 fill:#fce7f3,stroke:#db2777,color:#831843
     class S8 sec8
-    class S8_0,S8_1,S8_2,S8_3,S8_4,S8_5,S8_6 lf8
+    class S8_0,S8_1,S8_2,S8_3,S8_4,S8_5 lf8
     classDef sec9 fill:#a5b4fc,stroke:#4f46e5,color:#312e81,font-weight:bold
     classDef lf9 fill:#e0e7ff,stroke:#4f46e5,color:#312e81
     class S9 sec9
@@ -198,7 +193,7 @@ flowchart TD
     classDef sec14 fill:#c4b5fd,stroke:#7c3aed,color:#3b0764,font-weight:bold
     classDef lf14 fill:#ede9fe,stroke:#7c3aed,color:#3b0764
     class S14 sec14
-    class S14_0,S14_1,S14_2,S14_3,S14_4,S14_5,S14_6,S14_7 lf14
+    class S14_0,S14_1,S14_2,S14_3,S14_4,S14_5 lf14
 
     classDef root fill:#1e293b,stroke:#0f172a,color:#f8fafc,font-weight:bold
     class ROOT root

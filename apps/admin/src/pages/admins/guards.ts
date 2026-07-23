@@ -81,7 +81,7 @@ function isLastSystemAdmin(target: AdminUser, context: AdminGuardContext): boole
  * 말하면 스크린리더 사용자에게는 그냥 잠긴 컨트롤이다 (A11Y — 비활성에는 사유가 붙는다).
  */
 export const SELF_ROLE_CHANGE_REASON =
-  '본인 계정의 역할은 스스로 바꿀 수 없습니다. 역할을 바꾸면 이 화면의 수정 권한까지 함께 사라져 되돌릴 수 없기 때문입니다. 다른 시스템 관리자에게 변경을 요청해 주세요.';
+  '본인 계정의 역할은 스스로 바꿀 수 없어요. 역할을 바꾸면 이 화면의 수정 권한까지 함께 사라져 되돌릴 수 없기 때문이에요. 다른 시스템 관리자에게 변경을 요청해 주세요.';
 
 /**
  * 삭제를 막아야 하는 이유 — 없으면 null.
@@ -91,11 +91,11 @@ export const SELF_ROLE_CHANGE_REASON =
  */
 export function adminDeletionBlock(target: AdminUser, context: AdminGuardContext): string | null {
   if (isCurrentOperator(target, context.currentAccount)) {
-    return `'${target.nickname}' 은(는) 지금 로그인한 본인 계정이라 삭제할 수 없습니다. 계정을 정리하려면 다른 관리자에게 요청해 주세요.`;
+    return `'${target.nickname}' 은(는) 지금 로그인한 본인 계정이라 삭제할 수 없어요. 계정을 정리하려면 다른 관리자에게 요청해 주세요.`;
   }
 
   if (isLastSystemAdmin(target, context)) {
-    return `'${target.nickname}' 은(는) 시스템 관리자 역할을 가진 마지막 운영자입니다. 삭제하면 역할·권한을 관리할 수 있는 사람이 아무도 남지 않습니다. 다른 운영자에게 시스템 관리자 역할을 먼저 준 뒤 삭제해 주세요.`;
+    return `'${target.nickname}' 은(는) 시스템 관리자 역할을 가진 마지막 운영자예요. 삭제하면 역할·권한을 관리할 수 있는 사람이 아무도 남지 않아요. 다른 운영자에게 시스템 관리자 역할을 먼저 준 뒤 삭제해 주세요.`;
   }
 
   return null;
@@ -118,7 +118,7 @@ export function adminRoleChangeBlock(
 
   // 시스템 역할 → 시스템 역할(둘 이상 있을 때)은 강등이 아니다 — 막을 이유가 없다
   if (isLastSystemAdmin(target, context) && !context.systemRoleIds.has(nextRoleId)) {
-    return `'${target.nickname}' 은(는) 시스템 관리자 역할을 가진 마지막 운영자입니다. 역할을 내리면 역할·권한을 관리할 수 있는 사람이 아무도 남지 않습니다. 다른 운영자에게 시스템 관리자 역할을 먼저 준 뒤 바꿔 주세요.`;
+    return `'${target.nickname}' 은(는) 시스템 관리자 역할을 가진 마지막 운영자예요. 역할을 내리면 역할·권한을 관리할 수 있는 사람이 아무도 남지 않아요. 다른 운영자에게 시스템 관리자 역할을 먼저 준 뒤 바꿔 주세요.`;
   }
 
   return null;

@@ -168,7 +168,7 @@ const DEMO_CAREERS: readonly DemoCareer[] = [
     closesOn: null,
     applyMethod: 'email',
     description:
-      '공간 배치 데이터를 다루는 어드민과 고객 화면을 함께 만듭니다. 디자인 시스템 기반 개발 경험이 있으면 좋습니다.',
+      '공간 배치 데이터를 다루는 어드민과 고객 화면을 함께 만들어요. 디자인 시스템 기반 개발 경험이 있으면 좋아요.',
     published: true,
   },
   {
@@ -179,7 +179,7 @@ const DEMO_CAREERS: readonly DemoCareer[] = [
     location: '원격',
     closesOn: '2026-09-05',
     applyMethod: 'email',
-    description: '총무·회계 지원 업무를 담당합니다. 공고 문구 검토 중입니다.',
+    description: '총무·회계 지원 업무를 담당해요. 공고 문구 검토 중이에요.',
     // 비공개 저장 — 초안을 잃지 않고 다듬을 수 있어야 한다
     published: false,
   },
@@ -191,7 +191,7 @@ const DEMO_CAREERS: readonly DemoCareer[] = [
     location: '서울 성동구',
     closesOn: '2026-08-12',
     applyMethod: 'link',
-    description: '신규 서비스의 화면 설계와 디자인 시스템 운영을 맡습니다.',
+    description: '신규 서비스의 화면 설계와 디자인 시스템 운영을 맡아요.',
     published: true,
   },
   {
@@ -203,7 +203,7 @@ const DEMO_CAREERS: readonly DemoCareer[] = [
     // 오늘이 마감일이다 — **당일까지는 모집 중**이라는 규칙이 이 행에서 보인다
     closesOn: TODAY,
     applyMethod: 'form',
-    description: '유입 채널별 성과를 분석하고 예산을 배분합니다.',
+    description: '유입 채널별 성과를 분석하고 예산을 배분해요.',
     published: true,
   },
   {
@@ -215,7 +215,7 @@ const DEMO_CAREERS: readonly DemoCareer[] = [
     // 이미 지난 마감일 — 아무도 손대지 않아도 목록에서 '마감' 으로 보여야 한다
     closesOn: '2026-07-13',
     applyMethod: 'email',
-    description: '영업 제안서 작성과 고객 미팅 지원 업무를 함께합니다.',
+    description: '영업 제안서 작성과 고객 미팅 지원 업무를 함께해요.',
     published: true,
   },
 ];
@@ -589,7 +589,7 @@ function CareersScreen({
 
       <div style={tableScrollStyle}>
         <Table
-          caption="채용 공고 목록 — 상태는 저장값이 아니라 마감일과 오늘의 비교에서 나옵니다. 행을 누르면 공고 수정으로 이동합니다."
+          caption="채용 공고 목록 — 상태는 저장값이 아니라 마감일과 오늘의 비교에서 나와요. 행을 누르면 공고 수정으로 이동해요."
           columns={COLUMNS}
           rows={rows}
           leadingHead={[
@@ -627,15 +627,15 @@ function CareersScreen({
       </div>
 
       <p style={hintStyle}>
-        마감 여부는 저장하지 않습니다 — 마감일과 오늘을 비교해 매번 계산하므로, 아무도 손대지 않아도
-        마감일 다음 날부터 &apos;마감&apos; 으로 보입니다. 마감일 당일까지는 모집 중입니다.
+        마감 여부는 저장하지 않아요 — 마감일과 오늘을 비교해 매번 계산하므로, 아무도 손대지 않아도
+        마감일 다음 날부터 &apos;마감&apos; 으로 보여요. 마감일 당일까지는 모집 중이에요.
       </p>
 
       {confirming !== null && (
         <ConfirmDialog
           intent="delete"
           title="채용 공고 삭제"
-          message={`'${confirming.title}' 공고를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${confirming.title}' 공고를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="공고 삭제"
           onConfirm={() => {
             removeCareer(confirming.id);

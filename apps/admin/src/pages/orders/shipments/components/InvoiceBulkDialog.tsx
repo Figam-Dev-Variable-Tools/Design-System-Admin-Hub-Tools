@@ -172,7 +172,7 @@ export function InvoiceBulkDialog({
       const key = `${entry.carrierId}:${normalizeInvoiceNo(entry.invoiceNo)}`;
       const clash = seen.get(key);
       if (clash !== undefined) {
-        found[entry.orderId] = `이 다이얼로그의 ${clash} 줄과 송장번호가 같습니다.`;
+        found[entry.orderId] = `이 다이얼로그의 ${clash} 줄과 송장번호가 같아요.`;
         continue;
       }
       seen.set(key, entry.orderId);
@@ -214,12 +214,12 @@ export function InvoiceBulkDialog({
 
           {carriers === null ? (
             <Alert tone="warning">
-              택배사 목록을 확인하지 못해 송장을 등록할 수 없습니다. 잠시 후 다시 시도해 주세요.
+              택배사 목록을 확인하지 못해 송장을 등록할 수 없어요. 잠시 후 다시 시도해 주세요.
             </Alert>
           ) : (
             options.length === 0 && (
               <Alert tone="warning">
-                사용 중인 택배사가 없습니다. 상품 관리 &gt; 배송에서 택배사를 먼저 등록해 주세요.
+                사용 중인 택배사가 없어요. 상품 관리 &gt; 배송에서 택배사를 먼저 등록해 주세요.
               </Alert>
             )
           )}
@@ -306,8 +306,8 @@ export function InvoiceBulkDialog({
           </ul>
 
           <p style={hintStyle}>
-            송장을 등록하면 배송대기가 됩니다 — 아직 나간 것이 아닙니다. 실제 발송은 목록에서
-            &lsquo;발송처리&rsquo;를 눌러야 기록됩니다.
+            송장을 등록하면 배송대기가 돼요 — 아직 나간 것이 아니에요. 실제 발송은 목록에서
+            &lsquo;발송처리&rsquo;를 눌러야 기록돼요.
           </p>
         </div>
       </Modal>

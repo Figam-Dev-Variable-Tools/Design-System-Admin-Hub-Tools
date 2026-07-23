@@ -139,16 +139,16 @@ function flowIndex(kind: ClaimKind, status: ClaimStatus): number {
   return index === -1 ? flow.length : index;
 }
 
-const CLAIM_TRANSITION_SAME = '이미 그 상태입니다.';
-const CLAIM_TRANSITION_TERMINAL = '완료·반려·철회된 클레임은 상태를 바꿀 수 없습니다.';
+const CLAIM_TRANSITION_SAME = '이미 그 상태예요.';
+const CLAIM_TRANSITION_TERMINAL = '완료·반려·철회된 클레임은 상태를 바꿀 수 없어요.';
 const CLAIM_TRANSITION_BACKWARD =
-  '클레임 처리는 되돌릴 수 없습니다. 접수를 취소하려면 철회로 종료하세요.';
-const CLAIM_TRANSITION_OFF_FLOW = '이 유형에는 없는 처리 단계입니다.';
+  '클레임 처리는 되돌릴 수 없어요. 접수를 취소하려면 철회로 종료하세요.';
+const CLAIM_TRANSITION_OFF_FLOW = '이 유형에는 없는 처리 단계예요.';
 const CLAIM_WITHDRAW_STOCK =
-  '재고가 이미 반영되어 철회할 수 없습니다. 반영된 재고는 되돌아가지 않습니다.';
-const CLAIM_WITHDRAW_REFUND = '환불이 접수되어 철회할 수 없습니다. 환불 처리를 먼저 정리하세요.';
+  '재고가 이미 반영되어 철회할 수 없어요. 반영된 재고는 되돌아가지 않아요.';
+const CLAIM_WITHDRAW_REFUND = '환불이 접수되어 철회할 수 없어요. 환불 처리를 먼저 정리하세요.';
 const CLAIM_CANCEL_SHIPPED =
-  '배송이 시작된 주문은 취소로 처리할 수 없습니다. 반품으로 접수해 주세요.';
+  '배송이 시작된 주문은 취소로 처리할 수 없어요. 반품으로 접수해 주세요.';
 
 /** 환불 진행 — 없음 → 접수 → 완료. 클레임 상태와 나란한 별개의 축이다 */
 type RefundStatus = 'none' | 'requested' | 'completed';
@@ -163,14 +163,14 @@ const REFUND_META: Readonly<
   completed: { label: '환불 완료', tone: 'success' },
 };
 
-const REFUND_TRANSITION_SAME = '이미 그 환불 상태입니다.';
-const REFUND_TRANSITION_DONE = '환불이 완료되어 더 이상 바꿀 수 없습니다.';
-const REFUND_TRANSITION_BACKWARD = '환불 처리는 되돌릴 수 없습니다.';
-const REFUND_NOT_REFUNDABLE = '교환은 환불 대상이 아닙니다.';
-const REFUND_CLAIM_CLOSED = '반려·철회된 클레임은 환불할 수 없습니다.';
-const REFUND_CLAIM_INCOMPLETE = '클레임 처리를 완료해야 환불을 완료할 수 있습니다.';
+const REFUND_TRANSITION_SAME = '이미 그 환불 상태예요.';
+const REFUND_TRANSITION_DONE = '환불이 완료되어 더 이상 바꿀 수 없어요.';
+const REFUND_TRANSITION_BACKWARD = '환불 처리는 되돌릴 수 없어요.';
+const REFUND_NOT_REFUNDABLE = '교환은 환불 대상이 아니에요.';
+const REFUND_CLAIM_CLOSED = '반려·철회된 클레임은 환불할 수 없어요.';
+const REFUND_CLAIM_INCOMPLETE = '클레임 처리를 완료해야 환불을 완료할 수 있어요.';
 const REFUND_NO_MEMBER =
-  '비회원 주문이라 적립금 원장이 없습니다. 사용한 적립금을 복원할 수 없어 환불을 완료할 수 없습니다.';
+  '비회원 주문이라 적립금 원장이 없어요. 사용한 적립금을 복원할 수 없어 환불을 완료할 수 없어요.';
 const REFUND_FEE_INVALID = '반품배송비는 0 이상의 원 단위 숫자로 입력하세요.';
 
 const CLAIM_NOTE_MAX = 500;
@@ -272,7 +272,7 @@ const RETURN_CLAIM: DemoClaim = {
   optionValues: ['260'],
   exchangeOptionValues: [],
   reason: '단순 변심',
-  reasonDetail: '착용감이 기대와 달라 반품합니다.',
+  reasonDetail: '착용감이 기대와 달라 반품해요.',
   quantity: 1,
   requestedAt: '2026-07-10',
   status: 'collecting',
@@ -299,7 +299,7 @@ const EXCHANGE_CLAIM: DemoClaim = {
   optionValues: ['블랙', 'M'],
   exchangeOptionValues: [],
   reason: '사이즈 교환',
-  reasonDetail: 'M 사이즈가 작아 L 로 교환 요청합니다.',
+  reasonDetail: 'M 사이즈가 작아 L 로 교환 요청해요.',
   quantity: 1,
   requestedAt: '2026-07-12',
   status: 'requested',
@@ -332,7 +332,7 @@ const CANCEL_CLAIM: DemoClaim = {
   optionValues: [],
   exchangeOptionValues: [],
   reason: '배송 지연',
-  reasonDetail: '배송이 늦어져 주문 전체를 취소합니다.',
+  reasonDetail: '배송이 늦어져 주문 전체를 취소해요.',
   quantity: 1,
   requestedAt: '2026-07-21',
   status: 'requested',
@@ -369,7 +369,7 @@ const COMPLETED_CLAIM: DemoClaim = {
   optionValues: [],
   exchangeOptionValues: [],
   reason: '단순 변심',
-  reasonDetail: '색상이 화면과 달라 반품합니다.',
+  reasonDetail: '색상이 화면과 달라 반품해요.',
   quantity: 1,
   requestedAt: '2026-07-05',
   status: 'completed',
@@ -713,8 +713,8 @@ function StockMovementSection({ claim }: { readonly claim: DemoClaim }) {
     return (
       <p style={hintStyle}>
         {claim.kind === 'cancel'
-          ? '취소는 이 화면에서 재고를 움직이지 않습니다. 출고 전 재고는 주문을 취소할 때 되돌아갑니다.'
-          : '아직 반영된 재고 이동이 없습니다. 완료 처리 시 기록됩니다.'}
+          ? '취소는 이 화면에서 재고를 움직이지 않아요. 출고 전 재고는 주문을 취소할 때 되돌아가요.'
+          : '아직 반영된 재고 이동이 없어요. 완료 처리 시 기록돼요.'}
       </p>
     );
   }
@@ -743,10 +743,10 @@ function StockMovementSection({ claim }: { readonly claim: DemoClaim }) {
   return (
     <div style={tableScrollStyle}>
       <Table
-        caption="이 클레임으로 확정된 재고 이동 이력 — 입고는 회수분, 출고는 교환 재발송분입니다."
+        caption="이 클레임으로 확정된 재고 이동 이력 — 입고는 회수분, 출고는 교환 재발송분이에요."
         columns={MOVEMENT_COLUMNS}
         rows={rows}
-        empty="기록된 재고 이동이 없습니다."
+        empty="기록된 재고 이동이 없어요."
       />
     </div>
   );
@@ -934,7 +934,7 @@ function ClaimDetailScreen({ claim = RETURN_CLAIM, loading = false }: ClaimDetai
         >
           {applied ? (
             <p style={hintStyle}>
-              {`재고가 이미 반영되어 교환 옵션을 바꿀 수 없습니다. 재발송 옵션: ${optionLabel(claim.exchangeOptionValues)}`}
+              {`재고가 이미 반영되어 교환 옵션을 바꿀 수 없어요. 재발송 옵션: ${optionLabel(claim.exchangeOptionValues)}`}
             </p>
           ) : (
             <>
@@ -942,7 +942,7 @@ function ClaimDetailScreen({ claim = RETURN_CLAIM, loading = false }: ClaimDetai
                 htmlFor="claim-exchange-option"
                 label="교환할 옵션"
                 required
-                hint="재고가 남은 옵션만 선택할 수 있습니다. 완료 처리 시 이 옵션으로 재발송됩니다."
+                hint="재고가 남은 옵션만 선택할 수 있어요. 완료 처리 시 이 옵션으로 재발송돼요."
               >
                 <SelectField
                   id="claim-exchange-option"
@@ -968,10 +968,10 @@ function ClaimDetailScreen({ claim = RETURN_CLAIM, loading = false }: ClaimDetai
 
               {selectedVariant !== undefined && (
                 <div style={previewStyle} aria-live="polite">
-                  <span style={hintStyle}>완료 처리 시 재고가 이렇게 움직입니다</span>
+                  <span style={hintStyle}>완료 처리 시 재고가 이렇게 움직여요</span>
                   {sameOption ? (
                     <span style={moveRowStyle}>
-                      주문과 같은 옵션이라 회수분 입고와 재발송 출고가 서로 상쇄됩니다 — 재고 변화
+                      주문과 같은 옵션이라 회수분 입고와 재발송 출고가 서로 상쇄돼요 — 재고 변화
                       없음.
                     </span>
                   ) : (
@@ -1024,7 +1024,7 @@ function ClaimDetailScreen({ claim = RETURN_CLAIM, loading = false }: ClaimDetai
                   : `− ${fmt(breakdown.couponClawback)}원${
                       draftRefund.couponRestored
                         ? ` (${draftRefund.couponName} 복원)`
-                        : ' (쿠폰을 복원하지 않아 회수하지 않습니다)'
+                        : ' (쿠폰을 복원하지 않아 회수하지 않아요)'
                     }`}
               </dd>
             </dl>
@@ -1046,7 +1046,7 @@ function ClaimDetailScreen({ claim = RETURN_CLAIM, loading = false }: ClaimDetai
                 onChange={(event) => setFeeInput(event.target.value)}
               />
               <span style={hintStyle}>
-                {`배송 정책 기본값 ${fmt(POLICY_RETURN_FEE)}원 — 이 건만 다르게 정할 수 있습니다.`}
+                {`배송 정책 기본값 ${fmt(POLICY_RETURN_FEE)}원 — 이 건만 다르게 정할 수 있어요.`}
               </span>
               {draftRefund.couponDiscount > 0 && (
                 <Checkbox
@@ -1061,9 +1061,9 @@ function ClaimDetailScreen({ claim = RETURN_CLAIM, loading = false }: ClaimDetai
 
             {refundDone ? (
               <Alert tone="success">
-                {`${formatDateTime(claim.refund.completedAt)} 환불 완료 — 적립금 ${fmt(claim.refund.restoredPoint)}원을 원장에 복원했습니다.${
+                {`${formatDateTime(claim.refund.completedAt)} 환불 완료 — 적립금 ${fmt(claim.refund.restoredPoint)}원을 원장에 복원했어요.${
                   claim.refund.couponRestored
-                    ? ` ${claim.refund.couponName} 쿠폰도 복원했습니다.`
+                    ? ` ${claim.refund.couponName} 쿠폰도 복원했어요.`
                     : ''
                 }`}
               </Alert>
@@ -1071,8 +1071,8 @@ function ClaimDetailScreen({ claim = RETURN_CLAIM, loading = false }: ClaimDetai
               <>
                 <p style={hintStyle}>
                   {draftRefund.pointUsed === 0
-                    ? '이 주문에는 사용한 적립금이 없습니다. 환불완료 시 복원할 적립금도 없습니다.'
-                    : `환불완료 처리를 해야 사용한 적립금 ${fmt(draftRefund.pointUsed)}원이 원장으로 돌아갑니다.`}
+                    ? '이 주문에는 사용한 적립금이 없어요. 환불완료 시 복원할 적립금도 없어요.'
+                    : `환불완료 처리를 해야 사용한 적립금 ${fmt(draftRefund.pointUsed)}원이 원장으로 돌아가요.`}
                 </p>
                 <div style={actionsStyle}>
                   {(requestBlock ?? completeBlock) !== null && (
@@ -1104,7 +1104,7 @@ function ClaimDetailScreen({ claim = RETURN_CLAIM, loading = false }: ClaimDetai
         <ConfirmDialog
           intent="update"
           title={claim.kind === 'exchange' ? '교환 재고 반영' : '반품 재고 반영'}
-          message={`'${claim.productName}' ${fmt(claim.quantity)}개의 재고가 이동합니다. 재고 반영은 되돌릴 수 없으며, 반영 후에는 교환 옵션을 바꿀 수 없습니다.`}
+          message={`'${claim.productName}' ${fmt(claim.quantity)}개의 재고가 이동해요. 재고 반영은 되돌릴 수 없으며, 반영 후에는 교환 옵션을 바꿀 수 없어요.`}
           confirmLabel="재고 반영"
           onConfirm={() => setConfirmStock(false)}
           onCancel={() => setConfirmStock(false)}
@@ -1116,7 +1116,7 @@ function ClaimDetailScreen({ claim = RETURN_CLAIM, loading = false }: ClaimDetai
         <ConfirmDialog
           intent="update"
           title="환불 완료 처리"
-          message={`${fmt(breakdown.total)}원을 환불 완료로 기록하고, 사용한 적립금 ${fmt(draftRefund.pointUsed)}원을 원장에 복원합니다. 이 처리는 되돌릴 수 없습니다.`}
+          message={`${fmt(breakdown.total)}원을 환불 완료로 기록하고, 사용한 적립금 ${fmt(draftRefund.pointUsed)}원을 원장에 복원해요. 이 처리는 되돌릴 수 없어요.`}
           confirmLabel="환불 완료"
           onConfirm={() => setConfirmRefund(false)}
           onCancel={() => setConfirmRefund(false)}

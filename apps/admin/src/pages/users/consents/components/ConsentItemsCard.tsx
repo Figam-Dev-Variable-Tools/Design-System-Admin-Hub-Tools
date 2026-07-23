@@ -133,12 +133,12 @@ export function ConsentItemsCard({ items, canUpdate, saving, onSave }: ConsentIt
       <CardTitle>동의 항목</CardTitle>
 
       <p style={hintStyle}>
-        각 항목은 가입 화면에서 <strong>구분해</strong> 안내하고 따로 동의를 받습니다. 선택 항목에
-        동의하지 않아도 가입은 완료되어야 합니다.
+        각 항목은 가입 화면에서 <strong>구분해</strong> 안내하고 따로 동의를 받아요. 선택 항목에
+        동의하지 않아도 가입은 완료되어야 해요.
       </p>
 
       {rejected !== null && <Alert tone="danger">{rejected}</Alert>}
-      {!canUpdate && <Alert tone="info">조회 권한만 있어 동의 항목을 변경할 수 없습니다.</Alert>}
+      {!canUpdate && <Alert tone="info">조회 권한만 있어 동의 항목을 변경할 수 없어요.</Alert>}
 
       <div style={listStyle}>
         {draft.map((item) => {
@@ -188,10 +188,10 @@ export function ConsentItemsCard({ items, canUpdate, saving, onSave }: ConsentIt
         <div style={actionsStyle}>
           <p style={hintStyle}>
             {saving
-              ? '저장하는 중입니다…'
+              ? '저장하는 중이에요…'
               : dirty
-                ? '저장하지 않은 변경 사항이 있습니다.'
-                : '변경 사항이 없습니다.'}
+                ? '저장하지 않은 변경 사항이 있어요.'
+                : '변경 사항이 없어요.'}
           </p>
           <Button variant="primary" size="md" disabled={!dirty || saving} onClick={submit}>
             {saving ? '저장 중…' : '저장'}

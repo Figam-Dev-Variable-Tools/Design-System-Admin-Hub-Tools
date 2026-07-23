@@ -18,9 +18,26 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { RATCHET_UNIT } from '../thresholds.ts';
+
 export interface Baseline {
   /** 직전 리포트의 축 4 커버 칸 수 */
   covered: number;
+  /**
+   * 직전 리포트의 축 4 **분모**(§7 이 선언한 동작 칸 총수) — 명세 쪽 분모 세탁 감시용.
+   * 계약 쪽 분모 세탁(아래 `contractStatesTotal`)과 같은 이유로 기억한다:
+   * §7 의 칸을 `해당 없음` 으로 바꾸거나 행을 지우면 미커버가 조용히 사라진다.
+   */
+  fsCellsTotal: number;
+  /**
+   * **래칫 단위 표식** — 커버 칸이 *무엇을 세는가*.
+   *
+   * 옛 리포트(단위 필드가 없던 시절)는 `el-x-axis/v1` 로 읽는다: 삭제된 `specs/**` 의
+   * (요소 × 예외 7축) 칸이다. 지금 단위와 다르면 **크기 비교를 하지 않는다** —
+   * 서로 다른 자로 잰 값을 비교하는 것은 측정이 아니라 착시다.
+   * 대신 `axes/fs-exceptions.ts` 가 재수립 사실을 major 로 신고한다(조용한 리셋 금지).
+   */
+  unit: string;
   /**
    * 직전 리포트의 축 2·3 **분모**(계약이 선언한 states / blockedWhen 총수).
    *
@@ -49,8 +66,13 @@ const AXIS_ID = 'fs-exception-axes';
 const STATES_ID = 'contract-states';
 const BLOCKED_ID = 'contract-blocked-when';
 
+/** 단위 필드가 없던 시절의 리포트 — 삭제된 `specs/**` 의 (요소 × 예외 7축) 칸을 셌다 */
+const LEGACY_UNIT = 'el-x-axis/v1';
+
 const EMPTY = (source: string): Baseline => ({
   covered: 0,
+  fsCellsTotal: 0,
+  unit: RATCHET_UNIT,
   contractStatesTotal: 0,
   contractBlockedTotal: 0,
   source,
@@ -98,10 +120,15 @@ export function readBaseline(root: string, scope: string): Baseline {
   try {
     const prev = JSON.parse(fs.readFileSync(path.join(dir, chosen), 'utf8')) as {
       summary?: { id: string; covered: number; total: number }[];
+      ratchet?: { unit?: string };
     };
     const find = (id: string) => prev.summary?.find((s) => s.id === id);
     return {
       covered: find(AXIS_ID)?.covered ?? 0,
+      fsCellsTotal: find(AXIS_ID)?.total ?? 0,
+      // 단위 필드가 없으면 옛 리포트다 — 없는 것을 지금 단위로 **가정하지 않는다.**
+      // (가정하면 옛 137칸과 새 수를 크기 비교하게 되고, 그것은 거짓 후퇴 blocker 를 만든다.)
+      unit: prev.ratchet?.unit ?? LEGACY_UNIT,
       contractStatesTotal: find(STATES_ID)?.total ?? 0,
       contractBlockedTotal: find(BLOCKED_ID)?.total ?? 0,
       source,

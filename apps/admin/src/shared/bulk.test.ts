@@ -20,7 +20,7 @@ describe('settleAll — 일괄 쓰기 집계', () => {
   });
 
   it('취소(AbortError)는 실패로 세지 않는다', async () => {
-    const abortError = new DOMException('요청이 취소되었습니다.', 'AbortError');
+    const abortError = new DOMException('요청이 취소되었어요.', 'AbortError');
     const failed = await settleAll(['a', 'b'], (id) =>
       id === 'a' ? Promise.reject(abortError) : Promise.resolve(),
     );
@@ -36,7 +36,7 @@ describe('settleAllDetailed — 사유를 보존하는 집계', () => {
   it('실패한 항목과 사유를 함께 돌려준다', async () => {
     const conflict = new HttpError(
       HTTP_STATUS.conflict,
-      '발송 규칙 3건이 이 템플릿을 쓰고 있습니다.',
+      '발송 규칙 3건이 이 템플릿을 쓰고 있어요.',
     );
     const outcome = await settleAllDetailed(['a', 'b', 'c'], (id) =>
       id === 'b' ? Promise.reject(conflict) : Promise.resolve(),
@@ -51,7 +51,7 @@ describe('settleAllDetailed — 사유를 보존하는 집계', () => {
   });
 
   it('사유가 서로 다른 실패를 각각 보존한다 (409 와 500 이 섞인 경우)', async () => {
-    const conflict = new HttpError(HTTP_STATUS.conflict, '참조가 남아 있습니다.');
+    const conflict = new HttpError(HTTP_STATUS.conflict, '참조가 남아 있어요.');
     const server = new HttpError(HTTP_STATUS.serverError, '서버 오류');
     const outcome = await settleAllDetailed(['a', 'b', 'c'], (id) => {
       if (id === 'a') return Promise.reject(conflict);
@@ -65,7 +65,7 @@ describe('settleAllDetailed — 사유를 보존하는 집계', () => {
   });
 
   it('취소(AbortError)는 실패로도 사유로도 남기지 않는다', async () => {
-    const abortError = new DOMException('요청이 취소되었습니다.', 'AbortError');
+    const abortError = new DOMException('요청이 취소되었어요.', 'AbortError');
     const outcome = await settleAllDetailed(['a', 'b'], (id) =>
       id === 'a' ? Promise.reject(abortError) : Promise.resolve(),
     );

@@ -187,7 +187,7 @@ export function StatsSection({ range, onRangeChange }: StatsSectionProps) {
             title="방문자"
             action={rangeToggle}
             loading={loading || chart === null}
-            error={failed ? '방문자 통계를 불러오지 못했습니다.' : ''}
+            error={failed ? '방문자 통계를 불러오지 못했어요.' : ''}
           >
             {chart !== null && (
               <LineAreaChart
@@ -203,7 +203,7 @@ export function StatsSection({ range, onRangeChange }: StatsSectionProps) {
           <StatsCard
             title="기간별 분석"
             loading={loading || table === null}
-            error={failed ? '기간별 분석을 불러오지 못했습니다.' : ''}
+            error={failed ? '기간별 분석을 불러오지 못했어요.' : ''}
           >
             {table !== null && (
               <DataTable

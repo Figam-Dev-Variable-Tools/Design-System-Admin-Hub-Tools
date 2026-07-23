@@ -197,7 +197,7 @@ type PageSize = (typeof PAGE_SIZE_OPTIONS)[number];
 /** 보존기간 — 실화면 API_LOG_RETENTION 미러(트래픽 부피가 커 가장 짧게 남긴다) */
 const RETENTION = {
   label: '90일',
-  basis: '트래픽 부피가 커 단기 보존합니다. 보존기간이 지나면 자동 폐기됩니다.',
+  basis: '트래픽 부피가 커 단기 보존해요. 보존기간이 지나면 자동 폐기돼요.',
 } as const;
 
 /* ── 표 열 정의(실화면 api/ApiLogPage COLUMNS 6열 미러) ──────────────────────────────────────── */
@@ -462,10 +462,10 @@ function ApiLogScreen({ loading = false, initialKeyword = '' }: ApiLogScreenProp
               <p style={retentionStyle}>{`보존기간 ${RETENTION.label}`}</p>
               <p style={hintStyle}>{RETENTION.basis}</p>
               <p style={hintStyle}>
-                이 기록은 감사 로그입니다. 관리자도 수정하거나 삭제할 수 없으며, 조회와 내보내기만
-                제공합니다.
+                이 기록은 감사 로그예요. 관리자도 수정하거나 삭제할 수 없으며, 조회와 내보내기만
+                제공해요.
               </p>
-              <p style={hintStyle}>시각은 모두 한국 표준시(KST) 기준입니다.</p>
+              <p style={hintStyle}>시각은 모두 한국 표준시(KST) 기준이에요.</p>
             </>
           }
         >
@@ -538,7 +538,7 @@ function ApiLogScreen({ loading = false, initialKeyword = '' }: ApiLogScreenProp
                   endValue={draftTo}
                   onStartChange={setDraftFrom}
                   onEndChange={setDraftTo}
-                  hint="한 번에 최대 90일까지 조회할 수 있습니다."
+                  hint="한 번에 최대 90일까지 조회할 수 있어요."
                 />
               </div>
             )}
@@ -595,7 +595,7 @@ function ApiLogScreen({ loading = false, initialKeyword = '' }: ApiLogScreenProp
 
           <div style={tableWrapStyle}>
             <Table
-              caption="API 로그 — 행을 누르면 그 호출의 요청·응답이 열립니다. 이 목록은 읽기 전용이며 수정·삭제할 수 없습니다."
+              caption="API 로그 — 행을 누르면 그 호출의 요청·응답이 열려요. 이 목록은 읽기 전용이며 수정·삭제할 수 없어요."
               columns={COLUMNS}
               rows={rows}
               sortKey={sortKey}
@@ -648,7 +648,7 @@ export const LoadError: Story = {
       <h1 style={headingStyle}>API 로그</h1>
       <Alert tone="danger">
         <div style={errorBodyStyle}>
-          <span>API 로그를 불러오지 못했습니다.</span>
+          <span>API 로그를 불러오지 못했어요.</span>
           <Button variant="secondary">다시 시도</Button>
         </div>
       </Alert>

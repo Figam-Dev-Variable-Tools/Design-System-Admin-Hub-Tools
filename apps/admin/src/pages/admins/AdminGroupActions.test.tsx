@@ -184,7 +184,7 @@ describe('그룹 만들기', () => {
       // 확인 다이얼로그는 닫히고 폼이 살아 있다 — 값을 고쳐 다시 낼 수 있다(모달이 잠기지 않는다)
       expect(await screen.findByRole('alert', {}, { timeout: SETTLE_TIMEOUT })).toHaveProperty(
         'textContent',
-        '요청을 처리하지 못했습니다.',
+        '요청을 처리하지 못했어요.',
       );
       expect(screen.getByLabelText('그룹명')).toHaveProperty('value', '실패할 그룹');
       expect(screen.getByRole('button', { name: '그룹 만들기' })).toHaveProperty('disabled', false);
@@ -267,7 +267,7 @@ describe('그룹 지우기', () => {
 
       // 눌러도 매번 같은 오류만 나오는 확인 버튼을 보여 주지 않는다 — 다이얼로그 자체가 열리지 않는다
       const banner = await screen.findByText(
-        /운영자 3명이 속해 있어 삭제할 수 없습니다/,
+        /운영자 3명이 속해 있어 삭제할 수 없어요/,
         {},
         { timeout: SETTLE_TIMEOUT },
       );

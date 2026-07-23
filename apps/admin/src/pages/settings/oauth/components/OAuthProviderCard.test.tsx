@@ -265,7 +265,7 @@ describe('OAuthProviderCard — Apple 은 시크릿 한 칸이 아니라 서명 
   it('업로드 통로가 아직 없다는 사실을 숨기지 않는다 — 다 됐다고 믿게 두지 않는다', () => {
     const { container } = render(<Harness value={APPLE} />);
 
-    expect(container.textContent).toContain('이름만 저장됩니다');
+    expect(container.textContent).toContain('이름만 저장돼요');
   });
 
   it('라벨이 전부 실재하는 컨트롤을 가리킨다 — 고아 <label htmlFor> 를 남기지 않는다', () => {

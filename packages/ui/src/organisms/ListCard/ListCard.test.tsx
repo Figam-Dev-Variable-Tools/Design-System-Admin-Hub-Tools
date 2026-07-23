@@ -28,9 +28,9 @@ describe('ListCard — 계약 states[]', () => {
   });
 
   it('ListCard: default 상태 — rows 가 비면 empty 문구를 렌더한다', () => {
-    render(<ListCard title="최근 주문" rows={[]} empty="주문이 없습니다." />);
+    render(<ListCard title="최근 주문" rows={[]} empty="주문이 없어요." />);
 
-    expect(screen.getByText('주문이 없습니다.')).not.toBeNull();
+    expect(screen.getByText('주문이 없어요.')).not.toBeNull();
     expect(screen.queryAllByRole('button')).toHaveLength(0);
   });
 

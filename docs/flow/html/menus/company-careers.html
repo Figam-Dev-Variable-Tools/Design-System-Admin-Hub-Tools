@@ -98,12 +98,12 @@ flowchart TD
   VE2 --&gt; FORM
 
   %% ── 지원 방법 가드 ──
-  FORM --&gt; AM{&quot;applyMethodBlock(method, target, forms)&lt;br/&gt;forms = applicationForms() — 조회기가 없으면 **null('모른다')**&quot;}
-  AM --&gt;|&quot;email · 주소 공백/형식 오류&quot;| AM1[&quot;'지원서를 받을 이메일 주소를 입력하세요.' ·&lt;br/&gt;'이메일 주소 형식이 올바르지 않습니다.'&quot;]
-  AM --&gt;|&quot;link · https:// 아님&quot;| AM2[&quot;'지원 페이지 주소는 https:// 로 시작해야 합니다.&lt;br/&gt;지원자가 개인정보를 입력하는 화면입니다.'&quot;]
-  AM --&gt;|&quot;form · forms === null&quot;| AM3[&quot;'지원 폼 목록을 확인할 수 없어 폼을 고를 수 없습니다…'&lt;br/&gt;**선택지 자체를 disabled** 로 잠근다 — 빈 목록으로 뭉개면 화면이&lt;br/&gt;'등록된 폼이 없습니다' 라고 완결되게 말하고 운영자가 폼을 다시 만든다&quot;]
-  AM --&gt;|&quot;form · 고른 폼이 목록에 없음&quot;| AM4[&quot;'선택한 지원 폼을 찾을 수 없습니다. 목록에서 다시 고르세요.'&quot;]
-  AM --&gt;|&quot;form · 미발행 폼&quot;| AM5[&quot;'{name} 은 아직 발행되지 않은 폼입니다. 지원자가 열면 빈 화면을 보게 됩니다.'&quot;]
+  FORM --&gt; AM{&quot;applyMethodBlock(method, target)&lt;br/&gt;**지원 방법은 둘뿐이다** — 이메일 접수 · 외부 링크&lt;br/&gt;둘 다 공고가 **값을 통째로 갖는다**(이메일 주소 · 외부 주소)&lt;br/&gt;그래서 이 가드는 다른 화면의 상태를 묻지 않는다&quot;}
+  AM --&gt;|&quot;email · 주소 공백&quot;| AM1[&quot;'지원서를 받을 이메일 주소를 입력하세요.'&quot;]
+  AM --&gt;|&quot;email · 형식 오류&quot;| AM2[&quot;'이메일 주소 형식이 올바르지 않습니다.'&quot;]
+  AM --&gt;|&quot;link · 주소 공백&quot;| AM3[&quot;'지원 페이지 주소를 입력하세요.'&quot;]
+  AM --&gt;|&quot;link · https:// 아님&quot;| AM4[&quot;'지원 페이지 주소는 https:// 로 시작해야 합니다.&lt;br/&gt;지원자가 개인정보를 입력하는 화면입니다.'&lt;br/&gt;취향이 아니다 — 지원자가 **개인정보를 입력하는 화면**이다&quot;]
+  AM --&gt;|&quot;그 밖의 값 (옛 'form' 등)&quot;| AM5[&quot;'지원 방법을 고르세요.'&lt;br/&gt;**fail-closed** — 저장돼 있던 옛 공고가 applyMethod: 'form' 을 들고 있어도&lt;br/&gt;공개 저장이 거절된다(선택지에도 없고 통과하지도 않는다)&quot;]
   AM --&gt;|&quot;통과&quot;| AMOK[&quot;Alert 없음&quot;]
   AM1 --&gt; AMINFO
   AM2 --&gt; AMINFO
@@ -112,9 +112,12 @@ flowchart TD
   AM5 --&gt; AMINFO[&quot;Alert info — 사유 문자열 그대로(화면이 문구를 다시 짓지 않는다)&quot;]
   AMINFO --&gt; FORM
 
-  FORM --&gt; PB{&quot;publishBlock(input, forms)&lt;br/&gt;= published 일 때만 applyMethodBlock 을 본다&quot;}
+  GONE[&quot;**'지원 폼' 선택지는 제거됐다**(2026-07-22)&lt;br/&gt;그것만 다른 화면(폼 관리 /content/forms)이 만들고 고치고 지우는 것을 **참조**했다&lt;br/&gt;폼 관리 화면이 IA 에서 걷히면서 그 폼을 만들 곳이 사라졌으므로 선택지도 함께 걷는다 —&lt;br/&gt;**고를 수는 있는데 절대 공개할 수 없는 선택지는 기능이 아니라 함정이다**&lt;br/&gt;(그때의 안내 문구는 '폼 관리 연동이 준비되면 선택할 수 있습니다' 였다 — 오지 않을 미래였다)&lt;br/&gt;이음매 shared/domain/application-form.ts 도 함께 사라졌다&quot;]
+  GONE -.-&gt; AM
+
+  FORM --&gt; PB{&quot;publishBlock(input) = published 일 때만 applyMethodBlock 을 본다&quot;}
   PB --&gt;|&quot;published = false&quot;| PBOK[&quot;**비공개 저장은 언제나 허용**&lt;br/&gt;초안을 저장하지 못하게 만들면 작성 중인 내용이 사라진다&quot;]
-  PB --&gt;|&quot;published = true 인데 지원 경로가 안 열림&quot;| PBNG[&quot;Alert warning — 저장 전에 그 사실을 말한다&lt;br/&gt;열리지 않는 '지원하기' 는 기능이 아니라 거짓 약속이다&quot;]
+  PB --&gt;|&quot;published = true 인데 지원 경로가 안 열림&quot;| PBNG[&quot;**공개로 저장되지 않는다** — careerSchema 의 check 가 사유를&lt;br/&gt;applyTarget 필드 이슈로 올리고, 어댑터도 같은 술어로 422 를 던진다&lt;br/&gt;열리지 않는 '지원하기' 는 기능이 아니라 거짓 약속이다&quot;]
   PBNG --&gt; FORM
   PBOK --&gt; FORM
 
@@ -134,7 +137,7 @@ flowchart TD
   classDef ok fill:#dcfce7,stroke:#16a34a,color:#14532d
 
   class ST,STATE,F,ACT,ALW,V,AM,PB,MR gate
-  class ERRL,EMPTY,ST_C,VE,VE2,AM1,AM2,AM3,AM4,AM5,AMINFO,PBNG,ERRS err
+  class ERRL,EMPTY,ST_C,VE,VE2,AM1,AM2,AM3,AM4,AM5,AMINFO,PBNG,ERRS,GONE err
   class ST_O,ST_A,AMOK,PBOK,OKS ok
 </pre></div></div>
 <pre id="err"></pre>

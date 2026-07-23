@@ -15,6 +15,10 @@ import { isAbort } from '../../../shared/async';
 import { parseFilter, useListState } from '../../../shared/crud';
 import { formatNumber } from '../../../shared/format';
 import {
+  useRouteWritePermissions,
+  WRITE_DENIED,
+} from '../../../shared/permissions/RequirePermission';
+import {
   Alert,
   Button,
   ConfirmDialog,
@@ -98,6 +102,13 @@ export default function BannersPage() {
   );
   const { keyword, page, selectedIds, clearSelection } = list;
 
+  /**
+   * [EXC-03] 이 화면의 쓰기 권한 — 한 번 읽어 CTA · 일괄 바 · 표 · 뮤테이션 넷으로 흘린다.
+   * 손으로 만든 목록이라 껍데기의 게이팅을 하나도 받지 못했고, 조회 권한만으로 ON/OFF 스위치가
+   * 눌리고 배너가 실제로 켜졌다.
+   */
+  const { canCreate, canUpdate, canRemove } = useRouteWritePermissions();
+
   const [pendingDelete, setPendingDelete] = useState<Banner | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const deleteControllerRef = useRef<AbortController | null>(null);
@@ -123,6 +134,11 @@ export default function BannersPage() {
   const reordering = reorderBanners.isPending;
 
   const onReorder = (orderedIds: readonly string[]) => {
+    // 순서 변경은 수정이다 — 표가 핸들을 지운 것과 같은 술어로 저장도 거절한다
+    if (!canUpdate) {
+      toast.error(WRITE_DENIED.update);
+      return;
+    }
     reorderControllerRef.current?.abort();
     const controller = new AbortController();
     reorderControllerRef.current = controller;
@@ -131,11 +147,11 @@ export default function BannersPage() {
       {
         onSuccess: () => {
           if (controller.signal.aborted) return;
-          toast.success('정렬 순서를 변경했습니다.');
+          toast.success('정렬 순서를 변경했어요.');
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          toast.error('정렬 순서를 변경하지 못했습니다.', { retry: () => onReorder(orderedIds) });
+          toast.error('정렬 순서를 변경하지 못했어요.', { retry: () => onReorder(orderedIds) });
         },
       },
     );
@@ -178,6 +194,10 @@ export default function BannersPage() {
 
   const onConfirmDelete = () => {
     if (pendingDelete === null) return;
+    if (!canRemove) {
+      setDeleteError(WRITE_DENIED.remove);
+      return;
+    }
     const target = pendingDelete;
     const controller = new AbortController();
     deleteControllerRef.current = controller;
@@ -189,11 +209,11 @@ export default function BannersPage() {
         onSuccess: () => {
           if (controller.signal.aborted) return;
           setPendingDelete(null);
-          toast.success('배너를 삭제했습니다.');
+          toast.success('배너를 삭제했어요.');
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setDeleteError('배너를 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setDeleteError('배너를 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -212,16 +232,21 @@ export default function BannersPage() {
 
   const onToggleEnabled = (banner: Banner, next: boolean) => {
     if (togglingIds.has(banner.id)) return;
+    // 스위치를 배지로 바꾼 술어와 **같은 술어**가 저장을 거절한다 (RowToggle ↔ 여기)
+    if (!canUpdate) {
+      toast.error(WRITE_DENIED.update);
+      return;
+    }
     markToggling(banner.id, true);
     enabledMutation.mutate(
       { id: banner.id, enabled: next },
       {
         onSuccess: () => {
-          toast.success(next ? `'${banner.title}' 을 켰습니다.` : `'${banner.title}' 을 껐습니다.`);
+          toast.success(next ? `'${banner.title}' 을 켰어요.` : `'${banner.title}' 을 껐어요.`);
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          toast.error('상태를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.', {
+          toast.error('상태를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.', {
             retry: () => onToggleEnabled(banner, next),
           });
         },
@@ -233,6 +258,10 @@ export default function BannersPage() {
   const onBulkEnabled = (enabled: boolean) => {
     const ids = [...selectedIds];
     if (ids.length === 0 || bulkTogglingEnabled) return;
+    if (!canUpdate) {
+      toast.error(WRITE_DENIED.update);
+      return;
+    }
     bulkEnabled.mutate(
       { ids, enabled },
       {
@@ -240,13 +269,13 @@ export default function BannersPage() {
           const label = enabled ? 'ON' : 'OFF';
           if (failed > 0) {
             toast.error(
-              `배너 ${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 ${label} 처리하지 못했습니다.`,
+              `배너 ${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 ${label} 처리하지 못했어요.`,
               { retry: () => onBulkEnabled(enabled) },
             );
             return;
           }
           clearSelection();
-          toast.success(`배너 ${formatNumber(ids.length)}건을 ${label} 처리했습니다.`);
+          toast.success(`배너 ${formatNumber(ids.length)}건을 ${label} 처리했어요.`);
         },
       },
     );
@@ -263,6 +292,10 @@ export default function BannersPage() {
   const onConfirmBulkDelete = () => {
     const ids = [...selectedIds];
     if (ids.length === 0) return;
+    if (!canRemove) {
+      setBulkError(WRITE_DENIED.remove);
+      return;
+    }
     const controller = new AbortController();
     bulkControllerRef.current = controller;
     setBulkError(null);
@@ -274,13 +307,13 @@ export default function BannersPage() {
           if (controller.signal.aborted) return;
           if (failed > 0) {
             setBulkError(
-              `배너 ${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.`,
+              `배너 ${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.`,
             );
             return;
           }
           setBulkOpen(false);
           clearSelection();
-          toast.success(`배너 ${formatNumber(ids.length)}건을 삭제했습니다.`);
+          toast.success(`배너 ${formatNumber(ids.length)}건을 삭제했어요.`);
         },
       },
     );
@@ -303,10 +336,13 @@ export default function BannersPage() {
             onChange={(id) => list.setFilter('placement', id)}
           />
         </div>
-        <Button variant="primary" size="md" onClick={() => navigate('/content/banners/new')}>
-          <Icon name="plus-circle" />
-          배너 등록
-        </Button>
+        {/* 등록 권한이 없으면 CTA 는 '비활성' 이 아니라 '부재' 다 (EXC-03) */}
+        {canCreate && (
+          <Button variant="primary" size="md" onClick={() => navigate('/content/banners/new')}>
+            <Icon name="plus-circle" />
+            배너 등록
+          </Button>
+        )}
       </div>
 
       {error === null ? (
@@ -318,25 +354,34 @@ export default function BannersPage() {
             </p>
           </div>
 
-          <SelectionBar count={selectedCount} onClear={clearSelection}>
-            <Button
-              variant="secondary"
-              disabled={bulkTogglingEnabled}
-              onClick={() => onBulkEnabled(true)}
-            >
-              일괄 ON
-            </Button>
-            <Button
-              variant="secondary"
-              disabled={bulkTogglingEnabled}
-              onClick={() => onBulkEnabled(false)}
-            >
-              일괄 OFF
-            </Button>
-            <Button variant="danger" disabled={bulkDeleting} onClick={() => setBulkOpen(true)}>
-              {`선택 ${formatNumber(selectedCount)}건 삭제`}
-            </Button>
-          </SelectionBar>
+          {/* 선택을 소비하는 것은 일괄 ON/OFF(update)와 일괄 삭제(remove)뿐이다 */}
+          {(canUpdate || canRemove) && (
+            <SelectionBar count={selectedCount} onClear={clearSelection}>
+              {canUpdate && (
+                <>
+                  <Button
+                    variant="secondary"
+                    disabled={bulkTogglingEnabled}
+                    onClick={() => onBulkEnabled(true)}
+                  >
+                    일괄 ON
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    disabled={bulkTogglingEnabled}
+                    onClick={() => onBulkEnabled(false)}
+                  >
+                    일괄 OFF
+                  </Button>
+                </>
+              )}
+              {canRemove && (
+                <Button variant="danger" disabled={bulkDeleting} onClick={() => setBulkOpen(true)}>
+                  {`선택 ${formatNumber(selectedCount)}건 삭제`}
+                </Button>
+              )}
+            </SelectionBar>
+          )}
 
           <BannersTable
             banners={banners}
@@ -358,6 +403,8 @@ export default function BannersPage() {
             reorderable={reorderable}
             onReorder={onReorder}
             reordering={reordering}
+            canUpdate={canUpdate}
+            canRemove={canRemove}
           />
 
           <Pagination
@@ -370,7 +417,7 @@ export default function BannersPage() {
       ) : (
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>배너 목록을 불러오지 못했습니다.</span>
+            <span>배너 목록을 불러오지 못했어요.</span>
             <Button
               variant="secondary"
               onClick={() => {
@@ -387,7 +434,7 @@ export default function BannersPage() {
         <ConfirmDialog
           intent="delete"
           title="배너 삭제"
-          message={`'${pendingDelete.title}' 배너를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.title}' 배너를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="배너 삭제"
           busy={deleting}
           error={deleteError}
@@ -400,7 +447,7 @@ export default function BannersPage() {
         <ConfirmDialog
           intent="delete"
           title="배너 일괄 삭제"
-          message={`선택한 배너 ${formatNumber(selectedCount)}건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 배너 ${formatNumber(selectedCount)}건을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel={`${formatNumber(selectedCount)}건 삭제`}
           busy={bulkDeleting}
           error={bulkError}

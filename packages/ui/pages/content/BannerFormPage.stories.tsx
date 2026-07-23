@@ -42,6 +42,7 @@ import {
   Checkbox,
   DateRangeField,
   FormField,
+  formRowStyle,
   Icon,
   ImageUploadField,
   SelectField,
@@ -133,8 +134,8 @@ const DEMO_ERRORS: FieldErrors = {
   title: '제목을 입력하세요.',
   imageUrl: '이미지를 등록하세요.',
   linkUrl: 'http(s):// 로 시작하는 URL 을 입력하세요.',
-  order: '정렬 순서는 0 이상의 정수입니다.',
-  period: '종료일은 시작일보다 빠를 수 없습니다.',
+  order: '정렬 순서는 0 이상의 정수예요.',
+  period: '종료일은 시작일보다 빠를 수 없어요.',
 };
 
 /* ── 스타일(토큰·rem·calc 만) ─────────────────────────────────────────────────────────────── */
@@ -183,12 +184,6 @@ const cardTitleStyle: CSSProperties = {
   ...typography('typography.title.md'),
   margin: 0,
   color: cssVar('color.text.default'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 6), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const controlStyle = (invalid: boolean): CSSProperties => ({
@@ -382,7 +377,7 @@ function BannerPreview({
       <p style={previewCaptionStyle}>
         <span>{`${placementLabel} 영역에 노출`}</span>
         <span aria-hidden="true">·</span>
-        <span>{enabled ? '노출 ON' : '노출 OFF (저장해도 사용자에게 보이지 않습니다)'}</span>
+        <span>{enabled ? '노출 ON' : '노출 OFF (저장해도 사용자에게 보이지 않아요)'}</span>
       </p>
     </div>
   );
@@ -421,7 +416,7 @@ function BannerFormScreen({
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '배너 수정' : '배너 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 오른쪽 미리보기로 사용자에게 보일 모습을 확인하세요.
+          별표(*) 항목은 필수예요. 오른쪽 미리보기로 사용자에게 보일 모습을 확인하세요.
         </p>
       </div>
 
@@ -454,7 +449,7 @@ function BannerFormScreen({
                   required
                   value={imageUrl}
                   onChange={setImageUrl}
-                  hint="이미지를 끌어다 놓거나 클릭해 업로드합니다."
+                  hint="이미지를 끌어다 놓거나 클릭해 업로드해요."
                   error={errors.imageUrl ?? ''}
                 />
 
@@ -475,7 +470,7 @@ function BannerFormScreen({
                   />
                 </FormField>
 
-                <div style={rowStyle}>
+                <div style={formRowStyle}>
                   <FormField htmlFor="banner-placement" label="노출 위치" required>
                     <SelectField
                       id="banner-placement"
@@ -494,7 +489,7 @@ function BannerFormScreen({
                     htmlFor="banner-order"
                     label="정렬 순서"
                     required
-                    hint="작을수록 앞에 노출됩니다."
+                    hint="작을수록 앞에 노출돼요."
                     {...(errors.order !== undefined && { error: errors.order })}
                   >
                     <input
@@ -573,7 +568,7 @@ export const ValidationError: Story = {
   render: () => (
     <BannerFormScreen
       errors={DEMO_ERRORS}
-      serverError="저장하지 못했습니다. 잠시 후 다시 시도해 주세요."
+      serverError="저장하지 못했어요. 잠시 후 다시 시도해 주세요."
       seed={{
         ...EMPTY_SEED,
         linkUrl: 'example.com/promo',

@@ -52,15 +52,15 @@ const SESSION_EXPIRED_REASON = 'session_expired';
 /** SCR-001 §3 등록-에러 · §5.3-7 안내 문안 — SCR 원문 그대로 사용한다(임의 변형 금지) */
 const ALERT_MESSAGES = {
   accountLocked:
-    '비밀번호 5회 오류로 계정이 잠겼습니다. 30분 후 다시 시도하거나 시스템 관리자에게 문의하세요.',
-  accountInactive: '사용이 중지된 계정입니다. 시스템 관리자에게 문의하세요.',
-  networkOrServer: '일시적인 오류로 로그인하지 못했습니다. 다시 시도해 주세요.',
-  sessionExpired: '세션이 만료되었습니다. 다시 로그인해 주세요.',
+    '비밀번호 5회 오류로 계정이 잠겼어요. 30분 후 다시 시도하거나 시스템 관리자에게 문의하세요.',
+  accountInactive: '사용이 중지된 계정이에요. 시스템 관리자에게 문의하세요.',
+  networkOrServer: '일시적인 오류로 로그인하지 못했어요. 다시 시도해 주세요.',
+  sessionExpired: '세션이 만료되었어요. 다시 로그인해 주세요.',
 } as const;
 
 /** §3 등록-에러 (a) 자격 증명 불일치 — 실패 카운트를 포함한 SCR 원문 */
 function invalidCredentialsMessage(failedCount: number, maxAttempts: number): string {
-  return `이메일 또는 비밀번호가 일치하지 않습니다. (실패 ${failedCount}/${maxAttempts}회)`;
+  return `이메일 또는 비밀번호가 일치하지 않아요. (실패 ${failedCount}/${maxAttempts}회)`;
 }
 
 /**
@@ -381,7 +381,7 @@ export default function LoginPage() {
         <div>
           <p style={visualHeadlineStyle}>디자인 시스템으로 움직이는 어드민</p>
           <p style={visualBodyStyle}>
-            토큰 · 계약 · Storybook · Figma가 하나의 원천에서 동기화됩니다.
+            토큰 · 계약 · Storybook · Figma가 하나의 원천에서 동기화돼요.
           </p>
         </div>
       </aside>

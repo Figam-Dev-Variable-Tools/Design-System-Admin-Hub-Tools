@@ -85,8 +85,8 @@ export function LogFilterPanel({
           <p style={retentionStyle}>{`보존기간 ${retention.label}`}</p>
           <p style={hintStyle}>{retention.basis}</p>
           <p style={hintStyle}>
-            이 기록은 감사 로그입니다. 관리자도 수정하거나 삭제할 수 없으며, 조회와 내보내기만
-            제공합니다.
+            이 기록은 감사 로그예요. 관리자도 수정하거나 삭제할 수 없으며, 조회와 내보내기만
+            제공해요.
           </p>
           <p style={hintStyle}>{TIME_ZONE_NOTICE}</p>
         </>
@@ -130,7 +130,7 @@ export function LogFilterPanel({
               onEndChange={(to) => onDraftChange({ ...draft, to })}
             />
             <p style={hintStyle}>
-              {`한 번에 최대 ${String(MAX_RANGE_DAYS)}일까지 조회할 수 있습니다.`}
+              {`한 번에 최대 ${String(MAX_RANGE_DAYS)}일까지 조회할 수 있어요.`}
             </p>
           </div>
         )}

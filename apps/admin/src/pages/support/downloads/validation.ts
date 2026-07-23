@@ -9,7 +9,7 @@ export const downloadSchema = z.object({
   categoryLabel: requiredText('카테고리', 30),
   version: z.string().check(
     z.refine((value) => value.trim().length <= VERSION_MAX, {
-      error: `버전은 ${String(VERSION_MAX)}자를 넘을 수 없습니다.`,
+      error: `버전은 ${String(VERSION_MAX)}자를 넘을 수 없어요.`,
     }),
   ),
   visible: z.boolean(),

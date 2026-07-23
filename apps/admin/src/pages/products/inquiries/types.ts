@@ -216,7 +216,7 @@ export function inquiryHistory(inquiry: ProductInquiry): readonly TimelineEvent[
       author: SYSTEM_AUTHOR,
       badgeTone: 'neutral',
       badgeLabel: '접수',
-      text: `${inquiryChannelLabel(inquiry.channel)} 채널로 문의가 접수되었습니다.`,
+      text: `${inquiryChannelLabel(inquiry.channel)} 채널로 문의가 접수되었어요.`,
     },
   ];
 
@@ -227,7 +227,7 @@ export function inquiryHistory(inquiry: ProductInquiry): readonly TimelineEvent[
       author: ADMIN_AUTHOR,
       badgeTone: 'info',
       badgeLabel: '답변 중',
-      text: '담당자가 답변을 준비하고 있습니다.',
+      text: '담당자가 답변을 준비하고 있어요.',
     });
   }
 
@@ -239,7 +239,7 @@ export function inquiryHistory(inquiry: ProductInquiry): readonly TimelineEvent[
       author: ADMIN_AUTHOR,
       badgeTone: 'info',
       badgeLabel: '견적 발행',
-      text: '이 문의로 견적이 발행되었습니다.',
+      text: '이 문의로 견적이 발행되었어요.',
     });
   }
 
@@ -261,7 +261,7 @@ export function inquiryHistory(inquiry: ProductInquiry): readonly TimelineEvent[
       author: ADMIN_AUTHOR,
       badgeTone: 'neutral',
       badgeLabel: '종결',
-      text: `답변 발송(${formatDateTime(inquiry.answeredAt)}) 후 문의가 종결되었습니다.`,
+      text: `답변 발송(${formatDateTime(inquiry.answeredAt)}) 후 문의가 종결되었어요.`,
     });
   }
 

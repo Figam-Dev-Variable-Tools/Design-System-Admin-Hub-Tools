@@ -85,7 +85,7 @@ describe('StatsCard — 계약 states[]', () => {
       <StatsCard
         title="방문자 추이"
         action={<button type="button">새로고침</button>}
-        error="데이터를 불러오지 못했습니다."
+        error="데이터를 불러오지 못했어요."
       >
         <p>본문</p>
       </StatsCard>,
@@ -116,19 +116,19 @@ describe('StatsCard — 계약 states[]', () => {
 
   it('StatsCard: error 상태 — role=alert 로 에러 문구를 즉시 통지하고 본문을 대체한다', () => {
     render(
-      <StatsCard title="방문자 추이" error="데이터를 불러오지 못했습니다.">
+      <StatsCard title="방문자 추이" error="데이터를 불러오지 못했어요.">
         <p>본문</p>
       </StatsCard>,
     );
 
     const alert = screen.getByRole('alert');
-    expect(alert.textContent).toBe('데이터를 불러오지 못했습니다.');
+    expect(alert.textContent).toBe('데이터를 불러오지 못했어요.');
     expect(screen.queryByText('본문')).toBeNull();
   });
 
   it('StatsCard: error 상태는 loading 상태보다 우선한다 (둘 다 켜지면 에러를 보여준다)', () => {
     const { container } = render(
-      <StatsCard title="방문자 추이" loading error="데이터를 불러오지 못했습니다.">
+      <StatsCard title="방문자 추이" loading error="데이터를 불러오지 못했어요.">
         <p>본문</p>
       </StatsCard>,
     );

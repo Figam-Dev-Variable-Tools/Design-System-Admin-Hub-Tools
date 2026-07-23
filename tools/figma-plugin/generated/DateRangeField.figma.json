@@ -94,6 +94,7 @@
     "radius": "radius.md",
     "paddingX": "space.3",
     "paddingY": "space.2",
+    "minHeight": "space.8",
     "rowGap": "space.2"
   },
   "anatomy": {

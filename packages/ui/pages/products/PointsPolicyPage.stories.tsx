@@ -38,6 +38,7 @@ import {
   Button,
   Card,
   FormField,
+  formRowStyle,
   Skeleton,
   SelectField,
   TextField,
@@ -101,7 +102,7 @@ const NUMBER_FIELDS: readonly NumberFieldSpec[] = [
     id: 'pts-earn-rate',
     label: '기본 적립률 (%)',
     placeholder: '예: 1',
-    hint: '새 상품의 초기 적립률입니다. 상품별 적립 설정이 이 값을 덮어씁니다.',
+    hint: '새 상품의 초기 적립률이에요. 상품별 적립 설정이 이 값을 덮어써요.',
   },
   { key: 'signupBonus', id: 'pts-signup', label: '회원가입 적립금 (원)', placeholder: '예: 3000' },
   {
@@ -172,13 +173,7 @@ const bodyStyle: CSSProperties = {
   gap: cssVar('space.4'),
 };
 
-/** 한 줄에 필드 여럿 — 좁아지면 자동으로 접힌다(실화면 rowStyle) */
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 6), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
+/** 한 줄에 필드 여럿 — 좁아지면 자동으로 접힌다(실화면 formRowStyle) */
 const fieldCellStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
@@ -242,10 +237,10 @@ function PointsPolicyScreen({ variant }: { variant: Variant }) {
     };
 
   const footerHint = saving
-    ? '저장하는 중입니다…'
+    ? '저장하는 중이에요…'
     : dirty
-      ? '저장하지 않은 변경 사항이 있습니다.'
-      : '변경 사항이 없습니다.';
+      ? '저장하지 않은 변경 사항이 있어요.'
+      : '변경 사항이 없어요.';
 
   // 조회 실패 — 폼 대신 재시도 배너를 그린다(실화면 DocumentFormShell loadFailed 분기)
   if (loadFailed) {
@@ -253,7 +248,7 @@ function PointsPolicyScreen({ variant }: { variant: Variant }) {
       <div style={pageStyle}>
         <Alert tone="danger">
           <div style={errorRowStyle}>
-            <span>내용을 불러오지 못했습니다.</span>
+            <span>내용을 불러오지 못했어요.</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
@@ -264,8 +259,8 @@ function PointsPolicyScreen({ variant }: { variant: Variant }) {
   return (
     <div style={pageStyle}>
       <p style={descriptionStyle}>
-        별표(*) 항목은 필수입니다. 적립률은 상품별로 설정하며, 여기서는 새 상품의 기본 적립률과
-        적립금 사용·소멸 규칙을 정합니다.
+        별표(*) 항목은 필수예요. 적립률은 상품별로 설정하며, 여기서는 새 상품의 기본 적립률과 적립금
+        사용·소멸 규칙을 정해요.
       </p>
 
       <form onSubmit={(event) => event.preventDefault()} noValidate>
@@ -274,9 +269,7 @@ function PointsPolicyScreen({ variant }: { variant: Variant }) {
             <h2 style={cardTitleStyle}>적립금 정책</h2>
 
             {showErrors && (
-              <Alert tone="danger">
-                입력값을 확인해 주세요. 아래 항목을 바로잡아야 저장됩니다.
-              </Alert>
+              <Alert tone="danger">입력값을 확인해 주세요. 아래 항목을 바로잡아야 저장돼요.</Alert>
             )}
 
             {loading ? (
@@ -302,7 +295,7 @@ function PointsPolicyScreen({ variant }: { variant: Variant }) {
                   </SelectField>
                 </FormField>
 
-                <div style={rowStyle}>
+                <div style={formRowStyle}>
                   {NUMBER_FIELDS.map((spec) => {
                     const fieldError = showErrors ? (FIELD_ERRORS[spec.key] ?? '') : '';
                     return (

@@ -121,7 +121,7 @@ export const Disabled: Story = {
 /** error — aria-invalid + aria-describedby 연결 (테두리 danger + 메시지) */
 export const Error: Story = {
   name: 'States/Error',
-  args: { value: 'abc', error: '8자 이상, 숫자와 특수문자를 포함해야 합니다.' },
+  args: { value: 'abc', error: '8자 이상, 숫자와 특수문자를 포함해야 해요.' },
 };
 
 /* ── Form ────────────────────────────────────────────────────────────────── */
@@ -168,10 +168,10 @@ export const FormSurface: Story = {
 export const LongContent: Story = {
   name: 'Content/Long Content',
   args: {
-    label: '새 비밀번호 (직전 3회에 사용한 비밀번호는 재사용할 수 없습니다)',
+    label: '새 비밀번호 (직전 3회에 사용한 비밀번호는 재사용할 수 없어요)',
     value: 'a-very-long-password-value-to-check-trailing-slot-overlap',
     error:
-      '비밀번호는 8자 이상이어야 하며 영문 대소문자·숫자·특수문자를 각각 1자 이상 포함해야 합니다. 최근 3회 이내에 사용한 비밀번호는 다시 사용할 수 없습니다.',
+      '비밀번호는 8자 이상이어야 하며 영문 대소문자·숫자·특수문자를 각각 1자 이상 포함해야 해요. 최근 3회 이내에 사용한 비밀번호는 다시 사용할 수 없어요.',
     revealed: true,
   },
 };

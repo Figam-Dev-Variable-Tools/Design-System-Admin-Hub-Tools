@@ -443,14 +443,14 @@ function OgCardPreview({
       <figcaption style={captionStyle}>공유 카드 미리보기 (카카오톡 · Facebook 등)</figcaption>
       <div style={ogCardStyle} aria-hidden="true">
         {imageUrl === '' ? (
-          <span style={ogImageEmptyStyle}>대표 이미지가 없습니다</span>
+          <span style={ogImageEmptyStyle}>대표 이미지가 없어요</span>
         ) : (
           <img src={imageUrl} alt="" style={ogImageStyle} />
         )}
         <div style={ogBodyStyle}>
           <span style={ogTitleStyle}>{siteName === '' ? '사이트 이름' : siteName}</span>
           <span style={ogMutedStyle}>
-            {siteDescription === '' ? '사이트 설명이 비어 있습니다.' : siteDescription}
+            {siteDescription === '' ? '사이트 설명이 비어 있어요.' : siteDescription}
           </span>
           <span style={ogMutedStyle}>{siteUrl}</span>
         </div>
@@ -554,7 +554,7 @@ function SiteSettingsScreen({
   return (
     <div style={pageStyle}>
       <p style={descriptionStyle}>
-        사이트 정보와 관련된 기본적인 설정을 합니다. 검색엔진 최적화를 위해 사이트 설명을 입력해
+        사이트 정보와 관련된 기본적인 설정을 해요. 검색엔진 최적화를 위해 사이트 설명을 입력해
         주세요.
       </p>
 
@@ -564,14 +564,14 @@ function SiteSettingsScreen({
 
           {!canUpdate && (
             <Alert tone="info">
-              조회 권한만 있습니다. 기본 설정을 바꾸려면 시스템 설정 수정 권한이 필요합니다.
+              조회 권한만 있어요. 기본 설정을 바꾸려면 시스템 설정 수정 권한이 필요해요.
             </Alert>
           )}
 
           {visibility === 'private' && (
             <Alert tone="warning">
-              사이트가 비공개로 설정되어 있습니다. 저장하면 관리자를 제외한 방문자는 사이트에 접속할
-              수 없습니다.
+              사이트가 비공개로 설정되어 있어요. 저장하면 관리자를 제외한 방문자는 사이트에 접속할
+              수 없어요.
             </Alert>
           )}
 
@@ -602,7 +602,7 @@ function SiteSettingsScreen({
                       touch();
                     }}
                   />
-                  <p style={hintStyle}>브라우저 탭이나 소셜 미디어에 공유할 때 표시됩니다.</p>
+                  <p style={hintStyle}>브라우저 탭이나 소셜 미디어에 공유할 때 표시돼요.</p>
                 </div>
 
                 <div style={fieldStyle}>
@@ -622,7 +622,7 @@ function SiteSettingsScreen({
                       touch();
                     }}
                   />
-                  <p style={hintStyle}>사이트를 대표하는 문장이나 키워드 사용을 추천합니다.</p>
+                  <p style={hintStyle}>사이트를 대표하는 문장이나 키워드 사용을 추천해요.</p>
                 </div>
 
                 <div style={fieldStyle}>
@@ -638,7 +638,7 @@ function SiteSettingsScreen({
                       }}
                     />
                   </div>
-                  <p style={hintStyle}>전용 이름을 지정하지 않으면 사이트 이름으로 적용됩니다.</p>
+                  <p style={hintStyle}>전용 이름을 지정하지 않으면 사이트 이름으로 적용돼요.</p>
 
                   {/* 전용 이름 칸은 스위치를 켰을 때만 의미가 있다 — 글자가 아니라 바이트로 센다 */}
                   {messagingEnabled && (
@@ -650,7 +650,7 @@ function SiteSettingsScreen({
                       placeholder="예: TDS 스페이스플래닝 고객센터"
                       {...(messagingBytes > MESSAGING_NAME_MAX_BYTES
                         ? {
-                            error: `전용 이름은 ${String(MESSAGING_NAME_MAX_BYTES)}byte 를 넘을 수 없습니다. 한글은 1자가 2byte 입니다.`,
+                            error: `전용 이름은 ${String(MESSAGING_NAME_MAX_BYTES)}byte 를 넘을 수 없어요. 한글은 1자가 2byte 예요.`,
                           }
                         : {})}
                       trailing={
@@ -671,7 +671,7 @@ function SiteSettingsScreen({
               <SettingSection title="사이트 표시 이미지">
                 <div style={fieldStyle}>
                   <span style={fieldLabelStyle}>파비콘</span>
-                  <p style={hintStyle}>내 웹사이트를 볼 때 브라우저 탭에 표시되는 아이콘입니다.</p>
+                  <p style={hintStyle}>내 웹사이트를 볼 때 브라우저 탭에 표시되는 아이콘이에요.</p>
                   <AssetField
                     label="파비콘"
                     asset={favicon}
@@ -695,12 +695,12 @@ function SiteSettingsScreen({
                   <span style={labelHeadStyle}>
                     <span style={fieldLabelStyle}>대표 이미지</span>
                     <HelpTip label="대표 이미지 설명">
-                      링크를 공유하면 이 이미지와 함께 사이트 이름·설명이 카드로 보입니다. 가로가
-                      세로의 약 2배인 이미지를 권장합니다 — 비율이 다르면 가장자리가 잘립니다.
+                      링크를 공유하면 이 이미지와 함께 사이트 이름·설명이 카드로 보여요. 가로가
+                      세로의 약 2배인 이미지를 권장해요 — 비율이 다르면 가장자리가 잘려요.
                     </HelpTip>
                   </span>
                   <p style={hintStyle}>
-                    카카오톡 또는 Facebook 등에서 링크와 함께 나타날 이미지를 설정합니다.
+                    카카오톡 또는 Facebook 등에서 링크와 함께 나타날 이미지를 설정해요.
                   </p>
                   <AssetField
                     label="대표 이미지"
@@ -750,7 +750,7 @@ function SiteSettingsScreen({
                     비공개용 이미지
                   </span>
                   <p style={hintStyle}>
-                    비공개 상태인 내 사이트에 방문했을 때 표시할 이미지를 설정합니다.
+                    비공개 상태인 내 사이트에 방문했을 때 표시할 이미지를 설정해요.
                   </p>
                   <AssetField
                     label="비공개용 이미지"
@@ -766,15 +766,15 @@ function SiteSettingsScreen({
                   />
                   {!privateEditable && (
                     <p style={hintStyle}>
-                      공개 범위를 비공개로 바꾸면 설정할 수 있습니다. 지금 올려 둔 이미지는 그대로
-                      보관됩니다.
+                      공개 범위를 비공개로 바꾸면 설정할 수 있어요. 지금 올려 둔 이미지는 그대로
+                      보관돼요.
                     </p>
                   )}
                   <Alert tone="info">
                     <ul style={calloutListStyle}>
-                      <li>모바일을 고려해 HD 처리하여 50% 크기로 적용됩니다.</li>
-                      <li>이미지를 등록하면 밝은 회색 배경에 적용됩니다.</li>
-                      <li>이미지를 등록하지 않으면 기본 비공개 페이지가 표시됩니다.</li>
+                      <li>모바일을 고려해 HD 처리하여 50% 크기로 적용돼요.</li>
+                      <li>이미지를 등록하면 밝은 회색 배경에 적용돼요.</li>
+                      <li>이미지를 등록하지 않으면 기본 비공개 페이지가 표시돼요.</li>
                     </ul>
                   </Alert>
                 </div>
@@ -796,7 +796,7 @@ function SiteSettingsScreen({
                     />
                   </div>
                   <p style={hintStyle}>
-                    마우스 오른쪽 버튼과 복사 단축키로 콘텐츠를 복사할 수 없게 하는 기능입니다.
+                    마우스 오른쪽 버튼과 복사 단축키로 콘텐츠를 복사할 수 없게 하는 기능이에요.
                   </p>
                 </div>
 
@@ -814,7 +814,7 @@ function SiteSettingsScreen({
                     />
                   </div>
                   <p style={hintStyle}>
-                    방문자 브라우저 설정에 따라 확대 허용 방지가 동작하지 않을 수 있습니다.
+                    방문자 브라우저 설정에 따라 확대 허용 방지가 동작하지 않을 수 있어요.
                   </p>
                 </div>
 
@@ -832,7 +832,7 @@ function SiteSettingsScreen({
                     />
                   </div>
                   <p style={hintStyle}>
-                    사이트 로그인시 자동 로그인에 대한 기본값을 설정 할 수 있습니다.
+                    사이트 로그인시 자동 로그인에 대한 기본값을 설정 할 수 있어요.
                   </p>
                 </div>
               </SettingSection>
@@ -844,10 +844,10 @@ function SiteSettingsScreen({
             <div style={footerStyle}>
               <p style={footerHintStyle}>
                 {saving
-                  ? '저장하는 중입니다…'
+                  ? '저장하는 중이에요…'
                   : dirty
-                    ? '저장하지 않은 변경 사항이 있습니다.'
-                    : '변경 사항이 없습니다.'}
+                    ? '저장하지 않은 변경 사항이 있어요.'
+                    : '변경 사항이 없어요.'}
               </p>
               <Button
                 type="submit"

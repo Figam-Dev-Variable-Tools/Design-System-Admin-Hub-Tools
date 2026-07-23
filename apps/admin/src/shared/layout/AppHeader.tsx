@@ -48,6 +48,29 @@ function formatToday(now: Date): string {
   return `${date} (${weekday})`;
 }
 
+/*
+ * [왜 한 겹 더 감싸나] DS Header 의 meta 슬롯(.tds-header__meta)은 **세로 스택**이다
+ * (flex-direction: column · align-items: flex-end). 벨을 형제로 그냥 넣으면 계정 줄 **아래**로
+ * 쌓여 헤더가 세 줄이 된다. 날짜·계정은 읽는 정보고 벨은 누르는 손잡이라 같은 세로줄에 두면
+ * 성격이 다른 둘이 한 흐름처럼 읽힌다.
+ *
+ * 그래서 슬롯의 자식을 **하나(가로 줄)** 로 만들고, 그 안에서 텍스트 묶음과 벨을 나란히 둔다.
+ * DS 계약을 넓히지 않고 슬롯이 준 자리 안에서 해결하는 방법이다.
+ */
+const metaRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: cssVar('space.3'),
+};
+
+/** 날짜·계정 — 원래의 세로 스택을 이 안에서 그대로 유지한다 */
+const metaTextStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-end',
+  gap: cssVar('space.1'),
+};
+
 export default function AppHeader() {
   const { pathname } = useLocation();
   const now = new Date();
@@ -57,15 +80,17 @@ export default function AppHeader() {
       title={findNavLabel(pathname)}
       eyebrow={`${BRAND_LABEL} · ${ROLE_LABEL}`}
       meta={
-        <>
-          <p style={dateStyle}>
-            <time dateTime={now.toISOString().slice(0, 10)}>{formatToday(now)}</time>
-          </p>
-          <p style={accountStyle}>{ACCOUNT_EMAIL}</p>
+        <div style={metaRowStyle}>
+          <div style={metaTextStyle}>
+            <p style={dateStyle}>
+              <time dateTime={now.toISOString().slice(0, 10)}>{formatToday(now)}</time>
+            </p>
+            <p style={accountStyle}>{ACCOUNT_EMAIL}</p>
+          </div>
           {/* 알림 벨 — 안읽음 수·목록·이동이 전부 알림 층 안에서 끝난다(shared/notifications).
               헤더는 '어디에 놓을지' 만 정하고 알림이 무엇인지 알지 못한다. */}
           <NotificationBell />
-        </>
+        </div>
       }
     />
   );

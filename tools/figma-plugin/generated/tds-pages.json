@@ -45,32 +45,8 @@
       "menu": "사용자 관리"
     },
     {
-      "id": "/content/pages",
-      "name": "페이지 관리",
-      "section": "일반 관리",
-      "menu": "콘텐츠 관리"
-    },
-    {
-      "id": "/content/menus",
-      "name": "메뉴 관리",
-      "section": "일반 관리",
-      "menu": "콘텐츠 관리"
-    },
-    {
       "id": "/content/news",
       "name": "뉴스·보도자료",
-      "section": "일반 관리",
-      "menu": "콘텐츠 관리"
-    },
-    {
-      "id": "/content/forms",
-      "name": "폼 관리",
-      "section": "일반 관리",
-      "menu": "콘텐츠 관리"
-    },
-    {
-      "id": "/content/media",
-      "name": "미디어 라이브러리",
       "section": "일반 관리",
       "menu": "콘텐츠 관리"
     },
@@ -183,24 +159,6 @@
       "menu": "주문 관리"
     },
     {
-      "id": "/portfolio/items",
-      "name": "포트폴리오",
-      "section": "비즈니스",
-      "menu": "포트폴리오 관리"
-    },
-    {
-      "id": "/portfolio/categories",
-      "name": "카테고리",
-      "section": "비즈니스",
-      "menu": "포트폴리오 관리"
-    },
-    {
-      "id": "/portfolio/case-studies",
-      "name": "성공 사례",
-      "section": "비즈니스",
-      "menu": "포트폴리오 관리"
-    },
-    {
       "id": "/products",
       "name": "상품",
       "section": "비즈니스",
@@ -259,48 +217,6 @@
       "name": "문의",
       "section": "비즈니스",
       "menu": "프로그램 관리"
-    },
-    {
-      "id": "/sales/accounts",
-      "name": "거래처",
-      "section": "비즈니스",
-      "menu": "영업 관리"
-    },
-    {
-      "id": "/sales/contracts",
-      "name": "계약",
-      "section": "비즈니스",
-      "menu": "영업 관리"
-    },
-    {
-      "id": "/sales/quotes",
-      "name": "견적",
-      "section": "비즈니스",
-      "menu": "영업 관리"
-    },
-    {
-      "id": "/sales/billing",
-      "name": "청구·입금",
-      "section": "비즈니스",
-      "menu": "영업 관리"
-    },
-    {
-      "id": "/sales/inquiries",
-      "name": "문의",
-      "section": "비즈니스",
-      "menu": "영업 관리"
-    },
-    {
-      "id": "/sales/projects",
-      "name": "프로젝트",
-      "section": "비즈니스",
-      "menu": "영업 관리"
-    },
-    {
-      "id": "/sales/consultations",
-      "name": "상담 이력",
-      "section": "비즈니스",
-      "menu": "영업 관리"
     },
     {
       "id": "/support/tickets",
@@ -367,6 +283,60 @@
       "name": "발송 템플릿 관리",
       "section": "비즈니스",
       "menu": "마케팅 관리"
+    },
+    {
+      "id": "/sales/accounts",
+      "name": "거래처",
+      "section": "비즈니스",
+      "menu": "영업 관리"
+    },
+    {
+      "id": "/sales/contracts",
+      "name": "계약",
+      "section": "비즈니스",
+      "menu": "영업 관리"
+    },
+    {
+      "id": "/sales/quotes",
+      "name": "견적",
+      "section": "비즈니스",
+      "menu": "영업 관리"
+    },
+    {
+      "id": "/sales/billing",
+      "name": "청구·입금",
+      "section": "비즈니스",
+      "menu": "영업 관리"
+    },
+    {
+      "id": "/sales/inquiries",
+      "name": "문의",
+      "section": "비즈니스",
+      "menu": "영업 관리"
+    },
+    {
+      "id": "/sales/projects",
+      "name": "프로젝트",
+      "section": "비즈니스",
+      "menu": "영업 관리"
+    },
+    {
+      "id": "/portfolio/items",
+      "name": "포트폴리오",
+      "section": "비즈니스",
+      "menu": "포트폴리오 관리"
+    },
+    {
+      "id": "/portfolio/categories",
+      "name": "카테고리",
+      "section": "비즈니스",
+      "menu": "포트폴리오 관리"
+    },
+    {
+      "id": "/portfolio/case-studies",
+      "name": "성공 사례",
+      "section": "비즈니스",
+      "menu": "포트폴리오 관리"
     },
     {
       "id": "/ai/chat",
@@ -447,12 +417,6 @@
       "menu": "시스템 설정"
     },
     {
-      "id": "/settings/site-connect",
-      "name": "사이트 연동",
-      "section": "시스템",
-      "menu": "시스템 설정"
-    },
-    {
       "id": "/settings/api-keys",
       "name": "API Key 설정",
       "section": "시스템",
@@ -479,12 +443,6 @@
     {
       "id": "/settings/notifications",
       "name": "알림 설정",
-      "section": "시스템",
-      "menu": "시스템 설정"
-    },
-    {
-      "id": "/settings/languages",
-      "name": "다국어 설정",
       "section": "시스템",
       "menu": "시스템 설정"
     }

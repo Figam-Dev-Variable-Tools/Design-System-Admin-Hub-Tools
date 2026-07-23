@@ -81,7 +81,7 @@ const meta: Meta<typeof DataTable> = {
     summaryRows: SUMMARY_ROWS,
     caption: '일자별 주문수 · 매출액 · 방문자 · 가입 · 문의와 기간 합계',
     dimZero: true,
-    empty: '표시할 항목이 없습니다.',
+    empty: '표시할 항목이 없어요.',
   },
   parameters: { layout: 'padded' },
 };
@@ -116,7 +116,7 @@ export const Empty: Story = {
 /** 로딩 — 데이터가 아직 없을 때(부모가 aria-busy 를 소유한다: StatsCard/Card) */
 export const Loading: Story = {
   name: 'States/Loading',
-  args: { rows: [], summaryRows: [], empty: '데이터를 불러오는 중입니다…' },
+  args: { rows: [], summaryRows: [], empty: '데이터를 불러오는 중이에요…' },
 };
 
 /* ── Features ───────────────────────────────────────────────────────────── */

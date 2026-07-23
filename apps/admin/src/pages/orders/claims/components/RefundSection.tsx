@@ -125,7 +125,7 @@ export function RefundSection({
           <dd style={ddStyle}>
             {draft.couponDiscount === 0
               ? '사용한 쿠폰 없음'
-              : `− ${formatNumber(breakdown.couponClawback)}원${draft.couponRestored ? ` (${draft.couponName} 복원)` : ' (쿠폰을 복원하지 않아 회수하지 않습니다)'}`}
+              : `− ${formatNumber(breakdown.couponClawback)}원${draft.couponRestored ? ` (${draft.couponName} 복원)` : ' (쿠폰을 복원하지 않아 회수하지 않아요)'}`}
           </dd>
         </dl>
 
@@ -147,8 +147,8 @@ export function RefundSection({
           />
           <span style={hintStyle}>
             {policyFee === null
-              ? '배송 정책의 반품배송비를 불러오지 못했습니다. 금액을 직접 입력하세요.'
-              : `배송 정책 기본값 ${formatNumber(policyFee)}원 — 이 건만 다르게 정할 수 있습니다.`}
+              ? '배송 정책의 반품배송비를 불러오지 못했어요. 금액을 직접 입력하세요.'
+              : `배송 정책 기본값 ${formatNumber(policyFee)}원 — 이 건만 다르게 정할 수 있어요.`}
           </span>
           {draft.couponDiscount > 0 && (
             <Checkbox
@@ -163,16 +163,16 @@ export function RefundSection({
 
         {done ? (
           <Alert tone="success">
-            {`${formatDateTime(saved.completedAt)} 환불 완료 — 적립금 ${formatNumber(saved.restoredPoint)}원을 원장에 복원했습니다.${
-              saved.couponRestored ? ` ${saved.couponName} 쿠폰도 복원했습니다.` : ''
+            {`${formatDateTime(saved.completedAt)} 환불 완료 — 적립금 ${formatNumber(saved.restoredPoint)}원을 원장에 복원했어요.${
+              saved.couponRestored ? ` ${saved.couponName} 쿠폰도 복원했어요.` : ''
             }`}
           </Alert>
         ) : (
           <>
             <p style={hintStyle}>
               {draft.pointUsed === 0
-                ? '이 주문에는 사용한 적립금이 없습니다. 환불완료 시 복원할 적립금도 없습니다.'
-                : `환불완료 처리를 해야 사용한 적립금 ${formatNumber(draft.pointUsed)}원이 원장으로 돌아갑니다.`}
+                ? '이 주문에는 사용한 적립금이 없어요. 환불완료 시 복원할 적립금도 없어요.'
+                : `환불완료 처리를 해야 사용한 적립금 ${formatNumber(draft.pointUsed)}원이 원장으로 돌아가요.`}
             </p>
             <div style={actionsStyle}>
               {(requestBlock ?? completeBlock) !== null && (

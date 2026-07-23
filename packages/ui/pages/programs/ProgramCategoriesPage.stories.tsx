@@ -211,7 +211,7 @@ const countBadgeStyle: CSSProperties = {
   justifyContent: 'center',
   boxSizing: 'border-box',
   minWidth: cssVar('space.5'),
-  height: cssVar('space.5'),
+  aspectRatio: '1',
   paddingLeft: cssVar('space.1'),
   paddingRight: cssVar('space.1'),
   borderRadius: cssVar('radius.full'),
@@ -398,7 +398,7 @@ function CategoryRow({
           icon={<Icon name="trash" />}
           label={
             blocked
-              ? `${category.label} — ${blockReason ?? ''}이라 삭제할 수 없습니다`
+              ? `${category.label} — ${blockReason ?? ''}이라 삭제할 수 없어요`
               : `${category.label} 삭제`
           }
           size="sm"
@@ -471,8 +471,8 @@ function CategoryModal({ editing, presetParentId, categories, onClose }: Categor
           label="상위 카테고리"
           hint={
             parentLocked
-              ? '하위 카테고리가 있어 상위를 바꿀 수 없습니다.'
-              : '선택하지 않으면 대분류(1Depth)로 만들어집니다. 카테고리는 2단계까지 만들 수 있습니다.'
+              ? '하위 카테고리가 있어 상위를 바꿀 수 없어요.'
+              : '선택하지 않으면 대분류(1Depth)로 만들어져요. 카테고리는 2단계까지 만들 수 있어요.'
           }
         >
           <SelectField
@@ -616,7 +616,7 @@ function CategoriesScreen({
         {error ? (
           <Alert tone="danger">
             <div style={errorRowStyle}>
-              <span>카테고리를 불러오지 못했습니다.</span>
+              <span>카테고리를 불러오지 못했어요.</span>
               <Button variant="secondary">다시 시도</Button>
             </div>
           </Alert>
@@ -673,8 +673,8 @@ function CategoriesScreen({
               </ul>
             )}
             <p style={hintStyle}>
-              사용 중인 카테고리는 삭제할 수 없습니다 — 먼저 그 프로그램들의 카테고리를 바꾸거나
-              삭제하세요. 하위 카테고리가 달린 대분류도 하위를 먼저 정리해야 지울 수 있습니다.
+              사용 중인 카테고리는 삭제할 수 없어요 — 먼저 그 프로그램들의 카테고리를 바꾸거나
+              삭제하세요. 하위 카테고리가 달린 대분류도 하위를 먼저 정리해야 지울 수 있어요.
             </p>
           </Card>
         )}
@@ -692,7 +692,7 @@ function CategoriesScreen({
           <ConfirmDialog
             intent="delete"
             title="카테고리 삭제"
-            message={`'${pendingDelete.label}' 카테고리를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+            message={`'${pendingDelete.label}' 카테고리를 삭제할까요? 되돌릴 수 없어요.`}
             confirmLabel="카테고리 삭제"
             busy={deleting}
             {...(deleteError !== undefined && { error: deleteError })}

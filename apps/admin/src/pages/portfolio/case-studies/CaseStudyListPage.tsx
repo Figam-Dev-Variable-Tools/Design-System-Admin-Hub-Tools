@@ -108,14 +108,14 @@ export default function CaseStudyListPage() {
     { header: '제목', render: (item) => item.title },
     { header: '고객사', nowrap: true, render: (item) => item.client },
     { header: '성과', render: (item) => <span style={resultCellStyle}>{item.result}</span> },
-    publishToggleColumn<CaseStudy>(toggle.pendingId, (item, next) =>
+    publishToggleColumn<CaseStudy>(toggle.pendingId, toggle.canUpdate, (item, next) =>
       toggle.run(
         item.id,
         { ...toCaseStudyInput(item), published: next },
         {
           success: next
-            ? `'${item.title}'${objectParticle(item.title)} 게시했습니다.`
-            : `'${item.title}'${objectParticle(item.title)} 숨겼습니다.`,
+            ? `'${item.title}'${objectParticle(item.title)} 게시했어요.`
+            : `'${item.title}'${objectParticle(item.title)} 숨겼어요.`,
         },
       ),
     ),

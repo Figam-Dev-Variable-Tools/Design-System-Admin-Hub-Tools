@@ -31,10 +31,12 @@ import type { CSSProperties, ReactNode } from 'react';
 import { useId, useState } from 'react';
 
 import {
+  Alert,
   Button,
   Card,
   DateRangeField,
   FormField,
+  formRowStyle,
   Icon,
   SelectField,
   StatusBadge,
@@ -169,6 +171,19 @@ interface SeedValues {
   readonly note: string;
 }
 
+/** 차단 안내의 문장 + 두 링크를 한 줄에 — 좁은 화면에서는 접힌다 */
+const blockedRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: cssVar('space.3'),
+  flexWrap: 'wrap',
+};
+
+const blockedLinkStyle: CSSProperties = {
+  color: cssVar('color.action.primary.default'),
+  textDecoration: 'underline',
+};
+
 const EMPTY_SEED: SeedValues = {
   quoteNo: '',
   status: 'draft',
@@ -282,17 +297,6 @@ const cardTitleStyle: CSSProperties = {
   ...typography('typography.title.md'),
   margin: 0,
   color: cssVar('color.text.default'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
-const partyRowStyle: CSSProperties = {
-  ...rowStyle,
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 7), 1fr))`,
 };
 
 const controlBaseStyle: CSSProperties = {
@@ -600,7 +604,7 @@ function LineItemsTable({ items, taxMode, disabled, error, onChange }: LineItems
     <div style={sectionStyle}>
       <span style={fieldLabelStyle}>품목 *</span>
       <p style={hintStyle}>
-        {`품목을 추가하면 공급가액(수량 × 단가)이 자동 계산되고, 하단에 ${taxModeLabel(taxMode)} 기준 합계가 나옵니다. (최대 ${String(QUOTE_MAX_ITEMS)}개)`}
+        {`품목을 추가하면 공급가액(수량 × 단가)이 자동 계산되고, 하단에 ${taxModeLabel(taxMode)} 기준 합계가 나와요. (최대 ${String(QUOTE_MAX_ITEMS)}개)`}
       </p>
 
       <div style={tableWrapStyle}>
@@ -846,7 +850,7 @@ function QuotePreview({
                 colSpan={5}
                 style={{ ...tdStyle, textAlign: 'center', color: cssVar('color.text.muted') }}
               >
-                품목이 없습니다.
+                품목이 없어요.
               </td>
             </tr>
           ) : (
@@ -886,7 +890,6 @@ function QuotePreview({
 /* ── 제어형 화면(hooks-of-rules 준수: Capitalized 컴포넌트에서 useState) ─────────────────────── */
 
 interface QuoteFormScreenProps {
-  readonly isEdit?: boolean;
   /** 상세 조회 중 — 실화면 loadingDetail: 모든 입력을 잠그고 저장 버튼을 막는다 */
   readonly loadingDetail?: boolean;
   /** 검증 오류 노출 — 제출 실패 상태 재현 */
@@ -895,7 +898,6 @@ interface QuoteFormScreenProps {
 }
 
 function QuoteFormScreen({
-  isEdit = false,
   loadingDetail = false,
   errors = {},
   seed = EMPTY_SEED,
@@ -922,10 +924,10 @@ function QuoteFormScreen({
       </a>
 
       <div>
-        <h1 style={pageTitleStyle}>{isEdit ? '견적 수정' : '견적 등록'}</h1>
+        <h1 style={pageTitleStyle}>'견적 수정'</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 오른쪽 미리보기로 실제 견적서 모습을 확인하세요. 견적번호는
-          시스템이 저장 시 자동 부여하며 수정할 수 없습니다.
+          별표(*) 항목은 필수예요. 오른쪽 미리보기로 실제 견적서 모습을 확인하세요. 견적번호는
+          시스템이 저장 시 자동 부여하며 수정할 수 없어요.
         </p>
       </div>
 
@@ -933,11 +935,11 @@ function QuoteFormScreen({
         <div style={layoutStyle}>
           <div style={columnStyle}>
             <FormCard title="견적 정보">
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField
                   htmlFor="quote-no"
                   label="견적번호"
-                  hint="시스템이 저장 시 자동 부여합니다 (수정 불가)"
+                  hint="시스템이 저장 시 자동 부여해요 (수정 불가)"
                 >
                   <input
                     id="quote-no"
@@ -979,7 +981,7 @@ function QuoteFormScreen({
                 </FormField>
               </div>
 
-              <div style={partyRowStyle}>
+              <div style={formRowStyle}>
                 <FormField
                   htmlFor="quote-account"
                   label="거래처(공급받는자)"
@@ -1100,7 +1102,7 @@ function QuoteFormScreen({
             취소
           </Button>
           <Button type="submit" variant="primary" size="md" disabled={loadingDetail}>
-            {isEdit ? '저장' : '등록'}
+            저장
           </Button>
         </div>
       </form>
@@ -1108,19 +1110,53 @@ function QuoteFormScreen({
   );
 }
 
-/** 정상(등록): 빈 폼 — 신규 견적 입력. 미리보기는 '(자동 부여)'·빈 품목표를 보여준다 */
+/**
+ * 사슬 밖 생성 차단 — `/new` 주소로 들어왔을 때 그리는 것.
+ *
+ * 목록의 등록 버튼만 숨기면 막은 것이 아니다: 주소창·즐겨찾기·옛 링크가 그대로 살아 있다.
+ * 조용한 404 나 빈 화면은 고장과 구분되지 않으므로 **왜 못 만드는지와 어디서 만드는지**를 말한다
+ * (실화면 pages/sales/_shared/ChainOnlyCreateNotice · 시스템 설정의 '알 수 없는 프로바이더'와 같은 관용구).
+ */
+function QuoteCreateBlockedScreen() {
+  return (
+    <div style={pageStyle}>
+      <div>
+        <h1 style={pageTitleStyle}>견적 등록</h1>
+        <p style={descriptionStyle}>
+          영업 파이프라인(문의 → 견적 → 계약 → 프로젝트)은 앞 칸에서만 다음 칸이 생겨요.
+        </p>
+      </div>
+      <Alert tone="warning">
+        <div style={blockedRowStyle}>
+          <span>
+            견적은 문의에서 발행돼요. 문의 상세에서 처리 상태를 ‘견적 발행’으로 바꾸면 견적이 자동
+            생성돼요.
+          </span>
+          <a href="#문의-list" style={blockedLinkStyle}>
+            문의 내역으로
+          </a>
+          <a href="#견적-list" style={blockedLinkStyle}>
+            견적 목록으로
+          </a>
+        </div>
+      </Alert>
+    </div>
+  );
+}
+
+/** 사슬 밖 생성 차단 — 빈 폼이 아니라 다음 행동을 알려 주는 문장이 뜬다 */
 export const Default: Story = {
-  render: () => <QuoteFormScreen />,
+  render: () => <QuoteCreateBlockedScreen />,
 };
 
 /** 수정: 기존 값이 채워진 폼 — 품목 2건의 공급가액·부가세·합계가 자동 합산되고 미리보기에 반영된다 */
 export const Edit: Story = {
-  render: () => <QuoteFormScreen isEdit seed={EDIT_SEED} />,
+  render: () => <QuoteFormScreen seed={EDIT_SEED} />,
 };
 
 /** 로딩: 상세 조회 중 — 실화면 loadingDetail 처럼 모든 입력이 잠기고 저장/취소 버튼이 막힌다 */
 export const Loading: Story = {
-  render: () => <QuoteFormScreen isEdit seed={EDIT_SEED} loadingDetail />,
+  render: () => <QuoteFormScreen seed={EDIT_SEED} loadingDetail />,
 };
 
 /** 검증 오류: 필수 항목을 비우고 제출했을 때 거래처·품목·유효기간 인라인 오류 노출 */

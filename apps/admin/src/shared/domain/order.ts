@@ -28,7 +28,7 @@
 // categoryLabel·accountName 을 비정규화해 든 것과 같은 결이다. 상품 링크는 productId 로 남긴다:
 // 그것은 '지금 이 상품을 보러 간다' 는 뜻이고, 표시값의 정본이 아니다.
 // ─────────────────────────────────────────────────────────────────────────────
-import type { PaymentMethod } from '../commerce/payment-settings';
+import type { PaymentMethod } from '../commerce/pg-catalog';
 import type { StockMovement } from './stock';
 
 /* ── 상태 ────────────────────────────────────────────────────────────────── */
@@ -276,13 +276,13 @@ export function toOrderInput(order: Order): OrderInput {
  * transitionBlock 을 읽어 버튼을 그리고(사유까지 그대로 보여준다), 저장소도 같은 함수로 막는다.
  * 선례: pages/products/inquiries/_shared/store.ts 의 canAnswer/canClose. */
 
-export const ORDER_TRANSITION_BACKWARD = '주문 상태는 되돌릴 수 없습니다.';
-export const ORDER_TRANSITION_CANCELED = '취소된 주문은 상태를 바꿀 수 없습니다.';
-export const ORDER_TRANSITION_CONFIRMED = '구매확정된 주문은 더 이상 진행할 단계가 없습니다.';
-export const ORDER_TRANSITION_UNPAID = '입금이 확인되지 않아 배송 단계로 넘길 수 없습니다.';
+export const ORDER_TRANSITION_BACKWARD = '주문 상태는 되돌릴 수 없어요.';
+export const ORDER_TRANSITION_CANCELED = '취소된 주문은 상태를 바꿀 수 없어요.';
+export const ORDER_TRANSITION_CONFIRMED = '구매확정된 주문은 더 이상 진행할 단계가 없어요.';
+export const ORDER_TRANSITION_UNPAID = '입금이 확인되지 않아 배송 단계로 넘길 수 없어요.';
 export const ORDER_CANCEL_SHIPPED =
-  '배송이 시작된 주문은 취소할 수 없습니다. 교환/반품으로 접수해 주세요.';
-export const ORDER_CANCEL_DONE = '이미 취소된 주문입니다.';
+  '배송이 시작된 주문은 취소할 수 없어요. 교환/반품으로 접수해 주세요.';
+export const ORDER_CANCEL_DONE = '이미 취소된 주문이에요.';
 
 /**
  * 이 주문을 `to` 로 옮길 수 없는 이유 — 옮길 수 있으면 null.
@@ -416,12 +416,12 @@ export const STOCK_DEDUCT_OPTIONS: readonly {
   {
     id: 'order',
     label: STOCK_DEDUCT_LABEL.order,
-    hint: '주문이 들어오는 즉시 재고가 빠집니다. 품절을 확실히 막지만 미입금 주문도 재고를 잡습니다.',
+    hint: '주문이 들어오는 즉시 재고가 빠져요. 품절을 확실히 막지만 미입금 주문도 재고를 잡아요.',
   },
   {
     id: 'payment',
     label: STOCK_DEDUCT_LABEL.payment,
-    hint: '입금이 확인된 뒤 재고가 빠집니다. 미입금 주문이 재고를 붙잡지 않습니다.',
+    hint: '입금이 확인된 뒤 재고가 빠져요. 미입금 주문이 재고를 붙잡지 않아요.',
   },
 ];
 

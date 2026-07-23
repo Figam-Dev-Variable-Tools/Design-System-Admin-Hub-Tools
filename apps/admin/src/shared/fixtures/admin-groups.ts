@@ -113,7 +113,7 @@ export function hasAdminGroupNamed(name: string): boolean {
 }
 
 /** 중복 이름 거절 — 어댑터가 이 오류를 409 대응 문구로 바꾼다 */
-export const DUPLICATE_GROUP_NAME = '같은 이름의 그룹이 이미 있습니다.';
+export const DUPLICATE_GROUP_NAME = '같은 이름의 그룹이 이미 있어요.';
 
 export function addAdminGroup(draft: AdminGroupDraft): AdminGroup {
   const name = draft.name.trim();

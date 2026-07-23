@@ -151,11 +151,11 @@ export function CarrierSection({ canCreate, canUpdate, canRemove }: CarrierSecti
         onSuccess: () => {
           if (controller.signal.aborted) return;
           setPendingDelete(null);
-          toast.success(`'${target.name}' 택배사를 삭제했습니다.`);
+          toast.success(`'${target.name}' 택배사를 삭제했어요.`);
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setDeleteError('삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setDeleteError('삭제하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -251,7 +251,7 @@ export function CarrierSection({ canCreate, canUpdate, canRemove }: CarrierSecti
         {error !== null ? (
           <Alert tone="danger">
             <div style={alertActionRowStyle}>
-              <span>택배사 목록을 불러오지 못했습니다.</span>
+              <span>택배사 목록을 불러오지 못했어요.</span>
               <Button
                 variant="secondary"
                 onClick={() => {
@@ -265,7 +265,7 @@ export function CarrierSection({ canCreate, canUpdate, canRemove }: CarrierSecti
         ) : (
           <div style={tableScrollStyle}>
             <Table
-              caption="택배사 목록 — 송장을 등록할 때 이 목록에서 택배사를 고릅니다. 배송 건이 있는 택배사는 삭제할 수 없습니다."
+              caption="택배사 목록 — 송장을 등록할 때 이 목록에서 택배사를 골라요. 배송 건이 있는 택배사는 삭제할 수 없어요."
               columns={COLUMNS}
               rows={rows}
               trailingHead={
@@ -278,17 +278,14 @@ export function CarrierSection({ canCreate, canUpdate, canRemove }: CarrierSecti
                   : []
               }
               loading={firstLoading}
-              empty={
-                <span>등록된 택배사가 없습니다. 택배사를 추가해야 송장을 붙일 수 있습니다.</span>
-              }
+              empty={<span>등록된 택배사가 없어요. 택배사를 추가해야 송장을 붙일 수 있어요.</span>}
             />
           </div>
         )}
 
         <p style={hintStyle}>
-          송장은 이 목록에 있는 택배사로만 등록됩니다 — 자유 입력이면 같은 택배사가 여러 이름으로
-          쌓이고 추적 링크를 만들 수 없습니다. 계약이 끝난 택배사는 삭제하지 말고 사용 여부를
-          끄세요.
+          송장은 이 목록에 있는 택배사로만 등록돼요 — 자유 입력이면 같은 택배사가 여러 이름으로
+          쌓이고 추적 링크를 만들 수 없어요. 계약이 끝난 택배사는 삭제하지 말고 사용 여부를 끄세요.
         </p>
       </div>
 
@@ -299,7 +296,7 @@ export function CarrierSection({ canCreate, canUpdate, canRemove }: CarrierSecti
           onSaved={(name, isEdit) => {
             setModal({ kind: 'closed' });
             toast.success(
-              isEdit ? `'${name}' 택배사를 저장했습니다.` : `'${name}' 택배사를 추가했습니다.`,
+              isEdit ? `'${name}' 택배사를 저장했어요.` : `'${name}' 택배사를 추가했어요.`,
             );
           }}
         />
@@ -309,7 +306,7 @@ export function CarrierSection({ canCreate, canUpdate, canRemove }: CarrierSecti
         <ConfirmDialog
           intent="delete"
           title="택배사 삭제"
-          message={`'${pendingDelete.name}' 택배사를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.name}' 택배사를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="택배사 삭제"
           busy={deleting}
           error={deleteError}

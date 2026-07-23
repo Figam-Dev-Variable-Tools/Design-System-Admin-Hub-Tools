@@ -5,53 +5,48 @@
 // │ 은 그 값을 받는 쪽이다. 여기에 변경 수단을 두면 실제 계약과 어긋나는       │
 // │ **두 번째 정본**이 생긴다 — 화면에서는 프로인데 청구는 베이직인 상태가     │
 // │ 만들어지고, 그때 어느 쪽이 맞는지 아무도 답할 수 없다.                     │
-// │ 청구서·인보이스·카드 등록도 같은 이유로 여기 없다.                        │
+// │ 카드 등록·재청구·플랜 업그레이드 버튼이 세 탭 어디에도 없는 이유가 이것이다.│
+// │ 바깥으로 나가는 링크 하나가 이 화면의 유일한 행동이다.                     │
 // └──────────────────────────────────────────────────────────────────────────┘
 //
-// [그래서 이 화면은 무엇인가] 잠금을 만난 운영자가 **'무엇을 쓰고 있고 무엇이 잠겨 있는지'** 를
-// 한 번에 확인하는 곳이다. 잠금 화면(UpgradeScreen)이 여기로 보내고, 여기서 사내 홈페이지로 나간다.
+// ┌ 탭 셋은 한 구독을 세 각도로 본다 ────────────────────────────────────────┐
+// │   이용현황 — 무엇을 계약했고 무엇이 열려 있나 (모듈 3상태 · 쿼터)          │
+// │   결제     — 어떻게 청구되고 있나 (청구 상태 · 결제 수단 · 다음 청구)      │
+// │   결제내역 — 얼마를 냈나 (지난 청구)                                      │
+// │ 셋 다 **읽기 화면**이다. 탭이 늘어난 것은 볼 것이 늘어난 것이지 할 수 있는  │
+// │ 일이 늘어난 것이 아니다.                                                  │
+// │                                                                          │
+// │ 탭은 라우트가 아니라 쿼리스트링(`?tab=`)이다 — 근거는 ./tabs.ts 머리말.    │
+// └──────────────────────────────────────────────────────────────────────────┘
 //
-// [숨김 모듈은 목록에도 없다] 판매하지 않는 모듈(absent)은 행 자체를 그리지 않는다. 살 수 없는 것을
-// 표에 올리면 그것이 곧 티저이고, 운영자는 결제 페이지를 뒤지다 아무것도 찾지 못한다.
+// [배너는 탭 위에 있다] 미납·정지와 플랜 변경 예고는 특정 탭의 사실이 아니라 **이 계정의 사실**이다.
+// 결제 탭에만 두면 이용현황을 보러 온 운영자는 자기 앱이 조회 전용이라는 것을 모른 채 저장 버튼이
+// 잠긴 화면을 만난다.
 //
-// [데이터] 백엔드 없음. 값은 localStorage 픽스처(shared/entitlements/entitlement-store.ts)에서 온다.
+// [개발용 플랜 전환 패널은 없다] 예전에는 이 화면 아래에 DEV 전용 select 두 개가 있었다. 화면이
+// '읽기 전용' 이라고 말하면서 화면 안에 플랜을 바꾸는 손잡이를 두는 것은 — 운영 빌드에서 접힌다
+// 해도 — 개발·스테이징을 보는 사람에게 그대로 '플랜 변경 UI' 로 보인다. 플랜 상태를 손으로
+// 재현하는 일은 화면이 아니라 스토어(entitlement-store 의 dev 액션)와 테스트가 한다.
+//
+// [데이터] 백엔드 없음.
+//   플랜·엔타이틀먼트 → localStorage 픽스처(shared/entitlements/entitlement-store.ts)
+//   결제·결제내역     → 아직 아무도 내려 주지 않았다 = **null(모른다)** (./subscription.ts)
 // TODO(backend): GET /api/tenant/entitlements — 이 화면은 조회만 한다(쓰기 엔드포인트가 없다).
+import { useCallback } from 'react';
 import type { CSSProperties } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
-import { cssVar } from '@tds/ui';
+import { cssVar, Tabs, tabId, tabPanelId } from '@tds/ui';
 
-import {
-  Alert,
-  Card,
-  CardTitle,
-  ddStyle,
-  dlStyle,
-  dtStyle,
-  hintStyle,
-  StatusBadge,
-  tableStyle,
-  tdStyle,
-  thStyle,
-} from '../../../shared/ui';
-import type { StatusTone } from '../../../shared/ui';
+import { Alert } from '../../../shared/ui';
 import { usePlan } from '../../../shared/entitlements/RequireEntitlement';
-import { planQuotaStatus } from '../../../shared/entitlements/entitlement-store';
-import {
-  BILLING_STATE_LABEL,
-  LEVEL_LABEL,
-  MODULE_SPECS,
-  PLAN_PORTAL_URL,
-  PLAN_TIER_LABEL,
-  billingNotice,
-  entitlementStateOf,
-  formatPlanDate,
-  planChangeNotice,
-  resolveEntitlement,
-} from '../../../shared/entitlements/plan';
-import type { BillingState, EntitlementKey, PlanState } from '../../../shared/entitlements/plan';
-import { PlanDevPanel } from './PlanDevPanel';
-
-/* ── 스타일 (토큰 변수만) ──────────────────────────────────────────────────── */
+import { billingNotice, planChangeNotice } from '../../../shared/entitlements/plan';
+import { BillingPanel } from './components/BillingPanel';
+import { InvoiceHistoryPanel } from './components/InvoiceHistoryPanel';
+import { UsagePanel } from './components/UsagePanel';
+import { fetchSubscriptionBilling, fetchSubscriptionInvoices } from './subscription';
+import { DEFAULT_PLAN_TAB, PLAN_TABS, PLAN_TAB_PARAM, planTabOf } from './tabs';
+import type { PlanTabId } from './tabs';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -67,78 +62,56 @@ const noteRowStyle: CSSProperties = {
   minWidth: 0,
 };
 
-/* ── 문구 ──────────────────────────────────────────────────────────────────── */
-
-const PAGE_DESCRIPTION =
-  '지금 계약된 플랜과 그 플랜에 포함된 기능입니다. 플랜 변경·결제는 사내 홈페이지에서 진행합니다.';
-
-/** 청구 상태의 색 의도 — 문구가 의미를 싣고 색은 보조다 (WCAG 1.4.1) */
-const BILLING_TONE: Readonly<Record<BillingState, StatusTone>> = {
-  active: 'success',
-  past_due: 'warning',
-  suspended: 'danger',
-};
-
-/* ── 모듈 행 ───────────────────────────────────────────────────────────────── */
-
-interface ModuleRow {
-  readonly key: EntitlementKey;
-  readonly label: string;
-  readonly description: string;
-  readonly tone: StatusTone;
-  readonly status: string;
-  /** 쿼터 사용량·수준처럼 '얼마나' 를 말하는 값. 말할 것이 없으면 빈 문자열 */
-  readonly detail: string;
-}
-
 /**
- * 값의 형태(switch·quota·level)를 사람의 말로 옮긴다.
+ * 활성 탭의 단일 원천 = URL.
  *
- * 쿼터는 **숫자로만** 말한다 — '201/200' 은 다운그레이드 직후 정상적으로 존재하는 상태이고,
- * 어느 항목이 초과분인지는 앱이 임의로 정하지 않는다(정하면 그 순간 앱이 데이터를 판결한다).
+ * [왜 replace 인가] 탭을 훑어보는 것은 화면을 떠나는 일이 아니다. push 하면 탭 세 번 누른 뒤
+ * Back 이 세 번 필요해지고, 그때 운영자가 원한 것은 '설정 목록으로 돌아가기' 였다.
+ * replace 로 현재 주소를 늘 최신 탭으로 유지하면 새로고침·링크 공유는 살고 뒤로가기는 화면
+ * 단위로 남는다 — useListState 가 필터에 대해 내린 것과 같은 판단이다 (IA-13).
  */
-function moduleDetail(plan: PlanState, key: EntitlementKey): string {
-  const value = resolveEntitlement(plan, key);
-  if (value === undefined) return '';
+function usePlanTab(): readonly [PlanTabId, (next: string) => void] {
+  const [params, setParams] = useSearchParams();
+  const tab = planTabOf(params.get(PLAN_TAB_PARAM));
 
-  if (value.kind === 'quota') {
-    const status = planQuotaStatus(plan, key);
-    return status === null ? '' : status.text;
-  }
-  if (value.kind === 'level') {
-    return `${LEVEL_LABEL[value.level] ?? value.level} 수준`;
-  }
-  return '';
+  const selectTab = useCallback(
+    (next: string) => {
+      // @tds/ui Tabs 는 도메인을 모른다 — onChange 로 `string` 을 준다. 캐스팅하지 않고
+      // 목록에서 되찾아 좁힌다(모르는 id 는 무시한다) — AdminsPage·DashboardPage 와 같은 규약.
+      const found = PLAN_TABS.find((item) => item.id === next);
+      if (found === undefined) return;
+
+      setParams(
+        (current) => {
+          const draft = new URLSearchParams(current);
+          // 기본 탭은 주소에 쓰지 않는다 — 한 화면이 두 개의 URL 을 갖지 않게 (./tabs.ts)
+          if (found.id === DEFAULT_PLAN_TAB) draft.delete(PLAN_TAB_PARAM);
+          else draft.set(PLAN_TAB_PARAM, found.id);
+          return draft;
+        },
+        { replace: true },
+      );
+    },
+    [setParams],
+  );
+
+  return [tab, selectTab];
 }
-
-function toRows(plan: PlanState): readonly ModuleRow[] {
-  const rows: ModuleRow[] = [];
-
-  for (const spec of MODULE_SPECS) {
-    const state = entitlementStateOf(plan, spec.key);
-    // 판매하지 않는 모듈 — 목록에도 올리지 않는다(위 머리말)
-    if (state.kind === 'absent') continue;
-
-    rows.push({
-      key: spec.key,
-      label: spec.label,
-      description: spec.description,
-      tone: state.kind === 'granted' ? 'success' : 'neutral',
-      status: state.kind === 'granted' ? '포함' : `${PLAN_TIER_LABEL[state.upgradeTo]} 플랜부터`,
-      detail: state.kind === 'granted' ? moduleDetail(plan, spec.key) : '',
-    });
-  }
-
-  return rows;
-}
-
-/* ── 화면 ──────────────────────────────────────────────────────────────────── */
 
 export default function PlanPage() {
   const plan = usePlan();
-  const rows = toRows(plan);
+  const [tab, selectTab] = usePlanTab();
+
   const billing = billingNotice(plan);
   const change = planChangeNotice(plan);
+
+  /*
+   * 두 조회는 지금 상수를 돌려준다(둘 다 null = 모른다). 그래도 렌더마다 부르는 이유는 값이 오는
+   * 자리를 화면 코드에 남겨 두기 위해서다 — 서버가 붙으면 ./subscription.ts 의 두 함수만 바뀐다.
+   * 파생값을 상태로 들고 있지 않는다(저장 금지 규칙).
+   */
+  const subscriptionBilling = fetchSubscriptionBilling();
+  const invoices = fetchSubscriptionInvoices();
 
   return (
     <div style={pageStyle}>
@@ -152,86 +125,18 @@ export default function PlanPage() {
         </div>
       )}
 
-      <Card aria-labelledby="plan-current">
-        <CardTitle id="plan-current" action={<StatusBadge tone="info" label={plan.planLabel} />}>
-          현재 플랜
-        </CardTitle>
-        <p style={hintStyle}>{PAGE_DESCRIPTION}</p>
+      <Tabs
+        value={tab}
+        items={[...PLAN_TABS]}
+        ariaLabel="플랜·이용 현황 영역"
+        onChange={selectTab}
+      />
 
-        <dl style={dlStyle}>
-          <dt style={dtStyle}>플랜 등급</dt>
-          <dd style={ddStyle}>{PLAN_TIER_LABEL[plan.tier]}</dd>
-
-          <dt style={dtStyle}>청구 상태</dt>
-          <dd style={ddStyle}>
-            <StatusBadge
-              tone={BILLING_TONE[plan.billingState]}
-              label={BILLING_STATE_LABEL[plan.billingState]}
-            />
-          </dd>
-
-          <dt style={dtStyle}>변경 적용 예정</dt>
-          <dd style={ddStyle}>
-            {plan.effectiveAt === null ? '없음' : formatPlanDate(new Date(plan.effectiveAt))}
-          </dd>
-        </dl>
-
-        <p style={hintStyle}>
-          플랜을 바꾸려면{' '}
-          <a
-            href={PLAN_PORTAL_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="tds-ui-link tds-ui-focusable"
-          >
-            사내 홈페이지의 요금제 안내
-          </a>
-          에서 진행해 주세요. 이 화면에서는 바꿀 수 없습니다.
-        </p>
-      </Card>
-
-      <Card aria-labelledby="plan-modules">
-        <CardTitle id="plan-modules">포함 기능</CardTitle>
-        <p style={hintStyle}>
-          잠긴 기능은 메뉴에 남아 있고, 들어가면 어떤 플랜에서 열리는지 안내합니다. 잠금은 이미 쌓인
-          데이터를 지우지 않습니다.
-        </p>
-
-        <table style={tableStyle}>
-          <caption style={hintStyle}>플랜에 포함된 기능과 사용량</caption>
-          <thead>
-            <tr>
-              <th scope="col" style={thStyle}>
-                기능
-              </th>
-              <th scope="col" style={thStyle}>
-                상태
-              </th>
-              <th scope="col" style={thStyle}>
-                사용량 · 수준
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.key}>
-                <th scope="row" style={tdStyle}>
-                  {row.label}
-                  <span style={hintStyle}> — {row.description}</span>
-                </th>
-                <td style={tdStyle}>
-                  <StatusBadge tone={row.tone} label={row.status} />
-                </td>
-                <td style={tdStyle}>{row.detail === '' ? '—' : row.detail}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </Card>
-
-      {/* 개발용 전환 패널 — import.meta.env.DEV 로 감싼다. vite 가 운영 빌드에서 이 분기를
-          상수 false 로 접어 패널 코드까지 통째로 제거한다(운영 화면에 플랜 변경 수단이 없다). */}
-      {import.meta.env.DEV && <PlanDevPanel />}
+      <div id={tabPanelId(tab)} role="tabpanel" aria-labelledby={tabId(tab)}>
+        {tab === 'usage' && <UsagePanel plan={plan} />}
+        {tab === 'billing' && <BillingPanel plan={plan} billing={subscriptionBilling} />}
+        {tab === 'history' && <InvoiceHistoryPanel invoices={invoices} />}
+      </div>
     </div>
   );
 }

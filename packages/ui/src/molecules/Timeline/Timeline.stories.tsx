@@ -19,7 +19,7 @@ const EVENTS = [
     badgeTone: 'neutral' as const,
     badgeLabel: '접수',
     author: '고객센터',
-    text: '주문한 상품이 배송 예정일을 지나도 도착하지 않아 문의드립니다.',
+    text: '주문한 상품이 배송 예정일을 지나도 도착하지 않아 문의드려요.',
   },
   {
     id: '2',
@@ -35,7 +35,7 @@ const EVENTS = [
     badgeTone: 'success' as const,
     badgeLabel: '고객답변',
     author: '김담당',
-    text: '송장 재발행 완료. 내일 도착 예정으로 안내드렸습니다.',
+    text: '송장 재발행 완료. 내일 도착 예정으로 안내드렸어요.',
   },
   {
     id: '4',
@@ -43,7 +43,7 @@ const EVENTS = [
     badgeTone: 'info' as const,
     badgeLabel: '상태변경',
     author: '시스템',
-    text: '처리 상태가 완료로 변경되었습니다.',
+    text: '처리 상태가 완료로 변경되었어요.',
   },
 ];
 
@@ -99,7 +99,7 @@ const ORDER_EVENTS = [
     badgeTone: 'neutral' as const,
     badgeLabel: '접수',
     author: '주문시스템',
-    text: '주문이 접수되었습니다. 주문번호 20260718-0042.',
+    text: '주문이 접수되었어요. 주문번호 20260718-0042.',
   },
   {
     id: 'o2',
@@ -107,7 +107,7 @@ const ORDER_EVENTS = [
     badgeTone: 'info' as const,
     badgeLabel: '결제완료',
     author: '결제게이트웨이',
-    text: '카드 결제가 승인되었습니다. 승인금액 128,000원.',
+    text: '카드 결제가 승인되었어요. 승인금액 128,000원.',
   },
   {
     id: 'o3',
@@ -115,7 +115,7 @@ const ORDER_EVENTS = [
     badgeTone: 'warning' as const,
     badgeLabel: '상품준비',
     author: '물류센터',
-    text: '상품을 포장하고 있습니다. 오늘 중 출고 예정.',
+    text: '상품을 포장하고 있어요. 오늘 중 출고 예정.',
   },
   {
     id: 'o4',
@@ -123,7 +123,7 @@ const ORDER_EVENTS = [
     badgeTone: 'info' as const,
     badgeLabel: '배송중',
     author: '택배사',
-    text: '상품이 배송을 시작했습니다. 송장번호 6621-8890-1123.',
+    text: '상품이 배송을 시작했어요. 송장번호 6621-8890-1123.',
   },
   {
     id: 'o5',
@@ -131,7 +131,7 @@ const ORDER_EVENTS = [
     badgeTone: 'success' as const,
     badgeLabel: '배송완료',
     author: '택배사',
-    text: '상품이 문 앞에 도착했습니다. 수령 확인 부탁드립니다.',
+    text: '상품이 문 앞에 도착했어요. 수령 확인 부탁드려요.',
   },
 ];
 
@@ -142,7 +142,7 @@ const meta: Meta<typeof Timeline> = {
   args: {
     events: EVENTS,
     label: '문의 처리 이력',
-    emptyLabel: '기록된 이력이 없습니다.',
+    emptyLabel: '기록된 이력이 없어요.',
   },
   parameters: { layout: 'padded' },
 };
@@ -190,7 +190,7 @@ export const LongContent: Story = {
         badgeTone: 'info' as const,
         badgeLabel: '상세메모',
         author: '김담당',
-        text: '고객이 배송 지연 사유와 보상 정책을 상세히 문의하여, 택배사 지연 확인 결과와 재발송 일정, 그리고 지연 보상 쿠폰 지급 절차를 순서대로 안내했습니다. 추가로 향후 동일 사례 방지를 위해 출고 알림 수신 동의 여부도 재확인하였고, 고객이 동의하여 알림 설정을 갱신했습니다.',
+        text: '고객이 배송 지연 사유와 보상 정책을 상세히 문의하여, 택배사 지연 확인 결과와 재발송 일정, 그리고 지연 보상 쿠폰 지급 절차를 순서대로 안내했어요. 추가로 향후 동일 사례 방지를 위해 출고 알림 수신 동의 여부도 재확인하였고, 고객이 동의하여 알림 설정을 갱신했어요.',
       },
     ],
   },

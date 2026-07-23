@@ -372,10 +372,10 @@ function ClientSecretFields({
     if (derivedScheme === null) return;
     void copyToClipboard(derivedScheme).then((ok) => {
       if (ok) {
-        toast.success('iOS URL 스키마를 복사했습니다.');
+        toast.success('iOS URL 스키마를 복사했어요.');
         return;
       }
-      toast.error('클립보드를 쓸 수 없습니다. 값을 직접 선택해 복사해 주세요.');
+      toast.error('클립보드를 쓸 수 없어요. 값을 직접 선택해 복사해 주세요.');
     });
   }, [derivedScheme, toast]);
 
@@ -411,7 +411,7 @@ function ClientSecretFields({
         label={secretLabel}
         required={secretRequired}
         error={errors.secret ?? ''}
-        hint={showMasked ? secretRecovery : '입력한 값은 저장 후 다시 표시되지 않습니다.'}
+        hint={showMasked ? secretRecovery : '입력한 값은 저장 후 다시 표시되지 않아요.'}
       >
         {showMasked ? (
           <span style={secretRowStyle}>
@@ -432,7 +432,7 @@ function ClientSecretFields({
               disabled={disabled}
               maxLength={CLIENT_SECRET_MAX}
               autoComplete="new-password"
-              placeholder={value.hasSecret ? '비워 두면 기존 시크릿을 유지합니다' : ''}
+              placeholder={value.hasSecret ? '비워 두면 기존 시크릿을 유지해요' : ''}
               {...secretRequiredProps}
               aria-invalid={secretInvalid}
               aria-describedby={secretInvalid ? errorIdOf(`${idBase}-secret`) : undefined}
@@ -457,12 +457,12 @@ function ClientSecretFields({
         <FormField
           htmlFor={`${idBase}-ios-scheme`}
           label="iOS URL 스키마"
-          hint="클라이언트 ID를 뒤집어 만든 값입니다. Xcode의 URL Types에 그대로 넣으세요. 직접 입력하는 값이 아니므로 클라이언트 ID를 바꾸면 함께 바뀝니다."
+          hint="클라이언트 ID를 뒤집어 만든 값이에요. Xcode의 URL Types에 그대로 넣으세요. 직접 입력하는 값이 아니므로 클라이언트 ID를 바꾸면 함께 바뀌어요."
         >
           <span style={secretRowStyle}>
             {derivedScheme === null ? (
               <output id={`${idBase}-ios-scheme`} style={derivedEmptyStyle}>
-                클라이언트 ID를 먼저 입력하면 여기에 자동으로 만들어집니다.
+                클라이언트 ID를 먼저 입력하면 여기에 자동으로 만들어져요.
               </output>
             ) : (
               <>
@@ -484,7 +484,7 @@ function ClientSecretFields({
           htmlFor={`${idBase}-native-app-key`}
           label="네이티브 앱 키"
           error={errors.nativeAppKey ?? ''}
-          hint="모바일 앱에서 카카오톡으로 로그인할 때 씁니다. 웹에서만 쓴다면 비워 두어도 됩니다."
+          hint="모바일 앱에서 카카오톡으로 로그인할 때 써요. 웹에서만 쓴다면 비워 두어도 돼요."
         >
           <input
             id={`${idBase}-native-app-key`}
@@ -573,7 +573,7 @@ function AppleKeyFields({
         label="Services ID (client_id)"
         required={value.enabled}
         error={errors.servicesId ?? ''}
-        hint="Apple Developer의 Identifiers에서 만든 Services ID입니다. com.example.web 처럼 도메인을 뒤집은 모양이며 대소문자를 구분합니다."
+        hint="Apple Developer의 Identifiers에서 만든 Services ID예요. com.example.web 처럼 도메인을 뒤집은 모양이며 대소문자를 구분해요."
       >
         <input
           id={`${idBase}-services-id`}
@@ -593,7 +593,7 @@ function AppleKeyFields({
         label="Team ID"
         required={value.enabled}
         error={errors.teamId ?? ''}
-        hint="Apple Developer 계정의 팀 식별자입니다. 서명할 JWT의 iss에 들어갑니다."
+        hint="Apple Developer 계정의 팀 식별자예요. 서명할 JWT의 iss에 들어가요."
       >
         <input
           id={`${idBase}-team-id`}
@@ -614,7 +614,7 @@ function AppleKeyFields({
         label="Key ID"
         required={value.enabled}
         error={errors.keyId ?? ''}
-        hint="아래 .p8 키를 만들 때 함께 발급된 식별자입니다. 서명할 JWT 헤더의 kid에 들어갑니다."
+        hint="아래 .p8 키를 만들 때 함께 발급된 식별자예요. 서명할 JWT 헤더의 kid에 들어가요."
       >
         <input
           id={`${idBase}-key-id`}
@@ -641,8 +641,8 @@ function AppleKeyFields({
         error={errors.privateKeyFileName ?? ''}
         hint={
           showStored
-            ? '저장된 키 파일은 다시 내려받을 수 없습니다. 파일을 잃어버렸다면 Apple Developer의 Keys에서 새 키를 발급하고 Key ID와 함께 교체하세요.'
-            : 'Apple Developer → Keys에서 내려받은 .p8 파일을 고르세요. 이 파일은 발급 직후 단 한 번만 내려받을 수 있고 Apple에서 다시 받을 수 없으니, 잃어버렸다면 새 키를 발급해야 합니다.'
+            ? '저장된 키 파일은 다시 내려받을 수 없어요. 파일을 잃어버렸다면 Apple Developer의 Keys에서 새 키를 발급하고 Key ID와 함께 교체하세요.'
+            : 'Apple Developer → Keys에서 내려받은 .p8 파일을 고르세요. 이 파일은 발급 직후 단 한 번만 내려받을 수 있고 Apple에서 다시 받을 수 없으니, 잃어버렸다면 새 키를 발급해야 해요.'
         }
       >
         {showStored ? (
@@ -693,8 +693,8 @@ function AppleKeyFields({
       */}
       {!showStored && (
         <p style={hintStyle}>
-          지금은 고른 파일의 이름만 저장됩니다. 키 파일 자체를 서버에 올리는 기능은 백엔드 연동 후
-          제공됩니다.
+          지금은 고른 파일의 이름만 저장돼요. 키 파일 자체를 서버에 올리는 기능은 백엔드 연동 후
+          제공돼요.
         </p>
       )}
     </>
@@ -859,7 +859,7 @@ export function OAuthProviderCard({
         label={redirectLabel}
         required={value.enabled}
         error={errors.redirectUri ?? ''}
-        hint={`이 주소를 ${label} 콘솔의 '${redirectLabel}'에도 한 글자도 다르지 않게 등록해야 합니다. 대소문자와 끝 슬래시까지 정확히 일치해야 합니다.${
+        hint={`이 주소를 ${label} 콘솔의 '${redirectLabel}'에도 한 글자도 다르지 않게 등록해야 해요. 대소문자와 끝 슬래시까지 정확히 일치해야 해요.${
           redirectNote === null ? '' : ` ${redirectNote}`
         }`}
       >
@@ -891,7 +891,7 @@ export function OAuthProviderCard({
             카카오싱크 간편 설정
           </Button>
           <p style={hintStyle}>
-            동의항목·약관 연결은 Kakao Developers 콘솔에서 설정합니다. 새 창으로 엽니다.
+            동의항목·약관 연결은 Kakao Developers 콘솔에서 설정해요. 새 창으로 열어요.
           </p>
         </div>
       )}
@@ -904,7 +904,7 @@ export function OAuthProviderCard({
         <Button variant="secondary" size="sm" disabled>
           연결 테스트
         </Button>
-        <p style={hintStyle}>연결 테스트는 백엔드 연동 후 제공됩니다.</p>
+        <p style={hintStyle}>연결 테스트는 백엔드 연동 후 제공돼요.</p>
       </div>
     </div>
   );

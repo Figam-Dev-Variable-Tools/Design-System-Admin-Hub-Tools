@@ -14,7 +14,7 @@ import {
   notificationPathOf,
   notificationResourceOf,
 } from './catalog';
-import { createPrefs, normalizePrefs } from './preferences';
+import { createPrefs, normalizePrefs, prefsSaveBlock } from './preferences';
 import * as store from './store';
 
 /** nav 트리의 모든 잎 경로 */
@@ -95,5 +95,25 @@ describe('수신 설정의 저장값 방어', () => {
 
   it('불리언이 아닌 값은 켜짐으로 수렴한다', () => {
     expect(normalizePrefs({ 'order-new': 'false' })['order-new']).toBe(true);
+  });
+});
+
+describe('읽지 못한 설정은 저장하지 않는다', () => {
+  it('문서를 못 읽었으면 저장이 막히고 이유가 온다', () => {
+    const reason = prefsSaveBlock(undefined);
+
+    expect(reason).not.toBeNull();
+    // 이유를 말하지 않는 disabled 는 '고장' 으로 보인다 — 무엇을 덮게 되는지까지 말한다
+    expect(reason ?? '').toContain('꺼 둔 종류가 다시 켜져요');
+  });
+
+  it('막지 않으면 무슨 일이 일어나는가 — 못 읽은 화면의 값은 전부 켜짐이다', () => {
+    // 이 단언이 위 규칙의 존재 이유다: 읽기 실패의 기준선이 곧 '전부 받음' 이라
+    // 그대로 저장하면 운영자가 꺼 둔 종류가 조용히 되살아난다
+    expect(normalizePrefs(undefined)).toEqual(createPrefs(true));
+  });
+
+  it('한 번이라도 읽었으면 저장할 수 있다 — 재조회 실패가 편집을 막지는 않는다', () => {
+    expect(prefsSaveBlock({ kinds: createPrefs(false) })).toBeNull();
   });
 });

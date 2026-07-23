@@ -31,8 +31,8 @@ describe('Result — 계약 states[]', () => {
 
 describe('Result — 계약 a11y', () => {
   it('Result: 제목은 h2 다 — 페이지의 h1 은 Header 가 소유하므로 h1 을 더 만들지 않는다', () => {
-    render(<Result title="접근 권한이 없습니다" />);
-    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('접근 권한이 없습니다');
+    render(<Result title="접근 권한이 없어요" />);
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('접근 권한이 없어요');
     expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
   });
 
@@ -47,14 +47,14 @@ describe('Result — 계약 a11y', () => {
 
 describe('Result — 빈 문자열 센티널', () => {
   it('Result: description 이 빈 문자열이면 설명 줄을 그리지 않는다', () => {
-    const { container } = render(<Result title="접근 권한이 없습니다" description="" />);
+    const { container } = render(<Result title="접근 권한이 없어요" description="" />);
     expect(container.querySelector('.tds-result__description')).toBeNull();
     // '없음' 단언 옆의 '있음' 앵커 — 제목은 그려져 있어야 한다 (work-cycle §6 toBe(0) 함정)
     expect(container.querySelector('.tds-result__title')).not.toBeNull();
   });
 
   it('Result: reference 가 빈 문자열이면 참조 코드 줄을 그리지 않는다', () => {
-    const { container } = render(<Result title="접근 권한이 없습니다" reference="" />);
+    const { container } = render(<Result title="접근 권한이 없어요" reference="" />);
     expect(container.querySelector('.tds-result__reference')).toBeNull();
     expect(container.querySelector('.tds-result__title')).not.toBeNull();
   });

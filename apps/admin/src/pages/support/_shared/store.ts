@@ -230,7 +230,7 @@ export function listCategoryUsage(): readonly SupportCategoryUsage[] {
 
 export function getCategoryUsage(id: string): SupportCategoryUsage {
   const found = categories.find((category) => category.id === id);
-  if (found === undefined) throw new Error('문의 유형을 찾을 수 없습니다');
+  if (found === undefined) throw new Error('문의 유형을 찾을 수 없어요');
   return withUsage(found);
 }
 
@@ -265,7 +265,7 @@ export function updateCategory(id: string, input: SupportCategoryInput): void {
 export function removeCategory(id: string): void {
   const usage = countCategoryUsage(id, tickets, templates);
   if (usage.tickets + usage.templates > 0) {
-    throw new Error('사용 중인 문의 유형은 삭제할 수 없습니다.');
+    throw new Error('사용 중인 문의 유형은 삭제할 수 없어요.');
   }
   categories = categories.filter((category) => category.id !== id);
 }
@@ -278,7 +278,7 @@ export function listTickets(): readonly Ticket[] {
 
 export function getTicket(id: string): Ticket {
   const found = tickets.find((ticket) => ticket.id === id);
-  if (found === undefined) throw new Error('문의를 찾을 수 없습니다');
+  if (found === undefined) throw new Error('문의를 찾을 수 없어요');
   return found;
 }
 
@@ -304,7 +304,7 @@ export function listTemplates(): readonly ReplyTemplate[] {
 
 export function getTemplate(id: string): ReplyTemplate {
   const found = templates.find((template) => template.id === id);
-  if (found === undefined) throw new Error('답변 템플릿을 찾을 수 없습니다');
+  if (found === undefined) throw new Error('답변 템플릿을 찾을 수 없어요');
   return withTemplateLabel(found);
 }
 

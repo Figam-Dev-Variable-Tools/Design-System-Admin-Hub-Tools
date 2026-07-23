@@ -66,7 +66,7 @@ function customRangeSchema(today: string) {
         code: 'custom',
         input: to,
         path: ['to'],
-        message: '미래 날짜는 조회할 수 없습니다. 감사 기록에 미래는 없습니다.',
+        message: '미래 날짜는 조회할 수 없어요. 감사 기록에 미래는 없어요.',
       });
     }
 
@@ -75,7 +75,7 @@ function customRangeSchema(today: string) {
         code: 'custom',
         input: from,
         path: ['from'],
-        message: '시작일은 종료일보다 늦을 수 없습니다.',
+        message: '시작일은 종료일보다 늦을 수 없어요.',
       });
       return;
     }
@@ -86,7 +86,7 @@ function customRangeSchema(today: string) {
         code: 'custom',
         input: from,
         path: ['range'],
-        message: `조회 기간은 최대 ${String(MAX_RANGE_DAYS)}일입니다. (선택한 기간 ${String(days)}일)`,
+        message: `조회 기간은 최대 ${String(MAX_RANGE_DAYS)}일이에요. (선택한 기간 ${String(days)}일)`,
       });
     }
   });

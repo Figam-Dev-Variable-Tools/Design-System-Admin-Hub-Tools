@@ -104,7 +104,7 @@ async function edgeErrorOf(file: File): Promise<string | null> {
       image.onerror = () => resolve(null);
       image.src = url;
     });
-    if (size === null) return '이미지를 읽지 못했습니다. 다른 파일을 선택해 주세요.';
+    if (size === null) return '이미지를 읽지 못했어요. 다른 파일을 선택해 주세요.';
     return imageEdgeError(size.width, size.height);
   } finally {
     URL.revokeObjectURL(url);
@@ -194,7 +194,7 @@ export function ImageAttachRow({ fileName, disabled, onChange }: ImageAttachRowP
         </p>
       )}
       <span style={visuallyHiddenStyle}>
-        {`JPG · 500KB 이하 · ${String(TEXT_IMAGE_MAX_EDGE)}px 이하의 이미지 1장만 첨부할 수 있습니다.`}
+        {`JPG · 500KB 이하 · ${String(TEXT_IMAGE_MAX_EDGE)}px 이하의 이미지 1장만 첨부할 수 있어요.`}
       </span>
     </div>
   );

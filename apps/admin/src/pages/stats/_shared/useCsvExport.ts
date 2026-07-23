@@ -72,7 +72,7 @@ export function useCsvExport(): CsvExportState {
         const header = request.columns.map((column) => column.header);
         downloadCsv(request.baseName, toCsvText(header, cells));
         setProgress(100);
-        toast.success(`${String(cells.length)}건을 내보냈습니다.`);
+        toast.success(`${String(cells.length)}건을 내보냈어요.`);
       };
 
       void run()

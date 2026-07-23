@@ -64,7 +64,7 @@
       "file": "DateRangeField.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 2,
-      "checksum": "f04df1df"
+      "checksum": "ca2d347e"
     },
     {
       "name": "Divider",
@@ -120,7 +120,7 @@
       "file": "Icon.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 2,
-      "checksum": "9b36f984"
+      "checksum": "7c0a6dba"
     },
     {
       "name": "IconButton",
@@ -246,7 +246,7 @@
       "file": "SearchField.figma.json",
       "version": "1.0.0",
       "variantPropertyCount": 0,
-      "checksum": "e68b2d55"
+      "checksum": "a368f81c"
     },
     {
       "name": "SegmentedControl",
@@ -267,7 +267,7 @@
       "file": "SelectField.figma.json",
       "version": "1.1.0",
       "variantPropertyCount": 1,
-      "checksum": "c8a6e9a2"
+      "checksum": "9e316559"
     },
     {
       "name": "SelectionBar",

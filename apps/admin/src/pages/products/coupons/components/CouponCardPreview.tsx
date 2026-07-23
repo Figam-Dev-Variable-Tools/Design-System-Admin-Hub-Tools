@@ -137,8 +137,8 @@ export function CouponCardPreview({
 
       <p style={captionStyle}>
         {enabled
-          ? `발급중 — ${triggerText} 이 모습으로 고객 쿠폰함에 들어갑니다.`
-          : '중지 — 저장해도 고객에게 발급되지 않습니다.'}
+          ? `발급중 — ${triggerText} 이 모습으로 고객 쿠폰함에 들어가요.`
+          : '중지 — 저장해도 고객에게 발급되지 않아요.'}
       </p>
     </div>
   );

@@ -24,7 +24,7 @@ function formatDateTime(iso: string): string {
   return `${ymd} ${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
 }
 
-export function Timeline({ events, label, emptyLabel = '기록된 이력이 없습니다.' }: TimelineProps) {
+export function Timeline({ events, label, emptyLabel = '기록된 이력이 없어요.' }: TimelineProps) {
   if (events.length === 0) {
     return <p className="tds-timeline__empty">{emptyLabel}</p>;
   }

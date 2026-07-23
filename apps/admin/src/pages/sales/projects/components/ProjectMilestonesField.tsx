@@ -91,7 +91,7 @@ export function ProjectMilestonesField({
     <div style={sectionStyle}>
       <span style={fieldLabelStyle}>마일스톤</span>
       <p style={hintStyle}>
-        주요 마일스톤을 등록하세요. 완료 표시에 따라 아래 진척률이 계산됩니다. (최대{' '}
+        주요 마일스톤을 등록하세요. 완료 표시에 따라 아래 진척률이 계산돼요. (최대{' '}
         {PROJECT_MAX_MILESTONES}개)
       </p>
 

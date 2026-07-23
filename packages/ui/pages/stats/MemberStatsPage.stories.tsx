@@ -174,7 +174,7 @@ const KPIS: readonly KpiDef[] = [
     deltaText: '▲ 7.2%',
     deltaTone: 'positive',
     describe: '비교 기간 대비 7.2% (66명) 증가',
-    hint: '기간 안에 가입을 완료한 회원 수입니다.',
+    hint: '기간 안에 가입을 완료한 회원 수예요.',
   },
   // 탈퇴는 낮을수록 좋다 — 감소(▼)가 초록(positive)이다 (원본 isLowerBetter)
   {
@@ -185,7 +185,7 @@ const KPIS: readonly KpiDef[] = [
     deltaText: '▼ 8.0%',
     deltaTone: 'positive',
     describe: '비교 기간 대비 8.0% (6명) 감소',
-    hint: '기간 안에 탈퇴 처리된 회원 수입니다.',
+    hint: '기간 안에 탈퇴 처리된 회원 수예요.',
   },
   {
     id: 'net',
@@ -195,7 +195,7 @@ const KPIS: readonly KpiDef[] = [
     deltaText: '▲ 9.1%',
     deltaTone: 'positive',
     describe: '비교 기간 대비 9.1% 증가',
-    hint: '신규 가입에서 탈퇴를 뺀 값입니다.',
+    hint: '신규 가입에서 탈퇴를 뺀 값이에요.',
   },
   {
     id: 'cumulative',
@@ -205,7 +205,7 @@ const KPIS: readonly KpiDef[] = [
     deltaText: '▲ 3.8%',
     deltaTone: 'positive',
     describe: '비교 기간 대비 3.8% 증가',
-    hint: '기간 마지막 날 마감 기준으로 남아 있는 전체 회원 수입니다.',
+    hint: '기간 마지막 날 마감 기준으로 남아 있는 전체 회원 수예요.',
   },
 ];
 
@@ -509,8 +509,8 @@ function MemberStatsScreen({ state }: { state: ScreenState }) {
     <div style={pageStyle}>
       <p style={descriptionStyle}>
         가입 경로별로 신규 가입과 탈퇴를 갈라 보고, 순증과 누적 회원 수의 흐름을 비교 기간과 견주는
-        회원 분석입니다. 신규 가입만 세면 탈퇴가 같은 수로 빠져나가도 성장으로 읽히므로, 순증을
-        나란히 둡니다.
+        회원 분석이에요. 신규 가입만 세면 탈퇴가 같은 수로 빠져나가도 성장으로 읽히므로, 순증을
+        나란히 둬요.
       </p>
 
       {/* 조회 조건 바 (원본 StatsFilterBar) */}
@@ -584,7 +584,7 @@ function MemberStatsScreen({ state }: { state: ScreenState }) {
         </div>
 
         <p style={mutedLineStyle}>
-          {`조회 범위 ${rangeLabel} · 내보내기는 현재 조건 전체를 담습니다.`}
+          {`조회 범위 ${rangeLabel} · 내보내기는 현재 조건 전체를 담아요.`}
         </p>
       </section>
 
@@ -612,12 +612,12 @@ function MemberStatsScreen({ state }: { state: ScreenState }) {
         error=""
       >
         {empty ? (
-          <p style={trendEmptyStyle}>선택한 기간에 집계된 값이 없습니다.</p>
+          <p style={trendEmptyStyle}>선택한 기간에 집계된 값이 없어요.</p>
         ) : (
           <LineAreaChart
             series={chartSeries}
             labels={[...DAY_LABELS]}
-            ariaLabel={`${rangeLabel} ${metricLabel} 추이${showCompare ? ' — 비교 기간이 함께 표시됩니다.' : ''}`}
+            ariaLabel={`${rangeLabel} ${metricLabel} 추이${showCompare ? ' — 비교 기간이 함께 표시돼요.' : ''}`}
           />
         )}
       </StatsCard>

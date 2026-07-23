@@ -13,7 +13,7 @@ const intString = (label: string) =>
       error: `${label}${objectParticle(label)} 입력하세요.`,
     }),
     z.refine((value) => INT_RE.test(value.trim()), {
-      error: `${label}${topicParticle(label)} 0 이상의 정수만 입력할 수 있습니다.`,
+      error: `${label}${topicParticle(label)} 0 이상의 정수만 입력할 수 있어요.`,
     }),
   );
 
@@ -67,24 +67,24 @@ export const carrierSchema = z.object({
   name: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '택배사 이름을 입력하세요.' }),
     z.refine((value) => value.trim().length <= CARRIER_NAME_MAX, {
-      error: `택배사 이름은 ${String(CARRIER_NAME_MAX)}자를 넘을 수 없습니다.`,
+      error: `택배사 이름은 ${String(CARRIER_NAME_MAX)}자를 넘을 수 없어요.`,
     }),
   ),
   code: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '택배사 코드를 입력하세요.' }),
     z.refine((value) => value.trim().length <= CARRIER_CODE_MAX, {
-      error: `택배사 코드는 ${String(CARRIER_CODE_MAX)}자를 넘을 수 없습니다.`,
+      error: `택배사 코드는 ${String(CARRIER_CODE_MAX)}자를 넘을 수 없어요.`,
     }),
     z.refine((value) => value.trim() === '' || CARRIER_CODE_RE.test(value.trim()), {
-      error: '택배사 코드는 영문 대문자·숫자·하이픈(-)만 사용할 수 있습니다.',
+      error: '택배사 코드는 영문 대문자·숫자·하이픈(-)만 사용할 수 있어요.',
     }),
   ),
   trackingUrlTemplate: z.string().check(
     z.refine((value) => value.trim() === '' || HTTP_URL_RE.test(value.trim()), {
-      error: '추적 URL 은 http:// 또는 https:// 로 시작해야 합니다.',
+      error: '추적 URL 은 http:// 또는 https:// 로 시작해야 해요.',
     }),
     z.refine((value) => value.trim() === '' || value.includes(INVOICE_TOKEN), {
-      error: `추적 URL 에는 ${INVOICE_TOKEN} 이 한 번 들어가야 합니다 — 송장번호를 끼울 자리가 없으면 링크를 만들 수 없습니다.`,
+      error: `추적 URL 에는 ${INVOICE_TOKEN} 이 한 번 들어가야 해요 — 송장번호를 끼울 자리가 없으면 링크를 만들 수 없어요.`,
     }),
   ),
   active: z.boolean(),

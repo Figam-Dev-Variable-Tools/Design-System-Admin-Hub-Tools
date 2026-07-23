@@ -43,6 +43,8 @@ import {
   Button,
   Card,
   FormField,
+  formDateRowStyle,
+  formRowStyle,
   Icon,
   IconButton,
   ImageThumb,
@@ -182,7 +184,7 @@ const DEMO_ERRORS: FieldErrors = {
   categoryId: '카테고리를 선택하세요.',
   summary: '한 줄 소개를 입력하세요.',
   goalAmount: '목표 금액을 입력하세요.',
-  endDate: '종료일은 시작일보다 뒤여야 합니다.',
+  endDate: '종료일은 시작일보다 뒤여야 해요.',
   rewards: '리워드를 한 개 이상 등록하세요.',
 };
 
@@ -242,7 +244,7 @@ const EDIT_SEED: SeedValues = {
   categoryId: 'tech-audio',
   summary: '스튜디오 모니터링을 그대로 옮긴 무선 헤드폰',
   story:
-    '<p>작업실 밖에서도 <strong>같은 소리</strong>를 듣고 싶었습니다.</p><ul><li>지연 없는 무선 전송</li><li>스튜디오 튜닝 그대로</li></ul>',
+    '<p>작업실 밖에서도 <strong>같은 소리</strong>를 듣고 싶었어요.</p><ul><li>지연 없는 무선 전송</li><li>스튜디오 튜닝 그대로</li></ul>',
   goalAmount: '10000000',
   startDate: '2026-06-01',
   endDate: '2026-07-31',
@@ -386,12 +388,6 @@ const cardTitleStyle: CSSProperties = {
   ...typography('typography.title.md'),
   margin: 0,
   color: cssVar('color.text.default'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const controlStyle = (invalid: boolean): CSSProperties => ({
@@ -548,8 +544,8 @@ function SectionNav({
     <Panel
       notice={
         <p style={hintStyle}>
-          구획을 누르면 해당 위치로 이동합니다. 붉은 점이 붙은 구획에는 확인이 필요한 입력이 남아
-          있습니다.
+          구획을 누르면 해당 위치로 이동해요. 붉은 점이 붙은 구획에는 확인이 필요한 입력이 남아
+          있어요.
         </p>
       }
     >
@@ -647,9 +643,7 @@ function RewardEditor({
         <IconButton
           key="remove"
           icon={<Icon name="trash" />}
-          label={
-            claimed ? `${rowName} — 이미 후원된 리워드라 삭제할 수 없습니다` : `${rowName} 삭제`
-          }
+          label={claimed ? `${rowName} — 이미 후원된 리워드라 삭제할 수 없어요` : `${rowName} 삭제`}
           size="sm"
           disabled={disabled || claimed}
           onClick={() => onChange(rewards.filter((item) => item.id !== reward.id))}
@@ -661,17 +655,15 @@ function RewardEditor({
   return (
     <div style={rewardSectionStyle}>
       <p style={hintStyle}>
-        후원자가 고를 리워드를 등록하세요. 수량 한정은 0 이면 무제한입니다. 이미 후원된 리워드는
-        삭제할 수 없습니다 — 후원자가 받기로 한 대가가 사라지기 때문입니다.
+        후원자가 고를 리워드를 등록하세요. 수량 한정은 0 이면 무제한이에요. 이미 후원된 리워드는
+        삭제할 수 없어요 — 후원자가 받기로 한 대가가 사라지기 때문이에요.
       </p>
 
       {rewards.length === 0 ? (
-        <p style={hintStyle}>
-          등록된 리워드가 없습니다. 리워드가 없으면 후원자가 고를 것이 없습니다.
-        </p>
+        <p style={hintStyle}>등록된 리워드가 없어요. 리워드가 없으면 후원자가 고를 것이 없어요.</p>
       ) : (
         <Table
-          caption="리워드 목록 — 리워드명·후원 금액·설명·수량 한정을 각 칸에서 직접 편집합니다. 후원 수는 읽기 전용입니다."
+          caption="리워드 목록 — 리워드명·후원 금액·설명·수량 한정을 각 칸에서 직접 편집해요. 후원 수는 읽기 전용이에요."
           columns={REWARD_COLUMNS}
           rows={rows}
         />
@@ -776,7 +768,7 @@ function ProgramFormScreen({
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '프로그램 수정' : '프로그램 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 목차로 구획을 오가고, 미리보기로 후원자에게 보일 요약을
+          별표(*) 항목은 필수예요. 목차로 구획을 오가고, 미리보기로 후원자에게 보일 요약을
           확인하세요.
         </p>
       </div>
@@ -810,7 +802,7 @@ function ProgramFormScreen({
                       error={errors.title ?? ''}
                     />
 
-                    <div style={rowStyle}>
+                    <div style={formRowStyle}>
                       <TextField
                         id="program-creator"
                         label="창작자"
@@ -852,8 +844,8 @@ function ProgramFormScreen({
                           categoryRootId === ''
                             ? '대분류를 먼저 선택하세요.'
                             : categoryChildOptions.length === 0
-                              ? '이 대분류에는 중분류가 없습니다.'
-                              : '선택하지 않으면 대분류에 등록됩니다.'
+                              ? '이 대분류에는 중분류가 없어요.'
+                              : '선택하지 않으면 대분류에 등록돼요.'
                         }
                       >
                         <SelectField
@@ -888,7 +880,7 @@ function ProgramFormScreen({
                       placeholder="예: 스튜디오 모니터링을 그대로 옮긴 무선 헤드폰"
                       error={errors.summary ?? ''}
                     />
-                    <p style={hintStyle}>목록과 카드에 제목 아래로 붙는 한 줄입니다.</p>
+                    <p style={hintStyle}>목록과 카드에 제목 아래로 붙는 한 줄여요.</p>
                   </FormCard>
 
                   {/* ── 펀딩 설정 ── */}
@@ -897,7 +889,7 @@ function ProgramFormScreen({
                       htmlFor="program-goal"
                       label="목표 금액(원)"
                       required
-                      hint="기간이 끝나는 순간 이 금액을 넘겼는지로 성공·실패가 갈립니다."
+                      hint="기간이 끝나는 순간 이 금액을 넘겼는지로 성공·실패가 갈려요."
                       {...(errors.goalAmount !== undefined && { error: errors.goalAmount })}
                     >
                       <input
@@ -912,7 +904,9 @@ function ProgramFormScreen({
                       />
                     </FormField>
 
-                    <div style={rowStyle}>
+                    {/* 시작일~종료일은 한 쌍이 곧 하나의 값(모금 기간)이라 규칙의 유일한 예외로
+                        가로에 남는다. '상태'는 날짜가 아니므로 이 격자 밖으로 나간다. */}
+                    <div style={formDateRowStyle}>
                       <FormField
                         htmlFor="program-start"
                         label="시작일"
@@ -944,27 +938,27 @@ function ProgramFormScreen({
                           onChange={(event) => setEndDate(event.target.value)}
                         />
                       </FormField>
-
-                      <FormField
-                        htmlFor="program-status"
-                        label="상태"
-                        required
-                        hint="성공·실패는 기간이 끝난 뒤 목표 달성 여부로 갈립니다."
-                      >
-                        <SelectField
-                          id="program-status"
-                          value={status}
-                          disabled={disabled}
-                          onChange={(event) => setStatus(event.target.value as ProgramStatus)}
-                        >
-                          {STATUS_OPTIONS.map((option) => (
-                            <option key={option} value={option}>
-                              {STATUS_META[option].label}
-                            </option>
-                          ))}
-                        </SelectField>
-                      </FormField>
                     </div>
+
+                    <FormField
+                      htmlFor="program-status"
+                      label="상태"
+                      required
+                      hint="성공·실패는 기간이 끝난 뒤 목표 달성 여부로 갈려요."
+                    >
+                      <SelectField
+                        id="program-status"
+                        value={status}
+                        disabled={disabled}
+                        onChange={(event) => setStatus(event.target.value as ProgramStatus)}
+                      >
+                        {STATUS_OPTIONS.map((option) => (
+                          <option key={option} value={option}>
+                            {STATUS_META[option].label}
+                          </option>
+                        ))}
+                      </SelectField>
+                    </FormField>
                   </FormCard>
 
                   {/* ── 스토리 ── */}
@@ -977,7 +971,7 @@ function ProgramFormScreen({
                       disabled={disabled}
                       rows={8}
                       placeholder="이 프로그램을 시작한 이유와 만들려는 것을 설명하세요."
-                      hint="왜 만들었는지·무엇을 만드는지·언제 보내는지를 적으면 후원 결정이 쉬워집니다. 글자 수는 서식을 빼고 셉니다."
+                      hint="왜 만들었는지·무엇을 만드는지·언제 보내는지를 적으면 후원 결정이 쉬워져요. 글자 수를 셀 때 서식은 빼요."
                       error={errors.story ?? ''}
                     />
                   </FormCard>
@@ -989,7 +983,7 @@ function ProgramFormScreen({
                       value={coverImageUrl}
                       onChange={setCoverImageUrl}
                       disabled={disabled}
-                      hint="목록과 상세의 첫인상입니다. 가로가 긴 이미지가 잘 맞습니다."
+                      hint="목록과 상세의 첫인상이에요. 가로가 긴 이미지가 잘 맞아요."
                       error={errors.coverImageUrl ?? ''}
                     />
                   </FormCard>
@@ -1063,7 +1057,7 @@ function ProgramFormScreen({
 
         {Object.keys(errors).length > 0 && (
           <Alert tone="danger">
-            입력을 확인해 주세요. 붉은 점이 붙은 구획에 확인이 필요한 입력이 남아 있습니다.
+            입력을 확인해 주세요. 붉은 점이 붙은 구획에 확인이 필요한 입력이 남아 있어요.
           </Alert>
         )}
 

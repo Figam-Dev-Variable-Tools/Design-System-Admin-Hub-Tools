@@ -269,7 +269,7 @@ describe('알림톡 치환변수', () => {
        같은 글자를 두고 다툰다. */
     const text = alimtalkVariableBearingText(
       parts({
-        body: '안내드립니다',
+        body: '안내드려요',
         emphasisType: 'title',
         emphasisTitle: '제목',
         emphasisSubtitle: '#{이름}',
@@ -287,11 +287,11 @@ describe('알림톡 치환변수', () => {
 
 describe('강조표기형 — 제목과 보조문구는 함께여야 한다', () => {
   it('둘 다 있으면 통과한다', () => {
-    expect(emphasisTitleError('배송이 시작되었습니다', '주문 안내')).toBeNull();
+    expect(emphasisTitleError('배송이 시작되었어요', '주문 안내')).toBeNull();
   });
 
   it('제목만 있으면 막는다 — 제작가이드가 단독 사용을 금지한다', () => {
-    expect(emphasisTitleError('배송이 시작되었습니다', '')).toContain('보조문구');
+    expect(emphasisTitleError('배송이 시작되었어요', '')).toContain('보조문구');
   });
 
   it('보조문구만 있어도 막는다', () => {
@@ -636,7 +636,7 @@ describe('캐러셀형 — 카드 2~6장, 카드마다 버튼', () => {
   const card = (id: string, overrides: Partial<BrandCarouselCard> = {}): BrandCarouselCard => ({
     id,
     header: '헤더',
-    body: '카드 본문입니다.',
+    body: '카드 본문이에요.',
     imageFileName: `${id}.jpg`,
     buttons: [
       { id: `${id}-b`, type: 'WL', name: '보기', linkMobile: 'https://m.example.com', linkPc: '' },

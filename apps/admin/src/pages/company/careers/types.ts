@@ -14,7 +14,6 @@
 // │ 사라진다(빈 칸을 남겨 두면 무엇을 안 채운 것인지 알 수 없다).                  │
 // └──────────────────────────────────────────────────────────────────────────┘
 import type { StatusTone } from '../../../shared/ui';
-import type { ApplicationFormRef } from '../../../shared/domain/application-form';
 
 /* ── 축 3종 ──────────────────────────────────────────────────────────────── */
 
@@ -56,13 +55,16 @@ export function employmentTypeLabel(id: string): string {
 /* ── 지원 방법 ───────────────────────────────────────────────────────────── */
 
 /**
- * 셋뿐이다. `form` 만 다른 화면의 것을 **참조**한다 — 이메일·링크는 공고가 값을 통째로 갖지만
- * 폼은 폼 관리가 만들고 고치고 지운다(shared/domain/application-form.ts).
+ * 둘뿐이다 — 공고가 **값을 통째로 갖는** 방법만 남는다.
+ *
+ * 예전에는 `지원 폼`(id: 'form')이 셋째로 있었고, 그것만 다른 화면(폼 관리)이 만들고 고치고
+ * 지우는 것을 **참조**했다. 폼 관리 화면이 제거되면서 그 폼을 만들 곳이 사라졌으므로 선택지도
+ * 함께 걷는다 — 고를 수는 있는데 절대 공개할 수 없는 선택지는 기능이 아니라 함정이다.
+ * (그때의 안내 문구는 "폼 관리 연동이 준비되면 선택할 수 있습니다" 였다. 오지 않을 미래였다.)
  */
 export const APPLY_METHODS = [
   { id: 'email', label: '이메일 접수' },
   { id: 'link', label: '외부 링크' },
-  { id: 'form', label: '지원 폼' },
 ] as const satisfies readonly OptionDef[];
 
 export type ApplyMethodId = (typeof APPLY_METHODS)[number]['id'];
@@ -151,41 +153,25 @@ const HTTPS_RE = /^https:\/\/[^\s]+$/;
 /**
  * 이 지원 방법으로 저장할 수 없는 이유 — 저장할 수 있으면 null.
  *
- * `forms` 가 **null 이면 '모른다'** 다(미배선). 그때 '지원 폼' 을 고를 수 없게 막고 이유를
- * 말한다 — 빈 목록으로 뭉개면 화면이 '등록된 폼이 없습니다' 라고 완결되게 말하고, 운영자는
- * 이미 있는 폼을 다시 만들러 간다(shared/domain/application-form.ts 머리말).
+ * 두 방법 모두 **공고가 값을 통째로 갖는다**(이메일 주소·외부 주소). 그래서 이 가드는 다른
+ * 화면의 상태를 묻지 않는다 — 예전에 '지원 폼' 이 있을 때만 폼 목록을 조회해야 했고, 그
+ * 조회가 미배선이면 `null`('모른다')을 받아 선택을 막았다. 참조가 사라지면서 그 축도 사라졌다.
+ *
+ * 외부 링크에 `https` 를 강제하는 것은 취향이 아니다 — 지원자가 **개인정보를 입력하는 화면**이다.
  */
-export function applyMethodBlock(
-  method: string,
-  target: string,
-  forms: readonly ApplicationFormRef[] | null,
-): string | null {
+export function applyMethodBlock(method: string, target: string): string | null {
   const value = target.trim();
 
   if (method === 'email') {
     if (value === '') return '지원서를 받을 이메일 주소를 입력하세요.';
-    return EMAIL_RE.test(value) ? null : '이메일 주소 형식이 올바르지 않습니다.';
+    return EMAIL_RE.test(value) ? null : '이메일 주소 형식이 올바르지 않아요.';
   }
 
   if (method === 'link') {
     if (value === '') return '지원 페이지 주소를 입력하세요.';
     return HTTPS_RE.test(value)
       ? null
-      : '지원 페이지 주소는 https:// 로 시작해야 합니다. 지원자가 개인정보를 입력하는 화면입니다.';
-  }
-
-  if (method === 'form') {
-    if (forms === null) {
-      return '지원 폼 목록을 확인할 수 없어 폼을 고를 수 없습니다. 폼 관리 연동이 준비되면 선택할 수 있습니다.';
-    }
-    if (value === '') return '연결할 지원 폼을 고르세요.';
-
-    const found = forms.find((form) => form.id === value);
-    if (found === undefined) return '선택한 지원 폼을 찾을 수 없습니다. 목록에서 다시 고르세요.';
-    if (!found.published) {
-      return `‘${found.name}’ 은 아직 발행되지 않은 폼입니다. 지원자가 열면 빈 화면을 보게 됩니다.`;
-    }
-    return null;
+      : '지원 페이지 주소는 https:// 로 시작해야 해요. 지원자가 개인정보를 입력하는 화면이에요.';
   }
 
   return '지원 방법을 고르세요.';
@@ -198,12 +184,9 @@ export function applyMethodBlock(
  * 공개하려 할 때만 지원 경로가 실제로 열려 있는지 본다 — 열리지 않는 '지원하기' 는
  * 기능이 아니라 거짓 약속이다.
  */
-export function publishBlock(
-  input: CareerInput,
-  forms: readonly ApplicationFormRef[] | null,
-): string | null {
+export function publishBlock(input: CareerInput): string | null {
   if (!input.published) return null;
-  return applyMethodBlock(input.applyMethod, input.applyTarget, forms);
+  return applyMethodBlock(input.applyMethod, input.applyTarget);
 }
 
 /* ── 목록 좁히기 ─────────────────────────────────────────────────────────── */

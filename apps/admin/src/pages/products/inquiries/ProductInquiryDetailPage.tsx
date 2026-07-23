@@ -67,7 +67,7 @@ const LIST_PATH = '/products/inquiries';
 /** 경과 기준일 — 목록과 같은 값을 쓴다(두 화면이 다른 날짜를 말하면 안 된다) */
 const TODAY = '2026-07-21';
 const UNSAVED_MESSAGE =
-  '작성 중인 답변이 저장되지 않았습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '작성 중인 답변이 저장되지 않았어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -178,7 +178,7 @@ export default function ProductInquiryDetailPage() {
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setServerError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setServerError('저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -196,18 +196,18 @@ export default function ProductInquiryDetailPage() {
     const first = inquiry.answeredAt === '';
     commit(
       applyAnswer(inquiry, answer, new Date().toISOString()),
-      first ? '답변을 저장하고 답변 완료로 변경했습니다.' : '답변을 수정했습니다.',
+      first ? '답변을 저장하고 답변 완료로 변경했어요.' : '답변을 수정했어요.',
     );
   };
 
   const onBeginAnswering = () => {
     if (inquiry === undefined || !canBeginAnswering(inquiry.status)) return;
-    commit(applyBeginAnswering(inquiry), '답변 중으로 변경했습니다.');
+    commit(applyBeginAnswering(inquiry), '답변 중으로 변경했어요.');
   };
 
   const onClose = () => {
     if (inquiry === undefined || !canClose(inquiry.status)) return;
-    commit(applyClose(inquiry), '문의를 종결했습니다.');
+    commit(applyClose(inquiry), '문의를 종결했어요.');
   };
 
   /**
@@ -227,7 +227,7 @@ export default function ProductInquiryDetailPage() {
     if (issued === null) return;
     commit(
       applyQuoteIssued(inquiry, issued.id),
-      `견적 ${issued.quoteNo}${objectParticle(issued.quoteNo)} 발행했습니다.`,
+      `견적 ${issued.quoteNo}${objectParticle(issued.quoteNo)} 발행했어요.`,
     );
   };
 
@@ -240,8 +240,8 @@ export default function ProductInquiryDetailPage() {
           <div style={alertActionRowStyle}>
             <span>
               {notFound
-                ? '문의를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '문의를 불러오지 못했습니다.'}
+                ? '문의를 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '문의를 불러오지 못했어요.'}
             </span>
             {!notFound && (
               <Button variant="secondary" onClick={() => void detailQuery.refetch()}>
@@ -317,7 +317,7 @@ export default function ProductInquiryDetailPage() {
               <dt style={dtStyle}>발행 견적</dt>
               <dd style={ddStyle}>
                 {inquiry.quoteId === '' ? (
-                  <span style={hintStyle}>아직 발행된 견적이 없습니다.</span>
+                  <span style={hintStyle}>아직 발행된 견적이 없어요.</span>
                 ) : (
                   <Link
                     to={issuedQuoteHref(inquiry.quoteId)}
@@ -341,7 +341,7 @@ export default function ProductInquiryDetailPage() {
                 maxLength={PRODUCT_INQUIRY_ANSWER_MAX}
                 disabled={saving || !canUpdate}
                 error={fieldError ?? undefined}
-                hint="저장하면 상태가 '답변 완료' 로 넘어갑니다."
+                hint="저장하면 상태가 '답변 완료' 로 넘어가요."
                 placeholder="고객에게 전달할 답변을 입력하세요."
                 rows={6}
               />
@@ -349,12 +349,12 @@ export default function ProductInquiryDetailPage() {
               <>
                 <span style={fieldLabelStyle}>발송한 답변</span>
                 <p style={messageStyle}>{inquiry.answer}</p>
-                <p style={hintStyle}>종결된 문의라 답변을 수정할 수 없습니다.</p>
+                <p style={hintStyle}>종결된 문의라 답변을 수정할 수 없어요.</p>
               </>
             )}
 
             {!canUpdate && (
-              <Alert tone="info">이 문의에 답변할 권한이 없습니다. 조회만 가능합니다.</Alert>
+              <Alert tone="info">이 문의에 답변할 권한이 없어요. 조회만 가능해요.</Alert>
             )}
 
             <div style={actionsStyle}>
@@ -404,8 +404,8 @@ export default function ProductInquiryDetailPage() {
                 <dd style={ddStyle}>{inquiryChannelLabel(inquiry.channel)}</dd>
               </dl>
               <p style={hintStyle}>
-                답변은 위 연락처로 회신됩니다. 결제대행을 끈 상품은 구매하기 대신 문의하기 버튼이
-                노출됩니다.
+                답변은 위 연락처로 회신돼요. 결제대행을 끈 상품은 구매하기 대신 문의하기 버튼이
+                노출돼요.
               </p>
             </Card>
 

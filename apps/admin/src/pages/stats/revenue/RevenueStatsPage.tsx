@@ -49,9 +49,9 @@ const ROUTE = '/stats/revenue';
  */
 const VAT_NOTICE = (
   <Alert tone="info">
-    순매출은 결제합계에서 환불합계를 뺀 금액이며, 부가세가 포함된 금액입니다. 과세 상품의 결제
-    금액에는 부가세가 붙고, 면세(도서·농축수산물 등)와 영세율(수출 등) 상품에는 붙지 않습니다. 이
-    통계는 쇼핑몰 운영 참고용이며, 국세청 신고 등 제출용 자료로는 사용하실 수 없습니다.
+    순매출은 결제합계에서 환불합계를 뺀 금액이며, 부가세가 포함된 금액이에요. 과세 상품의 결제
+    금액에는 부가세가 붙고, 면세(도서·농축수산물 등)와 영세율(수출 등) 상품에는 붙지 않아요. 이
+    통계는 쇼핑몰 운영 참고용이며, 국세청 신고 등 제출용 자료로는 사용하실 수 없어요.
   </Alert>
 );
 
@@ -210,7 +210,7 @@ export default function RevenueStatsPage() {
         unit: 'won',
         value: payment(daily),
         compareValue: compare === null ? null : payment(compare),
-        hint: '기간 안에 결제가 완료된 금액의 합입니다.',
+        hint: '기간 안에 결제가 완료된 금액의 합이에요.',
       },
       {
         id: 'refund',
@@ -220,7 +220,7 @@ export default function RevenueStatsPage() {
         compareValue: compare === null ? null : refund(compare),
         // 환불이 늘어난 것을 초록으로 칠하지 않는다
         isLowerBetter: true,
-        hint: '기간 안에 환불 처리된 금액의 합입니다.',
+        hint: '기간 안에 환불 처리된 금액의 합이에요.',
       },
       {
         id: 'net',
@@ -228,7 +228,7 @@ export default function RevenueStatsPage() {
         unit: 'won',
         value: net(daily),
         compareValue: compare === null ? null : net(compare),
-        hint: '결제합계에서 환불합계를 뺀 금액입니다.',
+        hint: '결제합계에서 환불합계를 뺀 금액이에요.',
       },
       {
         id: 'orders',
@@ -236,7 +236,7 @@ export default function RevenueStatsPage() {
         unit: 'count',
         value: orders(daily),
         compareValue: compare === null ? null : orders(compare),
-        hint: '결제가 완료된 주문 건수입니다.',
+        hint: '결제가 완료된 주문 건수예요.',
       },
       {
         id: 'aov',
@@ -244,7 +244,7 @@ export default function RevenueStatsPage() {
         unit: 'won',
         value: averageOrderValue(daily),
         compareValue: compare === null ? null : averageOrderValue(compare),
-        hint: '순매출을 결제건수로 나눈 값입니다.',
+        hint: '순매출을 결제건수로 나눈 값이에요.',
       },
     ];
   }, [stats, method, daily]);
@@ -297,7 +297,7 @@ export default function RevenueStatsPage() {
 
   return (
     <StatsPageShell
-      description="결제수단별로 결제·환불·순매출을 갈라 보고, 비교 기간과 견주는 매출 분석입니다. 순매출은 결제합계에서 환불합계를 뺀 금액이라, 결제합계만 세는 화면과는 다른 숫자를 냅니다."
+      description="결제수단별로 결제·환불·순매출을 갈라 보고, 비교 기간과 견주는 매출 분석이에요. 순매출은 결제합계에서 환불합계를 뺀 금액이라, 결제합계만 세는 화면과는 다른 숫자를 내요."
       route={ROUTE}
       params={params}
       segments={PAY_METHODS}

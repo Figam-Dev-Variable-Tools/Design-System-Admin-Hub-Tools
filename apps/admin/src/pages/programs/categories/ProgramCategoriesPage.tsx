@@ -35,7 +35,10 @@ import {
   useCrudListQuery,
   useListState,
 } from '../../../shared/crud';
-import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
+import {
+  useRouteWritePermissions,
+  WRITE_DENIED,
+} from '../../../shared/permissions/RequirePermission';
 import { PROGRAM_CATEGORY_RESOURCE, programCategoryAdapter } from '../data-source';
 import { ProgramCategoryFormModal } from './components/ProgramCategoryFormModal';
 import { categoryUsageLabel, filterCategoriesByUsage } from '../types';
@@ -190,6 +193,15 @@ interface CategoryRowProps {
   readonly category: ProgramCategoryUsage;
   readonly deleting: boolean;
   readonly canCreate: boolean;
+  /**
+   * 연필/휴지통은 각각 update/remove 를 탄다 — canCreate 하나로 뭉뚱그리지 않는다.
+   *
+   * [행 액션이 갈리는 자리다] 이 목록은 CrudListShell 을 쓰지 않는다(2단계 트리라 표가 아니다).
+   * 그래서 껍데기가 대신 해 주던 행 액션 게이팅(CrudListShell 의 canUpdate/canRemove)이 여기엔
+   * 없었고, 등록만 걸린 채 **수정·삭제는 조회 권한만으로 열려 있었다**.
+   */
+  readonly canUpdate: boolean;
+  readonly canRemove: boolean;
   /** 하위를 펼쳤나 — 대분류에만 준다. undefined 면 펼침 토글 자체가 없다(중분류 행) */
   readonly expanded?: boolean;
   readonly childPanelId?: string;
@@ -204,6 +216,8 @@ function CategoryRow({
   category,
   deleting,
   canCreate,
+  canUpdate,
+  canRemove,
   expanded,
   childPanelId,
   childCount = 0,
@@ -274,30 +288,37 @@ function CategoryRow({
             <Icon name="plus-circle" />
           </button>
         )}
-        <button
-          type="button"
-          className="tds-ui-btn-ghost tds-ui-focusable"
-          style={buttonStyle('ghost')}
-          aria-label={`${category.label} 수정`}
-          onClick={() => onEdit(category)}
-        >
-          <Icon name="pencil" />
-        </button>
-        <button
-          type="button"
-          className="tds-ui-btn-ghost tds-ui-focusable"
-          style={blocked ? buttonStyle('ghost', true) : dangerGhostStyle}
-          aria-label={
-            blocked
-              ? `${category.label} — ${blockReason}이라 삭제할 수 없습니다`
-              : `${category.label} 삭제`
-          }
-          title={blocked ? `${blockReason} — 삭제할 수 없습니다` : undefined}
-          disabled={blocked || deleting}
-          onClick={() => onDelete(category)}
-        >
-          <Icon name="trash" />
-        </button>
+        {/* 권한이 없으면 '비활성' 이 아니라 '부재' 다. 아래 휴지통의 disabled 와 헷갈리지 말 것:
+            그쪽은 **권한은 있는데 이 대상에는 못 한다**(사용 중·하위 있음)는 뜻이라 남아서 이유를
+            말한다. 권한 없음은 그 일 자체가 내 것이 아니라는 뜻이라 컨트롤이 사라진다. */}
+        {canUpdate && (
+          <button
+            type="button"
+            className="tds-ui-btn-ghost tds-ui-focusable"
+            style={buttonStyle('ghost')}
+            aria-label={`${category.label} 수정`}
+            onClick={() => onEdit(category)}
+          >
+            <Icon name="pencil" />
+          </button>
+        )}
+        {canRemove && (
+          <button
+            type="button"
+            className="tds-ui-btn-ghost tds-ui-focusable"
+            style={blocked ? buttonStyle('ghost', true) : dangerGhostStyle}
+            aria-label={
+              blocked
+                ? `${category.label} — ${blockReason}이라 삭제할 수 없어요`
+                : `${category.label} 삭제`
+            }
+            title={blocked ? `${blockReason} — 삭제할 수 없어요` : undefined}
+            disabled={blocked || deleting}
+            onClick={() => onDelete(category)}
+          >
+            <Icon name="trash" />
+          </button>
+        )}
       </span>
     </li>
   );
@@ -308,7 +329,7 @@ const FILTER_DEFAULTS = { usage: USAGE_ALL } as const;
 
 export default function ProgramCategoriesPage() {
   const toast = useToast();
-  const { canCreate } = useRouteWritePermissions();
+  const { canCreate, canUpdate, canRemove } = useRouteWritePermissions();
   const [modal, setModal] = useState<ModalState>({ kind: 'closed' });
   const [pendingDelete, setPendingDelete] = useState<ProgramCategoryUsage | null>(null);
   /** 접은 대분류 id — 기본은 전부 펼침(숨겨진 정보 없이 시작한다) */
@@ -380,6 +401,11 @@ export default function ProgramCategoriesPage() {
 
   const onConfirmDelete = () => {
     if (pendingDelete === null) return;
+    // 버튼을 없앤 술어와 **같은 술어**가 저장 경로도 막는다 — 감추기만 하면 막은 것이 아니다
+    if (!canRemove) {
+      setDeleteError(WRITE_DENIED.remove);
+      return;
+    }
     const target = pendingDelete;
     const controller = new AbortController();
     deleteControllerRef.current = controller;
@@ -391,11 +417,11 @@ export default function ProgramCategoriesPage() {
         onSuccess: () => {
           if (controller.signal.aborted) return;
           setPendingDelete(null);
-          toast.success(`'${target.label}' 카테고리를 삭제했습니다.`);
+          toast.success(`'${target.label}' 카테고리를 삭제했어요.`);
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setDeleteError('삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setDeleteError('삭제하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -403,9 +429,7 @@ export default function ProgramCategoriesPage() {
 
   const onSaved = (name: string, isEdit: boolean) => {
     setModal({ kind: 'closed' });
-    toast.success(
-      isEdit ? `'${name}' 카테고리를 저장했습니다.` : `'${name}' 카테고리를 추가했습니다.`,
-    );
+    toast.success(isEdit ? `'${name}' 카테고리를 저장했어요.` : `'${name}' 카테고리를 추가했어요.`);
   };
 
   // 추가 버튼은 create 권한이 있을 때만 존재한다 — 누를 수 없는 것을 보여 주지 않는다 (EXC-03)
@@ -445,7 +469,7 @@ export default function ProgramCategoriesPage() {
         {error !== null ? (
           <Alert tone="danger">
             <div style={errorBodyStyle}>
-              <span>카테고리를 불러오지 못했습니다.</span>
+              <span>카테고리를 불러오지 못했어요.</span>
               <Button variant="secondary" onClick={() => void refetch()}>
                 다시 시도
               </Button>
@@ -476,6 +500,8 @@ export default function ProgramCategoriesPage() {
                           category={group.root}
                           deleting={deleting}
                           canCreate={canCreate}
+                          canUpdate={canUpdate}
+                          canRemove={canRemove}
                           expanded={expanded}
                           childPanelId={panelId}
                           childCount={group.children.length}
@@ -496,6 +522,8 @@ export default function ProgramCategoriesPage() {
                               category={child}
                               deleting={deleting}
                               canCreate={canCreate}
+                              canUpdate={canUpdate}
+                              canRemove={canRemove}
                               onEdit={(target) => setModal({ kind: 'edit', category: target })}
                               onDelete={(target) => {
                                 setDeleteError(null);
@@ -512,8 +540,8 @@ export default function ProgramCategoriesPage() {
               </ul>
             )}
             <p style={hintStyle}>
-              사용 중인 카테고리는 삭제할 수 없습니다 — 건수 배지를 누르면 그 카테고리로 걸러진
-              프로그램 목록이 열립니다(대분류는 아래 중분류까지 함께 보입니다). 거기서 카테고리를
+              사용 중인 카테고리는 삭제할 수 없어요 — 건수 배지를 누르면 그 카테고리로 걸러진
+              프로그램 목록이 열려요(대분류는 아래 중분류까지 함께 보여요). 거기서 카테고리를
               바꾸거나 삭제하세요.
             </p>
           </Card>
@@ -532,7 +560,7 @@ export default function ProgramCategoriesPage() {
           <ConfirmDialog
             intent="delete"
             title="카테고리 삭제"
-            message={`'${pendingDelete.label}' 카테고리를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+            message={`'${pendingDelete.label}' 카테고리를 삭제할까요? 되돌릴 수 없어요.`}
             confirmLabel="카테고리 삭제"
             busy={deleting}
             error={deleteError}

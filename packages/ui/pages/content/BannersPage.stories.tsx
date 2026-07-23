@@ -518,7 +518,7 @@ function BannersScreen({
       {failed ? (
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>배너 목록을 불러오지 못했습니다.</span>
+            <span>배너 목록을 불러오지 못했어요.</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
@@ -531,8 +531,8 @@ function BannersScreen({
 
           <p style={reorderHintStyle}>
             {reorderable
-              ? '각 행의 위/아래 버튼으로 노출 순서를 바꿉니다.'
-              : '필터나 검색이 걸린 목록에서는 순서를 바꿀 수 없습니다 — 전체 보기로 돌아가세요.'}
+              ? '각 행의 위/아래 버튼으로 노출 순서를 바꿔요.'
+              : '필터나 검색이 걸린 목록에서는 순서를 바꿀 수 없어요 — 전체 보기로 돌아가세요.'}
           </p>
 
           {/* 선택 일괄 액션 — 1건 이상 선택 시에만(count 0 이면 SelectionBar 가 스스로 렌더 안 함) */}
@@ -549,7 +549,7 @@ function BannersScreen({
           </SelectionBar>
 
           <Table
-            caption="배너 목록 — 체크박스로 선택하고 수정/삭제 버튼으로 각 배너를 관리합니다. 각 행의 위/아래 버튼으로 정렬 순서를 바꿉니다."
+            caption="배너 목록 — 체크박스로 선택하고 수정/삭제 버튼으로 각 배너를 관리해요. 각 행의 위/아래 버튼으로 정렬 순서를 바꿔요."
             columns={COLUMNS}
             rows={rows}
             leadingHead={[
@@ -594,7 +594,7 @@ function BannersScreen({
         <ConfirmDialog
           intent="delete"
           title="배너 삭제"
-          message={`'${confirming.title}' 배너를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${confirming.title}' 배너를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="배너 삭제"
           onConfirm={() => {
             removeBanners(new Set([confirming.id]));
@@ -608,7 +608,7 @@ function BannersScreen({
         <ConfirmDialog
           intent="delete"
           title="배너 일괄 삭제"
-          message={`선택한 배너 ${fmt(selectedCount)}건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 배너 ${fmt(selectedCount)}건을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel={`${fmt(selectedCount)}건 삭제`}
           onConfirm={() => {
             removeBanners(selectedIds);

@@ -62,9 +62,9 @@ export const Elevation: Story = {
       >
         {entries.length === 0 ? (
           <EmptyNote>
-            아직 정의된 shadow/elevation 토큰이 없습니다. <Code>tokens/tokens.json</Code> 에 토큰이
-            추가되고 <Code>pnpm codegen</Code> 이 실행되면 이 페이지는 자동으로 채워집니다 —
-            스토리가 토큰 맵을 동적 순회하기 때문에 코드 수정은 필요 없습니다.
+            아직 정의된 shadow/elevation 토큰이 없어요. <Code>tokens/tokens.json</Code> 에 토큰이
+            추가되고 <Code>pnpm codegen</Code> 이 실행되면 이 페이지는 자동으로 채워져요 — 스토리가
+            토큰 맵을 동적 순회하기 때문에 코드 수정은 필요 없어요.
           </EmptyNote>
         ) : (
           <TokenTable

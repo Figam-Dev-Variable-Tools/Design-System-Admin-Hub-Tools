@@ -9,7 +9,7 @@ export const ceoMessageSchema = z.object({
   body: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '본문을 입력하세요.' }),
     z.refine((value) => value.length <= BODY_MAX_LENGTH, {
-      error: `본문은 ${String(BODY_MAX_LENGTH)}자를 넘을 수 없습니다.`,
+      error: `본문은 ${String(BODY_MAX_LENGTH)}자를 넘을 수 없어요.`,
     }),
   ),
   // 사진은 선택 — 업로드 결과(object/data URL)라 형식은 강제하지 않는다.

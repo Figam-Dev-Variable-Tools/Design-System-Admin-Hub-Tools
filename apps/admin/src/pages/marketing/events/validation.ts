@@ -22,7 +22,7 @@ export const eventSchema = z
     bannerId: z.string(),
     description: z.string().check(
       z.refine((value) => value.trim().length <= EVENT_DESC_MAX, {
-        error: `설명은 ${String(EVENT_DESC_MAX)}자를 넘을 수 없습니다.`,
+        error: `설명은 ${String(EVENT_DESC_MAX)}자를 넘을 수 없어요.`,
       }),
     ),
   })
@@ -44,7 +44,7 @@ export const eventSchema = z
         code: 'custom',
         input: ctx.value.endAt,
         path: ['endAt'],
-        message: '종료일은 시작일보다 빠를 수 없습니다.',
+        message: '종료일은 시작일보다 빠를 수 없어요.',
       });
     }
   })

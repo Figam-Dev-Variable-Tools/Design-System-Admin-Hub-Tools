@@ -123,7 +123,11 @@ export default function MembersPage() {
    *
    * 규칙은 로그·통계 화면과 같다: **누를 수 없는 것은 보여 주지 않는다**(비활성이 아니라 부재).
    */
-  const { canUpdate, canRemove, canExport } = useRouteWritePermissions();
+  /* [EXC-03] 네 축을 **함께** 읽는다.
+     예전에는 canCreate 만 빠져 있었다 — 툴바의 네 액션은 옳게 게이팅하면서 좌측 그룹 필터의
+     '+ 새 그룹 만들기' 하나만 무방비였다. 한 화면 안에서 축이 하나만 빠지는 이 모양이 가장
+     찾기 어렵다(다른 액션들이 잠겨 있어 '이 화면은 게이팅돼 있다' 로 보인다). */
+  const { canCreate, canUpdate, canRemove, canExport } = useRouteWritePermissions();
 
   // page·tier·group·keyword·선택의 단일 원천 = URL (IA-13). 검색은 IME 안전 (COMP-10).
   const list = useListState({ filterDefaults: FILTER_DEFAULTS });
@@ -215,11 +219,11 @@ export default function MembersPage() {
         onSuccess: (all) => {
           // BOM·이스케이프·파일 저장은 shared/download 가 맡는다 (로그인 이력 화면과 같은 구현)
           downloadCsv('members', toCsv(all));
-          toast.success(`회원 ${formatNumber(all.length)}명을 CSV 로 내보냈습니다.`);
+          toast.success(`회원 ${formatNumber(all.length)}명을 CSV 로 내보냈어요.`);
         },
         onError: () => {
           // 실패는 성공 톤으로 알릴 수 없다 — 자동으로 사라지지 않는 실패 토스트 + 재시도
-          toast.error('내보내기에 실패했습니다. 잠시 후 다시 시도해 주세요.', { retry: onExport });
+          toast.error('내보내기에 실패했어요. 잠시 후 다시 시도해 주세요.', { retry: onExport });
         },
       },
     );
@@ -241,11 +245,11 @@ export default function MembersPage() {
 
     notify.mutate(member.id, {
       onSuccess: () => {
-        toast.success(`${member.nickname} 회원에게 알림을 발송했습니다.`);
+        toast.success(`${member.nickname} 회원에게 알림을 발송했어요.`);
       },
       onError: () => {
         toast.error(
-          `${member.nickname} 회원에게 알림을 발송하지 못했습니다. 잠시 후 다시 시도해 주세요.`,
+          `${member.nickname} 회원에게 알림을 발송하지 못했어요. 잠시 후 다시 시도해 주세요.`,
           { retry: () => onNotify(member) },
         );
       },
@@ -264,12 +268,12 @@ export default function MembersPage() {
         const failed = results.filter((result) => result.status === 'rejected').length;
 
         if (failed === 0) {
-          toast.success(`회원 ${formatNumber(targets.length)}명에게 알림을 발송했습니다.`);
+          toast.success(`회원 ${formatNumber(targets.length)}명에게 알림을 발송했어요.`);
           return;
         }
 
         toast.error(
-          `회원 ${formatNumber(targets.length)}명 중 ${formatNumber(failed)}명에게 알림을 발송하지 못했습니다. 잠시 후 다시 시도해 주세요.`,
+          `회원 ${formatNumber(targets.length)}명 중 ${formatNumber(failed)}명에게 알림을 발송하지 못했어요. 잠시 후 다시 시도해 주세요.`,
           { retry: () => onBulkNotify(targets) },
         );
       },
@@ -317,8 +321,8 @@ export default function MembersPage() {
             // 실패하면 다이얼로그를 닫지 않는다 — 안내를 띄우고 버튼을 되살린다(재클릭 = 재시도)
             setDeleteError(
               targets.length === 1
-                ? '회원을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.'
-                : `회원 ${formatNumber(targets.length)}명 중 ${formatNumber(failed)}명을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.`,
+                ? '회원을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.'
+                : `회원 ${formatNumber(targets.length)}명 중 ${formatNumber(failed)}명을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.`,
             );
             return;
           }
@@ -327,8 +331,8 @@ export default function MembersPage() {
           list.clearSelection();
           toast.success(
             targets.length === 1
-              ? `${first.nickname} 회원을 삭제했습니다.`
-              : `회원 ${formatNumber(targets.length)}명을 삭제했습니다.`,
+              ? `${first.nickname} 회원을 삭제했어요.`
+              : `회원 ${formatNumber(targets.length)}명을 삭제했어요.`,
           );
         },
       },
@@ -339,8 +343,8 @@ export default function MembersPage() {
     pendingDelete === null || pendingDelete.length === 0
       ? ''
       : pendingDelete.length === 1 && pendingDelete[0] !== undefined
-        ? `${pendingDelete[0].nickname}(${pendingDelete[0].account}) 회원을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`
-        : `선택한 회원 ${formatNumber(pendingDelete.length)}명을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`;
+        ? `${pendingDelete[0].nickname}(${pendingDelete[0].account}) 회원을 삭제할까요? 되돌릴 수 없어요.`
+        : `선택한 회원 ${formatNumber(pendingDelete.length)}명을 삭제할까요? 되돌릴 수 없어요.`;
 
   return (
     <div style={pageStyle}>
@@ -358,8 +362,8 @@ export default function MembersPage() {
         <FilterRail
           notice={
             <p style={hintStyle}>
-              고객 목록은 회원가입으로만 유입됩니다. 관리자가 회원을 직접 추가하는 기능은 제공하지
-              않습니다.
+              고객 목록은 회원가입으로만 유입돼요. 관리자가 회원을 직접 추가하는 기능은 제공하지
+              않아요.
             </p>
           }
         >
@@ -386,10 +390,13 @@ export default function MembersPage() {
               void refetchGroups();
             }}
             footer={
-              // 회원이 아니라 **묶음**을 만드는 것이라 '사용자 추가 금지' 요구사항과 충돌하지 않는다
-              <Button variant="secondary" onClick={() => setCreatingGroup(true)}>
-                + 새 그룹 만들기
-              </Button>
+              // 회원이 아니라 **묶음**을 만드는 것이라 '사용자 추가 금지' 요구사항과 충돌하지 않는다.
+              // 다만 만드는 것은 만드는 것이다 — create 권한이 없으면 이 버튼은 존재하지 않는다.
+              canCreate ? (
+                <Button variant="secondary" onClick={() => setCreatingGroup(true)}>
+                  + 새 그룹 만들기
+                </Button>
+              ) : undefined
             }
           />
         </FilterRail>
@@ -443,7 +450,7 @@ export default function MembersPage() {
           ) : (
             <Alert tone="danger">
               <div style={errorBodyStyle}>
-                <span>회원 목록을 불러오지 못했습니다.</span>
+                <span>회원 목록을 불러오지 못했어요.</span>
                 <Button
                   variant="secondary"
                   onClick={() => {
@@ -463,7 +470,7 @@ export default function MembersPage() {
           onClose={() => setCreatingGroup(false)}
           onCreated={(name) => {
             setCreatingGroup(false);
-            toast.success(`'${name}' 그룹을 만들었습니다.`);
+            toast.success(`'${name}' 그룹을 만들었어요.`);
             // 그룹 목록 재조회는 useCreateGroup 의 onSuccess 무효화가 맡는다 (예전의 reloadGroups() 자리)
           }}
         />

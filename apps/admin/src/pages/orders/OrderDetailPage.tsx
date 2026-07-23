@@ -13,7 +13,7 @@
 //
 // [금액은 화면이 더하지 않는다] 상품금액·배송비·할인·쿠폰·적립금에서 최종 결제금액을 내는 것은
 // 도메인의 orderAmounts 하나다. 여기서 한 번 더 더하면 목록과 상세가 다른 금액을 말하게 된다.
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { cssVar, Table, Timeline } from '@tds/ui';
@@ -24,7 +24,7 @@ import { formatDateTime, formatNumber } from '../../shared/format';
 import { isNotFound, referenceOf } from '../../shared/errors/http-error';
 import { useRouteWritePermissions } from '../../shared/permissions/RequirePermission';
 import { useCrudItem, useCrudUpdate } from '../../shared/crud';
-import { PAYMENT_METHOD_LABEL } from '../../shared/commerce/payment-settings';
+import { PAYMENT_METHOD_LABEL } from '../../shared/commerce/pg-catalog';
 import {
   Alert,
   alertActionRowStyle,
@@ -42,6 +42,7 @@ import {
   pageTitleStyle,
   StatusBadge,
   TextareaField,
+  useModalDirtyGuard,
   useToast,
   useUnsavedChangesDialog,
 } from '../../shared/ui';
@@ -69,7 +70,7 @@ import { orderCancelReasonError, orderNoteError } from './validation';
 
 const LIST_PATH = '/orders';
 const UNSAVED_MESSAGE =
-  '처리 메모에 저장하지 않은 변경이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '처리 메모에 저장하지 않은 변경이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 /** 확인 창을 지나야 하는 되돌릴 수 없는 조작 — 취소는 사유를 받아야 해서 별도 모달이다 */
 type PendingAction =
@@ -97,6 +98,20 @@ const backLinkStyle: CSSProperties = {
   fontSize: cssVar('typography.label.md.font-size'),
   lineHeight: cssVar('typography.label.md.line-height'),
   cursor: 'pointer',
+};
+
+/**
+ * 제목 줄 — 주문번호와 배지들이 한 줄에 선다.
+ *
+ * 배지 묶음 **안**에만 간격이 있어서, 번호와 첫 배지가 붙어 한 낱말처럼 읽혔다.
+ * 그리고 글자와 배지는 높이가 달라 기준선에 맡기면 배지가 살짝 내려앉는다 —
+ * 가운데로 맞춘다. 좁아지면 배지가 다음 줄로 흐르되 번호는 그대로 앞에 남는다.
+ */
+const titleRowStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: cssVar('space.3'),
+  flexWrap: 'wrap',
 };
 
 const badgeRowStyle: CSSProperties = {
@@ -178,6 +193,19 @@ export default function OrderDetailPage() {
   const unsavedDialog = useUnsavedChangesDialog(noteDirty && !saving, { message: UNSAVED_MESSAGE });
 
   /**
+   * 취소 모달의 미저장 이탈 가드 — 다른 입력 모달 셋(useModalDirtyGuard)과 같은 관용구다.
+   * 사유를 쓰다 딤·Esc·×·닫기로 나가면 반쯤 쓴 사유가 조용히 사라지므로 확인을 세운다.
+   * dirty = 사유를 입력했고 저장 중이 아닐 때 — 저장 중에는 곧 성공해 닫히므로 가드가 필요 없다.
+   */
+  const closeCancel = useCallback(() => {
+    controllerRef.current?.abort();
+    setCancelOpen(false);
+    setCancelReason('');
+    setCancelTouched(false);
+  }, []);
+  const cancelGuard = useModalDirtyGuard(cancelReason.trim() !== '' && !saving, closeCancel);
+
+  /**
    * 모든 쓰기가 지나는 한 통로 — 도메인 함수가 만든 **다음 주문**을 그대로 저장한다.
    * 화면이 필드를 직접 조립하지 않는 이유: 상태와 이력이 갈라지는 저장이 생기지 않게 하려는 것이다.
    */
@@ -198,7 +226,7 @@ export default function OrderDetailPage() {
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setServerError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setServerError('저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
           setErrorReference(referenceOf(cause));
         },
       },
@@ -210,7 +238,7 @@ export default function OrderDetailPage() {
     const at = new Date().toISOString();
     try {
       if (pending.kind === 'paid') {
-        save(applyOrderPaid(order, at, '운영자'), '입금을 확인했습니다.', () => {
+        save(applyOrderPaid(order, at, '운영자'), '입금을 확인했어요.', () => {
           setPending(null);
         });
         return;
@@ -218,14 +246,14 @@ export default function OrderDetailPage() {
       const to = pending.to;
       save(
         applyOrderStatus(order, to, at, '운영자'),
-        `${orderStatusLabel(to)}(으)로 처리했습니다.`,
+        `${orderStatusLabel(to)}(으)로 처리했어요.`,
         () => {
           setPending(null);
         },
       );
     } catch (cause: unknown) {
       // 술어가 먼저 걸러 주므로 여기 오는 것은 화면과 규칙이 어긋났다는 뜻이다 — 사유를 그대로 보인다
-      setServerError(cause instanceof Error ? cause.message : '상태를 바꿀 수 없습니다.');
+      setServerError(cause instanceof Error ? cause.message : '상태를 바꿀 수 없어요.');
     }
   };
 
@@ -236,7 +264,7 @@ export default function OrderDetailPage() {
     try {
       save(
         applyOrderCancel(order, cancelReason, new Date().toISOString(), '운영자'),
-        '주문을 취소했습니다.',
+        '주문을 취소했어요.',
         () => {
           setCancelOpen(false);
           setCancelReason('');
@@ -244,13 +272,13 @@ export default function OrderDetailPage() {
         },
       );
     } catch (cause: unknown) {
-      setServerError(cause instanceof Error ? cause.message : '주문을 취소할 수 없습니다.');
+      setServerError(cause instanceof Error ? cause.message : '주문을 취소할 수 없어요.');
     }
   };
 
   const saveNote = () => {
     if (order === undefined || noteFieldError !== null) return;
-    save({ ...order, adminNote: note.trim() }, '처리 메모를 저장했습니다.');
+    save({ ...order, adminNote: note.trim() }, '처리 메모를 저장했어요.');
   };
 
   // [EXC-12] 404 와 서버 오류는 복구 수단이 다르다 — 없는 주문에 '다시 시도'는 영원히 실패한다.
@@ -262,8 +290,8 @@ export default function OrderDetailPage() {
           <div style={alertActionRowStyle}>
             <span>
               {notFound
-                ? '주문을 찾을 수 없습니다. 주문번호를 다시 확인해 주세요.'
-                : '주문을 불러오지 못했습니다.'}
+                ? '주문을 찾을 수 없어요. 주문번호를 다시 확인해 주세요.'
+                : '주문을 불러오지 못했어요.'}
             </span>
             {!notFound && (
               <Button
@@ -321,14 +349,16 @@ export default function OrderDetailPage() {
 
       <Card>
         <CardTitle>
-          {order.id}
-          <span style={badgeRowStyle}>
-            <StatusBadge
-              tone={orderStatusTone(order.status)}
-              label={orderStatusLabel(order.status)}
-            />
-            {canceled && <StatusBadge tone="danger" label="취소" />}
-            {!canceled && partial !== null && <StatusBadge tone="warning" label={partial} />}
+          <span style={titleRowStyle}>
+            <span>{order.id}</span>
+            <span style={badgeRowStyle}>
+              <StatusBadge
+                tone={orderStatusTone(order.status)}
+                label={orderStatusLabel(order.status)}
+              />
+              {canceled && <StatusBadge tone="danger" label="취소" />}
+              {!canceled && partial !== null && <StatusBadge tone="warning" label={partial} />}
+            </span>
           </span>
         </CardTitle>
 
@@ -343,7 +373,7 @@ export default function OrderDetailPage() {
 
         {canceled && (
           <Alert tone="warning">
-            {`${formatDateTime(order.canceledAt)}에 취소된 주문입니다. 사유: ${order.cancelReason}`}
+            {`${formatDateTime(order.canceledAt)}에 취소된 주문이에요. 사유: ${order.cancelReason}`}
           </Alert>
         )}
 
@@ -356,7 +386,7 @@ export default function OrderDetailPage() {
           {/* 차감 시점은 설정값이다 — 지금 규칙과 실제 결과를 나란히 보여야 '왜 아직 안 빠졌나' 에 답한다 */}
           <dd style={ddStyle}>
             {order.stockAppliedAt === ''
-              ? `아직 차감되지 않았습니다 (설정: ${STOCK_DEDUCT_LABEL[readStockDeductAt()]})`
+              ? `아직 차감되지 않았어요 (설정: ${STOCK_DEDUCT_LABEL[readStockDeductAt()]})`
               : `${formatDateTime(order.stockAppliedAt)} 차감 (설정: ${STOCK_DEDUCT_LABEL[readStockDeductAt()]})`}
           </dd>
           {order.stockRestoredAt !== '' && (
@@ -367,9 +397,7 @@ export default function OrderDetailPage() {
           )}
         </dl>
 
-        {!canUpdate && (
-          <Alert tone="info">이 주문을 처리할 권한이 없습니다. 조회만 가능합니다.</Alert>
-        )}
+        {!canUpdate && <Alert tone="info">이 주문을 처리할 권한이 없어요. 조회만 가능해요.</Alert>}
 
         {canUpdate && (
           <div style={spreadActionsStyle}>
@@ -442,11 +470,11 @@ export default function OrderDetailPage() {
         <CardTitle>주문 품목</CardTitle>
         {/* 값은 주문 시점의 스냅숏이다 — 상품을 고쳐도 이 표는 움직이지 않는다(도메인 머리말) */}
         <p style={hintStyle}>
-          상품명·옵션·단가는 주문 시점에 복사된 값입니다. 상품을 수정해도 지난 주문의 금액은 바뀌지
-          않습니다.
+          상품명·옵션·단가는 주문 시점에 복사된 값이에요. 상품을 수정해도 지난 주문의 금액은 바뀌지
+          않아요.
         </p>
         <Table
-          caption="주문 품목 — 주문 시점의 상품명·옵션·단가와 수량별 금액입니다."
+          caption="주문 품목 — 주문 시점의 상품명·옵션·단가와 수량별 금액이에요."
           columns={LINE_COLUMNS}
           rows={order.lines.map((line) => ({
             id: line.id,
@@ -462,10 +490,10 @@ export default function OrderDetailPage() {
             // 아직 다 나가지 않은 줄에 색조를 얹는다 — 뜻은 '출고' 칸의 숫자가 전한다
             ...(line.shippedQuantity < line.quantity && { tone: 'warning' as const }),
           }))}
-          empty="주문 품목이 없습니다."
+          empty="주문 품목이 없어요."
         />
         <p style={hintStyle}>
-          {`적립 예정 ${formatNumber(order.lines.reduce((sum, line) => sum + linePoint(line), 0))}원 — 주문 시점의 적립률로 계산합니다.`}
+          {`적립 예정 ${formatNumber(order.lines.reduce((sum, line) => sum + linePoint(line), 0))}원 — 주문 시점의 적립률로 계산해요.`}
         </p>
       </Card>
 
@@ -500,7 +528,7 @@ export default function OrderDetailPage() {
         <Timeline
           events={toTimelineEvents(order)}
           label="주문 처리 이력"
-          emptyLabel="기록된 처리 이력이 없습니다."
+          emptyLabel="기록된 처리 이력이 없어요."
         />
       </Card>
 
@@ -539,8 +567,8 @@ export default function OrderDetailPage() {
           title={pending.kind === 'paid' ? '입금 확인' : `${orderStatusLabel(pending.to)} 처리`}
           message={
             pending.kind === 'paid'
-              ? `입금을 확인 처리합니다. 재고 차감 시점이 '${STOCK_DEDUCT_LABEL.payment}'이면 이 시점에 재고가 빠지며, 되돌릴 수 없습니다.`
-              : `주문 ${order.id}을(를) ${orderStatusLabel(pending.to)}(으)로 진행합니다. 주문 상태는 되돌릴 수 없습니다.`
+              ? `입금을 확인 처리해요. 재고 차감 시점이 '${STOCK_DEDUCT_LABEL.payment}'이면 이 시점에 재고가 빠지며, 되돌릴 수 없어요.`
+              : `주문 ${order.id}을(를) ${orderStatusLabel(pending.to)}(으)로 진행해요. 주문 상태는 되돌릴 수 없어요.`
           }
           confirmLabel={pending.kind === 'paid' ? '입금 확인' : '진행'}
           busy={saving}
@@ -559,22 +587,14 @@ export default function OrderDetailPage() {
         <Modal
           title="주문 취소"
           icon={<Icon name="x-circle" />}
-          onClose={() => {
-            controllerRef.current?.abort();
-            setCancelOpen(false);
-            setCancelTouched(false);
-          }}
+          onClose={cancelGuard.requestClose}
           footer={
             <>
               <Button
                 variant="secondary"
                 size="md"
                 disabled={saving}
-                onClick={() => {
-                  controllerRef.current?.abort();
-                  setCancelOpen(false);
-                  setCancelTouched(false);
-                }}
+                onClick={cancelGuard.requestClose}
               >
                 닫기
               </Button>
@@ -591,7 +611,7 @@ export default function OrderDetailPage() {
           }
         >
           <p style={fieldLabelStyle}>
-            {`주문 ${order.id}을(를) 취소합니다. 취소는 되돌릴 수 없으며, 이미 차감된 재고는 자동으로 복원됩니다.`}
+            {`주문 ${order.id}을(를) 취소해요. 취소는 되돌릴 수 없으며, 이미 차감된 재고는 자동으로 복원돼요.`}
           </p>
           {serverError !== null && <Alert tone="danger">{serverError}</Alert>}
           <TextareaField
@@ -609,6 +629,7 @@ export default function OrderDetailPage() {
           />
         </Modal>
       )}
+      {cancelGuard.discardDialog}
 
       {unsavedDialog}
     </div>

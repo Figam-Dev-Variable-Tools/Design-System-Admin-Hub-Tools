@@ -22,7 +22,7 @@ export function requiredText(label: string, max: number) {
       error: `${label}${objectParticle(label)} 입력하세요.`,
     }),
     z.refine((value) => value.trim().length <= max, {
-      error: `${label}${topicParticle(label)} ${String(max)}자를 넘을 수 없습니다.`,
+      error: `${label}${topicParticle(label)} ${String(max)}자를 넘을 수 없어요.`,
     }),
   );
 }
@@ -31,7 +31,7 @@ export function requiredText(label: string, max: number) {
 export function optionalHttpUrl(label = '이미지 URL') {
   return z.string().check(
     z.refine((value) => value.trim() === '' || HTTP_URL_RE.test(value.trim()), {
-      error: `${label} 은 http:// 또는 https:// 로 시작해야 합니다.`,
+      error: `${label} 은 http:// 또는 https:// 로 시작해야 해요.`,
     }),
   );
 }

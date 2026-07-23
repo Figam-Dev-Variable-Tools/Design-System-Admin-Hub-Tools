@@ -11,10 +11,10 @@ import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 
 import { Card, CardTitle, hintStyle, mutedTextStyle, StatusBadge } from '../../../shared/ui';
-import { TIER_LABEL } from '../../../shared/domain/member';
 import { couponEditPath } from '../../../shared/domain/coupon-catalog';
 import { tierUpCoupons, tierUpCouponsByTier } from '../../../shared/domain/coupon-issuance';
-import { TIER_ORDER } from '../types';
+import { isBuiltInTierId } from '../types';
+import type { TierDraftRow } from '../types';
 import { cssVar } from '@tds/ui';
 
 const listStyle: CSSProperties = {
@@ -70,7 +70,12 @@ const couponRowStyle: CSSProperties = {
   justifyContent: 'flex-end',
 };
 
-export function TierUpCouponCard() {
+interface TierUpCouponCardProps {
+  /** 지금 편집 중인 등급 목록(초안) — 추가한 등급도 이 카드에 자기 줄을 갖는다 */
+  readonly tiers: readonly TierDraftRow[];
+}
+
+export function TierUpCouponCard({ tiers }: TierUpCouponCardProps) {
   // 조회기가 없으면 null — '없다' 와 '모른다' 는 다른 말이다 (coupon-issuance.ts 머리말)
   const coupons = tierUpCoupons();
 
@@ -80,17 +85,30 @@ export function TierUpCouponCard() {
 
       {coupons === null ? (
         // 빈 목록으로 뭉개면 운영자는 '걸린 쿠폰이 없다' 는 거짓을 사실로 읽는다
-        <p style={hintStyle}>승급 쿠폰 정보를 불러오지 못했습니다.</p>
+        <p style={hintStyle}>승급 쿠폰 정보를 불러오지 못했어요.</p>
       ) : (
         <>
           <ul style={listStyle}>
-            {TIER_ORDER.map((tier) => {
-              const forTier = tierUpCouponsByTier(coupons)[tier];
+            {tiers.map((tier) => {
+              /**
+               * [추가한 등급은 아직 쿠폰을 걸 수 없다 — 숨기지 않고 말한다]
+               * 쿠폰의 '회원 등급 승급 시' 트리거가 드는 값은 기본 제공 등급 3종의 유니온이다
+               * (pages/products/coupons 의 CouponTrigger). 그래서 방금 만든 등급은 쿠폰 폼의
+               * 선택지에 나타나지 않는다. 이 줄을 빼면 운영자는 '아직 안 걸었나 보다' 로 읽고
+               * 쿠폰 화면에서 없는 선택지를 찾아 헤맨다 — 사실을 그 자리에서 말한다.
+               */
+              const forTier = isBuiltInTierId(tier.id)
+                ? tierUpCouponsByTier(coupons)[tier.id]
+                : null;
               return (
-                <li key={tier} style={rowStyle}>
-                  <span style={tierStyle}>{TIER_LABEL[tier]} 승급 시</span>
+                <li key={tier.id} style={rowStyle}>
+                  <span style={tierStyle}>{tier.label} 승급 시</span>
                   <span style={couponListStyle}>
-                    {forTier.length === 0 ? (
+                    {forTier === null ? (
+                      <span style={mutedTextStyle}>
+                        쿠폰 발급 기준이 아직 이 등급을 고를 수 없어요
+                      </span>
+                    ) : forTier.length === 0 ? (
                       <span style={mutedTextStyle}>발급되는 쿠폰 없음</span>
                     ) : (
                       forTier.map((coupon) => (
@@ -114,9 +132,15 @@ export function TierUpCouponCard() {
           </ul>
 
           <p style={hintStyle}>
-            발급 기준은 쿠폰이 소유합니다. 바꾸려면 쿠폰의 <strong>발급 기준</strong>을 &lsquo;회원
+            발급 기준은 쿠폰이 소유해요. 바꾸려면 쿠폰의 <strong>발급 기준</strong>을 &lsquo;회원
             등급 승급 시&rsquo;로 두고 대상 등급을 고르세요.
           </p>
+          {tiers.some((tier) => !isBuiltInTierId(tier.id)) && (
+            <p style={hintStyle}>
+              추가한 등급은 아직 쿠폰의 발급 기준에서 고를 수 없어요 — 쿠폰은 기본 제공 등급 3종만
+              알아요. 그 등급으로 올라간 회원에게는 승급 쿠폰이 나가지 않아요.
+            </p>
+          )}
         </>
       )}
     </Card>

@@ -70,17 +70,17 @@ export function Empty({
 
   const title =
     mode === 'search'
-      ? `조건에 맞는 ${label}${particle} 없습니다`
+      ? `조건에 맞는 ${label}${particle} 없어요`
       : mode === 'filter'
-        ? `필터에 맞는 ${label}${particle} 없습니다`
-        : `${createVerb}된 ${label}${particle} 없습니다`;
+        ? `필터에 맞는 ${label}${particle} 없어요`
+        : `${createVerb}된 ${label}${particle} 없어요`;
 
   const description =
     mode === 'search'
       ? '검색어를 바꾸거나 지워 보세요.'
       : mode === 'filter'
         ? '필터를 바꾸거나 초기화해 보세요.'
-        : '새로 추가하면 여기에 표시됩니다.';
+        : '새로 추가하면 여기에 표시돼요.';
 
   // 복구 수단 — 검색: '검색 지우기', 필터: '필터 초기화'(콜백이 있을 때만), 진짜 비어있음: 생성 CTA 슬롯
   const recovery =

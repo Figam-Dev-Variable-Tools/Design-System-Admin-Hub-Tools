@@ -125,7 +125,7 @@ export function QuoteLineItemsTable({
       <span style={fieldLabelStyle}>품목 *</span>
       <p style={hintStyle}>
         품목을 추가하면 공급가액(수량 × 단가)이 자동 계산되고, 하단에 {taxModeLabel(taxMode)} 기준
-        합계가 나옵니다. (최대 {QUOTE_MAX_ITEMS}개)
+        합계가 나와요. (최대 {QUOTE_MAX_ITEMS}개)
       </p>
 
       <div style={tableWrapStyle}>

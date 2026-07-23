@@ -10,13 +10,22 @@
  * ·비전/미션)이 공유하는 DocumentFormShell 위에 필드만 얹는다: 안내문 → 카드(제목 + 필드 스택) →
  * 저장 툴바(변경 여부 문구 + 저장 버튼). 저장하지 않은 채 이탈하면 가드가 막고, 저장은 토스트로 알린다.
  *
+ * [주소는 검색으로 고른다 — 오시는 길과 같은 규칙]
+ * 주소 칸은 **읽기 전용**이고, 누르면 카카오(다음) 우편번호 서비스를 담은 모달이 열린다. 검색이 주는
+ * 주소에는 층·호수가 없으므로 **상세주소**가 별도 칸으로 따라온다. Storybook 은 그 SDK 를 로드하지
+ * 않으므로 모달 안에는 '여기에 검색이 심어진다' 고 **명시된** 자리를 둔다 — 회색 상자에 검색창을
+ * 그린 척하지 않는다.
+ *
  * [조립 원칙] `../../src` public DS 컴포넌트만 조합한다 — 이 폴더에서 신규 DS 컴포넌트를 만들지 않고
  * apps/admin 을 import 하지 않는다(레이어 경계). 앱 전용 조각은 DS 표면으로 갈음한다:
  *   DocumentFormShell → Card + 토큰만 쓴 <h2> + 저장 툴바(Button) + Alert(danger)
  *
  * 실화면 ↔ DS 컴포넌트 매핑:
  *   폼 껍데기(DocumentFormShell) → Card + 토큰만 쓴 <h2>(CardTitle 은 DS 부재 — 토큰 레이아웃으로 대체)
- *   회사명 · 사업자등록번호 · 대표자명 · 연락처 · 주소 → FormField + input(controlStyle)
+ *   회사명 · 사업자등록번호 · 대표자명 · 연락처 → FormField + input(controlStyle)
+ *   주소(읽기 전용) + 주소 검색  → FormField + input[readOnly] + Button(secondary)
+ *   주소 검색 모달               → Modal(제목 '주소 검색' + 닫기 푸터) + 위젯이 앉을 자리
+ *   상세주소                     → FormField + input(controlStyle)
  *   로고 이미지                 → ImageUploadField
  *   저장 실패 배너              → Alert(danger)
  *   조회 실패 + 다시 시도        → Alert(danger) + Button(secondary)
@@ -35,6 +44,8 @@ import {
   Button,
   Card,
   FormField,
+  Modal,
+  formRowStyle,
   ImageUploadField,
   Skeleton,
   cssVar,
@@ -54,6 +65,7 @@ type Story = StoryObj;
 
 const COMPANY_NAME_MAX_LENGTH = 100;
 const ADDRESS_MAX_LENGTH = 200;
+const ADDRESS_DETAIL_MAX_LENGTH = 100;
 const NAME_MAX_LENGTH = 50;
 const CONTACT_MAX_LENGTH = 40;
 
@@ -67,7 +79,10 @@ const LOGO_DATA_URI = `data:image/svg+xml,${encodeURIComponent(
 interface ProfileValues {
   readonly companyName: string;
   readonly businessNumber: string;
+  /** 검색으로 고른 주소 한 줄 — 층·호수는 여기 없다 */
   readonly address: string;
+  /** 건물명·층·호수 등 (선택) */
+  readonly addressDetail: string;
   readonly ceoName: string;
   readonly contact: string;
   readonly logoUrl: string;
@@ -77,6 +92,7 @@ const EMPTY_PROFILE: ProfileValues = {
   companyName: '',
   businessNumber: '',
   address: '',
+  addressDetail: '',
   ceoName: '',
   contact: '',
   logoUrl: '',
@@ -85,7 +101,8 @@ const EMPTY_PROFILE: ProfileValues = {
 const SEED_PROFILE: ProfileValues = {
   companyName: '주식회사 예시플래닝',
   businessNumber: '123-45-67890',
-  address: '서울특별시 예시구 가상대로 123, 예시타워 8층',
+  address: '서울특별시 예시구 가상대로 123',
+  addressDetail: '예시타워 8층',
   ceoName: '홍길동',
   contact: '02-0000-0000',
   logoUrl: LOGO_DATA_URI,
@@ -96,6 +113,7 @@ interface FieldErrors {
   readonly companyName?: string;
   readonly businessNumber?: string;
   readonly address?: string;
+  readonly addressDetail?: string;
   readonly ceoName?: string;
   readonly contact?: string;
   readonly logoUrl?: string;
@@ -103,7 +121,7 @@ interface FieldErrors {
 
 const DEMO_ERRORS: FieldErrors = {
   companyName: '회사명을 입력하세요.',
-  businessNumber: '사업자등록번호 형식이 올바르지 않습니다. (예: 123-45-67890)',
+  businessNumber: '사업자등록번호 형식이 올바르지 않아요. (예: 123-45-67890)',
   ceoName: '대표자명을 입력하세요.',
   contact: '연락처를 입력하세요.',
   address: '주소를 입력하세요.',
@@ -151,13 +169,7 @@ const cardTitleStyle: CSSProperties = {
   color: cssVar('color.text.default'),
 };
 
-/** 사업자등록번호 · 대표자명이 나란히 서는 행 — 실화면 rowStyle(auto-fit minmax) 미러 */
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 6), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
+/** 사업자등록번호 · 대표자명이 나란히 서는 행 — 실화면 formRowStyle(auto-fit minmax) 미러 */
 const controlStyle = (invalid: boolean): CSSProperties => ({
   width: '100%',
   boxSizing: 'border-box',
@@ -173,6 +185,51 @@ const controlStyle = (invalid: boolean): CSSProperties => ({
   color: cssVar('color.text.default'),
   ...typography('typography.label.md'),
 });
+
+/** 주소 입력 + 검색 버튼 — 실화면 addressRowStyle 미러(입력이 줄고 버튼은 레이블 폭을 지킨다) */
+const addressRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'stretch',
+  gap: cssVar('space.2'),
+  minWidth: 0,
+};
+
+/** 읽기 전용 주소 칸 — 누르면 모달이 열리므로 커서가 포인터다 */
+const addressInputStyle = (invalid: boolean): CSSProperties => ({
+  ...controlStyle(invalid),
+  flex: '1 1 auto',
+  minWidth: 0,
+  cursor: 'pointer',
+});
+
+/** 주소 검색 위젯(iframe)이 앉는 자리 — Storybook 은 SDK 를 로드하지 않아 자리임을 명시한다 */
+const searchHostStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  boxSizing: 'border-box',
+  width: '100%',
+  height: `calc(${cssVar('space.6')} * 10)`,
+  paddingTop: cssVar('space.4'),
+  paddingBottom: cssVar('space.4'),
+  paddingLeft: cssVar('space.4'),
+  paddingRight: cssVar('space.4'),
+  borderStyle: 'solid',
+  borderWidth: cssVar('border-width.thin'),
+  borderColor: cssVar('color.border.default'),
+  borderRadius: cssVar('radius.md'),
+  background: cssVar('color.surface.raised'),
+  color: cssVar('color.text.muted'),
+  textAlign: 'center',
+};
+
+const searchStatusStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: cssVar('space.3'),
+  alignItems: 'flex-start',
+  minWidth: 0,
+};
 
 const actionsStyle: CSSProperties = {
   display: 'flex',
@@ -216,6 +273,10 @@ interface CompanyProfileScreenProps {
   readonly serverError?: string | null;
   readonly errors?: FieldErrors;
   readonly seed?: ProfileValues;
+  /** 주소 검색 모달을 연 채로 보여준다 */
+  readonly searchOpen?: boolean;
+  /** 모달 안의 검색 위젯 상태 — 로딩·실패·정상을 각각 보여준다 */
+  readonly searchState?: 'loading' | 'failed' | 'ready';
 }
 
 function CompanyProfileScreen({
@@ -226,14 +287,18 @@ function CompanyProfileScreen({
   serverError = null,
   errors = {},
   seed = SEED_PROFILE,
+  searchOpen = false,
+  searchState = 'ready',
 }: CompanyProfileScreenProps) {
   const [companyName, setCompanyName] = useState(seed.companyName);
   const [businessNumber, setBusinessNumber] = useState(seed.businessNumber);
   const [ceoName, setCeoName] = useState(seed.ceoName);
   const [contact, setContact] = useState(seed.contact);
   const [address, setAddress] = useState(seed.address);
+  const [addressDetail, setAddressDetail] = useState(seed.addressDetail);
   const [logoUrl, setLogoUrl] = useState(seed.logoUrl);
   const [dirty, setDirty] = useState(initialDirty);
+  const [modalOpen, setModalOpen] = useState(searchOpen);
 
   const disabled = saving || loading;
   const touch = (): void => setDirty(true);
@@ -244,7 +309,7 @@ function CompanyProfileScreen({
         <h1 style={pageTitleStyle}>회사 정보</h1>
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>내용을 불러오지 못했습니다.</span>
+            <span>내용을 불러오지 못했어요.</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
@@ -256,7 +321,7 @@ function CompanyProfileScreen({
     <div style={pageStyle}>
       <h1 style={pageTitleStyle}>회사 정보</h1>
       <p style={descriptionStyle}>
-        별표(*) 항목은 필수입니다. 저장하면 사용자 화면의 회사 소개에 반영됩니다.
+        별표(*)는 꼭 입력해야 하는 항목이에요. 저장하면 홈페이지의 회사 소개에 바로 반영돼요.
       </p>
 
       <form onSubmit={(event) => event.preventDefault()} noValidate>
@@ -296,7 +361,7 @@ function CompanyProfileScreen({
                   />
                 </FormField>
 
-                <div style={rowStyle}>
+                <div style={formRowStyle}>
                   <FormField
                     htmlFor="profile-biznum"
                     label="사업자등록번호"
@@ -368,19 +433,51 @@ function CompanyProfileScreen({
                   htmlFor="profile-address"
                   label="주소"
                   required
+                  hint="주소 칸이나 '주소 검색' 버튼을 누르면 검색창이 열려요. 층·호수는 아래 상세주소에 적어 주세요."
                   {...(errors.address !== undefined && { error: errors.address })}
                 >
+                  <div style={addressRowStyle}>
+                    <input
+                      id="profile-address"
+                      type="text"
+                      readOnly
+                      style={addressInputStyle(errors.address !== undefined)}
+                      maxLength={ADDRESS_MAX_LENGTH}
+                      placeholder="주소 검색으로 선택하세요"
+                      disabled={disabled}
+                      aria-invalid={errors.address !== undefined}
+                      value={address}
+                      onClick={() => setModalOpen(true)}
+                      onChange={(event) => setAddress(event.target.value)}
+                    />
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      disabled={disabled}
+                      onClick={() => setModalOpen(true)}
+                    >
+                      주소 검색
+                    </Button>
+                  </div>
+                </FormField>
+
+                <FormField
+                  htmlFor="profile-address-detail"
+                  label="상세주소"
+                  hint="건물명·층·호수 등 (선택)"
+                  {...(errors.addressDetail !== undefined && { error: errors.addressDetail })}
+                >
                   <input
-                    id="profile-address"
+                    id="profile-address-detail"
                     type="text"
-                    style={controlStyle(errors.address !== undefined)}
-                    maxLength={ADDRESS_MAX_LENGTH}
-                    placeholder="예: 서울특별시 예시구 가상대로 123"
+                    style={controlStyle(errors.addressDetail !== undefined)}
+                    maxLength={ADDRESS_DETAIL_MAX_LENGTH}
+                    placeholder="예: 예시타워 8층"
                     disabled={disabled}
-                    aria-invalid={errors.address !== undefined}
-                    value={address}
+                    aria-invalid={errors.addressDetail !== undefined}
+                    value={addressDetail}
                     onChange={(event) => {
-                      setAddress(event.target.value);
+                      setAddressDetail(event.target.value);
                       touch();
                     }}
                   />
@@ -391,7 +488,7 @@ function CompanyProfileScreen({
                   value={logoUrl}
                   disabled={disabled}
                   error={errors.logoUrl ?? ''}
-                  hint="이미지를 끌어다 놓거나 클릭해 업로드합니다. 비워 두면 로고가 표시되지 않습니다."
+                  hint="이미지를 끌어다 놓거나 클릭해 올려요. 비워 두면 로고가 나오지 않아요."
                   onChange={(value) => {
                     setLogoUrl(value);
                     touch();
@@ -403,10 +500,10 @@ function CompanyProfileScreen({
             <div style={actionsStyle}>
               <p style={footerHintStyle}>
                 {saving
-                  ? '저장하는 중입니다…'
+                  ? '저장하는 중이에요…'
                   : dirty
-                    ? '저장하지 않은 변경 사항이 있습니다.'
-                    : '변경 사항이 없습니다.'}
+                    ? '저장하지 않은 변경 사항이 있어요.'
+                    : '변경 사항이 없어요.'}
               </p>
               <Button
                 type="submit"
@@ -421,6 +518,40 @@ function CompanyProfileScreen({
           </div>
         </Card>
       </form>
+
+      {modalOpen && (
+        <Modal
+          title="주소 검색"
+          onClose={() => setModalOpen(false)}
+          footer={
+            <Button variant="secondary" size="md" onClick={() => setModalOpen(false)}>
+              닫기
+            </Button>
+          }
+        >
+          {searchState === 'loading' && (
+            <p style={footerHintStyle} aria-busy="true">
+              주소 검색을 여는 중이에요…
+            </p>
+          )}
+          {searchState === 'failed' && (
+            <div style={searchStatusStyle}>
+              <Alert tone="danger">
+                주소 검색을 불러오지 못했어요. 인터넷 연결이 끊겼거나 브라우저 확장 프로그램이 막고
+                있을 수 있으니, 확인한 뒤 다시 시도해 주세요.
+              </Alert>
+              <Button variant="secondary" size="md">
+                다시 시도
+              </Button>
+            </div>
+          )}
+          {searchState === 'ready' && (
+            <div style={searchHostStyle}>
+              카카오(다음) 우편번호 검색이 이 자리에 심어져요 (Storybook 은 SDK 를 로드하지 않아요)
+            </div>
+          )}
+        </Modal>
+      )}
     </div>
   );
 }
@@ -448,4 +579,19 @@ export const ValidationError: Story = {
 /** 조회 실패: 폼 대신 danger 배너 + 다시 시도 (EXC — 없는 폼을 반쯤 그리지 않는다) */
 export const LoadFailed: Story = {
   render: () => <CompanyProfileScreen loadFailed />,
+};
+
+/** 주소 검색 모달: 우편번호 검색이 심긴 상태 */
+export const AddressSearchOpen: Story = {
+  render: () => <CompanyProfileScreen searchOpen searchState="ready" />,
+};
+
+/** 주소 검색 모달(로딩): 검색 위젯을 심는 중 — 실패와 **다른 화면**이다(기다리면 되는 상태) */
+export const AddressSearchLoading: Story = {
+  render: () => <CompanyProfileScreen searchOpen searchState="loading" />,
+};
+
+/** 주소 검색 모달(실패): 검색 스크립트를 받지 못했다 — 다시 시도를 준다 */
+export const AddressSearchFailed: Story = {
+  render: () => <CompanyProfileScreen searchOpen searchState="failed" />,
 };

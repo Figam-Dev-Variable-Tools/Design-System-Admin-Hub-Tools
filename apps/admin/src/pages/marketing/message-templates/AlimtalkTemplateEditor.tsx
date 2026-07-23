@@ -106,7 +106,7 @@ import { cssVar } from '@tds/ui';
 
 const ENTITY_LABEL = '메시지 템플릿';
 const UNSAVED_MESSAGE =
-  '알림톡 템플릿에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '알림톡 템플릿에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const BODY_FIELD_ID = 'alimtalk-body';
 
@@ -436,8 +436,8 @@ export default function AlimtalkTemplateEditor() {
         <div style={alertActionRowStyle}>
           <span>
             {loadFailure === 'not-found'
-              ? '알림톡 템플릿을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-              : '알림톡 템플릿을 불러오지 못했습니다.'}
+              ? '알림톡 템플릿을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+              : '알림톡 템플릿을 불러오지 못했어요.'}
           </span>
           {loadFailure === 'error' && (
             <Button variant="secondary" onClick={retryLoad}>
@@ -768,8 +768,8 @@ export default function AlimtalkTemplateEditor() {
                   <InfoCallout
                     lines={[
                       ALIMTALK_CHANNEL_ADD_GUIDE,
-                      '이 문구는 카카오가 정한 고정 문장이라 수정할 수 없습니다.',
-                      '이 글자 수도 본문 상한에 합산됩니다.',
+                      '이 문구는 카카오가 정한 고정 문장이라 수정할 수 없어요.',
+                      '이 글자 수도 본문 상한에 합산돼요.',
                     ]}
                   />
                 </section>

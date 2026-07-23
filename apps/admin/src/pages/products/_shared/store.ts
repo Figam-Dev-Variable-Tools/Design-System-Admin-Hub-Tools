@@ -11,8 +11,13 @@
 //
 // [백엔드 없음] 실제 네트워크 0건 — mutable 배열을 아래 쓰기 함수가 갱신한다. 연동 지점은 각 화면
 // data-source.ts 의 // TODO(backend) 주석이다. 정본이 서버로 옮겨가면 이 배열이 서버 상태로 바뀐다.
-
-import type { PriceDisplay } from '../../../shared/commerce/price-display';
+//
+// [가격 '표시' 는 상품이 갖지 않는다 — 이 모델에서 걷어낸 축]
+// 예전에는 상품마다 `priceDisplay`('금액 노출' / '가격문의')와 `inquiryText` 를 저장했다. 운영 요구로
+// 그 선택이 사라졌다 — 금액을 노출하는가는 **사이트 전역 결제 연동 상태의 결과**이고, 그 답은
+// shared/commerce 의 resolvePriceDisplay 하나가 낸다. 저장 필드로 남겨 두면 아무도 설정할 수 없는
+// 값이 연동 상태와 어긋난 채 남아, 어느 쪽이 진실인지 알 수 없게 된다(파생값은 저장하지 않는다).
+// **판매가·할인·과세는 그대로 남는다** — 잠금은 입력만 막고 값은 보존한다.
 
 /* ── 카테고리 ─────────────────────────────────────────────────────────────── */
 
@@ -49,17 +54,6 @@ interface ProductPricing {
   readonly discountValue: number;
   /** 과세 여부 — 과세/면세 */
   readonly taxable: boolean;
-  /**
-   * 가격 표시 축(축 B) — 이 상품의 금액을 노출하는가.
-   *
-   * 결제(PG) 사용 여부(축 A)와 **다른 축**이다: 결제를 켠 쇼핑몰에도 주문 제작·B2B 납품처럼
-   * 견적이 있어야 값이 정해지는 상품이 섞여 있다. 화면이 무엇을 그릴지는 두 축을 합친
-   * shared/commerce/price-display 의 resolvePriceDisplay 가 답한다 — 여기 저장하는 것은
-   * **상품의 의도**뿐이고, 그 결과는 저장하지 않는다.
-   */
-  readonly priceDisplay: PriceDisplay;
-  /** 금액 대신 보일 문구(운영자 편집). 비어 있으면 기본값('가격문의') */
-  readonly inquiryText: string;
 }
 
 /* ── 옵션 / SKU(변형) ─────────────────────────────────────────────────────── */
@@ -474,8 +468,6 @@ let products: Product[] = [
       discountType: 'percent',
       discountValue: 20,
       taxable: true,
-      priceDisplay: 'amount',
-      inquiryText: '',
     },
     saleStatus: 'on_sale',
     displayed: true,
@@ -565,7 +557,7 @@ let products: Product[] = [
     coverImageUrl: '/fixtures/placeholder-image.svg',
     imageUrls: ['/fixtures/placeholder-image.svg'],
     description:
-      '<p>가벼운 충전재로 <strong>보온성</strong>과 활동성을 모두 잡은 데일리 패딩입니다.</p><ul><li>초경량 충전재</li><li>발수 가공 원단</li></ul>',
+      '<p>가벼운 충전재로 <strong>보온성</strong>과 활동성을 모두 잡은 데일리 패딩이에요.</p><ul><li>초경량 충전재</li><li>발수 가공 원단</li></ul>',
     tags: ['패딩', '겨울', '경량'],
   },
   {
@@ -580,8 +572,6 @@ let products: Product[] = [
       discountType: 'none',
       discountValue: 0,
       taxable: true,
-      priceDisplay: 'amount',
-      inquiryText: '',
     },
     saleStatus: 'on_sale',
     displayed: true,
@@ -610,7 +600,7 @@ let products: Product[] = [
     coupons: { usable: true, mode: 'exclude', couponIds: ['cpn-3'] },
     coverImageUrl: '/fixtures/placeholder-image.svg',
     imageUrls: [],
-    description: '<p>두께감 있는 코튼 원단으로 사계절 입기 좋은 기본 티셔츠입니다.</p>',
+    description: '<p>두께감 있는 코튼 원단으로 사계절 입기 좋은 기본 티셔츠예요.</p>',
     tags: ['티셔츠', '베이직'],
   },
   {
@@ -625,8 +615,6 @@ let products: Product[] = [
       discountType: 'amount',
       discountValue: 10000,
       taxable: true,
-      priceDisplay: 'amount',
-      inquiryText: '',
     },
     saleStatus: 'on_sale',
     displayed: true,
@@ -664,7 +652,7 @@ let products: Product[] = [
     coupons: { usable: true, mode: 'include', couponIds: ['cpn-2'] },
     coverImageUrl: '/fixtures/placeholder-image.svg',
     imageUrls: [],
-    description: '<p>가벼운 쿠셔닝으로 데일리 착화감이 좋은 스니커즈입니다.</p>',
+    description: '<p>가벼운 쿠셔닝으로 데일리 착화감이 좋은 스니커즈예요.</p>',
     tags: ['신발', '스니커즈'],
   },
   {
@@ -679,8 +667,6 @@ let products: Product[] = [
       discountType: 'none',
       discountValue: 0,
       taxable: true,
-      priceDisplay: 'amount',
-      inquiryText: '',
     },
     saleStatus: 'sold_out',
     displayed: true,
@@ -716,7 +702,7 @@ let products: Product[] = [
     coupons: { usable: true, mode: 'all', couponIds: [] },
     coverImageUrl: '/fixtures/placeholder-image.svg',
     imageUrls: [],
-    description: '<p>자연스러운 워싱과 편안한 핏의 데님 팬츠입니다.</p>',
+    description: '<p>자연스러운 워싱과 편안한 핏의 데님 팬츠예요.</p>',
     tags: ['데님', '팬츠'],
   },
   {
@@ -726,15 +712,13 @@ let products: Product[] = [
     categoryId: 'acc',
     categoryLabel: '액세서리',
     brand: '오브제',
-    // 축 B 를 실제로 쓰는 한 건 — 결제를 켜 두어도 이 상품만 금액 대신 문구가 나간다.
-    // (할인 15% 는 지워지지 않고 남는다 — '금액 노출' 로 되돌리면 그대로 살아난다.)
+    // 값이 살아 있는 채로 잠기는 것을 보여 주는 한 건 — 결제 연동이 없으면 이 45,000원과 할인 15%
+    // 는 화면에서 '가격문의' 로 대체되지만 **저장값은 그대로다**. 연동을 마치면 그대로 살아난다.
     pricing: {
       price: 45000,
       discountType: 'percent',
       discountValue: 15,
       taxable: true,
-      priceDisplay: 'inquiry',
-      inquiryText: '견적 문의',
     },
     saleStatus: 'stopped',
     displayed: false,
@@ -748,7 +732,7 @@ let products: Product[] = [
     coupons: { usable: false, mode: 'all', couponIds: [] },
     coverImageUrl: '/fixtures/placeholder-image.svg',
     imageUrls: [],
-    description: '<p>가벼운 외출에 어울리는 미니멀한 크로스백입니다.</p>',
+    description: '<p>가벼운 외출에 어울리는 미니멀한 크로스백이에요.</p>',
     tags: ['가방', '크로스백'],
   },
 ];
@@ -764,7 +748,7 @@ export function listProducts(): readonly Product[] {
 
 export function getProduct(id: string): Product {
   const found = products.find((product) => product.id === id);
-  if (found === undefined) throw new Error('상품을 찾을 수 없습니다');
+  if (found === undefined) throw new Error('상품을 찾을 수 없어요');
   return found;
 }
 
@@ -805,7 +789,7 @@ export function listProductCategoryUsage(): readonly ProductCategoryUsage[] {
 
 export function getProductCategoryUsage(id: string): ProductCategoryUsage {
   const found = categories.find((category) => category.id === id);
-  if (found === undefined) throw new Error('카테고리를 찾을 수 없습니다');
+  if (found === undefined) throw new Error('카테고리를 찾을 수 없어요');
   return {
     ...found,
     productCount: countProductsUsingCategory(found.id, products),
@@ -841,12 +825,12 @@ export function productCategoryPath(id: string): string {
 function assertAssignableParent(parentId: string | null, selfId?: string): void {
   if (parentId === null) return;
   if (selfId !== undefined && parentId === selfId) {
-    throw new Error('자기 자신을 상위 카테고리로 지정할 수 없습니다.');
+    throw new Error('자기 자신을 상위 카테고리로 지정할 수 없어요.');
   }
   const parent = categories.find((category) => category.id === parentId);
-  if (parent === undefined) throw new Error('상위 카테고리를 찾을 수 없습니다.');
+  if (parent === undefined) throw new Error('상위 카테고리를 찾을 수 없어요.');
   if (parent.parentId !== null) {
-    throw new Error('카테고리는 2단계까지만 만들 수 있습니다.');
+    throw new Error('카테고리는 2단계까지만 만들 수 있어요.');
   }
 }
 
@@ -867,7 +851,7 @@ export function updateProductCategory(
   assertAssignableParent(parentId, id);
   // 하위를 가진 대분류를 다른 대분류 밑으로 넣으면 3단계가 된다 — 막는다
   if (parentId !== null && hasProductCategoryChildren(id)) {
-    throw new Error('하위 카테고리가 있는 카테고리는 다른 카테고리 밑으로 옮길 수 없습니다.');
+    throw new Error('하위 카테고리가 있는 카테고리는 다른 카테고리 밑으로 옮길 수 없어요.');
   }
 
   const trimmed = label.trim();
@@ -883,10 +867,10 @@ export function updateProductCategory(
 /** 사용 중이거나 하위가 있으면 삭제하지 않는다(서버는 409 로 막는다). 프론트도 버튼을 잠근다. */
 export function removeProductCategory(id: string): void {
   if (countProductsUsingCategory(id, products) > 0) {
-    throw new Error('사용 중인 카테고리는 삭제할 수 없습니다.');
+    throw new Error('사용 중인 카테고리는 삭제할 수 없어요.');
   }
   if (hasProductCategoryChildren(id)) {
-    throw new Error('하위 카테고리가 있는 카테고리는 삭제할 수 없습니다.');
+    throw new Error('하위 카테고리가 있는 카테고리는 삭제할 수 없어요.');
   }
   categories = categories.filter((category) => category.id !== id);
 }

@@ -101,8 +101,7 @@ export function AdminsTable({
   return (
     <table style={tableStyle} aria-busy={loading}>
       <caption style={visuallyHiddenStyle}>
-        운영자 목록 — 행을 누르면 운영자 상세로 이동합니다. 체크박스·메모 버튼은 각자의 동작을
-        수행합니다.
+        운영자 목록 — 행을 누르면 운영자 상세로 이동해요. 체크박스·메모 버튼은 각자 따로 동작해요.
       </caption>
 
       <thead>
@@ -127,7 +126,7 @@ export function AdminsTable({
         ) : admins.length === 0 ? (
           <tr>
             <td colSpan={COLUMNS.length + 1} style={emptyCellStyle}>
-              검색 결과가 없습니다.
+              검색 결과가 없어요.
             </td>
           </tr>
         ) : (

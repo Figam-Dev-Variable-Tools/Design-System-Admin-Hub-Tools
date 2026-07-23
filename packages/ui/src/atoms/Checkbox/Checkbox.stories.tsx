@@ -73,7 +73,7 @@ export const LongLabel: Story = {
   args: {
     checked: true,
     label:
-      '개인정보 수집·이용에 동의합니다 (수집 항목: 이름·이메일·연락처 / 보유 기간: 회원 탈퇴 시까지)',
+      '개인정보 수집·이용에 동의해요 (수집 항목: 이름·이메일·연락처 / 보유 기간: 회원 탈퇴 시까지)',
   },
   parameters: { layout: 'padded' },
 };

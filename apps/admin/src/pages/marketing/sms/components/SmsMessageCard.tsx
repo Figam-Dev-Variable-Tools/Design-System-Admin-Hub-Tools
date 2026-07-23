@@ -84,7 +84,7 @@ export function SmsMessageCard({
       <FormField
         htmlFor="sms-template"
         label="템플릿 불러오기"
-        hint="발행되어 켜져 있는(Active) 문자 템플릿을 본문에 채웁니다."
+        hint="발행되어 켜져 있는(Active) 문자 템플릿을 본문에 채워요."
       >
         <SelectField
           id="sms-template"
@@ -93,7 +93,7 @@ export function SmsMessageCard({
           onChange={(event) => onApplyTemplate(event.target.value)}
         >
           {templates.length === 0 ? (
-            <option value={NO_TEMPLATE}>발행된 템플릿이 없습니다</option>
+            <option value={NO_TEMPLATE}>발행된 템플릿이 없어요</option>
           ) : (
             <>
               <option value={NO_TEMPLATE}>템플릿 선택 안 함</option>
@@ -114,12 +114,12 @@ export function SmsMessageCard({
         maxLength={SMS_BODY_MAX}
         disabled={disabled}
         error={errors.body?.message}
-        placeholder="발송할 문구를 입력하세요. #{이름} 등 치환변수를 넣을 수 있습니다."
+        placeholder="발송할 문구를 입력하세요. #{이름} 등 치환변수를 넣을 수 있어요."
         rows={5}
       />
       <p style={hintStyle}>
         {`${String(bytes)} byte · ${smsKindLabel(kind)} (한도 ${String(smsByteLimit(kind))} byte)`}
-        {kind === 'lms' && ' — 90 byte 초과로 LMS 로 발송됩니다.'}
+        {kind === 'lms' && ' — 90 byte 초과로 LMS 로 발송돼요.'}
       </p>
       {/*
         접두가 실제로 붙을 때만 말한다. 늘 띄우면 '설정한 적 없다' 는 사실까지 안내문으로 바뀌어,
@@ -127,7 +127,7 @@ export function SmsMessageCard({
       */}
       {messagingName !== '' && (
         <p style={hintStyle}>
-          {`발송 시 본문 앞에 "[${messagingName}] " 가 붙습니다 — 위 byte 는 이 접두를 포함한 수입니다. (시스템 설정 › 기본 설정)`}
+          {`발송 시 본문 앞에 "[${messagingName}] " 가 붙어요 — 위 byte 는 이 접두를 포함한 수예요. (시스템 설정 › 기본 설정)`}
         </p>
       )}
       <VariableInsertBar
@@ -151,7 +151,7 @@ export function SmsMessageCard({
       </div>
       {adWarning && (
         <Alert tone="warning">
-          광고성 메시지입니다. 본문에 &quot;(광고)&quot; 표기와 무료수신거부(예: 080) 안내를
+          광고성 메시지예요. 본문에 &quot;(광고)&quot; 표기와 무료수신거부(예: 080) 안내를
           포함하세요{hasAdPrefix(body) ? '' : ' — (광고) 표기 누락'}
           {hasOptOut(body) ? '' : ' — 수신거부 문구 누락'}.
         </Alert>

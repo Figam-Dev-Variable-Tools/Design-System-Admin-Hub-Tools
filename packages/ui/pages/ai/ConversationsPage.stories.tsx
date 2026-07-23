@@ -177,12 +177,11 @@ function ConversationsScreen({ state, initialConfirmingId }: ConversationsScreen
       </div>
 
       <Alert tone="info">
-        대화는 브라우저 메모리에만 있습니다 — 새로고침하면 사라집니다. 보관은 백엔드 연동 후
-        가능합니다.
+        대화는 브라우저 메모리에만 있어요 — 새로고침하면 사라져요. 보관은 백엔드 연동 후 가능해요.
       </Alert>
 
       {state === 'error' ? (
-        <Alert tone="danger">대화 목록을 불러오지 못했습니다.</Alert>
+        <Alert tone="danger">대화 목록을 불러오지 못했어요.</Alert>
       ) : state === 'loading' ? (
         <p style={mutedStyle}>불러오는 중…</p>
       ) : items.length === 0 ? (
@@ -225,7 +224,7 @@ function ConversationsScreen({ state, initialConfirmingId }: ConversationsScreen
       {confirming === null ? null : (
         <ConfirmDialog
           title="대화를 삭제할까요?"
-          message="삭제한 대화는 되돌릴 수 없습니다."
+          message="삭제한 대화는 되돌릴 수 없어요."
           intent="delete"
           onConfirm={() => {
             setConfirming(null);

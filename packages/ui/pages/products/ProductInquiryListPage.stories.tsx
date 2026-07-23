@@ -169,7 +169,7 @@ const DEMO_INQUIRIES: readonly DemoInquiry[] = [
     productName: '카밀 워시드 데님 팬츠',
     customerName: '최유진',
     channel: 'kakao',
-    subject: '입고 알림을 받고 싶습니다',
+    subject: '입고 알림을 받고 싶어요',
     status: 'received',
     createdAt: '2026-07-20T23:30:00Z',
     answeredAt: '',
@@ -179,7 +179,7 @@ const DEMO_INQUIRIES: readonly DemoInquiry[] = [
     productName: '테라 스니커즈 데일리',
     customerName: '박지훈',
     channel: 'app',
-    subject: '사이즈 교환이 가능한지 궁금합니다',
+    subject: '사이즈 교환이 가능한지 궁금해요',
     status: 'answering',
     createdAt: '2026-07-20T05:40:00Z',
     answeredAt: '',
@@ -189,7 +189,7 @@ const DEMO_INQUIRIES: readonly DemoInquiry[] = [
     productName: '루미엔 경량 패딩 점퍼',
     customerName: '김서연',
     channel: 'storefront',
-    subject: '구매 전 재고 확인 부탁드립니다',
+    subject: '구매 전 재고 확인 부탁드려요',
     status: 'received',
     createdAt: '2026-07-18T01:12:00Z',
     answeredAt: '',
@@ -360,7 +360,7 @@ const countBadgeStyle: CSSProperties = {
   justifyContent: 'center',
   boxSizing: 'border-box',
   minWidth: cssVar('space.5'),
-  height: cssVar('space.5'),
+  aspectRatio: '1',
   paddingLeft: cssVar('space.1'),
   paddingRight: cssVar('space.1'),
   borderRadius: cssVar('radius.full'),
@@ -509,14 +509,14 @@ function ProductInquiriesScreen({
           <>
             <p style={noticeStyle}>
               {loading
-                ? '미답변 건수를 세는 중입니다.'
-                : `답변을 기다리는 문의가 ${fmt(pending)}건 있습니다.`}
+                ? '미답변 건수를 세는 중이에요.'
+                : `답변을 기다리는 문의가 ${fmt(pending)}건 있어요.`}
             </p>
             <p style={noticeStyle}>
               결제대행을 끈 상품은 구매하기 대신 문의하기 버튼이 노출되고, 그 문의가 이 목록으로
-              들어옵니다.
+              들어와요.
             </p>
-            {!canUpdate && <p style={noticeStyle}>답변 권한이 없어 조회만 가능합니다.</p>}
+            {!canUpdate && <p style={noticeStyle}>답변 권한이 없어 조회만 가능해요.</p>}
           </>
         }
       >
@@ -560,7 +560,7 @@ function ProductInquiriesScreen({
         <p style={summaryStyle}>{loading ? '불러오는 중…' : `전체 ${fmt(visible.length)}건`}</p>
 
         <Table
-          caption="상품 문의 목록 — 행을 누르면 문의 상세로 이동해 답변을 작성합니다. 삭제·일괄작업은 없습니다."
+          caption="상품 문의 목록 — 행을 누르면 문의 상세로 이동해 답변을 작성해요. 삭제·일괄작업은 없어요."
           columns={COLUMNS}
           rows={rows}
           leadingHead={[<SeqHeaderCell key="seq" />]}

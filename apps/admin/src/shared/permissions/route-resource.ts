@@ -18,6 +18,18 @@ import { navPageResourceId } from './resources';
 import type { ResourceId } from './resources';
 
 /**
+ * 권한 관리 화면의 라우트.
+ *
+ * [왜 상수로 뽑았나] 이 화면은 **권한 모델 자신을 편집하는 화면**이라, 저장소(permission-store)도
+ * "이 편집을 해도 되는가" 를 물어야 한다(fail-closed). 그때 저장소가 쓰는 리소스와 화면이
+ * `useRouteWritePermissions()` 로 얻는 리소스가 **같은 한 개**여야 한다 — 버튼을 잠그는 술어와
+ * 저장을 거절하는 술어가 갈라지면, 버튼만 사라지고 저장 경로는 열린 상태가 된다.
+ * 그래서 양쪽이 이 상수 하나를 통과한 `resourceIdForPath` 의 답을 쓴다
+ * (permission-store.ts 의 ROLE_ADMIN_RESOURCE_ID · route-resource.test.ts 가 동치를 고정한다).
+ */
+export const ROLE_ADMIN_PATH = '/users/roles';
+
+/**
  * 이 경로를 지배하는 권한 리소스 — 어떤 잎에도 속하지 않으면 null(= 권한 대상이 아님).
  *
  * null 은 '차단' 이 아니라 '해당 없음' 이다: 인덱스 리다이렉트('/')나 준비 중 화면처럼 권한

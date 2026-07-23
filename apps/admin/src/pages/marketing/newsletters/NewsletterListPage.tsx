@@ -220,7 +220,7 @@ export default function NewsletterListPage() {
         kind: 'edit',
         href: (item) => `${LIST_PATH}/${item.id}/edit`,
         disabled: (item) =>
-          sendActionsFor(item.status).canEdit ? false : '발송이 끝나 수정할 수 없습니다',
+          sendActionsFor(item.status).canEdit ? false : '발송이 끝나 수정할 수 없어요',
       }}
     />
   );

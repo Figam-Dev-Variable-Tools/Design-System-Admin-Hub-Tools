@@ -8,10 +8,8 @@
 // 세 칸을 다 그리지 않는 이유: 안 쓰는 칸이 값을 들고 있으면 저장 뒤에 어느 것이 진짜인지
 // 알 수 없다.
 //
-// [폼 목록을 모를 때] `applicationForms()` 가 null 이면 '지원 폼' 선택지를 잠그고 이유를 말한다.
-// 빈 목록으로 뭉개면 '등록된 폼이 없습니다' 라고 완결되게 말하게 되고, 운영자는 이미 있는 폼을
-// 다시 만들러 간다(shared/domain/application-form.ts 머리말).
-import { useMemo } from 'react';
+// [지원 방법은 둘이다] 예전에는 '지원 폼' 이 셋째로 있었고 폼 관리 화면이 만든 폼을 참조했다.
+// 그 화면이 IA 에서 빠지면서 폼을 만들 곳이 사라졌으므로 선택지도 함께 걷었다 (./types.ts).
 import type { CSSProperties } from 'react';
 
 import { cssVar, ToggleSwitch } from '@tds/ui';
@@ -21,11 +19,11 @@ import {
   controlStyle,
   errorIdOf,
   FormField,
+  formRowStyle,
   SelectField,
   TextareaField,
 } from '../../../shared/ui';
 import { FormPageShell, useCrudForm } from '../../../shared/crud';
-import { applicationForms } from '../../../shared/domain/application-form';
 import { careersAdapter } from './data-source';
 import {
   APPLY_METHODS,
@@ -45,13 +43,7 @@ import type { CareerFormValues } from './validation';
 const ENTITY_LABEL = '채용 공고';
 const LIST_PATH = '/company/careers';
 const UNSAVED_MESSAGE =
-  '채용 공고에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
-};
+  '채용 공고에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const toggleRowStyle: CSSProperties = {
   display: 'flex',
@@ -69,7 +61,6 @@ const hintTextStyle: CSSProperties = {
 
 export default function CareersFormPage() {
   // 조회기가 없으면 null('모른다') — 빈 배열이 아니다
-  const forms = useMemo(() => applicationForms(), []);
 
   const {
     form,
@@ -95,7 +86,8 @@ export default function CareersFormPage() {
       jobFunction: values.jobFunction,
       employmentType: values.employmentType,
       location: values.location.trim(),
-      // 상시 채용은 **null 로** 저장한다 — 빈 문자열은 '아직 안 정함' 과 구분되지 않는다
+      // 상시 채용은 **null 로** 저장한다 — 빈 문자열은 '아직 안 정함' 과 구분되지 않는다.
+      // 상시가 아닌데 빈 값인 경우는 여기 오지 않는다: 스키마가 그것을 거절한다(validation.ts).
       closesOn: values.alwaysOpen ? null : values.closesOn.trim(),
       applyMethod: values.applyMethod,
       applyTarget: values.applyTarget.trim(),
@@ -130,27 +122,24 @@ export default function CareersFormPage() {
   const published = watch('published');
 
   /** 버튼의 잠금과 저장의 거절이 읽는 같은 술어 (./types.ts) */
-  const applyBlock = applyMethodBlock(applyMethod, applyTarget, forms);
-  const publishRejection = publishBlock(
-    {
-      title: watch('title'),
-      jobFunction: watch('jobFunction'),
-      employmentType: watch('employmentType'),
-      location: watch('location'),
-      closesOn: alwaysOpen ? null : watch('closesOn'),
-      applyMethod,
-      applyTarget,
-      description: watch('description'),
-      published,
-    },
-    forms,
-  );
+  const applyBlock = applyMethodBlock(applyMethod, applyTarget);
+  const publishRejection = publishBlock({
+    title: watch('title'),
+    jobFunction: watch('jobFunction'),
+    employmentType: watch('employmentType'),
+    location: watch('location'),
+    closesOn: alwaysOpen ? null : watch('closesOn'),
+    applyMethod,
+    applyTarget,
+    description: watch('description'),
+    published,
+  });
 
   return (
     <FormPageShell
       entityLabel={ENTITY_LABEL}
       cardTitle="채용 공고"
-      description="별표(*) 항목은 필수입니다. 비공개로 저장하면 홈페이지에 나가지 않습니다."
+      description="별표(*) 항목은 필수예요. 비공개로 저장하면 홈페이지에 나가지 않아요."
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
@@ -164,8 +153,13 @@ export default function CareersFormPage() {
       unsavedMessage={UNSAVED_MESSAGE}
       onSubmit={submit}
     >
-      {/* 공개하려는데 지원 경로가 열리지 않으면 그 사실을 저장 전에 말한다 —
-          열리지 않는 '지원하기' 는 기능이 아니라 거짓 약속이다 */}
+      {/* 공개하려는데 지원 경로가 열리지 않으면 그 사실을 **저장 전에** 말한다 —
+          열리지 않는 '지원하기' 는 기능이 아니라 거짓 약속이다.
+
+          이 배너는 안내이지 방어선이 아니다: 같은 `publishBlock` 을 `careerSchema` 와
+          `careersAdapter` 가 함께 읽어 **공개 저장 자체를 거절**한다(비공개 저장은 언제나 통과).
+          예전에는 소비처가 이 배너뿐이라 경고를 띄운 채 저장이 성공했다 — 경고를 무시한 성공은
+          no-op 보다 나쁘다. */}
       {publishRejection !== null && <Alert tone="warning">{publishRejection}</Alert>}
 
       <FormField htmlFor="career-title" label="공고 제목" required error={errors.title?.message}>
@@ -183,7 +177,7 @@ export default function CareersFormPage() {
         />
       </FormField>
 
-      <div style={rowStyle}>
+      <div style={formRowStyle}>
         <FormField htmlFor="career-job" label="직무" required error={errors.jobFunction?.message}>
           <SelectField
             id="career-job"
@@ -246,7 +240,7 @@ export default function CareersFormPage() {
       {/* 상시 채용을 **먼저** 묻는다 — 그 답이 마감일 칸의 존재를 정한다 */}
       <div style={toggleRowStyle}>
         <span style={hintTextStyle}>
-          상시 채용 — 마감일 없이 계속 지원을 받습니다. 목록에서 닫히지 않습니다.
+          상시 채용 — 마감일 없이 계속 지원을 받아요. 목록에서 닫히지 않아요.
         </span>
         <ToggleSwitch
           checked={alwaysOpen}
@@ -279,7 +273,7 @@ export default function CareersFormPage() {
         </FormField>
       )}
 
-      <div style={rowStyle}>
+      <div style={formRowStyle}>
         <FormField
           htmlFor="career-apply-method"
           label="지원 방법"
@@ -293,65 +287,36 @@ export default function CareersFormPage() {
             {...register('applyMethod')}
           >
             {APPLY_METHODS.map((option) => (
-              <option
-                key={option.id}
-                value={option.id}
-                // 폼 목록을 모르면 그 선택지를 고를 수 없다 — 아래 안내가 이유를 말한다
-                disabled={option.id === 'form' && forms === null}
-              >
+              <option key={option.id} value={option.id}>
                 {option.label}
               </option>
             ))}
           </SelectField>
         </FormField>
 
-        {applyMethod === 'form' ? (
-          <FormField
-            htmlFor="career-apply-form"
-            label="지원 폼"
-            required
-            error={errors.applyTarget?.message}
-          >
-            <SelectField
-              id="career-apply-form"
-              isInvalid={errors.applyTarget !== undefined}
-              disabled={disabled || forms === null}
-              {...register('applyTarget')}
-            >
-              <option value="">폼 선택</option>
-              {(forms ?? []).map((formRef) => (
-                <option key={formRef.id} value={formRef.id}>
-                  {formRef.name}
-                  {formRef.published ? '' : ' (미발행)'}
-                </option>
-              ))}
-            </SelectField>
-          </FormField>
-        ) : (
-          <FormField
-            htmlFor="career-apply-target"
-            label={applyMethod === 'link' ? '지원 페이지 주소' : '지원서 접수 이메일'}
-            required
-            error={errors.applyTarget?.message}
-          >
-            <input
-              id="career-apply-target"
-              type={applyMethod === 'link' ? 'url' : 'email'}
-              className="tds-ui-input tds-ui-focusable"
-              style={controlStyle(errors.applyTarget !== undefined)}
-              maxLength={APPLY_TARGET_MAX_LENGTH}
-              placeholder={
-                applyMethod === 'link' ? 'https://recruit.example.com/…' : 'recruit@example.com'
-              }
-              disabled={disabled}
-              aria-invalid={errors.applyTarget !== undefined}
-              aria-describedby={
-                errors.applyTarget !== undefined ? errorIdOf('career-apply-target') : undefined
-              }
-              {...register('applyTarget')}
-            />
-          </FormField>
-        )}
+        <FormField
+          htmlFor="career-apply-target"
+          label={applyMethod === 'link' ? '지원 페이지 주소' : '지원서 접수 이메일'}
+          required
+          error={errors.applyTarget?.message}
+        >
+          <input
+            id="career-apply-target"
+            type={applyMethod === 'link' ? 'url' : 'email'}
+            className="tds-ui-input tds-ui-focusable"
+            style={controlStyle(errors.applyTarget !== undefined)}
+            maxLength={APPLY_TARGET_MAX_LENGTH}
+            placeholder={
+              applyMethod === 'link' ? 'https://recruit.example.com/…' : 'recruit@example.com'
+            }
+            disabled={disabled}
+            aria-invalid={errors.applyTarget !== undefined}
+            aria-describedby={
+              errors.applyTarget !== undefined ? errorIdOf('career-apply-target') : undefined
+            }
+            {...register('applyTarget')}
+          />
+        </FormField>
       </div>
 
       {applyBlock !== null && <Alert tone="info">{applyBlock}</Alert>}
@@ -365,14 +330,14 @@ export default function CareersFormPage() {
           setValue('description', value, { shouldValidate: false, shouldDirty: true });
         }}
         maxLength={DESCRIPTION_MAX_LENGTH}
-        placeholder="담당 업무, 자격 요건, 우대 사항을 적습니다."
+        placeholder="담당 업무, 자격 요건, 우대 사항을 적어요."
         disabled={disabled}
         error={errors.description?.message}
       />
 
       <div style={toggleRowStyle}>
         <span style={hintTextStyle}>
-          공개 — 끄면 홈페이지에 나가지 않습니다. 작성 중인 공고를 잃지 않고 저장할 수 있습니다.
+          공개 — 끄면 홈페이지에 나가지 않아요. 작성 중인 공고를 잃지 않고 저장할 수 있어요.
         </span>
         <ToggleSwitch
           checked={published}

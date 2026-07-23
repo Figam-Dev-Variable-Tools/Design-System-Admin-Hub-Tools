@@ -18,6 +18,7 @@ import {
   fieldLabelStyle,
   fieldStyle,
   FormField,
+  formRowStyle,
   hintStyle,
   Icon,
   pageTitleStyle,
@@ -47,7 +48,7 @@ const RESOURCE = 'marketing-email';
 const ENTITY_LABEL = '이메일 발송';
 const LIST_PATH = '/marketing/email';
 const UNSAVED_MESSAGE =
-  '이메일 발송에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '이메일 발송에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 const NO_TEMPLATE = '';
 
 const pageStyle: CSSProperties = {
@@ -96,12 +97,6 @@ const columnStyle: CSSProperties = {
   flexDirection: 'column',
   gap: cssVar('space.5'),
   minWidth: 0,
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const actionsStyle: CSSProperties = {
@@ -241,8 +236,8 @@ export default function EmailFormPage() {
           <div style={alertActionRowStyle}>
             <span>
               {loadFailure === 'not-found'
-                ? '이메일 발송을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '이메일 발송을 불러오지 못했습니다.'}
+                ? '이메일 발송을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '이메일 발송을 불러오지 못했어요.'}
             </span>
             {loadFailure === 'error' && (
               <Button variant="secondary" onClick={retryLoad}>
@@ -273,8 +268,8 @@ export default function EmailFormPage() {
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '이메일 발송 수정' : '이메일 발송 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 저장은 발송 예약일 뿐이며 이 화면에서 메일이 즉시 전송되지
-          않습니다.
+          별표(*) 항목은 필수예요. 저장은 발송 예약일 뿐이며 이 화면에서 메일이 즉시 전송되지
+          않아요.
         </p>
       </div>
 
@@ -304,7 +299,7 @@ export default function EmailFormPage() {
                 label="제목"
                 required
                 error={errors.subject?.message}
-                hint="광고성 메일은 제목이 '(광고)'로 시작해야 합니다."
+                hint="광고성 메일은 제목이 '(광고)'로 시작해야 해요."
               >
                 <input
                   id="email-subject"
@@ -326,7 +321,7 @@ export default function EmailFormPage() {
                 label="발신자"
                 required
                 error={errors.senderId?.message}
-                hint="도메인 인증(SPF/DKIM)이 완료된 발신자만 선택할 수 있습니다."
+                hint="도메인 인증(SPF/DKIM)이 완료된 발신자만 선택할 수 있어요."
               >
                 <SelectField
                   id="email-sender"
@@ -369,7 +364,7 @@ export default function EmailFormPage() {
                   onLabel="광고성"
                   offLabel="정보성"
                 />
-                <p style={hintStyle}>광고성이면 제목에 &quot;(광고)&quot; 표기가 필요합니다.</p>
+                <p style={hintStyle}>광고성이면 제목에 &quot;(광고)&quot; 표기가 필요해요.</p>
               </div>
             </Card>
 
@@ -388,7 +383,7 @@ export default function EmailFormPage() {
 
             <Card>
               <CardTitle>발송 예약</CardTitle>
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="email-status" label="발송 방식" required>
                   <SelectField id="email-status" disabled={disabled} {...register('status')}>
                     <option value="draft">초안 저장</option>
@@ -430,8 +425,8 @@ export default function EmailFormPage() {
               includeUnsubscribe={includeUnsubscribe}
             />
             <p style={previewNoteStyle}>
-              선택 대상 {formatNumber(recipients)}명 · 오픈율/클릭율은 발송 후 집계됩니다. 저장은
-              발송이 아닙니다.
+              선택 대상 {formatNumber(recipients)}명 · 오픈율/클릭율은 발송 후 집계돼요. 저장은
+              발송이 아니에요.
             </p>
           </Card>
         </div>

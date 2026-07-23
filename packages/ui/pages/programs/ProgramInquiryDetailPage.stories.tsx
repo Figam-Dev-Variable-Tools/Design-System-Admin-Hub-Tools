@@ -177,7 +177,7 @@ const DEMO_RECEIVED: DemoInquiry = {
   topic: 'reward',
   subject: '2대 세트 리워드에 스탠드가 두 개 오나요',
   message:
-    '2대 세트 리워드를 후원하려는데 구성 설명에 스탠드가 하나로 적혀 있습니다.\n헤드폰만 두 대인가요?',
+    '2대 세트 리워드를 후원하려는데 구성 설명에 스탠드가 하나로 적혀 있어요.\n헤드폰만 두 대인가요?',
   status: 'received',
   createdAt: '2026-07-17T02:40:00Z',
   answeredAt: '',
@@ -193,7 +193,7 @@ const DEMO_ANSWERED: DemoInquiry = {
   channel: 'email',
   topic: 'refund',
   subject: '목표 미달로 끝나면 후원금은 어떻게 되나요',
-  message: '펀딩이 실패하면 결제한 금액은 자동으로 돌려받는 건가요? 절차를 알고 싶습니다.',
+  message: '펀딩이 실패하면 결제한 금액은 자동으로 돌려받는 건가요? 절차를 알고 싶어요.',
   status: 'answered',
   createdAt: '2026-07-14T01:20:00Z',
   answeredAt: '2026-07-15T05:10:00Z',
@@ -209,7 +209,7 @@ const DEMO_CLOSED: DemoInquiry = {
   customerContact: '02-3391-7742',
   channel: 'phone',
   topic: 'payment',
-  subject: '카드 결제가 되지 않아 후원을 못 했습니다',
+  subject: '카드 결제가 되지 않아 후원을 못 했어요',
   message: '후원하기 버튼이 문의하기로 바뀌어 있는데 결제는 어떻게 진행하나요?',
   status: 'closed',
   createdAt: '2026-07-08T05:05:00Z',
@@ -261,7 +261,7 @@ function programInquiryHistory(inquiry: DemoInquiry): readonly TimelineEvent[] {
       author: '후원자',
       badgeTone: 'neutral',
       badgeLabel: '접수',
-      text: `${CHANNEL_LABEL[inquiry.channel]} 채널로 ${TOPIC_META[inquiry.topic].label} 문의가 접수되었습니다.`,
+      text: `${CHANNEL_LABEL[inquiry.channel]} 채널로 ${TOPIC_META[inquiry.topic].label} 문의가 접수되었어요.`,
     },
   ];
 
@@ -294,7 +294,7 @@ function programInquiryHistory(inquiry: DemoInquiry): readonly TimelineEvent[] {
       author: '관리자',
       badgeTone: 'neutral',
       badgeLabel: '종결',
-      text: `답변 발송(${formatDateTime(inquiry.answeredAt)}) 후 문의가 종결되었습니다.`,
+      text: `답변 발송(${formatDateTime(inquiry.answeredAt)}) 후 문의가 종결되었어요.`,
     });
   }
 
@@ -496,8 +496,8 @@ function ProgramInquiryDetailScreen({
           <div style={alertRowStyle}>
             <span>
               {notFound
-                ? '문의를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '문의를 불러오지 못했습니다.'}
+                ? '문의를 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '문의를 불러오지 못했어요.'}
             </span>
             <span style={badgeRowStyle}>
               {!notFound && <Button variant="secondary">다시 시도</Button>}
@@ -583,7 +583,7 @@ function ProgramInquiryDetailScreen({
               value={answer}
               maxLength={ANSWER_MAX}
               disabled={!canUpdate}
-              hint="저장하면 상태가 '답변 완료' 로 넘어갑니다."
+              hint="저장하면 상태가 '답변 완료' 로 넘어가요."
               placeholder="후원자에게 전달할 답변을 입력하세요."
               rows={6}
               onChange={setAnswer}
@@ -592,12 +592,12 @@ function ProgramInquiryDetailScreen({
             <>
               <span style={fieldLabelStyle}>발송한 답변</span>
               <p style={messageStyle}>{inquiry.answer}</p>
-              <p style={hintStyle}>종결된 문의라 답변을 수정할 수 없습니다.</p>
+              <p style={hintStyle}>종결된 문의라 답변을 수정할 수 없어요.</p>
             </>
           )}
 
           {!canUpdate && (
-            <Alert tone="info">이 문의에 답변할 권한이 없습니다. 조회만 가능합니다.</Alert>
+            <Alert tone="info">이 문의에 답변할 권한이 없어요. 조회만 가능해요.</Alert>
           )}
 
           <div style={actionsStyle}>
@@ -630,8 +630,8 @@ function ProgramInquiryDetailScreen({
               <dd style={ddStyle}>{CHANNEL_LABEL[inquiry.channel]}</dd>
             </dl>
             <p style={hintStyle}>
-              답변은 위 연락처로 회신됩니다. 결제대행을 끈 프로그램은 후원하기 대신 문의하기 버튼이
-              노출됩니다.
+              답변은 위 연락처로 회신돼요. 결제대행을 끈 프로그램은 후원하기 대신 문의하기 버튼이
+              노출돼요.
             </p>
           </DetailCard>
 

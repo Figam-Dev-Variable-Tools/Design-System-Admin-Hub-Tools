@@ -104,8 +104,8 @@ flowchart TD
     DIRTY --&gt;|&quot;예&quot;| SV[&quot;onSave: 타임라인 조립(append-only)&lt;br/&gt;status 변경 → directionParticle 로 조사 계산 (ERP-13)&lt;br/&gt;composer → reply/note 이벤트&quot;]
     SV --&gt; MU[&quot;useCrudUpdate.mutate(toInquiryInput + assignee·status·timeline)&quot;]
     MU --&gt; PATCH{&quot;어댑터 patch: issueQuoteIfRequested&lt;br/&gt;requestsQuoteIssue(status) &amp;&amp; !hasIssuedQuote(item)&quot;}
-    PATCH --&gt;|&quot;중복 — 이미 발행&quot;| PX[&quot;견적 재생성 안 함 (quoteId 가 멱등 키)&lt;br/&gt;저장소도 findQuoteByInquiry 로 교차 확인&quot;]
-    PATCH --&gt;|&quot;신규 발행&quot;| PY[&quot;issueQuoteFromInquiry&lt;br/&gt;buildQuoteFromInquiry: 거래처·담당자·문의내용 승계&lt;br/&gt;status='draft' · validUntil=+30일 · quoteId 역링크&lt;br/&gt;타임라인 '견적 자동 생성 — Q-…'&quot;]
+    PATCH --&gt;|&quot;중복 — 이미 발행&quot;| PX[&quot;견적 재생성 안 함 (quoteId 가 멱등 키)&lt;br/&gt;저장소도 findQuoteBySource 로 교차 확인&quot;]
+    PATCH --&gt;|&quot;신규 발행&quot;| PY[&quot;issueQuoteFromSources&lt;br/&gt;buildQuoteFromSources: 거래처·담당자·문의내용 승계&lt;br/&gt;status='draft' · validUntil=+30일 · quoteId 역링크&lt;br/&gt;타임라인 '견적 자동 생성 — Q-…'&quot;]
     PX --&gt; MR{&quot;mutation 결과&quot;}
     PY --&gt; MR
     MR --&gt;|&quot;abort&quot;| ABT[&quot;무시 (isAbort)&quot;]

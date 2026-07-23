@@ -20,8 +20,8 @@ import type { SiteAsset } from './validation';
 /** 자산 자리 — 오류·진행 상태를 자리별로 따로 들고 있어야 서로를 지우지 않는다 */
 export type AssetSlot = 'favicon' | 'ogImage' | 'privateImage';
 
-const UPLOAD_FAILED = '파일을 업로드하지 못했습니다. 잠시 후 다시 시도해 주세요.';
-const UNREADABLE = '이미지를 읽지 못했습니다. 파일이 손상되었는지 확인해 주세요.';
+const UPLOAD_FAILED = '파일을 업로드하지 못했어요. 잠시 후 다시 시도해 주세요.';
+const UNREADABLE = '이미지를 읽지 못했어요. 파일이 손상되었는지 확인해 주세요.';
 
 /** 이미지의 실제 픽셀 크기 — 파일을 디코드해야 알 수 있어 비동기다 */
 function probeImageSize(file: File): Promise<{ readonly width: number; readonly height: number }> {

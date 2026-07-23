@@ -1,10 +1,10 @@
 // 연동 목록 (시스템 설정 섹션 소유 — apps/admin/src/pages/settings/**)
 //
-// 탭 6종 + 표. 탭은 **두 축이 섞여 있다**: 분류 3종(모델 / 클라우드 / 게이트웨이) → 상태 2종
+// 탭 6종 + 표. 탭은 **두 축이 섞여 있다**: 분류 3종(모델 / 파운데이션 모델 / 배송) → 상태 2종
 // (연동 완료 / 연동 해제) → 전체. 분류를 왼쪽에 두는 이유는 ../integrations.ts 의 탭 머리말에 있다.
 //
 // 축이 섞여 있어도 탭 라벨의 건수와 표의 행은 **같은 필터**를 통해 나온다
-// (../integrations.ts 의 filterIntegrations) — 세면서 다른 규칙을 쓰면 '모델 (9)' 인데 행이 8개인
+// (../integrations.ts 의 filterIntegrations) — 세면서 다른 규칙을 쓰면 '모델 (4)' 인데 행이 3개인
 // 날이 온다.
 //
 // [상태를 지어내지 않는다] 각 행의 status·connectedAt 은 이 파일이 정하지 않는다. 카탈로그와
@@ -139,8 +139,8 @@ export function IntegrationsCard({ integrations, tab, onTabChange }: Integration
    * 보이는 행이 **전부 같은 이유로** 잠겨 있으면 그 이유를 행마다 반복하지 않고 표 위에 한 번만 적는다.
    *
    * [왜 필요해졌나] 잠긴 이유를 버튼 옆에 적는 규율(`:263`)은 이유가 행마다 다를 때를 위한 것이다.
-   * 지금처럼 설정 화면이 통째로 없어 13행이 **똑같은 문장**을 들고 있으면, 같은 문장이 13번
-   * 반복돼 표를 덮는다 — 읽히지 않고, 정작 행마다 다른 정보(이름·설명)를 밀어낸다.
+   * 한때 설정 화면이 통째로 없어 전 행이 **똑같은 문장**을 들고 있었고, 같은 문장이 행 수만큼
+   * 반복돼 표를 덮었다 — 읽히지 않고, 정작 행마다 다른 정보(이름·설명)를 밀어낸다.
    * 데이터는 그대로 두고(각 항목은 여전히 자기 이유를 안다) **표시만** 접는다.
    */
   const sharedReason =
@@ -168,11 +168,11 @@ export function IntegrationsCard({ integrations, tab, onTabChange }: Integration
   const menuItemsOf = useCallback((integration: Integration): MenuProps['items'] => {
     const disconnectReason =
       integration.status === 'disconnected'
-        ? '이미 연동 해제 상태입니다.'
+        ? '이미 연동 해제 상태예요.'
         : integration.settingsPath === null
-          ? '해제할 설정 화면이 아직 없습니다.'
+          ? '해제할 설정 화면이 아직 없어요.'
           : null;
-    const guideReason = integration.guideUrl === null ? '공개된 연동 문서가 아직 없습니다.' : null;
+    const guideReason = integration.guideUrl === null ? '공개된 연동 문서가 아직 없어요.' : null;
 
     return [
       {
@@ -208,7 +208,7 @@ export function IntegrationsCard({ integrations, tab, onTabChange }: Integration
       <CardTitle>연동 목록</CardTitle>
 
       <div style={stackStyle}>
-        {/* 라벨이 '연동 상태' 가 아닌 이유: 6개 중 셋은 상태가 아니라 분류다 */}
+        {/* 라벨이 '연동 상태' 가 아닌 이유: 여섯 중 셋은 상태가 아니라 분류다 */}
         <Tabs value={tab} items={tabs} ariaLabel="연동 분류 및 상태 필터" onChange={selectTab} />
 
         {/* 전 행이 같은 이유로 잠겼을 때만 — 행마다 반복하는 대신 여기 한 번 */}
@@ -216,7 +216,7 @@ export function IntegrationsCard({ integrations, tab, onTabChange }: Integration
 
         <div id={TAB_PANEL_ID} role="tabpanel">
           {rows.length === 0 ? (
-            <p style={emptyStyle}>이 상태에 해당하는 연동이 없습니다.</p>
+            <p style={emptyStyle}>이 상태에 해당하는 연동이 없어요.</p>
           ) : (
             <table style={tableStyle}>
               <thead>
@@ -255,7 +255,11 @@ export function IntegrationsCard({ integrations, tab, onTabChange }: Integration
 
                       <td style={nameCellStyle}>
                         <span style={nameRowStyle}>
-                          <ServiceGlyph glyph={integration.glyph} brand={integration.brand} />
+                          <ServiceGlyph
+                            glyph={integration.glyph}
+                            brand={integration.brand}
+                            logoSrc={integration.logoSrc}
+                          />
                           <span style={nameStackStyle}>
                             <span style={nameTextStyle}>
                               {/* 이름이 상세로 가는 링크다 — 앱의 다른 목록(회원·공지·상품)과 같은 관례이고,

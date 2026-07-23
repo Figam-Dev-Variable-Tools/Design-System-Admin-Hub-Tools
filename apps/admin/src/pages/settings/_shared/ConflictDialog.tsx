@@ -90,7 +90,7 @@ export function ConflictDialog({
 
   return (
     <Modal
-      title={`${subject}이 이미 변경되었습니다`}
+      title={`${subject}이 이미 변경되었어요`}
       describedBy={messageId}
       onClose={onClose}
       footer={
@@ -106,8 +106,8 @@ export function ConflictDialog({
     >
       <div style={bodyStyle}>
         <p id={messageId} style={textStyle}>
-          내가 이 화면을 연 뒤에 다른 관리자가 {subject}을 저장했습니다. 그대로 저장하면 그 변경이
-          사라집니다.
+          내가 이 화면을 연 뒤에 다른 관리자가 {subject}을 저장했어요. 그대로 저장하면 그 변경이
+          사라져요.
         </p>
         <p style={auditStyle}>
           마지막 저장: {latestBy} · {latestAt}
@@ -125,8 +125,8 @@ export function ConflictDialog({
         )}
 
         <p style={auditStyle}>
-          ‘최신 내용 불러오기’ 를 고르면 입력한 내용이 최신 값으로 바뀝니다. ‘덮어쓰기’ 를 고르면
-          다른 관리자의 변경이 사라집니다.
+          ‘최신 내용 불러오기’ 를 고르면 입력한 내용이 최신 값으로 바뀌어요. ‘덮어쓰기’ 를 고르면
+          다른 관리자의 변경이 사라져요.
         </p>
 
         {error !== null && <Alert tone="danger">{error}</Alert>}

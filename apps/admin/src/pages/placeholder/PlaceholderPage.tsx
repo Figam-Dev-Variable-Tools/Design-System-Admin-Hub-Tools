@@ -34,7 +34,7 @@ export default function PlaceholderPage() {
   return (
     <section style={wrapStyle}>
       <h1 style={titleStyle}>{label}</h1>
-      <p style={bodyStyle}>준비 중인 화면입니다.</p>
+      <p style={bodyStyle}>준비 중인 화면이에요.</p>
       <p style={bodyStyle}>{pathname}</p>
     </section>
   );

@@ -112,7 +112,7 @@ export default function ErrorLogPage() {
       columns: COLUMNS,
       sortValues: errorLogSpec.sortValues,
       caption:
-        '오류 로그 — 행을 누르면 스택과 컨텍스트가 열립니다. 이 목록은 읽기 전용이며 수정·삭제할 수 없습니다.',
+        '오류 로그 — 행을 누르면 스택과 컨텍스트가 열려요. 이 목록은 읽기 전용이며 수정·삭제할 수 없어요.',
       searchLabel: '오류 코드, 메시지 또는 추적 ID 검색',
       searchPlaceholder: '코드 · 메시지 · 추적 ID 검색',
       csvBaseName: 'error-log',

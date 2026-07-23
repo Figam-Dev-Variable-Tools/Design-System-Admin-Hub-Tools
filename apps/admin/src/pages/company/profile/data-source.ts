@@ -13,7 +13,8 @@ import type { CompanyProfile } from './types';
 const PROFILE_SEED: CompanyProfile = {
   companyName: '주식회사 예시플래닝',
   businessNumber: '123-45-67890',
-  address: '서울특별시 예시구 가상대로 123, 예시타워 8층',
+  address: '서울특별시 예시구 가상대로 123',
+  addressDetail: '예시타워 8층',
   ceoName: '홍길동',
   contact: '02-0000-0000',
   logoUrl: '/fixtures/placeholder-image.svg',

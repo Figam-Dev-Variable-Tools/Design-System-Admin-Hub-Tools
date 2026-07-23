@@ -1,10 +1,20 @@
-// ContractFormPage — 계약 등록/수정 (라우트: /sales/contracts/new · /:id/edit)
+// ContractFormPage — 계약 수정 (라우트: /sales/contracts/:id/edit · /new 는 막힌다)
 //
 // 데이터 배선은 공용 CRUD 프레임워크(useCrudForm)를 재사용하고, 화면은 입력 카드(계약정보·금액·기간·
 // 갱신·서명·조항·첨부) + 우측 계약서 요약 미리보기 2단으로 구성한다. 검증의 정본은 ./validation.
-import { useMemo } from 'react';
+//
+// [등록 모드가 사라졌다] 계약은 **승인된 견적에서만** 만들어진다(./data-source 의
+// createContractFromQuote — 견적 상세의 '계약 만들기' 가 그 유일한 문이다). 예전에는 이 화면이
+// `?quoteId=` 로 값을 미리 채운 빈 폼을 열었고, 그 폼은 **견적 없이도 저장할 수 있었다** — 그래서
+// 어디서 왔는지 앱이 모르는 계약이 생겼다. 지금 `/new` 는 왜 여기서 만들 수 없는지와 만드는 곳을
+// 말하는 화면으로 돌아간다(../_shared/ChainOnlyCreateNotice). 수정은 그대로다 — 막은 것은 생성뿐이다.
+//
+// [이 화면이 사슬의 다음 칸을 연다] 체결이 끝난 계약(진행중·서명완료)은 여기서 프로젝트가 된다.
+// 견적 → 계약과 **같은 모양**이다: 술어(projectDraftBlock)가 버튼의 존재를 정하고, 저장소가 계약
+// id 를 멱등키로 중복을 한 번 더 막고, 이미 있으면 '연결된 프로젝트' 링크가 그 자리를 대신한다.
+import { useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import {
   Alert,
@@ -18,6 +28,7 @@ import {
   fieldLabelStyle,
   fieldStyle,
   FormField,
+  formRowStyle,
   Icon,
   ImageGalleryField,
   pageTitleStyle,
@@ -27,24 +38,26 @@ import {
   useUnsavedChangesDialog,
 } from '../../../shared/ui';
 import { FormConflictDialog, FormServerError, useCrudForm } from '../../../shared/crud';
+import { usePermissions } from '../../../shared/permissions/PermissionProvider';
+import { navPageResourceId } from '../../../shared/permissions/resources';
 import { AccountSelectField } from '../_shared/AccountSelectField';
+import { ChainOnlyCreateNotice } from '../_shared/ChainOnlyCreateNotice';
 import { contractSchema } from './validation';
 import type { ContractFormValues } from './validation';
 import { ContractSummaryPreview } from './components/ContractSummaryPreview';
 import {
-  buildContractFromQuote,
   CONTRACT_MAX_ATTACHMENTS,
   CONTRACT_STATUS_OPTIONS,
   CONTRACT_TERMS_MAX,
   CONTRACT_TITLE_MAX,
   CONTRACT_TYPE_OPTIONS,
-  contractDraftBlock,
+  isConcludedContract,
   SIGN_STATUS_OPTIONS,
 } from './types';
 import type { Contract, ContractInput } from './types';
-import { contractAdapter, findContractIdByQuote } from './data-source';
-import { findQuote } from '../quotes/data-source';
-import type { Quote } from '../quotes/types';
+import { contractAdapter } from './data-source';
+import { createProjectFromContract, findProjectIdByContract } from '../projects/data-source';
+import { projectDraftBlock } from '../projects/types';
 import { seoulDayOf } from '../../../shared/format';
 import { cssVar } from '@tds/ui';
 
@@ -52,8 +65,9 @@ const RESOURCE = 'sales-contracts';
 const ENTITY_LABEL = '계약';
 const LIST_PATH = '/sales/contracts';
 const QUOTE_PATH = '/sales/quotes';
+const PROJECT_PATH = '/sales/projects';
 const UNSAVED_MESSAGE =
-  '계약에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '계약에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -103,16 +117,19 @@ const columnStyle: CSSProperties = {
   minWidth: 0,
 };
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
 const actionsStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'flex-end',
   gap: cssVar('space.2'),
+};
+
+/** 제목과 '다음 칸' 액션을 한 줄에 — 좁은 화면에서는 접힌다 */
+const headRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  justifyContent: 'space-between',
+  gap: cssVar('space.3'),
+  flexWrap: 'wrap',
 };
 
 const EMPTY: ContractFormValues = {
@@ -187,44 +204,13 @@ function toValues(contract: Contract): ContractFormValues {
   };
 }
 
-/**
- * 견적에서 넘어온 초안의 출발값 — `?quoteId=` 가 있으면 견적 값이 채워진 폼으로 연다.
- *
- * [왜 저장소를 동기로 읽나] `useCrudForm` 의 `empty` 는 **마운트 시점의 defaultValues** 다.
- * 비동기로 견적을 읽어 나중에 채우면 폼이 빈 값으로 한 번 그려진 뒤 값이 갈아 끼워지고, 그 사이에
- * 사용자가 친 글자가 사라진다. 견적 저장소는 같은 페이지(pages/sales) 안이라 결합이 아니다.
- */
-// TODO(backend): 이 자리는 GET /api/sales/quotes/:id 한 번으로 바뀐다 — 그때는 폼을 로딩 상태로
-//   열고 응답이 온 뒤 reset 한다(useCrudForm 의 수정 모드가 이미 그 모양이다).
-function draftValuesFrom(quote: Quote): ContractFormValues {
-  const input = buildContractFromQuote(quote, seoulDayOf(new Date().toISOString()) ?? '');
-  return {
-    ...input,
-    amount: String(input.amount),
-    renewNoticeDays: String(input.renewNoticeDays),
-    attachments: [...input.attachments],
-  };
-}
-
 export default function ContractFormPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  // 견적 상세의 '계약 초안 만들기' 가 붙여 보내는 값. 없으면 평소의 빈 폼이다.
-  const quoteId = searchParams.get('quoteId') ?? '';
-  const sourceQuote = useMemo(() => (quoteId === '' ? undefined : findQuote(quoteId)), [quoteId]);
-  const draft = useMemo(
-    () => (sourceQuote === undefined ? null : draftValuesFrom(sourceQuote)),
-    [sourceQuote],
-  );
-  // 이미 계약이 있는 견적으로 다시 들어오면 초안을 또 만들지 않는다 — 견적 상세 버튼의 disabled 와
-  // 여기의 거절 안내가 **같은 술어**(contractDraftBlock)를 읽는다.
-  const existingContractId = findContractIdByQuote(quoteId);
-  const draftBlock =
-    sourceQuote === undefined ? null : contractDraftBlock(sourceQuote.status, existingContractId);
 
   const {
     form,
     isEdit,
+    loaded,
     saving,
     loadingDetail,
     loadFailure,
@@ -240,7 +226,7 @@ export default function ContractFormPage() {
     entityLabel: ENTITY_LABEL,
     listPath: LIST_PATH,
     schema: contractSchema,
-    empty: draft ?? EMPTY,
+    empty: EMPTY,
     toInput,
     toValues,
   });
@@ -261,6 +247,74 @@ export default function ContractFormPage() {
   const attachments = watch('attachments');
   const periodError = errors.startAt?.message ?? errors.endAt?.message;
 
+  /**
+   * 이 계약이 이미 프로젝트를 갖고 있는가.
+   *
+   * [왜 동기 조회인가] 버튼을 **그리는 순간** 답이 있어야 한다 — 비동기로 나중에 알면 '만들기'
+   * 버튼이 잠깐 살아 있다가 죽고, 그 사이에 누른 사람은 두 번째 프로젝트를 만든다. 견적 → 계약이
+   * 같은 함정을 같은 방식으로 막는다(../quotes/QuoteDetailPage 의 주석이 그 사고를 적어 두었다).
+   */
+  const projectId = useMemo(() => findProjectIdByContract(loaded?.id ?? ''), [loaded]);
+  /** 방금 만든 프로젝트 — 저장소는 바뀌었지만 loaded 는 아직 옛것이라 화면이 즉시 반영되게 붙든다 */
+  const [createdProjectId, setCreatedProjectId] = useState('');
+  const linkedProjectId = createdProjectId === '' ? projectId : createdProjectId;
+
+  /**
+   * '계약 완료' 의 판정은 **계약 도메인**이 갖는다(./types 의 isConcludedContract) — 무엇을 완료로
+   * 볼지는 거기 머리말에 근거와 함께 적혀 있다. 폼 값이 아니라 **저장된 원본**(loaded)을 본다:
+   * 폼에서 상태만 '진행중' 으로 바꿔 놓고 저장하지 않은 채 프로젝트를 만들면, 그 프로젝트의 근거인
+   * 계약은 여전히 검토중이다. 잠금의 근거는 화면이 아니라 서버가 갖고 있어야 한다.
+   */
+  const concluded = loaded !== undefined && isConcludedContract(loaded.status, loaded.signStatus);
+  const projectBlock = projectDraftBlock(concluded, linkedProjectId);
+
+  /**
+   * [EXC-03] '프로젝트 만들기' 는 버튼이 아니라 **생성**이다 — 누르는 순간 프로젝트가 실제로 저장소에
+   * 들어간다(폼도 확인도 없다). 그런데 이 버튼에는 쓰기 권한 판정이 하나도 없었다.
+   *
+   * [왜 계약이 아니라 프로젝트에 묻는가] 만들어지는 것은 **프로젝트**이고, 버튼은 곧바로
+   * `/sales/projects/:id/edit` 로 데려간다. 계약의 권한으로 열면 프로젝트 등록 권한이 없는 역할이
+   * 프로젝트를 만들어 놓고 그 다음 화면에서 403 을 받는다 — 만들어진 것은 남고 손댈 수는 없는
+   * 반쪽 상태다. 그래서 '무엇이 만들어지는가' 의 리소스에 묻는다
+   * (StatsPageShell 이 route → resourceId 로 직접 묻는 것과 같은 방식이다).
+   *
+   * 도메인 잠금(projectDraftBlock: 체결이 끝났는가 · 이미 있는가)과는 층이 다르다 — 그쪽은
+   * '지금 만들 수 있는 계약인가', 이쪽은 '내가 만들어도 되는가' 다. 둘 다 통과해야 버튼이 존재한다.
+   */
+  const { can } = usePermissions();
+  const canCreateProject = can(navPageResourceId(PROJECT_PATH), 'create');
+
+  /**
+   * 프로젝트를 만든다 — 폼이 없다. 이름·거래처·기간·금액은 계약이 이미 알고 있고, 진척·마일스톤은
+   * 프로젝트 수정에서 바로 채운다. 물어볼 것이 없는 화면을 한 장 세우지 않는다(견적 → 청구와 같은 판단).
+   *
+   * 계약 id 가 멱등키라 두 번 눌러도 프로젝트는 하나다 — 저장소가 기존 프로젝트를 그대로 돌려준다.
+   * 되돌려 쓰기는 없다: 계약에는 '프로젝트가 생겼다' 를 적을 칸이 없고 만들지도 않는다(파생값 금지).
+   */
+  const onCreateProject = (): void => {
+    if (loaded === undefined || projectBlock !== null) return;
+    // 버튼을 없앤 술어가 생성 경로도 막는다 — 감추기만 하면 막은 것이 아니다 (EXC-03)
+    if (!canCreateProject) return;
+    const { project } = createProjectFromContract(
+      loaded,
+      seoulDayOf(new Date().toISOString()) ?? '',
+    );
+    setCreatedProjectId(project.id);
+    navigate(`${PROJECT_PATH}/${project.id}/edit`);
+  };
+
+  // [사슬 밖 생성 차단] 계약은 승인된 견적에서만 만들어진다 — 이 화면 머리말 참조.
+  if (!isEdit) {
+    return (
+      <ChainOnlyCreateNotice
+        title="계약 등록"
+        reason="계약은 견적에서 만들어져요. 고객이 승인한 견적 상세에서 ‘계약 만들기’를 누르세요."
+        source={{ to: QUOTE_PATH, label: '견적 목록으로' }}
+        list={{ to: LIST_PATH, label: '계약 목록으로' }}
+      />
+    );
+  }
+
   // [EXC-12] 404 와 서버 오류는 복구 수단이 다르다 — 이미 삭제된 항목에 '다시 시도'를 권하면
   // 영원히 실패하는 버튼을 누르게 된다.
   if (loadFailure !== null) {
@@ -270,8 +324,8 @@ export default function ContractFormPage() {
           <div style={alertActionRowStyle}>
             <span>
               {loadFailure === 'not-found'
-                ? '계약을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '계약을 불러오지 못했습니다.'}
+                ? '계약을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '계약을 불러오지 못했어요.'}
             </span>
             {loadFailure === 'error' && (
               <Button variant="secondary" onClick={retryLoad}>
@@ -299,16 +353,25 @@ export default function ContractFormPage() {
         목록으로
       </button>
 
-      <div>
-        <h1 style={pageTitleStyle}>{isEdit ? '계약 수정' : '계약 등록'}</h1>
-        <p style={descriptionStyle}>별표(*) 항목은 필수입니다. 계약 기간·금액을 확인하세요.</p>
+      <div style={headRowStyle}>
+        <div>
+          <h1 style={pageTitleStyle}>계약 수정</h1>
+          <p style={descriptionStyle}>별표(*) 항목은 필수예요. 계약 기간·금액을 확인하세요.</p>
+        </div>
+        {/* 사슬의 다음 칸 — 전이 규칙(projectDraftBlock)이 열어 준 것만 존재한다 (EXC-03).
+            화면이 자기 조건문으로 다시 판단하지 않는다: 그러면 이 버튼과 저장소의 거절이 갈라진다. */}
+        {projectBlock === null && canCreateProject && (
+          <Button variant="secondary" onClick={onCreateProject}>
+            프로젝트 만들기
+          </Button>
+        )}
       </div>
 
-      {/* 원 견적으로 가는 역링크 — 계약 ↔ 견적은 양방향이다. 견적 없이 맺은 계약에는 없다 */}
+      {/* 원 견적으로 가는 역링크 — 계약 ↔ 견적은 양방향이다 */}
       {watch('quoteId') !== '' && (
         <Alert tone="info">
           <div style={alertActionRowStyle}>
-            <span>{`원 견적 ${watch('quoteNo')} 에서 만든 계약입니다. 금액·거래처는 견적을 따릅니다.`}</span>
+            <span>{`원 견적 ${watch('quoteNo')} 에서 만든 계약이에요. 금액·거래처는 견적을 따라요.`}</span>
             <Link to={`${QUOTE_PATH}/${watch('quoteId')}`} className="tds-ui-link tds-ui-focusable">
               원 견적 보기
             </Link>
@@ -316,17 +379,29 @@ export default function ContractFormPage() {
         </Alert>
       )}
 
-      {draftBlock !== null && (
+      {/* [어긋난 옛 데이터] 계약은 이제 견적에서만 생기는데, 이 규칙 이전에 견적 없이 등록된 계약이
+          남아 있다(픽스처의 ct-1 · ct-3). 조용히 정상인 척하지 않고 그 사실을 말한다 — 지우지도
+          않는다: 실제로 맺어진 계약이고, 소급해서 견적을 지어내면 없던 거래가 하나 생긴다. */}
+      {watch('quoteId') === '' && (
         <Alert tone="warning">
+          견적 없이 등록된 계약이에요. 이 규칙(계약은 견적에서만 만든다)이 생기기 전의 기록이라 원
+          견적으로 가는 길이 없어요. 계약 내용은 그대로 수정할 수 있어요.
+        </Alert>
+      )}
+
+      {/* 다음 칸이 이미 있거나 아직 열리지 않은 이유 — 버튼이 없는 자리에 침묵을 두지 않는다.
+          거절은 boolean 이 아니라 사유 문자열이다(../projects/types 의 projectDraftBlock). */}
+      {projectBlock !== null && (
+        <Alert tone={linkedProjectId === '' ? 'info' : 'success'}>
           <div style={alertActionRowStyle}>
-            <span>{draftBlock}</span>
-            {existingContractId !== '' && (
-              <Button
-                variant="secondary"
-                onClick={() => navigate(`${LIST_PATH}/${existingContractId}/edit`)}
+            <span>{projectBlock}</span>
+            {linkedProjectId !== '' && (
+              <Link
+                to={`${PROJECT_PATH}/${linkedProjectId}/edit`}
+                className="tds-ui-link tds-ui-focusable"
               >
-                기존 계약 열기
-              </Button>
+                연결된 프로젝트 열기
+              </Link>
             )}
           </div>
         </Alert>
@@ -380,7 +455,7 @@ export default function ContractFormPage() {
                 }}
               />
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="contract-type" label="계약유형" required>
                   <SelectField id="contract-type" disabled={disabled} {...register('contractType')}>
                     {CONTRACT_TYPE_OPTIONS.map((option) => (
@@ -407,7 +482,7 @@ export default function ContractFormPage() {
             <Card>
               <CardTitle>금액 · 기간</CardTitle>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField
                   htmlFor="contract-amount"
                   label="계약금액 (원)"
@@ -457,7 +532,7 @@ export default function ContractFormPage() {
             <Card>
               <CardTitle>갱신 · 서명 · 상태</CardTitle>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <div style={fieldStyle}>
                   <span style={fieldLabelStyle}>자동갱신</span>
                   <ToggleSwitch
@@ -490,7 +565,7 @@ export default function ContractFormPage() {
                 )}
               </div>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="contract-status" label="계약 상태" required>
                   <SelectField id="contract-status" disabled={disabled} {...register('status')}>
                     {CONTRACT_STATUS_OPTIONS.map((option) => (

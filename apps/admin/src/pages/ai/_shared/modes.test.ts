@@ -40,7 +40,7 @@ describe('resolveResponseModes — 연동이 없을 때 (fail-closed)', () => {
     for (const name of ['OpenAI', 'Claude', 'Gemini', 'Grok']) {
       expect(reason).toContain(name);
     }
-    expect(reason).toContain('연동하면 열립니다');
+    expect(reason).toContain('연동하면 열려요');
   });
 
   it('프로바이더가 등록됐지만 전부 꺼져 있으면 여전히 잠긴다', () => {
@@ -54,7 +54,7 @@ describe('resolveResponseModes — 연동이 없을 때 (fail-closed)', () => {
 
   it('조회기가 던져도 잠긴 채로 수렴한다 — 설정 쪽 사고가 이 화면을 깨지 않는다', () => {
     registerAiProviderLookup(() => {
-      throw new Error('설정을 읽지 못했습니다');
+      throw new Error('설정을 읽지 못했어요');
     });
     expect(lockedIds()).toEqual(['fast', 'expert', 'heavy']);
     expect(findMode('rules').available).toBe(true);

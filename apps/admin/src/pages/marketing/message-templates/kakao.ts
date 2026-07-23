@@ -176,10 +176,10 @@ export const ALIMTALK_MESSAGE_TYPE_LABEL: Readonly<Record<AlimtalkMessageType, s
 
 /** 유형이 무엇을 위한 것인지 — 셀렉트 옆의 한 줄 설명(고르기 전에 뜻을 알아야 한다) */
 export const ALIMTALK_MESSAGE_TYPE_HINT: Readonly<Record<AlimtalkMessageType, string>> = {
-  basic: '반드시 전달되어야 하는 정보만 담습니다.',
-  'extra-info': '본문 아래에 고정 부가정보를 덧붙입니다.',
-  'channel-add': '본문 아래에 채널 추가 안내와 채널추가 버튼을 붙입니다.',
-  complex: '부가정보와 채널 추가 안내를 함께 붙입니다.',
+  basic: '반드시 전달되어야 하는 정보만 담아요.',
+  'extra-info': '본문 아래에 고정 부가정보를 덧붙여요.',
+  'channel-add': '본문 아래에 채널 추가 안내와 채널추가 버튼을 붙여요.',
+  complex: '부가정보와 채널 추가 안내를 함께 붙여요.',
 };
 
 /** 이 유형이 부가정보 영역을 갖는가 — 부가정보형·복합형 */
@@ -210,7 +210,7 @@ export const ALIMTALK_EXTRA_INFO_MAX = 500;
  * (AC_BUTTON_NAME 을 읽기 전용으로 두는 것과 같은 결).
  */
 export const ALIMTALK_CHANNEL_ADD_GUIDE =
-  '카카오톡 채널을 추가하면 유용한 광고성 메시지를 카카오톡으로 받아 볼 수 있습니다.';
+  '카카오톡 채널을 추가하면 유용한 광고성 메시지를 카카오톡으로 받아 볼 수 있어요.';
 
 /* [상한 80자는 상수로 두지 않았다] 제작가이드 §1-3 이 안내 영역을 80자로 제한하지만, 문구가
    위처럼 **고정**이라 넘을 방법이 없다(47자다). 검사할 것이 없는 수치를 상수로 남기면 아무도
@@ -228,10 +228,10 @@ export const ALIMTALK_EMPHASIS_TYPE_LABEL: Readonly<Record<AlimtalkEmphasisType,
 };
 
 export const ALIMTALK_EMPHASIS_TYPE_HINT: Readonly<Record<AlimtalkEmphasisType, string>> = {
-  none: '본문만 보냅니다.',
-  title: '본문 위에 굵은 제목과 보조문구를 얹습니다.',
-  image: '본문 위에 800×400 이미지를 얹습니다.',
-  'item-list': '본문 위에 항목 2~10개의 표를 얹습니다.',
+  none: '본문만 보내요.',
+  title: '본문 위에 굵은 제목과 보조문구를 얹어요.',
+  image: '본문 위에 800×400 이미지를 얹어요.',
+  'item-list': '본문 위에 항목 2~10개의 표를 얹어요.',
 };
 
 /* ── 알림톡 — 강조표기형 ──────────────────────────────────────────────────────
@@ -379,9 +379,9 @@ export function alimtalkLockReasonOf(
 }
 
 export const ALIMTALK_LOCK_MESSAGE: Readonly<Record<AlimtalkLockReason, string>> = {
-  sent: '한 번이라도 발송된 알림톡 템플릿은 수정할 수 없습니다. 복제해 새 템플릿으로 심사를 받으세요.',
-  review: '검수 중에는 내용을 수정할 수 없습니다. 심사 결과를 받은 뒤에 수정하세요.',
-  approved: '승인된 템플릿입니다. 수정하려면 먼저 승인을 취소하세요(발송 전에만 가능합니다).',
+  sent: '한 번이라도 발송된 알림톡 템플릿은 수정할 수 없어요. 복제해 새 템플릿으로 심사를 받으세요.',
+  review: '검수 중에는 내용을 수정할 수 없어요. 심사 결과를 받은 뒤에 수정하세요.',
+  approved: '승인된 템플릿이에요. 수정하려면 먼저 승인을 취소하세요(발송 전에만 가능해요).',
 };
 
 /* ── 알림톡 — 본문 ─────────────────────────────────────────────────────────────
@@ -548,11 +548,11 @@ export const BRAND_MESSAGE_TYPE_LABEL: Readonly<Record<BrandMessageBodyType, str
 
 /** 유형이 무엇을 위한 것인지 — 셀렉트 아래 한 줄(자수만으로는 모양을 알 수 없다) */
 export const BRAND_MESSAGE_TYPE_HINT: Readonly<Record<BrandMessageBodyType, string>> = {
-  text: '글자만 보냅니다. 가장 길게 쓸 수 있습니다.',
-  image: '본문 위에 이미지 한 장을 얹습니다.',
-  'wide-image': '말풍선을 가득 채우는 이미지 — 글자는 76자까지입니다.',
-  'wide-list': '항목 3~4개를 세로 목록으로 보여 줍니다.',
-  carousel: '카드 2~6장을 가로로 넘겨 보여 줍니다.',
+  text: '글자만 보내요. 가장 길게 쓸 수 있어요.',
+  image: '본문 위에 이미지 한 장을 얹어요.',
+  'wide-image': '말풍선을 가득 채우는 이미지 — 글자는 76자까지예요.',
+  'wide-list': '항목 3~4개를 세로 목록으로 보여 줘요.',
+  carousel: '카드 2~6장을 가로로 넘겨 보여 줘요.',
 };
 
 /**
@@ -813,20 +813,20 @@ export function buttonCountMaxOf(context: KakaoButtonContext): number {
 export function buttonError(button: KakaoButton, context: KakaoButtonContext): string | null {
   if (button.type === 'AC') {
     if (context.kind === 'alimtalk' && !allowsChannelAddButton(context.messageType)) {
-      return '채널추가 버튼은 채널추가형·복합형에서만 쓸 수 있습니다.';
+      return '채널추가 버튼은 채널추가형·복합형에서만 쓸 수 있어요.';
     }
     // 이름이 고정이므로 길이·변수 검사를 할 것이 없다 — 다만 값이 어긋났다면 그것이 문제다
     return button.name === AC_BUTTON_NAME
       ? null
-      : `채널추가 버튼의 이름은 '${AC_BUTTON_NAME}' 로 고정입니다.`;
+      : `채널추가 버튼의 이름은 '${AC_BUTTON_NAME}' 로 고정이에요.`;
   }
 
   const name = button.name.trim();
   if (name === '') return '버튼명을 입력하세요.';
-  if (countVariables(button.name) > 0) return '버튼명에는 치환변수를 쓸 수 없습니다.';
+  if (countVariables(button.name) > 0) return '버튼명에는 치환변수를 쓸 수 없어요.';
 
   const max = buttonNameMaxOf(context);
-  if (kakaoCharCount(name) > max) return `버튼명은 ${String(max)}자를 넘을 수 없습니다.`;
+  if (kakaoCharCount(name) > max) return `버튼명은 ${String(max)}자를 넘을 수 없어요.`;
 
   if (usesLink(button.type) && button.linkMobile.trim() === '') {
     return '모바일 링크를 입력하세요.';
@@ -847,11 +847,11 @@ export function buttonsError(
 ): string | null {
   const countMax = buttonCountMaxOf(context);
   if (buttons.length > countMax) {
-    return `버튼은 최대 ${String(countMax)}개까지 넣을 수 있습니다.`;
+    return `버튼은 최대 ${String(countMax)}개까지 넣을 수 있어요.`;
   }
 
   const acIndex = buttons.findIndex((button) => button.type === 'AC');
-  if (acIndex > 0) return '채널추가 버튼은 가장 위에 있어야 합니다.';
+  if (acIndex > 0) return '채널추가 버튼은 가장 위에 있어야 해요.';
 
   for (const button of buttons) {
     const error = buttonError(button, context);
@@ -869,11 +869,11 @@ export function buttonsError(
 export function alimtalkBodyError(parts: AlimtalkLengthParts): string | null {
   const body = parts.body;
   if (body.trim() === '') return '본문을 입력하세요.';
-  if (isVariableOnlyBody(body)) return '본문을 치환변수만으로 구성할 수 없습니다.';
+  if (isVariableOnlyBody(body)) return '본문을 치환변수만으로 구성할 수 없어요.';
 
   const variables = countVariables(alimtalkVariableBearingText(parts));
   if (variables > TEMPLATE_VARIABLE_MAX) {
-    return `치환변수는 최대 ${String(TEMPLATE_VARIABLE_MAX)}개까지 쓸 수 있습니다.`;
+    return `치환변수는 최대 ${String(TEMPLATE_VARIABLE_MAX)}개까지 쓸 수 있어요.`;
   }
 
   const max = alimtalkBodyMaxOf(parts.emphasisType);
@@ -881,7 +881,7 @@ export function alimtalkBodyError(parts: AlimtalkLengthParts): string | null {
   if (length > max) {
     /* 왜 넘었는지를 함께 말한다 — 본문만 세던 운영자에게 '버튼명·강조·부가정보도 센다' 는 사실이
        여기서 처음 보인다(kakao.ts 본문 머리말). */
-    return `본문은 강조·부가정보·버튼명을 모두 합쳐 ${String(max)}자를 넘을 수 없습니다(현재 ${String(length)}자).`;
+    return `본문은 강조·부가정보·버튼명을 모두 합쳐 ${String(max)}자를 넘을 수 없어요(현재 ${String(length)}자).`;
   }
   return null;
 }
@@ -893,15 +893,15 @@ export function emphasisTitleError(title: string, subtitle: string): string | nu
 
   /* [왜 '둘 다' 인가] 제작가이드 §2-2 가 "Title과 Subtitle은 함께 등록되어야 하며, 각각 단독으로
      사용할 수 없음" 이라고 못박는다. 한쪽만 채운 템플릿은 화면에서는 멀쩡해 보이고 심사에서 걸린다. */
-  if (!hasTitle && !hasSubtitle) return '강조표기형은 강조 제목과 보조문구를 입력해야 합니다.';
-  if (!hasTitle) return '강조 제목을 입력하세요 — 보조문구만으로는 등록할 수 없습니다.';
-  if (!hasSubtitle) return '강조 보조문구를 입력하세요 — 제목만으로는 등록할 수 없습니다.';
+  if (!hasTitle && !hasSubtitle) return '강조표기형은 강조 제목과 보조문구를 입력해야 해요.';
+  if (!hasTitle) return '강조 제목을 입력하세요 — 보조문구만으로는 등록할 수 없어요.';
+  if (!hasSubtitle) return '강조 보조문구를 입력하세요 — 제목만으로는 등록할 수 없어요.';
 
   if (kakaoCharCount(title) > ALIMTALK_EMPHASIS_TITLE_MAX) {
-    return `강조 제목은 ${String(ALIMTALK_EMPHASIS_TITLE_MAX)}자를 넘을 수 없습니다.`;
+    return `강조 제목은 ${String(ALIMTALK_EMPHASIS_TITLE_MAX)}자를 넘을 수 없어요.`;
   }
   if (countVariables(subtitle) > 0) {
-    return '강조 보조문구에는 치환변수를 쓸 수 없습니다.';
+    return '강조 보조문구에는 치환변수를 쓸 수 없어요.';
   }
   return null;
 }
@@ -919,16 +919,16 @@ export function emphasisTruncationWarning(title: string, subtitle: string): stri
 
   const where =
     titleOver && subtitleOver ? '제목과 보조문구가' : titleOver ? '제목이' : '보조문구가';
-  return `${where} 안드로이드에서 말줄임될 수 있습니다(제목 ${String(ALIMTALK_EMPHASIS_TITLE_TRUNCATE)}자 · 보조문구 ${String(ALIMTALK_EMPHASIS_SUBTITLE_TRUNCATE)}자 기준).`;
+  return `${where} 안드로이드에서 말줄임될 수 있어요(제목 ${String(ALIMTALK_EMPHASIS_TITLE_TRUNCATE)}자 · 보조문구 ${String(ALIMTALK_EMPHASIS_SUBTITLE_TRUNCATE)}자 기준).`;
 }
 
 /** 아이템리스트형 — 행 개수와 각 행의 두 칸 */
 export function itemsError(items: readonly AlimtalkItem[]): string | null {
   if (items.length < ALIMTALK_ITEM_LIST_MIN) {
-    return `아이템은 최소 ${String(ALIMTALK_ITEM_LIST_MIN)}개가 필요합니다.`;
+    return `아이템은 최소 ${String(ALIMTALK_ITEM_LIST_MIN)}개가 필요해요.`;
   }
   if (items.length > ALIMTALK_ITEM_LIST_MAX) {
-    return `아이템은 최대 ${String(ALIMTALK_ITEM_LIST_MAX)}개까지 넣을 수 있습니다.`;
+    return `아이템은 최대 ${String(ALIMTALK_ITEM_LIST_MAX)}개까지 넣을 수 있어요.`;
   }
 
   for (const [index, item] of items.entries()) {
@@ -936,13 +936,13 @@ export function itemsError(items: readonly AlimtalkItem[]): string | null {
     if (item.name.trim() === '') return `${at}: 항목명을 입력하세요.`;
     if (item.description.trim() === '') return `${at}: 항목값을 입력하세요.`;
     if (kakaoCharCount(item.name) > ALIMTALK_ITEM_NAME_MAX) {
-      return `${at}: 항목명은 ${String(ALIMTALK_ITEM_NAME_MAX)}자를 넘을 수 없습니다.`;
+      return `${at}: 항목명은 ${String(ALIMTALK_ITEM_NAME_MAX)}자를 넘을 수 없어요.`;
     }
     if (kakaoCharCount(item.description) > ALIMTALK_ITEM_DESCRIPTION_MAX) {
-      return `${at}: 항목값은 ${String(ALIMTALK_ITEM_DESCRIPTION_MAX)}자를 넘을 수 없습니다.`;
+      return `${at}: 항목값은 ${String(ALIMTALK_ITEM_DESCRIPTION_MAX)}자를 넘을 수 없어요.`;
     }
     // 표의 머리글이 발송마다 달라지면 심사가 본 표와 다른 표가 나간다
-    if (countVariables(item.name) > 0) return `${at}: 항목명에는 치환변수를 쓸 수 없습니다.`;
+    if (countVariables(item.name) > 0) return `${at}: 항목명에는 치환변수를 쓸 수 없어요.`;
   }
   return null;
 }
@@ -955,15 +955,15 @@ export function itemHeaderError(
   hasThumbnail: boolean,
 ): string | null {
   if (kakaoCharCount(header) > ALIMTALK_ITEM_HEADER_MAX) {
-    return `헤더는 ${String(ALIMTALK_ITEM_HEADER_MAX)}자를 넘을 수 없습니다.`;
+    return `헤더는 ${String(ALIMTALK_ITEM_HEADER_MAX)}자를 넘을 수 없어요.`;
   }
   const titleMax = alimtalkHighlightTitleMax(hasThumbnail);
   if (kakaoCharCount(highlightTitle) > titleMax) {
-    return `아이템 하이라이트 제목은 ${String(titleMax)}자를 넘을 수 없습니다${hasThumbnail ? '(썸네일이 있으면 더 짧습니다).' : '.'}`;
+    return `아이템 하이라이트 제목은 ${String(titleMax)}자를 넘을 수 없어요${hasThumbnail ? '(썸네일이 있으면 더 짧아요).' : '.'}`;
   }
   const descriptionMax = alimtalkHighlightDescriptionMax(hasThumbnail);
   if (kakaoCharCount(highlightDescription) > descriptionMax) {
-    return `아이템 하이라이트 설명은 ${String(descriptionMax)}자를 넘을 수 없습니다${hasThumbnail ? '(썸네일이 있으면 더 짧습니다).' : '.'}`;
+    return `아이템 하이라이트 설명은 ${String(descriptionMax)}자를 넘을 수 없어요${hasThumbnail ? '(썸네일이 있으면 더 짧아요).' : '.'}`;
   }
   return null;
 }
@@ -972,11 +972,11 @@ export function itemHeaderError(
 export function extraInfoError(extraInfo: string): string | null {
   if (extraInfo.trim() === '') return '부가정보를 입력하세요.';
   if (kakaoCharCount(extraInfo) > ALIMTALK_EXTRA_INFO_MAX) {
-    return `부가정보는 ${String(ALIMTALK_EXTRA_INFO_MAX)}자를 넘을 수 없습니다.`;
+    return `부가정보는 ${String(ALIMTALK_EXTRA_INFO_MAX)}자를 넘을 수 없어요.`;
   }
   if (countVariables(extraInfo) > 0) {
     // 부가정보는 '고정적인 안내' 를 담는 자리라 발송마다 값이 달라지면 유형을 고른 뜻이 사라진다
-    return '부가정보에는 치환변수를 쓸 수 없습니다.';
+    return '부가정보에는 치환변수를 쓸 수 없어요.';
   }
   return null;
 }
@@ -988,7 +988,7 @@ export function brandMessageBodyError(body: string, type: BrandMessageBodyType):
   const max = BRAND_MESSAGE_BODY_MAX[type];
   const length = kakaoCharCount(body);
   if (length > max) {
-    return `${BRAND_MESSAGE_TYPE_LABEL[type]} 본문은 ${String(max)}자를 넘을 수 없습니다(현재 ${String(length)}자).`;
+    return `${BRAND_MESSAGE_TYPE_LABEL[type]} 본문은 ${String(max)}자를 넘을 수 없어요(현재 ${String(length)}자).`;
   }
   return null;
 }
@@ -996,16 +996,16 @@ export function brandMessageBodyError(body: string, type: BrandMessageBodyType):
 /** 와이드 리스트형의 항목 — 3~4개, 각 항목에 제목과 이미지 */
 export function listItemsError(items: readonly BrandListItem[]): string | null {
   if (items.length < BRAND_LIST_ITEM_MIN) {
-    return `리스트 항목은 최소 ${String(BRAND_LIST_ITEM_MIN)}개가 필요합니다.`;
+    return `리스트 항목은 최소 ${String(BRAND_LIST_ITEM_MIN)}개가 필요해요.`;
   }
   if (items.length > BRAND_LIST_ITEM_MAX) {
-    return `리스트 항목은 최대 ${String(BRAND_LIST_ITEM_MAX)}개까지 넣을 수 있습니다.`;
+    return `리스트 항목은 최대 ${String(BRAND_LIST_ITEM_MAX)}개까지 넣을 수 있어요.`;
   }
   for (const [index, item] of items.entries()) {
     const at = `항목 ${String(index + 1)}`;
     if (item.title.trim() === '') return `${at}: 제목을 입력하세요.`;
     if (kakaoCharCount(item.title) > BRAND_LIST_ITEM_TITLE_MAX) {
-      return `${at}: 제목은 ${String(BRAND_LIST_ITEM_TITLE_MAX)}자를 넘을 수 없습니다.`;
+      return `${at}: 제목은 ${String(BRAND_LIST_ITEM_TITLE_MAX)}자를 넘을 수 없어요.`;
     }
     if (item.imageFileName.trim() === '') return `${at}: 이미지를 첨부하세요.`;
   }
@@ -1015,20 +1015,20 @@ export function listItemsError(items: readonly BrandListItem[]): string | null {
 /** 캐러셀 카드 — 2~6장, 카드마다 본문·이미지·버튼 1~2개 */
 export function cardsError(cards: readonly BrandCarouselCard[]): string | null {
   if (cards.length < BRAND_CAROUSEL_CARD_MIN) {
-    return `카드는 최소 ${String(BRAND_CAROUSEL_CARD_MIN)}장이 필요합니다.`;
+    return `카드는 최소 ${String(BRAND_CAROUSEL_CARD_MIN)}장이 필요해요.`;
   }
   if (cards.length > BRAND_CAROUSEL_CARD_MAX) {
-    return `카드는 최대 ${String(BRAND_CAROUSEL_CARD_MAX)}장까지 넣을 수 있습니다.`;
+    return `카드는 최대 ${String(BRAND_CAROUSEL_CARD_MAX)}장까지 넣을 수 있어요.`;
   }
 
   for (const [index, card] of cards.entries()) {
     const at = `카드 ${String(index + 1)}`;
     if (kakaoCharCount(card.header) > BRAND_CAROUSEL_HEADER_MAX) {
-      return `${at}: 헤더는 ${String(BRAND_CAROUSEL_HEADER_MAX)}자를 넘을 수 없습니다.`;
+      return `${at}: 헤더는 ${String(BRAND_CAROUSEL_HEADER_MAX)}자를 넘을 수 없어요.`;
     }
     if (card.body.trim() === '') return `${at}: 본문을 입력하세요.`;
     if (kakaoCharCount(card.body) > BRAND_MESSAGE_BODY_MAX.carousel) {
-      return `${at}: 본문은 ${String(BRAND_MESSAGE_BODY_MAX.carousel)}자를 넘을 수 없습니다.`;
+      return `${at}: 본문은 ${String(BRAND_MESSAGE_BODY_MAX.carousel)}자를 넘을 수 없어요.`;
     }
     if (card.imageFileName.trim() === '') return `${at}: 이미지를 첨부하세요.`;
     /* 카드에 버튼이 하나도 없으면 그 카드는 눌러도 아무 데도 가지 않는다 — 캐러셀을 고른 뜻이

@@ -13,6 +13,12 @@
   font-family: var(--tds-typography-label-md-font-family);
   font-weight: var(--tds-typography-label-md-font-weight);
   line-height: var(--tds-typography-label-md-line-height);
+  /* 레이블은 한 줄이다 — 버튼 레이블은 문장이 아니라 **동작의 이름**이라 접히면 읽는 순서가 흐트러진다.
+     이 선언이 없으면 좁은 flex/grid 줄에서 버튼의 min-content 폭이 '가장 긴 단어' 로 내려앉아
+     '주소 검색' 이 두 줄로 접혔다(오시는 길 주소 행에서 실제로 관측). nowrap 이면 min-content 폭이
+     레이블 전체가 되어 버튼이 그 아래로 눌리지 않는다.
+     앱(apps/admin 의 로컬 buttonStyle)은 이미 같은 값을 갖고 있었다 — 갈라져 있던 쪽을 DS 로 모은다. */
+  white-space: nowrap;
   cursor: pointer;
   transition:
     background-color var(--tds-component-button-transition-duration)

@@ -188,22 +188,51 @@ export function toContractInput(contract: Contract): ContractInput {
 
 /* ── 견적 → 계약 초안 ─────────────────────────────────────────────────────── */
 
-export const CONTRACT_DRAFT_NOT_ORDERED = '수주로 전환된 견적만 계약 초안을 만들 수 있습니다.';
-export const CONTRACT_DRAFT_DONE = '이미 계약이 만들어진 견적입니다.';
+export const CONTRACT_DRAFT_NOT_ACCEPTED =
+  '고객이 승인한 견적만 계약으로 넘길 수 있어요. 견적 상세의 상태 관리에서 ‘승인’으로 바꾸세요.';
+export const CONTRACT_DRAFT_DONE = '이미 계약이 만들어진 견적이에요.';
 
 /** 기본 계약기간 — 1년(국내 관례). 초안의 출발값일 뿐 운영자가 폼에서 고친다 */
 const CONTRACT_DEFAULT_DAYS = 365;
 
 /**
- * 지금 이 견적으로 계약 초안을 만들 수 없는 이유 — 만들 수 있으면 null.
+ * 지금 이 견적으로 계약을 만들 수 없는 이유 — 만들 수 있으면 null.
  *
- * 버튼의 disabled 조건과 초안 화면의 거절 안내가 **같은 술어**를 읽는다. 승인만 된 견적을 막는
- * 이유는 `isOrderedQuote` 머리말에 있다 — 전환하지 않은 견적에 계약이 먼저 붙지 않게 한다.
+ * 버튼의 disabled 조건과 생성 경로의 거절이 **같은 술어**를 읽는다.
+ *
+ * [왜 `ordered` 가 아니라 `accepted` 가 문을 여나 — 순서가 뒤집혔다]
+ * 예전에는 운영자가 '수주 전환' 을 먼저 누르고, 그 다음에 '계약 초안 만들기' 를 눌렀다. 한 사건
+ * ('이 거래는 성사됐다')을 두 번 누르게 한 셈이라 한 번을 빠뜨리면 두 화면이 다른 사실을 말했다.
+ * 이제 `ordered` 는 **계약이 만들어진 결과**다(../quotes/data-source 의 markQuoteOrdered). 그래서
+ * 계약의 입구는 그 앞 칸인 '승인' 이다.
+ *
+ * [`ordered` 도 통과시킨다] 계약이 없는데 상태만 `ordered` 인 견적이 존재할 수 있다 — 되돌려
+ * 쓰기만 성공하고 그 앞의 계약이 지워졌거나, 이 규칙 이전의 데이터다. 그때 문을 닫으면 그 견적은
+ * 영원히 계약을 가질 수 없다(수동 등록이 막혀 있어 우회로가 없다). 막다른 골목을 만들지 않는다.
  */
 export function contractDraftBlock(status: QuoteStatus, existingContractId: string): string | null {
-  if (!isOrderedQuote(status)) return CONTRACT_DRAFT_NOT_ORDERED;
   if (existingContractId !== '') return CONTRACT_DRAFT_DONE;
+  if (status !== 'accepted' && !isOrderedQuote(status)) return CONTRACT_DRAFT_NOT_ACCEPTED;
   return null;
+}
+
+/**
+ * 체결이 끝난 계약인가 — **프로젝트로 넘어갈 수 있는 계약의 단일 정의.**
+ *
+ * [‘계약 완료’ 라는 상태는 없다 — 무엇을 완료로 볼지 정한 근거]
+ * 계약 상태 유니온은 `draft|review|active|expired|terminated` 이고 '완료' 가 없다. 없는 상태를
+ * 함부로 만들지 않는다 — 상태를 하나 늘리면 목록 필터·배지·시드가 전부 그 칸을 다시 정의해야 하고,
+ * 운영자가 말한 '계약 완료' 는 애초에 **새 칸이 아니라 이미 있는 두 사실의 교집합**이다:
+ *   · `signStatus === 'signed'` — 도장이 찍혔다(계약이 성립했다)
+ *   · `status === 'active'`     — 지금 효력이 있다(진행중)
+ * 국내 실무의 '계약 완료' 는 '계약 체결 완료' 이지 '계약 종료' 가 아니다. 그래서 `expired`(만료)·
+ * `terminated`(해지)는 완료가 아니라 **끝난** 것이고, 끝난 계약에서 프로젝트를 새로 시작하지 않는다.
+ *
+ * [막다른 골목이 아니다] 만료·해지로 넘어간 뒤에 프로젝트가 필요해지면 계약을 '진행중'으로 되돌릴
+ * 수 있다(계약 수정은 막지 않았다 — 막은 것은 생성뿐이다).
+ */
+export function isConcludedContract(status: ContractStatus, signStatus: SignStatus): boolean {
+  return status === 'active' && signStatus === 'signed';
 }
 
 /**

@@ -99,14 +99,14 @@ export default function PortfolioListPage() {
     { header: '제목', render: (item) => item.title },
     { header: '고객사', render: (item) => <span style={summaryCellStyle}>{item.client}</span> },
     { header: '일자', nowrap: true, render: (item) => item.date },
-    publishToggleColumn<PortfolioItem>(toggle.pendingId, (item, next) =>
+    publishToggleColumn<PortfolioItem>(toggle.pendingId, toggle.canUpdate, (item, next) =>
       toggle.run(
         item.id,
         { ...toPortfolioInput(item), published: next },
         {
           success: next
-            ? `'${item.title}'${objectParticle(item.title)} 게시했습니다.`
-            : `'${item.title}'${objectParticle(item.title)} 숨겼습니다.`,
+            ? `'${item.title}'${objectParticle(item.title)} 게시했어요.`
+            : `'${item.title}'${objectParticle(item.title)} 숨겼어요.`,
         },
       ),
     ),

@@ -92,7 +92,7 @@ export const smsAdapter = createCrudAdapter<SmsCampaign, SmsCampaignInput>({
     if (!sendActionsFor(item.status).canEdit) {
       throw new HttpError(
         HTTP_STATUS.unprocessable,
-        '발송중·발송완료·취소된 캠페인은 수정할 수 없습니다.',
+        '발송중·발송완료·취소된 캠페인은 수정할 수 없어요.',
       );
     }
     return {

@@ -1,10 +1,9 @@
 // EsgFormPage — ESG 활동 등록/수정 (라우트: /company/esg/new · /company/esg/:id/edit)
-import type { CSSProperties } from 'react';
-
 import {
   controlStyle,
   errorIdOf,
   FormField,
+  formRowStyle,
   ImageGalleryField,
   SelectField,
   TextareaField,
@@ -20,18 +19,10 @@ import {
 import type { EsgCategory, EsgInput, EsgItem } from './types';
 import { esgSchema } from './validation';
 import type { EsgFormValues } from './validation';
-import { cssVar } from '@tds/ui';
-
 const ENTITY_LABEL = 'ESG 활동';
 const LIST_PATH = '/company/esg';
 const UNSAVED_MESSAGE =
-  'ESG 활동에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
-};
+  'ESG 활동에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 export default function EsgFormPage() {
   const {
@@ -84,7 +75,7 @@ export default function EsgFormPage() {
     <FormPageShell
       entityLabel={ENTITY_LABEL}
       cardTitle="ESG 활동 정보"
-      description="별표(*) 항목은 필수입니다. 분류(환경/사회/지배구조)와 활동 내용을 입력하세요."
+      description="별표(*) 항목은 필수예요. 분류(환경/사회/지배구조)와 활동 내용을 입력하세요."
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
@@ -98,7 +89,7 @@ export default function EsgFormPage() {
       unsavedMessage={UNSAVED_MESSAGE}
       onSubmit={submit}
     >
-      <div style={rowStyle}>
+      <div style={formRowStyle}>
         <FormField htmlFor="esg-category" label="분류" required error={errors.category?.message}>
           <SelectField
             id="esg-category"
@@ -165,7 +156,7 @@ export default function EsgFormPage() {
         onChange={(next) => setValue('imageUrls', [...next], { shouldDirty: true })}
         disabled={disabled}
         error={imagesError}
-        hint={`활동을 보여줄 이미지를 여러 장 올릴 수 있습니다. 최대 ${String(MAX_ESG_IMAGES)}장.`}
+        hint={`활동을 보여줄 이미지를 여러 장 올릴 수 있어요. 최대 ${String(MAX_ESG_IMAGES)}장.`}
         maxFiles={MAX_ESG_IMAGES}
       />
     </FormPageShell>

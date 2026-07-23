@@ -27,7 +27,7 @@ export function isProcessDirty(ticket: Ticket, draft: ProcessDraft): boolean {
 /** 처리중·답변완료인데 담당이 비면 안내 문구, 아니면 null */
 export function assigneeError(status: TicketStatus, assignee: string): string | null {
   if (statusRequiresAssignee(status) && assignee.trim() === '') {
-    return `'${ticketStatusLabel(status)}' 상태는 담당 배정이 필요합니다.`;
+    return `'${ticketStatusLabel(status)}' 상태는 담당 배정이 필요해요.`;
   }
   return null;
 }

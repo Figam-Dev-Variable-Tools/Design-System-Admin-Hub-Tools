@@ -39,6 +39,7 @@ import {
   Card,
   Checkbox,
   FormField,
+  formRowStyle,
   SelectField,
   TextField,
   TextareaField,
@@ -117,7 +118,7 @@ const EDIT_SEED: SeedValues = {
     '· 적용 일자: 2026년 8월 1일\n' +
     '· 적용 대상: 전체 회원\n' +
     '· 문의: 고객센터 1:1 문의\n\n' +
-    '감사합니다.',
+    '감사해요.',
 };
 
 /** 예약 시드 — 게시일이 필수이자 활성이 되는 유일한 상태 */
@@ -184,13 +185,6 @@ const cardTitleStyle: CSSProperties = {
   ...typography('typography.title.md'),
   margin: 0,
   color: cssVar('color.text.default'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 8), 1fr))`,
-  gap: cssVar('space.4'),
-  alignItems: 'start',
 };
 
 const controlStyle = (invalid: boolean): CSSProperties => ({
@@ -268,8 +262,7 @@ function NoticeFormScreen({
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '공지 수정' : '공지 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 상태를 &apos;예약&apos;으로 두면 게시일 이후 자동으로
-          게시됩니다.
+          별표(*) 항목은 필수예요. 상태를 &apos;예약&apos;으로 두면 게시일 이후 자동으로 게시돼요.
         </p>
       </div>
 
@@ -289,7 +282,7 @@ function NoticeFormScreen({
             error={errors.title ?? ''}
           />
 
-          <div style={rowStyle}>
+          <div style={formRowStyle}>
             <FormField htmlFor="notice-category" label="분류" required>
               <SelectField
                 id="notice-category"
@@ -328,7 +321,7 @@ function NoticeFormScreen({
               htmlFor="notice-published-at"
               label="게시일"
               required={scheduled}
-              hint={scheduled ? '예약 게시할 날짜' : '예약 상태에서만 사용됩니다.'}
+              hint={scheduled ? '예약 게시할 날짜' : '예약 상태에서만 사용돼요.'}
               {...(errors.publishedAt !== undefined && { error: errors.publishedAt })}
             >
               <input
@@ -402,7 +395,7 @@ export const ValidationError: Story = {
     <NoticeFormScreen
       seed={ERROR_SEED}
       errors={DEMO_ERRORS}
-      serverError="저장하지 못했습니다. 잠시 후 다시 시도해 주세요."
+      serverError="저장하지 못했어요. 잠시 후 다시 시도해 주세요."
     />
   ),
 };

@@ -119,7 +119,7 @@ const DEMO_CASES: readonly DemoCase[] = [
     title: '스마트팩토리 전환으로 불량률 절반 감축',
     industry: 'manufacturing',
     client: '다온정밀',
-    result: '6개월 만에 불량률을 52% 낮추고 라인 가동률을 18%p 끌어올렸습니다.',
+    result: '6개월 만에 불량률을 52% 낮추고 라인 가동률을 18%p 끌어올렸어요.',
     published: true,
     date: '2024-04-30',
   },
@@ -128,7 +128,7 @@ const DEMO_CASES: readonly DemoCase[] = [
     title: '옴니채널 개편으로 재구매율 상승',
     industry: 'retail',
     client: '벨라마켓',
-    result: '재구매율이 분기 대비 23% 올랐습니다.',
+    result: '재구매율이 분기 대비 23% 올랐어요.',
     published: true,
     date: '2024-01-22',
   },
@@ -137,7 +137,7 @@ const DEMO_CASES: readonly DemoCase[] = [
     title: '비대면 창구 도입으로 대기시간 단축',
     industry: 'finance',
     client: '한결저축은행',
-    result: '평균 대기시간을 14분에서 4분으로 줄였습니다.',
+    result: '평균 대기시간을 14분에서 4분으로 줄였어요.',
     published: false,
     date: '2023-09-14',
   },
@@ -146,7 +146,7 @@ const DEMO_CASES: readonly DemoCase[] = [
     title: '시민 참여형 민원 포털 구축',
     industry: 'public',
     client: '새빛시청',
-    result: '민원 처리 만족도가 71점에서 88점으로 올랐습니다.',
+    result: '민원 처리 만족도가 71점에서 88점으로 올랐어요.',
     published: true,
     date: '2023-05-08',
   },
@@ -402,7 +402,7 @@ function CaseStudyListScreen({
       </SelectionBar>
 
       <Table
-        caption="성공 사례 목록 — 행을 누르면 수정 화면으로 이동합니다. 체크박스·노출 토글·수정·삭제 버튼은 각자의 동작을 수행합니다."
+        caption="성공 사례 목록 — 행을 누르면 수정 화면으로 이동해요. 체크박스·노출 토글·수정·삭제 버튼은 각자 따로 동작해요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[
@@ -435,7 +435,7 @@ function CaseStudyListScreen({
         <ConfirmDialog
           intent="delete"
           title="성공 사례 삭제"
-          message={`'${confirming.title}'을(를) 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${confirming.title}'을(를) 삭제해요. 되돌릴 수 없어요.`}
           confirmLabel="삭제"
           onConfirm={() => {
             removeCase(confirming.id);

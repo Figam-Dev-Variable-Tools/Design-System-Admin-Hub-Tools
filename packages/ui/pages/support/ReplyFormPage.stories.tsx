@@ -216,7 +216,7 @@ function ReplyFormScreen({
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '답변 템플릿 수정' : '답변 템플릿 등록'}</h1>
         <p style={descriptionStyle}>
-          자주 쓰는 답변을 템플릿으로 저장해 두면 티켓 답변 작성 시 골라 삽입할 수 있습니다.
+          자주 쓰는 답변을 템플릿으로 저장해 두면 티켓 답변 작성 시 골라 삽입할 수 있어요.
         </p>
       </div>
 
@@ -244,7 +244,7 @@ function ReplyFormScreen({
               <FormField
                 htmlFor={categoryFieldId}
                 label="유형 태그"
-                hint="특정 유형 티켓에만 노출됩니다. '전체'는 모든 유형에 노출됩니다."
+                hint="특정 유형 티켓에만 노출돼요. '전체'는 모든 유형에 노출돼요."
               >
                 <SelectField
                   id={categoryFieldId}
@@ -275,7 +275,7 @@ function ReplyFormScreen({
                 치환 변수: <code style={codeStyle}>{'{{고객명}}'}</code> ·{' '}
                 <code style={codeStyle}>{'{{문의번호}}'}</code> ·{' '}
                 <code style={codeStyle}>{'{{담당자}}'}</code> — 티켓에 삽입할 때 실제 값으로
-                바뀝니다.
+                바뀌어요.
               </p>
             </>
           )}

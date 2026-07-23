@@ -22,13 +22,13 @@ export const caseStudySchema = z.object({
   date: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '일자를 입력하세요.' }),
     z.refine((value) => ISO_DATE_RE.test(value.trim()), {
-      error: '일자 형식이 올바르지 않습니다.',
+      error: '일자 형식이 올바르지 않아요.',
     }),
   ),
   coverImageUrl: requiredImage('대표 이미지'),
   imageUrls: z.array(z.string()).check(
     z.refine((values) => values.length <= MAX_CASE_IMAGES, {
-      error: `본문 이미지는 최대 ${String(MAX_CASE_IMAGES)}장까지 등록할 수 있습니다.`,
+      error: `본문 이미지는 최대 ${String(MAX_CASE_IMAGES)}장까지 등록할 수 있어요.`,
     }),
   ),
   published: z.boolean(),

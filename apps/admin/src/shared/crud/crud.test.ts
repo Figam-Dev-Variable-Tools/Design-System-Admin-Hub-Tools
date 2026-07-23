@@ -52,7 +52,7 @@ function makeStore(): CrudAdapter<Row, RowInput> {
     list: () => rows,
     getOne: (id) => {
       const found = rows.find((row) => row.id === id);
-      if (found === undefined) throw new Error('찾을 수 없습니다');
+      if (found === undefined) throw new Error('찾을 수 없어요');
       return found;
     },
     add: (input) => {

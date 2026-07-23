@@ -555,7 +555,7 @@ function RevenueStatsScreen({ state }: { state: ScreenState }) {
         unit: 'won',
         value: payment,
         compareValue: cmp(payment),
-        hint: '기간 안에 결제가 완료된 금액의 합입니다.',
+        hint: '기간 안에 결제가 완료된 금액의 합이에요.',
       },
       {
         id: 'refund',
@@ -564,7 +564,7 @@ function RevenueStatsScreen({ state }: { state: ScreenState }) {
         value: refund,
         compareValue: cmp(refund),
         isLowerBetter: true,
-        hint: '기간 안에 환불 처리된 금액의 합입니다.',
+        hint: '기간 안에 환불 처리된 금액의 합이에요.',
       },
       {
         id: 'net',
@@ -572,7 +572,7 @@ function RevenueStatsScreen({ state }: { state: ScreenState }) {
         unit: 'won',
         value: net,
         compareValue: cmp(net),
-        hint: '결제합계에서 환불합계를 뺀 금액입니다.',
+        hint: '결제합계에서 환불합계를 뺀 금액이에요.',
       },
       {
         id: 'orders',
@@ -580,7 +580,7 @@ function RevenueStatsScreen({ state }: { state: ScreenState }) {
         unit: 'count',
         value: orders,
         compareValue: cmp(orders),
-        hint: '결제가 완료된 주문 건수입니다.',
+        hint: '결제가 완료된 주문 건수예요.',
       },
       {
         id: 'aov',
@@ -588,7 +588,7 @@ function RevenueStatsScreen({ state }: { state: ScreenState }) {
         unit: 'won',
         value: orders === 0 ? 0 : net / orders,
         compareValue: compareOn ? Math.round((orders === 0 ? 0 : net / orders) * 0.9) : null,
-        hint: '순매출을 결제건수로 나눈 값입니다.',
+        hint: '순매출을 결제건수로 나눈 값이에요.',
       },
     ];
   }, [daily, compare, isEmpty]);
@@ -617,8 +617,8 @@ function RevenueStatsScreen({ state }: { state: ScreenState }) {
   return (
     <div style={pageStyle}>
       <p style={descriptionStyle}>
-        결제수단별로 결제·환불·순매출을 갈라 보고, 비교 기간과 견주는 매출 분석입니다. 순매출은
-        결제합계에서 환불합계를 뺀 금액이라, 결제합계만 세는 화면과는 다른 숫자를 냅니다.
+        결제수단별로 결제·환불·순매출을 갈라 보고, 비교 기간과 견주는 매출 분석이에요. 순매출은
+        결제합계에서 환불합계를 뺀 금액이라, 결제합계만 세는 화면과는 다른 숫자를 내요.
       </p>
 
       {/* 조회 조건 바 — 원본 StatsFilterBar (프리셋 · 비교 기준 · 결제수단 · 내보내기) */}
@@ -691,8 +691,8 @@ function RevenueStatsScreen({ state }: { state: ScreenState }) {
 
       {/* 부가세 고지 — 화면에 상주하는 안내다(토스트가 아니다). 원본 VAT_NOTICE */}
       <Alert tone="info">
-        순매출은 결제합계에서 환불합계를 뺀 금액이며, 부가세가 포함된 금액입니다. 이 통계는 쇼핑몰
-        운영 참고용이며, 국세청 신고 등 제출용 자료로는 사용하실 수 없습니다.
+        순매출은 결제합계에서 환불합계를 뺀 금액이며, 부가세가 포함된 금액이에요. 이 통계는 쇼핑몰
+        운영 참고용이며, 국세청 신고 등 제출용 자료로는 사용하실 수 없어요.
       </Alert>
 
       {/* KPI 5장 — 값 + 비교 기간 증감 + 정의 힌트 (원본 StatsKpiRow) */}
@@ -735,7 +735,7 @@ function RevenueStatsScreen({ state }: { state: ScreenState }) {
       >
         {currentSeries.length === 0 ? (
           <p style={{ ...hintStyle, textAlign: 'center', paddingBlock: cssVar('space.6') }}>
-            선택한 기간에 집계된 값이 없습니다.
+            선택한 기간에 집계된 값이 없어요.
           </p>
         ) : (
           <LineAreaChart

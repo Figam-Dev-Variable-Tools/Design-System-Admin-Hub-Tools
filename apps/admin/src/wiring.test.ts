@@ -21,7 +21,9 @@ import { wireDomains } from './wiring';
 const PROFILE: CompanyProfile = {
   companyName: '주식회사 예시플래닝',
   businessNumber: '123-45-67890',
-  address: '서울특별시 예시구 가상대로 123, 예시타워 8층',
+  // 주소는 두 칸으로 갈라졌다(주소 검색이 주는 한 줄 + 사람이 적는 층·호수)
+  address: '서울특별시 예시구 가상대로 123',
+  addressDetail: '예시타워 8층',
   ceoName: '홍길동',
   contact: '02-0000-0000',
   logoUrl: '/fixtures/placeholder-image.svg',
@@ -53,8 +55,25 @@ describe('회사 정보 → 견적서 공급자', () => {
     expect(supplier.name).toBe(PROFILE.companyName);
     expect(supplier.bizNo).toBe(PROFILE.businessNumber);
     expect(supplier.ceoName).toBe(PROFILE.ceoName);
-    expect(supplier.address).toBe(PROFILE.address);
     expect(supplier.phone).toBe(PROFILE.contact);
+  });
+
+  /**
+   * 회사 정보는 주소를 두 칸으로 나눠 저장하지만 견적서에 인쇄되는 것은 **한 줄**이다.
+   * 합치지 않으면 화면에는 '8층' 이 보이는데 고객이 받는 종이에는 없다 — 조용한 누락이다.
+   */
+  it('상세주소(층·호수)가 공급자 주소에 함께 실린다', () => {
+    expect(quoteSupplier().address).toBe(`${PROFILE.address} ${PROFILE.addressDetail}`);
+  });
+
+  it('상세주소가 비어 있으면 도로명만 실린다 — 뒤에 공백이 남지 않는다', () => {
+    // 화면이 읽는 바로 그 캐시를 갈아 끼운다(위 beforeAll 과 같은 키) — 배선은 이 키를 본다
+    queryClient.setQueryData(companyProfileKey, { ...PROFILE, addressDetail: '   ' });
+    try {
+      expect(quoteSupplier().address).toBe(PROFILE.address);
+    } finally {
+      queryClient.setQueryData(companyProfileKey, PROFILE);
+    }
   });
 
   /** 필드 이름이 양쪽에서 다르다(businessNumber ↔ bizNo · contact ↔ phone) — 대응을 못박는다 */

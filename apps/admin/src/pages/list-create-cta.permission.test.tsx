@@ -1,4 +1,5 @@
-// 등록 CTA 는 create 권한이 있을 때만 존재한다 (EXC-03) — 목록 화면 12종
+// 등록 CTA 는 create 권한이 있을 때만 존재한다 (EXC-03) — 목록 화면 9종
+//   + 영업 파이프라인 3종은 create 권한이 있어도 CTA 가 없다 (아래 두 번째 표)
 //
 // ─────────────────────────────────────────────────────────────────────────────
 // [무엇을 지키나]
@@ -11,7 +12,15 @@
 // 있었다")이 목록 화면에 남아 있던 것이다. ProductListPage 가 이미 옳은 형태다
 // (products/items/ProductListPage.tsx:119,256 — canCreate 로 CTA 자체를 만들지 않는다).
 //
-// [왜 표본이 아니라 12개 전부인가]
+// [영업 파이프라인 3종은 왜 여기서 빠졌나 — 겨냥을 옮겼다]
+// 견적·계약·프로젝트는 **앞 칸에서만** 생긴다(문의 → 견적 → 계약 → 프로젝트). 그래서 등록 CTA
+// 자체가 사라졌고, 위 표에 그대로 두면 '뷰어에게 버튼이 없다' 는 단언이 **누구에게도 버튼이 없어서**
+// 통과한다 — 전제가 사라진 채 통과하는, 아무것도 지키지 않는 단언이다. 지우지 않고 아래
+// CHAIN_ONLY_SCREENS 로 옮겨 **다른 사실**을 지키게 했다: 권한이 있어도 CTA 가 없다(순서 문제이지
+// 권한 문제가 아니다). 그리고 그 단언이 헛돌지 않도록 같은 렌더에서 툴바가 실제로 그려졌는지를
+// 함께 본다 — 화면이 통째로 안 그려져도 통과하는 일이 없게.
+//
+// [왜 표본이 아니라 9개 전부인가]
 // 지시는 대표 3~4개면 족하다고 했다. 그런데 이 결함의 성질이 **화면마다 독립**이다 — 껍데기가
 // 아니라 각 화면이 따로 canCreate 를 적어야 하므로, 한 화면이 빠지면 그 화면만 조용히 무방비가
 // 된다(route-resource.ts 가 화면별 resourceId 배선을 거부한 것과 같은 논리). 표본 검사는 바로
@@ -71,14 +80,48 @@ const SCREENS: readonly ListScreen[] = [
   { path: '/portfolio/items', Page: PortfolioListPage, createLabel: '포트폴리오 등록' },
   { path: '/products/coupons', Page: CouponListPage, createLabel: '쿠폰 등록' },
   { path: '/sales/accounts', Page: AccountListPage, createLabel: '거래처 등록' },
-  { path: '/sales/contracts', Page: ContractListPage, createLabel: '계약 등록' },
-  { path: '/sales/projects', Page: ProjectListPage, createLabel: '프로젝트 등록' },
-  { path: '/sales/quotes', Page: QuoteListPage, createLabel: '견적 등록' },
   { path: '/support/downloads', Page: DownloadListPage, createLabel: '자료 등록' },
   { path: '/support/replies', Page: RepliesPage, createLabel: '템플릿 등록' },
 ];
 
-function renderAt({ path, Page }: ListScreen): void {
+/**
+ * 사슬 안에서만 생기는 목록 — 등록 CTA 가 **권한과 무관하게** 없다.
+ *
+ * `toolbarProbe` 는 그 화면의 툴바에 실제로 있는 컨트롤의 접근성 이름이다. '버튼이 없다' 만
+ * 단언하면 화면이 통째로 렌더되지 않아도 통과한다 — 위 표가 반대 방향 단언으로 막는 그 구멍을,
+ * 여기서는 CTA 를 되살릴 수 없으니 이 탐침으로 막는다.
+ */
+interface ChainOnlyScreen {
+  readonly path: string;
+  readonly Page: ComponentType;
+  /** 예전에 이 자리에 있던 등록 버튼의 접근성 이름 — 되살아나면 이 테스트가 잡는다 */
+  readonly removedCreateLabel: string;
+  /** 툴바가 실제로 그려졌는지 확인하는 탐침 */
+  readonly toolbarProbe: string;
+}
+
+const CHAIN_ONLY_SCREENS: readonly ChainOnlyScreen[] = [
+  {
+    path: '/sales/quotes',
+    Page: QuoteListPage,
+    removedCreateLabel: '견적 등록',
+    toolbarProbe: '상태로 거르기',
+  },
+  {
+    path: '/sales/contracts',
+    Page: ContractListPage,
+    removedCreateLabel: '계약 등록',
+    toolbarProbe: '상태로 거르기',
+  },
+  {
+    path: '/sales/projects',
+    Page: ProjectListPage,
+    removedCreateLabel: '프로젝트 등록',
+    toolbarProbe: '단계로 거르기',
+  },
+];
+
+function renderAt({ path, Page }: { readonly path: string; readonly Page: ComponentType }): void {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
@@ -102,7 +145,18 @@ function renderAt({ path, Page }: ListScreen): void {
  * 두 축을 한 단언에 섞지 않는 것이 요점이다: 권한이 있어도 PG 가 꺼져 있으면 버튼이 없는 것이
  * **옳은 동작**이고, 그 사실은 쿠폰 화면 자신의 테스트가 따로 고정한다.
  */
-const PG_ON = { ...DEFAULT_PAYMENT_SETTINGS, usePg: true, merchantId: 'test-mid' };
+const PG_ON = {
+  ...DEFAULT_PAYMENT_SETTINGS,
+  usePg: true,
+  // 자격증명은 PG 별 카탈로그가 정한다 — 토스는 클라이언트 키·MID·시크릿 키가 필수다
+  // (shared/commerce/pg-catalog.ts). 하나라도 비면 pgSellable 이 fail-closed 로 닫는다.
+  connection: {
+    mode: 'direct',
+    provider: 'toss',
+    publicValues: { clientKey: 'test_ck_mid', mid: 'test-mid' },
+    storedSecrets: ['secretKey'],
+  },
+} as const;
 
 /** 스토어는 모듈 싱글턴이라 테스트 사이에 역할·설정이 새지 않게 매번 되돌린다 */
 beforeEach(() => {
@@ -136,6 +190,26 @@ describe('목록 등록 CTA 는 create 권한을 따른다 (EXC-03)', () => {
       renderAt(screenDef);
 
       expect(screen.queryByRole('button', { name: screenDef.createLabel })).not.toBeNull();
+    },
+  );
+});
+
+/**
+ * 영업 파이프라인 — 등록은 권한이 아니라 **순서**로 막힌다.
+ *
+ * 운영자(create 권한 있음) 역할로 렌더한다. 여기서 버튼이 보이면 사슬이 뚫린 것이다:
+ * 목록에서 만든 견적은 원본 문의가 없고, 계약은 견적이 없고, 프로젝트는 계약이 없다.
+ */
+describe('영업 파이프라인 목록은 등록 CTA 가 없다 — 앞 칸에서만 생긴다', () => {
+  it.each(CHAIN_ONLY_SCREENS.map((screenDef) => [screenDef.path, screenDef] as const))(
+    '%s — create 권한이 있어도 등록 버튼이 존재하지 않는다',
+    (_path, screenDef) => {
+      // beforeEach 가 이미 운영자를 활성화했다 — 권한 축은 열려 있다.
+      renderAt(screenDef);
+
+      // 탐침: 툴바가 실제로 그려졌다(단언이 빈 화면 위에서 헛돌지 않는다)
+      expect(screen.queryByLabelText(screenDef.toolbarProbe)).not.toBeNull();
+      expect(screen.queryByRole('button', { name: screenDef.removedCreateLabel })).toBeNull();
     },
   );
 });

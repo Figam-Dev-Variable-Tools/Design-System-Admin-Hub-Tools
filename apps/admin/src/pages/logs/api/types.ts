@@ -103,5 +103,5 @@ export const SLOW_THRESHOLD_MS = 1000;
  */
 export const API_LOG_RETENTION: RetentionPolicy = {
   label: '90일',
-  basis: '트래픽 부피가 커 단기 보존합니다. 보존기간이 지나면 자동 폐기됩니다.',
+  basis: '트래픽 부피가 커 단기 보존해요. 보존기간이 지나면 자동 폐기돼요.',
 };

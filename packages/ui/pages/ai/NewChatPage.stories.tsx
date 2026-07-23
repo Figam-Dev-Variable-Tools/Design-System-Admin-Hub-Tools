@@ -528,7 +528,7 @@ function Composer({
         type="button"
         aria-label="내용 첨부"
         aria-disabled="true"
-        title="내용 첨부 — 이 기능은 아직 연결되지 않았습니다."
+        title="내용 첨부 — 이 기능은 아직 연결되지 않았어요."
         style={iconButtonDisabledStyle}
       >
         <Icon name="plus" />
@@ -569,7 +569,7 @@ function Composer({
           type="button"
           aria-label="음성 입력"
           aria-disabled="true"
-          title="음성 입력 — 이 기능은 아직 연결되지 않았습니다."
+          title="음성 입력 — 이 기능은 아직 연결되지 않았어요."
           style={iconButtonDisabledStyle}
         >
           <Icon name="mic" />
@@ -595,10 +595,10 @@ function ResultAnswer() {
     <div style={answerBlockStyle}>
       {/* 통지를 표보다 먼저 그린다 — 요청과 답이 다른 지점을 결과보다 앞서 읽힌다(원본) */}
       <Alert tone="warning">
-        누적 구매액에는 기간 정보가 없어, 기간 조건은 가입일에 적용했습니다.
+        누적 구매액에는 기간 정보가 없어, 기간 조건은 가입일에 적용했어요.
       </Alert>
 
-      <p style={summaryStyle}>회원 목록 3건을 찾았습니다.</p>
+      <p style={summaryStyle}>회원 목록 3건을 찾았어요.</p>
       <p style={thinkingStyle}>조건 — 등급: VIP · 이번달 가입</p>
 
       <DataTable
@@ -644,7 +644,7 @@ function NewChatScreen({
       <section style={mainStyle} aria-label="대화">
         {gone ? (
           <div style={agentRowStyle}>
-            <Alert tone="warning">이 대화는 삭제되었습니다. 새 채팅을 시작해 주세요.</Alert>
+            <Alert tone="warning">이 대화는 삭제되었어요. 새 채팅을 시작해 주세요.</Alert>
             <span>
               <Button type="button" size="sm" variant="secondary">
                 새 채팅 시작
@@ -663,7 +663,7 @@ function NewChatScreen({
             <h2 style={headingStyle}>무엇을 조회할까요?</h2>
             <p style={thinkingStyle}>
               `@` 로 데이터를 지목하고 조건을 적어 주세요. 저장된 데이터를 조건으로 거르는 조회만
-              합니다 — 요약·분석·예측은 하지 않습니다.
+              해요 — 요약·분석·예측은 하지 않아요.
             </p>
             {renderFollowUps(STARTER_FOLLOW_UPS)}
           </div>

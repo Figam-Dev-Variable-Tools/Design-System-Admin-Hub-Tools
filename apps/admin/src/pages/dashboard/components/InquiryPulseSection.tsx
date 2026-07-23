@@ -82,8 +82,8 @@ export function InquiryPulseSection() {
         <StatsCard title="답변 대기" value={valueOf(pulse.waiting)} loading={false} error="">
           <p style={bodyStyle}>
             <span>
-              결제를 쓰지 않는 동안 고객의 요청은 주문이 아니라 문의로 들어옵니다. 종결되지 않은
-              건수입니다.
+              결제를 쓰지 않는 동안 고객의 요청은 주문이 아니라 문의로 들어와요. 종결되지 않은
+              건수예요.
             </span>
             <Link to={INQUIRY_PATH.product} className="tds-ui-link tds-ui-focusable">
               상품 문의 열기
@@ -93,7 +93,7 @@ export function InquiryPulseSection() {
 
         <StatsCard title="응답 기한 초과" value={valueOf(pulse.breached)} loading={false} error="">
           <p style={bodyStyle}>
-            <span>약속한 응답 시간을 넘긴 문의입니다. 오늘 가장 먼저 처리할 줄입니다.</span>
+            <span>약속한 응답 시간을 넘긴 문의예요. 오늘 가장 먼저 처리할 줄여요.</span>
             <Link to={PAYMENT_SETTINGS_PATH} className="tds-ui-link tds-ui-focusable">
               결제 설정 열기
             </Link>

@@ -29,6 +29,7 @@ export {
   normalizePrefs,
   notificationPrefsKey,
   notificationPrefsStore,
+  prefsSaveBlock,
 } from './preferences';
 export type { NotificationPrefs, NotificationPrefsDoc } from './preferences';
 

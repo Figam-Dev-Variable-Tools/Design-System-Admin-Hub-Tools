@@ -39,7 +39,7 @@ let curations: readonly FaqCuration[] = [
 function readSource() {
   const source = publishedFaqs();
   if (source === null) {
-    throw new Error('FAQ 원본(콘텐츠 관리)을 읽을 수 없습니다');
+    throw new Error('FAQ 원본(콘텐츠 관리)을 읽을 수 없어요');
   }
   return source;
 }

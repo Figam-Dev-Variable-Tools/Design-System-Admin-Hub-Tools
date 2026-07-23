@@ -131,7 +131,7 @@
     </p>
     <h1>메뉴별 플로우 차트</h1>
     <p>
-      사이드바 메뉴 <strong>전수 81장</strong>. 각 장이 그 메뉴의 진입 → 조회 상태 → 액션 →
+      사이드바 메뉴 <strong>전수 74장</strong>. 각 장이 그 메뉴의 진입 → 조회 상태 → 액션 →
       게이트·검증 → mutation → 성공·실패 → 복귀를 담는다. 코드(페이지
       컴포넌트·types.ts·data-source.ts·queries.ts)를 읽고 그린 것이라 상태값과 가드 이름이 실제와
       일치한다.
@@ -240,24 +240,6 @@
           <td><a href="mmd/menus/content-faq.mmd">mmd</a></td>
         </tr>
         <tr>
-          <td>폼 관리</td>
-          <td><code>/content/forms</code></td>
-          <td><a href="html/menus/content-forms.html">HTML</a></td>
-          <td><a href="mmd/menus/content-forms.mmd">mmd</a></td>
-        </tr>
-        <tr>
-          <td>미디어 라이브러리</td>
-          <td><code>/content/media</code></td>
-          <td><a href="html/menus/content-media.html">HTML</a></td>
-          <td><a href="mmd/menus/content-media.mmd">mmd</a></td>
-        </tr>
-        <tr>
-          <td>메뉴 관리</td>
-          <td><code>/content/menus</code></td>
-          <td><a href="html/menus/content-menus.html">HTML</a></td>
-          <td><a href="mmd/menus/content-menus.mmd">mmd</a></td>
-        </tr>
-        <tr>
           <td>뉴스·보도자료</td>
           <td><code>/content/news</code></td>
           <td><a href="html/menus/content-news.html">HTML</a></td>
@@ -268,12 +250,6 @@
           <td><code>/content/notices</code></td>
           <td><a href="html/menus/content-notices.html">HTML</a></td>
           <td><a href="mmd/menus/content-notices.mmd">mmd</a></td>
-        </tr>
-        <tr>
-          <td>페이지 관리</td>
-          <td><code>/content/pages</code></td>
-          <td><a href="html/menus/content-pages.html">HTML</a></td>
-          <td><a href="mmd/menus/content-pages.mmd">mmd</a></td>
         </tr>
         <tr>
           <td>팝업 관리</td>
@@ -468,12 +444,6 @@
           <td><a href="mmd/menus/sales-billing.mmd">mmd</a></td>
         </tr>
         <tr>
-          <td>상담 이력</td>
-          <td><code>/sales/consultations</code></td>
-          <td><a href="html/menus/sales-consultations.html">HTML</a></td>
-          <td><a href="mmd/menus/sales-consultations.mmd">mmd</a></td>
-        </tr>
-        <tr>
           <td>계약</td>
           <td><code>/sales/contracts</code></td>
           <td><a href="html/menus/sales-contracts.html">HTML</a></td>
@@ -504,12 +474,6 @@
           <td><a href="mmd/menus/settings-api-keys.mmd">mmd</a></td>
         </tr>
         <tr>
-          <td>다국어 설정</td>
-          <td><code>/settings/languages</code></td>
-          <td><a href="html/menus/settings-languages.html">HTML</a></td>
-          <td><a href="mmd/menus/settings-languages.mmd">mmd</a></td>
-        </tr>
-        <tr>
           <td>알림 설정</td>
           <td><code>/settings/notifications</code></td>
           <td><a href="html/menus/settings-notifications.html">HTML</a></td>
@@ -532,12 +496,6 @@
           <td><code>/settings/plan</code></td>
           <td>렌더 대기</td>
           <td><a href="mmd/menus/settings-plan.mmd">mmd</a></td>
-        </tr>
-        <tr>
-          <td>사이트 연동</td>
-          <td><code>/settings/site-connect</code></td>
-          <td><a href="html/menus/settings-site-connect.html">HTML</a></td>
-          <td><a href="mmd/menus/settings-site-connect.mmd">mmd</a></td>
         </tr>
         <tr>
           <td>사이트 설정</td>
@@ -663,7 +621,7 @@
       <code>resolveNavLeaf</code> 를 지나지 않으므로 URL 로 들어온 과거 문의 화면은 계속 열린다.
       그래서 이 표는 두 메뉴를 <strong>항상</strong> 싣는다 — 감추는 것과 없애는 것은 다른 결정이다.
     </p>
-    <h2>사라진 두 장</h2>
+    <h2>사라진 장들</h2>
     <table>
       <thead>
         <tr>
@@ -687,6 +645,32 @@
             <code>/marketing/templates</code> 로
             <code>Navigate replace</code> 하며(<code>App.tsx</code>), 종류는 발송 템플릿의
             <code>?kind=text|email|alimtalk</code> 로 고른다
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <code>content-pages.mmd</code> · <code>content-menus.mmd</code> ·
+            <code>content-forms.mmd</code> · <code>content-media.mmd</code>
+          </td>
+          <td>
+            홈페이지의 페이지 트리·메뉴 구조·폼 구성·자산 라이브러리 네 화면을
+            <strong>IA 에서 걷어냈다</strong>(2026-07-22 · 운영자 확정). 사이트 구조를 어드민에서
+            자유롭게 짜게 두면 IA 가 화면 밖에서 갈라진다는 판단이다
+          </td>
+        </tr>
+        <tr>
+          <td><code>settings-languages.mmd</code></td>
+          <td>다국어 설정 — 이 제품이 다루는 축이 아니다(2026-07-22). 결번 089</td>
+        </tr>
+        <tr>
+          <td><code>sales-consultations.mmd</code></td>
+          <td>상담 이력 — 조회 전용 감사 화면을 걷었다(2026-07-22). 결번 053</td>
+        </tr>
+        <tr>
+          <td><code>settings-site-connect.mmd</code></td>
+          <td>
+            사이트 연동 — 어드민이 연동 UI 를 갖지 않는다(2026-07-22). 연동 자체는 백엔드가
+            템플릿별로 뚫는다. 결번 087
           </td>
         </tr>
       </tbody>

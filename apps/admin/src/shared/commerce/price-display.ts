@@ -1,116 +1,88 @@
-// 가격 표시 — **상품 단위**의 두 번째 축
+// 가격 표시 — **사이트 전역 연동 상태에서 나오는 파생값**
 //
-// ┌ 왜 축이 둘인가 ──────────────────────────────────────────────────────────┐
-// │ 축 A `pgSellable` : 결제창을 열 수 있는가.  **사이트 전역**(payment-settings) │
-// │ 축 B `priceDisplay`: 이 상품의 금액을 노출하는가. **상품 단위**(이 파일)      │
+// ┌ 축이 둘이었다가 하나가 됐다 — 무엇이 바뀌었나 ────────────────────────────┐
+// │ 예전에는 축이 둘이었다:                                                   │
+// │   축 A `pgSellable`  : 결제창을 열 수 있는가.  사이트 전역                  │
+// │   축 B `priceDisplay`: 이 상품의 금액을 노출하는가. **상품마다 사람이 고름** │
+// │ 축 B 는 상품 폼의 라디오('금액 노출' / '가격문의로 대체')로 저장됐다.        │
 // │                                                                          │
-// │ 둘을 하나로 묶으면 "PG 는 쓰지만 이 상품만 가격문의" 라는 흔한 운영을 표현할  │
-// │ 수 없다 — 주문 제작·B2B 납품·시공처럼 견적이 있어야 값이 정해지는 상품은      │
-// │ 결제를 켠 쇼핑몰에도 섞여 있다. 아임웹이 '가격 설정' 스위치를 상품마다 두고,   │
-// │ 끄면 목록·상세 모두 금액 대신 '가격문의'(문구 편집 가능)를 보여 주는 이유다.   │
+// │ **운영 요구로 축 B 를 없앴다**: "이렇게 선택하는 게 아니라, 결제 연동이 안 돼 │
+// │ 있으면 전부 가격 문의로 대체" — 금액이 이미 설정돼 있어도 그렇고, 프로그램도  │
+// │ 같다. 즉 가격 표시는 **고르는 값이 아니라 연동 상태의 결과**다.              │
+// │                                                                          │
+// │ ⚠ 이 판단은 docs/adr/0014 와 어긋난다(그 ADR 은 "PG 는 쓰지만 이 상품만      │
+// │   가격문의" 를 표현하려고 축을 둘로 나눴다). 그 능력은 **설계 근거였지        │
+// │   요구사항이 아니었고**(FS-078·BE-078 은 축 B 를 '이 화면 범위 밖' 이라고만  │
+// │   적는다), 라디오가 사라지면 아무도 설정할 수 없는 저장값만 남는다 —         │
+// │   그것이 이 리포가 가장 싫어하는 '어느 쪽이 진실인지 모르는 값' 이다.        │
+// │   ADR 개정은 docs 소유자의 몫이라 여기서는 근거만 남긴다.                    │
 // └──────────────────────────────────────────────────────────────────────────┘
 //
-// [저장하지 않는다 — checkoutCta 와 같은 어법] 화면이 그리는 것은 `resolvePriceDisplay` 의
-// 결과이지 어딘가 저장된 '표시 상태' 가 아니다. 전역 스위치를 내리는 순간 이미 등록된 수백 건이
-// 낡은 값이 되는 일을 만들지 않는다(payment-settings.ts 의 checkoutCta 머리말과 같은 판단).
+// ┌ 술어는 **하나**다 — 금액 입력 차단과 가격 문의 대체는 같은 사실의 두 얼굴 ──┐
+// │ 둘이 갈리면 **금액은 입력되는데 표시는 문의**이거나 그 반대가 생긴다.        │
+// │ 그래서 화면들은 `resolvePriceDisplay` 하나만 부르고, 그 결과의 서로 다른     │
+// │ 필드를 읽는다: 목록·상세는 `text`, 폼은 `amountFieldsLocked`.                │
+// └──────────────────────────────────────────────────────────────────────────┘
 //
-// [왜 shared 인가] 이 함수를 목록(ProductListPage)·폼(ProductPricingCards)·미리보기
-// (ProductCardPreview)가 함께 쓴다. 화면마다 조건을 다시 쓰면 목록은 '가격문의' 인데 미리보기는
-// 금액을 그리는 상태가 만들어진다 — 운영자는 어느 쪽이 고객이 보는 화면인지 알 수 없다.
-import { pgSellable } from './payment-settings';
+// [저장하지 않는다] 화면이 그리는 것은 이 함수의 결과이지 어딘가 저장된 '표시 상태' 가 아니다.
+// 전역 스위치를 내리는 순간 이미 등록된 수백 건이 낡은 값이 되는 일을 만들지 않는다
+// (payment-settings.ts 의 checkoutCta 머리말과 같은 판단).
+import { pgSellable, unhealthyCredentialReason } from './payment-settings';
 import type { PaymentSettings } from './payment-settings';
 
-/** 금액을 그대로 보이는가(amount), 문구로 대체하는가(inquiry) */
-export const PRICE_DISPLAYS = ['amount', 'inquiry'] as const;
-
-export type PriceDisplay = (typeof PRICE_DISPLAYS)[number];
-
-/** 운영자가 문구를 비워 두면 쓰는 기본값 — 국내 쇼핑몰이 공통으로 쓰는 낱말이다 */
+/** 결제를 열 수 없을 때 금액 자리에 들어가는 문구 — **정본은 여기 한 벌뿐이다** */
 export const DEFAULT_PRICE_INQUIRY_TEXT = '가격문의';
 
-/** 대체 문구 길이 상한 — 목록 한 칸에 들어가야 한다(줄바꿈되면 표 높이가 행마다 달라진다) */
-export const PRICE_INQUIRY_TEXT_MAX = 20;
-
-/** 폼의 라디오 선택지 — 라벨·설명을 여기 한 벌만 둔다 */
-export const PRICE_DISPLAY_OPTIONS: readonly {
-  readonly id: PriceDisplay;
-  readonly label: string;
-  readonly hint: string;
-}[] = [
-  { id: 'amount', label: '금액 노출', hint: '판매가와 할인가를 그대로 보여 줍니다.' },
-  {
-    id: 'inquiry',
-    label: '가격문의로 대체',
-    hint: '목록·상세·미리보기의 금액 자리에 아래 문구가 대신 들어갑니다.',
-  },
-];
-
-/** 상품이 들고 있는 가격 표시 정책 — Product.pricing 의 두 필드만 본다 */
-export interface PriceDisplayPolicy {
-  readonly priceDisplay: PriceDisplay;
-  /** 금액 대신 보일 문구. 비어 있으면 기본값 */
-  readonly inquiryText: string;
-}
-
 /**
- * 지금 이 상품의 금액 칸에 무엇이 들어가는가.
+ * 지금 이 사이트의 금액 칸에 무엇이 들어가는가.
  *
  * 내보내지 않는다 — 호출부는 결과를 그대로 쓰고 타입 이름을 부르지 않는다(CheckoutCta 와 같은 규약).
  */
 interface ResolvedPriceDisplay {
-  readonly kind: PriceDisplay;
+  /** 금액을 그대로 그리는가(amount), 문구로 대체하는가(inquiry) */
+  readonly kind: 'amount' | 'inquiry';
   /** kind === 'inquiry' 일 때 금액 자리에 들어갈 글자. amount 면 빈 문자열 */
   readonly text: string;
   /** 왜 지금 이 표시인지 — 폼의 힌트가 그대로 쓴다(운영자가 오해한 채 저장하지 않게) */
   readonly reason: string;
   /**
-   * 할인·과세 입력을 잠글 것인가.
+   * 금액·할인·과세 **입력을 잠글 것인가**.
    *
-   * **잠금은 값을 지우지 않는다** — '금액 노출' 로 되돌리면 저장된 할인율·과세 구분이 그대로
+   * `kind === 'inquiry'` 와 **항상 같다** — 일부러 그렇다(파일 머리말: 술어는 하나다).
+   * 별도 필드로 두는 이유는 호출부가 '표시' 와 '입력' 중 무엇을 하는지 이름으로 드러내기
+   * 위해서다. 두 값이 갈릴 수 있는 코드 경로를 만들지 않는다.
+   *
+   * **잠금은 값을 지우지 않는다** — 연동을 마치면 저장된 판매가·할인율·과세 구분이 그대로
    * 살아난다. 지우면 되돌리는 순간 운영자가 예전 값을 기억으로 복원해야 한다.
    */
   readonly amountFieldsLocked: boolean;
 }
 
-/** 빈 문구는 기본값으로 — 목록 한 칸이 빈 채로 남는 것이 가장 나쁜 결과다 */
-function textOf(policy: PriceDisplayPolicy): string {
-  const trimmed = policy.inquiryText.trim();
-  return trimmed === '' ? DEFAULT_PRICE_INQUIRY_TEXT : trimmed;
-}
-
 /**
- * 두 축을 합쳐 **금액 칸 하나**를 낸다.
+ * 지금 금액을 노출할 수 있는가 — **상품·프로그램·설정 화면이 함께 쓰는 단 하나의 술어**.
  *
- * [전역이 이긴다] 결제창을 열 수 없으면(축 A) 상품이 '금액 노출' 이라고 말해도 금액을 그리지
- * 않는다 — 살 수 없는 상품의 가격표는 고객에게 "지금 결제된다" 는 거짓 신호다. 반대 방향은
- * 성립하지 않는다: PG 를 켜 두어도 상품이 '가격문의' 면 그 상품만 문구로 대체된다(축 B).
+ * 판정 근거는 `pgSellable` 하나다. 그 함수가 운영자가 말한 세 가지를 이미 접고 있다:
+ *   ⓐ PG 미사용 설정        → `usePg === false`
+ *   ⓑ 자격증명이 유효하지 않음 → 백엔드만 아는 사실(payment-settings.ts 의 건강 상태 심)
+ *   ⓒ 연동이 덜 됨(값이 빔)  → 필수 공개 값·필수 비밀이 채워지지 않음
+ *
+ * 상품별 정책을 인자로 받지 않는다 — 받을 것이 없어졌다(파일 머리말).
  */
-export function resolvePriceDisplay(
-  settings: PaymentSettings,
-  policy: PriceDisplayPolicy,
-): ResolvedPriceDisplay {
-  if (!pgSellable(settings)) {
+export function resolvePriceDisplay(settings: PaymentSettings): ResolvedPriceDisplay {
+  if (pgSellable(settings)) {
     return {
-      kind: 'inquiry',
-      text: textOf(policy),
-      reason: '결제(PG)를 쓰지 않는 설정이라 모든 상품의 금액 자리에 문의 문구가 들어갑니다.',
-      amountFieldsLocked: true,
-    };
-  }
-
-  if (policy.priceDisplay === 'inquiry') {
-    return {
-      kind: 'inquiry',
-      text: textOf(policy),
-      reason: '이 상품은 금액 대신 문의 문구를 노출하도록 설정되어 있습니다.',
-      amountFieldsLocked: true,
+      kind: 'amount',
+      text: '',
+      reason: '결제 연동이 되어 있어 판매가와 할인가를 그대로 노출해요.',
+      amountFieldsLocked: false,
     };
   }
 
   return {
-    kind: 'amount',
-    text: '',
-    reason: '판매가와 할인가를 그대로 노출합니다.',
-    amountFieldsLocked: false,
+    kind: 'inquiry',
+    text: DEFAULT_PRICE_INQUIRY_TEXT,
+    // 왜 잠겼는지 **원인**을 말한다 — '사용할 수 없습니다' 는 아무것도 알려 주지 않는다
+    reason: unhealthyCredentialReason(settings),
+    amountFieldsLocked: true,
   };
 }

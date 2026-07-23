@@ -10,6 +10,10 @@ import { cssVar, Skeleton } from '@tds/ui';
 
 import { isAbort } from '../../../shared/async';
 import {
+  useRouteWritePermissions,
+  WRITE_DENIED,
+} from '../../../shared/permissions/RequirePermission';
+import {
   Alert,
   Button,
   Card,
@@ -60,13 +64,6 @@ const backLinkStyle: CSSProperties = {
   cursor: 'pointer',
 };
 
-const titleGroupStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: cssVar('space.2'),
-  flexWrap: 'wrap',
-};
-
 const bodyTextStyle: CSSProperties = {
   marginTop: 0,
   marginBottom: 0,
@@ -105,6 +102,10 @@ export default function TermsDetailPage() {
   const deleteVersion = useDeleteTermsVersion();
   const deleting = deleteVersion.isPending;
 
+  /* [EXC-03] 상세의 두 액션은 서로 다른 권한을 탄다 — '수정' 은 update, '삭제' 는 remove.
+     읽기는 그대로 열린다: 막는 것은 전문이 아니라 그 위에 얹힌 액션뿐이다. */
+  const { canUpdate, canRemove } = useRouteWritePermissions();
+
   const closeDelete = () => {
     deleteControllerRef.current?.abort();
     deleteControllerRef.current = null;
@@ -115,6 +116,11 @@ export default function TermsDetailPage() {
 
   const onConfirmDelete = () => {
     if (data === undefined) return;
+    // 버튼을 없앤 술어가 저장 경로도 막는다 (EXC-03)
+    if (!canRemove) {
+      setDeleteError(WRITE_DENIED.remove);
+      return;
+    }
     const controller = new AbortController();
     deleteControllerRef.current = controller;
     setDeleteError(null);
@@ -123,12 +129,12 @@ export default function TermsDetailPage() {
       { id: versionId, typeId: data.typeId, signal: controller.signal },
       {
         onSuccess: () => {
-          toast.success(`${data.version} 버전을 삭제했습니다.`);
+          toast.success(`${data.version} 버전을 삭제했어요.`);
           navigate(LIST_PATH, { replace: true });
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setDeleteError('버전을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setDeleteError('버전을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -147,23 +153,27 @@ export default function TermsDetailPage() {
           목록으로
         </button>
 
-        {data !== undefined && (
+        {data !== undefined && (canUpdate || canRemove) && (
           <div style={actionsStyle}>
-            <Button
-              variant="secondary"
-              onClick={() => navigate(`/content/terms/${versionId}/edit`)}
-            >
-              수정
-            </Button>
-            <Button
-              variant="danger"
-              onClick={() => {
-                setDeleteError(null);
-                setConfirmingDelete(true);
-              }}
-            >
-              삭제
-            </Button>
+            {canUpdate && (
+              <Button
+                variant="secondary"
+                onClick={() => navigate(`/content/terms/${versionId}/edit`)}
+              >
+                수정
+              </Button>
+            )}
+            {canRemove && (
+              <Button
+                variant="danger"
+                onClick={() => {
+                  setDeleteError(null);
+                  setConfirmingDelete(true);
+                }}
+              >
+                삭제
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -171,7 +181,7 @@ export default function TermsDetailPage() {
       {error !== null ? (
         <Alert tone="danger">
           <div style={topRowStyle}>
-            <span>약관 버전을 불러오지 못했습니다.</span>
+            <span>약관 버전을 불러오지 못했어요.</span>
             <span style={actionsStyle}>
               <Button
                 variant="secondary"
@@ -198,11 +208,9 @@ export default function TermsDetailPage() {
       ) : (
         <Card>
           <CardTitle>
-            <span style={titleGroupStyle}>
-              {data.version}
-              {isCurrent(data) && <StatusBadge tone="info" label="현재" />}
-              <StatusBadge tone={STATUS_TONE[data.status]} label={STATUS_LABEL[data.status]} />
-            </span>
+            {data.version}
+            {isCurrent(data) && <StatusBadge tone="info" label="현재" />}
+            <StatusBadge tone={STATUS_TONE[data.status]} label={STATUS_LABEL[data.status]} />
           </CardTitle>
 
           <dl style={dlStyle}>
@@ -218,7 +226,7 @@ export default function TermsDetailPage() {
         <ConfirmDialog
           intent="delete"
           title="약관 버전 삭제"
-          message={`${data.version} 버전을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`${data.version} 버전을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="버전 삭제"
           busy={deleting}
           error={deleteError}

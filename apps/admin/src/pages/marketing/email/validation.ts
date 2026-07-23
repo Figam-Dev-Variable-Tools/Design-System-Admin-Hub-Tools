@@ -46,7 +46,7 @@ export const emailSchema = z
         code: 'custom',
         input: ctx.value.senderId,
         path: ['senderId'],
-        message: '검증이 완료된 발신자만 사용할 수 있습니다.',
+        message: '검증이 완료된 발신자만 사용할 수 있어요.',
       });
     }
   })
@@ -67,7 +67,7 @@ export const emailSchema = z
         code: 'custom',
         input: ctx.value.subject,
         path: ['subject'],
-        message: '광고성 이메일은 제목이 "(광고)"로 시작해야 합니다.',
+        message: '광고성 이메일은 제목이 "(광고)"로 시작해야 해요.',
       });
     }
   })
@@ -78,7 +78,7 @@ export const emailSchema = z
         code: 'custom',
         input: ctx.value.includeUnsubscribe,
         path: ['includeUnsubscribe'],
-        message: '마케팅 이메일에는 수신거부 링크를 포함해야 합니다.',
+        message: '마케팅 이메일에는 수신거부 링크를 포함해야 해요.',
       });
     }
   })
@@ -99,7 +99,7 @@ export const emailSchema = z
         code: 'custom',
         input: ctx.value.scheduledAt,
         path: ['scheduledAt'],
-        message: '예약 일시는 현재 시각 이후여야 합니다.',
+        message: '예약 일시는 현재 시각 이후여야 해요.',
       });
     }
   });

@@ -52,6 +52,8 @@ export type { CrudColumn, EmptyContext } from './CrudTable';
 export type { RowTarget } from './rowTarget';
 // 목록에서 바로 한 행을 갱신(노출 토글 등)
 export { useCrudRowUpdate } from './useCrudRowUpdate';
+// 인라인 토글의 표현 한 벌 — 권한이 없으면 컨트롤이 사라지고 값만 배지로 남는다 (EXC-03)
+export { RowToggle } from './RowToggle';
 
 /**
  * 조회 상태(page·filter·keyword·sort)의 단일 원천 = URL (IA-13) + 선택 해제/페이지 보정(STATE-04)

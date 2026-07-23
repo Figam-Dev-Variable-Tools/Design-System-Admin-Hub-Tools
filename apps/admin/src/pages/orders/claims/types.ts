@@ -227,19 +227,19 @@ export function toClaimInput(claim: Claim): ClaimInput {
 /* ── 전이 규칙 (순수 술어 — 버튼과 저장이 **같은 것을** 읽는다) ──────────────── */
 
 /** 배럴 밖 소비자가 없다 — 이 파일의 가드만 쓴다(죽은 공개 표면 0) */
-const CLAIM_TRANSITION_SAME = '이미 그 상태입니다.';
-export const CLAIM_TRANSITION_TERMINAL = '완료·반려·철회된 클레임은 상태를 바꿀 수 없습니다.';
+const CLAIM_TRANSITION_SAME = '이미 그 상태예요.';
+export const CLAIM_TRANSITION_TERMINAL = '완료·반려·철회된 클레임은 상태를 바꿀 수 없어요.';
 export const CLAIM_TRANSITION_BACKWARD =
-  '클레임 처리는 되돌릴 수 없습니다. 접수를 취소하려면 철회로 종료하세요.';
-export const CLAIM_TRANSITION_OFF_FLOW = '이 유형에는 없는 처리 단계입니다.';
+  '클레임 처리는 되돌릴 수 없어요. 접수를 취소하려면 철회로 종료하세요.';
+export const CLAIM_TRANSITION_OFF_FLOW = '이 유형에는 없는 처리 단계예요.';
 export const CLAIM_WITHDRAW_STOCK =
-  '재고가 이미 반영되어 철회할 수 없습니다. 반영된 재고는 되돌아가지 않습니다.';
+  '재고가 이미 반영되어 철회할 수 없어요. 반영된 재고는 되돌아가지 않아요.';
 export const CLAIM_WITHDRAW_REFUND =
-  '환불이 접수되어 철회할 수 없습니다. 환불 처리를 먼저 정리하세요.';
+  '환불이 접수되어 철회할 수 없어요. 환불 처리를 먼저 정리하세요.';
 export const CLAIM_CANCEL_SHIPPED =
-  '배송이 시작된 주문은 취소로 처리할 수 없습니다. 반품으로 접수해 주세요.';
+  '배송이 시작된 주문은 취소로 처리할 수 없어요. 반품으로 접수해 주세요.';
 export const CLAIM_ORDER_UNKNOWN =
-  '연결된 주문을 확인할 수 없어 취소를 진행할 수 없습니다. 주문번호를 확인해 주세요.';
+  '연결된 주문을 확인할 수 없어 취소를 진행할 수 없어요. 주문번호를 확인해 주세요.';
 
 /** 전이 가드가 보는 최소 모양 — 목록의 일괄 처리도 이 조각만 들고 물어볼 수 있다 */
 type ClaimGate = Pick<Claim, 'kind' | 'status' | 'stockAppliedAt' | 'refund'>;
@@ -349,10 +349,10 @@ export function movesStock(claim: Pick<Claim, 'kind' | 'status'>): boolean {
 type StockIssue = 'unknown-origin' | 'no-option' | 'unknown-option' | 'insufficient-stock';
 
 const STOCK_ISSUE_MESSAGE: Readonly<Record<StockIssue, string>> = {
-  'unknown-origin': '주문된 옵션을 상품에서 찾을 수 없어 재고를 반영할 수 없습니다.',
+  'unknown-origin': '주문된 옵션을 상품에서 찾을 수 없어 재고를 반영할 수 없어요.',
   'no-option': '교환할 옵션을 선택하세요.',
-  'unknown-option': '선택한 교환 옵션을 상품에서 찾을 수 없습니다. 옵션을 다시 선택하세요.',
-  'insufficient-stock': '교환할 옵션의 재고가 부족해 완료 처리할 수 없습니다.',
+  'unknown-option': '선택한 교환 옵션을 상품에서 찾을 수 없어요. 옵션을 다시 선택하세요.',
+  'insufficient-stock': '교환할 옵션의 재고가 부족해 완료 처리할 수 없어요.',
 };
 
 export function stockIssueMessage(issue: StockIssue): string {

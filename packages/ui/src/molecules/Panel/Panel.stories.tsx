@@ -113,9 +113,9 @@ export const ContentLong: Story = {
   args: {
     notice: (
       <>
-        <p style={{ margin: 0 }}>역할은 권한의 묶음입니다.</p>
-        <p style={{ margin: 0 }}>기본 역할은 삭제할 수 없습니다.</p>
-        <p style={{ margin: 0 }}>변경은 즉시 반영됩니다.</p>
+        <p style={{ margin: 0 }}>역할은 권한의 묶음이에요.</p>
+        <p style={{ margin: 0 }}>기본 역할은 삭제할 수 없어요.</p>
+        <p style={{ margin: 0 }}>변경은 즉시 반영돼요.</p>
       </>
     ),
   },
@@ -125,7 +125,7 @@ export const ContentLong: Story = {
 export const ContentWithFooter: Story = {
   name: 'Content/With Footer',
   args: {
-    notice: <p style={noticeTextStyle}>그룹은 회원을 묶는 단위입니다.</p>,
+    notice: <p style={noticeTextStyle}>그룹은 회원을 묶는 단위예요.</p>,
   },
 };
 
@@ -159,7 +159,7 @@ export const RightToLeft: Story = {
   decorators: [rtlFrame],
   args: {
     children: <SampleAxis title="분류" items={['전체', '환경', '사회']} />,
-    notice: <p style={noticeTextStyle}>그룹은 회원을 묶는 단위입니다.</p>,
+    notice: <p style={noticeTextStyle}>그룹은 회원을 묶는 단위예요.</p>,
   },
 };
 

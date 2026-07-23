@@ -168,7 +168,7 @@ export function PopupPreview({
               <span style={placeholderIconStyle} aria-hidden="true">
                 <Icon name="image" />
               </span>
-              <span>{loadFailed ? '이미지를 불러오지 못했습니다' : '이미지 미리보기'}</span>
+              <span>{loadFailed ? '이미지를 불러오지 못했어요' : '이미지 미리보기'}</span>
             </div>
           )}
 
@@ -181,7 +181,7 @@ export function PopupPreview({
       <p style={captionStyle}>
         <span>{positionLabel} 에 노출</span>
         <span aria-hidden="true">·</span>
-        <span>{enabled ? '노출 ON' : '노출 OFF (저장해도 사용자에게 보이지 않습니다)'}</span>
+        <span>{enabled ? '노출 ON' : '노출 OFF (저장해도 사용자에게 보이지 않아요)'}</span>
       </p>
     </div>
   );

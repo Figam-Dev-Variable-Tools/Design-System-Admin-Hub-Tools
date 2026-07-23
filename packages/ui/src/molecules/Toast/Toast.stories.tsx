@@ -21,7 +21,7 @@ const meta: Meta<typeof Toast> = {
   args: {
     id: 'toast-1',
     kind: 'info',
-    message: '작업이 완료되었습니다',
+    message: '작업이 완료되었어요',
     onDismiss: fn(),
   },
   parameters: { layout: 'padded' },
@@ -40,7 +40,7 @@ const rtlFrame: Decorator = (Story) => (
 
 /** Overview — 실제 쓰임새 한눈에. 가장 흔한 결과 통지는 성공 확인이다 (4초 자동소멸) */
 export const Overview: Story = {
-  args: { kind: 'success', message: '회원 3명을 삭제했습니다.' },
+  args: { kind: 'success', message: '회원 3명을 삭제했어요.' },
 };
 
 /** Playground — Controls 에서 kind·message 를 바꿔 톤·아이콘·자동소멸을 돌려 본다 */
@@ -49,25 +49,25 @@ export const Playground: Story = {};
 /** success — polite 라이브 영역으로 간다(분배는 ToastProvider) · 4초 자동소멸 */
 export const Success: Story = {
   name: 'Variants/Success',
-  args: { kind: 'success', message: '회원 3명을 삭제했습니다.' },
+  args: { kind: 'success', message: '회원 3명을 삭제했어요.' },
 };
 
 /** cancelled — 2초 자동소멸. '눌렸다'는 확인 (info 톤을 공유하되 아이콘·시간이 다르다) */
 export const Cancelled: Story = {
   name: 'Variants/Cancelled',
-  args: { kind: 'cancelled', message: '작업이 취소되었습니다' },
+  args: { kind: 'cancelled', message: '작업이 취소되었어요' },
 };
 
 /** error — assertive 라이브 영역으로 간다(분배는 ToastProvider) · 자동소멸 없음 */
 export const Error: Story = {
   name: 'Variants/Error',
-  args: { kind: 'error', message: '삭제에 실패했습니다.' },
+  args: { kind: 'error', message: '삭제에 실패했어요.' },
 };
 
 /** info — 4초 자동소멸 */
 export const Info: Story = {
   name: 'Variants/Info',
-  args: { kind: 'info', message: '변경 사항이 저장되었습니다' },
+  args: { kind: 'info', message: '변경 사항이 저장되었어요' },
 };
 
 /** 긴 문구 — 아이콘이 첫 줄에 정렬되고 문구만 줄바꿈되는지 (max-inline-size 안에서 wrap) */
@@ -76,14 +76,14 @@ export const LongMessage: Story = {
   args: {
     kind: 'info',
     message:
-      '요청하신 대량 작업이 백그라운드에서 처리되고 있습니다. 완료되면 다시 알려드리며, 그 전에 페이지를 벗어나도 작업은 계속됩니다.',
+      '요청하신 대량 작업이 백그라운드에서 처리되고 있어요. 완료되면 다시 알려드리며, 그 전에 페이지를 벗어나도 작업은 계속돼요.',
   },
 };
 
 /** 액션 동반 — onRetry 를 주면 '다시 시도' 버튼이 붙는다 (누르면 닫고 재시도) */
 export const ErrorWithRetry: Story = {
   name: 'Content/With Action',
-  args: { kind: 'error', message: '삭제에 실패했습니다.', onRetry: fn() },
+  args: { kind: 'error', message: '삭제에 실패했어요.', onRetry: fn() },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const retry = canvas.getByRole('button', { name: '다시 시도' });
@@ -100,7 +100,7 @@ export const ErrorWithRetry: Story = {
  */
 export const AriaLiveRegion: Story = {
   name: 'Accessibility/ARIA live region',
-  args: { kind: 'error', message: '삭제에 실패했습니다.' },
+  args: { kind: 'error', message: '삭제에 실패했어요.' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const root = canvasElement.querySelector('.tds-toast');
@@ -118,14 +118,14 @@ export const AriaLiveRegion: Story = {
 /** RTL — dir="rtl" 에서 아이콘·문구·닫기 버튼이 논리 속성대로 뒤집힌다 (한국어 콘텐츠) */
 export const RightToLeft: Story = {
   name: 'Accessibility/RTL',
-  args: { kind: 'info', message: '변경 사항이 저장되었습니다' },
+  args: { kind: 'info', message: '변경 사항이 저장되었어요' },
   decorators: [rtlFrame],
 };
 
 /** 닫기(×) — onDismiss 가 이 토스트의 id 로 호출된다 */
 export const CloseButton: Story = {
   name: 'Interaction/Dismiss',
-  args: { kind: 'error', message: '삭제에 실패했습니다.' },
+  args: { kind: 'error', message: '삭제에 실패했어요.' },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: '알림 닫기' }));

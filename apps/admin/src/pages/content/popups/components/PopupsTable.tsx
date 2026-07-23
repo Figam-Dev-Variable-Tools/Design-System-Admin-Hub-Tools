@@ -1,8 +1,13 @@
 // 팝업 목록 표
 //
 // 수정 연필은 별도 폼 페이지(/content/popups/:id/edit)로 이동한다(RowActions onEdit → 라우팅).
+//
+// [EXC-03] 손으로 만든 표라 CrudTable 의 게이팅(canUpdate/canRemove)을 물려받지 못했다 —
+// 조회 권한만 가진 역할에게 체크박스·연필·휴지통·ON/OFF 스위치가 전부 열려 있었다.
+// ON/OFF 는 데이터 열이기도 하므로 컨트롤만 사라지고 값은 배지로 남는다 (shared/crud/RowToggle).
 import type { CSSProperties } from 'react';
 
+import { RowToggle } from '../../../../shared/crud';
 import { formatNumber } from '../../../../shared/format';
 import {
   numericCellStyle,
@@ -16,7 +21,6 @@ import {
   tableStyle,
   tdStyle,
   thStyle,
-  ToggleSwitch,
   visuallyHiddenStyle,
 } from '../../../../shared/ui';
 import { PAGE_SIZE, POSITION_LABEL } from '../types';
@@ -25,9 +29,6 @@ import { cssVar } from '@tds/ui';
 
 const COLUMNS = ['제목', '위치', '노출 기간', '상태', '우선순위'] as const;
 
-/** 체크박스 + 순번 = 앞의 2열, 뒤에 행 액션 1열 */
-const LEADING_COLS = 2;
-const TOTAL_COLS = COLUMNS.length + LEADING_COLS + 1;
 const SELECT_ALL_LABEL_ID = 'popups-select-all-label';
 
 const titleCellStyle: CSSProperties = {
@@ -68,6 +69,10 @@ interface PopupsTableProps {
   readonly onToggleEnabled: (popup: Popup, next: boolean) => void;
   /** ON/OFF 요청 중인 팝업 — 스위치를 잠근다 */
   readonly togglingIds: ReadonlySet<string>;
+  /** 수정 권한 (EXC-03) — false 면 연필과 ON/OFF 스위치가 사라진다(값은 배지로 남는다) */
+  readonly canUpdate: boolean;
+  /** 삭제 권한 (EXC-03) — false 면 휴지통을 그리지 않는다 */
+  readonly canRemove: boolean;
 }
 
 export function PopupsTable({
@@ -82,74 +87,98 @@ export function PopupsTable({
   startIndex,
   onToggleEnabled,
   togglingIds,
+  canUpdate,
+  canRemove,
 }: PopupsTableProps) {
   const selection = tableSelectionState(popups, selectedIds);
+
+  /* 선택을 소비하는 것이 둘이다 — 일괄 ON/OFF(update)와 일괄 삭제(remove) */
+  const canSelect = canUpdate || canRemove;
+  const showActions = canUpdate || canRemove;
+  // 선행 열: (선택 가능 시 체크박스 1) + 순번(1)
+  const totalCols = COLUMNS.length + (canSelect ? 1 : 0) + 1 + (showActions ? 1 : 0);
 
   return (
     <table style={tableStyle} aria-busy={loading}>
       <caption style={visuallyHiddenStyle}>
-        팝업 목록 — 체크박스로 선택하고 수정/삭제 버튼으로 각 팝업을 관리합니다.
+        {showActions
+          ? '팝업 목록 — 체크박스로 선택하고 수정/삭제 버튼으로 각 팝업을 관리해요.'
+          : '팝업 목록 — 조회 전용이에요.'}
       </caption>
 
       <thead>
         <tr>
-          <SelectAllHeaderCell
-            label="이 페이지의 팝업 전체 선택"
-            labelId={SELECT_ALL_LABEL_ID}
-            selection={selection}
-            onToggleAll={onToggleAll}
-          />
+          {canSelect && (
+            <SelectAllHeaderCell
+              label="이 페이지의 팝업 전체 선택"
+              labelId={SELECT_ALL_LABEL_ID}
+              selection={selection}
+              onToggleAll={onToggleAll}
+            />
+          )}
           <SeqHeaderCell />
           {COLUMNS.map((column) => (
             <th key={column} scope="col" style={thStyle}>
               {column}
             </th>
           ))}
-          <th scope="col" style={thStyle}>
-            <span style={visuallyHiddenStyle}>행 액션</span>
-          </th>
+          {showActions && (
+            <th scope="col" style={thStyle}>
+              <span style={visuallyHiddenStyle}>행 액션</span>
+            </th>
+          )}
         </tr>
       </thead>
 
       <tbody>
         {loading ? (
-          <SkeletonRows rows={PAGE_SIZE} cols={TOTAL_COLS} />
+          <SkeletonRows rows={PAGE_SIZE} cols={totalCols} />
         ) : popups.length === 0 ? (
           <tr>
-            <td colSpan={TOTAL_COLS} style={emptyCellStyle}>
-              등록된 팝업이 없습니다.
+            <td colSpan={totalCols} style={emptyCellStyle}>
+              등록된 팝업이 없어요.
             </td>
           </tr>
         ) : (
           popups.map((popup, index) => (
             <tr key={popup.id}>
-              <RowSelectCell
-                id={popup.id}
-                label={`${popup.title} 선택`}
-                checked={selectedIds.has(popup.id)}
-                onToggle={(checked) => onToggleOne(popup.id, checked)}
-              />
+              {canSelect && (
+                <RowSelectCell
+                  id={popup.id}
+                  label={`${popup.title} 선택`}
+                  checked={selectedIds.has(popup.id)}
+                  onToggle={(checked) => onToggleOne(popup.id, checked)}
+                />
+              )}
               <SeqCell seq={startIndex + index + 1} />
               <td style={titleCellStyle}>{popup.title}</td>
               <td style={nowrapCellStyle}>{POSITION_LABEL[popup.position]}</td>
               <td style={nowrapCellStyle}>{`${popup.startAt} ~ ${popup.endAt}`}</td>
               <td style={nowrapCellStyle}>
-                <ToggleSwitch
+                {/* 권한이 없으면 스위치는 사라지고 'ON 인가' 라는 사실만 배지로 남는다 */}
+                <RowToggle
                   checked={popup.enabled}
-                  label={`${popup.title} 노출 여부`}
                   busy={togglingIds.has(popup.id)}
+                  canUpdate={canUpdate}
+                  label={`${popup.title} 노출 여부`}
+                  onLabel="ON"
+                  offLabel="OFF"
                   onChange={(next) => onToggleEnabled(popup, next)}
                 />
               </td>
               <td style={numericCellStyle}>{formatNumber(popup.priority)}</td>
-              <td style={actionCellStyle}>
-                <RowActions
-                  label={popup.title}
-                  disabled={deletingId === popup.id}
-                  onEdit={() => onEdit(popup)}
-                  onDelete={() => onDelete(popup)}
-                />
-              </td>
+              {showActions && (
+                <td style={actionCellStyle}>
+                  {/* RowActions 는 콜백이 있을 때만 그 버튼을 그린다 — 권한을 콜백의
+                      유무로 표현하면 계약을 바꾸지 않고 게이팅이 성립한다 */}
+                  <RowActions
+                    label={popup.title}
+                    disabled={deletingId === popup.id}
+                    {...(canUpdate && { onEdit: () => onEdit(popup) })}
+                    {...(canRemove && { onDelete: () => onDelete(popup) })}
+                  />
+                </td>
+              )}
             </tr>
           ))
         )}

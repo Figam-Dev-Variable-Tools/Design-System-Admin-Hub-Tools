@@ -44,6 +44,7 @@ import {
   Card,
   Checkbox,
   FormField,
+  formRowStyle,
   Icon,
   SelectField,
   Skeleton,
@@ -321,12 +322,6 @@ const cardTitleStyle: CSSProperties = {
   color: cssVar('color.text.default'),
 };
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
 const fieldStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
@@ -559,8 +554,8 @@ function PhoneMessagePreview({
       </div>
       <p style={hintStyle}>
         {over
-          ? `${String(SMS_PROMOTION_THRESHOLD)} byte 를 넘어 LMS 로 승격됩니다 — 건당 단가가 달라집니다.`
-          : `${String(SMS_PROMOTION_THRESHOLD)} byte 를 넘으면 LMS 로 승격됩니다.`}
+          ? `${String(SMS_PROMOTION_THRESHOLD)} byte 를 넘어 LMS 로 승격돼요 — 건당 단가가 달라져요.`
+          : `${String(SMS_PROMOTION_THRESHOLD)} byte 를 넘으면 LMS 로 승격돼요.`}
       </p>
     </div>
   );
@@ -621,8 +616,8 @@ function SmsFormScreen({
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? 'SMS 발송 수정' : 'SMS 발송 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 저장은 발송 예약일 뿐이며 이 화면에서 문자가 즉시 전송되지
-          않습니다.
+          별표(*) 항목은 필수예요. 저장은 발송 예약일 뿐이며 이 화면에서 문자가 즉시 전송되지
+          않아요.
         </p>
       </div>
 
@@ -655,7 +650,7 @@ function SmsFormScreen({
                     htmlFor="sms-sender"
                     label="발신번호"
                     required
-                    hint="사전등록(검증)된 번호만 선택할 수 있습니다(전기통신사업법 제84조의2)."
+                    hint="사전등록(검증)된 번호만 선택할 수 있어요(전기통신사업법 제84조의2)."
                     {...(errors.senderId !== undefined && { error: errors.senderId })}
                   >
                     <SelectField
@@ -712,7 +707,7 @@ function SmsFormScreen({
                     />
                     <p style={hintStyle}>
                       광고성이면 본문에 (광고) 표기·무료수신거부 안내가 필요하고, 야간(21~08시)
-                      발송이 제한됩니다.
+                      발송이 제한돼요.
                     </p>
                   </div>
                 </FormCard>
@@ -721,7 +716,7 @@ function SmsFormScreen({
                   <FormField
                     htmlFor="sms-template"
                     label="템플릿 불러오기"
-                    hint="발행되어 켜져 있는(Active) 문자 템플릿을 본문에 채웁니다."
+                    hint="발행되어 켜져 있는(Active) 문자 템플릿을 본문에 채워요."
                   >
                     <SelectField
                       id="sms-template"
@@ -744,7 +739,7 @@ function SmsFormScreen({
                     onChange={setBody}
                     maxLength={SMS_BODY_MAX}
                     rows={5}
-                    placeholder="발송할 문구를 입력하세요. #{이름} 등 치환변수를 넣을 수 있습니다."
+                    placeholder="발송할 문구를 입력하세요. #{이름} 등 치환변수를 넣을 수 있어요."
                     error={errors.body ?? ''}
                   />
 
@@ -752,7 +747,7 @@ function SmsFormScreen({
                     {`${String(bytes)} byte · ${SMS_KIND_LABEL[kind]} (한도 ${String(
                       smsByteLimit(kind),
                     )} byte)`}
-                    {kind === 'lms' && ' — 90 byte 초과로 LMS 로 발송됩니다.'}
+                    {kind === 'lms' && ' — 90 byte 초과로 LMS 로 발송돼요.'}
                   </p>
 
                   <div style={chipRowStyle}>
@@ -783,7 +778,7 @@ function SmsFormScreen({
 
                   {adWarning && (
                     <Alert tone="warning">
-                      광고성 메시지입니다. 본문에 (광고) 표기와 무료수신거부(예: 080) 안내를
+                      광고성 메시지예요. 본문에 (광고) 표기와 무료수신거부(예: 080) 안내를
                       포함하세요
                       {hasAdPrefix(body) ? '' : ' — (광고) 표기 누락'}
                       {hasOptOut(body) ? '' : ' — 수신거부 문구 누락'}.
@@ -792,7 +787,7 @@ function SmsFormScreen({
                 </FormCard>
 
                 <FormCard title="발송 예약">
-                  <div style={rowStyle}>
+                  <div style={formRowStyle}>
                     <FormField htmlFor="sms-status" label="발송 방식" required>
                       <SelectField
                         id="sms-status"
@@ -826,7 +821,7 @@ function SmsFormScreen({
 
                   {nightWarning && (
                     <Alert tone="danger">
-                      광고성 메시지는 21시~익일 8시에 예약할 수 없습니다(야간 광고 전송 제한,
+                      광고성 메시지는 21시~익일 8시에 예약할 수 없어요(야간 광고 전송 제한,
                       정보통신망법 제50조 제3항).
                     </Alert>
                   )}
@@ -844,7 +839,7 @@ function SmsFormScreen({
               bytes={bytes}
             />
             <p style={hintStyle}>
-              {`선택 대상 ${fmt(recipients)}명 · 건당 과금(유형별 단가)은 발송 시 합산됩니다. 저장은 발송이 아닙니다.`}
+              {`선택 대상 ${fmt(recipients)}명 · 건당 과금(유형별 단가)은 발송 시 합산돼요. 저장은 발송이 아니에요.`}
             </p>
           </FormCard>
         </div>

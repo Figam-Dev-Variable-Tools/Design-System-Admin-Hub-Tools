@@ -13,14 +13,11 @@ import { cssVar, SelectField, StatusBadge } from '@tds/ui';
 
 import { CrudListShell, parseFilter, useCrudList, useListState } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
-import { mediaCatalog } from '../../../shared/domain/media-library';
 import { PUBLISH_STATUS_LABEL, PUBLISH_STATUS_TONE } from '../../../shared/domain/publish-schedule';
-import { formatNumber } from '../../../shared/format';
 import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
 import { Button, FilterPanel, FilterRail, hintStyle, Icon, SearchField } from '../../../shared/ui';
 import { NEWS_CATEGORIES, NEWS_RESOURCE, newsPostAdapter } from './data-source';
 import {
-  attachmentWarning,
   CATEGORY_FILTER_ALL,
   categoryLabelOf,
   countByCategory,
@@ -109,9 +106,6 @@ export default function NewsPage() {
   const { items, error } = controller;
   const { keyword } = list;
 
-  /** 첨부가 살아 있는지 판정할 원본 — null 은 '없다' 가 아니라 '모른다' 다 */
-  const catalog = mediaCatalog();
-
   const counts = useMemo(
     () => (error === null ? countByCategory(items, NEWS_CATEGORIES) : null),
     [items, error],
@@ -133,25 +127,12 @@ export default function NewsPage() {
   const columns: readonly CrudColumn<NewsPost>[] = [
     {
       header: '제목',
-      render: (post) => {
-        const warning = attachmentWarning(post.attachmentIds, catalog);
-        return (
-          <span style={titleCellStyle}>
-            {post.pinned && <StatusBadge tone="info" label="고정" />}
-            <span>{post.title}</span>
-            {post.attachmentIds.length > 0 && (
-              <StatusBadge
-                tone={warning === null ? 'neutral' : 'danger'}
-                label={
-                  warning === null
-                    ? `첨부 ${formatNumber(post.attachmentIds.length)}`
-                    : '첨부 확인 필요'
-                }
-              />
-            )}
-          </span>
-        );
-      },
+      render: (post) => (
+        <span style={titleCellStyle}>
+          {post.pinned && <StatusBadge tone="info" label="고정" />}
+          <span>{post.title}</span>
+        </span>
+      ),
       sortValue: (post) => post.title,
     },
     {
@@ -220,14 +201,7 @@ export default function NewsPage() {
 
   return (
     <div style={layoutStyle}>
-      <FilterRail
-        notice={
-          <p style={hintStyle}>
-            목록은 고정 글이 먼저, 그 다음 발행일 순입니다. 첨부파일은 미디어 라이브러리의 파일을
-            참조합니다.
-          </p>
-        }
-      >
+      <FilterRail notice={<p style={hintStyle}>목록은 고정 글이 먼저, 그 다음 발행일 순이에요.</p>}>
         <FilterPanel
           navLabel="분류 필터"
           heading="분류"

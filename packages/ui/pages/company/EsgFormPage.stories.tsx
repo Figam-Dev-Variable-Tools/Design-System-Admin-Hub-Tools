@@ -34,6 +34,7 @@ import {
   Button,
   Card,
   FormField,
+  formRowStyle,
   Icon,
   ImageGalleryField,
   SelectField,
@@ -170,12 +171,6 @@ const cardTitleStyle: CSSProperties = {
   color: cssVar('color.text.default'),
 };
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
 const controlBaseStyle: CSSProperties = {
   width: '100%',
   boxSizing: 'border-box',
@@ -258,7 +253,7 @@ function EsgFormScreen({
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? 'ESG 활동 수정' : 'ESG 활동 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 분류(환경/사회/지배구조)와 활동 내용을 입력하세요.
+          별표(*) 항목은 필수예요. 분류(환경/사회/지배구조)와 활동 내용을 입력하세요.
         </p>
       </div>
 
@@ -272,7 +267,7 @@ function EsgFormScreen({
             </div>
           ) : (
             <>
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField
                   htmlFor="esg-category"
                   label="분류"
@@ -336,7 +331,7 @@ function EsgFormScreen({
                 values={imageUrls}
                 onChange={setImageUrls}
                 maxFiles={MAX_ESG_IMAGES}
-                hint={`활동을 보여줄 이미지를 여러 장 올릴 수 있습니다. 최대 ${String(MAX_ESG_IMAGES)}장.`}
+                hint={`활동을 보여줄 이미지를 여러 장 올릴 수 있어요. 최대 ${String(MAX_ESG_IMAGES)}장.`}
                 error={errors.imageUrls ?? ''}
               />
             </>

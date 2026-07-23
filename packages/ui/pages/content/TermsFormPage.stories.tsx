@@ -39,6 +39,7 @@ import {
   Button,
   Card,
   FormField,
+  formRowStyle,
   Icon,
   SelectField,
   Skeleton,
@@ -154,12 +155,6 @@ const typeSummaryStyle: CSSProperties = {
   margin: 0,
 };
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 7), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
 const controlStyle = (invalid: boolean): CSSProperties => ({
   width: '100%',
   boxSizing: 'border-box',
@@ -229,7 +224,7 @@ function TermsFormScreen({
       <div style={pageStyle}>
         <Alert tone="warning">
           <div style={alertBodyStyle}>
-            <span>약관 종류가 필요합니다. 목록에서 종류를 고르고 다시 등록하세요.</span>
+            <span>약관 종류가 필요해요. 목록에서 종류를 고르고 다시 등록하세요.</span>
             <Button variant="secondary">목록으로</Button>
           </div>
         </Alert>
@@ -266,7 +261,7 @@ function TermsFormScreen({
               {serverError !== '' && <Alert tone="danger">{serverError}</Alert>}
 
               <form onSubmit={(event) => event.preventDefault()} noValidate style={cardBodyStyle}>
-                <div style={rowStyle}>
+                <div style={formRowStyle}>
                   <FormField
                     htmlFor="terms-version"
                     label="버전"
@@ -364,7 +359,7 @@ export const ValidationError: Story = {
   render: () => (
     <TermsFormScreen
       errors={DEMO_ERRORS}
-      serverError="저장하지 못했습니다. 잠시 후 다시 시도해 주세요."
+      serverError="저장하지 못했어요. 잠시 후 다시 시도해 주세요."
       seed={{ ...EMPTY_SEED, effectiveDate: '' }}
     />
   ),

@@ -66,13 +66,13 @@ import {
 import type { SiteAsset, SiteSettingsValues, SiteVisibility } from './validation';
 
 const PAGE_DESCRIPTION =
-  '사이트 정보와 관련된 기본적인 설정을 합니다. 검색엔진 최적화를 위해 사이트 설명을 입력해 주세요.';
+  '사이트 정보와 관련된 기본적인 설정을 해요. 검색엔진 최적화를 위해 사이트 설명을 입력해 주세요.';
 
 const UNSAVED_MESSAGE =
-  '기본 설정에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '기본 설정에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const READ_ONLY_NOTICE =
-  '조회 권한만 있습니다. 기본 설정을 바꾸려면 시스템 설정 수정 권한이 필요합니다.';
+  '조회 권한만 있어요. 기본 설정을 바꾸려면 시스템 설정 수정 권한이 필요해요.';
 
 /** TODO(content): 도움말 센터가 열리면 실제 문서 주소로 바꾼다 — 지금은 자리만 잡아 둔다 */
 const FAVICON_HELP_URL = 'https://help.spaceplanning.ai/site/favicon';
@@ -137,12 +137,12 @@ const lockedNoteStyle: CSSProperties = {
 /** 저장 확인 문구 — 비공개 전환이면 그 사실을 앞세운다(무엇이 일어나는지 모르고 확인하지 않게) */
 function saveConfirmMessage(values: SiteSettingsValues, wasPrivate: boolean): string {
   if (values.visibility === 'private' && !wasPrivate) {
-    return '사이트를 비공개로 바꿉니다. 저장하는 즉시 관리자를 제외한 방문자는 사이트에 접속할 수 없습니다. 저장할까요?';
+    return '사이트를 비공개로 바꿔요. 저장하는 즉시 관리자를 제외한 방문자는 사이트에 접속할 수 없어요. 저장할까요?';
   }
   if (values.visibility === 'public' && wasPrivate) {
-    return '사이트를 전체 공개로 바꿉니다. 저장하는 즉시 누구나 사이트에 접속할 수 있습니다. 저장할까요?';
+    return '사이트를 전체 공개로 바꿔요. 저장하는 즉시 누구나 사이트에 접속할 수 있어요. 저장할까요?';
   }
-  return '기본 설정을 저장하면 사이트 전반에 즉시 반영됩니다. 저장할까요?';
+  return '기본 설정을 저장하면 사이트 전반에 즉시 반영돼요. 저장할까요?';
 }
 
 /* ── 화면 ──────────────────────────────────────────────────────────────────── */
@@ -251,7 +251,7 @@ export default function SiteSettingsPage() {
             reset(values);
             setPending(null);
             setConflict(null);
-            toast.success('기본 설정을 저장했습니다.');
+            toast.success('기본 설정을 저장했어요.');
           },
           onError: (cause: unknown) => {
             lock.release();
@@ -265,7 +265,7 @@ export default function SiteSettingsPage() {
               return;
             }
 
-            setSaveError('기본 설정을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+            setSaveError('기본 설정을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
           },
         },
       );
@@ -303,7 +303,7 @@ export default function SiteSettingsPage() {
     reset(latest.value);
     setConflict(null);
     void refetch();
-    toast.success('최신 기본 설정을 불러왔습니다.');
+    toast.success('최신 기본 설정을 불러왔어요.');
   }, [conflict, refetch, reset, toast]);
 
   /** 덮어쓴다 — 상대의 변경을 버리는 선택이다. force 로 토큰 검사를 건너뛴다 */
@@ -348,8 +348,8 @@ export default function SiteSettingsPage() {
         warning={
           visibility === 'private' ? (
             <Alert tone="warning">
-              사이트가 비공개로 설정되어 있습니다. 저장하면 관리자를 제외한 방문자는 사이트에 접속할
-              수 없습니다.
+              사이트가 비공개로 설정되어 있어요. 저장하면 관리자를 제외한 방문자는 사이트에 접속할
+              수 없어요.
             </Alert>
           ) : null
         }
@@ -361,7 +361,7 @@ export default function SiteSettingsPage() {
             label="사이트 이름"
             htmlFor="site-name"
             hintId="site-name-hint"
-            hint="브라우저 탭이나 소셜 미디어에 공유할 때 표시됩니다."
+            hint="브라우저 탭이나 소셜 미디어에 공유할 때 표시돼요."
           >
             <CountedInput
               id="site-name"
@@ -379,7 +379,7 @@ export default function SiteSettingsPage() {
             label="사이트 설명"
             htmlFor="site-description"
             hintId="site-description-hint"
-            hint="사이트를 대표하는 문장이나 키워드 사용을 추천합니다."
+            hint="사이트를 대표하는 문장이나 키워드 사용을 추천해요."
           >
             <CountedInput
               id="site-description"
@@ -396,7 +396,7 @@ export default function SiteSettingsPage() {
           <SettingRow
             label="메일·SMS 전용 사이트 이름"
             hintId="messaging-name-hint"
-            hint="전용 이름을 지정하지 않으면 사이트 이름으로 적용됩니다."
+            hint="전용 이름을 지정하지 않으면 사이트 이름으로 적용돼요."
           >
             <div style={toggleAlignStyle}>
               <ToggleSwitch
@@ -435,7 +435,7 @@ export default function SiteSettingsPage() {
             hintId="favicon-hint"
             hint={
               <>
-                내 웹사이트를 볼 때 브라우저 탭에 표시되는 아이콘입니다.{' '}
+                내 웹사이트를 볼 때 브라우저 탭에 표시되는 아이콘이에요.{' '}
                 <a
                   className="tds-ui-link tds-ui-focusable"
                   href={FAVICON_HELP_URL}
@@ -472,11 +472,11 @@ export default function SiteSettingsPage() {
           <SettingRow
             label="대표 이미지"
             hintId="og-image-hint"
-            hint="카카오톡 또는 Facebook 등에서 링크와 함께 나타날 이미지를 설정합니다."
+            hint="카카오톡 또는 Facebook 등에서 링크와 함께 나타날 이미지를 설정해요."
             help={
               <HelpTip label="대표 이미지 설명">
-                링크를 공유하면 이 이미지와 함께 사이트 이름·설명이 카드로 보입니다. 가로가 세로의
-                약 2배인 이미지를 권장합니다 — 비율이 다르면 가장자리가 잘립니다.
+                링크를 공유하면 이 이미지와 함께 사이트 이름·설명이 카드로 보여요. 가로가 세로의 약
+                2배인 이미지를 권장해요 — 비율이 다르면 가장자리가 잘려요.
               </HelpTip>
             }
           >
@@ -523,7 +523,7 @@ export default function SiteSettingsPage() {
           <SettingRow
             label="비공개용 이미지"
             hintId="private-image-hint"
-            hint="비공개 상태인 내 사이트에 방문했을 때 표시할 이미지를 설정합니다."
+            hint="비공개 상태인 내 사이트에 방문했을 때 표시할 이미지를 설정해요."
             disabled={!privateImageEditable}
           >
             {/*
@@ -549,16 +549,15 @@ export default function SiteSettingsPage() {
 
             {!privateImageEditable && (
               <p style={lockedNoteStyle}>
-                공개 범위를 비공개로 바꾸면 설정할 수 있습니다. 지금 올려 둔 이미지는 그대로
-                보관됩니다.
+                공개 범위를 비공개로 바꾸면 설정할 수 있어요. 지금 올려 둔 이미지는 그대로 보관돼요.
               </p>
             )}
 
             <Alert tone="info">
               <ul style={calloutListStyle}>
-                <li>모바일을 고려해 HD 처리하여 50% 크기로 적용됩니다.</li>
-                <li>이미지를 등록하면 밝은 회색 배경에 적용됩니다.</li>
-                <li>이미지를 등록하지 않으면 기본 비공개 페이지가 표시됩니다.</li>
+                <li>모바일을 고려해 HD 처리하여 50% 크기로 적용돼요.</li>
+                <li>이미지를 등록하면 밝은 회색 배경에 적용돼요.</li>
+                <li>이미지를 등록하지 않으면 기본 비공개 페이지가 표시돼요.</li>
               </ul>
             </Alert>
           </SettingRow>
@@ -577,18 +576,18 @@ export default function SiteSettingsPage() {
           */}
           <Alert tone="info">
             복사 방지와 모바일 확대 허용은 방문자에게 보이는 <strong>공개 사이트</strong>에
-            적용됩니다. 관리자 화면에는 적용되지 않습니다.
+            적용돼요. 관리자 화면에는 적용되지 않아요.
           </Alert>
 
           <SettingRow
             label="복사 방지"
             hint={
               <>
-                마우스 오른쪽 버튼과 복사 단축키로 콘텐츠를 복사할 수 없게 하는 기능입니다.
+                마우스 오른쪽 버튼과 복사 단축키로 콘텐츠를 복사할 수 없게 하는 기능이에요.
                 <br />
                 (안드로이드 앱에서는 길게 클릭해서 저장, 캡처를 할 수 없게 하는 기능)
                 <br />
-                공개 사이트에만 적용됩니다.
+                공개 사이트에만 적용돼요.
               </>
             }
           >
@@ -606,7 +605,7 @@ export default function SiteSettingsPage() {
 
           <SettingRow
             label="모바일 확대 허용"
-            hint="공개 사이트에만 적용됩니다. 방문자 브라우저 설정에 따라 확대 허용 방지가 동작하지 않을 수 있습니다."
+            hint="공개 사이트에만 적용돼요. 방문자 브라우저 설정에 따라 확대 허용 방지가 동작하지 않을 수 있어요."
           >
             <div style={toggleAlignStyle}>
               <ToggleSwitch
@@ -622,7 +621,7 @@ export default function SiteSettingsPage() {
 
           <SettingRow
             label="로그인 상태 유지"
-            hint="로그인 화면의 '로그인 유지' 체크박스 기본값입니다. 사용자가 로그인할 때 끌 수 있습니다."
+            hint="로그인 화면의 '로그인 유지' 체크박스 기본값이에요. 사용자가 로그인할 때 끌 수 있어요."
           >
             <div style={toggleAlignStyle}>
               <ToggleSwitch

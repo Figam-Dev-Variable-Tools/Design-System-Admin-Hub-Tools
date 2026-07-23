@@ -56,7 +56,6 @@ export const MODULE_RESOURCES: Readonly<Record<EntitlementKey, readonly Resource
     navPageResourceId('/sales/quotes'),
     navPageResourceId('/sales/inquiries'),
     navPageResourceId('/sales/projects'),
-    navPageResourceId('/sales/consultations'),
     // 청구·입금은 수주된 견적에서만 생긴다 — 견적이 플랜에 잠기는데 그 파생물이 안 잠기면
     // 잠금이 반쪽이 된다(매핑에 없으면 fail-open 이라 언제나 열린다).
     navPageResourceId('/sales/billing'),
@@ -70,13 +69,9 @@ export const MODULE_RESOURCES: Readonly<Record<EntitlementKey, readonly Resource
     navPageResourceId('/content/banners'),
     navPageResourceId('/content/terms'),
     navPageResourceId('/content/privacy'),
-    // 홈페이지 콘텐츠 — 페이지·메뉴·폼·미디어·뉴스는 '사이트를 만드는' 한 묶음이다.
-    // 페이지만 팔고 메뉴를 안 파는 계약은 없다: 메뉴가 가리킬 대상이 페이지이기 때문이다.
-    navPageResourceId('/content/pages'),
-    navPageResourceId('/content/menus'),
+    // 홈페이지 콘텐츠 — 지금 이 묶음에서 사이트에 싣는 것은 뉴스 하나다.
+    // (페이지·메뉴·폼·미디어 화면은 IA 에서 제거됐다 — nav-config.ts 의 콘텐츠 관리 주석)
     navPageResourceId('/content/news'),
-    navPageResourceId('/content/forms'),
-    navPageResourceId('/content/media'),
     // 채용 공고도 홈페이지 게시판이다 — 기업 관리 가지에 있을 뿐 파는 단위는 CMS 다
     navPageResourceId('/company/careers'),
   ],

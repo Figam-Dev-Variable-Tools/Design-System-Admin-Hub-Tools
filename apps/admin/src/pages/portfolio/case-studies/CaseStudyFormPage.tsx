@@ -1,9 +1,14 @@
 // CaseStudyFormPage — 성공 사례 등록/수정 (라우트: /portfolio/case-studies/new · /:id/edit)
 //
 // 승격된 CRUD 프레임워크(useCrudForm + FormPageShell) 위에 업종·과제/해결/성과·대표/본문 이미지·노출을 얹는다.
-import type { CSSProperties } from 'react';
-
-import { controlStyle, errorIdOf, FormField, SelectField, TextareaField } from '../../../shared/ui';
+import {
+  controlStyle,
+  errorIdOf,
+  FormField,
+  formRowStyle,
+  SelectField,
+  TextareaField,
+} from '../../../shared/ui';
 import { FormPageShell, useCrudForm } from '../../../shared/crud';
 import { PortfolioMediaFields } from '../_shared/PortfolioMediaFields';
 import { caseStudyAdapter } from './data-source';
@@ -17,19 +22,11 @@ import {
 import type { CaseIndustry, CaseStudy, CaseStudyInput } from './types';
 import { caseStudySchema } from './validation';
 import type { CaseStudyFormValues } from './validation';
-import { cssVar } from '@tds/ui';
-
 const RESOURCE = 'case-studies';
 const ENTITY_LABEL = '성공 사례';
 const LIST_PATH = '/portfolio/case-studies';
 const UNSAVED_MESSAGE =
-  '성공 사례에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
-};
+  '성공 사례에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 export default function CaseStudyFormPage() {
   const {
@@ -108,7 +105,7 @@ export default function CaseStudyFormPage() {
     <FormPageShell
       entityLabel={ENTITY_LABEL}
       cardTitle="성공 사례 정보"
-      description="별표(*) 항목은 필수입니다. 업종·과제·해결·성과를 입력하세요."
+      description="별표(*) 항목은 필수예요. 업종·과제·해결·성과를 입력하세요."
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
@@ -122,7 +119,7 @@ export default function CaseStudyFormPage() {
       unsavedMessage={UNSAVED_MESSAGE}
       onSubmit={submit}
     >
-      <div style={rowStyle}>
+      <div style={formRowStyle}>
         <FormField htmlFor="case-industry" label="업종" required error={errors.industry?.message}>
           <SelectField
             id="case-industry"
@@ -236,7 +233,7 @@ export default function CaseStudyFormPage() {
         galleryValues={imageUrls}
         onGalleryChange={(next) => setValue('imageUrls', [...next], { shouldDirty: true })}
         galleryError={imagesError}
-        galleryHint={`사례를 보여줄 이미지를 여러 장 올릴 수 있습니다. 최대 ${String(MAX_CASE_IMAGES)}장.`}
+        galleryHint={`사례를 보여줄 이미지를 여러 장 올릴 수 있어요. 최대 ${String(MAX_CASE_IMAGES)}장.`}
         maxImages={MAX_CASE_IMAGES}
         published={published}
         onPublishedChange={(next) => setValue('published', next, { shouldDirty: true })}

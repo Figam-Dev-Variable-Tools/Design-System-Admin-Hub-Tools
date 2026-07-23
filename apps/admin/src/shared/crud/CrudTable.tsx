@@ -254,11 +254,11 @@ export function CrudTable<T extends { id: string }>({
   const caption =
     (canUpdate
       ? rowTargetSentence(rowTarget, entityLabel)
-      : `${entityLabel} 목록 — 조회 전용입니다.`) +
+      : `${entityLabel} 목록 — 조회 전용이에요.`) +
     (showActions
       ? ` ${[showSelect && '체크박스', canUpdate && '수정', canRemove && '삭제']
           .filter((part) => part !== false)
-          .join('·')} 버튼은 각자의 동작을 수행합니다.`
+          .join('·')} 버튼은 각자 따로 동작해요.`
       : '');
 
   /* 데이터 열만 DS 로 넘긴다 — header 가 곧 id 다(한 표 안에서 이미 유일하며 정렬 키로도 쓰인다).

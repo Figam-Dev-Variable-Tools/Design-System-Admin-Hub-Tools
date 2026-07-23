@@ -79,11 +79,7 @@ const GROUPS: readonly MenuGroupSpec[] = [
   {
     menu: ['콘텐츠 관리', 'Content', '/content', SECTION_GENERAL],
     entries: [
-      ['/content/pages', '페이지 관리', 'Pages'],
-      ['/content/menus', '메뉴 관리', 'Menus'],
       ['/content/news', '뉴스·보도자료', 'News'],
-      ['/content/forms', '폼 관리', 'Forms'],
-      ['/content/media', '미디어 라이브러리', 'Media Library'],
       ['/content/notices', '공지사항', 'Notices'],
       ['/content/faq', 'FAQ', 'FAQ'],
       ['/content/popups', '팝업 관리', 'Popups'],
@@ -104,14 +100,6 @@ const GROUPS: readonly MenuGroupSpec[] = [
       ['/company/clients', '고객사', 'Clients'],
       ['/company/esg', 'ESG', 'ESG'],
       ['/company/careers', '채용 공고', 'Careers'],
-    ],
-  },
-  {
-    menu: ['포트폴리오 관리', 'Portfolio', '/portfolio', SECTION_BUSINESS],
-    entries: [
-      ['/portfolio/items', '포트폴리오', 'Items'],
-      ['/portfolio/categories', '카테고리', 'Categories'],
-      ['/portfolio/case-studies', '성공 사례', 'Case Studies'],
     ],
   },
   {
@@ -143,18 +131,6 @@ const GROUPS: readonly MenuGroupSpec[] = [
     ],
   },
   {
-    menu: ['영업 관리', 'Sales', '/sales', SECTION_BUSINESS],
-    entries: [
-      ['/sales/accounts', '거래처', 'Accounts'],
-      ['/sales/contracts', '계약', 'Contracts'],
-      ['/sales/quotes', '견적', 'Quotes'],
-      ['/sales/billing', '청구·입금', 'Billing'],
-      ['/sales/inquiries', '문의', 'Inquiries'],
-      ['/sales/projects', '프로젝트', 'Projects'],
-      ['/sales/consultations', '상담 이력', 'Consultations'],
-    ],
-  },
-  {
     menu: ['고객센터', 'Support', '/support', SECTION_BUSINESS],
     entries: [
       ['/support/tickets', '1:1 문의', 'Tickets'],
@@ -173,6 +149,25 @@ const GROUPS: readonly MenuGroupSpec[] = [
       ['/marketing/sms', 'SMS 발송', 'SMS'],
       ['/marketing/email', '이메일 발송', 'Email'],
       ['/marketing/templates', '발송 템플릿 관리', 'Templates'],
+    ],
+  },
+  {
+    menu: ['영업 관리', 'Sales', '/sales', SECTION_BUSINESS],
+    entries: [
+      ['/sales/accounts', '거래처', 'Accounts'],
+      ['/sales/contracts', '계약', 'Contracts'],
+      ['/sales/quotes', '견적', 'Quotes'],
+      ['/sales/billing', '청구·입금', 'Billing'],
+      ['/sales/inquiries', '문의', 'Inquiries'],
+      ['/sales/projects', '프로젝트', 'Projects'],
+    ],
+  },
+  {
+    menu: ['포트폴리오 관리', 'Portfolio', '/portfolio', SECTION_BUSINESS],
+    entries: [
+      ['/portfolio/items', '포트폴리오', 'Items'],
+      ['/portfolio/categories', '카테고리', 'Categories'],
+      ['/portfolio/case-studies', '성공 사례', 'Case Studies'],
     ],
   },
   {
@@ -206,13 +201,11 @@ const GROUPS: readonly MenuGroupSpec[] = [
     menu: ['시스템 설정', 'Settings', '/settings', SECTION_SYSTEM],
     entries: [
       ['/settings/site', '사이트 설정', 'Site'],
-      ['/settings/site-connect', '사이트 연동', 'Site Connect'],
       ['/settings/api-keys', 'API Key 설정', 'API Keys'],
       ['/settings/oauth', 'OAuth 설정', 'OAuth'],
       ['/settings/payment', '결제 설정', 'Payment'],
       ['/settings/plan', '플랜·이용 현황', 'Plan'],
       ['/settings/notifications', '알림 설정', 'Notifications'],
-      ['/settings/languages', '다국어 설정', 'Languages'],
     ],
   },
 ];
@@ -221,10 +214,10 @@ function toMenu([ko, en, basePath, section]: MenuSpec): PageMenu {
   return { ko, en, basePath, section };
 }
 
-/** 메뉴 13개 — 사이드바 순서 그대로 */
+/** 메뉴 15개 — 사이드바 순서 그대로 */
 export const MENUS: readonly PageMenu[] = GROUPS.map((group) => toMenu(group.menu));
 
-/** 화면 71개 — 사이드바 순서 그대로 */
+/** 화면 74개 — 사이드바 순서 그대로 */
 export const PAGES: readonly PageEntry[] = GROUPS.flatMap((group) => {
   const menu = toMenu(group.menu);
   return group.entries.map(([path, ko, en]) => ({ path, ko, en, menu }));

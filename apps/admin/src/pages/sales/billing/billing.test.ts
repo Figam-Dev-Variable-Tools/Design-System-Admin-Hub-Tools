@@ -10,6 +10,8 @@ import {
   applyPayment,
   BILLING_CREATE_DONE,
   BILLING_CREATE_NOT_ORDERED,
+  BILLING_NOTICE_LOST,
+  BILLING_PAYMENT_LOST,
   billingCreateBlock,
   billingPaymentState,
   buildBillingFromQuote,
@@ -17,6 +19,7 @@ import {
   filterBillings,
   hasSentNotice,
   lastNoticeAt,
+  ledgerLossBlock,
   makeBillNo,
   NOTICE_LINK_REQUIRED,
   outstandingAmount,
@@ -152,6 +155,46 @@ describe('applyPayment — 기록은 덧붙이기만 한다(되돌리는 전이 
     expect(() =>
       applyPayment(billingOf({ id: 'a' }), paymentOf('p1', 2000000, '2026-07-08')),
     ).toThrow(PAYMENT_OVER_OUTSTANDING);
+  });
+});
+
+/* ── 동시 저장 (기록 소실) ────────────────────────────────────────────────── */
+
+/**
+ * [회귀] 저장이 문서 전체를 갈아 끼우므로, 내가 읽은 뒤 기록된 입금은 그대로 저장하면 **사라진다.**
+ * 그 소실을 판정하는 술어를 여기서 고정한다 — 어댑터의 409 가 이것을 읽는다(./data-source).
+ */
+describe('원장을 지우는 저장은 거절한다 — 덧붙이기만 통과한다', () => {
+  const stored = billingOf({
+    id: 'a',
+    payments: [paymentOf('p1', 300000, '2026-07-08')],
+    notices: [{ id: 'n1', at: '2026-07-06T01:20:00Z', channel: 'email', memo: '안내' }],
+  });
+
+  it('그대로 다시 저장하는 것은 소실이 아니다', () => {
+    expect(ledgerLossBlock(stored, toBillingInput(stored))).toBeNull();
+  });
+
+  it('입금을 덧붙인 저장은 통과한다 — 이것이 정상 경로다', () => {
+    const next = applyPayment(stored, paymentOf('p2', 200000, '2026-07-09'));
+    expect(ledgerLossBlock(stored, toBillingInput(next))).toBeNull();
+  });
+
+  /* 두 운영자 시나리오의 핵심: 내 문서에는 방금 기록된 입금이 없다. */
+  it('저장된 입금이 빠진 문서는 409 사유를 돌려준다', () => {
+    const stale = billingOf({ id: 'a', payments: [], notices: stored.notices });
+    expect(ledgerLossBlock(stored, toBillingInput(stale))).toBe(BILLING_PAYMENT_LOST);
+  });
+
+  /* 건수만 세면 '한 건 지우고 한 건 넣은' 저장이 통과한다 — 앞부분이 그대로여야 한다. */
+  it('건수가 같아도 앞부분이 다르면 소실이다', () => {
+    const swapped = billingOf({ id: 'a', payments: [paymentOf('p9', 300000, '2026-07-08')] });
+    expect(ledgerLossBlock(stored, toBillingInput(swapped))).toBe(BILLING_PAYMENT_LOST);
+  });
+
+  it('안내 기록도 같은 규약이다 — 보낸 사실은 지워지지 않는다', () => {
+    const stale = billingOf({ id: 'a', payments: stored.payments, notices: [] });
+    expect(ledgerLossBlock(stored, toBillingInput(stale))).toBe(BILLING_NOTICE_LOST);
   });
 });
 

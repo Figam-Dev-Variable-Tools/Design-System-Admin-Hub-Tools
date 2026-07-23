@@ -34,7 +34,7 @@ function paymentOutage(now: Date): readonly Draft[] {
       severity: 'critical',
       source: '결제 서비스',
       code: 'PAYMENT_GATEWAY_TIMEOUT',
-      message: '결제 게이트웨이 응답 시간 초과 — 주문 생성이 연쇄 실패했습니다.',
+      message: '결제 게이트웨이 응답 시간 초과 — 주문 생성이 연쇄 실패했어요.',
       occurrences: 340,
       payload: {
         stack: [
@@ -57,7 +57,7 @@ function paymentOutage(now: Date): readonly Draft[] {
       severity: 'error',
       source: '주문 API',
       code: 'ORDER_CREATE_FAILED',
-      message: '결제 승인 실패로 주문을 생성하지 못했습니다.',
+      message: '결제 승인 실패로 주문을 생성하지 못했어요.',
       occurrences: 128,
       payload: {
         stack: 'OrderCreateError: payment declined (upstream 503)\n    at OrderService.create',
@@ -75,7 +75,7 @@ function settlementFailures(now: Date): readonly Draft[] {
       severity: 'critical',
       source: '정산 배치',
       code: 'SETTLEMENT_DB_CONNECTION_LOST',
-      message: '정산 집계 중 데이터베이스 연결이 끊어졌습니다 — 당일 정산이 중단되었습니다.',
+      message: '정산 집계 중 데이터베이스 연결이 끊어졌어요 — 당일 정산이 중단되었어요.',
       occurrences: 3,
       payload: {
         stack: 'ConnectionLostError: server closed the connection unexpectedly',
@@ -100,7 +100,7 @@ function routineWarnings(now: Date): readonly Draft[] {
       severity: 'warning',
       source: '이미지 업로드',
       code: 'UPLOAD_SIZE_EXCEEDED',
-      message: '허용 용량을 초과한 이미지 업로드가 거부되었습니다.',
+      message: '허용 용량을 초과한 이미지 업로드가 거부되었어요.',
       occurrences: 1 + (day % 5),
       payload: {
         context: { limitMb: 5, receivedMb: 6 + (day % 4), contentType: 'image/png' },
@@ -113,7 +113,7 @@ function routineWarnings(now: Date): readonly Draft[] {
       severity: 'warning',
       source: '알림 발송',
       code: 'SMS_RATE_LIMITED',
-      message: '발송 한도에 걸려 일부 SMS 가 지연되었습니다.',
+      message: '발송 한도에 걸려 일부 SMS 가 지연되었어요.',
       occurrences: 2 + (day % 7),
       payload: {
         context: {
@@ -138,7 +138,7 @@ function sporadicErrors(now: Date): readonly Draft[] {
       severity: 'error',
       source: '알림 발송',
       code: 'EMAIL_BOUNCED',
-      message: '수신 거부된 주소로 발송을 시도했습니다.',
+      message: '수신 거부된 주소로 발송을 시도했어요.',
       occurrences: 1 + (day % 3),
       payload: { context: { recipient: 'user1099@example.com', bounceType: 'hard' } },
     });

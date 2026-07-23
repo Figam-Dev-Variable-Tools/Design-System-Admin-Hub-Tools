@@ -47,8 +47,8 @@ const ROUTE = '/stats/orders';
  * 취소와 반품을 가르는 규칙 — 카페24의 실제 처리 기준이다.
  * KPI 옆에 붙여두지 않으면 '취소한 건데 왜 반품에 잡히나'라는 문의가 매번 반복된다.
  */
-const CANCEL_HINT = '배송중 이전에 멈춘 주문입니다. 배송이 시작된 뒤로는 반품으로 잡힙니다.';
-const RETURN_HINT = '배송중 이후에 되돌아온 주문입니다. 배송 전에 멈추면 취소로 잡힙니다.';
+const CANCEL_HINT = '배송중 이전에 멈춘 주문이에요. 배송이 시작된 뒤로는 반품으로 잡혀요.';
+const RETURN_HINT = '배송중 이후에 되돌아온 주문이에요. 배송 전에 멈추면 취소로 잡혀요.';
 
 function segmentOf(value: string): OrderSegment {
   return isOrderSegment(value) ? value : 'all';
@@ -163,7 +163,7 @@ export default function OrderStatsPage() {
         unit: 'count',
         value: pick(daily),
         compareValue: compare === null ? null : pick(compare),
-        hint: '선택한 기간에 접수된 주문 건수입니다.',
+        hint: '선택한 기간에 접수된 주문 건수예요.',
       },
       {
         id: 'canceled',
@@ -191,7 +191,7 @@ export default function OrderStatsPage() {
         value: cancelRate(daily),
         compareValue: compare === null ? null : cancelRate(compare),
         isLowerBetter: true,
-        hint: '취소 건수 ÷ 주문 건수. 배송중 이전에 멈춘 주문만 셉니다.',
+        hint: '취소 건수 ÷ 주문 건수. 배송중 이전에 멈춘 주문만 포함해요.',
       },
       {
         id: 'returnRate',
@@ -200,7 +200,7 @@ export default function OrderStatsPage() {
         value: returnRate(daily),
         compareValue: compare === null ? null : returnRate(compare),
         isLowerBetter: true,
-        hint: '반품 건수 ÷ 주문 건수. 배송이 시작된 뒤 되돌아온 주문만 셉니다.',
+        hint: '반품 건수 ÷ 주문 건수. 배송이 시작된 뒤 되돌아온 주문만 포함해요.',
       },
     ];
   }, [stats, segment]);
@@ -275,7 +275,7 @@ export default function OrderStatsPage() {
 
   return (
     <StatsPageShell
-      description="주문이 어느 상태에 고여 있는지, 얼마나 취소·반품으로 되돌아오는지 보는 화면입니다. 개별 주문의 처리는 주문 관리에서 하고, 여기서는 '지난 기간과 견주어 무엇이 달라졌는지'를 봅니다."
+      description="주문이 어느 상태에 고여 있는지, 얼마나 취소·반품으로 되돌아오는지 보는 화면이에요. 개별 주문의 처리는 주문 관리에서 하고, 여기서는 '지난 기간과 견주어 무엇이 달라졌는지'를 봐요."
       route={ROUTE}
       params={params}
       segments={ORDER_SEGMENTS}

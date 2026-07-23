@@ -4,20 +4,19 @@
 // ① 거래처에는 읽기 전용 상세가 없었다. 담당자·여신한도·결제조건·신용등급을 **보기만** 하려는
 //    조회 전용 역할도 수정 폼(/:id/edit)을 열어야 했다 — 고칠 수 없는 사람에게 편집 화면을 여는 것은
 //    그 자체로 오조작의 초대장이다. 이 화면은 전부 읽기 전용이고, 수정은 명시적 버튼 하나뿐이다.
-// ② **거래처 → 그 거래처의 계약/견적/프로젝트/상담** 역방향 조회가 앱 전체에 없었다. 계약도 견적도
+// ② **거래처 → 그 거래처의 계약/견적/프로젝트** 역방향 조회가 앱 전체에 없었다. 계약도 견적도
 //    거래처를 자유 입력 문자열로 들고 있었으니 애초에 물을 수 없는 질문이었다. accountId 참조가
 //    생긴 지금(../_shared/account-reference) 그 질문에 답하는 곳이 여기다.
 //
-// [네 이력을 각각 조회한다] 모듈마다 어댑터가 따로다(계약·견적·프로젝트·상담). 한 요청으로 합치려면
-// 서버가 필요하고, 지금은 픽스처라 네 목록을 받아 accountId 로 거른다 — 필터는 순수 함수 하나
-// (filterByAccount)라 네 구획이 같은 규칙을 쓴다. 백엔드가 붙으면 각 TODO(backend) 자리에
+// [세 이력을 각각 조회한다] 모듈마다 어댑터가 따로다(계약·견적·프로젝트). 한 요청으로 합치려면
+// 서버가 필요하고, 지금은 픽스처라 세 목록을 받아 accountId 로 거른다 — 필터는 순수 함수 하나
+// (filterByAccount)라 세 구획이 같은 규칙을 쓴다. 백엔드가 붙으면 각 TODO(backend) 자리에
 // `?accountId=` 질의가 들어오고 화면은 그대로 둔다.
 import type { CSSProperties } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { cssVar } from '@tds/ui';
 
-import { formatDateTime } from '../../../shared/format';
 import { isNotFound } from '../../../shared/errors/http-error';
 import { DetailCellLink, useCrudListQuery } from '../../../shared/crud';
 import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
@@ -32,6 +31,7 @@ import {
   dtStyle,
   fieldLabelStyle,
   hintStyle,
+  inlineBadgeRowStyle,
   Icon,
   mutedTextStyle,
   pageTitleStyle,
@@ -48,15 +48,6 @@ import type { Quote } from '../quotes/types';
 import { projectAdapter } from '../projects/data-source';
 import { stageLabel, stageTone } from '../projects/types';
 import type { Project } from '../projects/types';
-import { consultationAdapter } from '../consultations/data-source';
-import {
-  CONSULT_NO_RELATION,
-  consultationRelatedLink,
-  consultOutcomeLabel,
-  consultOutcomeTone,
-  consultTypeLabel,
-} from '../consultations/types';
-import type { Consultation } from '../consultations/types';
 import { accountAdapter } from './data-source';
 import { RelatedRecordsCard } from './components/RelatedRecordsCard';
 import type { RelatedColumn } from './components/RelatedRecordsCard';
@@ -74,7 +65,6 @@ const LIST_PATH = '/sales/accounts';
 const CONTRACT_PATH = '/sales/contracts';
 const QUOTE_PATH = '/sales/quotes';
 const PROJECT_PATH = '/sales/projects';
-const CONSULTATION_PATH = '/sales/consultations';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -155,9 +145,9 @@ const contactItemStyle: CSSProperties = {
 };
 
 const contactNameStyle: CSSProperties = {
+  // 담당자 이름 옆 '대표담당' 배지 — 간격의 정의는 공용 상수 하나다(shared/ui/styles.ts)
+  ...inlineBadgeRowStyle,
   display: 'flex',
-  alignItems: 'center',
-  gap: cssVar('space.2'),
   fontSize: cssVar('typography.label.md.font-size'),
 };
 
@@ -188,17 +178,15 @@ export default function AccountDetailPage() {
   });
   const account = detailQuery.data;
 
-  // TODO(backend): GET /api/sales/{contracts,quotes,projects,consultations}?accountId=:id
+  // TODO(backend): GET /api/sales/{contracts,quotes,projects}?accountId=:id
   //   — 지금은 목록을 받아 화면에서 거른다(픽스처). 서버가 붙으면 질의만 바뀌고 아래는 그대로다.
   const contractsQuery = useCrudListQuery('sales-contracts', contractAdapter);
   const quotesQuery = useCrudListQuery('sales-quotes', quoteAdapter);
   const projectsQuery = useCrudListQuery('sales-projects', projectAdapter);
-  const consultationsQuery = useCrudListQuery('sales-consultations', consultationAdapter);
 
   const contracts = filterByAccount(contractsQuery.data ?? [], accountId);
   const quotes = filterByAccount(quotesQuery.data ?? [], accountId);
   const projects = filterByAccount(projectsQuery.data ?? [], accountId);
-  const consultations = filterByAccount(consultationsQuery.data ?? [], accountId);
 
   const contractColumns: readonly RelatedColumn<Contract>[] = [
     {
@@ -291,54 +279,6 @@ export default function AccountDetailPage() {
     },
   ];
 
-  const consultationColumns: readonly RelatedColumn<Consultation>[] = [
-    {
-      id: 'consultedAt',
-      header: '상담일시',
-      nowrap: true,
-      render: (item) => formatDateTime(item.consultedAt),
-    },
-    {
-      id: 'topic',
-      header: '주제',
-      render: (item) => (
-        <DetailCellLink to={`${CONSULTATION_PATH}/${item.id}`}>{item.topic}</DetailCellLink>
-      ),
-    },
-    {
-      id: 'type',
-      header: '유형',
-      nowrap: true,
-      render: (item) => consultTypeLabel(item.consultType),
-    },
-    {
-      id: 'outcome',
-      header: '결과',
-      nowrap: true,
-      render: (item) => (
-        <StatusBadge
-          tone={consultOutcomeTone(item.outcome)}
-          label={consultOutcomeLabel(item.outcome)}
-        />
-      ),
-    },
-    {
-      id: 'related',
-      header: '관련',
-      nowrap: true,
-      render: (item) => {
-        const link = consultationRelatedLink(item);
-        return link === null ? (
-          <span style={mutedTextStyle} title={CONSULT_NO_RELATION}>
-            —
-          </span>
-        ) : (
-          <DetailCellLink to={link.to}>{link.label}</DetailCellLink>
-        );
-      },
-    },
-  ];
-
   // [EXC-12] 404 와 서버 오류는 복구 수단이 다르다 — 이미 삭제된 거래처에 '다시 시도'는 영원히 실패한다.
   if (detailQuery.error !== null) {
     const notFound = isNotFound(detailQuery.error);
@@ -348,8 +288,8 @@ export default function AccountDetailPage() {
           <div style={alertActionRowStyle}>
             <span>
               {notFound
-                ? '거래처를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '거래처를 불러오지 못했습니다.'}
+                ? '거래처를 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '거래처를 불러오지 못했어요.'}
             </span>
             {!notFound && (
               <Button variant="secondary" onClick={() => void detailQuery.refetch()}>
@@ -464,7 +404,7 @@ export default function AccountDetailPage() {
           <Card>
             <CardTitle>담당자</CardTitle>
             {account.contacts.length === 0 ? (
-              <p style={hintStyle}>등록된 담당자가 없습니다.</p>
+              <p style={hintStyle}>등록된 담당자가 없어요.</p>
             ) : (
               <ul style={contactListStyle}>
                 {account.contacts.map((contact) => (
@@ -494,7 +434,7 @@ export default function AccountDetailPage() {
             loading={contractsQuery.data === undefined && contractsQuery.isFetching}
             error={contractsQuery.error}
             onRetry={() => void contractsQuery.refetch()}
-            emptyText="이 거래처로 체결된 계약이 없습니다."
+            emptyText="이 거래처로 체결된 계약이 없어요."
           />
 
           <RelatedRecordsCard<Quote>
@@ -505,7 +445,7 @@ export default function AccountDetailPage() {
             loading={quotesQuery.data === undefined && quotesQuery.isFetching}
             error={quotesQuery.error}
             onRetry={() => void quotesQuery.refetch()}
-            emptyText="이 거래처로 발행된 견적이 없습니다."
+            emptyText="이 거래처로 발행된 견적이 없어요."
           />
 
           <RelatedRecordsCard<Project>
@@ -516,18 +456,7 @@ export default function AccountDetailPage() {
             loading={projectsQuery.data === undefined && projectsQuery.isFetching}
             error={projectsQuery.error}
             onRetry={() => void projectsQuery.refetch()}
-            emptyText="이 거래처로 진행 중인 영업 기회가 없습니다."
-          />
-
-          <RelatedRecordsCard<Consultation>
-            title="이 거래처의 상담 이력"
-            entityLabel="상담 이력"
-            columns={consultationColumns}
-            items={consultations}
-            loading={consultationsQuery.data === undefined && consultationsQuery.isFetching}
-            error={consultationsQuery.error}
-            onRetry={() => void consultationsQuery.refetch()}
-            emptyText="이 거래처와의 상담 기록이 없습니다."
+            emptyText="이 거래처로 진행 중인 영업 기회가 없어요."
           />
 
           <div style={actionsStyle}>

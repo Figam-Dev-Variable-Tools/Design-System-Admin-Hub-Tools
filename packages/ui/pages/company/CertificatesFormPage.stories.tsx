@@ -251,7 +251,7 @@ function CertificateFormScreen({
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '인증서/특허 수정' : '인증서/특허 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 이미지 URL 로 인증서/특허 이미지를 등록합니다.
+          별표(*) 항목은 필수예요. 이미지 URL 로 인증서/특허 이미지를 등록해요.
         </p>
       </div>
 
@@ -329,7 +329,7 @@ function CertificateFormScreen({
                 required
                 value={imageUrl}
                 onChange={setImageUrl}
-                hint="이미지를 끌어다 놓거나 클릭해 업로드합니다."
+                hint="이미지를 끌어다 놓거나 클릭해 업로드해요."
                 error={errors.imageUrl ?? ''}
               />
             </>

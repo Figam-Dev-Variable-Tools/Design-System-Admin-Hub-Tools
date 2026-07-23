@@ -309,7 +309,7 @@ export function parseQuery(input: string): ParseResult {
       // 이 도메인에는 날짜 필드가 아예 없다 (예: 상품)
       notices.push({
         code: 'period-domain-unsupported',
-        message: `'${domain.label}' 에는 기간으로 거를 수 있는 날짜 항목이 없습니다. 기간 조건 '${periodHit.period.label}' 을 빼고 조회했습니다.`,
+        message: `'${domain.label}' 에는 기간으로 거를 수 있는 날짜 항목이 없어요. 기간 조건 '${periodHit.period.label}' 을 빼고 조회했어요.`,
         suggestion: null,
       });
     } else if (!fieldSupports(target, 'period')) {
@@ -320,7 +320,7 @@ export function parseQuery(input: string): ParseResult {
           : null;
       notices.push({
         code: 'period-unsupported',
-        message: `'${target.label}' 에는 기간 정보가 없어 '${periodHit.period.label}' 로 거를 수 없습니다. 기간 조건을 빼고 '${target.label}' 이 있는 대상만 조회했습니다.`,
+        message: `'${target.label}' 에는 기간 정보가 없어 '${periodHit.period.label}' 로 거를 수 없어요. 기간 조건을 빼고 '${target.label}' 이 있는 대상만 조회했어요.`,
         suggestion: alt,
       });
     } else {

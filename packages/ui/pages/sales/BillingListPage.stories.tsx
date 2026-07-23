@@ -504,18 +504,17 @@ function BillingListScreen({
         <aside style={railStyle}>
           <p style={railNoticeStyle}>
             {loading
-              ? '미수금을 세는 중입니다.'
-              : `아직 받지 못한 금액은 ${formatWon(totalOutstanding(DEMO_BILLINGS))}입니다.`}
+              ? '미수금을 세는 중이에요.'
+              : `아직 받지 못한 금액은 ${formatWon(totalOutstanding(DEMO_BILLINGS))}이에요.`}
           </p>
           <p style={railNoticeStyle}>
-            청구는 수주로 전환된 견적에서만 만들어집니다. 견적 상세의 &lsquo;청구 만들기&rsquo;로
+            청구는 수주로 전환된 견적에서만 만들어져요. 견적 상세의 &lsquo;청구 만들기&rsquo;로
             시작하세요.
           </p>
           <p style={railNoticeStyle}>
-            결제대행을 쓰지 않으므로 입금은 사람이 확인해 기록합니다. 기록한 입금은 되돌릴 수
-            없습니다.
+            결제대행을 쓰지 않으므로 입금은 사람이 확인해 기록해요. 기록한 입금은 되돌릴 수 없어요.
           </p>
-          {!canUpdate && <p style={railNoticeStyle}>입금확인 권한이 없어 조회만 가능합니다.</p>}
+          {!canUpdate && <p style={railNoticeStyle}>입금확인 권한이 없어 조회만 가능해요.</p>}
           <StateFilterPanel
             value={state}
             onChange={setState}
@@ -539,7 +538,7 @@ function BillingListScreen({
 
           <div style={tableScrollStyle}>
             <Table
-              caption="청구 목록 — 행을 누르면 청구 상세(입금확인·안내 발송)로 이동합니다. 입금 상태는 입금 기록의 누적 합에서 파생됩니다."
+              caption="청구 목록 — 행을 누르면 청구 상세(입금확인·안내 발송)로 이동해요. 입금 상태는 입금 기록의 누적 합에서 파생돼요."
               columns={COLUMNS}
               rows={rows}
               leadingHead={[<SeqHeaderCell key="seq" />]}

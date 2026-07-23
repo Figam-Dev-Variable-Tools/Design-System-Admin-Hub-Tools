@@ -64,7 +64,7 @@ export function EmailBodyCard({
       <FormField
         htmlFor="email-template"
         label="템플릿 불러오기"
-        hint="발행되어 켜져 있는(Active) 이메일 템플릿의 제목·본문을 채웁니다."
+        hint="발행되어 켜져 있는(Active) 이메일 템플릿의 제목·본문을 채워요."
       >
         <SelectField
           id="email-template"
@@ -73,7 +73,7 @@ export function EmailBodyCard({
           onChange={(event) => onApplyTemplate(event.target.value)}
         >
           {templates.length === 0 ? (
-            <option value={NO_TEMPLATE}>발행된 템플릿이 없습니다</option>
+            <option value={NO_TEMPLATE}>발행된 템플릿이 없어요</option>
           ) : (
             <>
               <option value={NO_TEMPLATE}>템플릿 선택 안 함</option>
@@ -94,7 +94,7 @@ export function EmailBodyCard({
         maxLength={EMAIL_BODY_MAX}
         disabled={disabled}
         error={errors.body?.message}
-        placeholder="메일 본문을 입력하세요. #{이름} 등 치환변수를 넣을 수 있습니다."
+        placeholder="메일 본문을 입력하세요. #{이름} 등 치환변수를 넣을 수 있어요."
         rows={6}
       />
       <VariableInsertBar
@@ -105,7 +105,7 @@ export function EmailBodyCard({
       />
       {adSubjectWarning && (
         <Alert tone="warning">
-          광고성 메일입니다. 제목을 &quot;(광고)&quot;로 시작하도록 수정하세요.
+          광고성 메일이에요. 제목을 &quot;(광고)&quot;로 시작하도록 수정하세요.
         </Alert>
       )}
       <div style={fieldStyle}>
@@ -128,7 +128,7 @@ export function EmailBodyCard({
             {errors.includeUnsubscribe.message}
           </p>
         ) : (
-          <p style={hintStyle}>마케팅 이메일에는 수신거부 링크가 반드시 포함되어야 합니다.</p>
+          <p style={hintStyle}>마케팅 이메일에는 수신거부 링크가 반드시 포함되어야 해요.</p>
         )}
       </div>
     </Card>

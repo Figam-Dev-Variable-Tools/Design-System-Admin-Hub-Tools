@@ -8,6 +8,11 @@
 // 폼 모달 위에 확인 다이얼로그가 겹친다 (Modal 이 중첩을 지원한다 — 포커스/스크롤 잠금 모두 복원된다).
 //
 // [주의] 이건 '회원'을 만드는 게 아니라 '그룹'을 만드는 것이다 — 회원은 여전히 가입으로만 유입된다.
+//
+// [권한] 이 팝업은 **부모의 판정을 물려받지 않는다.** 부모(MembersPage)는 create 권한이 없으면
+// 여는 버튼을 아예 만들지 않지만, 그것은 '열리지 않는다' 는 보장일 뿐 '저장되지 않는다' 는
+// 보장이 아니다 — 열려 있는 동안 다른 탭에서 강등되면 부모의 판정은 이미 지나간 과거다.
+// 그래서 여기서 같은 술어(같은 라우트의 create)를 다시 읽고, 제출 경로에서 거절한다.
 import { useEffect, useId, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useForm } from 'react-hook-form';
@@ -28,6 +33,7 @@ import {
   useModalDirtyGuard,
 } from '../../../shared/ui';
 import { zodResolver } from '../../../shared/form/zodResolver';
+import { useRouteCan, WRITE_DENIED } from '../../../shared/permissions/RequirePermission';
 import { useCreateGroup } from '../queries';
 import { GROUP_TYPE_OPTIONS, SHIPPING_BENEFIT_OPTIONS } from '../types';
 import { createGroupSchema } from '../validation';
@@ -74,6 +80,9 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
   const create = useCreateGroup();
   const saving = create.isPending;
 
+  /** 부모가 버튼을 없앨 때 읽은 것과 **같은 술어**다 (같은 라우트의 create) */
+  const canCreate = useRouteCan('create');
+
   const nameId = useId();
   const typeId = useId();
   const shippingId = useId();
@@ -106,6 +115,12 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
 
   const confirmCreate = () => {
     if (confirming === null) return;
+    // 저장 경로의 거절 — 침묵하지 않는다. 확인 다이얼로그를 닫고 폼 자리에 사유를 남긴다
+    if (!canCreate) {
+      setConfirming(null);
+      setServerError(WRITE_DENIED.create);
+      return;
+    }
     const trimmed = confirming;
     const { type, shippingBenefit } = getValues();
 
@@ -125,7 +140,7 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
           if (isAbort(cause)) return;
           // 실패하면 확인 다이얼로그를 닫고 폼으로 돌려보낸다 — 값을 고쳐 다시 시도할 수 있다
           setConfirming(null);
-          setServerError('그룹을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setServerError('그룹을 만들지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -210,8 +225,8 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
                 그룹 유형
               </label>
               <HelpTip label="그룹 유형 설명">
-                일반 회원 그룹은 회원 목록에서 필터로 쓰입니다. 운영진 그룹은 관리자 화면(관리자
-                관리)에서만 쓰이며, 회원 상세에는 나타나지 않습니다.
+                일반 회원 그룹은 회원 목록에서 필터로 쓰여요. 운영진 그룹은 관리자 화면(관리자
+                관리)에서만 쓰이며, 회원 상세에는 나타나지 않아요.
               </HelpTip>
             </span>
             <SelectField
@@ -236,8 +251,8 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
                 배송비 혜택
               </label>
               <HelpTip label="배송비 혜택 설명">
-                이 그룹에 속한 회원의 주문에 적용할 배송비 정책입니다. '조건부 무료 배송'은 상품
-                관리의 배송 정책에서 기준 금액을 따릅니다.
+                이 그룹에 속한 회원의 주문에 적용할 배송비 정책이에요. '조건부 무료 배송'은 상품
+                관리의 배송 정책에서 기준 금액을 따라요.
               </HelpTip>
             </span>
             <SelectField
@@ -263,8 +278,8 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
           )}
 
           <p style={hintStyle}>
-            그룹을 만들어도 회원이 자동으로 들어가지는 않습니다. 회원은 회원가입으로만 유입되며,
-            그룹 배정은 별도 운영 정책을 따릅니다.
+            그룹을 만들어도 회원이 자동으로 들어가지는 않아요. 회원은 회원가입으로만 유입되며, 그룹
+            배정은 별도 운영 정책을 따라요.
           </p>
         </div>
       </Modal>
@@ -273,7 +288,7 @@ export function CreateGroupModal({ onClose, onCreated }: CreateGroupModalProps) 
         <ConfirmDialog
           intent="create"
           title="그룹 만들기"
-          message={`'${confirming}' 그룹을 만듭니다.`}
+          message={`'${confirming}' 그룹을 만들어요.`}
           confirmLabel="그룹 만들기"
           busy={saving}
           onConfirm={confirmCreate}

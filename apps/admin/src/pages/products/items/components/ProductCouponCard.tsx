@@ -21,6 +21,7 @@ import {
   fieldLabelStyle,
   fieldStyle,
   FormField,
+  formRowStyle,
   hintStyle,
   SelectField,
   ToggleSwitch,
@@ -72,12 +73,6 @@ const labelRowStyle: CSSProperties = {
   lineHeight: cssVar('typography.label.md.line-height'),
   overflowWrap: 'anywhere',
   cursor: 'pointer',
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 /** 쿠폰 선택지 한 줄 — 도메인 모델이 아니라 이 카드가 그리는 데 필요한 최소값만 받는다 */
@@ -147,18 +142,18 @@ export function ProductCouponCard({
           offLabel="사용 불가"
         />
         <p style={hintStyle}>
-          끄면 이 상품에는 <strong>어떤 쿠폰도</strong> 적용되지 않습니다. 특가·공동구매처럼 마진이
-          없는 상품에 씁니다.
+          끄면 이 상품에는 <strong>어떤 쿠폰도</strong> 적용되지 않아요. 특가·공동구매처럼 마진이
+          없는 상품에 써요.
         </p>
       </div>
 
       {usable && (
         <>
-          <div style={rowStyle}>
+          <div style={formRowStyle}>
             <FormField
               htmlFor="product-coupon-mode"
               label="적용 범위"
-              hint="특정 쿠폰만 받거나, 특정 쿠폰만 뺄 수 있습니다."
+              hint="특정 쿠폰만 받거나, 특정 쿠폰만 뺄 수 있어요."
             >
               <SelectField
                 id="product-coupon-mode"
@@ -176,9 +171,9 @@ export function ProductCouponCard({
 
           {mode !== 'all' &&
             (loading ? (
-              <p style={hintStyle}>쿠폰 목록을 불러오는 중입니다…</p>
+              <p style={hintStyle}>쿠폰 목록을 불러오는 중이에요…</p>
             ) : choices.length === 0 ? (
-              <p style={hintStyle}>등록된 쿠폰이 없습니다. 먼저 쿠폰을 등록해 주세요.</p>
+              <p style={hintStyle}>등록된 쿠폰이 없어요. 먼저 쿠폰을 등록해 주세요.</p>
             ) : (
               <div style={fieldStyle}>
                 {/* 필수인 것은 '어느 한 쿠폰' 이 아니라 '고르는 행위' 다 — 묶음 이름에 싣는다 (A11Y-11) */}
@@ -216,8 +211,8 @@ export function ProductCouponCard({
 
       {conflicting.length > 0 && (
         <Alert tone="warning">
-          이 상품을 대상으로 지정한 쿠폰이 {String(conflicting.length)}건 있습니다 — 쿠폰 사용
-          불가로 두면 적용되지 않습니다.{' '}
+          이 상품을 대상으로 지정한 쿠폰이 {String(conflicting.length)}건 있어요 — 쿠폰 사용 불가로
+          두면 적용되지 않아요.{' '}
           {conflicting.map((choice, index) => (
             <span key={choice.id}>
               {index > 0 && ', '}

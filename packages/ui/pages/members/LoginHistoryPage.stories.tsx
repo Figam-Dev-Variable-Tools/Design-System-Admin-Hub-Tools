@@ -631,8 +631,8 @@ function LoginHistoryScreen({
         <Panel
           notice={
             <p style={hintStyle}>
-              로그인 이력은 감사 기록입니다. 관리자도 수정하거나 삭제할 수 없으며, 조회와 내보내기만
-              제공합니다. 시각은 모두 한국 표준시(KST) 기준입니다.
+              로그인 이력은 감사 기록이에요. 관리자도 수정하거나 삭제할 수 없으며, 조회와 내보내기만
+              제공해요. 시각은 모두 한국 표준시(KST) 기준이에요.
             </p>
           }
         >
@@ -705,7 +705,7 @@ function LoginHistoryScreen({
                 endValue={draftTo}
                 onStartChange={setDraftFrom}
                 onEndChange={setDraftTo}
-                hint={`한 번에 최대 ${String(MAX_RANGE_DAYS)}일까지 조회할 수 있습니다.`}
+                hint={`한 번에 최대 ${String(MAX_RANGE_DAYS)}일까지 조회할 수 있어요.`}
               />
             )}
           </div>
@@ -739,7 +739,7 @@ function LoginHistoryScreen({
 
           <div style={tableWrapStyle}>
             <Table
-              caption="로그인 이력 — 행을 누르면 해당 계정의 상세로 이동합니다. 미등록 계정은 가리킬 계정이 없어 이동하지 않습니다. 이 목록은 읽기 전용이며 수정·삭제할 수 없습니다."
+              caption="로그인 이력 — 행을 누르면 해당 계정의 상세로 이동해요. 미등록 계정은 가리킬 계정이 없어 이동하지 않아요. 이 목록은 읽기 전용이며 수정·삭제할 수 없어요."
               columns={COLUMNS}
               rows={rows}
               loading={loading}
@@ -797,7 +797,7 @@ export const LoadError: Story = {
       <h1 style={headingStyle}>로그인 이력</h1>
       <Alert tone="danger">
         <div style={errorBodyStyle}>
-          <span>로그인 이력을 불러오지 못했습니다.</span>
+          <span>로그인 이력을 불러오지 못했어요.</span>
           <Button variant="secondary">다시 시도</Button>
         </div>
       </Alert>

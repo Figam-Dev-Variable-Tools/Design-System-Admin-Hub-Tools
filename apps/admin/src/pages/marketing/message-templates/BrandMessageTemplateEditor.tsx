@@ -89,7 +89,7 @@ import { cssVar } from '@tds/ui';
 
 const ENTITY_LABEL = '메시지 템플릿';
 const UNSAVED_MESSAGE =
-  '브랜드 메시지 템플릿에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '브랜드 메시지 템플릿에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const BODY_FIELD_ID = 'brand-body';
 
@@ -162,9 +162,9 @@ const adRowStyle: CSSProperties = {
 
 /** 광고성을 켰을 때 본문이 갖춰야 하는 것 — 규칙과 안내가 같은 자리를 본다 */
 const AD_CALLOUT_LINES: readonly string[] = [
-  '광고성 메시지는 본문이 (광고) 로 시작해야 합니다.',
-  '무료수신거부 방법(080 번호 등)을 본문에 적어야 합니다.',
-  `카카오는 브랜드 메시지를 ${BRAND_MESSAGE_SEND_WINDOW_LABEL} 에만 발송합니다.`,
+  '광고성 메시지는 본문이 (광고) 로 시작해야 해요.',
+  '무료수신거부 방법(080 번호 등)을 본문에 적어야 해요.',
+  `카카오는 브랜드 메시지를 ${BRAND_MESSAGE_SEND_WINDOW_LABEL} 에만 발송해요.`,
 ];
 
 function toInput(values: BrandMessageTemplateFormValues): MessageTemplateDraft {
@@ -294,8 +294,8 @@ export default function BrandMessageTemplateEditor() {
         <div style={alertActionRowStyle}>
           <span>
             {loadFailure === 'not-found'
-              ? '브랜드 메시지 템플릿을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-              : '브랜드 메시지 템플릿을 불러오지 못했습니다.'}
+              ? '브랜드 메시지 템플릿을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+              : '브랜드 메시지 템플릿을 불러오지 못했어요.'}
           </span>
           {loadFailure === 'error' && (
             <Button variant="secondary" onClick={retryLoad}>

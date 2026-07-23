@@ -19,7 +19,7 @@ import { cssVar } from '@tds/ui';
 const ENTITY_LABEL = '인증서/특허';
 const LIST_PATH = '/company/certificates';
 const UNSAVED_MESSAGE =
-  '인증서/특허에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '인증서/특허에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const rowStyle: CSSProperties = {
   display: 'grid',
@@ -76,7 +76,7 @@ export default function CertificatesFormPage() {
     <FormPageShell
       entityLabel={ENTITY_LABEL}
       cardTitle="인증서/특허 정보"
-      description="별표(*) 항목은 필수입니다. 이미지 URL 로 인증서/특허 이미지를 등록합니다."
+      description="별표(*) 항목은 필수예요. 이미지 URL 로 인증서/특허 이미지를 등록해요."
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
@@ -161,7 +161,7 @@ export default function CertificatesFormPage() {
         }
         disabled={disabled}
         error={errors.imageUrl?.message}
-        hint="이미지를 끌어다 놓거나 클릭해 업로드합니다."
+        hint="이미지를 끌어다 놓거나 클릭해 업로드해요."
       />
     </FormPageShell>
   );

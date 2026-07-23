@@ -25,7 +25,14 @@ const OPS: Role = {
   widgets: createWidgets(false),
 };
 
-function renderPanel(assigneeCounts: Readonly<Record<string, number | null>>) {
+function renderPanel(
+  assigneeCounts: Readonly<Record<string, number | null>>,
+  can: { readonly create: boolean; readonly update: boolean; readonly remove: boolean } = {
+    create: true,
+    update: true,
+    remove: true,
+  },
+) {
   render(
     <RolePanel
       roles={[SUPER, OPS]}
@@ -33,6 +40,9 @@ function renderPanel(assigneeCounts: Readonly<Record<string, number | null>>) {
       activeRoleId={OPS.id}
       assigneeCounts={assigneeCounts}
       systemReasonId="system-reason"
+      canCreate={can.create}
+      canUpdate={can.update}
+      canRemove={can.remove}
       onSelect={() => undefined}
       onCreate={() => undefined}
       onRename={() => undefined}
@@ -46,7 +56,7 @@ describe('RolePanel — 배정된 역할의 삭제 버튼', () => {
     renderPanel({ [OPS.id]: 2 });
 
     // 접근 가능한 이름이 곧 사유다 — '삭제' 라는 이름의 버튼은 이제 존재하지 않는다
-    const button = screen.getByRole('button', { name: /운영자가 2명 있어 삭제할 수 없습니다/ });
+    const button = screen.getByRole('button', { name: /운영자가 2명 있어 삭제할 수 없어요/ });
     expect(button.hasAttribute('disabled')).toBe(true);
     // 마우스 사용자에게도 같은 문장이 닿는다
     expect(button.getAttribute('title')).toContain('2명');
@@ -62,7 +72,42 @@ describe('RolePanel — 배정된 역할의 삭제 버튼', () => {
   it('배정 인원을 확인할 수 없으면 잠근다 — 모르는 채로 지우게 두지 않는다', () => {
     renderPanel({ [OPS.id]: null });
 
-    const button = screen.getByRole('button', { name: /확인하지 못해 삭제할 수 없습니다/ });
+    const button = screen.getByRole('button', { name: /확인하지 못해 삭제할 수 없어요/ });
     expect(button.hasAttribute('disabled')).toBe(true);
+  });
+});
+
+/**
+ * 권한이 없을 때는 **비활성이 아니라 부재**다 (B2 명세 §9.3).
+ *
+ * 두 축을 섞지 않는 것이 요점이다: 위 describe 의 '잠긴 삭제 버튼' 은 *권한은 있는데 이 대상에는
+ * 못 한다* 는 뜻이고, 여기는 *그 일 자체가 내 것이 아니다* 는 뜻이다. 앞의 것은 버튼이 남아
+ * 사유를 말하고, 뒤의 것은 버튼이 사라진다.
+ */
+describe('RolePanel — 쓰기 권한이 없으면 그 버튼이 존재하지 않는다', () => {
+  it('세 권한이 다 없으면 추가·수정·삭제 버튼이 전부 없다', () => {
+    renderPanel({ [OPS.id]: 0 }, { create: false, update: false, remove: false });
+
+    expect(screen.queryByRole('button', { name: '추가' })).toBeNull();
+    expect(screen.queryByRole('button', { name: '수정' })).toBeNull();
+    expect(screen.queryByRole('button', { name: '삭제' })).toBeNull();
+    // 탐침 — 패널 자체는 그려졌다(단언이 빈 화면 위에서 헛돌지 않는다)
+    expect(screen.queryByRole('navigation', { name: '역할 목록' })).not.toBeNull();
+  });
+
+  it('권한이 있으면 셋 다 보인다 — 위 단언이 헛돌지 않는다는 증거', () => {
+    renderPanel({ [OPS.id]: 0 });
+
+    expect(screen.queryByRole('button', { name: '추가' })).not.toBeNull();
+    expect(screen.queryByRole('button', { name: '수정' })).not.toBeNull();
+    expect(screen.queryByRole('button', { name: '삭제' })).not.toBeNull();
+  });
+
+  it('축은 각각 독립이다 — 등록만 있으면 추가만 남는다', () => {
+    renderPanel({ [OPS.id]: 0 }, { create: true, update: false, remove: false });
+
+    expect(screen.queryByRole('button', { name: '추가' })).not.toBeNull();
+    expect(screen.queryByRole('button', { name: '수정' })).toBeNull();
+    expect(screen.queryByRole('button', { name: '삭제' })).toBeNull();
   });
 });

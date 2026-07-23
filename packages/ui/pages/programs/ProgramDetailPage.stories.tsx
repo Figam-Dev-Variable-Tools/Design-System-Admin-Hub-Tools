@@ -38,6 +38,7 @@ import {
   Button,
   Card,
   Icon,
+  inlineBadgeRowStyle,
   Skeleton,
   StatusBadge,
   Table,
@@ -127,7 +128,7 @@ const DEMO_LIVE: DemoProgram = {
   categoryLabel: '음향기기',
   creator: '사운드랩',
   summary: '스튜디오 모니터링을 그대로 옮긴 무선 헤드폰',
-  story: '작업실 밖에서도 같은 소리를 듣고 싶었습니다. 지연 없는 무선 전송을 목표로 만들었습니다.',
+  story: '작업실 밖에서도 같은 소리를 듣고 싶었어요. 지연 없는 무선 전송을 목표로 만들었어요.',
   goalAmount: 10_000_000,
   pledgedAmount: 14_320_000,
   backerCount: 412,
@@ -169,7 +170,7 @@ const DEMO_SUCCEEDED: DemoProgram = {
   categoryLabel: '출판',
   creator: '걷는사람',
   summary: '열두 도시의 골목을 걸어 적은 산문집',
-  story: '2년간 기록한 골목의 표정을 한 권으로 묶었습니다.',
+  story: '2년간 기록한 골목의 표정을 한 권으로 묶었어요.',
   goalAmount: 3_000_000,
   pledgedAmount: 3_480_000,
   backerCount: 231,
@@ -195,7 +196,7 @@ const DEMO_NO_REWARD: DemoProgram = {
   categoryLabel: '모바일 액세서리',
   creator: '스냅기어',
   summary: '각도가 고정되는 자석식 충전 거치대',
-  story: '책상 위에서 각도가 흘러내리지 않는 거치대를 목표로 했습니다.',
+  story: '책상 위에서 각도가 흘러내리지 않는 거치대를 목표로 했어요.',
   goalAmount: 6_000_000,
   pledgedAmount: 0,
   backerCount: 0,
@@ -400,9 +401,7 @@ function DetailCard({
 
 function RewardTable({ program }: { readonly program: DemoProgram }) {
   if (program.rewards.length === 0) {
-    return (
-      <p style={hintStyle}>등록된 리워드가 없습니다. 리워드는 등록/수정 화면에서 추가합니다.</p>
-    );
+    return <p style={hintStyle}>등록된 리워드가 없어요. 리워드는 등록/수정 화면에서 추가해요.</p>;
   }
 
   const rows: TableProps['rows'] = program.rewards.map((reward) => {
@@ -410,7 +409,7 @@ function RewardTable({ program }: { readonly program: DemoProgram }) {
     return {
       id: reward.id,
       cells: [
-        <span key="title">
+        <span key="title" style={inlineBadgeRowStyle}>
           {reward.title}
           {soldOut && <StatusBadge tone="warning" label="마감" />}
         </span>,
@@ -424,7 +423,7 @@ function RewardTable({ program }: { readonly program: DemoProgram }) {
 
   return (
     <Table
-      caption={`'${program.title}' 의 리워드 목록 — 후원 금액과 그 대가, 한정 수량과 신청 수입니다.`}
+      caption={`'${program.title}' 의 리워드 목록 — 후원 금액과 그 대가, 한정 수량과 신청 수예요.`}
       columns={REWARD_COLUMNS}
       rows={rows}
     />
@@ -479,8 +478,8 @@ function ProgramDetailScreen({
           <div style={alertRowStyle}>
             <span>
               {notFound
-                ? '프로그램을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '프로그램을 불러오지 못했습니다.'}
+                ? '프로그램을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '프로그램을 불러오지 못했어요.'}
             </span>
             {!notFound && <Button variant="secondary">다시 시도</Button>}
           </div>

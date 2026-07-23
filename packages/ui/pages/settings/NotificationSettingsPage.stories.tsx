@@ -88,56 +88,56 @@ const NOTIFICATION_KINDS: readonly NotificationKindDef[] = [
   {
     id: 'product-inquiry-new',
     label: '상품 문의 접수',
-    description: '새 상품 문의가 들어오면 알립니다.',
+    description: '새 상품 문의가 들어오면 알려요.',
     leafPath: '/products/inquiries',
     severity: 'info',
   },
   {
     id: 'product-inquiry-sla',
     label: '상품 문의 응답 기한 임박',
-    description: '약속한 응답 기한(3일)을 넘길 상품 문의를 알립니다.',
+    description: '약속한 응답 기한(3일)을 넘길 상품 문의를 알려요.',
     leafPath: '/products/inquiries',
     severity: 'warning',
   },
   {
     id: 'program-inquiry-new',
     label: '프로그램 문의 접수',
-    description: '새 프로그램 문의가 들어오면 알립니다.',
+    description: '새 프로그램 문의가 들어오면 알려요.',
     leafPath: '/programs/inquiries',
     severity: 'info',
   },
   {
     id: 'program-inquiry-sla',
     label: '프로그램 문의 응답 기한 임박',
-    description: '약속한 응답 기한(2일)을 넘길 프로그램 문의를 알립니다.',
+    description: '약속한 응답 기한(2일)을 넘길 프로그램 문의를 알려요.',
     leafPath: '/programs/inquiries',
     severity: 'warning',
   },
   {
     id: 'order-new',
     label: '주문 접수',
-    description: '새 주문이 들어오면 알립니다.',
+    description: '새 주문이 들어오면 알려요.',
     leafPath: '/orders',
     severity: 'info',
   },
   {
     id: 'order-claim',
     label: '취소·교환·반품 요청',
-    description: '클레임이 접수되면 알립니다.',
+    description: '클레임이 접수되면 알려요.',
     leafPath: '/orders/claims',
     severity: 'warning',
   },
   {
     id: 'member-signup',
     label: '신규 회원가입',
-    description: '새 회원이 가입하면 알립니다.',
+    description: '새 회원이 가입하면 알려요.',
     leafPath: '/users/members',
     severity: 'info',
   },
   {
     id: 'support-ticket-new',
     label: '1:1 문의 접수',
-    description: '새 1:1 문의가 들어오면 알립니다.',
+    description: '새 1:1 문의가 들어오면 알려요.',
     leafPath: '/support/tickets',
     severity: 'info',
   },
@@ -283,15 +283,15 @@ function NotificationSettingsScreen({
     <div style={pageStyle}>
       <h1 style={headingStyle}>알림 설정</h1>
       <p style={descriptionStyle}>
-        어떤 일이 일어났을 때 헤더의 알림 벨에 표시할지 정합니다. 끈 종류는 목록에서 감추는 것이
-        아니라 <strong>애초에 만들지 않습니다</strong>.
+        어떤 일이 일어났을 때 헤더의 알림 벨에 표시할지 정해요. 끈 종류는 목록에서 감추는 것이
+        아니라 <strong>애초에 만들지 않아요</strong>.
       </p>
 
       {/* 조회 실패와 '설정이 없음' 은 다른 사실이다 — 실패를 따로 말하고 기본값을 그린다 */}
       {loadFailed && (
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>알림 설정을 불러오지 못했습니다. 아래는 기본값(전부 받음)입니다.</span>
+            <span>알림 설정을 불러오지 못했어요. 아래는 기본값(전부 받음)예요.</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
@@ -302,16 +302,14 @@ function NotificationSettingsScreen({
           <h2 style={cardTitleStyle}>알림 종류</h2>
 
           <p style={hintStyle}>
-            여기서 켜 두어도 그 화면의 조회 권한이 없으면 알림은 오지 않습니다 — 알림이 권한
-            우회로가 되지 않도록 권한이 언제나 먼저입니다.
+            여기서 켜 두어도 그 화면의 조회 권한이 없으면 알림은 오지 않아요 — 알림이 권한 우회로가
+            되지 않도록 권한이 언제나 먼저예요.
           </p>
 
-          {!canUpdate && (
-            <Alert tone="info">조회 권한만 있어 알림 설정을 변경할 수 없습니다.</Alert>
-          )}
+          {!canUpdate && <Alert tone="info">조회 권한만 있어 알림 설정을 변경할 수 없어요.</Alert>}
           {offCount > 0 && (
             <Alert tone="warning">
-              {`${fmt(offCount)}개 종류를 받지 않도록 설정했습니다. 그 사건들은 목록을 직접 새로고침해야 알 수 있습니다.`}
+              {`${fmt(offCount)}개 종류를 받지 않도록 설정했어요. 그 사건들은 목록을 직접 새로고침해야 알 수 있어요.`}
             </Alert>
           )}
 
@@ -351,7 +349,7 @@ function NotificationSettingsScreen({
           {canUpdate && (
             <div style={actionsStyle}>
               <p style={hintStyle}>
-                {dirty ? '저장하지 않은 변경 사항이 있습니다.' : '변경 사항이 없습니다.'}
+                {dirty ? '저장하지 않은 변경 사항이 있어요.' : '변경 사항이 없어요.'}
               </p>
               <Button variant="primary" size="md" disabled={!dirty || loading}>
                 저장

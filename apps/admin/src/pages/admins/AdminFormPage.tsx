@@ -13,8 +13,6 @@
 // 저장 실패 시 입력 보존·409 충돌 다이얼로그·미저장 이탈 가드가 전부 그 안에 이미 있다.
 // 이 파일이 더하는 것은 **운영자 고유의 규칙** 하나다: 자기 역할은 자기가 바꾸지 못한다(guards.ts).
 // ─────────────────────────────────────────────────────────────────────────────
-import type { CSSProperties } from 'react';
-
 import { FormPageShell, useCrudForm } from '../../shared/crud';
 import { usePermissions } from '../../shared/permissions/PermissionProvider';
 import {
@@ -24,6 +22,7 @@ import {
   controlStyle,
   errorIdOf,
   FormField,
+  formRowStyle,
   hintIdOf,
   hintStyle,
   SelectField,
@@ -43,22 +42,14 @@ import {
 import type { AdminDraft, AdminUser } from './types';
 import { adminSchema } from './validation';
 import type { AdminFormValues } from './validation';
-import { cssVar } from '@tds/ui';
-
 const RESOURCE = 'admins';
 const ENTITY_LABEL = '운영자';
 const LIST_PATH = '/users/admins';
 const UNSAVED_MESSAGE =
-  '운영자 정보에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '운영자 정보에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 /** 잠긴 역할 셀렉트의 사유가 붙는 곳 — aria-describedby 로 컨트롤과 잇는다 */
 const ROLE_LOCK_HINT_ID = hintIdOf('admin-role');
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 6), 1fr))`,
-  gap: cssVar('space.4'),
-};
 
 const EMPTY: AdminFormValues = {
   nickname: '',
@@ -167,7 +158,7 @@ export default function AdminFormPage() {
     <FormPageShell
       entityLabel={ENTITY_LABEL}
       cardTitle="운영자 정보"
-      description="별표(*) 항목은 필수입니다. 계정(이메일)은 로그인 아이디이자 이 운영자를 식별하는 값입니다."
+      description="별표(*) 항목은 필수예요. 계정(이메일)은 로그인 아이디이자 이 운영자를 식별하는 값이에요."
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
@@ -181,7 +172,7 @@ export default function AdminFormPage() {
       unsavedMessage={UNSAVED_MESSAGE}
       onSubmit={submit}
     >
-      <div style={rowStyle}>
+      <div style={formRowStyle}>
         <FormField
           htmlFor="admin-nickname"
           label="닉네임"
@@ -209,7 +200,7 @@ export default function AdminFormPage() {
           label="계정(이메일)"
           required
           error={errors.account?.message}
-          hint="로그인 아이디로 쓰입니다. 이미 등록된 계정은 저장 시 거절됩니다."
+          hint="로그인 아이디로 쓰여요. 이미 등록된 계정은 저장 시 거절돼요."
         >
           <input
             id="admin-account"
@@ -230,7 +221,7 @@ export default function AdminFormPage() {
       {groupsQuery.error !== null && (
         <Alert tone="danger">
           <div style={alertActionRowStyle}>
-            <span>소속 그룹 목록을 불러오지 못했습니다. 그룹을 고르려면 다시 시도해 주세요.</span>
+            <span>소속 그룹 목록을 불러오지 못했어요. 그룹을 고르려면 다시 시도해 주세요.</span>
             <Button variant="secondary" onClick={() => void groupsQuery.refetch()}>
               다시 시도
             </Button>
@@ -238,13 +229,13 @@ export default function AdminFormPage() {
         </Alert>
       )}
 
-      <div style={rowStyle}>
+      <div style={formRowStyle}>
         <FormField
           htmlFor="admin-group"
           label="소속 그룹(발신 프로필)"
           required
           error={errors.groupId?.message}
-          hint="메시지 템플릿의 발신 프로필과 같은 목록입니다."
+          hint="메시지 템플릿의 발신 프로필과 같은 목록이에요."
         >
           <SelectField
             id="admin-group"
@@ -269,7 +260,7 @@ export default function AdminFormPage() {
           label="역할(권한)"
           required
           error={errors.roleId?.message}
-          {...(!editingSelf && { hint: '역할이 이 운영자가 할 수 있는 일을 결정합니다.' })}
+          {...(!editingSelf && { hint: '역할이 이 운영자가 할 수 있는 일을 결정해요.' })}
         >
           <SelectField
             id="admin-role"
@@ -297,7 +288,7 @@ export default function AdminFormPage() {
         </p>
       )}
 
-      <div style={rowStyle}>
+      <div style={formRowStyle}>
         <FormField htmlFor="admin-department" label="부서" error={errors.department?.message}>
           <input
             id="admin-department"

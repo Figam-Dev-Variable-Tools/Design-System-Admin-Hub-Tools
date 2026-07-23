@@ -40,11 +40,9 @@ describe('Panel — 랜드마크와 슬롯', () => {
 
 describe('Panel — 안내 영역', () => {
   it('notice 를 주면 구분선 영역이 생기고 내용이 들어간다', () => {
-    const { container } = render(
-      <Panel notice={<p>그룹은 회원을 묶는 단위입니다.</p>}>내용</Panel>,
-    );
+    const { container } = render(<Panel notice={<p>그룹은 회원을 묶는 단위예요.</p>}>내용</Panel>);
     expect(container.querySelector('.tds-panel__notice')).not.toBeNull();
-    expect(screen.getByText('그룹은 회원을 묶는 단위입니다.')).not.toBeNull();
+    expect(screen.getByText('그룹은 회원을 묶는 단위예요.')).not.toBeNull();
   });
 
   it('notice 가 없으면 그 영역이 통째로 사라진다 — 빈 영역이 남으면 아래가 떠 보인다', () => {

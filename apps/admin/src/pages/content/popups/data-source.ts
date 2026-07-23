@@ -16,7 +16,7 @@ function failIfRequested(op: FailureOp): void {
   if (flags === null) return;
   const requested = flags.split(',').map((flag) => flag.trim());
   if (requested.includes('all') || requested.includes(op)) {
-    throw new Error('요청을 처리하지 못했습니다.');
+    throw new Error('요청을 처리하지 못했어요.');
   }
 }
 
@@ -90,7 +90,7 @@ export async function fetchPopup(id: string, signal: AbortSignal): Promise<Popup
   await wait(LATENCY_MS, signal);
   failIfRequested('detail');
   const popup = POPUPS.find((item) => item.id === id);
-  if (popup === undefined) throw new Error('팝업을 찾을 수 없습니다');
+  if (popup === undefined) throw new Error('팝업을 찾을 수 없어요');
   return popup;
 }
 

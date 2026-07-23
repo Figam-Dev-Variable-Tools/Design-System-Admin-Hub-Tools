@@ -37,6 +37,7 @@ import {
   Card,
   ConfirmDialog,
   Icon,
+  inlineBadgeRowStyle,
   Skeleton,
   StatusBadge,
   cssVar,
@@ -79,9 +80,9 @@ const VISIBLE_FAQ: DemoFaq = {
   order: 2,
   answer:
     '신용·체크카드, 계좌이체, 간편결제(카카오페이·네이버페이·토스페이)를 지원합니다.\n\n' +
-    '· 무이자 할부는 카드사 정책에 따라 매월 달라집니다.\n' +
-    '· 해외 발행 카드는 일부 결제가 제한될 수 있습니다.\n\n' +
-    '고객센터 운영 시간(평일 09:00~18:00)에 1:1 문의를 남기시면 순차적으로 안내해 드립니다.',
+    '· 무이자 할부는 카드사 정책에 따라 매월 달라져요.\n' +
+    '· 해외 발행 카드는 일부 결제가 제한될 수 있어요.\n\n' +
+    '고객센터 운영 시간(평일 09:00~18:00)에 1:1 문의를 남기시면 순차적으로 안내해 드려요.',
 };
 
 const HIDDEN_FAQ: DemoFaq = {
@@ -224,7 +225,7 @@ function FaqDetailScreen({ state = 'default', faq = VISIBLE_FAQ }: FaqDetailScre
         <div style={topRowStyle}>{backLink}</div>
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>FAQ 를 불러오지 못했습니다.</span>
+            <span>FAQ 를 불러오지 못했어요.</span>
             <span style={actionsStyle}>
               <Button variant="secondary">다시 시도</Button>
               <Button variant="secondary">목록으로</Button>
@@ -265,10 +266,10 @@ function FaqDetailScreen({ state = 'default', faq = VISIBLE_FAQ }: FaqDetailScre
 
       <TitledCard
         title={
-          <>
+          <span style={inlineBadgeRowStyle}>
             {faq.question}
             <StatusBadge tone={visibilityTone(faq.visible)} label={visibilityLabel(faq.visible)} />
-          </>
+          </span>
         }
       >
         <dl style={dlStyle}>
@@ -286,7 +287,7 @@ function FaqDetailScreen({ state = 'default', faq = VISIBLE_FAQ }: FaqDetailScre
         <ConfirmDialog
           intent="delete"
           title="FAQ 삭제"
-          message={`'${faq.question}' FAQ 를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${faq.question}' FAQ 를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="FAQ 삭제"
           onConfirm={() => setConfirming(false)}
           onCancel={() => setConfirming(false)}

@@ -229,7 +229,7 @@ function TermsDetailScreen({
       {failed ? (
         <Alert tone="danger">
           <div style={topRowStyle}>
-            <span>약관 버전을 불러오지 못했습니다.</span>
+            <span>약관 버전을 불러오지 못했어요.</span>
             <span style={actionsStyle}>
               <Button variant="secondary">다시 시도</Button>
               <Button variant="secondary">목록으로</Button>
@@ -273,7 +273,7 @@ function TermsDetailScreen({
         <ConfirmDialog
           intent="delete"
           title="약관 버전 삭제"
-          message={`${version.version} 버전을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`${version.version} 버전을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="버전 삭제"
           onConfirm={() => setConfirming(false)}
           onCancel={() => setConfirming(false)}

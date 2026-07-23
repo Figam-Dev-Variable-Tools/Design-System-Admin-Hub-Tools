@@ -86,7 +86,7 @@ const EMPTY_VALUES: FormValues = {
 const FILLED_VALUES: FormValues = {
   name: '무소음 인체공학 오피스 체어',
   description:
-    '메쉬 등받이와 4D 팔걸이를 갖춘 사무용 의자입니다. 장시간 착석에도 목·허리 부담이 적습니다.',
+    '메쉬 등받이와 4D 팔걸이를 갖춘 사무용 의자예요. 장시간 착석에도 목·허리 부담이 적어요.',
   price: '189000',
   stock: '120',
   category: '가구',
@@ -196,7 +196,7 @@ function ProductRegistrationForm({
           rows={5}
           disabled={submitting}
           placeholder="상품의 특징·소재·사용 시 유의점을 입력해 주세요."
-          hint="최대 2,000자까지 입력할 수 있습니다."
+          hint="최대 2,000자까지 입력할 수 있어요."
           error={errors.description ?? ''}
         />
       </Section>
@@ -259,7 +259,7 @@ function ProductRegistrationForm({
           onChange={(url) => set('cover', url)}
           required
           disabled={submitting}
-          hint="JPG·PNG·WebP, 1장당 5MB 이하. 첫 번째 이미지가 대표로 노출됩니다."
+          hint="JPG·PNG·WebP, 1장당 5MB 이하. 첫 번째 이미지가 대표로 노출돼요."
           error={errors.cover ?? ''}
         />
         <ImageGalleryField
@@ -268,7 +268,7 @@ function ProductRegistrationForm({
           onChange={(urls) => set('gallery', urls)}
           maxFiles={4}
           disabled={submitting}
-          hint="대표 이미지를 포함해 최대 5장까지 등록할 수 있습니다."
+          hint="대표 이미지를 포함해 최대 5장까지 등록할 수 있어요."
           error={errors.gallery ?? ''}
         />
       </Section>
@@ -330,7 +330,7 @@ export const ValidationError: Story = {
       }}
       banner={{
         tone: 'danger',
-        message: '입력값을 확인해 주세요. 필수 항목이 비어 있거나 형식에 맞지 않습니다.',
+        message: '입력값을 확인해 주세요. 필수 항목이 비어 있거나 형식에 맞지 않아요.',
       }}
       errors={{
         name: '상품명을 입력해 주세요.',

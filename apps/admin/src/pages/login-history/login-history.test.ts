@@ -151,7 +151,7 @@ describe('applyQuery — 검색 (계정 · 이름 · IP)', () => {
     expect(idsOf(result)).toEqual(['2', '4']);
   });
 
-  it('빈 상태 — 걸리는 것이 없으면 빈 배열이다 (표는 "조회된 로그인 이력이 없습니다."를 그린다)', () => {
+  it('빈 상태 — 걸리는 것이 없으면 빈 배열이다 (표는 "조회된 로그인 이력이 없어요."를 그린다)', () => {
     expect(applyQuery(queryOf({ keyword: '없는계정' }), SAMPLE)).toEqual([]);
   });
 });

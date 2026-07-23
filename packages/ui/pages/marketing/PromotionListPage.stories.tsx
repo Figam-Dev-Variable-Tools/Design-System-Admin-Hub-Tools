@@ -415,8 +415,8 @@ function PromotionListScreen({
   const announcement = loading
     ? ''
     : visible.length === 0
-      ? '조건에 맞는 프로모션 결과가 없습니다.'
-      : `프로모션 ${String(visible.length)}건을 찾았습니다.`;
+      ? '조건에 맞는 프로모션 결과가 없어요.'
+      : `프로모션 ${String(visible.length)}건을 찾았어요.`;
 
   const toolbar: ReactNode = (
     <div style={toolbarStyle}>
@@ -477,7 +477,7 @@ function PromotionListScreen({
       </SelectionBar>
 
       <Table
-        caption="프로모션 목록 — 행을 누르면 프로모션 수정 화면으로 이동합니다. 체크박스·수정·삭제 버튼은 각자의 동작을 수행합니다."
+        caption="프로모션 목록 — 행을 누르면 프로모션 수정 화면으로 이동해요. 체크박스·수정·삭제 버튼은 각자 따로 동작해요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[
@@ -512,7 +512,7 @@ function PromotionListScreen({
         <ConfirmDialog
           intent="delete"
           title="프로모션 삭제"
-          message={`${confirming.title} 프로모션을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`${confirming.title} 프로모션을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="프로모션 삭제"
           onConfirm={() => {
             removePromotion(confirming.id);

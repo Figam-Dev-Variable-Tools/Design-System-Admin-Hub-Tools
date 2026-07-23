@@ -32,7 +32,6 @@ import { useMemo, useState } from 'react';
 import {
   Button,
   Empty as EmptyState,
-  Icon,
   RowActions,
   RowSelectCell,
   SearchField,
@@ -430,9 +429,8 @@ function ProjectListScreen({
           </span>
         </div>
 
-        <Button variant="primary" size="md" iconLeft={<Icon name="plus-circle" />}>
-          프로젝트 등록
-        </Button>
+        {/* 등록 CTA 가 없다 — 권한 문제가 아니라 순서 문제다. 프로젝트은(는) 앞 칸에서만 생긴다
+          (실화면의 같은 자리 주석). */}
       </div>
 
       {/* 선택 일괄 삭제 — 1건 이상 선택 시에만(count 0 이면 SelectionBar 가 스스로 렌더 안 함) */}
@@ -448,7 +446,7 @@ function ProjectListScreen({
       </p>
 
       <Table
-        caption="프로젝트 목록 — 행을 누르면 수정 화면으로 이동합니다. 체크박스·수정·삭제 버튼은 각자의 동작을 수행합니다."
+        caption="프로젝트 목록 — 행을 누르면 수정 화면으로 이동해요. 체크박스·수정·삭제 버튼은 각자 따로 동작해요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[

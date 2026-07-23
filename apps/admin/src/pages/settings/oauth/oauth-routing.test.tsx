@@ -178,7 +178,7 @@ describe('알 수 없는 제공자 — 빈 화면을 내놓지 않는다', () =>
   it('없는 제공자 id 면 사실과 돌아갈 길을 함께 보여준다', async () => {
     renderAt('/settings/oauth/myspace');
 
-    expect(await screen.findByText(/이 화면이 아는 소셜 로그인 제공자가 아닙니다/)).not.toBeNull();
+    expect(await screen.findByText(/이 화면이 아는 소셜 로그인 제공자가 아니에요/)).not.toBeNull();
     expect(
       screen.getByRole('link', { name: '소셜 로그인 목록으로 돌아가기' }).getAttribute('href'),
     ).toBe('/settings/oauth');
@@ -187,7 +187,7 @@ describe('알 수 없는 제공자 — 빈 화면을 내놓지 않는다', () =>
   it('없는 제공자면 자격증명 폼을 아예 그리지 않는다', async () => {
     renderAt('/settings/oauth/myspace');
 
-    await screen.findByText(/이 화면이 아는 소셜 로그인 제공자가 아닙니다/);
+    await screen.findByText(/이 화면이 아는 소셜 로그인 제공자가 아니에요/);
     expect(document.querySelector('input')).toBeNull();
   });
 

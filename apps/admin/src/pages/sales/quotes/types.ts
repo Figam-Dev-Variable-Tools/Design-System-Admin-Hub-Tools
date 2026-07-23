@@ -2,6 +2,7 @@
 //
 // 국내 견적서 관례: 품목 라인아이템(품목·규격·수량·단가 → 공급가액 자동)·과세유형별 부가세(10%/영세/면세)·
 // 공급가액/세액/합계 자동 합산·유효기간·견적→수주 전환. 세액은 라인별 반올림 후 합산으로 규칙을 고정한다.
+import { directionParticle } from '../../../shared/format';
 import type { StatusTone } from '../../../shared/ui';
 import type { QuoteIssueSource, QuoteSourceChannel } from '../../../shared/domain/quote-issue';
 import { UNREGISTERED_ACCOUNT_ID } from '../_shared/account-reference';
@@ -173,13 +174,26 @@ interface Option {
   readonly label: string;
 }
 
+/**
+ * `ordered` 의 사람 이름 — **'수주' 와 '계약 진행' 은 같은 칸의 두 이름이다.**
+ *
+ * [왜 한쪽을 지우지 않았나] 예전에는 버튼이 '계약 초안 만들기' 인데 거절 문구는 '…수주로 전환할
+ * 수 있습니다' 였고 상태값은 `ordered` 였다. 운영자는 그 칸을 '계약 진행' 이라 부른다 — 세 이름이
+ * 한 칸을 가리켰다. 그렇다고 `ordered` 를 '계약' 으로 개명할 수는 없다: 이 상태는 **청구의 근거**
+ * 이기도 하다(../billing/types.ts 규칙 ③ — 청구는 수주 전환된 견적에서만 생긴다). '계약된 견적만
+ * 청구할 수 있다' 는 문장은 거짓이다(청구는 계약을 요구하지 않는다). 그래서 코드 어휘는 `ordered`
+ * 로 두고, **사람이 읽는 자리에는 두 이름을 붙여 둔다** — 운영자의 말과 코드의 말이 같은 줄에서
+ * 만나게. 라벨은 여기 한 곳에서만 정한다.
+ */
+export const QUOTE_ORDERED_LABEL = '수주(계약 진행)';
+
 export const QUOTE_STATUS_OPTIONS: readonly Option[] = [
   { id: 'draft', label: '작성중' },
   { id: 'sent', label: '발송' },
   { id: 'accepted', label: '승인' },
   { id: 'rejected', label: '반려' },
   { id: 'expired', label: '만료' },
-  { id: 'ordered', label: '수주전환' },
+  { id: 'ordered', label: QUOTE_ORDERED_LABEL },
 ];
 
 interface StatusMeta {
@@ -193,25 +207,102 @@ const STATUS_META: Record<QuoteStatus, StatusMeta> = {
   accepted: { label: '승인', tone: 'success' },
   rejected: { label: '반려', tone: 'danger' },
   expired: { label: '만료', tone: 'neutral' },
-  ordered: { label: '수주전환', tone: 'success' },
+  ordered: { label: QUOTE_ORDERED_LABEL, tone: 'success' },
 };
 
 export function quoteStatusMeta(status: QuoteStatus): StatusMeta {
   return STATUS_META[status];
 }
 
-export const QUOTE_CONVERT_DONE = '이미 수주로 전환된 견적입니다.';
-export const QUOTE_CONVERT_NOT_ACCEPTED = '승인된 견적만 수주로 전환할 수 있습니다.';
+/* ── 상태 전이 (순수) ─────────────────────────────────────────────────────────
+ *
+ * ┌ 무엇이 없었나 ───────────────────────────────────────────────────────────┐
+ * │ 견적 상세에는 상태를 바꾸는 컨트롤이 **한 개도 없었다.** 그런데 다음 칸(계약)  │
+ * │ 은 '승인' 에서만 열린다. 그래서 발송한 견적을 승인으로 넘길 방법이 화면에      │
+ * │ 없어 계약 버튼이 영원히 잠겨 있었다 — 운영자가 말한 "발송 후 상태 관리에서    │
+ * │ 다음으로 변경" 이 실제로 불가능했다.                                        │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ *
+ * [되돌리는 전이는 없다 — 답할 수 없기 때문이다]
+ * `accepted → sent` 를 열면 곧바로 답할 수 없는 질문이 생긴다: 그 견적으로 이미 계약이 만들어졌다면
+ * 그 계약은 무엇이 되는가? 청구가 걸려 있다면 그 청구는? 백엔드가 없어 되돌릴 트랜잭션도 없다.
+ * 답할 수 없으면 막는다. 견적서 내용을 고치는 길은 그대로 살아 있다('견적 수정') — 막은 것은
+ * **상태를 거꾸로 돌리는 일**뿐이다.
+ *
+ * [`ordered` 는 이 표에 없다 — 사람이 고르는 칸이 아니다]
+ * 예전에는 '수주 전환' 버튼이 따로 있었고, 그 다음에 '계약 초안 만들기' 를 또 눌러야 했다.
+ * 한 사건('이 거래는 성사됐다')을 두 번 누르게 한 셈이고, 그래서 계약이 있는데 견적은 '승인' 에
+ * 머무는 어긋남이 생겼다. 이제 `ordered` 는 **계약이 만들어진 결과**다(../contracts/data-source
+ * 의 createContractFromQuote → ./data-source 의 markQuoteOrdered).
+ */
+
+const QUOTE_STATUS_FLOW: Readonly<Record<QuoteStatus, readonly QuoteStatus[]>> = {
+  draft: ['sent'],
+  sent: ['accepted', 'rejected'],
+  // 승인 다음 칸은 상태가 아니라 문서(계약)다 — 아래 QUOTE_STATUS_NEXT_IS_CONTRACT 가 그렇게 말한다.
+  accepted: [],
+  rejected: [],
+  expired: [],
+  ordered: [],
+};
 
 /**
- * 지금 이 견적을 수주로 전환할 수 없는 이유 — 전환할 수 있으면 null.
+ * 상태 관리 UI 가 늘어놓는 칸 — **운영자가 손으로 고르는 상태만** 이다.
  *
- * [왜 boolean 이 아니라 문자열인가] 목록의 인라인 버튼과 상세의 액션이 같은 규칙을 읽어야 하는데,
- * boolean 만 오가면 상세는 '왜 못 누르는지' 를 자기 문장으로 다시 지어낸다 — 그러면 두 화면이
- * 같은 거절을 다르게 설명한다. 거절 사유를 규칙이 들고 있으면 버튼의 disabled 조건과 화면에
- * 적히는 이유가 갈라질 수 없다 (shared/domain/order.ts 의 orderTransitionBlock 과 같은 규약).
+ * `draft` 는 없다(견적은 문의에서 '작성중' 으로 태어난다 — 되돌아갈 칸이 아니다).
+ * `expired` 도 없다: 만료는 유효기간이 지났다는 **관측 사실**이지 운영자의 의견이 아니다.
+ * `ordered` 는 계약이 만든다(위 머리말).
+ */
+export const QUOTE_MANUAL_STATUSES: readonly QuoteStatus[] = ['sent', 'accepted', 'rejected'];
+
+/** 지금 상태에서 손으로 갈 수 있는 칸 — 비어 있으면 그 상태가 종점이다 */
+export function quoteStatusTransitions(from: QuoteStatus): readonly QuoteStatus[] {
+  return QUOTE_STATUS_FLOW[from];
+}
+
+export function quoteStatusAlready(status: QuoteStatus): string {
+  return `이미 '${quoteStatusMeta(status).label}' 상태예요.`;
+}
+
+export const QUOTE_STATUS_NEXT_IS_CONTRACT = `'승인' 다음 칸은 상태가 아니라 계약이에요. '계약 만들기'를 누르면 계약이 생기고 견적이 '${QUOTE_ORDERED_LABEL}'로 바뀌어요.`;
+
+/** 종점 상태의 거절 사유 — 되돌리는 전이를 만들지 않는 이유를 문장으로 말한다 */
+export function quoteStatusTerminal(from: QuoteStatus): string {
+  return `'${quoteStatusMeta(from).label}' 상태의 견적은 상태를 되돌리거나 더 바꿀 수 없어요 — 계약·청구가 이 상태를 근거로 삼아요.`;
+}
+
+/**
+ * 지금 이 견적의 상태를 `to` 로 바꿀 수 없는 이유 — 바꿀 수 있으면 null.
  *
- * 되돌리는 전이는 만들지 않는다 — 수주는 이미 다른 문서(계약·청구)가 물고 있는 사실이다.
+ * **버튼의 disabled 조건과 저장의 거절 조건이 이 한 술어를 읽는다** — 둘이 갈라지면 '눌리는데
+ * 실패하는 버튼' 또는 '눌리지 않는데 저장은 되는 동작' 이 생긴다
+ * (shared/domain/order.ts 의 orderTransitionBlock 과 같은 규약).
+ *
+ * 거절이 boolean 이 아니라 문자열인 이유도 같다: 화면이 '왜 못 누르는지' 를 자기 문장으로 다시
+ * 지어내면 같은 거절을 화면마다 다르게 설명하게 된다.
+ */
+export function quoteStatusChangeBlock(from: QuoteStatus, to: QuoteStatus): string | null {
+  if (from === to) return quoteStatusAlready(to);
+  const targets = quoteStatusTransitions(from);
+  if (from === 'accepted') return QUOTE_STATUS_NEXT_IS_CONTRACT;
+  if (targets.length === 0) return quoteStatusTerminal(from);
+  if (!targets.includes(to)) {
+    const allowed = targets.map((target) => `'${quoteStatusMeta(target).label}'`).join(' · ');
+    const toLabel = quoteStatusMeta(to).label;
+    return `'${quoteStatusMeta(from).label}'에서 '${toLabel}'${directionParticle(toLabel)} 바꿀 수 없어요. 지금 바꿀 수 있는 것: ${allowed}.`;
+  }
+  return null;
+}
+
+export const QUOTE_CONVERT_DONE = `이미 '${QUOTE_ORDERED_LABEL}' 상태인 견적이에요.`;
+export const QUOTE_CONVERT_NOT_ACCEPTED = `승인된 견적만 '${QUOTE_ORDERED_LABEL}'로 넘길 수 있어요.`;
+
+/**
+ * 지금 이 견적에 '수주(계약 진행)' 를 찍을 수 없는 이유 — 찍을 수 있으면 null.
+ *
+ * 사람이 직접 부르는 술어가 아니다. **계약이 만들어질 때** 견적 저장소가 되돌려 쓰기 직전에 읽고
+ * (./data-source 의 markQuoteOrdered), 화면은 그 결과 문자열을 그대로 보여 준다. 그래서 '계약은
+ * 생겼는데 견적은 안 바뀐' 반쪽 저장이 조용히 지나가지 않는다.
  */
 export function quoteConvertBlock(status: QuoteStatus): string | null {
   if (status === 'ordered') return QUOTE_CONVERT_DONE;
@@ -219,20 +310,30 @@ export function quoteConvertBlock(status: QuoteStatus): string | null {
   return null;
 }
 
-/** 수주 전환 가능 여부 — 승인된 견적만 전환한다(이미 전환/반려/만료는 불가) */
-export function canConvertToOrder(status: QuoteStatus): boolean {
-  return quoteConvertBlock(status) === null;
-}
-
 /**
- * 수주 이후의 문서(계약 초안·청구)를 만들 수 있는 견적인가.
+ * 수주 이후의 문서(청구)를 만들 수 있는 견적인가.
  *
  * `ordered` 하나만 문을 연다. 승인(accepted)만으로는 아직 거래가 확정되지 않았고, 그 상태에서
- * 계약과 청구가 먼저 생기면 전환하지 않은 견적에 돈 이야기가 붙는다 — 예전에 `ordered` 가
- * 아무 데도 이어지지 않는 종점이었던 자리가 여기다.
+ * 청구가 먼저 생기면 성사되지 않은 견적에 돈 이야기가 붙는다. 이제 `ordered` 는 계약이 만들어진
+ * 결과이므로, 이 술어는 사실상 '계약이 맺어진 견적인가' 를 묻는다.
  */
 export function isOrderedQuote(status: QuoteStatus): boolean {
   return status === 'ordered';
+}
+
+/**
+ * 계약은 있는데 견적 상태가 그것을 반영하지 못한 상태인가 — 어긋났으면 사유, 멀쩡하면 null.
+ *
+ * [왜 필요한가 — 두 갈래로 생긴다]
+ *   ① **반쪽 저장.** 백엔드가 없어 트랜잭션이 없다. 계약은 만들어졌는데 되돌려 쓰기가 실패하면
+ *      정확히 이 모양이 남는다. 성공을 흉내 내지 않으려면 그 어긋남을 화면이 말해야 한다.
+ *   ② **옛 데이터.** 이 규칙이 생기기 전에 만들어진 계약(픽스처의 ct-2 ↔ qt-2)이 그대로 있다.
+ *      조용히 정상인 척하지 않는다.
+ * 어느 쪽이든 빠져나갈 길은 같다 — 견적 상세의 '견적 상태 맞추기'.
+ */
+export function quoteOrderDriftBlock(status: QuoteStatus, contractId: string): string | null {
+  if (contractId === '' || status === 'ordered') return null;
+  return `이 견적에는 이미 계약이 있는데 견적 상태는 '${quoteStatusMeta(status).label}' 예요. 계약이 만들어질 때 상태 갱신이 끝나지 않았거나, 이 규칙이 생기기 전에 맺은 계약이에요.`;
 }
 
 /* ── 금액 계산(순수) — 견적 도메인의 핵심 규칙 ─────────────────────────────── */

@@ -19,8 +19,11 @@ export const BASE_URL = `http://127.0.0.1:${String(PORT)}`;
 
 export default defineConfig({
   testDir: here,
-  // 파일 배치는 명세를 미러링한다: specs/users/members/FS-003-*.md → e2e/users/members/FS-003-*.spec.ts
-  testMatch: '**/FS-*.spec.ts',
+  // 파일 배치는 명세를 미러링한다: docs/FSD/users/members/index.md → e2e/users/members/members.spec.ts
+  // 테스트 **이름**은 `<화면 ID> / <§7 예외 상황> — <단언>` 이다 (tools/test-coverage 축 4의 대조 키).
+  testMatch: '**/*.spec.ts',
+  // 일회성 스윕은 게이트가 아니다 — 리포트용 스크립트라 정규 실행에서 제외한다.
+  testIgnore: ['**/throwaway/**'],
   fullyParallel: true,
   workers: 3,
   retries: 0,

@@ -38,7 +38,7 @@ export class SettingsConflictError extends Error {
   readonly latest: Revisioned<unknown>;
 
   constructor(latest: Revisioned<unknown>) {
-    super('다른 관리자가 이미 이 설정을 변경했습니다.');
+    super('다른 관리자가 이미 이 설정을 변경했어요.');
     this.name = 'SettingsConflictError';
     this.latest = latest;
   }

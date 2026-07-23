@@ -152,7 +152,7 @@ function hasAdminAccount(account: string, ignoreId: string | null): boolean {
 }
 
 /** 계정 중복 거절 — 어댑터가 이 오류를 409 대응 문구로 바꾼다 */
-export const DUPLICATE_ADMIN_ACCOUNT = '이미 같은 계정의 운영자가 있습니다.';
+export const DUPLICATE_ADMIN_ACCOUNT = '이미 같은 계정의 운영자가 있어요.';
 
 /** 입력의 공백을 털어 저장 형태로 — 앞뒤 공백만 다른 두 레코드를 만들지 않는다 */
 function normalize(draft: AdminDraft): AdminDraft {
@@ -186,7 +186,7 @@ export function addAdmin(draft: AdminDraft): AdminUser {
 
 export function patchAdmin(id: string, draft: AdminDraft): AdminUser {
   const current = findAdmin(id);
-  if (current === null) throw new Error('운영자를 찾을 수 없습니다.');
+  if (current === null) throw new Error('운영자를 찾을 수 없어요.');
 
   const input = normalize(draft);
   if (hasAdminAccount(input.account, id)) throw new Error(DUPLICATE_ADMIN_ACCOUNT);

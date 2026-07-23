@@ -128,16 +128,16 @@ const KIND_FILTER_OPTIONS: readonly { readonly id: KindFilter; readonly label: s
 const KIND_CHOICES: readonly { readonly kind: TemplateKind; readonly note: string }[] = [
   {
     kind: 'text',
-    note: '단일 본문 + 이미지 1장. 길이와 이미지에 따라 SMS·LMS·MMS 가 자동으로 결정됩니다.',
+    note: '단일 본문 + 이미지 1장. 길이와 이미지에 따라 SMS·LMS·MMS 가 자동으로 결정돼요.',
   },
-  { kind: 'email', note: '제목과 블록(제목·본문·버튼·이미지)으로 본문을 조립합니다.' },
+  { kind: 'email', note: '제목과 블록(제목·본문·버튼·이미지)으로 본문을 조립해요.' },
   {
     kind: 'alimtalk',
-    note: '정보성 메시지. 카카오 사전 심사(영업일 2일)를 받아야 발송할 수 있고 광고는 넣을 수 없습니다.',
+    note: '정보성 메시지. 카카오 사전 심사(영업일 2일)를 받아야 발송할 수 있고 광고는 넣을 수 없어요.',
   },
   {
     kind: 'brandmessage',
-    note: '광고성 메시지를 보낼 수 있습니다. 사전 심사가 없는 대신 08:00~20:50 에만 발송됩니다.',
+    note: '광고성 메시지를 보낼 수 있어요. 사전 심사가 없는 대신 08:00~20:50 에만 발송돼요.',
   },
 ];
 
@@ -547,7 +547,7 @@ function MessageTemplateListScreen({
       </SelectionBar>
 
       <Table
-        caption="메시지 템플릿 목록 — 행을 누르면 상세로 이동합니다. 사용 여부 토글은 상세 헤더에 있습니다."
+        caption="메시지 템플릿 목록 — 행을 누르면 상세로 이동해요. 사용 여부 토글은 상세 헤더에 있어요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[
@@ -585,7 +585,7 @@ function MessageTemplateListScreen({
         <ConfirmDialog
           intent="delete"
           title="메시지 템플릿 삭제"
-          message={`'${confirming.name}'을(를) 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${confirming.name}'을(를) 삭제해요. 되돌릴 수 없어요.`}
           confirmLabel="삭제"
           onConfirm={() => {
             removeTemplate(confirming.id);

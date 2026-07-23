@@ -26,7 +26,7 @@ export const promotionSchema = z
     couponId: z.string(),
     description: z.string().check(
       z.refine((value) => value.trim().length <= PROMOTION_DESC_MAX, {
-        error: `설명은 ${String(PROMOTION_DESC_MAX)}자를 넘을 수 없습니다.`,
+        error: `설명은 ${String(PROMOTION_DESC_MAX)}자를 넘을 수 없어요.`,
       }),
     ),
   })
@@ -47,7 +47,7 @@ export const promotionSchema = z
         code: 'custom',
         input: ctx.value.endAt,
         path: ['endAt'],
-        message: '종료일은 시작일보다 빠를 수 없습니다.',
+        message: '종료일은 시작일보다 빠를 수 없어요.',
       });
     }
   })
@@ -59,7 +59,7 @@ export const promotionSchema = z
         code: 'custom',
         input: ctx.value.discountValue,
         path: ['discountValue'],
-        message: '할인값은 숫자만 입력할 수 있습니다.',
+        message: '할인값은 숫자만 입력할 수 있어요.',
       });
       return;
     }
@@ -69,7 +69,7 @@ export const promotionSchema = z
         code: 'custom',
         input: ctx.value.discountValue,
         path: ['discountValue'],
-        message: '할인값은 0보다 커야 합니다.',
+        message: '할인값은 0보다 커야 해요.',
       });
       return;
     }
@@ -78,7 +78,7 @@ export const promotionSchema = z
         code: 'custom',
         input: ctx.value.discountValue,
         path: ['discountValue'],
-        message: `정률 할인은 ${String(DISCOUNT_RATE_MAX)}%를 넘을 수 없습니다.`,
+        message: `정률 할인은 ${String(DISCOUNT_RATE_MAX)}%를 넘을 수 없어요.`,
       });
     }
   })
@@ -90,7 +90,7 @@ export const promotionSchema = z
         code: 'custom',
         input: ctx.value.minOrderAmount,
         path: ['minOrderAmount'],
-        message: '최소 주문금액은 숫자만 입력할 수 있습니다.',
+        message: '최소 주문금액은 숫자만 입력할 수 있어요.',
       });
     }
   })

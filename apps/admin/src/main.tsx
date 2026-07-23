@@ -16,7 +16,7 @@ import { PermissionProvider } from './shared/permissions/PermissionProvider';
 
 const container = document.getElementById('root');
 if (!container) {
-  throw new Error('#root 컨테이너가 없습니다 — index.html을 확인하세요.');
+  throw new Error('#root 컨테이너가 없어요 — index.html을 확인하세요.');
 }
 
 createRoot(container).render(

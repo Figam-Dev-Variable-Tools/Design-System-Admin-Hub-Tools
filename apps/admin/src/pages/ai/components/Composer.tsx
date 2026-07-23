@@ -175,7 +175,7 @@ const optionMetaStyle: CSSProperties = {
 };
 
 /** 연결되지 않은 컨트롤이 공통으로 다는 사유 — 화면 문구와 스크린리더 안내가 같은 문장이다 */
-const NOT_WIRED_REASON = '이 기능은 아직 연결되지 않았습니다.';
+const NOT_WIRED_REASON = '이 기능은 아직 연결되지 않았어요.';
 
 /** 커서 앞의 미완성 멘션(`@회원` 등) — 없으면 null */
 function activeMentionPrefix(value: string): string | null {

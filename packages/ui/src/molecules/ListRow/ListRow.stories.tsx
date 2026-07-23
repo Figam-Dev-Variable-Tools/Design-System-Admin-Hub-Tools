@@ -39,7 +39,7 @@ const meta: Meta<typeof ListRow> = {
   component: ListRow,
   argTypes: { ...ListRowArgTypes },
   args: {
-    title: '신규 주문이 접수되었습니다',
+    title: '신규 주문이 접수되었어요',
     meta: '김담당 · 2026-07-14',
     href: '',
     icon: null,
@@ -106,7 +106,7 @@ export const LongContent: Story = {
   args: {
     icon: <DocumentGlyph />,
     title:
-      '고객이 등록한 문의 제목이 아주 길어서 한 줄에 담기지 않는 경우에도 아이콘은 첫 줄에 고정되고 본문만 줄바꿈되어야 합니다 — overflowwrapanywhere',
+      '고객이 등록한 문의 제목이 아주 길어서 한 줄에 담기지 않는 경우에도 아이콘은 첫 줄에 고정되고 본문만 줄바꿈되어야 해요 — overflowwrapanywhere',
     meta: '고객센터 · 담당자 미지정 · 2026-07-14 09:31 · 우선순위 높음 · 재문의 3회',
     href: '#/inquiries/8821',
   },
@@ -139,7 +139,7 @@ export const RightToLeft: Story = {
   name: 'Accessibility/RTL',
   args: {
     icon: <DocumentGlyph />,
-    title: '신규 주문이 접수되었습니다',
+    title: '신규 주문이 접수되었어요',
     meta: '담당자 · 2026-07-14',
   },
   decorators: [rtlFrame],

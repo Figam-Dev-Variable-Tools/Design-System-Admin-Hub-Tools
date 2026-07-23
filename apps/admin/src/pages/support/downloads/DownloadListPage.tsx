@@ -21,12 +21,12 @@ import {
   SelectField,
   StatusBadge,
   tdStyle,
-  ToggleSwitch,
 } from '../../../shared/ui';
 import {
-  useCrudList,
   CrudListShell,
   parseFilter,
+  RowToggle,
+  useCrudList,
   useCrudRowUpdate,
   useListState,
 } from '../../../shared/crud';
@@ -118,8 +118,8 @@ export default function DownloadListPage() {
       item.id,
       { ...toDownloadInput(item), visible: next },
       {
-        success: next ? `'${item.title}' 를 노출합니다.` : `'${item.title}' 를 숨겼습니다.`,
-        failure: '노출 상태를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+        success: next ? `'${item.title}' 를 노출해요.` : `'${item.title}' 를 숨겼어요.`,
+        failure: '노출 상태를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.',
       },
     );
   };
@@ -153,10 +153,11 @@ export default function DownloadListPage() {
       header: '노출',
       nowrap: true,
       render: (item) => (
-        <ToggleSwitch
+        <RowToggle
           checked={item.visible}
           label={`${item.title} 노출 여부`}
           busy={rowUpdate.pendingId === item.id}
+          canUpdate={rowUpdate.canUpdate}
           onLabel={visibilityLabel(true)}
           offLabel={visibilityLabel(false)}
           onChange={(next) => onToggleVisible(item, next)}

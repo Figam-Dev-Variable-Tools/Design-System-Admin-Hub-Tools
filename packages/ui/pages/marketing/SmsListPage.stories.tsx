@@ -482,7 +482,7 @@ function SmsListScreen({
       </SelectionBar>
 
       <Table
-        caption="SMS 발송 목록 — 초안·예약 캠페인은 행을 누르면 수정 폼으로 이동합니다. 발송중·발송완료·취소 캠페인은 수정할 수 없습니다."
+        caption="SMS 발송 목록 — 초안·예약 캠페인은 행을 누르면 수정 폼으로 이동해요. 발송중·발송완료·취소 캠페인은 수정할 수 없어요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[
@@ -517,7 +517,7 @@ function SmsListScreen({
         <ConfirmDialog
           intent="delete"
           title="SMS 발송 삭제"
-          message={`'${confirming.name}'을(를) 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${confirming.name}'을(를) 삭제해요. 되돌릴 수 없어요.`}
           confirmLabel="삭제"
           onConfirm={() => {
             removeCampaign(confirming.id);

@@ -38,6 +38,7 @@ import {
   Button,
   Card,
   FormField,
+  formRowStyle,
   Icon,
   SelectField,
   Skeleton,
@@ -90,7 +91,7 @@ interface FieldErrors {
 }
 
 const DEMO_ERRORS: FieldErrors = {
-  year: `연도는 ${String(YEAR_MIN)} ~ ${String(YEAR_MAX)} 범위여야 합니다.`,
+  year: `연도는 ${String(YEAR_MIN)} ~ ${String(YEAR_MAX)} 범위여야 해요.`,
   month: '월을 입력하세요.',
   content: '내용을 입력하세요.',
 };
@@ -145,13 +146,7 @@ const cardTitleStyle: CSSProperties = {
   color: cssVar('color.text.default'),
 };
 
-/** 연도·월이 나란히 서는 행 — 실화면 rowStyle(auto-fit minmax) 미러 */
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
+/** 연도·월이 나란히 서는 행 — 실화면 formRowStyle(auto-fit minmax) 미러 */
 const controlStyle = (invalid: boolean): CSSProperties => ({
   width: '100%',
   boxSizing: 'border-box',
@@ -226,8 +221,8 @@ function HistoryFormScreen({
           <div style={alertActionRowStyle}>
             <span>
               {notFound
-                ? '연혁을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '연혁을 불러오지 못했습니다.'}
+                ? '연혁을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '연혁을 불러오지 못했어요.'}
             </span>
             {!notFound && <Button variant="secondary">다시 시도</Button>}
             <Button variant="secondary">목록으로</Button>
@@ -247,7 +242,7 @@ function HistoryFormScreen({
 
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '연혁 수정' : '연혁 등록'}</h1>
-        <p style={descriptionStyle}>별표(*) 항목은 필수입니다. 연도·월과 내용을 입력하세요.</p>
+        <p style={descriptionStyle}>별표(*) 항목은 필수예요. 연도·월과 내용을 입력하세요.</p>
       </div>
 
       <form onSubmit={(event) => event.preventDefault()} noValidate>
@@ -265,7 +260,7 @@ function HistoryFormScreen({
               </div>
             ) : (
               <div style={cardBodyStyle}>
-                <div style={rowStyle}>
+                <div style={formRowStyle}>
                   <FormField
                     htmlFor="history-year"
                     label="연도"

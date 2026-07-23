@@ -227,8 +227,7 @@ export default function CouponIssuanceListPage() {
       <div>
         <h1 style={pageTitleStyle}>쿠폰 발급 현황</h1>
         <p style={hintStyle}>
-          쿠폰별 발급·사용 건수와 트리거별 유입을 확인합니다. 행을 누르면 해당 쿠폰 설정으로
-          이동합니다.
+          쿠폰별 발급·사용 건수와 트리거별 유입을 확인해요. 행을 누르면 해당 쿠폰 설정으로 이동해요.
         </p>
       </div>
 
@@ -237,7 +236,7 @@ export default function CouponIssuanceListPage() {
         <div style={tableWrapStyle}>
           <table style={tableStyle}>
             <caption style={hintStyle}>
-              발급·사용·사용률은 아래 발급 이력에서 센 값이고, 소진율은 쿠폰의 운영 누계 기준입니다.
+              발급·사용·사용률은 아래 발급 이력에서 센 값이고, 소진율은 쿠폰의 운영 누계 기준이에요.
             </caption>
             <thead>
               <tr>

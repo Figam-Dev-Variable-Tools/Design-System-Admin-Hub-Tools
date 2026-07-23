@@ -56,8 +56,8 @@ function MotionDemo() {
   if (durations.length === 0 && easings.length === 0) {
     return (
       <EmptyNote>
-        아직 정의된 motion 토큰이 없습니다. <Code>tokens/tokens.json</Code> 에 duration/easing
-        토큰이 추가되면 이 데모는 자동으로 채워집니다.
+        아직 정의된 motion 토큰이 없어요. <Code>tokens/tokens.json</Code> 에 duration/easing 토큰이
+        추가되면 이 데모는 자동으로 채워져요.
       </EmptyNote>
     );
   }

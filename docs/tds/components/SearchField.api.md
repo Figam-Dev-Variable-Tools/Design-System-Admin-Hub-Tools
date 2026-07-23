@@ -69,6 +69,7 @@
 | `radius` | `radius.md` | `--tds-radius-md` |
 | `paddingX` | `space.3` | `--tds-space-3` |
 | `paddingY` | `space.2` | `--tds-space-2` |
+| `minHeight` | `space.8` | `--tds-space-8` |
 | `iconGap` | `space.6` | `--tds-space-6` |
 | `typography` | `typography.label.md` | `--tds-typography-label-md` |
 

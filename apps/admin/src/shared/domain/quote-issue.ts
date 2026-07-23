@@ -97,9 +97,9 @@ export interface QuoteIssueCandidate {
 }
 
 export const QUOTE_ISSUE_EMPTY = '견적을 발행할 문의를 한 건 이상 선택하세요.';
-export const QUOTE_ISSUE_ALREADY = '이미 견적이 발행된 문의가 있습니다. 발행된 견적을 여세요.';
-export const QUOTE_ISSUE_NOT_ISSUABLE = '종결된 문의는 견적을 발행할 수 없습니다.';
-export const QUOTE_ISSUE_UNWIRED = '견적 발행을 사용할 수 없습니다. 관리자에게 문의하세요.';
+export const QUOTE_ISSUE_ALREADY = '이미 견적이 발행된 문의가 있어요. 발행된 견적을 여세요.';
+export const QUOTE_ISSUE_NOT_ISSUABLE = '종결된 문의는 견적을 발행할 수 없어요.';
+export const QUOTE_ISSUE_UNWIRED = '견적 발행을 사용할 수 없어요. 관리자에게 문의하세요.';
 
 type QuoteIssuer = (sources: readonly QuoteIssueSource[]) => IssuedQuoteRef;
 

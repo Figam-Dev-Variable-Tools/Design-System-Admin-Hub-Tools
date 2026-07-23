@@ -36,7 +36,21 @@ describe('useReorderableRows — 드래그/키보드 이동', () => {
     const onReorder = vi.fn();
     const { result } = renderHook(() => useReorderableRows(['a', 'b', 'c'], onReorder, false));
     act(() => result.current.moveBy(0, 1));
-    expect(onReorder).toHaveBeenCalledWith(['b', 'a', 'c']);
+    expect(onReorder).toHaveBeenCalledWith(['b', 'a', 'c'], 'a');
+  });
+
+  /**
+   * 움직인 행의 id 를 함께 넘긴다 — 배열만으로는 되짚을 수 없다.
+   * ['a','b','c'] → ['b','a','c'] 는 'a 를 내렸다' 와 'b 를 올렸다' 가 만드는 **같은 배열**이라,
+   * 호출부가 diff 로 추측하면 라이브 영역이 엉뚱한 행을 부른다.
+   */
+  it('이웃 맞바꿈에서도 무엇이 움직였는지 구별된다 (같은 배열 · 다른 movedId)', () => {
+    const onReorder = vi.fn();
+    const { result } = renderHook(() => useReorderableRows(['a', 'b', 'c'], onReorder, false));
+    act(() => result.current.moveBy(0, 1)); // a 를 아래로
+    act(() => result.current.moveBy(1, -1)); // (같은 ids 기준) b 를 위로
+    expect(onReorder.mock.calls[0]).toEqual([['b', 'a', 'c'], 'a']);
+    expect(onReorder.mock.calls[1]).toEqual([['b', 'a', 'c'], 'b']);
   });
 
   it('locked 이면 rowProps.draggable 가 false 다 (저장 중 드래그 잠금)', () => {

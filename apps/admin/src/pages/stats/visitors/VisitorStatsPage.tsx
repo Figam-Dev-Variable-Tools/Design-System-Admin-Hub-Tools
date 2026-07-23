@@ -164,7 +164,7 @@ export default function VisitorStatsPage() {
         unit: 'count',
         value: pick(daily),
         compareValue: compare === null ? null : pick(compare),
-        hint: '같은 사람이 두 번 오면 2회로 셉니다.',
+        hint: '같은 사람이 두 번 오면 2회로 세요.',
       },
       {
         id: 'unique',
@@ -172,7 +172,7 @@ export default function VisitorStatsPage() {
         unit: 'people',
         value: sumOf(daily, (row) => row.uniqueVisitors),
         compareValue: compare === null ? null : sumOf(compare, (row) => row.uniqueVisitors),
-        hint: '중복을 제거한 실제 방문자 수입니다.',
+        hint: '중복을 제거한 실제 방문자 수예요.',
       },
       {
         id: 'pageViews',
@@ -180,7 +180,7 @@ export default function VisitorStatsPage() {
         unit: 'count',
         value: sumOf(daily, (row) => row.pageViews),
         compareValue: compare === null ? null : sumOf(compare, (row) => row.pageViews),
-        hint: '방문자가 열람한 페이지 수의 합입니다.',
+        hint: '방문자가 열람한 페이지 수의 합이에요.',
       },
       {
         id: 'revisit',
@@ -188,7 +188,7 @@ export default function VisitorStatsPage() {
         unit: 'percent',
         value: revisitRate(daily),
         compareValue: compare === null ? null : revisitRate(compare),
-        hint: '전체 방문 중 다시 온 방문의 비율입니다.',
+        hint: '전체 방문 중 다시 온 방문의 비율이에요.',
       },
       {
         id: 'duration',
@@ -196,7 +196,7 @@ export default function VisitorStatsPage() {
         unit: 'seconds',
         value: averageDuration(daily),
         compareValue: compare === null ? null : averageDuration(compare),
-        hint: '방문 수로 가중평균한 체류시간입니다.',
+        hint: '방문 수로 가중평균한 체류시간이에요.',
       },
     ];
   }, [stats, segment]);
@@ -239,7 +239,7 @@ export default function VisitorStatsPage() {
 
   return (
     <StatsPageShell
-      description="기간을 좁혀 비교하고, 방문자 유형과 시간대·요일까지 파고드는 방문 분석입니다. 대시보드의 방문자 위젯이 '지금 몇 명'이라면 여기서는 '지난 기간과 견주어 어떻게 달라졌는지'를 봅니다."
+      description="기간을 좁혀 비교하고, 방문자 유형과 시간대·요일까지 파고드는 방문 분석이에요. 대시보드의 방문자 위젯이 '지금 몇 명'이라면 여기서는 '지난 기간과 견주어 어떻게 달라졌는지'를 봐요."
       route={ROUTE}
       params={params}
       segments={VISITOR_SEGMENTS}

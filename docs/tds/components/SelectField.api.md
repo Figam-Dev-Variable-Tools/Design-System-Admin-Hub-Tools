@@ -66,6 +66,7 @@ _계약에 정의된 이벤트가 없습니다._
 | `radius` | `radius.md` | `--tds-radius-md` |
 | `paddingX` | `space.3` | `--tds-space-3` |
 | `paddingY` | `space.2` | `--tds-space-2` |
+| `minHeight` | `space.8` | `--tds-space-8` |
 | `typography` | `typography.label.md` | `--tds-typography-label-md` |
 
 > 하드코딩 색상/치수 금지 — 시각 속성은 반드시 위 토큰만 참조합니다.

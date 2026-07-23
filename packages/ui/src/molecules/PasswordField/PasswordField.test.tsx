@@ -84,13 +84,13 @@ describe('PasswordField — 계약 states[]', () => {
 
   it('PasswordField: error 상태 — 메시지를 렌더하고 aria-invalid + aria-describedby 로 연결한다', () => {
     const { container } = render(
-      <PasswordField id="pw" label="비밀번호" value="x" error="8자 이상이어야 합니다" />,
+      <PasswordField id="pw" label="비밀번호" value="x" error="8자 이상이어야 해요" />,
     );
 
     const input = inputOf(container);
     expect(input.getAttribute('aria-invalid')).toBe('true');
     expect(input.getAttribute('aria-describedby')).toBe('pw-error');
-    expect(screen.getByText('8자 이상이어야 합니다').id).toBe('pw-error');
+    expect(screen.getByText('8자 이상이어야 해요').id).toBe('pw-error');
   });
 });
 

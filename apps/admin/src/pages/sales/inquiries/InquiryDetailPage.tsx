@@ -9,6 +9,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { isAbort } from '../../../shared/async';
 import { directionParticle, formatDateTime } from '../../../shared/format';
+import { useRouteCan, WRITE_DENIED } from '../../../shared/permissions/RequirePermission';
 import {
   Alert,
   alertActionRowStyle,
@@ -22,6 +23,7 @@ import {
   fieldLabelStyle,
   fieldStyle,
   FormField,
+  formRowStyle,
   Icon,
   pageTitleStyle,
   SelectField,
@@ -55,7 +57,7 @@ const LIST_PATH = '/sales/inquiries';
 const QUOTE_PATH = '/sales/quotes';
 const ADMIN_AUTHOR = '관리자';
 const UNSAVED_MESSAGE =
-  '처리 내용에 저장하지 않은 변경이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '처리 내용에 저장하지 않은 변경이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -86,12 +88,6 @@ const layoutStyle: CSSProperties = {
   gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 12), 1fr))`,
   gap: cssVar('space.5'),
   alignItems: 'start',
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const composerHeadStyle: CSSProperties = {
@@ -128,6 +124,18 @@ export default function InquiryDetailPage() {
   const update = useCrudUpdate(RESOURCE, inquiryAdapter);
   const saving = update.isPending;
 
+  /**
+   * [EXC-03] 이 화면의 쓰기는 **한 종류다** — 문의 처리 저장(담당 배정 · 상태 전이 · 답변/메모 추가).
+   * 셋 다 같은 update 뮤테이션 한 번으로 나가므로 판정도 한 값이다.
+   *
+   * 이 화면은 폼 껍데기(FormPageShell)를 쓰지 않는 상세라 껍데기의 403 을 받지 못했고,
+   * 조회 권한만 가진 역할이 담당자를 바꾸고 고객답변까지 남길 수 있었다. 상태를 '견적 발행' 으로
+   * 바꾸면 **견적이 자동 생성**되므로 이 화면의 저장은 다른 문서를 만들어 내기까지 한다.
+   *
+   * 삭제는 없다(문의는 고객이 만든다) — create/remove 를 묻지 않는 이유다.
+   */
+  const canUpdate = useRouteCan('update');
+
   const [assignee, setAssignee] = useState('');
   const [status, setStatus] = useState<InquiryStatus>('received');
   const [composerKind, setComposerKind] = useState<InquiryEventKind>('reply');
@@ -155,6 +163,11 @@ export default function InquiryDetailPage() {
 
   const onSave = () => {
     if (inquiry === undefined || id === undefined) return;
+    // 저장 버튼을 없앤 술어가 저장 경로도 막는다 (EXC-03)
+    if (!canUpdate) {
+      setServerError(WRITE_DENIED.update);
+      return;
+    }
     setServerError(null);
     const now = new Date().toISOString();
     let timeline = inquiry.timeline;
@@ -197,14 +210,14 @@ export default function InquiryDetailPage() {
           // 견적이 새로 발행됐는지는 저장 전 상태로 판단한다 — 이미 발행된 문의는 재저장해도 생성되지 않는다.
           toast.success(
             issuesQuoteNow
-              ? '문의 처리 내용을 저장하고 견적을 발행했습니다.'
-              : '문의 처리 내용을 저장했습니다.',
+              ? '문의 처리 내용을 저장하고 견적을 발행했어요.'
+              : '문의 처리 내용을 저장했어요.',
           );
           void detailQuery.refetch();
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setServerError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setServerError('저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -214,7 +227,7 @@ export default function InquiryDetailPage() {
     return (
       <div style={pageStyle}>
         <Alert tone="danger">
-          <span>문의를 불러오지 못했습니다. </span>
+          <span>문의를 불러오지 못했어요. </span>
           <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
             목록으로
           </Button>
@@ -276,51 +289,64 @@ export default function InquiryDetailPage() {
               <dd style={ddStyle}>{inquiry.body}</dd>
             </dl>
 
-            <div style={rowStyle}>
-              <FormField htmlFor="inquiry-assignee" label="담당 배정">
-                <input
-                  id="inquiry-assignee"
-                  type="text"
-                  className="tds-ui-input tds-ui-focusable"
-                  style={controlStyle(false)}
-                  value={assignee}
-                  placeholder="담당자 이름"
-                  disabled={saving}
-                  onChange={(event) => setAssignee(event.target.value)}
-                />
-              </FormField>
-              <FormField
-                htmlFor="inquiry-status"
-                label="처리 상태"
-                hint={
-                  issued
-                    ? '이미 견적이 발행된 문의입니다 — 다시 발행되지 않습니다.'
-                    : '‘견적 발행’으로 바꾸면 견적이 자동 생성됩니다.'
-                }
-              >
-                <SelectField
-                  id="inquiry-status"
-                  value={status}
-                  disabled={saving}
-                  onChange={(event) => {
-                    if (isInquiryStatus(event.target.value)) setStatus(event.target.value);
-                  }}
+            {/* 처리 권한이 없으면 편집 컨트롤은 '비활성' 이 아니라 '부재' 다.
+                그러나 담당자·상태는 **조회 사실**이라 사라지지 않는다 — 값만 남는다. */}
+            {!canUpdate && (
+              <dl style={dlStyle}>
+                <dt style={dtStyle}>담당자</dt>
+                <dd style={ddStyle}>{inquiry.assignee === '' ? '미배정' : inquiry.assignee}</dd>
+                <dt style={dtStyle}>처리 상태</dt>
+                <dd style={ddStyle}>{inquiryStatusLabel(inquiry.status)}</dd>
+              </dl>
+            )}
+
+            {canUpdate && (
+              <div style={formRowStyle}>
+                <FormField htmlFor="inquiry-assignee" label="담당 배정">
+                  <input
+                    id="inquiry-assignee"
+                    type="text"
+                    className="tds-ui-input tds-ui-focusable"
+                    style={controlStyle(false)}
+                    value={assignee}
+                    placeholder="담당자 이름"
+                    disabled={saving}
+                    onChange={(event) => setAssignee(event.target.value)}
+                  />
+                </FormField>
+                <FormField
+                  htmlFor="inquiry-status"
+                  label="처리 상태"
+                  hint={
+                    issued
+                      ? '이미 견적이 발행된 문의예요 — 다시 발행되지 않아요.'
+                      : '‘견적 발행’으로 바꾸면 견적이 자동 생성돼요.'
+                  }
                 >
-                  {INQUIRY_STATUS_OPTIONS.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.label}
-                    </option>
-                  ))}
-                </SelectField>
-              </FormField>
-            </div>
+                  <SelectField
+                    id="inquiry-status"
+                    value={status}
+                    disabled={saving}
+                    onChange={(event) => {
+                      if (isInquiryStatus(event.target.value)) setStatus(event.target.value);
+                    }}
+                  >
+                    {INQUIRY_STATUS_OPTIONS.map((option) => (
+                      <option key={option.id} value={option.id}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </SelectField>
+                </FormField>
+              </div>
+            )}
 
             {/* [중복 발행 방지] 이미 발행된 문의는 재생성하지 않는다 — 왜 버튼이 다시 만들지 않는지
                 운영자에게 알리고, 대신 그 견적으로 가는 길을 준다(양방향 링크). */}
             {issued && (
               <Alert tone="info">
                 <div style={alertActionRowStyle}>
-                  <span>이미 이 문의로 견적이 발행되었습니다. 견적은 다시 생성되지 않습니다.</span>
+                  <span>이미 이 문의로 견적이 발행되었어요. 견적은 다시 생성되지 않아요.</span>
                   {/* '보기' 는 읽기 전용 상세로 간다 — 예전에는 편집 폼이 열려, 확인만 하려던
                       운영자가 발행 완료된 견적의 수정 화면에 서 있었다. */}
                   <Button
@@ -333,54 +359,58 @@ export default function InquiryDetailPage() {
               </Alert>
             )}
 
-            {issuesQuoteNow && (
+            {issuesQuoteNow && canUpdate && (
               <Alert tone="info">
-                저장하면 이 문의의 거래처·담당자·문의내용을 승계한 견적이 자동 생성됩니다.
+                저장하면 이 문의의 거래처·담당자·문의내용을 승계한 견적이 자동 생성돼요.
               </Alert>
             )}
 
-            <div style={fieldStyle}>
-              <span style={fieldLabelStyle}>답변 · 메모 작성</span>
-              <div style={composerHeadStyle}>
-                <Button
-                  type="button"
-                  variant={composerKind === 'reply' ? 'primary' : 'secondary'}
+            {canUpdate && (
+              <div style={fieldStyle}>
+                <span style={fieldLabelStyle}>답변 · 메모 작성</span>
+                <div style={composerHeadStyle}>
+                  <Button
+                    type="button"
+                    variant={composerKind === 'reply' ? 'primary' : 'secondary'}
+                    disabled={saving}
+                    onClick={() => setComposerKind('reply')}
+                  >
+                    고객답변
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={composerKind === 'note' ? 'primary' : 'secondary'}
+                    disabled={saving}
+                    onClick={() => setComposerKind('note')}
+                  >
+                    내부메모
+                  </Button>
+                </div>
+                <TextareaField
+                  label={composerKind === 'reply' ? '고객답변 내용' : '내부메모 내용'}
+                  value={composer}
+                  onChange={setComposer}
+                  maxLength={INQUIRY_REPLY_MAX}
                   disabled={saving}
-                  onClick={() => setComposerKind('reply')}
-                >
-                  고객답변
-                </Button>
-                <Button
-                  type="button"
-                  variant={composerKind === 'note' ? 'primary' : 'secondary'}
-                  disabled={saving}
-                  onClick={() => setComposerKind('note')}
-                >
-                  내부메모
-                </Button>
+                  placeholder={
+                    composerKind === 'reply'
+                      ? '고객에게 전달할 답변을 입력하세요.'
+                      : '내부 공유용 처리 메모를 입력하세요.'
+                  }
+                  rows={4}
+                />
               </div>
-              <TextareaField
-                label={composerKind === 'reply' ? '고객답변 내용' : '내부메모 내용'}
-                value={composer}
-                onChange={setComposer}
-                maxLength={INQUIRY_REPLY_MAX}
-                disabled={saving}
-                placeholder={
-                  composerKind === 'reply'
-                    ? '고객에게 전달할 답변을 입력하세요.'
-                    : '내부 공유용 처리 메모를 입력하세요.'
-                }
-                rows={4}
-              />
-            </div>
+            )}
 
             <div style={actionsStyle}>
               <Button variant="secondary" disabled={saving} onClick={() => navigate(LIST_PATH)}>
                 목록으로
               </Button>
-              <Button variant="primary" size="md" disabled={saving || !dirty} onClick={onSave}>
-                {saving ? '저장 중…' : '처리 저장'}
-              </Button>
+              {canUpdate && (
+                <Button variant="primary" size="md" disabled={saving || !dirty} onClick={onSave}>
+                  {saving ? '저장 중…' : '처리 저장'}
+                </Button>
+              )}
             </div>
           </Card>
 

@@ -37,6 +37,8 @@ import {
   fieldLabelStyle,
   FilterRail,
   FormField,
+  formDateRowStyle,
+  formRowStyle,
   FormSectionAnchor,
   FormSectionNav,
   hintStyle,
@@ -62,6 +64,11 @@ import {
   useCrudForm,
 } from '../../shared/crud';
 import { ForbiddenScreen } from '../../shared/errors/ErrorScreens';
+// 후원 금액을 노출·입력할 수 있는가는 이 폼이 정하지 않는다 — 사이트 전역 결제 연동 상태의 결과다
+// (상품 폼의 판매가와 같은 함수를 부른다: 두 화면이 다른 답을 말할 수 없게 하는 유일한 방법이다)
+import { readPaymentSettings } from '../../shared/commerce/payment-settings';
+import { PgLockNotice } from '../../shared/commerce/PgLockNotice';
+import { resolvePriceDisplay } from '../../shared/commerce/price-display';
 import { fetchProgramCategoryOptions, programAdapter } from './data-source';
 import { programSchema } from './validation';
 import type { ProgramFormValues } from './validation';
@@ -89,7 +96,7 @@ const RESOURCE = 'programs';
 const ENTITY_LABEL = '프로그램';
 const LIST_PATH = '/programs';
 const UNSAVED_MESSAGE =
-  '프로그램에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '프로그램에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 /**
  * 남은 일수의 기준일 — 목록 화면(ProgramListPage)과 같은 고정 기준일이다.
@@ -187,12 +194,6 @@ const columnStyle: CSSProperties = {
   flexDirection: 'column',
   gap: cssVar('space.5'),
   minWidth: 0,
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const actionsStyle: CSSProperties = {
@@ -382,14 +383,14 @@ function OptionEditor({ optionGroups, disabled, error, onChange }: OptionEditorP
     <div style={optionSectionStyle}>
       <span style={fieldLabelStyle}>옵션</span>
       <p style={hintStyle}>
-        색상·사이즈처럼 후원자가 리워드를 받을 때 함께 고르는 값입니다. 옵션값은 쉼표(,)로
+        색상·사이즈처럼 후원자가 리워드를 받을 때 함께 고르는 값이에요. 옵션값은 쉼표(,)로
         구분하세요. 여기서는 선택지를 정의만 하고, 어느 리워드가 고르게 할지는 아래 리워드 표에서
-        정합니다. (최대 {MAX_PROGRAM_OPTION_GROUPS}개)
+        정해요. (최대 {MAX_PROGRAM_OPTION_GROUPS}개)
       </p>
 
       {optionGroups.length === 0 ? (
         <p style={hintStyle}>
-          등록된 옵션이 없습니다. 고를 것이 없는 프로그램(책 한 권 등)은 비워 두어도 됩니다.
+          등록된 옵션이 없어요. 고를 것이 없는 프로그램(책 한 권 등)은 비워 두어도 돼요.
         </p>
       ) : (
         <div style={optionSectionStyle}>
@@ -460,6 +461,16 @@ interface RewardEditorProps {
   /** 리워드가 고를 수 있는 선택지 — 값이 채워진 그룹만 넘어온다 */
   readonly optionGroups: readonly OptionGroupValue[];
   readonly disabled: boolean;
+  /**
+   * 후원 금액 입력을 잠글 것인가 — resolvePriceDisplay 가 낸 답이다(이 편집기가 다시 판단하지 않는다).
+   *
+   * **잠겨도 값은 남는다**: 이미 정해 둔 금액은 그대로 저장되고, 결제 연동을 마치면 살아난다.
+   * 금액 말고 다른 칸(리워드명·설명·수량·옵션)은 잠기지 않는다 — 결제가 없어도 '무엇을 주는가' 는
+   * 계속 다듬는 값이고, 문의로 들어온 요청의 품목 명세가 된다(상품의 옵션과 같은 결).
+   */
+  readonly amountFieldsLocked: boolean;
+  /** 왜 잠겼는지 — 목록·상세가 쓰는 것과 같은 문장 */
+  readonly lockReason: string;
   readonly error?: string | undefined;
   readonly onChange: (next: RewardValue[]) => void;
 }
@@ -471,7 +482,15 @@ interface RewardEditorProps {
  * [왜 이미 후원된 리워드를 못 지우나] claimedCount 는 **후원자가 이미 고른 수**다. 그 줄을 지우면
  * 후원자가 무엇을 받기로 했는지 가리키는 곳이 사라진다 — 서버도 같은 이유로 막는다.
  */
-function RewardEditor({ rewards, optionGroups, disabled, error, onChange }: RewardEditorProps) {
+function RewardEditor({
+  rewards,
+  optionGroups,
+  disabled,
+  amountFieldsLocked,
+  lockReason,
+  error,
+  onChange,
+}: RewardEditorProps) {
   const patch = (id: string, next: Partial<RewardValue>) => {
     onChange(rewards.map((reward) => (reward.id === id ? { ...reward, ...next } : reward)));
   };
@@ -508,34 +527,45 @@ function RewardEditor({ rewards, optionGroups, disabled, error, onChange }: Rewa
   };
 
   const hasOptions = optionGroups.length > 0;
+  // 값은 남는다 — 연동을 마치면 입력해 둔 후원 금액이 그대로 살아난다
+  const amountDisabled = disabled || amountFieldsLocked;
 
   return (
     <div style={rewardSectionStyle}>
+      {/* 금액 칸만 잠긴 이유를 그 칸이 있는 표 바로 위에서 말한다. 문의 링크는 붙이지 않는다 —
+          여기서 운영자가 할 일은 리워드 구성을 마저 채우는 것이고, 금액을 다시 열 수 있는 곳은
+          결제 설정 하나뿐이다. */}
+      {amountFieldsLocked && (
+        <PgLockNotice reason={lockReason}>
+          {
+            ' 입력해 둔 후원 금액은 지워지지 않고 그대로 보존돼요. 리워드명·설명·수량·옵션은 계속 편집할 수 있어요.'
+          }
+        </PgLockNotice>
+      )}
+
       <p style={hintStyle}>
-        후원자가 고를 리워드를 등록하세요. 수량 한정은 0 이면 무제한입니다. 이미 후원된 리워드는
-        삭제할 수 없습니다 — 후원자가 받기로 한 대가가 사라지기 때문입니다.
+        후원자가 고를 리워드를 등록하세요. 수량 한정은 0 이면 무제한이에요. 이미 후원된 리워드는
+        삭제할 수 없어요 — 후원자가 받기로 한 대가가 사라지기 때문이에요.
       </p>
 
       {hasOptions ? (
         <p style={hintStyle}>
           옵션 칸에서 각 리워드가 후원자에게 고르게 할 항목을 선택하세요. 고를 것이 없는 리워드는
-          비워 둡니다.
+          비워 둬요.
         </p>
       ) : (
         <p style={hintStyle}>
-          옵션 구획에 값이 채워진 옵션이 없어 옵션 칸을 그리지 않았습니다. 옵션을 먼저 등록하면
-          리워드 별로 고르게 할 수 있습니다.
+          옵션 구획에 값이 채워진 옵션이 없어 옵션 칸을 그리지 않았어요. 옵션을 먼저 등록하면 리워드
+          별로 고르게 할 수 있어요.
         </p>
       )}
 
       {rewards.length === 0 ? (
-        <p style={hintStyle}>
-          등록된 리워드가 없습니다. 리워드가 없으면 후원자가 고를 것이 없습니다.
-        </p>
+        <p style={hintStyle}>등록된 리워드가 없어요. 리워드가 없으면 후원자가 고를 것이 없어요.</p>
       ) : (
         <div style={tableWrapStyle}>
           <table style={tableStyle}>
-            <caption style={hintStyle}>리워드 목록 — 각 칸을 직접 편집합니다.</caption>
+            <caption style={hintStyle}>리워드 목록 — 각 칸을 직접 편집해요.</caption>
             <thead>
               <tr>
                 <th scope="col" style={thStyle}>
@@ -588,7 +618,7 @@ function RewardEditor({ rewards, optionGroups, disabled, error, onChange }: Rewa
                         className="tds-ui-input tds-ui-focusable"
                         style={rewardNumberInputStyle}
                         value={String(reward.amount)}
-                        disabled={disabled}
+                        disabled={amountDisabled}
                         aria-label={`${rowName} 후원 금액`}
                         onChange={(event) =>
                           patch(reward.id, { amount: toDigits(event.target.value) })
@@ -662,10 +692,10 @@ function RewardEditor({ rewards, optionGroups, disabled, error, onChange }: Rewa
                         disabled={disabled || claimed}
                         aria-label={
                           claimed
-                            ? `${rowName} — 이미 후원된 리워드라 삭제할 수 없습니다`
+                            ? `${rowName} — 이미 후원된 리워드라 삭제할 수 없어요`
                             : `${rowName} 삭제`
                         }
-                        title={claimed ? '이미 후원된 리워드는 삭제할 수 없습니다' : undefined}
+                        title={claimed ? '이미 후원된 리워드는 삭제할 수 없어요' : undefined}
                         onClick={() => removeReward(reward.id)}
                       >
                         <Icon name="trash" />
@@ -891,6 +921,14 @@ export default function ProgramFormPage() {
    */
   const selectableOptionGroups = optionGroups.filter((group) => group.values.length > 0);
 
+  /**
+   * 후원 금액을 입력받을 수 있는가 — **상품 폼의 판매가와 같은 술어**다.
+   *
+   * 렌더할 때마다 규칙을 다시 부른다: 결제 설정이 바뀌면 다음 렌더가 곧바로 새 답을 쓴다
+   * (checkoutCta 와 같은 어법). 잠금은 **입력만** 막고 저장된 금액은 그대로 둔다.
+   */
+  const priceDisplay = resolvePriceDisplay(readPaymentSettings());
+
   // 미리보기 파생값 — 아직 검증을 통과하지 않은 입력에서도 그린다
   const goalPreview = previewNumber(goalAmount);
   const leftDays = endDate === '' ? null : daysLeft(endDate, TODAY);
@@ -913,8 +951,8 @@ export default function ProgramFormPage() {
           <div style={alertActionRowStyle}>
             <span>
               {loadFailure === 'not-found'
-                ? '프로그램을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '프로그램을 불러오지 못했습니다.'}
+                ? '프로그램을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '프로그램을 불러오지 못했어요.'}
             </span>
             {loadFailure === 'error' && (
               <Button variant="secondary" onClick={retryLoad}>
@@ -946,7 +984,7 @@ export default function ProgramFormPage() {
         <h1 style={pageTitleStyle}>{isEdit ? '프로그램 수정' : '프로그램 등록'}</h1>
         <p style={descriptionStyle}>
           {/* 방향('왼쪽·오른쪽')을 적지 않는다 — 좁은 화면에서는 목차가 폼 위로 접혀 올라간다 */}
-          별표(*) 항목은 필수입니다. 목차로 구획을 오가고, 미리보기로 후원자에게 보일 요약을
+          별표(*) 항목은 필수예요. 목차로 구획을 오가고, 미리보기로 후원자에게 보일 요약을
           확인하세요.
         </p>
       </div>
@@ -963,8 +1001,8 @@ export default function ProgramFormPage() {
             <FilterRail
               notice={
                 <p style={hintStyle}>
-                  구획을 누르면 해당 위치로 이동합니다. 붉은 점이 붙은 구획에는 확인이 필요한 입력이
-                  남아 있습니다.
+                  구획을 누르면 해당 위치로 이동해요. 붉은 점이 붙은 구획에는 확인이 필요한 입력이
+                  남아 있어요.
                 </p>
               }
             >
@@ -1007,7 +1045,7 @@ export default function ProgramFormPage() {
                     />
                   </FormField>
 
-                  <div style={rowStyle}>
+                  <div style={formRowStyle}>
                     <FormField
                       htmlFor="program-creator"
                       label="창작자"
@@ -1066,8 +1104,8 @@ export default function ProgramFormPage() {
                         categoryRootId === ''
                           ? '대분류를 먼저 선택하세요.'
                           : categoryChildOptions.length === 0
-                            ? '이 대분류에는 중분류가 없습니다.'
-                            : '선택하지 않으면 대분류에 등록됩니다.'
+                            ? '이 대분류에는 중분류가 없어요.'
+                            : '선택하지 않으면 대분류에 등록돼요.'
                       }
                     >
                       <SelectField
@@ -1097,7 +1135,7 @@ export default function ProgramFormPage() {
                     label="한 줄 소개"
                     required
                     error={errors.summary?.message}
-                    hint="목록과 카드에 제목 아래로 붙는 한 줄입니다."
+                    hint="목록과 카드에 제목 아래로 붙는 한 줄여요."
                   >
                     <input
                       id="program-summary"
@@ -1127,7 +1165,7 @@ export default function ProgramFormPage() {
                     label="목표 금액(원)"
                     required
                     error={errors.goalAmount?.message}
-                    hint="기간이 끝나는 순간 이 금액을 넘겼는지로 성공·실패가 갈립니다."
+                    hint="기간이 끝나는 순간 이 금액을 넘겼는지로 성공·실패가 갈려요."
                   >
                     <input
                       id="program-goal"
@@ -1145,7 +1183,10 @@ export default function ProgramFormPage() {
                     />
                   </FormField>
 
-                  <div style={rowStyle}>
+                  {/* 시작일~종료일은 **한 쌍이 곧 하나의 값**(모금 기간)이라 규칙의 유일한 예외로
+                      가로에 남는다. 뒤따르는 '상태'는 날짜가 아니므로 이 격자 밖으로 나간다 —
+                      같은 격자에 섞어 두면 예외가 다시 '2열 폼'으로 번진다. */}
+                  <div style={formDateRowStyle}>
                     <FormField
                       htmlFor="program-start"
                       label="시작일"
@@ -1185,22 +1226,22 @@ export default function ProgramFormPage() {
                         {...register('endDate')}
                       />
                     </FormField>
-
-                    <FormField
-                      htmlFor="program-status"
-                      label="상태"
-                      required
-                      hint="성공·실패는 기간이 끝난 뒤 목표 달성 여부로 갈립니다."
-                    >
-                      <SelectField id="program-status" disabled={disabled} {...register('status')}>
-                        {PROGRAM_STATUS_OPTIONS.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </SelectField>
-                    </FormField>
                   </div>
+
+                  <FormField
+                    htmlFor="program-status"
+                    label="상태"
+                    required
+                    hint="성공·실패는 기간이 끝난 뒤 목표 달성 여부로 갈려요."
+                  >
+                    <SelectField id="program-status" disabled={disabled} {...register('status')}>
+                      {PROGRAM_STATUS_OPTIONS.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </SelectField>
+                  </FormField>
                 </Card>
               </FormSectionAnchor>
 
@@ -1217,7 +1258,7 @@ export default function ProgramFormPage() {
                     maxLength={STORY_GUIDE_MAX}
                     disabled={disabled}
                     error={errors.story?.message}
-                    hint="왜 만들었는지·무엇을 만들고 있는지를 적어 후원을 설득하는 글입니다. 사양·구성·배송 시기는 아래 상세 설명에 적습니다. 글자 수는 서식을 빼고 셉니다."
+                    hint="왜 만들었는지·무엇을 만들고 있는지를 적어 후원을 설득하는 글이에요. 사양·구성·배송 시기는 아래 상세 설명에 적어요. 글자 수를 셀 때 서식은 빼요."
                     placeholder="이 프로그램을 시작한 이유와 만들려는 것을 설명하세요."
                     rows={8}
                   />
@@ -1238,7 +1279,7 @@ export default function ProgramFormPage() {
                     maxLength={PROGRAM_DESCRIPTION_MAX}
                     disabled={disabled}
                     error={errors.description?.message}
-                    hint="크기·소재·구성품·배송 시기처럼 후원 전에 확인할 사실을 적습니다. 글자 수는 서식을 빼고 셉니다."
+                    hint="크기·소재·구성품·배송 시기처럼 후원 전에 확인할 사실을 적어요. 글자 수를 셀 때 서식은 빼요."
                     placeholder="사양·구성품·배송 일정·유의사항을 정리해 적으세요."
                     rows={8}
                   />
@@ -1257,7 +1298,7 @@ export default function ProgramFormPage() {
                     onChange={(value) => setValue('thumbnailUrl', value, { shouldDirty: true })}
                     disabled={disabled}
                     error={errors.thumbnailUrl?.message}
-                    hint="목록·카드에서 작게 쓰이는 이미지입니다. 오른쪽 미리보기가 이 이미지로 그려집니다."
+                    hint="목록·카드에서 작게 쓰이는 이미지예요. 오른쪽 미리보기가 이 이미지로 그려져요."
                   />
                   <ImageUploadField
                     label="대표 이미지"
@@ -1265,7 +1306,7 @@ export default function ProgramFormPage() {
                     onChange={(value) => setValue('coverImageUrl', value, { shouldDirty: true })}
                     disabled={disabled}
                     error={errors.coverImageUrl?.message}
-                    hint="상세 화면 맨 위에 크게 걸리는 이미지입니다. 가로가 긴 이미지가 잘 맞습니다."
+                    hint="상세 화면 맨 위에 크게 걸리는 이미지예요. 가로가 긴 이미지가 잘 맞아요."
                   />
                 </Card>
               </FormSectionAnchor>
@@ -1293,6 +1334,8 @@ export default function ProgramFormPage() {
                     rewards={rewards}
                     optionGroups={selectableOptionGroups}
                     disabled={disabled}
+                    amountFieldsLocked={priceDisplay.amountFieldsLocked}
+                    lockReason={priceDisplay.reason}
                     error={rewardsError}
                     onChange={(next) =>
                       setValue('rewards', next, { shouldDirty: true, shouldValidate: true })
@@ -1308,7 +1351,7 @@ export default function ProgramFormPage() {
               {/* 이 미리보기는 **카드**다 — 그래서 대표 이미지가 아니라 썸네일을 그린다.
                   상세 상단의 큰 그림(대표 이미지)을 여기에 끼워 넣으면, 실제 목록에서는 잘려
                   보일 그림을 잘리지 않은 채로 확인하게 되어 확인의 의미가 없어진다. */}
-              <p style={hintStyle}>목록·카드에 노출되는 모습입니다 — 이미지는 썸네일입니다.</p>
+              <p style={hintStyle}>목록·카드에 노출되는 모습이에요 — 이미지는 썸네일이에요.</p>
               {/* 값이 비어 있어도 자리를 비우지 않는다 — '무엇이 아직 안 채워졌는지'가 곧 정보다 */}
               <div style={previewCardStyle}>
                 <ImageThumb src={thumbnailUrl} alt={`${title.trim() || '프로그램'} 썸네일`} />

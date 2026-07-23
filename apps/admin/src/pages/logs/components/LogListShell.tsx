@@ -183,7 +183,7 @@ export function LogListShell<E extends LogEntryBase>({
           downloadCsv(`${spec.csvBaseName}-${formatDate(new Date())}`, spec.toCsv(all));
           // 무엇을 받았는지 숨기지 않는다 — 현재 페이지가 아니라 '필터 전체'임을 명시한다 (ERP-12)
           toast.success(
-            `${spec.entityLabel} ${formatNumber(all.length)}건을 CSV 로 내보냈습니다. (현재 필터 조건 전체)`,
+            `${spec.entityLabel} ${formatNumber(all.length)}건을 CSV 로 내보냈어요. (현재 필터 조건 전체)`,
           );
         },
         onError: (cause) => {
@@ -192,7 +192,7 @@ export function LogListShell<E extends LogEntryBase>({
             exportLog.reset();
             return;
           }
-          toast.error('내보내기에 실패했습니다. 잠시 후 다시 시도해 주세요.', { retry: onExport });
+          toast.error('내보내기에 실패했어요. 잠시 후 다시 시도해 주세요.', { retry: onExport });
         },
       },
     );
@@ -279,7 +279,7 @@ export function LogListShell<E extends LogEntryBase>({
             // 조회 실패는 인라인이다 — 토스트로 띄우면 사라진 뒤 '기록이 없다'와 구분되지 않는다 (STATE-02)
             <Alert tone="danger">
               <div style={errorBodyStyle}>
-                <span>{`${spec.entityLabel}${objectParticle(spec.entityLabel)} 불러오지 못했습니다.`}</span>
+                <span>{`${spec.entityLabel}${objectParticle(spec.entityLabel)} 불러오지 못했어요.`}</span>
                 <Button
                   variant="secondary"
                   onClick={() => {

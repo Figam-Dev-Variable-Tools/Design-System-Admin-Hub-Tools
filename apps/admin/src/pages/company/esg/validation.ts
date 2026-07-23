@@ -16,19 +16,19 @@ export const esgSchema = z.object({
   summary: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '내용을 입력하세요.' }),
     z.refine((value) => value.length <= SUMMARY_MAX_LENGTH, {
-      error: `내용은 ${String(SUMMARY_MAX_LENGTH)}자를 넘을 수 없습니다.`,
+      error: `내용은 ${String(SUMMARY_MAX_LENGTH)}자를 넘을 수 없어요.`,
     }),
   ),
   date: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '일자를 입력하세요.' }),
     z.refine((value) => ISO_DATE_RE.test(value.trim()), {
-      error: '일자 형식이 올바르지 않습니다.',
+      error: '일자 형식이 올바르지 않아요.',
     }),
   ),
   // 본문 이미지 — 선택, 최대 MAX_ESG_IMAGES 장. 형식은 강제하지 않는다(업로드 값).
   imageUrls: z.array(z.string()).check(
     z.refine((values) => values.length <= MAX_ESG_IMAGES, {
-      error: `본문 이미지는 최대 ${String(MAX_ESG_IMAGES)}장까지 등록할 수 있습니다.`,
+      error: `본문 이미지는 최대 ${String(MAX_ESG_IMAGES)}장까지 등록할 수 있어요.`,
     }),
   ),
 });

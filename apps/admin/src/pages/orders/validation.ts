@@ -17,7 +17,7 @@ import { ORDER_CANCEL_REASON_MAX, ORDER_NOTE_MAX } from '../../shared/domain/ord
 export const orderNoteSchema = z.object({
   note: z.string().check(
     z.refine((value) => value.length <= ORDER_NOTE_MAX, {
-      error: `처리 메모는 ${String(ORDER_NOTE_MAX)}자를 넘을 수 없습니다.`,
+      error: `처리 메모는 ${String(ORDER_NOTE_MAX)}자를 넘을 수 없어요.`,
     }),
   ),
 });
@@ -26,7 +26,7 @@ export const orderCancelSchema = z.object({
   reason: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '취소 사유를 입력하세요.' }),
     z.refine((value) => value.trim().length <= ORDER_CANCEL_REASON_MAX, {
-      error: `취소 사유는 ${String(ORDER_CANCEL_REASON_MAX)}자를 넘을 수 없습니다.`,
+      error: `취소 사유는 ${String(ORDER_CANCEL_REASON_MAX)}자를 넘을 수 없어요.`,
     }),
   ),
 });
@@ -39,11 +39,11 @@ export const orderCancelSchema = z.object({
 export function orderNoteError(note: string): string | null {
   const result = orderNoteSchema.safeParse({ note });
   if (result.success) return null;
-  return result.error.issues[0]?.message ?? '처리 메모를 저장할 수 없습니다.';
+  return result.error.issues[0]?.message ?? '처리 메모를 저장할 수 없어요.';
 }
 
 export function orderCancelReasonError(reason: string): string | null {
   const result = orderCancelSchema.safeParse({ reason });
   if (result.success) return null;
-  return result.error.issues[0]?.message ?? '주문을 취소할 수 없습니다.';
+  return result.error.issues[0]?.message ?? '주문을 취소할 수 없어요.';
 }

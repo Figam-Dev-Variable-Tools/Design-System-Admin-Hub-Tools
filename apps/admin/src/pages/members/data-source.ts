@@ -106,7 +106,7 @@ function failIfRequested(op: FailureOp): void {
 
   const requested = flags.split(',').map((flag) => flag.trim());
   if (requested.includes('all') || requested.includes(op)) {
-    throw new Error('요청을 처리하지 못했습니다.');
+    throw new Error('요청을 처리하지 못했어요.');
   }
 }
 
@@ -230,7 +230,7 @@ export async function fetchMemberDetail(id: string, signal: AbortSignal): Promis
 
   const index = indexFromId(id);
   const member = index < 0 ? undefined : MEMBERS[index];
-  if (member === undefined) throw new Error('회원을 찾을 수 없습니다');
+  if (member === undefined) throw new Error('회원을 찾을 수 없어요');
 
   // 양방향 검사 지점 — 프론트 MemberDetail ↔ 스키마 MemberDetail (shared/api/contract.ts)
   const built = buildMemberDetail(member);

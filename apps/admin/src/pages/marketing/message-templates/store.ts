@@ -182,7 +182,7 @@ let templates: readonly MessageTemplate[] = [
       senderEmail: 'news@spaceplanning.ai',
       subject: '[스페이스플래닝] #{이름}님을 위한 이달의 소식',
       // 프리헤더가 채워진 유일한 픽스처 — 인박스 프리뷰가 '제목 뒤 한 줄' 을 그리는 경로를 덮는다
-      preheader: '이번 달 신상품과 회원 전용 혜택을 모았습니다.',
+      preheader: '이번 달 신상품과 회원 전용 혜택을 모았어요.',
       blocks: [
         contentBlock('heading', 'blk-heading', '이달의 소식'),
         contentBlock(
@@ -252,7 +252,7 @@ let templates: readonly MessageTemplate[] = [
       channelId: 'kc-main',
       messageType: 'basic',
       emphasisType: 'title',
-      emphasisTitle: '배송이 시작되었습니다',
+      emphasisTitle: '배송이 시작되었어요',
       emphasisSubtitle: '주문 #{주문번호}',
       body: '#{이름}님, 주문하신 상품이 오늘 출발했습니다.\n운송장 번호는 마이페이지에서 확인하실 수 있습니다.',
       buttons: [
@@ -303,7 +303,7 @@ let templates: readonly MessageTemplate[] = [
       // 'Active 인데 반려' 는 정상 상태다 — 발행 축과 심사 축이 별개라는 것이 여기서 눈에 보인다
       approvalStatus: 'rejected',
       rejectReason:
-        '적립금 지급 안내는 광고성 정보로 판단됩니다. 부가정보 영역으로 옮기거나 문구를 수정해 주세요.',
+        '적립금 지급 안내는 광고성 정보로 판단돼요. 부가정보 영역으로 옮기거나 문구를 수정해 주세요.',
       hasBeenSent: false,
     },
     createdBy: '김다연',
@@ -323,7 +323,7 @@ let templates: readonly MessageTemplate[] = [
       channelId: 'kc-support',
       messageType: 'basic',
       emphasisType: 'title',
-      emphasisTitle: '비밀번호가 변경되었습니다',
+      emphasisTitle: '비밀번호가 변경되었어요',
       // 제작가이드 §2-2 — 제목과 보조문구는 함께 등록되어야 한다(한쪽만은 불가)
       emphasisSubtitle: '보안 알림',
       body: '#{이름}님, 방금 비밀번호가 변경되었습니다.\n본인이 하지 않으셨다면 즉시 고객센터로 연락해 주세요.',
@@ -446,14 +446,14 @@ let templates: readonly MessageTemplate[] = [
       messageType: 'complex',
       emphasisType: 'item-list',
       itemHeader: '결제 내역',
-      itemHighlightTitle: '결제가 완료되었습니다',
+      itemHighlightTitle: '결제가 완료되었어요',
       itemHighlightDescription: '#{이름}님',
       items: [
         { id: 'it-1', name: '주문번호', description: '#{주문번호}' },
         { id: 'it-2', name: '결제금액', description: '#{적립금}원' },
         { id: 'it-3', name: '결제수단', description: '신용카드' },
       ],
-      extraInfo: '결제 취소는 마이페이지 > 주문내역에서 가능하며, 영수증은 이메일로 발송됩니다.',
+      extraInfo: '결제 취소는 마이페이지 > 주문내역에서 가능하며, 영수증은 이메일로 발송돼요.',
       body: '주문해 주셔서 감사합니다. 배송이 시작되면 다시 안내드리겠습니다.',
       buttons: [
         // 채널추가 버튼이 맨 위 — 복합형이라 쓸 수 있다
@@ -679,7 +679,7 @@ export interface TemplateOption {
 
 export function getMessageTemplate(id: string): MessageTemplate {
   const found = templates.find((template) => template.id === id);
-  if (found === undefined) throw new Error('메시지 템플릿을 찾을 수 없습니다');
+  if (found === undefined) throw new Error('메시지 템플릿을 찾을 수 없어요');
   return found;
 }
 

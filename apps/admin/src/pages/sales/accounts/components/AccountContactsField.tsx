@@ -10,6 +10,7 @@ import {
   controlStyle,
   errorTextStyle,
   fieldLabelStyle,
+  formRowStyle,
   hintStyle,
   Icon,
 } from '../../../../shared/ui';
@@ -27,13 +28,6 @@ const rowsStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: cssVar('space.3'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 3), 1fr))`,
-  gap: cssVar('space.2'),
-  alignItems: 'end',
 };
 
 const primaryRowStyle: CSSProperties = {
@@ -160,14 +154,14 @@ export function AccountContactsField({
     <div style={sectionStyle}>
       <span style={fieldLabelStyle}>담당자 *</span>
       <p style={hintStyle}>
-        거래처 담당자를 등록하세요. 대표담당 1명이 목록·견적서에 노출됩니다. (최대{' '}
+        거래처 담당자를 등록하세요. 대표담당 1명이 목록·견적서에 노출돼요. (최대{' '}
         {ACCOUNT_MAX_CONTACTS}명)
       </p>
 
       <div style={rowsStyle}>
         {contacts.map((contact, index) => (
           <div key={contact.id} style={sectionStyle}>
-            <div style={rowStyle}>
+            <div style={formRowStyle}>
               <ContactCell
                 id={`contact-name-${contact.id}`}
                 label={`담당자 ${String(index + 1)} 이름`}

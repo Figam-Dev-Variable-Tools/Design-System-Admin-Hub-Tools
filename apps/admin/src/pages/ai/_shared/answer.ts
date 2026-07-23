@@ -52,7 +52,7 @@ const STARTER_FOLLOW_UPS: readonly FollowUp[] = [
 /** 이 화면이 답할 수 있는 것의 목록 — 못 알아들었을 때 이것을 대신 보여준다 */
 export function capabilityDetail(): string {
   const names = DOMAINS.map((domain) => `@${domain.aliases[0] ?? domain.label}`).join(' · ');
-  return `${names} 를 멘션하고 조건을 함께 적어 주세요. 이 화면은 저장된 데이터를 조건으로 거르는 조회만 합니다 — 요약·분석·예측·추천은 하지 않습니다.`;
+  return `${names} 를 멘션하고 조건을 함께 적어 주세요. 이 화면은 저장된 데이터를 조건으로 거르는 조회만 해요 — 요약·분석·예측·추천은 하지 않아요.`;
 }
 
 /** 통지가 제안을 갖고 있으면 후속 제안으로 올린다 */
@@ -86,7 +86,7 @@ export function buildAnswer(input: string, now: Date): AgentAnswer {
     case 'no-mention':
       return {
         kind: 'guidance',
-        headline: '어떤 데이터를 봐야 할지 알 수 없습니다.',
+        headline: '어떤 데이터를 봐야 할지 알 수 없어요.',
         detail: capabilityDetail(),
         followUps: STARTER_FOLLOW_UPS,
       };
@@ -94,7 +94,7 @@ export function buildAnswer(input: string, now: Date): AgentAnswer {
     case 'unknown-domain':
       return {
         kind: 'guidance',
-        headline: `'@${parsed.alias}' 는 조회할 수 있는 데이터가 아닙니다.`,
+        headline: `'@${parsed.alias}' 는 조회할 수 있는 데이터가 아니에요.`,
         detail: capabilityDetail(),
         followUps: STARTER_FOLLOW_UPS,
       };
@@ -102,9 +102,9 @@ export function buildAnswer(input: string, now: Date): AgentAnswer {
     case 'unsupported-intent':
       return {
         kind: 'guidance',
-        headline: `'${parsed.verb}' 은 이 화면이 할 수 없는 요청입니다.`,
+        headline: `'${parsed.verb}' 은 이 화면이 할 수 없는 요청이에요.`,
         detail:
-          '저장된 데이터를 조건으로 거르는 조회만 합니다. 판단·추론이 필요한 질문에 답하려면 언어 모델 연동이 필요하며, 아직 연결되어 있지 않습니다.',
+          '저장된 데이터를 조건으로 거르는 조회만 해요. 판단·추론이 필요한 질문에 답하려면 언어 모델 연동이 필요하며, 아직 연결되어 있지 않아요.',
         followUps: STARTER_FOLLOW_UPS,
       };
 

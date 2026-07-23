@@ -39,6 +39,7 @@ import {
   Button,
   Card,
   FormField,
+  formRowStyle,
   Icon,
   ImageGalleryField,
   ImageUploadField,
@@ -120,9 +121,9 @@ const EDIT_SEED: SeedValues = {
   date: '2024-04-30',
   title: '스마트팩토리 전환으로 불량률 절반 감축',
   client: '다온정밀',
-  challenge: '수작업 검사로 불량 유출이 잦고 라인 정지가 반복됐습니다.',
-  solution: '비전 검사와 실시간 대시보드를 도입해 공정을 표준화했습니다.',
-  result: '6개월 만에 불량률을 52% 낮추고 라인 가동률을 18%p 끌어올렸습니다.',
+  challenge: '수작업 검사로 불량 유출이 잦고 라인 정지가 반복됐어요.',
+  solution: '비전 검사와 실시간 대시보드를 도입해 공정을 표준화했어요.',
+  result: '6개월 만에 불량률을 52% 낮추고 라인 가동률을 18%p 끌어올렸어요.',
   coverImageUrl: EDIT_COVER,
   imageUrls: EDIT_GALLERY,
   published: true,
@@ -199,12 +200,6 @@ const cardTitleStyle: CSSProperties = {
   ...typography('typography.title.md'),
   margin: 0,
   color: cssVar('color.text.default'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const controlBaseStyle: CSSProperties = {
@@ -304,7 +299,7 @@ function CaseStudyFormScreen({
 
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '성공 사례 수정' : '성공 사례 등록'}</h1>
-        <p style={descriptionStyle}>별표(*) 항목은 필수입니다. 업종·과제·해결·성과를 입력하세요.</p>
+        <p style={descriptionStyle}>별표(*) 항목은 필수예요. 업종·과제·해결·성과를 입력하세요.</p>
       </div>
 
       <form onSubmit={(event) => event.preventDefault()} noValidate>
@@ -317,7 +312,7 @@ function CaseStudyFormScreen({
             </div>
           ) : (
             <>
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField
                   htmlFor="case-industry"
                   label="업종"
@@ -414,7 +409,7 @@ function CaseStudyFormScreen({
                 required
                 value={coverImageUrl}
                 onChange={setCoverImageUrl}
-                hint="목록에는 노출되지 않습니다 — 상세/미리보기의 대표 이미지입니다."
+                hint="목록에는 노출되지 않아요 — 상세/미리보기의 대표 이미지예요."
                 error={errors.coverImageUrl ?? ''}
               />
 
@@ -423,7 +418,7 @@ function CaseStudyFormScreen({
                 values={imageUrls}
                 onChange={setImageUrls}
                 maxFiles={MAX_CASE_IMAGES}
-                hint={`사례를 보여줄 이미지를 여러 장 올릴 수 있습니다. 최대 ${String(MAX_CASE_IMAGES)}장.`}
+                hint={`사례를 보여줄 이미지를 여러 장 올릴 수 있어요. 최대 ${String(MAX_CASE_IMAGES)}장.`}
                 error={errors.imageUrls ?? ''}
               />
 

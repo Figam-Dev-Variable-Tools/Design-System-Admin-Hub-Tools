@@ -46,13 +46,13 @@ export const programSchema = z
     // (스토리에는 상한이 없다 — 창작자의 서술을 자를 이유가 없다. 화면 카운터는 작성 가이드다.)
     description: z.string().check(
       z.refine((value) => richTextLength(value) <= PROGRAM_DESCRIPTION_MAX, {
-        error: `상세 설명은 ${String(PROGRAM_DESCRIPTION_MAX)}자를 넘을 수 없습니다.`,
+        error: `상세 설명은 ${String(PROGRAM_DESCRIPTION_MAX)}자를 넘을 수 없어요.`,
       }),
     ),
     goalAmount: z
       .string()
       .check(z.refine((value) => INT_RE.test(value.trim()), '목표 금액은 숫자만 입력하세요.'))
-      .check(z.refine((value) => Number(value.trim()) > 0, '목표 금액은 1원 이상이어야 합니다.')),
+      .check(z.refine((value) => Number(value.trim()) > 0, '목표 금액은 1원 이상이어야 해요.')),
     startDate: z.string().check(z.minLength(1, '시작일을 입력하세요.')),
     endDate: z.string().check(z.minLength(1, '종료일을 입력하세요.')),
     status: z.enum(['draft', 'scheduled', 'live', 'succeeded', 'failed']),
@@ -63,7 +63,7 @@ export const programSchema = z
     // 그룹은 막는다: 리워드 편집기에서 무엇을 고르는 선택지인지 부를 이름이 없어진다.
     optionGroups: z.array(optionGroupSchema).check(
       z.refine((groups) => groups.length <= MAX_PROGRAM_OPTION_GROUPS, {
-        error: `옵션은 최대 ${String(MAX_PROGRAM_OPTION_GROUPS)}개까지 만들 수 있습니다.`,
+        error: `옵션은 최대 ${String(MAX_PROGRAM_OPTION_GROUPS)}개까지 만들 수 있어요.`,
       }),
       z.refine(
         (groups) => groups.every((group) => group.values.length === 0 || group.name.trim() !== ''),
@@ -74,14 +74,14 @@ export const programSchema = z
           const names = groups.map((group) => group.name.trim()).filter((name) => name !== '');
           return new Set(names).size === names.length;
         },
-        { error: '옵션명이 중복되었습니다. 서로 다른 이름을 입력하세요.' },
+        { error: '옵션명이 중복되었어요. 서로 다른 이름을 입력하세요.' },
       ),
     ),
     rewards: z.array(rewardSchema),
   })
   .check(
     z.refine((values) => values.startDate <= values.endDate, {
-      message: '종료일은 시작일과 같거나 그 뒤여야 합니다.',
+      message: '종료일은 시작일과 같거나 그 뒤여야 해요.',
       path: ['endDate'],
     }),
     // 리워드는 **정의된 옵션 그룹만** 가리킬 수 있다. 그룹을 지운 뒤 남은 참조는 후원 화면에서
@@ -94,7 +94,7 @@ export const programSchema = z
         );
       },
       {
-        message: '삭제된 옵션을 가리키는 리워드가 있습니다. 리워드의 옵션 선택을 다시 확인하세요.',
+        message: '삭제된 옵션을 가리키는 리워드가 있어요. 리워드의 옵션 선택을 다시 확인하세요.',
         path: ['rewards'],
       },
     ),

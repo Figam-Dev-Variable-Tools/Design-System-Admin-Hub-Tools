@@ -10,6 +10,7 @@ import {
   addMonths,
   currentDecision,
   filterConsentEvents,
+  historyStateOf,
   itemsSaveBlock,
   latestDecisions,
   necessityChangeBlock,
@@ -330,5 +331,26 @@ describe('data-source 의 공개 표면 — 이력은 고쳐지지 않는다', (
   it('쓰기 표면은 append 하나뿐이다', () => {
     const writes = Object.keys(dataSource).filter((name) => name.startsWith('append'));
     expect(writes).toEqual(['appendConsentEvent']);
+  });
+});
+
+/* ── 이력 축의 세 상태 — '없음' 과 '모름' 은 다른 사실이다 ────────────────── */
+
+describe('historyStateOf — 조회 중·실패를 대상 없음으로 그리지 않는다', () => {
+  it('아직 못 읽었고 조회 중이면 로딩이다', () => {
+    expect(historyStateOf(null, true)).toBe('loading');
+  });
+
+  it('못 읽었는데 조회도 끝났으면 실패다 — 빈 이력이 아니다', () => {
+    expect(historyStateOf(null, false)).toBe('failed');
+  });
+
+  it('한 번이라도 받았으면 재조회 중이라도 그 값을 그린다 (STATE-03)', () => {
+    expect(historyStateOf([], true)).toBe('ready');
+    expect(historyStateOf([event({ itemId: MARKETING.id })], true)).toBe('ready');
+  });
+
+  it('진짜 0건은 ready 다 — 그때만 화면이 "없어요" 라고 말할 수 있다', () => {
+    expect(historyStateOf([], false)).toBe('ready');
   });
 });

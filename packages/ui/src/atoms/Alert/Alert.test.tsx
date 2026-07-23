@@ -13,23 +13,23 @@ import { Alert } from './Alert';
 
 describe('Alert — 계약 states[]', () => {
   it('Alert: default 상태 — tone=danger 는 role=alert + aria-live=assertive 로 즉시 통지한다', () => {
-    render(<Alert>비밀번호가 올바르지 않습니다</Alert>);
+    render(<Alert>비밀번호가 올바르지 않아요</Alert>);
     const alert = screen.getByRole('alert');
 
-    expect(alert.textContent).toContain('비밀번호가 올바르지 않습니다');
+    expect(alert.textContent).toContain('비밀번호가 올바르지 않아요');
     expect(alert.getAttribute('aria-live')).toBe('assertive');
     expect(alert.getAttribute('tabindex')).toBe('-1');
   });
 
   it('Alert: default 상태 — tone=info|success|warning 은 role=status + aria-live=polite 로 대기 통지한다', () => {
-    render(<Alert tone="success">저장되었습니다</Alert>);
+    render(<Alert tone="success">저장되었어요</Alert>);
     const status = screen.getByRole('status');
 
     expect(status.getAttribute('aria-live')).toBe('polite');
   });
 
   it('Alert: default 상태 — 색상만으로 의미를 전달하지 않는다 (tone 별 아이콘을 텍스트와 함께 렌더 · WCAG 1.4.1)', () => {
-    const { container } = render(<Alert tone="warning">확인이 필요합니다</Alert>);
+    const { container } = render(<Alert tone="warning">확인이 필요해요</Alert>);
     const icon = container.querySelector('.tds-alert__icon');
 
     expect(icon).not.toBeNull();
@@ -63,7 +63,7 @@ describe('Alert — 계약 events.onClose (핸들러의 유무가 해제 가능 
     const onClose = vi.fn();
     render(
       <Alert tone="info" onClose={onClose}>
-        회원 등급 정책이 변경되었습니다.
+        회원 등급 정책이 변경되었어요.
       </Alert>,
     );
 
@@ -73,7 +73,7 @@ describe('Alert — 계약 events.onClose (핸들러의 유무가 해제 가능 
   });
 
   it('Alert: onClose 가 없으면 닫기 버튼이 나타나지 않는다 (별도 boolean prop 을 두지 않는다)', () => {
-    render(<Alert tone="info">회원 등급 정책이 변경되었습니다.</Alert>);
+    render(<Alert tone="info">회원 등급 정책이 변경되었어요.</Alert>);
 
     expect(screen.queryByRole('button', { name: '안내 닫기' })).toBeNull();
   });
@@ -85,7 +85,7 @@ describe('Alert — forwardRef (제출 실패 시 배너로 포커스 이동)', 
       const ref = useRef<HTMLDivElement>(null);
       return (
         <>
-          <Alert ref={ref}>이메일 또는 비밀번호가 올바르지 않습니다</Alert>
+          <Alert ref={ref}>이메일 또는 비밀번호가 올바르지 않아요</Alert>
           <button
             type="button"
             onClick={() => {

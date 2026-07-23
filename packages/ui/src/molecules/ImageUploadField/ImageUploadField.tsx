@@ -35,9 +35,9 @@ import './ImageUploadField.css';
 //  TableSelection 이 tableSelectionState 를 SelectAllHeaderCell.tsx 에 두는 것과 같은 선례.)
 /** 위반이면 인라인에 띄울 오류 문구, 통과면 null. 테스트가 이 순수 함수를 직접 부른다. */
 export function imageFileError(file: File, maxSizeMB: number): string | null {
-  if (!file.type.startsWith('image/')) return '이미지 파일만 올릴 수 있습니다.';
+  if (!file.type.startsWith('image/')) return '이미지 파일만 올릴 수 있어요.';
   if (file.size > maxSizeMB * 1024 * 1024) {
-    return `파일 용량은 ${String(maxSizeMB)}MB 를 넘을 수 없습니다.`;
+    return `파일 용량은 ${String(maxSizeMB)}MB 를 넘을 수 없어요.`;
   }
   return null;
 }
@@ -113,9 +113,9 @@ function DropzonePrompt({
   readonly meta: string;
 }) {
   const title = loadFailed
-    ? '이미지를 불러오지 못했습니다. 다시 선택하세요.'
+    ? '이미지를 불러오지 못했어요. 다시 선택하세요.'
     : dragActive
-      ? '여기에 놓으면 업로드됩니다'
+      ? '여기에 놓으면 업로드돼요'
       : '파일을 올리세요 또는 드래그하여 업로드';
   return (
     <>
@@ -276,7 +276,7 @@ export function ImageUploadField({
       {hasImage && (
         <span className="tds-imageupload__success">
           <CheckCircleGlyph aria-hidden="true" />
-          업로드 완료 — 아래에서 이미지를 교체하거나 제거할 수 있습니다.
+          업로드 완료 — 아래에서 이미지를 교체하거나 제거할 수 있어요.
         </span>
       )}
 

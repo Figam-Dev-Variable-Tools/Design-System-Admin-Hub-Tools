@@ -51,14 +51,14 @@ describe('validateCustomRange — 조회를 막는 규칙', () => {
     const { range, issues } = validateCustomRange({ from: '2026-07-01', to: '2026-07-16' }, NOW);
     expect(range).toBeNull();
     expect(issueOf(issues, 'to')?.message).toBe(
-      '미래 날짜는 조회할 수 없습니다. 감사 기록에 미래는 없습니다.',
+      '미래 날짜는 조회할 수 없어요. 감사 기록에 미래는 없어요.',
     );
   });
 
   it('시작일이 종료일보다 늦으면 막는다', () => {
     const { range, issues } = validateCustomRange({ from: '2026-07-10', to: '2026-07-01' }, NOW);
     expect(range).toBeNull();
-    expect(issueOf(issues, 'from')?.message).toBe('시작일은 종료일보다 늦을 수 없습니다.');
+    expect(issueOf(issues, 'from')?.message).toBe('시작일은 종료일보다 늦을 수 없어요.');
   });
 
   it(`조회 기간은 최대 ${String(MAX_RANGE_DAYS)}일이다`, () => {
@@ -66,7 +66,7 @@ describe('validateCustomRange — 조회를 막는 규칙', () => {
     const { range, issues } = validateCustomRange({ from: '2026-04-16', to: '2026-07-15' }, NOW);
     expect(range).toBeNull();
     expect(issueOf(issues, 'range')?.message).toBe(
-      '조회 기간은 최대 90일입니다. (선택한 기간 91일)',
+      '조회 기간은 최대 90일이에요. (선택한 기간 91일)',
     );
   });
 

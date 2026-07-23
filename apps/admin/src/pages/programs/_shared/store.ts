@@ -258,8 +258,7 @@ let programs: Program[] = [
     categoryLabel: '음향기기',
     creator: '사운드랩',
     summary: '스튜디오 모니터링을 그대로 옮긴 무선 헤드폰',
-    story:
-      '작업실 밖에서도 같은 소리를 듣고 싶었습니다. 지연 없는 무선 전송을 목표로 만들었습니다.',
+    story: '작업실 밖에서도 같은 소리를 듣고 싶었어요. 지연 없는 무선 전송을 목표로 만들었어요.',
     description:
       '<p>드라이버 40mm · 재생 시간 32시간 · 무게 268g</p><ul><li>구성품: 본체, USB-C 케이블, 파우치</li><li>배송 예정: 2026년 11월</li></ul>',
     goalAmount: 10_000_000,
@@ -284,7 +283,7 @@ let programs: Program[] = [
     categoryLabel: '가구',
     creator: '노크우드',
     summary: '한 손으로 접히는 원목 사이드테이블',
-    story: '좁은 집에서도 쓰던 자리를 돌려받을 수 있게 접히는 구조로 설계했습니다.',
+    story: '좁은 집에서도 쓰던 자리를 돌려받을 수 있게 접히는 구조로 설계했어요.',
     description:
       '<p>펼침 420×420×520mm · 접힘 두께 60mm · 내하중 15kg</p><ul><li>소재: 원목(오크·월넛), 수성 도료 마감</li><li>조립 필요 없음</li></ul>',
     goalAmount: 5_000_000,
@@ -308,7 +307,7 @@ let programs: Program[] = [
     categoryLabel: '출판',
     creator: '걷는사람',
     summary: '열두 도시의 골목을 걸어 적은 산문집',
-    story: '2년간 기록한 골목의 표정을 한 권으로 묶었습니다.',
+    story: '2년간 기록한 골목의 표정을 한 권으로 묶었어요.',
     description:
       '<p>128×188mm · 284쪽 · 무선제본</p><ul><li>초판 한정 엽서 2종 동봉</li><li>배송 예정: 2026년 7월</li></ul>',
     goalAmount: 3_000_000,
@@ -330,7 +329,7 @@ let programs: Program[] = [
     categoryLabel: '주방',
     creator: '데일리브루',
     summary: '납작하게 접히는 스테인리스 드리퍼',
-    story: '캠핑과 출장에서 쓰려고 만들었습니다.',
+    story: '캠핑과 출장에서 쓰려고 만들었어요.',
     description:
       '<p>스테인리스 304 · 접힘 두께 8mm · 무게 92g</p><ul><li>식기세척기 사용 가능</li><li>구성품: 드리퍼, 전용 파우치</li></ul>',
     goalAmount: 8_000_000,
@@ -351,7 +350,7 @@ let programs: Program[] = [
     categoryLabel: '모바일 액세서리',
     creator: '스냅기어',
     summary: '각도가 고정되는 자석식 충전 거치대',
-    story: '책상 위에서 각도가 흘러내리지 않는 거치대를 목표로 했습니다.',
+    story: '책상 위에서 각도가 흘러내리지 않는 거치대를 목표로 했어요.',
     description:
       '<p>각도 조절 15~70° · 마그넷 유지력 1.2kg · 15W 무선 충전</p><ul><li>구성품: 스탠드, USB-C 케이블</li><li>배송 예정: 2026년 12월</li></ul>',
     goalAmount: 6_000_000,
@@ -386,7 +385,7 @@ export function listPrograms(): readonly Program[] {
 
 export function getProgram(id: string): Program {
   const found = programs.find((program) => program.id === id);
-  if (found === undefined) throw new Error('프로그램을 찾을 수 없습니다');
+  if (found === undefined) throw new Error('프로그램을 찾을 수 없어요');
   return found;
 }
 
@@ -460,7 +459,7 @@ export function listProgramCategoryUsage(): readonly ProgramCategoryUsage[] {
 
 export function getProgramCategoryUsage(id: string): ProgramCategoryUsage {
   const found = categories.find((category) => category.id === id);
-  if (found === undefined) throw new Error('카테고리를 찾을 수 없습니다');
+  if (found === undefined) throw new Error('카테고리를 찾을 수 없어요');
   return {
     ...found,
     programCount: countProgramsUsingCategory(found.id),
@@ -472,12 +471,12 @@ export function getProgramCategoryUsage(id: string): ProgramCategoryUsage {
 function assertAssignableParent(parentId: string | null, selfId?: string): void {
   if (parentId === null) return;
   if (selfId !== undefined && parentId === selfId) {
-    throw new Error('자기 자신을 상위 카테고리로 지정할 수 없습니다.');
+    throw new Error('자기 자신을 상위 카테고리로 지정할 수 없어요.');
   }
   const parent = categories.find((category) => category.id === parentId);
-  if (parent === undefined) throw new Error('상위 카테고리를 찾을 수 없습니다.');
+  if (parent === undefined) throw new Error('상위 카테고리를 찾을 수 없어요.');
   if (parent.parentId !== null) {
-    throw new Error('카테고리는 2단계까지만 만들 수 있습니다.');
+    throw new Error('카테고리는 2단계까지만 만들 수 있어요.');
   }
 }
 
@@ -497,7 +496,7 @@ export function updateProgramCategory(
 ): void {
   assertAssignableParent(parentId, id);
   if (parentId !== null && hasProgramCategoryChildren(id)) {
-    throw new Error('하위 카테고리가 있는 카테고리는 다른 카테고리 밑으로 옮길 수 없습니다.');
+    throw new Error('하위 카테고리가 있는 카테고리는 다른 카테고리 밑으로 옮길 수 없어요.');
   }
 
   const trimmed = label.trim();
@@ -512,10 +511,10 @@ export function updateProgramCategory(
 /** 쓰는 프로그램이 있거나 하위가 있으면 삭제하지 않는다(서버는 409 로 막는다) */
 export function removeProgramCategory(id: string): void {
   if (countProgramsUsingCategory(id) > 0) {
-    throw new Error('사용 중인 카테고리는 삭제할 수 없습니다.');
+    throw new Error('사용 중인 카테고리는 삭제할 수 없어요.');
   }
   if (hasProgramCategoryChildren(id)) {
-    throw new Error('하위 카테고리가 있는 카테고리는 삭제할 수 없습니다.');
+    throw new Error('하위 카테고리가 있는 카테고리는 삭제할 수 없어요.');
   }
   categories = categories.filter((category) => category.id !== id);
 }

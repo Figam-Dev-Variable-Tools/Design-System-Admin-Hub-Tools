@@ -26,7 +26,7 @@ function failIfRequested(op: FailureOp): void {
   if (flags === null) return;
   const requested = flags.split(',').map((flag) => flag.trim());
   if (requested.includes('all') || requested.includes(op)) {
-    throw new Error('요청을 처리하지 못했습니다.');
+    throw new Error('요청을 처리하지 못했어요.');
   }
 }
 
@@ -60,8 +60,8 @@ function makeFaq(index: number): Faq {
     visible: index % 5 !== 0,
     order: index + 1,
     answer:
-      `${QUESTION_SEED[category.id] ?? '문의'} 에 대한 답변입니다.\n\n` +
-      '고객센터 운영 시간(평일 09:00~18:00)에 1:1 문의를 남기시면 순차적으로 안내해 드립니다.',
+      `${QUESTION_SEED[category.id] ?? '문의'} 에 대한 답변이에요.\n\n` +
+      '고객센터 운영 시간(평일 09:00~18:00)에 1:1 문의를 남기시면 순차적으로 안내해 드려요.',
   };
 }
 
@@ -167,7 +167,7 @@ export async function fetchFaq(id: string, signal: AbortSignal): Promise<Faq> {
   failIfRequested('detail');
 
   const faq = FAQS.find((item) => item.id === id);
-  if (faq === undefined) throw new Error('FAQ 를 찾을 수 없습니다');
+  if (faq === undefined) throw new Error('FAQ 를 찾을 수 없어요');
   return faq;
 }
 
@@ -226,7 +226,7 @@ export async function deleteFaqCategory(id: string, signal?: AbortSignal): Promi
   failIfRequested('category');
   // 안전 기본값: 사용 중인 카테고리는 삭제하지 않는다(서버는 409 로 막는다). 프론트도 버튼을 잠근다.
   if (FAQS.some((faq) => faq.categoryId === id)) {
-    throw new Error('사용 중인 카테고리는 삭제할 수 없습니다.');
+    throw new Error('사용 중인 카테고리는 삭제할 수 없어요.');
   }
   FAQ_CATEGORIES = FAQ_CATEGORIES.filter((category) => category.id !== id);
 }

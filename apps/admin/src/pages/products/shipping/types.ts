@@ -38,7 +38,7 @@ export const DEFAULT_SHIPPING_POLICY: ShippingPolicyValues = {
 
 /** 추적 URL 템플릿 입력의 안내 — 화면과 검증이 같은 문장을 읽는다 */
 export const TRACKING_TEMPLATE_HINT =
-  '{{invoice}} 자리에 송장번호가 들어갑니다. 비워 두면 추적 링크를 만들지 않습니다.';
+  '{{invoice}} 자리에 송장번호가 들어가요. 비워 두면 추적 링크를 만들지 않아요.';
 
 /**
  * 삭제 버튼 옆에 서는 사용 현황 문구.

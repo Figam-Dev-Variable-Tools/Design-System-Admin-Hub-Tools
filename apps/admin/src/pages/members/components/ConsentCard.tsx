@@ -103,7 +103,7 @@ export function ConsentCard({ consents }: ConsentCardProps) {
     return (
       <Card aria-labelledby="member-consent-title">
         <CardTitle id="member-consent-title">동의 정보</CardTitle>
-        <p style={hintStyle}>동의 정보가 없습니다.</p>
+        <p style={hintStyle}>동의 정보가 없어요.</p>
       </Card>
     );
   }

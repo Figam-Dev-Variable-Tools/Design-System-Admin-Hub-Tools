@@ -278,9 +278,9 @@ export function PermissionMatrixTable({
     <div className="tds-perm-matrix-wrap">
       <table style={matrixTableStyle}>
         <caption style={visuallyHiddenStyle}>
-          권한 매트릭스 — 행은 메뉴 리소스, 열은 액션(조회·등록·수정·삭제·내보내기)입니다. 조회를
-          끄면 나머지 액션도 함께 꺼지고, 다른 액션을 켜면 조회가 함께 켜집니다. 그룹 행의
-          체크박스는 하위 메뉴 전체에 적용됩니다.
+          권한 매트릭스 — 행은 메뉴 리소스, 열은 액션(조회·등록·수정·삭제·내보내기)예요. 조회를 끄면
+          나머지 액션도 함께 꺼지고, 다른 액션을 켜면 조회가 함께 켜져요. 그룹 행의 체크박스는 하위
+          메뉴 전체에 적용돼요.
         </caption>
 
         <thead>

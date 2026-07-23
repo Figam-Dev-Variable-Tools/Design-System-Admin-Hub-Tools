@@ -1,15 +1,32 @@
 ---
 id: ADR-0014
 title: PG 스위치의 화면 영향 — 전역 pgSellable 과 상품별 priceDisplay 를 두 축으로 나누고, 잠금이 값을 지우지 않게 한다
-status: accepted
+status: accepted            # §1 만 superseded — 전체 상태는 accepted 다(아래 supersededBy 주석)
 date: 2026-07-22
 owner: 아키텍처
 supersedes: null
-relatedTo: [ADR-0013]
+supersededBy: ADR-0015      # §1(축은 둘이다) 한 절만. §2·§3·§4·§5 는 이 문서가 계속 소유한다
+relatedTo: [ADR-0013, ADR-0015]
 evidence: apps/admin/src/shared/commerce/{payment-settings.ts,pg-lock.ts,price-display.ts,inquiry-backlog.ts}
 ---
 
 # ADR-0014. PG 스위치가 바꾸는 화면들
+
+> ## ⚠ §1 은 [ADR-0015](0015-price-display-single-axis.md) 로 대체됐다 (2026-07-22)
+>
+> **본문은 한 글자도 지우지 않았다** — ADR 은 불변 기록이고, 이 결정이 그때 왜 옳았는지가 그 값어치다.
+> 아래 세 자리는 **지금 거짓**이니 인용하기 전에 ADR-0015 를 먼저 읽어라:
+>
+> | 자리 | 무엇이 거짓인가 |
+> |---|---|
+> | **§1** 표의 축 B(`priceDisplay` — 상품별) | **축 B 가 제거됐다.** 가격 표시는 `resolvePriceDisplay(readPaymentSettings())` 하나에서 나오고 상품별 정책을 인자로 받지 않는다 |
+> | **§1** 의 *"「PG 는 쓰지만 이 상품만 가격문의」 … 예외 사례가 아니라 흔한 운영이다"* | 운영자가 *"선택하는 게 아니라 자동으로"* 로 확정했다. 그 능력은 **설계 근거였지 요구사항이 아니었다** |
+> | **「결과」** 의 *"전역과 개별이 동시에 존재하므로 …가 표현된다"* | 동시에 존재하지 않는다 |
+> | **§1** 의 공식 `pgSellable = usePg && merchantId.trim() !== ''` | `merchantId` 가 삭제되고 `PgConnection` 카탈로그로 대체됐다. 지금 공식은 ADR-0015 「결정」 4 |
+>
+> **거꾸로, 여전히 참인 것을 함께 못박는다** — §2(잠금은 입력만 막고 값을 지우지 않는다) · §3 · §4 · §5,
+> 그리고 「결과」 의 **"PG 를 껐다 켜도 아무 값도 사라지지 않는다"**. 이 문장은 축 B 제거로 **오히려 강해졌다**:
+> 축 B 는 *선택지*였지 *저장값*이 아니었고, 잠금 판정이 전역 하나로 줄면서 되돌리는 조건도 하나가 됐다.
 
 ## 맥락
 

@@ -21,12 +21,12 @@ function ruleBody(css: string, selector: string): string | null {
 
 describe('HelpTip — 계약 states[]', () => {
   it('HelpTip: default(closed) 상태 — 트리거가 aria-label 로 렌더되고 패널은 hidden, aria-expanded=false', () => {
-    render(<HelpTip label="그룹 유형 설명">시스템 역할은 수정할 수 없습니다.</HelpTip>);
+    render(<HelpTip label="그룹 유형 설명">시스템 역할은 수정할 수 없어요.</HelpTip>);
     const trigger = screen.getByRole('button', { name: '그룹 유형 설명' });
 
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
     // 패널은 언마운트되지 않는다 — hidden 으로 감춰진다 (aria-controls 대상 유지)
-    const panel = screen.getByText('시스템 역할은 수정할 수 없습니다.');
+    const panel = screen.getByText('시스템 역할은 수정할 수 없어요.');
     expect((panel as HTMLElement).hidden).toBe(true);
     expect(trigger.getAttribute('aria-controls')).toBe(panel.id);
   });
@@ -51,27 +51,23 @@ describe('HelpTip — 계약 states[]', () => {
   });
 
   it('HelpTip: open 상태 — 트리거를 누르면 aria-expanded=true 가 되고 패널이 보인다', async () => {
-    render(<HelpTip label="그룹 유형 설명">시스템 역할은 수정할 수 없습니다.</HelpTip>);
+    render(<HelpTip label="그룹 유형 설명">시스템 역할은 수정할 수 없어요.</HelpTip>);
     const trigger = screen.getByRole('button', { name: '그룹 유형 설명' });
 
     await userEvent.click(trigger);
 
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
-    expect((screen.getByText('시스템 역할은 수정할 수 없습니다.') as HTMLElement).hidden).toBe(
-      false,
-    );
+    expect((screen.getByText('시스템 역할은 수정할 수 없어요.') as HTMLElement).hidden).toBe(false);
   });
 
   it('HelpTip: closed 상태 — 다시 누르면 닫혀 aria-expanded=false 로 돌아가고 패널이 감춰진다', async () => {
-    render(<HelpTip label="그룹 유형 설명">시스템 역할은 수정할 수 없습니다.</HelpTip>);
+    render(<HelpTip label="그룹 유형 설명">시스템 역할은 수정할 수 없어요.</HelpTip>);
     const trigger = screen.getByRole('button', { name: '그룹 유형 설명' });
 
     await userEvent.click(trigger); // open
     await userEvent.click(trigger); // close
 
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
-    expect((screen.getByText('시스템 역할은 수정할 수 없습니다.') as HTMLElement).hidden).toBe(
-      true,
-    );
+    expect((screen.getByText('시스템 역할은 수정할 수 없어요.') as HTMLElement).hidden).toBe(true);
   });
 });

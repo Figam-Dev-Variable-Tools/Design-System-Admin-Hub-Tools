@@ -49,7 +49,7 @@ function healthyContent(blocks: readonly EmailBlock[] = []): EmailTemplateConten
     ...emptyEmailContent(),
     senderEmail: 'news@example.com',
     subject: '이달의 소식',
-    preheader: '이번 달 신상품과 혜택을 모았습니다.',
+    preheader: '이번 달 신상품과 혜택을 모았어요.',
     blocks: [
       heading.blockKind === 'heading' ? { ...heading, content: '이달의 소식' } : heading,
       button.blockKind === 'button'

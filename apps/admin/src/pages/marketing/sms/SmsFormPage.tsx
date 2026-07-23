@@ -18,6 +18,7 @@ import {
   fieldLabelStyle,
   fieldStyle,
   FormField,
+  formRowStyle,
   hintStyle,
   Icon,
   pageTitleStyle,
@@ -54,7 +55,7 @@ const RESOURCE = 'marketing-sms';
 const ENTITY_LABEL = 'SMS 발송';
 const LIST_PATH = '/marketing/sms';
 const UNSAVED_MESSAGE =
-  'SMS 발송에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  'SMS 발송에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 const NO_TEMPLATE = '';
 
 const pageStyle: CSSProperties = {
@@ -103,12 +104,6 @@ const columnStyle: CSSProperties = {
   flexDirection: 'column',
   gap: cssVar('space.5'),
   minWidth: 0,
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const actionsStyle: CSSProperties = {
@@ -263,8 +258,8 @@ export default function SmsFormPage() {
           <div style={alertActionRowStyle}>
             <span>
               {loadFailure === 'not-found'
-                ? 'SMS 발송을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : 'SMS 발송을 불러오지 못했습니다.'}
+                ? 'SMS 발송을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : 'SMS 발송을 불러오지 못했어요.'}
             </span>
             {loadFailure === 'error' && (
               <Button variant="secondary" onClick={retryLoad}>
@@ -295,8 +290,8 @@ export default function SmsFormPage() {
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? 'SMS 발송 수정' : 'SMS 발송 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 저장은 발송 예약일 뿐이며 이 화면에서 문자가 즉시 전송되지
-          않습니다.
+          별표(*) 항목은 필수예요. 저장은 발송 예약일 뿐이며 이 화면에서 문자가 즉시 전송되지
+          않아요.
         </p>
       </div>
 
@@ -326,7 +321,7 @@ export default function SmsFormPage() {
                 label="발신번호"
                 required
                 error={errors.senderId?.message}
-                hint="사전등록(검증)된 번호만 선택할 수 있습니다(전기통신사업법 제84조의2)."
+                hint="사전등록(검증)된 번호만 선택할 수 있어요(전기통신사업법 제84조의2)."
               >
                 <SelectField
                   id="sms-sender"
@@ -371,7 +366,7 @@ export default function SmsFormPage() {
                 />
                 <p style={hintStyle}>
                   광고성이면 본문에 &quot;(광고)&quot; 표기·무료수신거부 안내가 필요하고,
-                  야간(21~08시) 발송이 제한됩니다.
+                  야간(21~08시) 발송이 제한돼요.
                 </p>
               </div>
             </Card>
@@ -393,7 +388,7 @@ export default function SmsFormPage() {
 
             <Card>
               <CardTitle>발송 예약</CardTitle>
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="sms-status" label="발송 방식" required>
                   <SelectField id="sms-status" disabled={disabled} {...register('status')}>
                     <option value="draft">초안 저장</option>
@@ -424,8 +419,8 @@ export default function SmsFormPage() {
               </div>
               {nightWarning && (
                 <Alert tone="danger">
-                  광고성 메시지는 21시~익일 8시에 예약할 수 없습니다(야간 광고 전송 제한,
-                  정보통신망법 제50조 제3항).
+                  광고성 메시지는 21시~익일 8시에 예약할 수 없어요(야간 광고 전송 제한, 정보통신망법
+                  제50조 제3항).
                 </Alert>
               )}
             </Card>
@@ -441,8 +436,8 @@ export default function SmsFormPage() {
               hasImage={hasImage}
             />
             <p style={previewNoteStyle}>
-              선택 대상 {formatNumber(recipients)}명 · 건당 과금(유형별 단가)은 발송 시 합산됩니다.
-              저장은 발송이 아닙니다.
+              선택 대상 {formatNumber(recipients)}명 · 건당 과금(유형별 단가)은 발송 시 합산돼요.
+              저장은 발송이 아니에요.
             </p>
           </Card>
         </div>

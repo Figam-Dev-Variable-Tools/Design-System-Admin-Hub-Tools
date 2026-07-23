@@ -596,7 +596,7 @@ function OrderStatsScreen({ state }: { state: ScreenState }) {
         unit: 'count',
         value: orders,
         compareValue: cmp(orders),
-        hint: '선택한 기간에 접수된 주문 건수입니다.',
+        hint: '선택한 기간에 접수된 주문 건수예요.',
       },
       {
         id: 'canceled',
@@ -605,7 +605,7 @@ function OrderStatsScreen({ state }: { state: ScreenState }) {
         value: canceled,
         compareValue: cmp(canceled),
         isLowerBetter: true,
-        hint: '배송중 이전에 멈춘 주문입니다.',
+        hint: '배송중 이전에 멈춘 주문이에요.',
       },
       {
         id: 'returned',
@@ -614,7 +614,7 @@ function OrderStatsScreen({ state }: { state: ScreenState }) {
         value: returned,
         compareValue: cmp(returned),
         isLowerBetter: true,
-        hint: '배송중 이후에 되돌아온 주문입니다.',
+        hint: '배송중 이후에 되돌아온 주문이에요.',
       },
       {
         id: 'cancelRate',
@@ -674,8 +674,8 @@ function OrderStatsScreen({ state }: { state: ScreenState }) {
   return (
     <div style={pageStyle}>
       <p style={descriptionStyle}>
-        주문이 어느 상태에 고여 있는지, 얼마나 취소·반품으로 되돌아오는지 보는 화면입니다. 개별
-        주문의 처리는 주문 관리에서 하고, 여기서는 지난 기간과 견주어 무엇이 달라졌는지를 봅니다.
+        주문이 어느 상태에 고여 있는지, 얼마나 취소·반품으로 되돌아오는지 보는 화면이에요. 개별
+        주문의 처리는 주문 관리에서 하고, 여기서는 지난 기간과 견주어 무엇이 달라졌는지를 봐요.
       </p>
 
       {/* 조회 조건 바 — 원본 StatsFilterBar (프리셋 · 비교 기준 · 주문 상태 · 내보내기) */}
@@ -786,7 +786,7 @@ function OrderStatsScreen({ state }: { state: ScreenState }) {
       >
         {currentSeries.length === 0 ? (
           <p style={{ ...hintStyle, textAlign: 'center', paddingBlock: cssVar('space.6') }}>
-            선택한 기간에 집계된 값이 없습니다.
+            선택한 기간에 집계된 값이 없어요.
           </p>
         ) : (
           <LineAreaChart

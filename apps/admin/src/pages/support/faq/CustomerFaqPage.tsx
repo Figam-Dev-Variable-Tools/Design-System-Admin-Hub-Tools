@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 
 import { isAbort } from '../../../shared/async';
 import { formatNumber } from '../../../shared/format';
+import { useRouteCan, WRITE_DENIED } from '../../../shared/permissions/RequirePermission';
 import { Alert, Button, Card, hintStyle, useToast } from '../../../shared/ui';
 import { CustomerFaqTable } from './components/CustomerFaqTable';
 import {
@@ -54,6 +55,13 @@ export default function CustomerFaqPage() {
   const reorderControllerRef = useRef<AbortController | null>(null);
   const [togglingIds, setTogglingIds] = useState<ReadonlySet<string>>(new Set());
 
+  /**
+   * [EXC-03] 이 화면의 액션은 **전부 update 다** — 노출·BEST 고정·표시 순서.
+   * 등록·삭제는 콘텐츠 관리 소관이라 여기엔 없으므로 create/remove 를 묻지 않는다.
+   * 이 한 값이 표의 컨트롤과 세 뮤테이션의 거절을 동시에 정한다 — 갈라질 수 없다.
+   */
+  const canUpdate = useRouteCan('update');
+
   const { data, isFetching, error, refetch } = useQuery({
     queryKey: QUERY_KEY,
     queryFn: ({ signal }) => fetchCustomerFaqs(signal),
@@ -95,6 +103,12 @@ export default function CustomerFaqPage() {
   });
 
   const onReorder = (orderedIds: readonly string[]) => {
+    // 표가 핸들을 지운 것과 같은 술어로 저장도 거절한다 (낙관적 반영이라 특히 중요하다 —
+    // 막지 않으면 화면만 바뀌고 서버는 그대로인 '유령 저장' 이 된다)
+    if (!canUpdate) {
+      toast.error(WRITE_DENIED.update);
+      return;
+    }
     reorderControllerRef.current?.abort();
     const controller = new AbortController();
     reorderControllerRef.current = controller;
@@ -106,12 +120,12 @@ export default function CustomerFaqPage() {
       {
         onSuccess: () => {
           if (controller.signal.aborted) return;
-          toast.success('고객센터 표시 순서를 변경했습니다.');
+          toast.success('고객센터 표시 순서를 변경했어요.');
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
           setSnapshot(snapshot); // 롤백
-          toast.error('순서를 변경하지 못했습니다.', { retry: () => onReorder(orderedIds) });
+          toast.error('순서를 변경하지 못했어요.', { retry: () => onReorder(orderedIds) });
         },
       },
     );
@@ -125,6 +139,11 @@ export default function CustomerFaqPage() {
 
   const onToggleVisible = (faq: CustomerFaq, next: boolean) => {
     if (togglingIds.has(faq.id)) return;
+    // 스위치를 배지로 바꾼 술어와 **같은 술어**가 저장을 거절한다 (RowToggle ↔ 여기)
+    if (!canUpdate) {
+      toast.error(WRITE_DENIED.update);
+      return;
+    }
     markToggling(faq.id, true);
     const snapshot = faqs;
     setSnapshot(faqs.map((item) => (item.id === faq.id ? { ...item, visible: next } : item)));
@@ -132,13 +151,11 @@ export default function CustomerFaqPage() {
       { id: faq.id, visible: next },
       {
         onSuccess: () =>
-          toast.success(
-            next ? `'${faq.question}' 를 노출합니다.` : `'${faq.question}' 를 숨겼습니다.`,
-          ),
+          toast.success(next ? `'${faq.question}' 를 노출해요.` : `'${faq.question}' 를 숨겼어요.`),
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
           setSnapshot(snapshot);
-          toast.error('노출 상태를 변경하지 못했습니다.', {
+          toast.error('노출 상태를 변경하지 못했어요.', {
             retry: () => onToggleVisible(faq, next),
           });
         },
@@ -155,6 +172,10 @@ export default function CustomerFaqPage() {
 
   const onTogglePinned = (faq: CustomerFaq, next: boolean) => {
     if (togglingIds.has(faq.id)) return;
+    if (!canUpdate) {
+      toast.error(WRITE_DENIED.update);
+      return;
+    }
     markToggling(faq.id, true);
     const snapshot = faqs;
     setSnapshot(faqs.map((item) => (item.id === faq.id ? { ...item, pinned: next } : item)));
@@ -164,13 +185,13 @@ export default function CustomerFaqPage() {
         onSuccess: () =>
           toast.success(
             next
-              ? `'${faq.question}' 를 BEST 로 고정했습니다.`
-              : `'${faq.question}' BEST 고정을 해제했습니다.`,
+              ? `'${faq.question}' 를 BEST 로 고정했어요.`
+              : `'${faq.question}' BEST 고정을 해제했어요.`,
           ),
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
           setSnapshot(snapshot);
-          toast.error('BEST 고정을 변경하지 못했습니다.', {
+          toast.error('BEST 고정을 변경하지 못했어요.', {
             retry: () => onTogglePinned(faq, next),
           });
         },
@@ -184,7 +205,7 @@ export default function CustomerFaqPage() {
       <div style={pageStyle}>
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>고객노출 FAQ 를 불러오지 못했습니다.</span>
+            <span>고객노출 FAQ 를 불러오지 못했어요.</span>
             <Button variant="secondary" onClick={() => void refetch()}>
               다시 시도
             </Button>
@@ -199,9 +220,9 @@ export default function CustomerFaqPage() {
       <Alert tone="info">
         <div style={noticeStyle}>
           <span>
-            콘텐츠 관리에서 노출 중인 FAQ 가 이 목록에 그대로 올라옵니다. 질문·답변·카테고리 수정과
+            콘텐츠 관리에서 노출 중인 FAQ 가 이 목록에 그대로 올라와요. 질문·답변·카테고리 수정과
             등록·삭제는 콘텐츠 관리에서 하고, 이 화면은 고객센터 노출 순서·노출 여부·BEST 고정만
-            큐레이션합니다.
+            큐레이션해요.
           </span>
           <Link to="/content/faq" className="tds-ui-link tds-ui-focusable">
             콘텐츠 관리 FAQ 로 이동
@@ -225,6 +246,7 @@ export default function CustomerFaqPage() {
           onToggleVisible={onToggleVisible}
           onTogglePinned={onTogglePinned}
           togglingIds={togglingIds}
+          canUpdate={canUpdate}
         />
       </Card>
     </div>

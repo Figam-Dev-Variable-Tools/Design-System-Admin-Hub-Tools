@@ -7,6 +7,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { cssVar, Skeleton } from '@tds/ui';
 
+import { ForbiddenScreen } from '../../../shared/errors/ErrorScreens';
+import { useRouteCanSubmitForm } from '../../../shared/permissions/RequirePermission';
 import { Alert, Button, Card, Icon } from '../../../shared/ui';
 import { VersionForm } from './components/VersionForm';
 import { usePrivacyVersionQuery } from './queries';
@@ -50,14 +52,21 @@ export default function PrivacyFormPage() {
 
   const detailQuery = usePrivacyVersionQuery(id ?? '');
   const loadingDetail = isEdit && detailQuery.data === undefined && detailQuery.error === null;
+  /* [EXC-03] 이 폼 라우트는 FormPageShell 을 쓰지 않아 껍데기의 403 을 받지 못했다 —
+     RequirePermission 은 read 만 보므로 `/content/privacy/new` 가 조회 권한만으로 열리고 제출까지
+     됐다. 같은 판정을 VersionForm 이 제출 경로에서 한 번 더 읽는다. */
+  const canSubmit = useRouteCanSubmitForm(isEdit);
 
   const back = () => navigate(LIST_PATH);
+
+  /* 쓸 수 없는 폼은 열지 않는다 — 조회 실패 분기보다 앞선다 (FormPageShell 과 같은 순서) */
+  if (!canSubmit) return <ForbiddenScreen />;
 
   if (isEdit && detailQuery.error !== null) {
     return (
       <div style={pageStyle}>
         <Alert tone="danger">
-          <span>처리방침 버전을 불러오지 못했습니다. </span>
+          <span>처리방침 버전을 불러오지 못했어요. </span>
           <Button variant="secondary" onClick={back}>
             목록으로
           </Button>

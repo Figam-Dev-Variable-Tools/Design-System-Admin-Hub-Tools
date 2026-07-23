@@ -55,7 +55,13 @@ function enablePayments(): void {
   writePaymentSettings({
     ...DEFAULT_PAYMENT_SETTINGS,
     usePg: true,
-    merchantId: 'tosspayments-test',
+    // 자격증명이 완비여야 결제를 여는 설정으로 친다(shared/commerce/pg-catalog.ts)
+    connection: {
+      mode: 'direct',
+      provider: 'toss',
+      publicValues: { clientKey: 'test_ck_stats', mid: 'tosspayments-test' },
+      storedSecrets: ['secretKey'],
+    },
   });
 }
 
@@ -103,14 +109,14 @@ describe.each(SCREENS)('$name — 상태 머신', (screen_) => {
     });
 
     // 성공 상태에서는 에러 배너가 없다 (STATE-01: 네 상태 중 정확히 하나)
-    expect(screen.queryByText('통계를 불러오지 못했습니다.')).toBeNull();
+    expect(screen.queryByText('통계를 불러오지 못했어요.')).toBeNull();
   });
 
   it('조회 실패는 인라인 배너와 다시 시도로 뜬다 — 토스트가 아니다 (STATE-02)', async () => {
     renderScreen(screen_, '?fail=list');
 
     await waitFor(() => {
-      expect(screen.getByText('통계를 불러오지 못했습니다.')).toBeDefined();
+      expect(screen.getByText('통계를 불러오지 못했어요.')).toBeDefined();
     });
 
     // 사용자가 할 일은 재시도 하나뿐이므로 그 손잡이가 화면에 남아 있어야 한다
@@ -124,7 +130,7 @@ describe.each(SCREENS)('$name — 상태 머신', (screen_) => {
 
     if (screen_.route === '/stats/visitors') {
       await waitFor(() => {
-        expect(screen.getByText('통계를 불러오지 못했습니다.')).toBeDefined();
+        expect(screen.getByText('통계를 불러오지 못했어요.')).toBeDefined();
       });
       return;
     }
@@ -132,7 +138,7 @@ describe.each(SCREENS)('$name — 상태 머신', (screen_) => {
     await waitFor(() => {
       expect(screen.getAllByText(screen_.kpi).length).toBeGreaterThan(0);
     });
-    expect(screen.queryByText('통계를 불러오지 못했습니다.')).toBeNull();
+    expect(screen.queryByText('통계를 불러오지 못했어요.')).toBeNull();
   });
 
   it('집계가 0이어도 에러가 아니다 — 성공한 빈 상태다 (STATE-01)', async () => {
@@ -142,7 +148,7 @@ describe.each(SCREENS)('$name — 상태 머신', (screen_) => {
       expect(screen.getAllByText(screen_.kpi).length).toBeGreaterThan(0);
     });
     // 빈 것과 실패한 것은 다르다
-    expect(screen.queryByText('통계를 불러오지 못했습니다.')).toBeNull();
+    expect(screen.queryByText('통계를 불러오지 못했어요.')).toBeNull();
   });
 
   it('종료일이 시작일보다 빠르면 조용한 empty 가 아니라 검증 오류다 (COMP-11)', async () => {
@@ -151,7 +157,7 @@ describe.each(SCREENS)('$name — 상태 머신', (screen_) => {
     // 메시지는 **정확히 한 번**, 고칠 수 있는 입력칸 옆에만 뜬다.
     // (배너로 한 번 더 띄우면 스크린리더가 같은 문장을 두 번 읽는다.)
     await waitFor(() => {
-      expect(screen.getAllByText('종료일은 시작일보다 빠를 수 없습니다.')).toHaveLength(1);
+      expect(screen.getAllByText('종료일은 시작일보다 빠를 수 없어요.')).toHaveLength(1);
     });
 
     // 말이 안 되는 범위로는 조회하지 않는다 — 본문이 뜨지 않는다

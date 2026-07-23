@@ -10,6 +10,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 
 import { ToastProvider } from '../../../../shared/ui';
@@ -27,20 +28,37 @@ vi.mock('../queries', async (importOriginal) => {
   };
 });
 
+const ROUTE = '/content/faq';
+
 function renderModal(onClose: () => void) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
+  /* 라우터 안에서 세운다 — 이 모달은 **자기 권한 판정**을 갖고(EXC-03), 그 판정의 리소스는
+     지금 서 있는 라우트에서 파생된다(route-resource.ts). 기본 세션은 전권이라 컨트롤은 그대로다. */
   return render(
     <QueryClientProvider client={client}>
       <ToastProvider>
-        <ManageFaqCategoriesModal onClose={onClose} onCreated={vi.fn()} onDeleted={vi.fn()} />
+        <MemoryRouter initialEntries={[ROUTE]}>
+          <Routes>
+            <Route
+              path={ROUTE}
+              element={
+                <ManageFaqCategoriesModal
+                  onClose={onClose}
+                  onCreated={vi.fn()}
+                  onDeleted={vi.fn()}
+                />
+              }
+            />
+          </Routes>
+        </MemoryRouter>
       </ToastProvider>
     </QueryClientProvider>,
   );
 }
 
-const DISCARD_TITLE = '저장하지 않은 변경 사항이 있습니다';
+const DISCARD_TITLE = '저장하지 않은 변경 사항이 있어요';
 
 /** 폼 모달 — 폐기 확인이 뜨면 다이얼로그가 2개가 되므로 제목으로 가른다 */
 function formModal(): HTMLElement {

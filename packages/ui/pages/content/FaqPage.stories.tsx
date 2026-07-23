@@ -538,7 +538,7 @@ function ManageCategoriesModal({
                   icon={<Icon name="trash" />}
                   label={
                     inUse
-                      ? `${category.label} — ${usageLabel(faqCount)}라 삭제할 수 없습니다`
+                      ? `${category.label} — ${usageLabel(faqCount)}라 삭제할 수 없어요`
                       : `${category.label} 삭제`
                   }
                   size="sm"
@@ -560,8 +560,8 @@ function ManageCategoriesModal({
         />
 
         <p style={hintStyle}>
-          카테고리를 만들면 FAQ 등록 화면의 분류 선택지에 추가됩니다. 사용 중인 카테고리는 삭제할 수
-          없습니다 — 먼저 그 FAQ 들의 카테고리를 바꾸거나 삭제하세요.
+          카테고리를 만들면 FAQ 등록 화면의 분류 선택지에 추가돼요. 사용 중인 카테고리는 삭제할 수
+          없어요 — 먼저 그 FAQ 들의 카테고리를 바꾸거나 삭제하세요.
         </p>
       </div>
     </Modal>
@@ -818,8 +818,8 @@ function FaqScreen({
           <Table
             caption={
               reorderable
-                ? 'FAQ 목록 — 행을 누르면 FAQ 상세로 이동합니다. 체크박스·노출 토글·삭제 버튼은 각자의 동작을 수행하며, 각 행의 위/아래 버튼으로 정렬 순서를 바꿉니다.'
-                : 'FAQ 목록 — 행을 누르면 FAQ 상세로 이동합니다. 체크박스·노출 토글·삭제 버튼은 각자의 동작을 수행합니다. 필터·검색이 걸려 있어 정렬 순서는 바꿀 수 없습니다.'
+                ? 'FAQ 목록 — 행을 누르면 FAQ 상세로 이동해요. 체크박스·노출 토글·삭제 버튼은 각자의 동작을 수행하며, 각 행의 위/아래 버튼으로 정렬 순서를 바꿔요.'
+                : 'FAQ 목록 — 행을 누르면 FAQ 상세로 이동해요. 체크박스·노출 토글·삭제 버튼은 각자 따로 동작해요. 필터·검색이 걸려 있어 정렬 순서는 바꿀 수 없어요.'
             }
             columns={COLUMNS}
             rows={rows}
@@ -875,7 +875,7 @@ function FaqScreen({
         <ConfirmDialog
           intent="delete"
           title="FAQ 삭제"
-          message={`'${pendingDelete.question}' FAQ 를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.question}' FAQ 를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="FAQ 삭제"
           onConfirm={() => {
             removeFaqs([pendingDelete.id]);
@@ -889,7 +889,7 @@ function FaqScreen({
         <ConfirmDialog
           intent="delete"
           title="FAQ 일괄 삭제"
-          message={`선택한 FAQ ${fmt(selectedCount)}건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 FAQ ${fmt(selectedCount)}건을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel={`${fmt(selectedCount)}건 삭제`}
           onConfirm={() => {
             removeFaqs([...selectedIds]);

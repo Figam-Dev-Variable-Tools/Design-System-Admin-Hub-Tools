@@ -28,7 +28,7 @@ const intString = (label: string) =>
       error: `${label}${objectParticle(label)} 입력하세요.`,
     }),
     z.refine((value) => INT_RE.test(value.trim()), {
-      error: `${label}${topicParticle(label)} 숫자만 입력할 수 있습니다.`,
+      error: `${label}${topicParticle(label)} 숫자만 입력할 수 있어요.`,
     }),
   );
 
@@ -38,10 +38,10 @@ export const couponSchema = z
     code: z.string().check(
       z.refine((value) => value.trim() !== '', { error: '쿠폰 코드를 입력하세요.' }),
       z.refine((value) => value.trim().length <= COUPON_CODE_MAX, {
-        error: `쿠폰 코드는 ${String(COUPON_CODE_MAX)}자를 넘을 수 없습니다.`,
+        error: `쿠폰 코드는 ${String(COUPON_CODE_MAX)}자를 넘을 수 없어요.`,
       }),
       z.refine((value) => /^[A-Za-z0-9-]+$/.test(value.trim()), {
-        error: '쿠폰 코드는 영문·숫자·하이픈만 사용할 수 있습니다.',
+        error: '쿠폰 코드는 영문·숫자·하이픈만 사용할 수 있어요.',
       }),
     ),
     issueType: z.enum(['amount', 'percent', 'free_shipping']),
@@ -80,7 +80,7 @@ export const couponSchema = z
         code: 'custom',
         input: discountValue,
         path: ['discountValue'],
-        message: '할인값은 숫자만 입력할 수 있습니다.',
+        message: '할인값은 숫자만 입력할 수 있어요.',
       });
       return;
     }
@@ -111,7 +111,7 @@ export const couponSchema = z
         code: 'custom',
         input: ctx.value.endAt,
         path: ['endAt'],
-        message: '종료일은 시작일보다 빠를 수 없습니다.',
+        message: '종료일은 시작일보다 빠를 수 없어요.',
       });
     }
   })
@@ -150,7 +150,7 @@ export const couponSchema = z
         code: 'custom',
         input: triggerTo,
         path: ['triggerTo'],
-        message: '다운로드 종료일은 시작일보다 빠를 수 없습니다.',
+        message: '다운로드 종료일은 시작일보다 빠를 수 없어요.',
       });
       return;
     }
@@ -160,7 +160,7 @@ export const couponSchema = z
         code: 'custom',
         input: triggerTo,
         path: ['triggerTo'],
-        message: '다운로드 종료일을 쿠폰 사용 종료일 이내로 맞추세요. 받아도 쓸 수 없습니다.',
+        message: '다운로드 종료일을 쿠폰 사용 종료일 이내로 맞추세요. 받아도 쓸 수 없어요.',
       });
     }
   })

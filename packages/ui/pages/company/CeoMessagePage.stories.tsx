@@ -76,7 +76,7 @@ const SEED_MESSAGE: CeoMessageValues = {
   title: '고객과 함께 성장하는 기업이 되겠습니다',
   body:
     '안녕하십니까. 주식회사 예시플래닝을 찾아주신 여러분께 진심으로 감사드립니다.\n\n' +
-    '저희는 공간 기획을 기반으로 고객의 문제를 함께 풀어 가는 것을 사명으로 삼고 있습니다. ' +
+    '저희는 공간 기획을 기반으로 고객의 문제를 함께 풀어 가는 것을 사명으로 삼고 있어요. ' +
     '앞으로도 정직과 신뢰를 바탕으로 더 나은 가치를 만들어 가겠습니다.\n\n대표이사 홍길동 드림',
   photoUrl: PHOTO_DATA_URI,
 };
@@ -212,7 +212,7 @@ function CeoMessageScreen({
         <h1 style={pageTitleStyle}>CEO 인사말</h1>
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>내용을 불러오지 못했습니다.</span>
+            <span>내용을 불러오지 못했어요.</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
@@ -224,7 +224,7 @@ function CeoMessageScreen({
     <div style={pageStyle}>
       <h1 style={pageTitleStyle}>CEO 인사말</h1>
       <p style={descriptionStyle}>
-        별표(*) 항목은 필수입니다. 저장하면 사용자 화면의 인사말 페이지에 반영됩니다.
+        별표(*) 항목은 필수예요. 저장하면 사용자 화면의 인사말 페이지에 반영돼요.
       </p>
 
       <form onSubmit={(event) => event.preventDefault()} noValidate>
@@ -285,7 +285,7 @@ function CeoMessageScreen({
                     value={photoUrl}
                     disabled={disabled}
                     error={errors.photoUrl ?? ''}
-                    hint="대표/CEO 사진 URL (선택). 이미지를 끌어다 놓거나 클릭해 업로드합니다."
+                    hint="대표/CEO 사진 URL (선택). 이미지를 끌어다 놓거나 클릭해 업로드해요."
                     onChange={(value) => {
                       setPhotoUrl(value);
                       touch();
@@ -298,10 +298,10 @@ function CeoMessageScreen({
             <div style={actionsStyle}>
               <p style={footerHintStyle}>
                 {saving
-                  ? '저장하는 중입니다…'
+                  ? '저장하는 중이에요…'
                   : dirty
-                    ? '저장하지 않은 변경 사항이 있습니다.'
-                    : '변경 사항이 없습니다.'}
+                    ? '저장하지 않은 변경 사항이 있어요.'
+                    : '변경 사항이 없어요.'}
               </p>
               <Button
                 type="submit"

@@ -1,6 +1,6 @@
 # 메뉴별 플로우 차트
 
-사이드바 메뉴 **전수 81장**. 각 장이 그 메뉴의 진입 → 조회 상태 → 액션 → 게이트·검증 → mutation → 성공·실패 → 복귀를 담는다.
+사이드바 메뉴 **전수 74장**. 각 장이 그 메뉴의 진입 → 조회 상태 → 액션 → 게이트·검증 → mutation → 성공·실패 → 복귀를 담는다.
 코드(페이지 컴포넌트·types.ts·data-source.ts·queries.ts)를 읽고 그린 것이라 상태값과 가드 이름이 실제와 일치한다.
 
 **[전체 목차(HTML)](html/index.html)** — 브라우저로 열면 휠 확대·드래그 이동이 된다.
@@ -26,12 +26,8 @@
 | 회사 정보 | `/company/profile` | [HTML](html/menus/company-profile.html) | [mmd](mmd/menus/company-profile.mmd) |
 | 배너 관리 | `/content/banners` | [HTML](html/menus/content-banners.html) | [mmd](mmd/menus/content-banners.mmd) |
 | FAQ | `/content/faq` | [HTML](html/menus/content-faq.html) | [mmd](mmd/menus/content-faq.mmd) |
-| 폼 관리 | `/content/forms` | [HTML](html/menus/content-forms.html) | [mmd](mmd/menus/content-forms.mmd) |
-| 미디어 라이브러리 | `/content/media` | [HTML](html/menus/content-media.html) | [mmd](mmd/menus/content-media.mmd) |
-| 메뉴 관리 | `/content/menus` | [HTML](html/menus/content-menus.html) | [mmd](mmd/menus/content-menus.mmd) |
 | 뉴스·보도자료 | `/content/news` | [HTML](html/menus/content-news.html) | [mmd](mmd/menus/content-news.mmd) |
 | 공지사항 | `/content/notices` | [HTML](html/menus/content-notices.html) | [mmd](mmd/menus/content-notices.mmd) |
-| 페이지 관리 | `/content/pages` | [HTML](html/menus/content-pages.html) | [mmd](mmd/menus/content-pages.mmd) |
 | 팝업 관리 | `/content/popups` | [HTML](html/menus/content-popups.html) | [mmd](mmd/menus/content-popups.mmd) |
 | 개인정보 처리방침 | `/content/privacy` | [HTML](html/menus/content-privacy.html) | [mmd](mmd/menus/content-privacy.mmd) |
 | 약관 관리 | `/content/terms` | [HTML](html/menus/content-terms.html) | [mmd](mmd/menus/content-terms.mmd) |
@@ -64,18 +60,15 @@
 | 프로그램 | `/programs` | [HTML](html/menus/programs-items.html) | [mmd](mmd/menus/programs-items.mmd) |
 | 거래처 | `/sales/accounts` | [HTML](html/menus/sales-accounts.html) | [mmd](mmd/menus/sales-accounts.mmd) |
 | 청구·입금 | `/sales/billing` | [HTML](html/menus/sales-billing.html) | [mmd](mmd/menus/sales-billing.mmd) |
-| 상담 이력 | `/sales/consultations` | [HTML](html/menus/sales-consultations.html) | [mmd](mmd/menus/sales-consultations.mmd) |
 | 계약 | `/sales/contracts` | [HTML](html/menus/sales-contracts.html) | [mmd](mmd/menus/sales-contracts.mmd) |
 | 문의 (영업) | `/sales/inquiries` | [HTML](html/menus/sales-inquiries.html) | [mmd](mmd/menus/sales-inquiries.mmd) |
 | 프로젝트 | `/sales/projects` | [HTML](html/menus/sales-projects.html) | [mmd](mmd/menus/sales-projects.mmd) |
 | 견적 | `/sales/quotes` | [HTML](html/menus/sales-quotes.html) | [mmd](mmd/menus/sales-quotes.mmd) |
 | API Key 설정 | `/settings/api-keys` | [HTML](html/menus/settings-api-keys.html) | [mmd](mmd/menus/settings-api-keys.mmd) |
-| 다국어 설정 | `/settings/languages` | [HTML](html/menus/settings-languages.html) | [mmd](mmd/menus/settings-languages.mmd) |
 | 알림 설정 | `/settings/notifications` | [HTML](html/menus/settings-notifications.html) | [mmd](mmd/menus/settings-notifications.mmd) |
 | OAuth 설정 | `/settings/oauth` | [HTML](html/menus/settings-oauth.html) | [mmd](mmd/menus/settings-oauth.mmd) |
 | 결제 설정 | `/settings/payment` | [HTML](html/menus/settings-payment.html) | [mmd](mmd/menus/settings-payment.mmd) |
 | 플랜·이용 현황 | `/settings/plan` | [HTML](html/menus/settings-plan.html) | [mmd](mmd/menus/settings-plan.mmd) |
-| 사이트 연동 | `/settings/site-connect` | [HTML](html/menus/settings-site-connect.html) | [mmd](mmd/menus/settings-site-connect.mmd) |
 | 사이트 설정 | `/settings/site` | [HTML](html/menus/settings-site.html) | [mmd](mmd/menus/settings-site.mmd) |
 | 검색어 분석 | `/stats/keywords` | [HTML](html/menus/stats-keywords.html) | [mmd](mmd/menus/stats-keywords.mmd) |
 | 회원 통계 | `/stats/members` | [HTML](html/menus/stats-members.html) | [mmd](mmd/menus/stats-members.mmd) |
@@ -105,9 +98,13 @@
 **라우트는 사라지지 않는다.** `collectNavRoutes()` 는 `resolveNavLeaf` 를 지나지 않으므로 URL 로 들어온
 과거 문의 화면은 계속 열린다. 그래서 이 표는 두 메뉴를 **항상** 싣는다 — 감추는 것과 없애는 것은 다른 결정이다.
 
-## 사라진 두 장
+## 사라진 장들
 
 | 옛 차트 | 무슨 일이 있었나 |
 |---|---|
 | `products-returns.mmd` | 교환/반품이 `/orders/claims` 로 옮겨 가며 **취소가 축으로 들어왔다**. `orders-claims.mmd` 가 그 자리를 대신한다 |
 | `marketing-alimtalk.mmd` | 알림톡 전용 화면이 없어졌다. `/marketing/templates/alimtalk` 은 이제 `/marketing/templates` 로 `Navigate replace` 하며(`App.tsx`), 종류는 발송 템플릿의 `?kind=text\|email\|alimtalk` 로 고른다 |
+| `content-pages.mmd` · `content-menus.mmd` · `content-forms.mmd` · `content-media.mmd` | 홈페이지의 페이지 트리·메뉴 구조·폼 구성·자산 라이브러리 네 화면을 **IA 에서 걷어냈다**(2026-07-22 · 운영자 확정). 사이트 구조를 어드민에서 자유롭게 짜게 두면 IA 가 화면 밖에서 갈라진다는 판단이다 |
+| `settings-languages.mmd` | 다국어 설정 — 이 제품이 다루는 축이 아니다(2026-07-22). 결번 089 |
+| `sales-consultations.mmd` | 상담 이력 — 조회 전용 감사 화면을 걷었다(2026-07-22). 결번 053 |
+| `settings-site-connect.mmd` | 사이트 연동 — 어드민이 연동 UI 를 갖지 않는다(2026-07-22). 연동 자체는 백엔드가 템플릿별로 뚫는다. 결번 087 |

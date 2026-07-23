@@ -68,7 +68,7 @@ export default function MessageTemplateEditorPage() {
     return (
       <Alert tone="danger">
         <div style={alertActionRowStyle}>
-          <span>메시지 템플릿을 불러오지 못했습니다.</span>
+          <span>메시지 템플릿을 불러오지 못했어요.</span>
           <Button variant="secondary" onClick={() => navigate(MESSAGE_TEMPLATE_LIST_PATH)}>
             목록으로
           </Button>

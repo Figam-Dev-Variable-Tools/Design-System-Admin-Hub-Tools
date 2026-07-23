@@ -7,7 +7,7 @@
 // onChange 로 함께 오는 마스터 레코드에서 그 값까지 승계한다.
 //
 // [미등록 거래처를 남겨 둔 이유와 그 대가를 드러내는 방식]
-// 아직 등록되지 않은 회사와의 첫 견적/상담은 실제로 존재하고, 문의 → 견적 자동 발행은 회사명
+// 아직 등록되지 않은 회사와의 첫 견적은 실제로 존재하고, 문의 → 견적 자동 발행은 회사명
 // 문자열만 승계한다. 그래서 '미등록 거래처(이름 직접 입력)' 를 남겼다 — 다만 **대가를 숨기지
 // 않는다**: 고르는 순간 경고 톤 안내가 뜨고(역방향 조회·거래처 상세에서 빠진다) 바로 옆에
 // '거래처 등록' 경로를 준다. 조용히 문자열만 저장되던 예전 동작과 다른 점이 이것이다.
@@ -138,8 +138,8 @@ export function AccountSelectField({
         label={label}
         required={required}
         {...(unregistered
-          ? { hint: '마스터에 없는 거래처는 아래에 이름을 직접 적습니다.' }
-          : { hint: '거래처 마스터에서 고르면 상호·사업자번호가 함께 채워집니다.' })}
+          ? { hint: '마스터에 없는 거래처는 아래에 이름을 직접 적어요.' }
+          : { hint: '거래처 마스터에서 고르면 상호·사업자번호가 함께 채워져요.' })}
       >
         <SelectField
           id={id}
@@ -198,7 +198,7 @@ export function AccountSelectField({
         {accountsQuery.error !== null ? (
           <Alert tone="danger">
             <span style={noticeRowStyle}>
-              <span>거래처 목록을 불러오지 못해 지금은 고를 수 없습니다.</span>
+              <span>거래처 목록을 불러오지 못해 지금은 고를 수 없어요.</span>
               <Button variant="secondary" onClick={() => void accountsQuery.refetch()}>
                 다시 시도
               </Button>
@@ -206,14 +206,14 @@ export function AccountSelectField({
           </Alert>
         ) : dangling ? (
           <Alert tone="warning">
-            연결된 거래처를 찾을 수 없습니다. 이미 삭제되었을 수 있으니 거래처를 다시 고르세요.
+            연결된 거래처를 찾을 수 없어요. 이미 삭제되었을 수 있으니 거래처를 다시 고르세요.
           </Alert>
         ) : unregistered ? (
           <Alert tone="warning">
             <span style={noticeRowStyle}>
               <span>
-                거래처 마스터에 연결되지 않습니다 — 거래처 상세의 계약·견적·프로젝트·상담 이력에 이
-                건이 나타나지 않습니다.
+                거래처 마스터에 연결되지 않아요 — 거래처 상세의 계약·견적·프로젝트 이력에 이 건이
+                나타나지 않아요.
               </span>
               <Link to={`${ACCOUNT_LIST_PATH}/new`} className="tds-ui-link tds-ui-focusable">
                 거래처 등록
@@ -223,7 +223,7 @@ export function AccountSelectField({
         ) : (
           <p style={hintStyle}>
             {selected === undefined
-              ? '거래처 목록을 불러오는 중입니다…'
+              ? '거래처 목록을 불러오는 중이에요…'
               : `사업자 ${selected.bizNo} · 대표 ${selected.ceoName}`}
           </p>
         )}

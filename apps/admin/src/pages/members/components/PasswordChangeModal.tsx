@@ -8,7 +8,12 @@
 // 첫 제출 전에는 에러를 띄우지 않고, 한 번 제출한 뒤로는 입력할 때마다 즉시 재검증한다.
 //
 // [에러 표시 규칙 — 유지] 필드 오류는 **입력 아래 인라인**, 서버 저장 실패는 **모달 안 배너**.
-import { useEffect, useId, useRef } from 'react';
+//
+// [EXC-03 · 권한] 이 팝업은 **부모의 판정을 물려받지 않는다.** 부모(MemberDetailPage)는 update 권한이
+// 없으면 여는 버튼을 만들지 않지만, 그것은 '열리지 않는다' 는 보장일 뿐 '저장되지 않는다' 는 보장이
+// 아니다 — 열려 있는 동안 다른 탭에서 강등되면 부모의 판정은 이미 지나간 과거다. 바꾸는 것이
+// **계정 비밀번호**라 특히 그렇다. 그래서 같은 술어(같은 라우트의 update)를 여기서 다시 읽는다.
+import { useEffect, useId, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -25,6 +30,7 @@ import {
 } from '../../../shared/ui';
 import { isAbort } from '../../../shared/async';
 import { zodResolver } from '../../../shared/form/zodResolver';
+import { useRouteCan, WRITE_DENIED } from '../../../shared/permissions/RequirePermission';
 import { useChangePassword } from '../queries';
 import { PASSWORD_MIN_LENGTH, passwordChangeSchema } from '../validation';
 import type { PasswordChangeFormValues } from '../validation';
@@ -58,6 +64,11 @@ export function PasswordChangeModal({ memberId, onClose, onSaved }: PasswordChan
   const save = useChangePassword();
   const saving = save.isPending;
 
+  /** 부모가 버튼을 없앨 때 읽은 것과 **같은 술어**다 (같은 라우트의 update) */
+  const canUpdate = useRouteCan('update');
+  /** 권한으로 거절한 사유 — 서버 실패 배너와 같은 자리에 선다 */
+  const [deniedError, setDeniedError] = useState<string | null>(null);
+
   /**
    * [FEEDBACK-06] 입력이 있는 채로 닫으려 하면 확인을 세운다. requestClose 를 Modal.onClose 와
    * 취소 버튼에 **둘 다** 넘겨 4경로(Esc·딤 클릭·×·취소)를 한 번에 덮는다.
@@ -65,7 +76,7 @@ export function PasswordChangeModal({ memberId, onClose, onSaved }: PasswordChan
   const { requestClose, discardDialog } = useModalDirtyGuard(isDirty && !saving, onClose);
 
   const saveError =
-    save.error === null ? null : '비밀번호를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.';
+    save.error === null ? null : '비밀번호를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.';
 
   const passwordId = useId();
   const confirmId = useId();
@@ -75,6 +86,11 @@ export function PasswordChangeModal({ memberId, onClose, onSaved }: PasswordChan
   useEffect(() => () => controllerRef.current?.abort(), []);
 
   const onValid = (values: PasswordChangeFormValues) => {
+    // 저장 경로의 거절 — 침묵하지 않는다
+    if (!canUpdate) {
+      setDeniedError(WRITE_DENIED.update);
+      return;
+    }
     const controller = new AbortController();
     controllerRef.current = controller;
 
@@ -105,6 +121,7 @@ export function PasswordChangeModal({ memberId, onClose, onSaved }: PasswordChan
         onSubmit={() => {
           // 새 제출 시도 — 직전 서버 실패 배너를 걷어낸다
           save.reset();
+          setDeniedError(null);
           clearErrors();
           void handleSubmit(onValid)();
         }}
@@ -113,16 +130,18 @@ export function PasswordChangeModal({ memberId, onClose, onSaved }: PasswordChan
             <Button variant="secondary" disabled={saving} onClick={requestClose}>
               취소
             </Button>
-            <Button variant="primary" type="submit" disabled={saving}>
-              {saving ? '저장 중…' : '저장'}
-            </Button>
+            {canUpdate && (
+              <Button variant="primary" type="submit" disabled={saving}>
+                {saving ? '저장 중…' : '저장'}
+              </Button>
+            )}
           </>
         }
       >
         <div style={formBodyStyle}>
           <p style={hintStyle}>
             영문과 숫자를 포함해 {PASSWORD_MIN_LENGTH}자 이상으로 설정하세요. 변경된 비밀번호는
-            회원에게 별도로 안내해야 합니다.
+            회원에게 별도로 안내해야 해요.
           </p>
 
           <div style={fieldStyle}>
@@ -176,7 +195,10 @@ export function PasswordChangeModal({ memberId, onClose, onSaved }: PasswordChan
             )}
           </div>
 
-          {saveError !== null && <Alert tone="danger">{saveError}</Alert>}
+          {/* 권한 거절과 서버 실패는 같은 자리에 선다 — 사용자에겐 둘 다 '저장이 안 된 이유' 다 */}
+          {(deniedError ?? saveError) !== null && (
+            <Alert tone="danger">{deniedError ?? saveError}</Alert>
+          )}
         </div>
       </Modal>
 

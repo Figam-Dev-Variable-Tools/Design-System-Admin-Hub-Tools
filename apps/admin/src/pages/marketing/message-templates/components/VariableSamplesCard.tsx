@@ -59,9 +59,7 @@ export function VariableSamplesCard({
       <h3 style={sectionHeadingStyle}>{KAKAO_LABEL_VARIABLE_SAMPLES}</h3>
 
       {tokens.length === 0 ? (
-        <p style={emptyStyle}>
-          본문에 치환변수가 없습니다. 변수를 넣으면 여기에 예시값 칸이 생깁니다.
-        </p>
+        <p style={emptyStyle}>본문에 치환변수가 없어요. 변수를 넣으면 여기에 예시값 칸이 생겨요.</p>
       ) : (
         <div style={listStyle}>
           {tokens.map((token) => {

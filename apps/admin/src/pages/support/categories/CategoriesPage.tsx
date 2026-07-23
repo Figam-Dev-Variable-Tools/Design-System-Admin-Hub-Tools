@@ -7,6 +7,10 @@ import { useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 
 import { isAbort } from '../../../shared/async';
+import {
+  useRouteWritePermissions,
+  WRITE_DENIED,
+} from '../../../shared/permissions/RequirePermission';
 import { formatNumber } from '../../../shared/format';
 import {
   Alert,
@@ -118,11 +122,27 @@ type ModalState =
 interface CategoryRowProps {
   readonly category: SupportCategoryUsage;
   readonly deleting: boolean;
+  /**
+   * 연필/휴지통이 타는 권한 — 각각 update/remove 다 (EXC-03).
+   *
+   * [왜 여기가 빠졌나] 이 목록은 표가 아니라 <ul> 이라 `CrudListShell` 을 쓰지 않는다.
+   * 껍데기가 대신 해 주던 행 액션 게이팅이 여기엔 없었고, **조회 권한만으로 수정·삭제가
+   * 열려 있었다.** 등록 CTA 도 마찬가지였다.
+   */
+  readonly canUpdate: boolean;
+  readonly canRemove: boolean;
   readonly onEdit: (category: SupportCategoryUsage) => void;
   readonly onDelete: (category: SupportCategoryUsage) => void;
 }
 
-function CategoryRow({ category, deleting, onEdit, onDelete }: CategoryRowProps) {
+function CategoryRow({
+  category,
+  deleting,
+  canUpdate,
+  canRemove,
+  onEdit,
+  onDelete,
+}: CategoryRowProps) {
   const inUse = categoryInUse(category);
   const usage = categoryUsageLabel(category);
   return (
@@ -160,28 +180,34 @@ function CategoryRow({ category, deleting, onEdit, onDelete }: CategoryRowProps)
         )}
       </span>
       <span style={actionsStyle}>
-        <button
-          type="button"
-          className="tds-ui-btn-ghost tds-ui-focusable"
-          style={buttonStyle('ghost')}
-          aria-label={`${category.label} 수정`}
-          onClick={() => onEdit(category)}
-        >
-          <Icon name="pencil" />
-        </button>
-        <button
-          type="button"
-          className="tds-ui-btn-ghost tds-ui-focusable"
-          style={inUse ? buttonStyle('ghost', true) : dangerGhostStyle}
-          aria-label={
-            inUse ? `${category.label} — ${usage}라 삭제할 수 없습니다` : `${category.label} 삭제`
-          }
-          title={inUse ? `${usage} — 삭제할 수 없습니다` : undefined}
-          disabled={inUse || deleting}
-          onClick={() => onDelete(category)}
-        >
-          <Icon name="trash" />
-        </button>
+        {/* 권한이 없으면 '비활성' 이 아니라 '부재' 다. 아래 휴지통의 disabled 와 헷갈리지 말 것:
+            그쪽은 **권한은 있는데 이 대상에는 못 한다**(사용 중)는 뜻이라 남아서 이유를 말한다. */}
+        {canUpdate && (
+          <button
+            type="button"
+            className="tds-ui-btn-ghost tds-ui-focusable"
+            style={buttonStyle('ghost')}
+            aria-label={`${category.label} 수정`}
+            onClick={() => onEdit(category)}
+          >
+            <Icon name="pencil" />
+          </button>
+        )}
+        {canRemove && (
+          <button
+            type="button"
+            className="tds-ui-btn-ghost tds-ui-focusable"
+            style={inUse ? buttonStyle('ghost', true) : dangerGhostStyle}
+            aria-label={
+              inUse ? `${category.label} — ${usage}이라 삭제할 수 없어요` : `${category.label} 삭제`
+            }
+            title={inUse ? `${usage} — 삭제할 수 없어요` : undefined}
+            disabled={inUse || deleting}
+            onClick={() => onDelete(category)}
+          >
+            <Icon name="trash" />
+          </button>
+        )}
       </span>
     </li>
   );
@@ -189,6 +215,7 @@ function CategoryRow({ category, deleting, onEdit, onDelete }: CategoryRowProps)
 
 export default function CategoriesPage() {
   const toast = useToast();
+  const { canCreate, canUpdate, canRemove } = useRouteWritePermissions();
   const [modal, setModal] = useState<ModalState>({ kind: 'closed' });
   const [pendingDelete, setPendingDelete] = useState<SupportCategoryUsage | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -225,6 +252,11 @@ export default function CategoriesPage() {
 
   const onConfirmDelete = () => {
     if (pendingDelete === null) return;
+    // 버튼을 없앤 술어와 **같은 술어**가 저장 경로도 막는다 — 감추기만 하면 막은 것이 아니다
+    if (!canRemove) {
+      setDeleteError(WRITE_DENIED.remove);
+      return;
+    }
     const target = pendingDelete;
     const controller = new AbortController();
     deleteControllerRef.current = controller;
@@ -236,11 +268,11 @@ export default function CategoriesPage() {
         onSuccess: () => {
           if (controller.signal.aborted) return;
           setPendingDelete(null);
-          toast.success(`'${target.label}' 유형을 삭제했습니다.`);
+          toast.success(`'${target.label}' 유형을 삭제했어요.`);
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setDeleteError('삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setDeleteError('삭제하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -248,7 +280,7 @@ export default function CategoriesPage() {
 
   const onSaved = (name: string, isEdit: boolean) => {
     setModal({ kind: 'closed' });
-    toast.success(isEdit ? `'${name}' 유형을 저장했습니다.` : `'${name}' 유형을 추가했습니다.`);
+    toast.success(isEdit ? `'${name}' 유형을 저장했어요.` : `'${name}' 유형을 추가했어요.`);
   };
 
   return (
@@ -258,16 +290,19 @@ export default function CategoriesPage() {
           {firstLoading ? '불러오는 중…' : `전체 ${formatNumber(categories.length)}개`}
           {refreshing && ' · 새로고침 중…'}
         </p>
-        <Button variant="primary" size="md" onClick={() => setModal({ kind: 'create' })}>
-          <Icon name="plus-circle" />
-          유형 추가
-        </Button>
+        {/* 등록 CTA 는 create 권한이 있을 때만 존재한다 — 누를 수 없는 것을 보여 주지 않는다 */}
+        {canCreate && (
+          <Button variant="primary" size="md" onClick={() => setModal({ kind: 'create' })}>
+            <Icon name="plus-circle" />
+            유형 추가
+          </Button>
+        )}
       </div>
 
       {error !== null ? (
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>문의 유형을 불러오지 못했습니다.</span>
+            <span>문의 유형을 불러오지 못했어요.</span>
             <Button variant="secondary" onClick={() => void refetch()}>
               다시 시도
             </Button>
@@ -276,9 +311,7 @@ export default function CategoriesPage() {
       ) : (
         <Card>
           {categories.length === 0 ? (
-            <p style={hintStyle}>
-              {firstLoading ? '불러오는 중…' : '등록된 문의 유형이 없습니다.'}
-            </p>
+            <p style={hintStyle}>{firstLoading ? '불러오는 중…' : '등록된 문의 유형이 없어요.'}</p>
           ) : (
             <ul style={listStyle}>
               {categories.map((category) => (
@@ -286,6 +319,8 @@ export default function CategoriesPage() {
                   key={category.id}
                   category={category}
                   deleting={deleting}
+                  canUpdate={canUpdate}
+                  canRemove={canRemove}
                   onEdit={(target) => setModal({ kind: 'edit', category: target })}
                   onDelete={(target) => {
                     setDeleteError(null);
@@ -296,8 +331,8 @@ export default function CategoriesPage() {
             </ul>
           )}
           <p style={hintStyle}>
-            사용 중인 유형은 삭제할 수 없습니다 — 건수 배지를 누르면 그 유형을 쓰는 문의 목록(또는
-            답변 템플릿 목록)이 열립니다. 거기서 유형을 바꾸거나, 사용여부를 꺼서 신규 선택에서
+            사용 중인 유형은 삭제할 수 없어요 — 건수 배지를 누르면 그 유형을 쓰는 문의 목록(또는
+            답변 템플릿 목록)이 열려요. 거기서 유형을 바꾸거나, 사용여부를 꺼서 신규 선택에서
             숨기세요.
           </p>
         </Card>
@@ -315,7 +350,7 @@ export default function CategoriesPage() {
         <ConfirmDialog
           intent="delete"
           title="문의 유형 삭제"
-          message={`'${pendingDelete.label}' 유형을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.label}' 유형을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="유형 삭제"
           busy={deleting}
           error={deleteError}

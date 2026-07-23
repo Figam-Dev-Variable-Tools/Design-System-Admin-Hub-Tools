@@ -17,6 +17,10 @@ import { isAbort } from '../../../shared/async';
 import { useListState } from '../../../shared/crud';
 import { formatNumber } from '../../../shared/format';
 import {
+  useRouteWritePermissions,
+  WRITE_DENIED,
+} from '../../../shared/permissions/RequirePermission';
+import {
   Alert,
   Button,
   ConfirmDialog,
@@ -82,6 +86,14 @@ export default function PrivacyPage() {
   const list = useListState();
   const { keyword, selectedIds, clearSelection } = list;
 
+  /**
+   * [EXC-03] 이 화면의 쓰기 권한 — 한 번 읽어 CTA · 일괄 삭제 바 · 표의 행 액션/체크박스 ·
+   * 두 삭제 뮤테이션으로 흘린다. 손으로 만든 목록이라 껍데기의 게이팅을 하나도 받지 못했다.
+   *
+   * 처리방침은 **법적 문서**다 — 조회 권한만 가진 사람이 시행본을 지울 수 있으면 안 된다.
+   */
+  const { canCreate, canUpdate, canRemove } = useRouteWritePermissions();
+
   const [pendingDelete, setPendingDelete] = useState<PrivacyVersion | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const deleteControllerRef = useRef<AbortController | null>(null);
@@ -116,6 +128,11 @@ export default function PrivacyPage() {
 
   const onConfirmDelete = () => {
     if (pendingDelete === null) return;
+    // 휴지통을 없앤 술어와 **같은 술어**가 저장 경로도 막는다
+    if (!canRemove) {
+      setDeleteError(WRITE_DENIED.remove);
+      return;
+    }
     const target = pendingDelete;
     const controller = new AbortController();
     deleteControllerRef.current = controller;
@@ -127,11 +144,11 @@ export default function PrivacyPage() {
         onSuccess: () => {
           if (controller.signal.aborted) return;
           setPendingDelete(null);
-          toast.success(`${target.version} 버전을 삭제했습니다.`);
+          toast.success(`${target.version} 버전을 삭제했어요.`);
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setDeleteError('버전을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setDeleteError('버전을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -157,6 +174,10 @@ export default function PrivacyPage() {
   const onConfirmBulkDelete = () => {
     const ids = [...selectedIds];
     if (ids.length === 0) return;
+    if (!canRemove) {
+      setBulkError(WRITE_DENIED.remove);
+      return;
+    }
     const controller = new AbortController();
     bulkControllerRef.current = controller;
     setBulkError(null);
@@ -168,13 +189,13 @@ export default function PrivacyPage() {
           if (controller.signal.aborted) return;
           if (failed > 0) {
             setBulkError(
-              `버전 ${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.`,
+              `버전 ${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.`,
             );
             return;
           }
           setBulkOpen(false);
           clearSelection();
-          toast.success(`버전 ${formatNumber(ids.length)}건을 삭제했습니다.`);
+          toast.success(`버전 ${formatNumber(ids.length)}건을 삭제했어요.`);
         },
       },
     );
@@ -185,7 +206,7 @@ export default function PrivacyPage() {
       <div style={pageStyle}>
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>개인정보 처리방침을 불러오지 못했습니다.</span>
+            <span>개인정보 처리방침을 불러오지 못했어요.</span>
             <Button
               variant="secondary"
               onClick={() => {
@@ -209,40 +230,54 @@ export default function PrivacyPage() {
           label="처리방침 버전 검색"
           {...list.searchInputProps}
         />
-        <Button variant="primary" size="md" onClick={() => navigate('/content/privacy/new')}>
-          <Icon name="plus-circle" />새 버전 등록
-        </Button>
+        {/* 등록 권한이 없으면 CTA 는 '비활성' 이 아니라 '부재' 다 (EXC-03) */}
+        {canCreate && (
+          <Button variant="primary" size="md" onClick={() => navigate('/content/privacy/new')}>
+            <Icon name="plus-circle" />새 버전 등록
+          </Button>
+        )}
       </div>
 
-      <SelectionBar count={selectedCount} onClear={clearSelection}>
-        <Button variant="danger" disabled={bulkDeleting} onClick={() => setBulkOpen(true)}>
-          {`선택 ${formatNumber(selectedCount)}건 삭제`}
-        </Button>
-      </SelectionBar>
+      {/* 이 바의 유일한 액션이 일괄 삭제다 — 삭제 권한이 없으면 바 자체가 없다 */}
+      {canRemove && (
+        <SelectionBar count={selectedCount} onClear={clearSelection}>
+          <Button variant="danger" disabled={bulkDeleting} onClick={() => setBulkOpen(true)}>
+            {`선택 ${formatNumber(selectedCount)}건 삭제`}
+          </Button>
+        </SelectionBar>
+      )}
 
+      {/* 권한은 **콜백의 유무**로 표현한다 — 표는 canUpdate/canRemove 를 모른다 */}
       <VersionHistoryTable
         versions={rows}
-        caption="개인정보 처리방침 버전 이력 — 체크박스로 선택하고, 행을 누르면 전문을 봅니다. 수정/삭제 버튼으로 각 버전을 관리합니다."
-        onEdit={(id) => navigate(`/content/privacy/${id}/edit`)}
-        onDelete={openDelete}
+        caption={
+          canRemove
+            ? '개인정보 처리방침 버전 이력 — 체크박스로 선택하고, 행을 누르면 전문을 봐요. 수정/삭제 버튼으로 각 버전을 관리해요.'
+            : '개인정보 처리방침 버전 이력 — 행을 누르면 전문을 봐요.'
+        }
+        {...(canUpdate && {
+          onEdit: (id: string) => navigate(`/content/privacy/${id}/edit`),
+        })}
+        {...(canRemove && { onDelete: openDelete })}
         deletingId={deleting ? (pendingDelete?.id ?? null) : null}
         detailPathOf={(id) => `/content/privacy/${id}`}
-        emptyMessage={loading ? '불러오는 중…' : '등록된 버전이 없습니다.'}
-        selectedIds={selectedIds}
-        onToggleOne={list.toggleOne}
-        onToggleAll={(checked) =>
-          list.toggleAll(
-            rows.map((row) => row.id),
-            checked,
-          )
-        }
+        emptyMessage={loading ? '불러오는 중…' : '등록된 버전이 없어요.'}
+        {...(canRemove && {
+          selectedIds,
+          onToggleOne: list.toggleOne,
+          onToggleAll: (checked: boolean) =>
+            list.toggleAll(
+              rows.map((row) => row.id),
+              checked,
+            ),
+        })}
       />
 
       {pendingDelete !== null && (
         <ConfirmDialog
           intent="delete"
           title="처리방침 버전 삭제"
-          message={`${pendingDelete.version} 버전을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`${pendingDelete.version} 버전을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="버전 삭제"
           busy={deleting}
           error={deleteError}
@@ -255,7 +290,7 @@ export default function PrivacyPage() {
         <ConfirmDialog
           intent="delete"
           title="처리방침 버전 일괄 삭제"
-          message={`선택한 버전 ${formatNumber(selectedCount)}건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 버전 ${formatNumber(selectedCount)}건을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel={`${formatNumber(selectedCount)}건 삭제`}
           busy={bulkDeleting}
           error={bulkError}

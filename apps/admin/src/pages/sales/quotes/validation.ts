@@ -30,7 +30,7 @@ export const quoteSchema = z
     accountCeo: z.string(),
     contactName: z.string().check(
       z.refine((value) => value.trim().length <= 40, {
-        error: '담당자는 40자를 넘을 수 없습니다.',
+        error: '담당자는 40자를 넘을 수 없어요.',
       }),
     ),
     issueDate: z.string(),
@@ -50,7 +50,7 @@ export const quoteSchema = z
     ),
     note: z.string().check(
       z.refine((value) => value.trim().length <= 500, {
-        error: '비고는 500자를 넘을 수 없습니다.',
+        error: '비고는 500자를 넘을 수 없어요.',
       }),
     ),
   })
@@ -80,7 +80,7 @@ export const quoteSchema = z
         code: 'custom',
         input: items,
         path: ['items'],
-        message: '수량은 1 이상의 정수여야 합니다.',
+        message: '수량은 1 이상의 정수여야 해요.',
       });
       return;
     }
@@ -89,7 +89,7 @@ export const quoteSchema = z
         code: 'custom',
         input: items,
         path: ['items'],
-        message: '단가는 0 이상이어야 합니다.',
+        message: '단가는 0 이상이어야 해요.',
       });
     }
   })
@@ -111,7 +111,7 @@ export const quoteSchema = z
         code: 'custom',
         input: ctx.value.validUntil,
         path: ['validUntil'],
-        message: '유효기간은 견적일보다 빠를 수 없습니다.',
+        message: '유효기간은 견적일보다 빠를 수 없어요.',
       });
     }
   });
@@ -119,7 +119,12 @@ export const quoteSchema = z
 export type QuoteFormValues = z.infer<typeof quoteSchema>;
 
 /**
- * 빈 견적 폼 — 신규 등록(/sales/quotes/new)이 마운트하는 값의 **정본**.
+ * 빈 견적 폼 — 폼이 마운트 시점에 드는 defaultValues 의 **정본**.
+ *
+ * [등록 화면은 이제 없다] 견적은 문의에서만 발행되고 `/sales/quotes/new` 는 차단 화면으로 간다
+ * (../quotes/QuoteFormPage 머리말). 이 값은 사라지지 않는다: `useCrudForm` 은 수정 모드에서도
+ * 상세가 도착하기 전까지 이 한 벌 위에 앉아 있고, 검증 테스트가 '아무것도 안 채운 상태' 의
+ * 기준선으로 쓴다.
  *
  * 페이지와 테스트가 이 한 벌을 공유한다. 테스트가 자기 사본에 값을 채워 넣으면 실제 제출 경로를
  * 타지 않아, 사용자가 채울 수 없는 필드를 검증이 요구해도 초록불이 난다(quoteNo 교착의 전례).

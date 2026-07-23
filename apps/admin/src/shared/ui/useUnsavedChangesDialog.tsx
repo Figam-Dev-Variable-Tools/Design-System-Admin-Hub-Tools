@@ -20,9 +20,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { ConfirmDialog } from './ConfirmDialog';
 
-const DEFAULT_TITLE = '저장하지 않은 변경 사항이 있습니다';
-const DEFAULT_MESSAGE =
-  '이 화면을 벗어나면 입력한 내용이 사라집니다. 저장하지 않고 나가시겠습니까?';
+const DEFAULT_TITLE = '저장하지 않은 변경 사항이 있어요';
+const DEFAULT_MESSAGE = '이 화면을 벗어나면 입력한 내용이 사라져요. 저장하지 않고 나갈까요?';
 
 /** 이탈 시도의 종류 — 확인했을 때 무엇을 해야 하는지가 다르다 */
 type Pending = { readonly kind: 'link'; readonly to: string } | { readonly kind: 'pop' };

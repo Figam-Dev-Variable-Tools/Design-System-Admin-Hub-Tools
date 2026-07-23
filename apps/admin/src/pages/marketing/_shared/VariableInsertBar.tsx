@@ -24,7 +24,7 @@ export function VariableInsertBar({ onInsert, disabled = false }: VariableInsert
     <TemplateVariablePicker
       onInsert={onInsert}
       disabled={disabled}
-      caption="치환변수 삽입 — 미리보기에서 표본값으로 치환됩니다. 치환 후 길이는 수신자마다 달라집니다."
+      caption="치환변수 삽입 — 미리보기에서 표본값으로 치환돼요. 치환 후 길이는 수신자마다 달라져요."
     />
   );
 }

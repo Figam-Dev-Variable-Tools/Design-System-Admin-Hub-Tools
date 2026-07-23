@@ -196,7 +196,7 @@ export function EditorToolbar({
           <TemplateVariablePicker
             onInsert={onInsertVariable}
             disabled={disabled}
-            caption="치환변수 삽입 — 커서 자리에 들어갑니다. 미리보기에는 토큰 그대로 보이고, 발송 시점에 값으로 치환됩니다."
+            caption="치환변수 삽입 — 커서 자리에 들어가요. 미리보기에는 토큰 그대로 보이고, 발송 시점에 값으로 치환돼요."
           />
         </div>
       )}

@@ -6,7 +6,8 @@
  *
  * 대응 실화면: apps/admin/src/pages/sales/quotes/QuoteListPage.tsx (라우트 /sales/quotes).
  * 견적은 관리자가 만드는 삭제-CRUD 목록이다 — CrudListShell(→ CrudTable → DS Table) 위에 상태 필터 +
- * 검색 + 합계금액 + 상태 배지 + 승인 견적 인라인 '수주 전환' + 선택 일괄삭제 + 행 액션(수정/삭제) + 등록 버튼.
+ * 검색 + 합계금액 + 상태 배지 + 사슬의 앞뒤(원본 문의 · 연결된 계약) 링크 + 선택 일괄삭제 + 행 액션(수정/삭제).
+ * 등록 CTA 는 **없다** — 견적은 문의에서만 발행된다(사슬 밖 생성 차단).
  *
  * [조립 원칙] `../../src` public DS 컴포넌트만 조합한다 — 신규 DS 컴포넌트를 만들지 않고 apps/admin 을
  * import 하지 않는다. 실화면 앱 조각(CrudListShell·CrudTable)을 DS 표면으로 갈음한다:
@@ -16,7 +17,7 @@
  *   원본 문의 역링크(문의 ↔ 견적 양방향) → 토큰만 쓴 <a> (수동 등록 견적은 원본이 없어 '—')
  *   합계금액                           → computeTotals + 토큰만 쓴 원화 표기
  *   상태 배지                          → StatusBadge (견적 상태 tone)
- *   수주 전환(승인 견적만)              → Button(secondary) (그 외 상태는 '—')
+ *   연결된 계약(있을 때만)              → 링크 (없으면 '—')
  *   행 액션(수정/삭제)                  → RowActions
  *   빈 결과                            → Empty (검색/필터/진짜 비어있음 3분기)
  *
@@ -30,7 +31,6 @@ import { useMemo, useState } from 'react';
 import {
   Button,
   Empty as EmptyState,
-  Icon,
   RowActions,
   RowSelectCell,
   SearchField,
@@ -84,7 +84,7 @@ const STATUS_LABEL: Record<QuoteStatus, string> = {
   accepted: '승인',
   rejected: '반려',
   expired: '만료',
-  ordered: '수주전환',
+  ordered: '수주(계약 진행)',
 };
 const STATUS_TONE: Record<QuoteStatus, StatusBadgeTone> = {
   draft: 'neutral',
@@ -122,8 +122,13 @@ const totalOf = (items: readonly DemoLineItem[], taxMode: QuoteTaxMode): number 
 /** 원화 표기 '1,200,000원' — 실화면 formatWon 미러 */
 const formatWon = (amount: number): string => `${amount.toLocaleString('ko-KR')}원`;
 
-/** 수주 전환 가능 — 승인된 견적만 (실화면 canConvertToOrder 미러) */
-const canConvert = (status: QuoteStatus): boolean => status === 'accepted';
+/**
+ * 계약이 붙은 견적인가 — 실화면은 `findContractIdByQuote(quote.id) !== ''` 를 읽는다.
+ *
+ * 여기가 예전에 '수주 전환' 버튼이었다. 그 버튼은 사라졌다: 수주는 사람이 따로 누르는 일이 아니라
+ * **계약이 만들어진 결과**다(실화면 quotes/types 의 상태 전이 머리말).
+ */
+const hasContract = (status: QuoteStatus): boolean => status === 'ordered';
 
 const DEMO_QUOTES: readonly DemoQuote[] = [
   {
@@ -190,7 +195,7 @@ const COLUMNS: TableProps['columns'] = [
   { id: 'total', header: '합계금액', align: 'end', nowrap: true },
   { id: 'validUntil', header: '유효기간', nowrap: true },
   { id: 'status', header: '상태', nowrap: true },
-  { id: 'convert', header: '수주 전환', nowrap: true },
+  { id: 'contract', header: '계약', nowrap: true },
 ];
 
 const SELECT_ALL_LABEL_ID = 'quote-select-all-label';
@@ -393,12 +398,12 @@ function QuoteListScreen({
         tone={STATUS_TONE[quote.status]}
         label={STATUS_LABEL[quote.status]}
       />,
-      canConvert(quote.status) ? (
-        <Button key="convert" variant="secondary" size="sm">
-          수주 전환
-        </Button>
+      hasContract(quote.status) ? (
+        <a key="contract" href={`#contract-${quote.quoteNo}`} style={linkStyle}>
+          계약 열기
+        </a>
       ) : (
-        <span key="convert" style={mutedStyle}>
+        <span key="contract" style={mutedStyle}>
           —
         </span>
       ),
@@ -438,9 +443,8 @@ function QuoteListScreen({
           </SelectField>
         </span>
       </div>
-      <Button variant="primary" size="md" iconLeft={<Icon name="plus-circle" />}>
-        견적 등록
-      </Button>
+      {/* 등록 CTA 가 없다 — 권한 문제가 아니라 순서 문제다. 견적은 문의에서만 발행된다
+          (실화면 QuoteListPage 의 같은 자리 주석). */}
     </div>
   );
 
@@ -463,7 +467,7 @@ function QuoteListScreen({
       </p>
 
       <Table
-        caption="견적 목록 — 행을 누르면 견적 수정 화면으로 이동합니다. 체크박스·수정·삭제 버튼은 각자의 동작을 수행합니다."
+        caption="견적 목록 — 행을 누르면 견적 수정 화면으로 이동해요. 체크박스·수정·삭제 버튼은 각자 따로 동작해요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[
@@ -497,7 +501,7 @@ function QuoteListScreen({
   );
 }
 
-/** 정상: 견적 목록이 채워진 기본 상태(상태 배지가 다양하게 섞임 · 승인 견적만 수주 전환 노출) */
+/** 정상: 견적 목록이 채워진 기본 상태(상태 배지가 다양하게 섞임 · 수주 견적에만 계약 링크) */
 export const Default: Story = {
   render: () => <QuoteListScreen />,
 };

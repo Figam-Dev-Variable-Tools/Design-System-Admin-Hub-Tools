@@ -126,7 +126,7 @@ export function DashboardWidgetsCard({
       </CardTitle>
 
       <p style={hintStyle}>
-        위젯은 액션(등록·수정·삭제)이 없어 노출/숨김만 정합니다. 끄면 대시보드에서 즉시 사라집니다.
+        위젯은 액션(등록·수정·삭제)이 없어 노출/숨김만 정해요. 끄면 대시보드에서 즉시 사라져요.
       </p>
 
       <ul style={listStyle}>

@@ -22,8 +22,8 @@ function ruleBody(css: string, selector: string): string | null {
 
 describe('Checkbox — 계약 states[]', () => {
   it('Checkbox: default 상태 — 체크되지 않은 활성 체크박스로 렌더되고 라벨이 htmlFor 로 연결된다', () => {
-    render(<Checkbox id="agree" label="동의합니다" checked={false} />);
-    const box = screen.getByRole('checkbox', { name: '동의합니다' });
+    render(<Checkbox id="agree" label="동의해요" checked={false} />);
+    const box = screen.getByRole('checkbox', { name: '동의해요' });
 
     expect((box as HTMLInputElement).checked).toBe(false);
     expect((box as HTMLInputElement).disabled).toBe(false);
@@ -38,8 +38,8 @@ describe('Checkbox — 계약 states[]', () => {
   });
 
   it('Checkbox: focus-visible 상태 — 키보드 포커스를 받고 :focus-visible 규칙이 포커스 링을 그린다', async () => {
-    render(<Checkbox id="agree" label="동의합니다" checked={false} />);
-    const box = screen.getByRole('checkbox', { name: '동의합니다' });
+    render(<Checkbox id="agree" label="동의해요" checked={false} />);
+    const box = screen.getByRole('checkbox', { name: '동의해요' });
 
     await userEvent.tab();
     expect(document.activeElement).toBe(box);
@@ -50,8 +50,8 @@ describe('Checkbox — 계약 states[]', () => {
   });
 
   it('Checkbox: disabled 상태 — native disabled 로 반영되고 라벨도 비활성 토큰을 쓴다', () => {
-    render(<Checkbox id="agree" label="동의합니다" checked={false} disabled />);
-    const box = screen.getByRole('checkbox', { name: '동의합니다' });
+    render(<Checkbox id="agree" label="동의해요" checked={false} disabled />);
+    const box = screen.getByRole('checkbox', { name: '동의해요' });
 
     expect((box as HTMLInputElement).disabled).toBe(true);
     expect(ruleBody(checkboxCss, '.tds-checkbox__control:disabled')).toContain(
@@ -63,8 +63,8 @@ describe('Checkbox — 계약 states[]', () => {
   });
 
   it('Checkbox: checked 상태 — native checked 로 반영되어 aria-checked=true 로 노출된다', () => {
-    render(<Checkbox id="agree" label="동의합니다" checked />);
-    const box = screen.getByRole('checkbox', { name: '동의합니다', checked: true });
+    render(<Checkbox id="agree" label="동의해요" checked />);
+    const box = screen.getByRole('checkbox', { name: '동의해요', checked: true });
 
     expect((box as HTMLInputElement).checked).toBe(true);
   });
@@ -73,20 +73,20 @@ describe('Checkbox — 계약 states[]', () => {
 describe('Checkbox — 계약 events.onChange.blockedWhen', () => {
   it('Checkbox: disabled 상태에서 onChange 가 발화하지 않는다', async () => {
     const onChange = vi.fn();
-    render(<Checkbox id="agree" label="동의합니다" checked={false} disabled onChange={onChange} />);
+    render(<Checkbox id="agree" label="동의해요" checked={false} disabled onChange={onChange} />);
 
     // 라벨 클릭도 히트 영역이다 — 두 경로 모두에서 비발생을 확인한다
-    await userEvent.click(screen.getByRole('checkbox', { name: '동의합니다' }));
-    await userEvent.click(screen.getByText('동의합니다'));
+    await userEvent.click(screen.getByRole('checkbox', { name: '동의해요' }));
+    await userEvent.click(screen.getByText('동의해요'));
 
     expect(onChange).not.toHaveBeenCalled();
   });
 
   it('Checkbox: 활성 상태에서는 onChange 가 발화한다 (비발생 단언이 공허하지 않음을 보인다)', async () => {
     const onChange = vi.fn();
-    render(<Checkbox id="agree" label="동의합니다" checked={false} onChange={onChange} />);
+    render(<Checkbox id="agree" label="동의해요" checked={false} onChange={onChange} />);
 
-    await userEvent.click(screen.getByRole('checkbox', { name: '동의합니다' }));
+    await userEvent.click(screen.getByRole('checkbox', { name: '동의해요' }));
 
     expect(onChange).toHaveBeenCalledTimes(1);
   });
@@ -108,8 +108,8 @@ describe('Checkbox — 계약 props.name (폼 제출 키)', () => {
   });
 
   it('Checkbox: name 이 빈 문자열이면 속성을 부여하지 않는다 (계약 props.name 기본값)', () => {
-    render(<Checkbox id="agree" label="동의합니다" checked={false} />);
+    render(<Checkbox id="agree" label="동의해요" checked={false} />);
 
-    expect(screen.getByRole('checkbox', { name: '동의합니다' }).getAttribute('name')).toBeNull();
+    expect(screen.getByRole('checkbox', { name: '동의해요' }).getAttribute('name')).toBeNull();
   });
 });

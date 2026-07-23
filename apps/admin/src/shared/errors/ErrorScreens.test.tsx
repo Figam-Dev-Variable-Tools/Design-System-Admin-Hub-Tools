@@ -101,12 +101,12 @@ describe('RouteErrorScreen — 렌더 예외 복구 화면 (EXC-01)', () => {
 describe('ForbiddenScreen — 권한 없음 화면 (EXC-03)', () => {
   it('role="alert" 로 사유를 알린다', () => {
     renderScreen(<ForbiddenScreen />);
-    expect(screen.getByRole('alert').textContent).toContain('접근 권한이 없습니다');
+    expect(screen.getByRole('alert').textContent).toContain('접근 권한이 없어요');
   });
 
   it('제목은 h2 다', () => {
     renderScreen(<ForbiddenScreen />);
-    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('접근 권한이 없습니다');
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('접근 권한이 없어요');
     expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
   });
 

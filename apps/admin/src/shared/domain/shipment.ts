@@ -142,7 +142,7 @@ export function carrierUsageCount(carrierId: string): number | null {
 }
 
 export const CARRIER_DELETE_UNKNOWN =
-  '배송 건을 확인하지 못해 삭제할 수 없습니다. 잠시 후 다시 시도해 주세요.';
+  '배송 건을 확인하지 못해 삭제할 수 없어요. 잠시 후 다시 시도해 주세요.';
 
 /**
  * 택배사 삭제를 막아야 하는 이유 — 없으면 null.
@@ -157,7 +157,7 @@ export function carrierDeleteBlock(
 ): string | null {
   if (usage === null) return CARRIER_DELETE_UNKNOWN;
   if (usage > 0) {
-    return `'${carrier.name}' 으로 나간 배송 ${String(usage)}건이 있어 삭제할 수 없습니다. 사용 여부를 끄면 새 송장의 선택지에서만 빠집니다.`;
+    return `'${carrier.name}' 으로 나간 배송 ${String(usage)}건이 있어 삭제할 수 없어요. 사용 여부를 끄면 새 송장의 선택지에서만 빠져요.`;
   }
   return null;
 }
@@ -251,8 +251,8 @@ const INVOICE_NO_RE = /^\d(?:[\d-]*\d)?$/;
 
 export const INVOICE_NO_REQUIRED = '송장번호를 입력하세요.';
 export const INVOICE_NO_FORMAT =
-  '송장번호는 숫자와 하이픈(-)만 입력할 수 있습니다. 한글·공백이 섞이면 택배사 접수 파일이 깨집니다.';
-export const INVOICE_NO_TOO_LONG = `송장번호는 ${String(INVOICE_NO_MAX)}자를 넘을 수 없습니다.`;
+  '송장번호는 숫자와 하이픈(-)만 입력할 수 있어요. 한글·공백이 섞이면 택배사 접수 파일이 깨져요.';
+export const INVOICE_NO_TOO_LONG = `송장번호는 ${String(INVOICE_NO_MAX)}자를 넘을 수 없어요.`;
 
 /** 앞뒤 공백만 떼어 낸다 — 가운데 공백은 오류이지 정리 대상이 아니다(조용히 고치지 않는다) */
 export function normalizeInvoiceNo(value: string): string {
@@ -293,7 +293,7 @@ export function duplicateInvoiceBlock(
       normalizeInvoiceNo(shipment.invoiceNo) === invoiceNo,
   );
   if (clash === undefined) return null;
-  return `이미 ${clash.orderId} 주문에 쓰인 송장번호입니다. 같은 택배사에 같은 번호를 두 번 붙일 수 없습니다.`;
+  return `이미 ${clash.orderId} 주문에 쓰인 송장번호예요. 같은 택배사에 같은 번호를 두 번 붙일 수 없어요.`;
 }
 
 /* ── 부분 발송 판정 (이 파일의 핵심 규칙) ────────────────────────────────────
@@ -426,14 +426,14 @@ export function orderShipmentBlock(
 
   const progress = `${String(coverage.covered)}/${String(coverage.total)}`;
   return to === 'waiting'
-    ? `송장이 붙지 않은 품목이 있어 배송대기로 넘길 수 없습니다 (${progress}).`
-    : `전 품목이 발송되어야 배송중으로 넘어갑니다 (${progress}).`;
+    ? `송장이 붙지 않은 품목이 있어 배송대기로 넘길 수 없어요 (${progress}).`
+    : `전 품목이 발송되어야 배송중으로 넘어가요 (${progress}).`;
 }
 
 /* ── 배송 건 전이 ────────────────────────────────────────────────────────── */
 
-export const SHIPMENT_TRANSITION_BACKWARD = '배송 상태는 되돌릴 수 없습니다.';
-export const SHIPMENT_DISPATCH_NO_INVOICE = '송장번호가 없어 발송처리할 수 없습니다.';
+export const SHIPMENT_TRANSITION_BACKWARD = '배송 상태는 되돌릴 수 없어요.';
+export const SHIPMENT_DISPATCH_NO_INVOICE = '송장번호가 없어 발송처리할 수 없어요.';
 
 function shipmentStatusIndex(status: ShipmentStatus): number {
   const index = SHIPMENT_STATUS_SEQUENCE.indexOf(status);

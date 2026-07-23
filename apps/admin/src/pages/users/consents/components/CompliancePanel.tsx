@@ -7,25 +7,34 @@
 // **판정할 수 없다는 사실**을 말한다. 0명이라고 적으면 운영자는 개정 공지를 보내지 않는다 —
 // 배선 사고가 법적 사고로 번지는 경로다.
 //
+// [이력 축도 같은 규율을 쓴다] 예전에는 이 패널이 `events ?? []` 를 받아 **조회 중이거나 실패한
+// 상태에서도** '모든 동의가 시행 중인 버전 기준입니다' · '보관 기간이 지난 이력이 없습니다' 라는
+// 완결된 문장을 그렸다. 약관 축에서 그토록 조심해 갈라 놓은 `null`(모름)과 0 을 정작 자기 이력
+// 축에서 뭉갠 것이다. 이제 이력을 `null` 로 받고 세 상태를 가른다(rules.historyStateOf) —
+// 로딩은 스켈레톤, 실패는 재시도가 붙은 배너, 진짜 없음만 '없습니다'.
+//
 // [파기 버튼이 없는 이유] 실제 삭제는 원장·백업까지 함께 다뤄야 하는 서버의 일이다
 // (TODO(backend)). 여기서 정확히 할 수 있는 일은 '무엇이 기한을 넘겼는지 세어 보여 주는 것' 이고,
 // 할 수 없는 일을 버튼으로 만들지 않는다.
 import type { CSSProperties } from 'react';
 
-import { cssVar, StatusBadge } from '@tds/ui';
+import { cssVar, Skeleton, StatusBadge } from '@tds/ui';
 
 import { formatNumber } from '../../../../shared/format';
 import {
   Alert,
+  alertActionRowStyle,
+  Button,
   Card,
   CardTitle,
   hintStyle,
+  inlineBadgeRowStyle,
   tableStyle,
   tdStyle,
   thStyle,
 } from '../../../../shared/ui';
 import { activeTermsVersions } from '../../../../shared/domain/terms-version';
-import { purgeTargets, reconsentTargets } from '../rules';
+import { historyStateOf, purgeTargets, reconsentTargets } from '../rules';
 import type { ConsentEvent, ConsentItemDef } from '../types';
 
 const columnStyle: CSSProperties = {
@@ -37,10 +46,9 @@ const columnStyle: CSSProperties = {
 const scrollStyle: CSSProperties = { overflowX: 'auto', minWidth: 0 };
 
 const groupHeadStyle: CSSProperties = {
+  // 항목 이름 옆에 배지 둘이 붙는 줄 — 간격의 정의는 공용 상수 하나다(shared/ui/styles.ts)
+  ...inlineBadgeRowStyle,
   display: 'flex',
-  alignItems: 'center',
-  gap: cssVar('space.2'),
-  flexWrap: 'wrap',
   marginTop: cssVar('space.4'),
   marginBottom: cssVar('space.2'),
   marginLeft: 0,
@@ -53,12 +61,44 @@ const groupHeadStyle: CSSProperties = {
 
 interface CompliancePanelProps {
   readonly items: readonly ConsentItemDef[];
-  readonly events: readonly ConsentEvent[];
+  /** 동의 이력 — **`null` 은 '아직 못 읽었다'** 다(빈 배열이 아니다 · 머리말) */
+  readonly events: readonly ConsentEvent[] | null;
+  /** 최초 조회 중인가 — 재조회 중에는 이전 값을 그대로 그린다 */
+  readonly loading: boolean;
+  readonly onRetry: () => void;
   /** 'YYYY-MM-DD' — '오늘' 을 주입받는다(테스트가 오늘을 고정할 수 있어야 한다) */
   readonly today: string;
 }
 
-export function CompliancePanel({ items, events, today }: CompliancePanelProps) {
+export function CompliancePanel({ items, events, loading, onRetry, today }: CompliancePanelProps) {
+  const historyState = historyStateOf(events, loading);
+
+  // 'ready' 일 때만 이력이 실재한다(historyStateOf 의 계약). 나머지 둘은 판정 자체를 하지 않는다 —
+  // 없는 이력으로 계산한 '대상 0건' 은 사실이 아니라 사고다.
+  if (historyState !== 'ready' || events === null) {
+    return (
+      <div style={columnStyle}>
+        {historyState === 'loading' ? (
+          <div aria-busy="true" aria-label="동의 이력을 불러오는 중">
+            <Skeleton />
+          </div>
+        ) : (
+          <Alert tone="danger">
+            <div style={alertActionRowStyle}>
+              <span>
+                동의 이력을 불러오지 못해 재동의·파기 대상을 <strong>판정하지 못했어요</strong>.
+                대상이 없다는 뜻이 아니에요.
+              </span>
+              <Button variant="secondary" onClick={onRetry}>
+                다시 시도
+              </Button>
+            </div>
+          </Alert>
+        )}
+      </div>
+    );
+  }
+
   const report = reconsentTargets(events, items, activeTermsVersions());
   const purge = purgeTargets(events, items, today);
 
@@ -67,27 +107,27 @@ export function CompliancePanel({ items, events, today }: CompliancePanelProps) 
       <Card>
         <CardTitle>재동의 대상</CardTitle>
         <p style={hintStyle}>
-          지금 시행 중인 약관 버전과 <strong>다른 버전</strong>에 동의한 채로 남아 있는
-          이용자입니다. 철회한 이용자는 대상에 넣지 않습니다 — 개정을 이유로 다시 권유하는 것은 철회
-          의사를 무시하는 재권유입니다.
+          지금 시행 중인 약관 버전과 <strong>다른 버전</strong>에 동의한 채로 남아 있는 이용자예요.
+          철회한 이용자는 대상에 넣지 않아요 — 개정을 이유로 다시 권유하는 것은 철회 의사를 무시하는
+          재권유예요.
         </p>
 
         {report === null ? (
           <Alert tone="warning">
-            시행 중인 약관 버전을 확인할 수 없어 재동의 대상을 <strong>판정하지 못했습니다</strong>.
-            대상이 없다는 뜻이 아닙니다 — 약관 관리 연동을 확인해 주세요.
+            시행 중인 약관 버전을 확인할 수 없어 재동의 대상을 <strong>판정하지 못했어요</strong>.
+            대상이 없다는 뜻이 아니에요 — 약관 관리 연동을 확인해 주세요.
           </Alert>
         ) : (
           <>
             {report.unresolvedItems.length > 0 && (
               <Alert tone="warning">
-                시행 중인 버전을 찾지 못한 항목이 있어 그 항목은 판정에서 빠졌습니다:{' '}
+                시행 중인 버전을 찾지 못한 항목이 있어 그 항목은 판정에서 빠졌어요:{' '}
                 {report.unresolvedItems.join(' · ')}
               </Alert>
             )}
 
             {report.groups.length === 0 ? (
-              <p style={hintStyle}>모든 동의가 시행 중인 버전 기준입니다.</p>
+              <p style={hintStyle}>모든 동의가 시행 중인 버전 기준이에요.</p>
             ) : (
               report.groups.map((group) => (
                 <div key={group.item.id}>
@@ -135,12 +175,12 @@ export function CompliancePanel({ items, events, today }: CompliancePanelProps) 
       <Card>
         <CardTitle>보관 기간 경과 (파기 대상)</CardTitle>
         <p style={hintStyle}>
-          철회한 뒤 항목별 보관 기간이 지난 이력입니다. 이 화면은 <strong>세어 보여 줄 뿐</strong>
-          &nbsp;지우지 않습니다 — 실제 파기는 백업까지 함께 다뤄야 하는 서버의 일입니다.
+          철회한 뒤 항목별 보관 기간이 지난 이력이에요. 이 화면은 <strong>세어 보여 줄 뿐</strong>
+          &nbsp;지우지 않아요 — 실제 파기는 백업까지 함께 다뤄야 하는 서버의 일이에요.
         </p>
 
         {purge.length === 0 ? (
-          <p style={hintStyle}>보관 기간이 지난 이력이 없습니다.</p>
+          <p style={hintStyle}>보관 기간이 지난 이력이 없어요.</p>
         ) : (
           <div style={scrollStyle}>
             <table style={tableStyle}>

@@ -13,8 +13,14 @@ import { useEffect, useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { SearchField, SelectField, StatusBadge, ToggleSwitch } from '../../../shared/ui';
-import { CrudListShell, useCrudList, useCrudRowUpdate, useListState } from '../../../shared/crud';
+import { SearchField, SelectField, StatusBadge } from '../../../shared/ui';
+import {
+  CrudListShell,
+  RowToggle,
+  useCrudList,
+  useCrudRowUpdate,
+  useListState,
+} from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
 import { reviewAdapter } from './data-source';
 import {
@@ -146,17 +152,18 @@ export default function ReviewListPage() {
       header: '노출',
       nowrap: true,
       render: (item) => (
-        <ToggleSwitch
+        <RowToggle
           checked={item.visible}
           busy={toggle.pendingId === item.id}
+          canUpdate={toggle.canUpdate}
           onChange={(next) =>
             toggle.run(
               item.id,
               { ...toReviewInput(item), visible: next },
               {
                 success: next
-                  ? `${item.productName} 리뷰를 노출했습니다.`
-                  : `${item.productName} 리뷰를 숨겼습니다.`,
+                  ? `${item.productName} 리뷰를 노출했어요.`
+                  : `${item.productName} 리뷰를 숨겼어요.`,
               },
             )
           }

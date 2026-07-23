@@ -38,6 +38,7 @@ import {
   Button,
   Card,
   FormField,
+  formRowStyle,
   Icon,
   SelectField,
   Skeleton,
@@ -144,12 +145,6 @@ const cardTitleStyle: CSSProperties = {
   color: cssVar('color.text.default'),
 };
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 7), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
 const controlStyle = (invalid: boolean): CSSProperties => ({
   width: '100%',
   boxSizing: 'border-box',
@@ -219,7 +214,7 @@ function PrivacyFormScreen({
       <div style={pageStyle}>
         <Alert tone="danger">
           <div style={alertBodyStyle}>
-            <span>처리방침 버전을 불러오지 못했습니다.</span>
+            <span>처리방침 버전을 불러오지 못했어요.</span>
             <Button variant="secondary">목록으로</Button>
           </div>
         </Alert>
@@ -254,7 +249,7 @@ function PrivacyFormScreen({
               {serverError !== '' && <Alert tone="danger">{serverError}</Alert>}
 
               <form onSubmit={(event) => event.preventDefault()} noValidate style={cardBodyStyle}>
-                <div style={rowStyle}>
+                <div style={formRowStyle}>
                   <FormField
                     htmlFor="privacy-version"
                     label="버전"
@@ -352,7 +347,7 @@ export const ValidationError: Story = {
   render: () => (
     <PrivacyFormScreen
       errors={DEMO_ERRORS}
-      serverError="저장하지 못했습니다. 잠시 후 다시 시도해 주세요."
+      serverError="저장하지 못했어요. 잠시 후 다시 시도해 주세요."
     />
   ),
 };

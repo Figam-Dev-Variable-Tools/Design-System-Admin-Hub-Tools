@@ -137,13 +137,11 @@ export function ConversationRail({
       </Button>
 
       {failed ? (
-        <p style={mutedStyle}>기록을 불러오지 못했습니다.</p>
+        <p style={mutedStyle}>기록을 불러오지 못했어요.</p>
       ) : loading ? (
         <p style={mutedStyle}>기록을 불러오는 중…</p>
       ) : visible.length === 0 ? (
-        <p style={mutedStyle}>
-          {trimmed === '' ? '아직 대화가 없습니다.' : '검색 결과가 없습니다.'}
-        </p>
+        <p style={mutedStyle}>{trimmed === '' ? '아직 대화가 없어요.' : '검색 결과가 없어요.'}</p>
       ) : (
         <>
           {renderGroup('오늘', today)}

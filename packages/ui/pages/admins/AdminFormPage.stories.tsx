@@ -36,6 +36,7 @@ import {
   Button,
   Card,
   FormField,
+  formRowStyle,
   Icon,
   Skeleton,
   SelectField,
@@ -77,7 +78,7 @@ const ROLES: readonly { readonly id: string; readonly name: string; readonly sys
 ];
 
 const SELF_ROLE_CHANGE_REASON =
-  '자기 자신의 역할은 바꿀 수 없습니다. 다른 시스템 관리자에게 요청하세요.';
+  '자기 자신의 역할은 바꿀 수 없어요. 다른 시스템 관리자에게 요청하세요.';
 
 interface AdminFormValues {
   nickname: string;
@@ -177,13 +178,7 @@ const bodyStyle: CSSProperties = {
   gap: cssVar('space.4'),
 };
 
-/** 한 줄에 필드 여럿 — 좁아지면 자동으로 접힌다(실화면 rowStyle) */
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 6), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
+/** 한 줄에 필드 여럿 — 좁아지면 자동으로 접힌다(실화면 formRowStyle) */
 const hintStyle: CSSProperties = {
   ...typography('typography.caption.md'),
   color: cssVar('color.text.muted'),
@@ -246,7 +241,7 @@ function AdminFormScreen({ state }: { state: FormState }) {
       <div style={titleBlockStyle}>
         <h1 style={pageTitleStyle}>{isEdit ? '운영자 수정' : '운영자 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 계정(이메일)은 로그인 아이디이자 이 운영자를 식별하는 값입니다.
+          별표(*) 항목은 필수예요. 계정(이메일)은 로그인 아이디이자 이 운영자를 식별하는 값이에요.
         </p>
       </div>
 
@@ -263,7 +258,7 @@ function AdminFormScreen({ state }: { state: FormState }) {
               </div>
             ) : (
               <div style={bodyStyle}>
-                <div style={rowStyle}>
+                <div style={formRowStyle}>
                   <TextField
                     id="admin-nickname"
                     label="닉네임 *"
@@ -285,7 +280,7 @@ function AdminFormScreen({ state }: { state: FormState }) {
                   />
                 </div>
                 <p style={hintStyle}>
-                  계정은 로그인 아이디로 쓰입니다. 이미 등록된 계정은 저장 시 거절됩니다.
+                  계정은 로그인 아이디로 쓰여요. 이미 등록된 계정은 저장 시 거절돼요.
                 </p>
 
                 {/* 그룹 목록을 못 불러오면 셀렉트는 빈 채로 뜬다 — '그룹이 없다' 로 읽지 않게 말한다 */}
@@ -293,19 +288,19 @@ function AdminFormScreen({ state }: { state: FormState }) {
                   <Alert tone="danger">
                     <div style={alertRowStyle}>
                       <span>
-                        소속 그룹 목록을 불러오지 못했습니다. 그룹을 고르려면 다시 시도해 주세요.
+                        소속 그룹 목록을 불러오지 못했어요. 그룹을 고르려면 다시 시도해 주세요.
                       </span>
                       <Button variant="secondary">다시 시도</Button>
                     </div>
                   </Alert>
                 )}
 
-                <div style={rowStyle}>
+                <div style={formRowStyle}>
                   <FormField
                     htmlFor="admin-group"
                     label="소속 그룹(발신 프로필)"
                     required
-                    hint="메시지 템플릿의 발신 프로필과 같은 목록입니다."
+                    hint="메시지 템플릿의 발신 프로필과 같은 목록이에요."
                   >
                     <SelectField
                       id="admin-group"
@@ -313,7 +308,7 @@ function AdminFormScreen({ state }: { state: FormState }) {
                       onChange={(event) => set('groupId')(event.target.value)}
                     >
                       <option value="">
-                        {groupsError ? '불러오지 못했습니다' : '그룹을 고르세요'}
+                        {groupsError ? '불러오지 못했어요' : '그룹을 고르세요'}
                       </option>
                       {GROUPS.map((group) => (
                         <option key={group.id} value={group.id}>
@@ -327,9 +322,7 @@ function AdminFormScreen({ state }: { state: FormState }) {
                     htmlFor="admin-role"
                     label="역할(권한)"
                     required
-                    hint={
-                      editingSelf ? undefined : '역할이 이 운영자가 할 수 있는 일을 결정합니다.'
-                    }
+                    hint={editingSelf ? undefined : '역할이 이 운영자가 할 수 있는 일을 결정해요.'}
                   >
                     <SelectField
                       id="admin-role"
@@ -355,7 +348,7 @@ function AdminFormScreen({ state }: { state: FormState }) {
                   </p>
                 )}
 
-                <div style={rowStyle}>
+                <div style={formRowStyle}>
                   <TextField
                     id="admin-department"
                     label="부서"

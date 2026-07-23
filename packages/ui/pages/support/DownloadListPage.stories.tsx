@@ -437,7 +437,7 @@ function DownloadListScreen({
       </p>
 
       <Table
-        caption="자료 목록 — 행을 누르면 자료 수정으로 이동합니다. 체크박스·노출 토글·액션 버튼은 각자의 동작을 수행합니다."
+        caption="자료 목록 — 행을 누르면 자료 수정으로 이동해요. 체크박스·노출 토글·액션 버튼은 각자 따로 동작해요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[
@@ -469,7 +469,7 @@ function DownloadListScreen({
         <ConfirmDialog
           intent="delete"
           title="자료 삭제"
-          message={`'${pendingDelete.title}' 자료를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.title}' 자료를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="자료 삭제"
           onConfirm={() => setPendingDelete(null)}
           onCancel={() => setPendingDelete(null)}

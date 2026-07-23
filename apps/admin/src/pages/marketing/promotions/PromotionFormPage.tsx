@@ -12,6 +12,7 @@ import {
   fieldLabelStyle,
   fieldStyle,
   FormField,
+  formRowStyle,
   hintIdOf,
   SelectField,
   TextareaField,
@@ -35,13 +36,7 @@ const RESOURCE = 'marketing-promotions';
 const ENTITY_LABEL = '프로모션';
 const LIST_PATH = '/marketing/promotions';
 const UNSAVED_MESSAGE =
-  '프로모션에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
-};
+  '프로모션에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 /** 선택한 쿠폰으로 건너뛰는 줄 — 선택 바로 아래에 붙는다 */
 const couponLinkStyle: CSSProperties = {
@@ -162,7 +157,7 @@ export default function PromotionFormPage() {
     <FormPageShell
       entityLabel={ENTITY_LABEL}
       cardTitle="프로모션 정보"
-      description="별표(*) 항목은 필수입니다. 기간·할인 조건을 확인하세요."
+      description="별표(*) 항목은 필수예요. 기간·할인 조건을 확인하세요."
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
@@ -202,7 +197,7 @@ export default function PromotionFormPage() {
         error={periodError}
       />
 
-      <div style={rowStyle}>
+      <div style={formRowStyle}>
         <FormField htmlFor="promo-phase" label="상태" required>
           <SelectField id="promo-phase" disabled={disabled} {...register('phase')}>
             {CAMPAIGN_PHASE_OPTIONS.map((option) => (
@@ -227,7 +222,7 @@ export default function PromotionFormPage() {
         </FormField>
       </div>
 
-      <div style={rowStyle}>
+      <div style={formRowStyle}>
         <FormField htmlFor="promo-discount-type" label="할인 유형" required>
           <SelectField id="promo-discount-type" disabled={disabled} {...register('discountType')}>
             {DISCOUNT_TYPE_OPTIONS.map((option) => (
@@ -298,10 +293,10 @@ export default function PromotionFormPage() {
             htmlFor="promo-coupon"
             label="연동 쿠폰"
             required
-            error="쿠폰 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."
+            error="쿠폰 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요."
           >
             <SelectField id="promo-coupon" disabled isInvalid>
-              <option value="">쿠폰 목록을 불러오지 못했습니다</option>
+              <option value="">쿠폰 목록을 불러오지 못했어요</option>
             </SelectField>
           </FormField>
         ) : (
@@ -310,7 +305,7 @@ export default function PromotionFormPage() {
             label="연동 쿠폰"
             required
             error={errors.couponId?.message}
-            hint="상품 관리에 등록된 쿠폰만 고를 수 있습니다."
+            hint="상품 관리에 등록된 쿠폰만 고를 수 있어요."
           >
             <SelectField
               id="promo-coupon"

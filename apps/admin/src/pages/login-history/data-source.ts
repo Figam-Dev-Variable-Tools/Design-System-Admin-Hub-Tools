@@ -45,7 +45,7 @@ function failIfRequested(op: FailureOp): void {
 
   const requested = flags.split(',').map((flag) => flag.trim());
   if (requested.includes('all') || requested.includes(op)) {
-    throw new Error('요청을 처리하지 못했습니다.');
+    throw new Error('요청을 처리하지 못했어요.');
   }
 }
 

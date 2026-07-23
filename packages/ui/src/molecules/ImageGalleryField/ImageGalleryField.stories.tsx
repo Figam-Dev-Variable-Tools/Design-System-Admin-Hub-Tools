@@ -102,7 +102,7 @@ export const Filled: Story = {
 /** 오류 — error 가 비지 않으면 danger 테두리 + role=alert 인라인 오류 */
 export const Error: Story = {
   name: 'States/Error',
-  args: { values: [], error: '이미지는 최대 10장까지 등록할 수 있습니다.' },
+  args: { values: [], error: '이미지는 최대 10장까지 등록할 수 있어요.' },
 };
 
 /** 비활성 — 드롭존·추가·제거가 모두 잠긴다 */
@@ -157,7 +157,7 @@ export const RightToLeft: Story = {
 /** ARIA — 필수 드롭존은 이름에 (필수)를 담고 오류를 aria-describedby 로 잇는다. 숨긴 입력은 탭 밖 */
 export const Aria: Story = {
   name: 'Accessibility/ARIA',
-  args: { values: [], required: true, error: '이미지는 최소 한 장 등록해야 합니다.' },
+  args: { values: [], required: true, error: '이미지는 최소 한 장 등록해야 해요.' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const dropzone = canvas.getByRole('button', { name: /이미지 \(필수\)/ });

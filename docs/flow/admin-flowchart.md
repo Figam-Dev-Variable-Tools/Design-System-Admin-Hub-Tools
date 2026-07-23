@@ -20,10 +20,10 @@ App.tsx 의 `APP_ROUTES`, nav-config.ts 의 사이드바 정의, 각 도메인 `
 (mermaid.live 는 자동으로 맞춰 주지 않는다).
 
 그게 번거로우면 [html/index.html](html/index.html) 을 브라우저로 열면 된다 — 휠 확대·드래그 이동이 되고 mermaid.live 가 필요 없다.
-서브그래프를 쓰는 06·08 은 `~~~` 보이지 않는 링크로 세로로 쌓아 뒀다. 이 줄을 지우면 서브그래프가
+서브그래프를 쓰는 05·06·08 은 `~~~` 보이지 않는 링크로 세로로 쌓아 뒀다. 이 줄을 지우면 서브그래프가
 옆으로 늘어서 폭이 5000px 를 넘고, 그때부터 "빈 화면"으로 보이기 시작한다.
 
-## 메뉴별 플로우 (전수 81장)
+## 메뉴별 플로우 (전수 74장)
 
 사이드바 메뉴 하나하나의 상세 플로우는 [menus.md](menus.md) 에 표로 있다.
 아래 12장은 그 위를 덮는 **횡단 다이어그램**이다 — 전체 흐름과 도메인별 워크플로.
@@ -32,16 +32,10 @@ App.tsx 의 `APP_ROUTES`, nav-config.ts 의 사이드바 정의, 각 도메인 `
 
 | 신설 차트 | 메뉴 | 이 장이 붙잡는 규칙 |
 |---|---|---|
-| [content-pages](mmd/menus/content-pages.mmd) | 페이지 관리 `/content/pages` | 저장하는 것은 `status`+`publishAt` 둘뿐 · **'예약' 은 파생**(`effectivePublishStatus`) · 슬러그 변경은 막지 않고 경고하며 옛 슬러그를 보관한다 |
-| [content-menus](mmd/menus/content-menus.mmd) | 메뉴 관리 `/content/menus` | **2뎁스 상한**(`menuParentBlock`) · 내부 참조가 `ok`·`missing`·`hidden`·`unknown` 넷으로 갈린다(`sitePageRefHealth`) |
-| [content-news](mmd/menus/content-news.mmd) | 뉴스·보도자료 `/content/news` | 페이지와 **같은 예약 판정 한 벌**을 읽는다 · 첨부는 사본이 아니라 미디어 자산 참조다 |
-| [content-forms](mmd/menus/content-forms.mmd) | 폼 관리 `/content/forms` | `privacy-consent` 를 특수 타입으로 분리 · 발행 후 필드는 **삭제 금지·숨김만**(`fieldDeleteBlock`) |
-| [content-media](mmd/menus/content-media.mmd) | 미디어 라이브러리 `/content/media` | 사용처가 있으면 삭제 차단, **사용처 조회기가 미배선이면 전면 차단**(`mediaDeleteBlock` — fail-closed) |
+| [content-news](mmd/menus/content-news.mmd) | 뉴스·보도자료 `/content/news` | **예약 판정 한 벌**(publish-schedule)을 읽는다 · 첨부는 사본이 아니라 미디어 자산 참조다 |
 | [users-consents](mmd/menus/users-consents.mmd) | 동의 이력 `/users/consents` | 이력은 **append-only** · 마케팅·선택 개인정보·제3자 제공 세 목적은 필수가 될 수 없다(`necessityChangeBlock`) |
 | [company-careers](mmd/menus/company-careers.mmd) | 채용 공고 `/company/careers` | 상태는 파생(`careerStateOf` — `draft`·`always`·`open`·`closed`) · 마감 여부를 저장하지 않는다 |
-| [settings-site-connect](mmd/menus/settings-site-connect.mmd) | 사이트 연동 `/settings/site-connect` | 유입원은 **최초 접점 하나만 불변 저장**(`firstTouch`) — 수정 표면이 없다 |
 | [settings-notifications](mmd/menus/settings-notifications.mmd) | 알림 설정 `/settings/notifications` | 알림은 **읽음/안읽음만** 갖고 권한을 통과한 것만 목록에 들어간다(fail-closed) |
-| [settings-languages](mmd/menus/settings-languages.mmd) | 다국어 설정 `/settings/languages` | 통화·시간대는 언어가 아니라 **지역**이 갖는다 · URL 전략은 사이트당 하나 |
 
 신설 6화면(`/content/*` 5 + `/company/careers`)은 엔타이틀먼트 `cms.pages` 에 매핑됐다.
 `/users/consents`·`/settings/*` 셋은 매핑이 없다 — **매핑이 없으면 fail-open** 이라 언제나 열린다.
@@ -53,19 +47,29 @@ App.tsx 의 `APP_ROUTES`, nav-config.ts 의 사이드바 정의, 각 도메인 `
 | 00 | [00-master-flow.mmd](mmd/00-master-flow.mmd) | **전체 플로우 한 장** — 진입·인증·셸 → 업무 10갈래 → 쓰기 공통 처리 → 로그 기록 → 복귀 |
 | 01 | [01-auth-shell.mmd](mmd/01-auth-shell.mmd) | 진입·인증·권한·lazy·예외 경계 상세 (EXC-01/02/03) |
 | 02 | [02-crud-common.mmd](mmd/02-crud-common.mmd) | 목록 → 상세 → 폼 공통 CRUD (조회 4상태 · 검증 · 무효화 · 삭제 확인) |
-| 03 | [03-sales-pipeline.mmd](mmd/03-sales-pipeline.mmd) | 영업 — 문의(3창구) → 견적 바구니 → 견적 → 수주 → **계약 · 청구·입금** · 프로젝트, 상담 이력 |
+| 03 | [03-sales-pipeline.mmd](mmd/03-sales-pipeline.mmd) | 영업 — 문의(3창구) → 견적 바구니 → 견적 → 수주 → **계약 · 청구·입금** · 프로젝트 |
 | 04 | [04-support-ticket.mmd](mmd/04-support-ticket.mmd) | 고객센터 1:1 문의 티켓 — 전이표 · 담당자 게이트 · SLA |
-| 05 | [05-returns-reviews.mmd](mmd/05-returns-reviews.mmd) | 교환·반품 처리(재고 이동 게이트) · 리뷰 노출 관리 |
+| 05 | [05-claims-reviews.mmd](mmd/05-claims-reviews.mmd) | 클레임(취소·교환·반품) 처리 — 유형별 흐름 · 재고 게이트 · **환불 축** · 리뷰 노출 관리 |
 | 06 | [06-content-publish.mmd](mmd/06-content-publish.mmd) | 콘텐츠 발행 — 공지 · 팝업/배너 · 약관/개인정보 버전 |
 | 07 | [07-marketing-send.mmd](mmd/07-marketing-send.mmd) | 캠페인 발송 · 발송 템플릿 발행 · 알림톡 심사 |
 | 08 | [08-users-permissions.mmd](mmd/08-users-permissions.mmd) | 회원 · 운영자 · 권한 역할 |
-| 09 | [09-ia-tree.mmd](mmd/09-ia-tree.mmd) | IA 트리 — 루트 → 그룹 5 → 메뉴 15 → 잎 81 (플로우가 아닌 참고용) |
+| 09 | [09-ia-tree.mmd](mmd/09-ia-tree.mmd) | IA 트리 — 루트 → 그룹 5 → 메뉴 15 → 잎 74 (플로우가 아닌 참고용) |
 | 09a | [09a-ia-tree-overview.mmd](mmd/09a-ia-tree-overview.mmd) | IA 트리 · 상위 구조 한 화면 (그룹 5 · 메뉴 15 와 각 잎 수) |
 | 09b | [09b-ia-tree-sections.mmd](mmd/09b-ia-tree-sections.mmd) | IA 트리 · 메뉴별 피라미드 (메뉴 15 × 그 잎들) |
 
-> **05 는 이제 `/orders/claims` 를 그린다.** 교환·반품이 상품 관리에서 주문 관리로 옮겨 가며 취소가
-> 축으로 들어왔고, 환불이 별개 축이 됐다. 05 의 노드 이름은 아직 옛 `/products/returns` 어휘를 쓴다 —
-> 갱신 대상이며 그때까지는 [mmd/menus/orders-claims.mmd](mmd/menus/orders-claims.mmd) 가 정본이다.
+> **05 는 `/orders/claims` 로 다시 그렸다** (2026-07-22). 파일 이름도 `05-returns-reviews` →
+> `05-claims-reviews` 로 바꿨다 — 교환·반품이 상품 관리에서 주문 관리로 옮겨 가며 취소가 세 번째
+> 유형으로 들어왔고, 환불이 `refundStatus: none → requested → completed` 라는 **나란한 별개의 축**이
+> 됐다. 옛 이름은 `/products/returns` 시절의 어휘라 내용과 어긋났다.
+>
+> **리뷰를 같은 장에 남긴 것은 판단이다.** 원래의 짝짓기 근거는 '반품'과 '리뷰'라는 단어가 아니라
+> **구매 이후 고객이 만든 사건을 운영자가 처리만 하는 화면**이라는 성격이었고(둘 다 등록 폼이 없는
+> 유형 E), 그 근거는 반품이 클레임으로 승격되면서도 깨지지 않았다. 깨진 것은 어휘뿐이라 어휘만 고쳤다.
+> 한 장이 두 섹션(주문 관리·상품 관리)에 걸치는 것은 이 12장이 **횡단 다이어그램**이기 때문이다.
+>
+> 화면 단위의 정본은 여전히 [mmd/menus/orders-claims.mmd](mmd/menus/orders-claims.mmd) 다 — 05 는
+> 그 위를 덮는 도메인 흐름이라 목록 상태·에러 배너 같은 화면 층은 담지 않는다. 두 장은 같은 코드
+> (`pages/orders/claims/{types,refund,data-source}.ts`)에서 나왔고 어휘가 서로 어긋나지 않는다.
 
 ## 이 차트가 담고 있는 규칙 (코드에서 읽어 온 것)
 
@@ -110,8 +114,9 @@ App.tsx 의 `APP_ROUTES`, nav-config.ts 의 사이드바 정의, 각 도메인 `
   그 순서는 `AppShell` 의 JSX 중첩이 그대로 표현한다(`RequireEntitlement` 가 `RequirePermission` **바깥**).
   결과는 3상태(`granted | locked | absent`)이며 **실패 방향이 권한과 정반대다** — 엔타이틀먼트는 fail-open,
   권한은 fail-closed. 근거는 [ADR-0013](../adr/0013-entitlement-layer.md).
-- **PG 스위치** 두 축이다 — 사이트 전역 `pgSellable`(fail-closed)과 상품별 `priceDisplay`. 전역이 개별을 이긴다.
-  잠금은 **입력만** 막고 저장된 값은 보존된다. 근거는 [ADR-0014](../adr/0014-pg-switch-screen-impact.md).
+- **PG 스위치** 축은 **하나**다 — 사이트 전역 `pgSellable`(fail-closed). 상품별 `priceDisplay` 축은 제거됐고
+  가격 표시는 `resolvePriceDisplay(readPaymentSettings())` 하나에서 나온다. 잠금은 **입력만** 막고 저장된 값은 보존된다.
+  근거는 [ADR-0015](../adr/0015-price-display-single-axis.md)(축 제거) 와 [ADR-0014](../adr/0014-pg-switch-screen-impact.md) §2~§5(잠금·문구·통계·메뉴).
 - **로그·통계** 쓰기 라우트가 존재하지 않는다. 감사 기록은 불변이다.
   다만 결제가 꺼져 있으면 매출·주문 통계는 0 을 그리지 않고 문의 지표로 **치환된다**(`InquiryStatsPanel`).
 
@@ -142,7 +147,7 @@ npx -p @mermaid-js/mermaid-cli mmdc -i docs/flow/mmd/00-master-flow.mmd -o /tmp/
 | 02-crud-common | 1480 × 2229 |
 | 03-sales-pipeline | 1760 × 2967 |
 | 04-support-ticket | 1707 × 1572 |
-| 05-returns-reviews | 1178 × 1504 |
+| 05-claims-reviews | 미측정 (클레임·환불 축으로 다시 그린 뒤 재렌더 필요 — 옛 05-returns-reviews 는 1178 × 1504 였다) |
 | 06-content-publish | 2209 × 1062 |
 | 07-marketing-send | 2056 × 1939 |
 | 08-users-permissions | 2250 × 2034 |

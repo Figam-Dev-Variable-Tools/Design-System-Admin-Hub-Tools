@@ -85,7 +85,6 @@ describe('카탈로그 자기검사', () => {
       'project.probability',
       'project.expectedRevenue',
       'project.lostReason',
-      'consultation.outcome',
       'returnRequest.adminNote',
       'review.reportReason',
       'account.creditGrade',

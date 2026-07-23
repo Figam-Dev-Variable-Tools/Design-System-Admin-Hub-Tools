@@ -79,7 +79,7 @@ export function DownloadPreview({
       </div>
       <h3 style={titleStyle}>{title.trim() === '' ? '제목을 입력하세요' : title}</h3>
       {fileName.trim() === '' ? (
-        <span style={mutedStyle}>첨부 파일이 없습니다.</span>
+        <span style={mutedStyle}>첨부 파일이 없어요.</span>
       ) : (
         <span style={fileRowStyle}>
           <Icon name="download" />

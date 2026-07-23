@@ -1,5 +1,5 @@
 // 거래처 동작 회귀 테스트 — 사업자번호 검증·필터·정렬·대표담당(순수) + 폼 검증
-//   + 거래처 참조 규칙(accountId 가 정본) + 역방향 조회(거래처 → 계약·견적·프로젝트·상담)
+//   + 거래처 참조 규칙(accountId 가 정본) + 역방향 조회(거래처 → 계약·견적·프로젝트)
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -12,7 +12,6 @@ import type { AccountRef } from '../_shared/account-reference';
 import { contractAdapter } from '../contracts/data-source';
 import { quoteAdapter } from '../quotes/data-source';
 import { projectAdapter } from '../projects/data-source';
-import { consultationAdapter } from '../consultations/data-source';
 import { bizNoDigits, formatBizNo, formatWon, isValidBizNo } from '../_shared/business';
 import {
   filterAccounts,
@@ -260,26 +259,24 @@ describe('filterByAccount — 거래처 상세의 역방향 조회(순수)', () 
   });
 });
 
-describe('시드 무결성 — 네 모듈이 실제 거래처를 가리킨다', () => {
+describe('시드 무결성 — 세 모듈이 실제 거래처를 가리킨다', () => {
   // 픽스처가 accountId 를 하나라도 빠뜨리면 거래처 상세의 그 구획이 **조용히 비어** 보인다.
   // 화면 테스트로는 '원래 없는 것' 과 구분되지 않아, 데이터 쪽에서 못을 박는다.
-  it('계약·견적·프로젝트·상담 시드가 전부 등록된 거래처를 가리킨다', async () => {
+  it('계약·견적·프로젝트 시드가 전부 등록된 거래처를 가리킨다', async () => {
     const signal = new AbortController().signal;
-    const [contracts, quotes, projects, consultations] = await Promise.all([
+    const [contracts, quotes, projects] = await Promise.all([
       contractAdapter.fetchAll(signal),
       quoteAdapter.fetchAll(signal),
       projectAdapter.fetchAll(signal),
-      consultationAdapter.fetchAll(signal),
     ]);
 
-    for (const row of [...contracts, ...quotes, ...projects, ...consultations]) {
+    for (const row of [...contracts, ...quotes, ...projects]) {
       expect(isRegisteredAccount(row)).toBe(true);
     }
 
-    // 그리고 실제로 한 거래처에 네 이력이 모두 걸린다 — 상세의 네 구획이 빈 채 출시되지 않게 한다.
+    // 그리고 실제로 한 거래처에 세 이력이 모두 걸린다 — 상세의 세 구획이 빈 채 출시되지 않게 한다.
     expect(filterByAccount(contracts, 'acc-1')).not.toHaveLength(0);
     expect(filterByAccount(quotes, 'acc-1')).not.toHaveLength(0);
     expect(filterByAccount(projects, 'acc-1')).not.toHaveLength(0);
-    expect(filterByAccount(consultations, 'acc-1')).not.toHaveLength(0);
   });
 });

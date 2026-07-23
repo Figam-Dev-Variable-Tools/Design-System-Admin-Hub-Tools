@@ -445,7 +445,7 @@ function MessageTemplateDetailScreen({
       <div style={pageStyle}>
         <Alert tone="danger">
           <div style={alertRowStyle}>
-            <span>{`${ENTITY_LABEL}을(를) 불러오지 못했습니다. 이미 삭제되었을 수 있습니다.`}</span>
+            <span>{`${ENTITY_LABEL}을(를) 불러오지 못했어요. 이미 삭제되었을 수 있어요.`}</span>
             <Button variant="secondary">목록으로</Button>
           </div>
         </Alert>
@@ -588,7 +588,7 @@ function MessageTemplateDetailScreen({
         <ConfirmDialog
           intent="delete"
           title={`${ENTITY_LABEL} 삭제`}
-          message={`'${template.name}'을(를) 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${template.name}'을(를) 삭제해요. 되돌릴 수 없어요.`}
           confirmLabel="삭제"
           onConfirm={() => setConfirmingDelete(false)}
           onCancel={() => setConfirmingDelete(false)}

@@ -87,9 +87,9 @@ export function CouponsCard({ coupons }: CouponsCardProps) {
 
       {held === null ? (
         // 빈 목록으로 뭉개면 운영자는 '이 회원은 쿠폰이 없다' 는 **거짓을 사실로** 읽는다
-        <p style={hintStyle}>쿠폰 정보를 불러오지 못했습니다.</p>
+        <p style={hintStyle}>쿠폰 정보를 불러오지 못했어요.</p>
       ) : held.length === 0 ? (
-        <p style={hintStyle}>사용 가능한 쿠폰이 없습니다.</p>
+        <p style={hintStyle}>사용 가능한 쿠폰이 없어요.</p>
       ) : (
         <>
           <ul style={listStyle}>

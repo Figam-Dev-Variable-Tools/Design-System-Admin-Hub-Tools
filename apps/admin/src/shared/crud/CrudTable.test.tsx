@@ -160,12 +160,12 @@ describe('CrudTable — 상태 머신 (STATE-01)', () => {
 
     expect(screen.getByRole('table').getAttribute('aria-busy')).toBe('true');
     // 로드 중에 '없습니다' 가 보이면 운영자는 데이터가 없다고 오판한다
-    expect(screen.queryByText(/없습니다/)).toBeNull();
+    expect(screen.queryByText(/없어요/)).toBeNull();
   });
 
   it('성공했는데 0행일 때만 empty 를 그린다', () => {
     renderTable({ items: [], loading: false });
-    expect(screen.getByText('등록된 항목이 없습니다')).not.toBeNull();
+    expect(screen.getByText('등록된 항목이 없어요')).not.toBeNull();
   });
 
   /**
@@ -191,7 +191,7 @@ describe('CrudTable — 빈 상태 3분기 (STATE-05)', () => {
       empty: { createAction: <button type="button">항목 등록</button> },
     });
 
-    expect(screen.getByText('등록된 항목이 없습니다')).not.toBeNull();
+    expect(screen.getByText('등록된 항목이 없어요')).not.toBeNull();
     expect(screen.getByRole('button', { name: '항목 등록' })).not.toBeNull();
   });
 
@@ -207,7 +207,7 @@ describe('CrudTable — 빈 상태 3분기 (STATE-05)', () => {
       },
     });
 
-    expect(screen.getByText('조건에 맞는 항목이 없습니다')).not.toBeNull();
+    expect(screen.getByText('조건에 맞는 항목이 없어요')).not.toBeNull();
     // 검색 때문에 비었는데 등록을 권하면 사용자는 지우면 될 검색어를 그대로 둔다
     expect(screen.queryByRole('button', { name: '항목 등록' })).toBeNull();
 
@@ -220,7 +220,7 @@ describe('CrudTable — 빈 상태 3분기 (STATE-05)', () => {
     const onResetFilters = vi.fn();
     renderTable({ items: [], empty: { hasActiveFilters: true, onResetFilters } });
 
-    expect(screen.getByText('필터에 맞는 항목이 없습니다')).not.toBeNull();
+    expect(screen.getByText('필터에 맞는 항목이 없어요')).not.toBeNull();
     await user.click(screen.getByRole('button', { name: '필터 초기화' }));
     expect(onResetFilters).toHaveBeenCalledTimes(1);
   });
@@ -228,7 +228,7 @@ describe('CrudTable — 빈 상태 3분기 (STATE-05)', () => {
   /** 검색과 필터가 함께 걸리면 검색이 이긴다 — 사용자가 방금 친 것이 검색어이기 때문 */
   it('검색과 필터가 함께 걸리면 검색 문구가 이긴다', () => {
     renderTable({ items: [], empty: { hasQuery: true, hasActiveFilters: true } });
-    expect(screen.getByText('조건에 맞는 항목이 없습니다')).not.toBeNull();
+    expect(screen.getByText('조건에 맞는 항목이 없어요')).not.toBeNull();
   });
 });
 
@@ -271,13 +271,13 @@ describe('CrudTable — 쓰기 권한 게이팅 (EXC-03)', () => {
   it('조회 전용이면 액션 열이 통째로 없어지고 캡션이 그렇게 말한다', () => {
     renderTable({ canUpdate: false, canRemove: false });
     expect(screen.queryByText('행 액션')).toBeNull();
-    expect(screen.getByText(/조회 전용입니다/)).not.toBeNull();
+    expect(screen.getByText(/조회 전용이에요/)).not.toBeNull();
   });
 
   /** 열이 사라지면 colSpan 도 따라가야 한다 — 안 그러면 빈 상태 칸이 표 밖으로 삐져나온다 */
   it('열이 사라져도 빈 상태의 colSpan 이 표 너비와 맞는다', () => {
     renderTable({ items: [], canUpdate: false, canRemove: false });
-    const cell = screen.getByText('등록된 항목이 없습니다').closest('td');
+    const cell = screen.getByText('등록된 항목이 없어요').closest('td');
     // 순번(1) + 열(1) = 2 — 체크박스도 액션도 없다
     expect(cell?.getAttribute('colspan')).toBe('2');
   });

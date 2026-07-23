@@ -41,6 +41,7 @@ import {
   Card,
   DateRangeField,
   FormField,
+  formRowStyle,
   Icon,
   SelectField,
   Skeleton,
@@ -123,7 +124,7 @@ const EDIT_SEED: FormValues = {
   benefitDetail: '리뷰 작성 시 3,000 적립금',
   bannerLinked: true,
   bannerLabel: '메인 상단 여름 배너',
-  description: '구매 후기 작성 고객에게 적립금을 드리는 이벤트입니다.',
+  description: '구매 후기 작성 고객에게 적립금을 드리는 이벤트예요.',
 };
 
 /** 검증 오류 데모 — 실화면 zod 스키마(validation.ts)가 내는 문구를 그대로 미러 */
@@ -197,12 +198,6 @@ const cardTitleStyle: CSSProperties = {
   ...typography('typography.title.md'),
   margin: 0,
   color: cssVar('color.text.default'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const fieldStyle: CSSProperties = {
@@ -280,14 +275,14 @@ function EventFormScreen({
 
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '이벤트 수정' : '이벤트 등록'}</h1>
-        <p style={descriptionStyle}>별표(*) 항목은 필수입니다. 기간·대상·혜택을 확인하세요.</p>
+        <p style={descriptionStyle}>별표(*) 항목은 필수예요. 기간·대상·혜택을 확인하세요.</p>
       </div>
 
       <form onSubmit={(event) => event.preventDefault()} noValidate style={formStyle}>
         {/* 서버 오류 배너 — 실화면 FormServerError 의 자리 */}
         {hasErrors && (
           <Alert tone="danger">
-            입력한 내용을 다시 확인하세요. 표시된 항목을 수정해야 저장됩니다.
+            입력한 내용을 다시 확인하세요. 표시된 항목을 수정해야 저장돼요.
           </Alert>
         )}
 
@@ -323,7 +318,7 @@ function EventFormScreen({
                 error={errors.period ?? ''}
               />
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="event-phase" label="상태" required>
                   <SelectField
                     id="event-phase"
@@ -351,7 +346,7 @@ function EventFormScreen({
                 />
               </div>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="event-benefit" label="혜택 유형">
                   <SelectField
                     id="event-benefit"

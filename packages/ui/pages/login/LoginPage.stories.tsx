@@ -155,7 +155,7 @@ export const Default: Story = {
 export const CredentialError: Story = {
   args: {
     initialEmail: 'admin@example.com',
-    alertMessage: '이메일 또는 비밀번호가 일치하지 않습니다. (실패 3/5회)',
+    alertMessage: '이메일 또는 비밀번호가 일치하지 않아요. (실패 3/5회)',
   },
 };
 
@@ -164,7 +164,7 @@ export const AccountLocked: Story = {
   args: {
     initialEmail: 'admin@example.com',
     alertMessage:
-      '비밀번호 5회 오류로 계정이 잠겼습니다. 30분 후 다시 시도하거나 시스템 관리자에게 문의하세요.',
+      '비밀번호 5회 오류로 계정이 잠겼어요. 30분 후 다시 시도하거나 시스템 관리자에게 문의하세요.',
     submitDisabled: true,
   },
 };
@@ -173,7 +173,7 @@ export const AccountLocked: Story = {
 export const AccountInactive: Story = {
   args: {
     initialEmail: 'admin@example.com',
-    alertMessage: '사용이 중지된 계정입니다. 시스템 관리자에게 문의하세요.',
+    alertMessage: '사용이 중지된 계정이에요. 시스템 관리자에게 문의하세요.',
   },
 };
 
@@ -181,7 +181,7 @@ export const AccountInactive: Story = {
 export const ServerError: Story = {
   args: {
     initialEmail: 'admin@example.com',
-    alertMessage: '일시적인 오류로 로그인하지 못했습니다. 다시 시도해 주세요.',
+    alertMessage: '일시적인 오류로 로그인하지 못했어요. 다시 시도해 주세요.',
   },
 };
 

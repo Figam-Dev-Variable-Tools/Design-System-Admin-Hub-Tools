@@ -32,7 +32,7 @@ describe('createGroupSchema — 새 그룹 만들기', () => {
     ['', '그룹명을 입력하세요.'],
     // 공백만 입력해도 '입력하세요' 다 — trim 기준으로 판정한다
     ['   ', '그룹명을 입력하세요.'],
-    ['x'.repeat(31), '그룹명은 30자를 넘을 수 없습니다.'],
+    ['x'.repeat(31), '그룹명은 30자를 넘을 수 없어요.'],
   ])('%j → %s', (name, message) => {
     expect(parse(name)['name']).toBe(message);
   });
@@ -49,12 +49,12 @@ describe('passwordChangeSchema — 비밀번호 변경', () => {
   it.each([
     // 입력                       password 오류                        confirm 오류
     ['', '', '새 비밀번호를 입력하세요.', '새 비밀번호를 한 번 더 입력하세요.'],
-    ['short1', 'short1', '비밀번호는 8자 이상이어야 합니다.', undefined],
+    ['short1', 'short1', '비밀번호는 8자 이상이어야 해요.', undefined],
     // 8자 이상이지만 숫자가 없다 / 영문이 없다
-    ['abcdefgh', 'abcdefgh', '영문과 숫자를 모두 포함해야 합니다.', undefined],
-    ['12345678', '12345678', '영문과 숫자를 모두 포함해야 합니다.', undefined],
+    ['abcdefgh', 'abcdefgh', '영문과 숫자를 모두 포함해야 해요.', undefined],
+    ['12345678', '12345678', '영문과 숫자를 모두 포함해야 해요.', undefined],
     // 규칙은 만족하나 확인란이 다르다
-    ['abcd1234', 'abcd9999', undefined, '비밀번호가 일치하지 않습니다.'],
+    ['abcd1234', 'abcd9999', undefined, '비밀번호가 일치하지 않아요.'],
     ['abcd1234', 'abcd1234', undefined, undefined],
   ])('%j/%j', (password, confirm, passwordError, confirmError) => {
     const errors = parse(password, confirm);

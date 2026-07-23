@@ -64,7 +64,7 @@ interface CrudListController<T extends { id: string }> {
  */
 function deleteErrorMessage(cause: unknown): string {
   if (isConflict(cause) && cause instanceof Error && cause.message !== '') return cause.message;
-  return '삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.';
+  return '삭제하지 못했어요. 잠시 후 다시 시도해 주세요.';
 }
 
 /** 409 가 들고 온 사람이 읽을 수 있는 사유 — 없으면 null */
@@ -95,7 +95,7 @@ export function bulkDeleteErrorMessage(
   total: number,
   failures: readonly { reason: unknown }[],
 ): string {
-  const head = `${formatNumber(total)}건 중 ${formatNumber(failures.length)}건을 삭제하지 못했습니다.`;
+  const head = `${formatNumber(total)}건 중 ${formatNumber(failures.length)}건을 삭제하지 못했어요.`;
 
   const reasons = [...new Set(failures.map((f) => conflictReason(f.reason)).filter(isPresent))];
   const hasRetryable = failures.some((f) => conflictReason(f.reason) === null);
@@ -167,7 +167,7 @@ export function useCrudList<T extends { id: string }, Input>({
           if (controller.signal.aborted) return;
           setPendingDelete(null);
           // ERP-13 — 조사는 이름의 받침이 고른다 ('홍길동'을 / '카페'를)
-          toast.success(`'${nameOf(target)}'${objectParticle(nameOf(target))} 삭제했습니다.`);
+          toast.success(`'${nameOf(target)}'${objectParticle(nameOf(target))} 삭제했어요.`);
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
@@ -203,7 +203,7 @@ export function useCrudList<T extends { id: string }, Input>({
           }
           setBulkOpen(false);
           clear();
-          toast.success(`${entityLabel} ${formatNumber(ids.length)}건을 삭제했습니다.`);
+          toast.success(`${entityLabel} ${formatNumber(ids.length)}건을 삭제했어요.`);
         },
       },
     );
@@ -215,7 +215,7 @@ export function useCrudList<T extends { id: string }, Input>({
         <ConfirmDialog
           intent="delete"
           title={`${entityLabel} 삭제`}
-          message={`'${nameOf(pendingDelete)}'${objectParticle(nameOf(pendingDelete))} 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${nameOf(pendingDelete)}'${objectParticle(nameOf(pendingDelete))} 삭제해요. 되돌릴 수 없어요.`}
           confirmLabel="삭제"
           busy={deleting}
           error={deleteError}
@@ -227,7 +227,7 @@ export function useCrudList<T extends { id: string }, Input>({
         <ConfirmDialog
           intent="delete"
           title={`${entityLabel} 일괄 삭제`}
-          message={`선택한 ${entityLabel} ${formatNumber(selectedCount)}건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 ${entityLabel} ${formatNumber(selectedCount)}건을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel={`${formatNumber(selectedCount)}건 삭제`}
           busy={bulkDeleting}
           error={bulkError}

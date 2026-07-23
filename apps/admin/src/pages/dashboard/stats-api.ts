@@ -114,7 +114,7 @@ function wait(ms: number, signal: AbortSignal): Promise<void> {
       'abort',
       () => {
         clearTimeout(timer);
-        reject(new DOMException('요청이 취소되었습니다.', 'AbortError'));
+        reject(new DOMException('요청이 취소되었어요.', 'AbortError'));
       },
       { once: true },
     );
@@ -130,7 +130,7 @@ export async function fetchStats(range: StatsRange, signal: AbortSignal): Promis
   await wait(options.delayMs, signal);
 
   if (options.shouldFail) {
-    throw new StatsApiError('통계를 불러오지 못했습니다.');
+    throw new StatsApiError('통계를 불러오지 못했어요.');
   }
   if (options.isEmpty) return EMPTY_STATS;
 

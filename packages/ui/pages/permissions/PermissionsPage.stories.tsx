@@ -251,9 +251,9 @@ const SCOPE_META: readonly {
   readonly label: string;
   readonly description: string;
 }[] = [
-  { key: 'all', label: '전체', description: '모든 데이터를 조회·처리할 수 있습니다.' },
-  { key: 'department', label: '소속 부서', description: '자신이 속한 부서의 데이터만 다룹니다.' },
-  { key: 'own', label: '본인', description: '자신이 만든 데이터만 다룹니다.' },
+  { key: 'all', label: '전체', description: '모든 데이터를 조회·처리할 수 있어요.' },
+  { key: 'department', label: '소속 부서', description: '자신이 속한 부서의 데이터만 다뤄요.' },
+  { key: 'own', label: '본인', description: '자신이 만든 데이터만 다뤄요.' },
 ];
 
 interface DemoRole {
@@ -295,7 +295,7 @@ const ROLES: readonly DemoRole[] = [
 const ACTIVE_ROLE_ID = 'role-operator';
 
 const SYSTEM_ROLE_REASON =
-  '슈퍼어드민(전체권한)은 시스템 역할이라 이름 변경·삭제·권한 수정을 할 수 없습니다. 항상 모든 리소스의 모든 액션을 가집니다.';
+  '슈퍼어드민(전체권한)은 시스템 역할이라 이름 변경·삭제·권한 수정을 할 수 없어요. 항상 모든 리소스의 모든 액션을 가져요.';
 
 /* ────────────────────────────────────────────────────────────────────────────
  * 스타일 (토큰·rem 만)
@@ -586,10 +586,10 @@ function RolePanel({
             {SYSTEM_ROLE_REASON}
           </p>
           <p style={hintStyle}>
-            '적용 중' 역할의 권한이 곧 이 관리자 앱의 유효 권한입니다. 조회를 끄면 사이드바의 메뉴가
-            즉시 사라집니다.
+            '적용 중' 역할의 권한이 곧 이 관리자 앱의 유효 권한이에요. 조회를 끄면 사이드바의 메뉴가
+            즉시 사라져요.
           </p>
-          <p style={hintStyle}>체크는 누르는 즉시 저장됩니다 — 따로 저장 버튼이 없습니다.</p>
+          <p style={hintStyle}>체크는 누르는 즉시 저장돼요 — 따로 저장 버튼이 없어요.</p>
         </>
       }
     >
@@ -727,8 +727,8 @@ function RoleHeaderCard({
 
         <p style={hintStyle}>
           {active
-            ? '체크를 바꾸면 즉시 저장되고, 사이드바 메뉴와 대시보드 위젯에 리로드 없이 반영됩니다.'
-            : `체크를 바꾸면 즉시 저장됩니다. 다만 지금 적용 중인 역할은 '${activeRoleName}' 이라 이 역할의 변경은 화면에 나타나지 않습니다.`}
+            ? '체크를 바꾸면 즉시 저장되고, 사이드바 메뉴와 대시보드 위젯에 리로드 없이 반영돼요.'
+            : `체크를 바꾸면 즉시 저장돼요. 다만 지금 적용 중인 역할은 '${activeRoleName}' 이라 이 역할의 변경은 화면에 나타나지 않아요.`}
         </p>
       </div>
     </Card>
@@ -839,8 +839,8 @@ function PermissionMatrixTable({
     <div style={tableWrapStyle}>
       <table style={tableStyle}>
         <caption style={visuallyHidden}>
-          권한 매트릭스 — 행은 메뉴 리소스, 열은 액션(조회·등록·수정·삭제·내보내기)입니다. 조회를
-          끄면 나머지 액션도 함께 꺼지고, 다른 액션을 켜면 조회가 함께 켜집니다.
+          권한 매트릭스 — 행은 메뉴 리소스, 열은 액션(조회·등록·수정·삭제·내보내기)예요. 조회를 끄면
+          나머지 액션도 함께 꺼지고, 다른 액션을 켜면 조회가 함께 켜져요.
         </caption>
         <thead>
           <tr>
@@ -943,8 +943,7 @@ function DashboardWidgetsCard({
         </div>
 
         <p style={hintStyle}>
-          위젯은 액션(등록·수정·삭제)이 없어 노출/숨김만 정합니다. 끄면 대시보드에서 즉시
-          사라집니다.
+          위젯은 액션(등록·수정·삭제)이 없어 노출/숨김만 정해요. 끄면 대시보드에서 즉시 사라져요.
         </p>
 
         <ul style={widgetGridStyle}>
@@ -1093,8 +1092,8 @@ function PermissionsScreen({
               </h2>
               <p style={hintStyle}>
                 {isSystem
-                  ? '슈퍼어드민은 모든 리소스의 모든 액션을 갖습니다. 잠겨 있어 바꿀 수 없습니다.'
-                  : '조회를 끄면 등록·수정·삭제·내보내기도 함께 꺼집니다. 반대로 등록·수정·삭제·내보내기를 켜면 조회가 함께 켜집니다.'}
+                  ? '슈퍼어드민은 모든 리소스의 모든 액션을 가져요. 잠겨 있어 바꿀 수 없어요.'
+                  : '조회를 끄면 등록·수정·삭제·내보내기도 함께 꺼져요. 반대로 등록·수정·삭제·내보내기를 켜면 조회가 함께 켜져요.'}
               </p>
 
               <PermissionMatrixTable
@@ -1151,8 +1150,8 @@ function PermissionsScreen({
           title="역할 삭제"
           message={
             isActive
-              ? `'${role?.name ?? ''}' 은 지금 적용 중인 역할입니다. 삭제하면 남아 있는 첫 역할이 대신 적용됩니다. 삭제할까요?`
-              : `'${role?.name ?? ''}' 역할을 삭제할까요? 되돌릴 수 없습니다.`
+              ? `'${role?.name ?? ''}' 은 지금 적용 중인 역할이에요. 삭제하면 남아 있는 첫 역할이 대신 적용돼요. 삭제할까요?`
+              : `'${role?.name ?? ''}' 역할을 삭제할까요? 되돌릴 수 없어요.`
           }
           confirmLabel="역할 삭제"
           onCancel={closeDialog}

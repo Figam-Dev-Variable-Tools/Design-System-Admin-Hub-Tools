@@ -136,6 +136,22 @@ function buildMembers(count: number): readonly Member[] {
 /** 목록 화면이 소비하는 회원 픽스처 */
 export const MEMBERS: readonly Member[] = buildMembers(497);
 
+/**
+ * 이 등급을 쓰는 회원 수 — **등급 삭제 가드가 물어보는 유일한 질문**이다.
+ *
+ * [왜 여기인가] 답은 회원 명부가 갖고 있다. 고객 설정 화면이 이 파일을 직접 읽어도 되지만(분포
+ * 미리보기가 이미 그렇게 한다), 삭제 가드는 '모른다' 와 '없다' 를 갈라야 해서 조회기를 거친다 —
+ * `shared/domain/member-tier-catalog.ts` 가 자리를 만들고 `src/wiring.ts` 가 이 함수를 꽂는다.
+ * 배선되지 않으면 조회 결과가 0 이 아니라 null(확인 불가)이고, 그때는 삭제가 막힌다(fail-closed).
+ *
+ * `tierId` 를 string 으로 받는다 — 운영자가 추가한 등급의 id 는 `MemberTier` 유니온에 없다.
+ * 픽스처의 회원은 기본 제공 등급만 들고 있으므로 추가된 등급의 답은 0 이고, 그것은 추정이 아니라
+ * 지금 이 표본의 사실이다. TODO(backend): GET /api/members/count?tier= 로 바뀐다.
+ */
+export function countMembersByTier(tierId: string): number {
+  return MEMBERS.filter((member) => member.tier === tierId).length;
+}
+
 function buildConsents(index: number, joinedAt: string): readonly ConsentGroup[] {
   const at = `${joinedAt} ${pad(9 + (index % 10), 2)}:${pad((index * 13) % 60, 2)}`;
   const marketingSms = index % 3 !== 0;

@@ -40,6 +40,7 @@ import {
   Card,
   Checkbox,
   FormField,
+  formRowStyle,
   SelectField,
   TextField,
   TextareaField,
@@ -102,8 +103,8 @@ const EDIT_SEED: SeedValues = {
   categoryId: 'payment',
   answer:
     '신용·체크카드, 계좌이체, 간편결제(카카오페이·네이버페이·토스페이)를 지원합니다.\n\n' +
-    '· 무이자 할부는 카드사 정책에 따라 매월 달라집니다.\n' +
-    '· 해외 발행 카드는 일부 결제가 제한될 수 있습니다.\n\n' +
+    '· 무이자 할부는 카드사 정책에 따라 매월 달라져요.\n' +
+    '· 해외 발행 카드는 일부 결제가 제한될 수 있어요.\n\n' +
     '고객센터 운영 시간(평일 09:00~18:00)에 1:1 문의를 남겨 주세요.',
   visible: true,
   order: '2',
@@ -171,13 +172,6 @@ const cardTitleStyle: CSSProperties = {
   ...typography('typography.title.md'),
   margin: 0,
   color: cssVar('color.text.default'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 8), 1fr))`,
-  gap: cssVar('space.4'),
-  alignItems: 'start',
 };
 
 const controlStyle = (invalid: boolean): CSSProperties => ({
@@ -253,7 +247,7 @@ function FaqFormScreen({
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? 'FAQ 수정' : 'FAQ 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 노출을 끄면 사용자 화면에서 숨겨집니다.
+          별표(*) 항목은 필수예요. 노출을 끄면 사용자 화면에서 숨겨져요.
         </p>
       </div>
 
@@ -273,7 +267,7 @@ function FaqFormScreen({
             error={errors.question ?? ''}
           />
 
-          <div style={rowStyle}>
+          <div style={formRowStyle}>
             <FormField
               htmlFor="faq-category"
               label="카테고리"
@@ -301,7 +295,7 @@ function FaqFormScreen({
               htmlFor="faq-order"
               label="정렬 순서"
               required
-              hint="작을수록 위에 노출됩니다. 신규 등록이면 현재 최대 + 1 이 채워집니다."
+              hint="작을수록 위에 노출돼요. 신규 등록이면 현재 최대 + 1 이 채워져요."
               {...(errors.order !== undefined && { error: errors.order })}
             >
               <input
@@ -376,7 +370,7 @@ export const ValidationError: Story = {
     <FaqFormScreen
       seed={ERROR_SEED}
       errors={DEMO_ERRORS}
-      serverError="저장하지 못했습니다. 잠시 후 다시 시도해 주세요."
+      serverError="저장하지 못했어요. 잠시 후 다시 시도해 주세요."
     />
   ),
 };

@@ -481,16 +481,16 @@ describe('422 를 그리는 자리(순수) — 결함 2 회귀', () => {
  */
 describe('위반 배치(순수) — 결함 b·c 회귀', () => {
   const violations = [
-    { field: 'exchangeOptionValues', message: '교환 옵션 재고가 부족합니다.' },
-    { field: 'status', message: '되돌리는 전이는 할 수 없습니다.' },
-    { field: 'returnShippingFee', message: '차감을 바꿀 수 없습니다.' },
+    { field: 'exchangeOptionValues', message: '교환 옵션 재고가 부족해요.' },
+    { field: 'status', message: '되돌리는 전이는 할 수 없어요.' },
+    { field: 'returnShippingFee', message: '차감을 바꿀 수 없어요.' },
   ];
 
   it('인라인 자리가 열려 있으면 그 필드만 인라인, 나머지는 전부 배너로 간다', () => {
     const placed = placeViolations(violations, '폴백', true);
-    expect(placed.inline).toBe('교환 옵션 재고가 부족합니다.');
+    expect(placed.inline).toBe('교환 옵션 재고가 부족해요.');
     // 남은 둘이 **둘 다** 배너에 있다 — 예전에는 첫 위반 하나만 살아남았다
-    expect(placed.banner).toBe('되돌리는 전이는 할 수 없습니다. 차감을 바꿀 수 없습니다.');
+    expect(placed.banner).toBe('되돌리는 전이는 할 수 없어요. 차감을 바꿀 수 없어요.');
   });
 
   it('인라인 자리가 없으면(취소·반품·모달 뒤) 셋 다 배너로 수렴한다', () => {
@@ -502,9 +502,9 @@ describe('위반 배치(순수) — 결함 b·c 회귀', () => {
   });
 
   it('필드를 지목하지 않은 거절은 서버 문구가 유일한 설명이다 — 침묵하지 않는다', () => {
-    expect(placeViolations([], '요청이 올바르지 않습니다.', true)).toEqual({
+    expect(placeViolations([], '요청이 올바르지 않아요.', true)).toEqual({
       inline: null,
-      banner: '요청이 올바르지 않습니다.',
+      banner: '요청이 올바르지 않아요.',
     });
   });
 
@@ -512,12 +512,12 @@ describe('위반 배치(순수) — 결함 b·c 회귀', () => {
     const placed = placeViolations(
       [
         { field: 'exchangeOptionValues', message: '옵션을 고르세요.' },
-        { field: 'exchangeOptionValues', message: '재고가 부족합니다.' },
+        { field: 'exchangeOptionValues', message: '재고가 부족해요.' },
       ],
       '폴백',
       true,
     );
-    expect(placed.inline).toBe('옵션을 고르세요. 재고가 부족합니다.');
+    expect(placed.inline).toBe('옵션을 고르세요. 재고가 부족해요.');
     expect(placed.banner).toBeNull();
   });
 

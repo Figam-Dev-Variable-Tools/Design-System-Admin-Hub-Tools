@@ -93,9 +93,9 @@ export function StatsPageShell({
   if (!can(resourceId, 'read')) {
     return (
       <div style={forbiddenStyle}>
-        <h2 style={forbiddenTitleStyle}>접근 권한이 없습니다</h2>
+        <h2 style={forbiddenTitleStyle}>접근 권한이 없어요</h2>
         <p style={descriptionStyle}>
-          이 통계를 볼 수 있는 권한이 없습니다. 필요하면 최상위 관리자에게 요청해 주세요.
+          이 통계를 볼 수 있는 권한이 없어요. 필요하면 최상위 관리자에게 요청해 주세요.
         </p>
       </div>
     );

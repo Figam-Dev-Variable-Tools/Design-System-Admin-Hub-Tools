@@ -44,7 +44,7 @@ export function useStatsQuery<T>(
     data: query.data,
     isFirstLoad: query.data === undefined && query.isFetching,
     // 원문 에러 메시지를 그대로 노출하지 않는다 — 서버 내부를 흘리지 않는다 (EXC-20)
-    error: query.isError ? '통계를 불러오지 못했습니다.' : '',
+    error: query.isError ? '통계를 불러오지 못했어요.' : '',
     refetch: () => {
       void query.refetch();
     },

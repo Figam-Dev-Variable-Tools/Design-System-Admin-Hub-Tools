@@ -670,7 +670,7 @@ function NoticesScreen({
           </SelectionBar>
 
           <Table
-            caption="공지사항 목록 — 행을 누르면 공지 상세로 이동합니다. 체크박스·삭제 버튼은 각자의 동작을 수행합니다."
+            caption="공지사항 목록 — 행을 누르면 공지 상세로 이동해요. 체크박스·삭제 버튼은 각자 따로 동작해요."
             columns={COLUMNS}
             rows={rows}
             leadingHead={[
@@ -720,7 +720,7 @@ function NoticesScreen({
         <ConfirmDialog
           intent="delete"
           title="공지 삭제"
-          message={`'${pendingDelete.title}' 공지를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.title}' 공지를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="공지 삭제"
           onConfirm={() => {
             removeNotices([pendingDelete.id]);
@@ -734,7 +734,7 @@ function NoticesScreen({
         <ConfirmDialog
           intent="delete"
           title="공지 일괄 삭제"
-          message={`선택한 공지 ${fmt(selectedCount)}건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 공지 ${fmt(selectedCount)}건을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel={`${fmt(selectedCount)}건 삭제`}
           onConfirm={() => {
             removeNotices([...selectedIds]);

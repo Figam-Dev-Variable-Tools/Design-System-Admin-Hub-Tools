@@ -60,7 +60,7 @@ function wait(ms: number, signal?: AbortSignal): Promise<void> {
       'abort',
       () => {
         clearTimeout(timer);
-        reject(new DOMException('요청이 취소되었습니다.', 'AbortError'));
+        reject(new DOMException('요청이 취소되었어요.', 'AbortError'));
       },
       { once: true },
     );
@@ -101,7 +101,7 @@ function failIfRequested(op: FailureOp): void {
 
   const requested = flags.split(',').map((flag) => flag.trim());
   if (requested.includes('all') || requested.includes(op)) {
-    throw new Error('요청을 처리하지 못했습니다.');
+    throw new Error('요청을 처리하지 못했어요.');
   }
 }
 
@@ -253,7 +253,7 @@ export async function deleteAdminGroup(id: string, signal?: AbortSignal): Promis
   failIfRequested('deleteGroup');
 
   const group = findAdminGroup(id);
-  if (group === null) throw new Error('그룹을 찾을 수 없습니다.');
+  if (group === null) throw new Error('그룹을 찾을 수 없어요.');
 
   const blocked = adminGroupDeletionBlock(group.name, {
     adminCount: listAdmins().filter((admin) => admin.groupId === id).length,
@@ -298,7 +298,7 @@ export async function fetchAdmin(id: string, signal: AbortSignal): Promise<Admin
 
   const admin = findAdmin(id);
   // [EXC-12] 404 와 5xx 는 복구 수단이 다르다 — status 를 실어야 화면이 '목록으로' 와 '다시 시도' 를 가른다
-  if (admin === null) throw new HttpError(HTTP_STATUS.notFound, '운영자를 찾을 수 없습니다.');
+  if (admin === null) throw new HttpError(HTTP_STATUS.notFound, '운영자를 찾을 수 없어요.');
 
   return admin;
 }
@@ -327,7 +327,7 @@ function toWriteError(cause: unknown): Error {
       violations: [{ field: 'account', message: cause.message }],
     });
   }
-  return cause instanceof Error ? cause : new Error('요청을 처리하지 못했습니다.');
+  return cause instanceof Error ? cause : new Error('요청을 처리하지 못했어요.');
 }
 
 /**
@@ -366,7 +366,7 @@ async function updateAdmin(
   const current = findAdmin(id);
   // [EXC-04] 없는 id 를 조용히 지나쳐 성공을 돌려주면 '유령 저장' 이다 — 409 로 알린다
   if (current === null) {
-    throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 운영자입니다.');
+    throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 운영자예요.');
   }
 
   const blocked = adminRoleChangeBlock(current, draft.roleId, guardContext());
@@ -391,7 +391,7 @@ export async function deleteAdmin(id: string, signal?: AbortSignal): Promise<voi
   failIfRequested('deleteAdmin');
 
   const admin = findAdmin(id);
-  if (admin === null) throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 운영자입니다.');
+  if (admin === null) throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 운영자예요.');
 
   const blocked = adminDeletionBlock(admin, guardContext());
   if (blocked !== null) throw new HttpError(HTTP_STATUS.unprocessable, blocked);

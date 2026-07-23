@@ -33,7 +33,9 @@
  *   문의에서 자동 발행 표시      → StatusBadge(info) — isInherited 미러
  *   인쇄 · PDF 저장           → Button(secondary) (ERP-10 — 인쇄 대상 지정은 CSS 가 한다)
  *   견적 수정                 → Button(primary) — 권한이 없으면 그리지 않는다 (EXC-03)
- *   수주 전환 안내             → Alert(info) (막지는 않되 밝힌다)
+ *   계약 만들기               → Button(secondary) — 승인된 견적에서만 (contractDraftBlock 미러)
+ *   상태 관리                 → Card + Button ×3 (전이표가 열어 준 것만 활성 · 거절 사유는 title)
+ *   수주(계약 진행) 안내        → Alert(info) (막지는 않되 밝힌다)
  *   견적서 문서                → Card + 토큰 문서 레이아웃(공급자/공급받는자 · 품목표 · 합계)
  *   연결 · 요약                → Card + dl/dt/dd + 거래처·원본 문의로 가는 토큰 <a>
  *   최초 로드                 → Card + Skeleton ×N (재조회로는 덮지 않는다 · STATE-01)
@@ -73,7 +75,7 @@ const STATUS_META: Record<QuoteStatus, BadgeMeta> = {
   accepted: { label: '승인', tone: 'success' },
   rejected: { label: '반려', tone: 'danger' },
   expired: { label: '만료', tone: 'neutral' },
-  ordered: { label: '수주전환', tone: 'success' },
+  ordered: { label: '수주(계약 진행)', tone: 'success' },
 };
 
 /** 과세유형 — 세율을 데이터로 들고 있다(일반 10% · 영세 0% · 면세 없음) */
@@ -220,7 +222,44 @@ const DEMO_INHERITED: DemoQuote = {
   inquiryNo: 'INQ-20260720-007',
 };
 
-/** 수주로 전환된 견적 — 지금 고쳐도 이미 발송된 견적서는 바뀌지 않는다 */
+/**
+ * 손으로 고르는 상태 칸 — 실화면 QUOTE_MANUAL_STATUSES 미러.
+ * `ordered` 는 없다: 수주는 사람이 누르는 일이 아니라 계약이 만들어진 결과다.
+ */
+const MANUAL_STATUSES: readonly QuoteStatus[] = ['sent', 'accepted', 'rejected'];
+
+/** 지금 상태에서 손으로 갈 수 있는 칸 — 실화면 QUOTE_STATUS_FLOW 미러 */
+const STATUS_FLOW: Readonly<Record<QuoteStatus, readonly QuoteStatus[]>> = {
+  draft: ['sent'],
+  sent: ['accepted', 'rejected'],
+  accepted: [],
+  rejected: [],
+  expired: [],
+  ordered: [],
+};
+
+/**
+ * 거절 사유 — 실화면 quoteStatusChangeBlock 미러. 거절은 boolean 이 아니라 문장이다.
+ * 되돌리는 전이를 열면 '계약이 이미 생긴 견적을 되돌리면 무엇이 되는가' 에 답해야 하는데,
+ * 답할 수 없으므로 막는다.
+ */
+const statusChangeBlock = (from: QuoteStatus, to: QuoteStatus): string | null => {
+  if (from === to) return `이미 '${STATUS_META[to].label}' 상태예요.`;
+  if (from === 'accepted') {
+    return "'승인' 다음 칸은 상태가 아니라 계약이에요. '계약 만들기'를 누르면 계약이 생기고 견적이 '수주(계약 진행)'로 바뀌어요.";
+  }
+  const targets = STATUS_FLOW[from];
+  if (targets.length === 0) {
+    return `'${STATUS_META[from].label}' 상태의 견적은 상태를 되돌리거나 더 바꿀 수 없어요 — 계약·청구가 이 상태를 근거로 삼아요.`;
+  }
+  if (!targets.includes(to)) {
+    const allowed = targets.map((target) => `'${STATUS_META[target].label}'`).join(' · ');
+    return `'${STATUS_META[from].label}'에서 '${STATUS_META[to].label}'으로 바꿀 수 없어요. 지금 바꿀 수 있는 것: ${allowed}.`;
+  }
+  return null;
+};
+
+/** 수주(계약 진행) 견적 — 지금 고쳐도 이미 발송된 견적서와 맺은 계약은 바뀌지 않는다 */
 const DEMO_ORDERED: DemoQuote = {
   id: 'qt-2',
   quoteNo: 'Q-20260705-001',
@@ -633,7 +672,7 @@ function QuotePreview({
           {quote.items.length === 0 ? (
             <tr>
               <td colSpan={5} style={emptyCellStyle}>
-                품목이 없습니다.
+                품목이 없어요.
               </td>
             </tr>
           ) : (
@@ -702,8 +741,8 @@ function QuoteDetailScreen({
           <div style={alertRowStyle}>
             <span>
               {notFound
-                ? '견적을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '견적을 불러오지 못했습니다.'}
+                ? '견적을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '견적을 불러오지 못했어요.'}
             </span>
             <span style={headActionsStyle}>
               {!notFound && <Button variant="secondary">다시 시도</Button>}
@@ -755,6 +794,11 @@ function QuoteDetailScreen({
         <div style={headActionsStyle}>
           {/* 인쇄 대상 지정은 화면이 아니라 종이 규칙(@media print)이 한다 — 버튼은 부르기만 한다 */}
           <Button variant="secondary">인쇄 · PDF 저장</Button>
+          {/* 사슬의 다음 칸 — 전이 규칙(contractDraftBlock)이 열어 준 것만 존재한다 (EXC-03).
+              한 번 누르면 계약이 생기고 견적이 '수주(계약 진행)'로 바뀐다(되돌려 쓰기). */}
+          {canUpdate && quote.status === 'accepted' && (
+            <Button variant="secondary">계약 만들기</Button>
+          )}
           {/* 이 화면은 읽기 전용이다 — 고치는 길은 이 버튼 하나뿐이고, 권한이 없으면 없다 (EXC-03) */}
           {canUpdate && (
             <Button variant="primary" size="md">
@@ -767,8 +811,37 @@ function QuoteDetailScreen({
       {/* 종료된 견적을 고치면 이미 나간 문서와 앱의 기록이 어긋난다 — 막지는 않되 밝힌다 */}
       {quote.status === 'ordered' && (
         <Alert tone="info">
-          수주로 전환된 견적입니다. 지금 수정해도 이미 발송된 견적서는 바뀌지 않습니다.
+          &lsquo;수주(계약 진행)&rsquo; 견적이에요. 지금 수정해도 이미 발송된 견적서와 맺은 계약은
+          바뀌지 않아요.
         </Alert>
+      )}
+
+      {/* ── 상태 관리 ────────────────────────────────────────────────────────
+          예전에는 이 카드가 없었다. 그래서 발송한 견적을 승인으로 넘길 방법이 화면에 없었고,
+          다음 칸(계약)이 영원히 잠겨 있었다.
+
+          막힌 칸을 감추지 않고 **왜 막혔는지**를 title 에 싣는다 — 실화면은 그 문장을
+          quoteStatusChangeBlock 하나에서 받아 버튼의 disabled 와 함께 쓴다(둘이 갈라질 수 없다). */}
+      {canUpdate && (
+        <DetailCard title="상태 관리">
+          <div style={badgeRowStyle}>
+            {MANUAL_STATUSES.map((target) => {
+              const blocked = statusChangeBlock(quote.status, target);
+              const label = STATUS_META[target].label;
+              return (
+                <Button
+                  key={target}
+                  variant="secondary"
+                  disabled={blocked !== null}
+                  title={blocked ?? undefined}
+                  aria-label={blocked === null ? `${label}(으)로 바꾸기` : `${label} — ${blocked}`}
+                >
+                  {label}
+                </Button>
+              );
+            })}
+          </div>
+        </DetailCard>
       )}
 
       <div style={layoutStyle}>
@@ -800,7 +873,7 @@ function QuoteDetailScreen({
                   {quote.inquiryNo}
                 </a>
               ) : (
-                <span style={mutedTextStyle}>수동 등록 견적입니다.</span>
+                <span style={mutedTextStyle}>수동 등록 견적이에요.</span>
               )}
             </dd>
             <dt style={dtStyle}>견적일 · 유효기간</dt>
@@ -840,7 +913,7 @@ export const Inherited: Story = {
   render: () => <QuoteDetailScreen quote={DEMO_INHERITED} />,
 };
 
-/** 수주 전환: 종료된 견적 — 수정을 막지는 않되 '이미 나간 문서는 안 바뀐다' 고 밝힌다 */
+/** 수주(계약 진행): 종료된 견적 — 수정을 막지는 않되 '이미 나간 문서는 안 바뀐다' 고 밝힌다 */
 export const Ordered: Story = {
   render: () => <QuoteDetailScreen quote={DEMO_ORDERED} />,
 };

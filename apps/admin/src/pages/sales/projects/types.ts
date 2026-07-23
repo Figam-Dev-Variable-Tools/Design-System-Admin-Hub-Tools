@@ -42,6 +42,17 @@ export interface Project extends AccountRef {
   /** 실주 사유 — stage='lost' 일 때 */
   readonly lostReason: string;
   readonly note: string;
+  /**
+   * 이 프로젝트를 낳은 계약 id — '' 면 계약 없이 생긴 프로젝트(옛 데이터).
+   *
+   * [문서에는 있고 코드에는 없던 마지막 화살표] `docs/flow/mmd/03-sales-pipeline.mmd` 는
+   * 문의 → 견적 → 계약 → 프로젝트를 그려 두었지만, 프로젝트에는 계약을 가리키는 필드가 **한 칸도
+   * 없었다.** 그래서 체결된 계약은 그 다음이 없는 종점이었고, 프로젝트는 어디서 왔는지 앱이
+   * 답하지 못했다. 계약이 견적을 가리키는 방식(../contracts/types.ts 의 quoteId)과 같은 모양이다.
+   */
+  readonly contractId: string;
+  /** 원 계약명(승계 스냅숏 — 표시·역링크용). 계약명을 나중에 고쳐도 이 값은 움직이지 않는다 */
+  readonly contractTitle: string;
 }
 
 export type ProjectInput = Omit<Project, 'id'>;
@@ -152,5 +163,85 @@ export function toProjectInput(project: Project): ProjectInput {
     deliverables: project.deliverables,
     lostReason: project.lostReason,
     note: project.note,
+    contractId: project.contractId,
+    contractTitle: project.contractTitle,
   };
+}
+
+/* ── 계약 → 프로젝트 ──────────────────────────────────────────────────────── */
+
+export const PROJECT_DRAFT_NOT_CONCLUDED =
+  '체결이 끝난 계약(진행중 · 서명완료)만 프로젝트로 넘길 수 있어요.';
+export const PROJECT_DRAFT_DONE = '이미 프로젝트가 만들어진 계약이에요.';
+
+/**
+ * 지금 이 계약으로 프로젝트를 만들 수 없는 이유 — 만들 수 있으면 null.
+ *
+ * 견적 → 계약과 **같은 모양**이다(../contracts/types.ts 의 contractDraftBlock): 버튼의 disabled
+ * 조건과 생성 경로의 거절이 이 한 술어를 읽고, 거절은 boolean 이 아니라 사유 문자열이다.
+ *
+ * '무엇이 계약 완료인가' 의 판정은 계약 도메인이 갖는다(isConcludedContract) — 프로젝트가 계약
+ * 상태 유니온을 자기 방식으로 다시 읽으면 두 화면이 다른 '완료' 를 갖게 된다.
+ *
+ * [이미 프로젝트가 있으면 먼저 막는다] 순서가 중요하다. 계약이 만료로 넘어간 뒤에도 '이미 있다'
+ * 는 사실이 '체결이 안 끝났다' 보다 정확한 설명이다 — 운영자가 찾아야 할 것은 그 프로젝트다.
+ */
+export function projectDraftBlock(concluded: boolean, existingProjectId: string): string | null {
+  if (existingProjectId !== '') return PROJECT_DRAFT_DONE;
+  if (!concluded) return PROJECT_DRAFT_NOT_CONCLUDED;
+  return null;
+}
+
+/**
+ * 계약 → 프로젝트 입력(순수) — 무엇이 계약에서 넘어오는지의 단일 정의.
+ *
+ * 단계는 `won`(수주)에서 시작한다: 계약이 체결됐다는 것은 파이프라인의 앞 칸(리드·상담·제안·협상)이
+ * 이미 끝났다는 뜻이다. 여기서 'lead' 로 시작하면 방금 도장을 찍은 거래가 확률 10% 로 집계되어
+ * 가중예상매출이 거짓이 된다.
+ *
+ * 예상매출은 계약금액의 **스냅숏**이다(파생 저장이 아니라 승계값 — 계약을 나중에 고쳐도 이미
+ * 시작한 프로젝트의 목표액이 사후에 움직이지 않는다. 계약이 견적 합계를 스냅숏으로 받는 것과 같다).
+ * 진척·마일스톤·산출물은 승계 대상이 아니다 — 계약은 그 정보를 갖지 않는다.
+ */
+export function buildProjectFromContract(
+  contract: ProjectSourceContract,
+  concludedOn: string,
+): ProjectInput {
+  return {
+    name: contract.title,
+    accountId: contract.accountId,
+    accountName: contract.accountName,
+    stage: 'won',
+    probability: defaultProbability('won'),
+    expectedRevenue: contract.amount,
+    // 계약 기간이 곧 수행 기간의 출발값이다. 계약에 기간이 없으면(있을 수 없지만) 체결일로 연다.
+    startAt: contract.startAt === '' ? concludedOn : contract.startAt,
+    endAt: contract.endAt === '' ? concludedOn : contract.endAt,
+    ownerName: contract.ownerName,
+    progress: 0,
+    milestones: [],
+    deliverables: [],
+    lostReason: '',
+    note: '',
+    contractId: contract.id,
+    contractTitle: contract.title,
+  };
+}
+
+/**
+ * 프로젝트가 계약에서 받아 오는 값 — **계약의 전부가 아니라 필요한 칸만** 적는다.
+ *
+ * `Contract` 를 통째로 받으면 이 파일이 계약의 상태·서명·첨부·조항까지 알게 되고, 계약이 필드를
+ * 하나 늘릴 때마다 프로젝트가 흔들린다. 완료 판정(isConcludedContract)이 계약 쪽에 남아 있는 것과
+ * 같은 이유다 — 각자 자기 것만 안다.
+ */
+export interface ProjectSourceContract {
+  readonly id: string;
+  readonly title: string;
+  readonly accountId: string;
+  readonly accountName: string;
+  readonly amount: number;
+  readonly startAt: string;
+  readonly endAt: string;
+  readonly ownerName: string;
 }

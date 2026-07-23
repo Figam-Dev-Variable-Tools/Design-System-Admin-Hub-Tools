@@ -135,7 +135,7 @@ describe('noticeSchema — 폼 검증', () => {
   it('예약 게시일이 과거면 막는다', () => {
     expect(
       messageFor(valuesOf({ status: 'scheduled', publishedAt: '2020-01-01' }), 'publishedAt'),
-    ).toBe('예약 게시일은 오늘 이후여야 합니다.');
+    ).toBe('예약 게시일은 오늘 이후여야 해요.');
   });
 
   it('실재하지 않는 날짜(2026-02-31)는 통과시키지 않는다', () => {

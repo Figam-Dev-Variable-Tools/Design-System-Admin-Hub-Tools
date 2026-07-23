@@ -87,7 +87,7 @@ export function ExchangeOptionField({
         label="교환할 옵션"
         required
         error={error}
-        hint="재고가 남은 옵션만 선택할 수 있습니다. 완료 처리 시 이 옵션으로 재발송됩니다."
+        hint="재고가 남은 옵션만 선택할 수 있어요. 완료 처리 시 이 옵션으로 재발송돼요."
       >
         <SelectField
           ref={selectRef}
@@ -116,10 +116,10 @@ export function ExchangeOptionField({
 
       {selected !== undefined && (
         <div style={previewStyle} aria-live="polite">
-          <span style={hintStyle}>완료 처리 시 재고가 이렇게 움직입니다</span>
+          <span style={hintStyle}>완료 처리 시 재고가 이렇게 움직여요</span>
           {sameOption ? (
             <span style={moveRowStyle}>
-              주문과 같은 옵션이라 회수분 입고와 재발송 출고가 서로 상쇄됩니다 — 재고 변화 없음.
+              주문과 같은 옵션이라 회수분 입고와 재발송 출고가 서로 상쇄돼요 — 재고 변화 없음.
             </span>
           ) : (
             <>

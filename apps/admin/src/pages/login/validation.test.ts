@@ -23,7 +23,7 @@ function errorsOf(values: { email: string; password: string }): Record<string, s
 }
 
 const REQUIRED_EMAIL = '이메일을 입력해 주세요.';
-const BAD_EMAIL = '이메일 형식이 올바르지 않습니다.';
+const BAD_EMAIL = '이메일 형식이 올바르지 않아요.';
 const REQUIRED_PASSWORD = '비밀번호를 입력해 주세요.';
 const BAD_PASSWORD_LENGTH = '비밀번호는 8자 이상 64자 이하로 입력해 주세요.';
 

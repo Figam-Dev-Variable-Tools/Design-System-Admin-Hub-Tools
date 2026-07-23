@@ -22,7 +22,7 @@ const EVENT_SEED: readonly MarketingEvent[] = [
     benefitDetail: '리뷰 작성 시 3,000 적립금',
     bannerId: 'BN-002',
     bannerTitle: '신상품 입고 (002)',
-    description: '구매 후기 작성 고객에게 적립금을 드리는 이벤트입니다.',
+    description: '구매 후기 작성 고객에게 적립금을 드리는 이벤트예요.',
   },
   {
     id: 'ev-2',

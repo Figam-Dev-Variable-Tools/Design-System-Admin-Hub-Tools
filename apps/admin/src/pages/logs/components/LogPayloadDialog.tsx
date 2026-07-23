@@ -90,8 +90,8 @@ export function LogPayloadDialog({ detail, onClose }: LogPayloadDialogProps) {
 
             {/* 가려진 이유를 말한다 — 말하지 않으면 '값이 깨졌다'로 읽히고, 운영자는 없는 버그를 신고한다 */}
             <p className="tds-log-mask-note">
-              비밀번호 · 토큰 · 인증 키 · 카드/계좌 번호 등 민감한 값은 자동으로 가려집니다. 필드가
-              있었다는 사실은 남고 값만 가려집니다.
+              비밀번호 · 토큰 · 인증 키 · 카드/계좌 번호 등 민감한 값은 자동으로 가려져요. 필드가
+              있었다는 사실은 남고 값만 가려져요.
             </p>
 
             <pre className="tds-log-payload">{formatMaskedPayload(detail.payload)}</pre>

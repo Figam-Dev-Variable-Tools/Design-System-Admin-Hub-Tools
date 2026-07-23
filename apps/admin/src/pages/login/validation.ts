@@ -21,7 +21,7 @@ const PASSWORD_MAX_LENGTH = 64;
 /** SCR-001 §5.2 "위반 시 에러 메시지" 열 — 문안 원문 */
 const MESSAGES = {
   emailRequired: '이메일을 입력해 주세요.',
-  emailFormat: '이메일 형식이 올바르지 않습니다.',
+  emailFormat: '이메일 형식이 올바르지 않아요.',
   passwordRequired: '비밀번호를 입력해 주세요.',
   passwordLength: '비밀번호는 8자 이상 64자 이하로 입력해 주세요.',
 } as const;

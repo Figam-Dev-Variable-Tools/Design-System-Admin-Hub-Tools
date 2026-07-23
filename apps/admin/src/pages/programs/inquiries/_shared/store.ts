@@ -82,11 +82,11 @@ export const PROGRAM_INQUIRY_ANSWER_MAX = 1000;
  * 규칙을 화면이 아니라 여기에 두는 이유: 버튼의 disabled 와 저장의 허용 여부가 서로 다른 판단을
  * 하면 '눌리는데 실패하는 버튼' 또는 '눌리지 않는데 서버는 허용하는 동작' 이 생긴다. */
 
-export const PROGRAM_ANSWER_ON_CLOSED_ERROR = '종결된 문의는 답변을 수정할 수 없습니다.';
-export const PROGRAM_CLOSE_UNANSWERED_ERROR = '답변하지 않은 문의는 종결할 수 없습니다.';
+export const PROGRAM_ANSWER_ON_CLOSED_ERROR = '종결된 문의는 답변을 수정할 수 없어요.';
+export const PROGRAM_CLOSE_UNANSWERED_ERROR = '답변하지 않은 문의는 종결할 수 없어요.';
 export const PROGRAM_EMPTY_ANSWER_ERROR = '답변 내용을 입력하세요.';
-export const PROGRAM_BEGIN_ANSWERING_ERROR = '접수 상태의 문의만 답변 착수로 바꿀 수 있습니다.';
-export const PROGRAM_QUOTE_ISSUE_ON_CLOSED_ERROR = '종결된 문의는 견적을 발행할 수 없습니다.';
+export const PROGRAM_BEGIN_ANSWERING_ERROR = '접수 상태의 문의만 답변 착수로 바꿀 수 있어요.';
+export const PROGRAM_QUOTE_ISSUE_ON_CLOSED_ERROR = '종결된 문의는 견적을 발행할 수 없어요.';
 
 /**
  * 아직 후원자가 답을 못 받은 상태인가 — 미답변 집계·경과 문구의 단일 정의.
@@ -229,7 +229,7 @@ let inquiries: ProgramInquiry[] = [
     topic: 'reward',
     subject: '2대 세트 리워드에 스탠드가 두 개 오나요',
     message:
-      '2대 세트 리워드를 후원하려는데 구성 설명에 스탠드가 하나로 적혀 있습니다. 헤드폰만 두 대인가요?',
+      '2대 세트 리워드를 후원하려는데 구성 설명에 스탠드가 하나로 적혀 있어요. 헤드폰만 두 대인가요?',
     status: 'received',
     createdAt: '2026-07-17T02:40:00Z',
     answeredAt: '',
@@ -244,8 +244,8 @@ let inquiries: ProgramInquiry[] = [
     customerContact: '010-7745-2093',
     channel: 'app',
     topic: 'delivery',
-    subject: '배송 예정일이 언제인지 궁금합니다',
-    message: '펀딩 종료 후 몇 주 뒤에 받아볼 수 있을까요? 이사 일정과 맞춰야 해서 문의드립니다.',
+    subject: '배송 예정일이 언제인지 궁금해요',
+    message: '펀딩 종료 후 몇 주 뒤에 받아볼 수 있을까요? 이사 일정과 맞춰야 해서 문의드려요.',
     status: 'answering',
     createdAt: '2026-07-19T07:15:00Z',
     answeredAt: '',
@@ -261,7 +261,7 @@ let inquiries: ProgramInquiry[] = [
     channel: 'email',
     topic: 'refund',
     subject: '목표 미달로 끝나면 후원금은 어떻게 되나요',
-    message: '펀딩이 실패하면 결제한 금액은 자동으로 돌려받는 건가요? 절차를 알고 싶습니다.',
+    message: '펀딩이 실패하면 결제한 금액은 자동으로 돌려받는 건가요? 절차를 알고 싶어요.',
     status: 'answered',
     createdAt: '2026-07-14T01:20:00Z',
     answeredAt: '2026-07-15T05:10:00Z',
@@ -277,7 +277,7 @@ let inquiries: ProgramInquiry[] = [
     customerContact: '02-3391-7742',
     channel: 'phone',
     topic: 'payment',
-    subject: '카드 결제가 되지 않아 후원을 못 했습니다',
+    subject: '카드 결제가 되지 않아 후원을 못 했어요',
     message: '후원하기 버튼이 문의하기로 바뀌어 있는데 결제는 어떻게 진행하나요?',
     status: 'closed',
     createdAt: '2026-07-08T05:05:00Z',
@@ -294,7 +294,7 @@ let inquiries: ProgramInquiry[] = [
     customerContact: '010-5528-4417',
     channel: 'kakao',
     topic: 'etc',
-    subject: '오픈 알림을 받고 싶습니다',
+    subject: '오픈 알림을 받고 싶어요',
     message: '오픈 예정이라고 되어 있는데 시작하면 알림을 받을 수 있나요?',
     status: 'received',
     createdAt: '2026-07-20T22:10:00Z',
@@ -322,7 +322,7 @@ export function listProgramInquiries(): readonly ProgramInquiry[] {
 
 export function getProgramInquiry(id: string): ProgramInquiry {
   const found = inquiries.find((inquiry) => inquiry.id === id);
-  if (found === undefined) throw new Error('문의를 찾을 수 없습니다');
+  if (found === undefined) throw new Error('문의를 찾을 수 없어요');
   return found;
 }
 

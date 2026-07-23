@@ -134,7 +134,7 @@ describe('bannerSchema — 폼 검증', () => {
 
   it('종료일이 시작일보다 빠르면 막는다', () => {
     expect(messageFor(valuesOf({ startAt: '2026-05-31', endAt: '2026-05-01' }), 'endAt')).toBe(
-      '종료일은 시작일보다 빠를 수 없습니다.',
+      '종료일은 시작일보다 빠를 수 없어요.',
     );
   });
 

@@ -7,7 +7,7 @@
   vertical-align: middle;
 }
 
-/* inherit(기본) — 부모 font-size 를 따라간다(1.25em). 승격 전 apps/admin/src/shared/ui/icons.tsx 와
+/* inherit(기본) — 부모 font-size 를 따라간다(1.25em). 승격 전 apps/admin/src/shared/icons.tsx 와
    동일한 크기 규칙이라, 앱 호출부를 이 컴포넌트로 바꿔도 렌더 결과가 달라지지 않는다.
    em 은 토큰이 아니라 '부모 상대' 관계식이므로 하드코딩 px 금지 규칙과 충돌하지 않는다. */
 .tds-icon--inherit {

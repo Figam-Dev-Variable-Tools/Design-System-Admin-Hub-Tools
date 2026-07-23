@@ -195,11 +195,11 @@ export function comparePeriodOf(period: StatsPeriod, mode: CompareMode): StatsPe
 /* ── 검증 ───────────────────────────────────────────────────────────────── */
 
 /** 종료일 < 시작일이면 조용한 empty 대신 이 문구를 띄운다 (COMP-11) */
-const PERIOD_ORDER_ERROR = '종료일은 시작일보다 빠를 수 없습니다.';
+const PERIOD_ORDER_ERROR = '종료일은 시작일보다 빠를 수 없어요.';
 
 export function periodErrorOf(period: StatsPeriod): string {
   if (!isCalendarDate(period.start) || !isCalendarDate(period.end)) {
-    return '날짜 형식이 올바르지 않습니다.';
+    return '날짜 형식이 올바르지 않아요.';
   }
   // 바로 위에서 두 끝이 달력 날짜임을 확인했다 — daysBetween 이 null 을 낼 수 없다
   return (daysBetween(period.start, period.end) ?? 0) < 0 ? PERIOD_ORDER_ERROR : '';

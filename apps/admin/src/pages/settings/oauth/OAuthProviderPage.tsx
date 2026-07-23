@@ -54,7 +54,7 @@ import type { OAuthProviderId, OAuthProviderValues, OAuthSettingsValues } from '
 import { cssVar } from '@tds/ui';
 
 const READ_ONLY_NOTICE =
-  '조회 권한만 있습니다. OAuth 설정을 바꾸려면 시스템 설정 수정 권한이 필요합니다.';
+  '조회 권한만 있어요. OAuth 설정을 바꾸려면 시스템 설정 수정 권한이 필요해요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -183,12 +183,12 @@ function saveConfirmMessage(
   const label = providerLabel(target);
 
   if (next !== undefined && before !== undefined && before.enabled && !next.enabled) {
-    return `${label} 로그인을 끕니다. 이 방식으로 가입한 사용자는 로그인할 수 없게 됩니다. 이 제공자의 설정만 저장됩니다. 저장할까요?`;
+    return `${label} 로그인을 꺼요. 이 방식으로 가입한 사용자는 로그인할 수 없게 돼요. 이 제공자의 설정만 저장돼요. 저장할까요?`;
   }
   if (next !== undefined && before !== undefined && !before.enabled && next.enabled) {
-    return `${label} 로그인을 켭니다. 이 제공자의 설정만 저장됩니다. 저장할까요?`;
+    return `${label} 로그인을 켜요. 이 제공자의 설정만 저장돼요. 저장할까요?`;
   }
-  return `${label} 설정을 저장합니다. 다른 제공자와 표시 정책은 바뀌지 않습니다. 저장할까요?`;
+  return `${label} 설정을 저장해요. 다른 제공자와 표시 정책은 바뀌지 않아요. 저장할까요?`;
 }
 
 export default function OAuthProviderPage() {
@@ -283,8 +283,8 @@ export default function OAuthProviderPage() {
             setConflict(null);
             toast.success(
               target === null
-                ? 'OAuth 설정을 저장했습니다.'
-                : `${providerLabel(target)} 설정을 저장했습니다.`,
+                ? 'OAuth 설정을 저장했어요.'
+                : `${providerLabel(target)} 설정을 저장했어요.`,
             );
           },
           onError: (cause: unknown) => {
@@ -295,7 +295,7 @@ export default function OAuthProviderPage() {
               setConflict(cause.latest as Revisioned<OAuthSettingsValues>);
               return;
             }
-            setSaveError('OAuth 설정을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+            setSaveError('OAuth 설정을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
           },
         },
       );
@@ -339,7 +339,7 @@ export default function OAuthProviderPage() {
     setChangingSecret(false);
     setConflict(null);
     void refetch();
-    toast.success('최신 OAuth 설정을 불러왔습니다.');
+    toast.success('최신 OAuth 설정을 불러왔어요.');
   }, [conflict, refetch, reset, toast]);
 
   const overwrite = useCallback(() => {
@@ -404,7 +404,7 @@ export default function OAuthProviderPage() {
         <Alert tone="danger">
           <div style={notFoundRowStyle}>
             <span>
-              &lsquo;{rawProvider}&rsquo;은(는) 이 화면이 아는 소셜 로그인 제공자가 아닙니다.
+              &lsquo;{rawProvider}&rsquo;은(는) 이 화면이 아는 소셜 로그인 제공자가 아니에요.
             </span>
             <Link to={OAUTH_LIST_PATH} className="tds-ui-link tds-ui-focusable">
               소셜 로그인 목록으로 돌아가기
@@ -430,7 +430,7 @@ export default function OAuthProviderPage() {
 
         <SettingsFormShell
           cardTitle="자격증명"
-          description={`${title}의 자격증명과 Redirect URI를 관리합니다. 켠 제공자만 검증합니다.`}
+          description={`${title}의 자격증명과 Redirect URI를 관리해요. 켠 제공자만 검증해요.`}
           loading={loading}
           loadFailed={error !== null}
           onRetry={() => void refetch()}
@@ -441,7 +441,7 @@ export default function OAuthProviderPage() {
           dirty={isDirty}
           canUpdate={canUpdate}
           readOnlyNotice={READ_ONLY_NOTICE}
-          unsavedMessage={`${title} 설정에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.`}
+          unsavedMessage={`${title} 설정에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.`}
           audit={audit}
           warning={null}
           onSubmit={(event) => void handleSubmit(onValid)(event)}

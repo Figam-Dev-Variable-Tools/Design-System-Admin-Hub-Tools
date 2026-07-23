@@ -38,7 +38,7 @@ function failIfRequested(op: FailureOp): void {
   if (flags === null) return;
   const requested = flags.split(',').map((flag) => flag.trim());
   if (requested.includes('all') || requested.includes(op)) {
-    throw new Error('요청을 처리하지 못했습니다.');
+    throw new Error('요청을 처리하지 못했어요.');
   }
 }
 
@@ -76,9 +76,9 @@ function makeNotice(index: number): Notice {
     publishedAtIso: `${String(year)}-${mm}-${dd}T09:00:00`,
     views: status === 'published' ? (index * 37) % 4000 : 0,
     body:
-      `${TITLE_SEED[category]} 관련 상세 내용입니다.\n\n` +
+      `${TITLE_SEED[category]} 관련 상세 내용이에요.\n\n` +
       '안녕하세요. 콘텐츠 운영팀입니다. 아래 내용을 확인해 주세요.\n' +
-      '· 적용 대상: 전체 회원\n· 문의: 고객센터 1:1 문의\n\n감사합니다.',
+      '· 적용 대상: 전체 회원\n· 문의: 고객센터 1:1 문의\n\n감사해요.',
   };
 }
 
@@ -174,7 +174,7 @@ export async function fetchNotice(id: string, signal: AbortSignal): Promise<Noti
   failIfRequested('detail');
 
   const notice = NOTICES.find((item) => item.id === id);
-  if (notice === undefined) throw new Error('공지를 찾을 수 없습니다');
+  if (notice === undefined) throw new Error('공지를 찾을 수 없어요');
   return notice;
 }
 

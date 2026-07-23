@@ -1,5 +1,19 @@
-// AiConnectionPage — 프로바이더 하나의 자격증명 (라우트: /settings/api-keys/:providerId)
+// AiConnectionPage — 연동 하나의 자격증명 (라우트: /settings/api-keys/:providerId)
 // 시스템 설정 섹션 소유 — apps/admin/src/pages/settings/api-keys/**
+//
+// ┌ ⚠ 파일 이름이 `Ai…` 인데 AI 전용이 아니다 ────────────────────────────────┐
+// │ 이 화면은 이제 배송 연동(CJ대한통운)도 그린다. **AI 전제를 하드코딩하지        │
+// │ 않는다** — 항목마다 달라지는 문장은 전부 카탈로그가 갖는다:                   │
+// │   · 요구하는 입력칸  → entry.credentials                                   │
+// │   · 이 연동만의 함정 → entry.connectionNotice                              │
+// │   · 켜면 달라지는 것 → entry.enableEffect (없으면 그 문장을 아예 안 쓴다)     │
+// │   · 택배사 원장과의 관계 → entry.carrierCode → ./components/CarrierPolicyCard│
+// │   · 계약으로 열리는 API → entry.apiPackage → ./components/ApiPackageCard     │
+// │ 화면이 'AI 면 …' 으로 분기하기 시작하면 항목을 더할 때마다 이 파일이 자란다.    │
+// │                                                                          │
+// │ 파일·심볼 이름은 그대로 뒀다: 이 폴더 밖(src/wiring.ts)이 이 경로를 import    │
+// │ 하고 있어 개명은 그 파일까지 건드려야 한다(이번 변경의 소유 범위 밖이다).      │
+// └──────────────────────────────────────────────────────────────────────────┘
 //
 // ┌ 왜 별도 라우트인가 ──────────────────────────────────────────────────────┐
 // │ ../oauth 가 방금 같은 전환을 마쳤고 **그 구현을 그대로 따른다**              │
@@ -39,6 +53,9 @@ import { Link, useParams } from 'react-router-dom';
 import { cssVar, ToggleSwitch } from '@tds/ui';
 
 import { isAbort } from '../../../shared/async';
+// 택배사 원장은 배송 정책이 갖는다 — 페이지끼리 서로를 모르므로 공통 층에 묻는다
+// (shared/domain/carrier-integration.ts 머리말에 방향과 근거).
+import { carrierPolicyLink } from '../../../shared/domain/carrier-integration';
 import { zodResolver } from '../../../shared/form/zodResolver';
 import {
   Alert,
@@ -71,12 +88,13 @@ import { integrationCatalogue, integrationCategoryLabel } from './integrations';
 import type { IntegrationCatalogueEntry } from './integrations';
 import { AI_CONNECTION_LIST_PATH } from './paths';
 import { AiCredentialFields } from './components/AiCredentialFields';
+import { ApiPackageCard } from './components/ApiPackageCard';
+import { CarrierPolicyCard } from './components/CarrierPolicyCard';
 import { ServiceGlyph } from './components/ServiceGlyph';
 import { aiConnectionSchema, EMPTY_CONNECTION_FORM } from './validation';
 import type { AiConnectionFormValues } from './validation';
 
-const READ_ONLY_NOTICE =
-  '조회 권한만 있습니다. AI 연동을 바꾸려면 시스템 설정 수정 권한이 필요합니다.';
+const READ_ONLY_NOTICE = '조회 권한만 있어요. 연동을 바꾸려면 시스템 설정 수정 권한이 필요해요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -97,7 +115,7 @@ const backLinkStyle: CSSProperties = {
 };
 
 /**
- * 화면 제목 — 글리프 + 프로바이더 이름.
+ * 화면 제목 — 글리프 + 연동 이름.
  *
  * `<h2>` 다: 앱 헤더가 이미 `<h1>` 을 그린다(shared/layout/AppHeader). 여기에 또 h1 을 두면
  * 한 문서에 최상위 제목이 둘이 되어 문서 구조가 거짓이 된다.
@@ -168,19 +186,33 @@ const factValueStyle: CSSProperties = {
   lineHeight: cssVar('typography.label.md.line-height'),
 };
 
-/** 저장 확인 문구 — 켜고 끄는 일은 AI 화면의 응답 모드에 곧바로 영향을 준다 */
+/**
+ * 저장 확인 문구.
+ *
+ * ┌ 왜 결과를 항목에서 가져오는가 ────────────────────────────────────────────┐
+ * │ 예전 이 문구는 'AI 화면의 응답 모드가 다시 잠깁니다' 를 **하드코딩**했다.      │
+ * │ AI 6종에는 참이지만 배송 연동에는 **거짓**이다 — 그 연동은 AI 응답 모드와      │
+ * │ 아무 관계가 없다. 배송 항목이 들어오는 순간 이 다이얼로그가 거짓말을 한다.     │
+ * │                                                                          │
+ * │ 그래서 결과는 항목이 말한다(entry.enableEffect). **null 이면 그 문장을 아예   │
+ * │ 넣지 않는다** — 부르는 곳이 없는 연동에 '무언가 열립니다' 를 지어내지 않는다.  │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ */
 function saveConfirmMessage(
   entry: IntegrationCatalogueEntry,
   next: AiConnectionFormValues,
   wasEnabled: boolean,
 ): string {
+  // 결과 문장은 있을 때만 낀다 — 없는 항목에서 문장 사이가 벌어지지 않게 접두 공백을 함께 만든다
+  const effect = entry.enableEffect === null ? '' : ` ${entry.enableEffect}`;
+
   if (wasEnabled && !next.enabled) {
-    return `${entry.name} 연동을 끕니다. 이 프로바이더로 가던 요청이 멈추고, 연동이 하나도 남지 않으면 AI 화면의 응답 모드가 다시 잠깁니다. 이 연동만 저장됩니다. 저장할까요?`;
+    return `${entry.name} 연동을 꺼요. 자격증명은 지워지지 않고 남지만 이 연동은 쓰이지 않아요.${effect} 이 연동만 저장돼요. 저장할까요?`;
   }
   if (!wasEnabled && next.enabled) {
-    return `${entry.name} 연동을 켭니다. 입력한 자격증명이 저장되고 AI 화면에서 이 프로바이더를 쓸 수 있게 됩니다. 이 연동만 저장됩니다. 저장할까요?`;
+    return `${entry.name} 연동을 켜요. 입력한 자격증명이 저장돼요.${effect} 이 연동만 저장돼요. 저장할까요?`;
   }
-  return `${entry.name} 연동 설정을 저장합니다. 다른 프로바이더는 바뀌지 않습니다. 저장할까요?`;
+  return `${entry.name} 연동 설정을 저장해요. 다른 연동은 바뀌지 않아요. 저장할까요?`;
 }
 
 /** `{ message: string }` 모양에서 문구만 꺼낸다 — 아니면 undefined */
@@ -317,7 +349,7 @@ export default function AiConnectionPage() {
             setChangingSecrets([]);
             setPending(null);
             setConflict(null);
-            toast.success(`${entry.name} 연동을 저장했습니다.`);
+            toast.success(`${entry.name} 연동을 저장했어요.`);
           },
           onError: (cause: unknown) => {
             lock.release();
@@ -327,7 +359,7 @@ export default function AiConnectionPage() {
               setConflict(cause.latest as Revisioned<AiConnectionsValues>);
               return;
             }
-            setSaveError('AI 연동을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+            setSaveError('연동을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
           },
         },
       );
@@ -371,7 +403,7 @@ export default function AiConnectionPage() {
     setChangingSecrets([]);
     setConflict(null);
     void refetch();
-    toast.success('최신 AI 연동 설정을 불러왔습니다.');
+    toast.success('최신 연동 설정을 불러왔어요.');
   }, [conflict, entry, refetch, reset, toast]);
 
   const overwrite = useCallback(() => {
@@ -421,18 +453,20 @@ export default function AiConnectionPage() {
     </Link>
   );
 
-  /* ── 알 수 없는 프로바이더 — 빈 화면을 내놓지 않는다 ─────────────────────
+  /* ── 알 수 없는 연동 — 빈 화면을 내놓지 않는다 ───────────────────────────
      주소를 손으로 고쳤거나 오래된 링크를 눌렀을 때다. 앱의 다른 상세 화면과 같은 모양으로
-     '없다' 는 사실과 돌아갈 길을 함께 준다. 폼은 아예 그리지 않는다. */
+     '없다' 는 사실과 돌아갈 길을 함께 준다. 폼은 아예 그리지 않는다.
+
+     [문구가 'AI 프로바이더' 가 아니게 됐다] 이 카탈로그는 이제 AI 만 담지 않는다 —
+     배송 연동을 열려다 오타를 낸 운영자에게 'AI 프로바이더가 아닙니다' 라고 답하면
+     그는 자기가 엉뚱한 화면에 왔다고 읽는다. 실제로는 이 화면이 맞고 id 만 틀렸다. */
   if (entry === null) {
     return (
       <div style={pageStyle}>
         {backLink}
         <Alert tone="danger">
           <div style={notFoundRowStyle}>
-            <span>
-              &lsquo;{rawProviderId}&rsquo;은(는) 이 화면이 아는 AI 프로바이더가 아닙니다.
-            </span>
+            <span>&lsquo;{rawProviderId}&rsquo;은(는) 이 화면이 아는 연동이 아니에요.</span>
             <Link to={AI_CONNECTION_LIST_PATH} className="tds-ui-link tds-ui-focusable">
               연동 목록으로 돌아가기
             </Link>
@@ -456,7 +490,7 @@ export default function AiConnectionPage() {
         {backLink}
 
         <h2 style={titleStyle}>
-          <ServiceGlyph glyph={entry.glyph} brand={entry.brand} />
+          <ServiceGlyph glyph={entry.glyph} brand={entry.brand} logoSrc={entry.logoSrc} />
           {entry.name}
         </h2>
 
@@ -473,7 +507,7 @@ export default function AiConnectionPage() {
           dirty={isDirty}
           canUpdate={canUpdate}
           readOnlyNotice={READ_ONLY_NOTICE}
-          unsavedMessage={`${entry.name} 연동에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.`}
+          unsavedMessage={`${entry.name} 연동에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.`}
           audit={audit}
           warning={
             entry.connectionNotice === null ? null : (
@@ -492,12 +526,12 @@ export default function AiConnectionPage() {
               }}
             />
             <p style={hintStyle}>
-              켜면 필수 자격증명을 모두 요구합니다. 끄는 것은 언제나 할 수 있습니다 — 자격증명은
-              지워지지 않고 그대로 남습니다.
+              켜면 필수 자격증명을 모두 요구해요. 끄는 것은 언제나 할 수 있어요 — 자격증명은
+              지워지지 않고 그대로 남아요.
             </p>
           </div>
 
-          {/* 그리는 칸은 카탈로그가 정한다 — 모델 9종은 한 칸, Azure 는 네 칸이다 */}
+          {/* 그리는 칸은 카탈로그가 정한다 — 모델 4종은 한 칸, Azure 는 네 칸이다 */}
           <AiCredentialFields
             fields={entry.credentials}
             values={values}
@@ -519,6 +553,24 @@ export default function AiConnectionPage() {
           />
         </SettingsFormShell>
 
+        {/* ── 배송 정책 연결 — 택배 연동에만 붙는다 ─────────────────────────────
+            자격증명이 저장돼 있다는 것과 그 택배사로 물건이 나간다는 것은 다른 사실이다.
+            택배사 원장은 배송 정책이 갖고, 여기서는 **묻기만** 한다(./components/CarrierPolicyCard).
+            조회기가 안 꽂혔으면 null 이고 카드는 '확인하지 못함' 을 그린다 — 모르는 것을
+            '등록 안 됨' 으로 그리면 운영자가 하지 않아도 될 일을 하러 간다. */}
+        {!loading && error === null && entry.carrierCode !== null && (
+          <CarrierPolicyCard
+            carrierCode={entry.carrierCode}
+            link={carrierPolicyLink(entry.carrierCode)}
+          />
+        )}
+
+        {/* ── 계약으로 열리는 API — 묶음이 있는 연동에만 붙는다 ──────────────────
+            읽는 목록이지 부르는 버튼이 아니다(그 규율은 그 파일 머리말에 있다). */}
+        {!loading && error === null && entry.apiPackage !== null && (
+          <ApiPackageCard apiPackage={entry.apiPackage} />
+        )}
+
         {/* ── 연결 상태 — '채워짐' 과 '검증됨' 을 가른다 ────────────────────────
             이 둘을 한 값으로 뭉치면 배포명 오타 같은 고장이 '연동 완료' 배지 뒤에 숨는다.
             우리가 아는 것은 **우리 쪽 사실**(자격증명이 저장돼 있다)뿐이고, 그 키가 실제로
@@ -536,8 +588,8 @@ export default function AiConnectionPage() {
                 />
                 <span style={hintStyle}>
                   {usable
-                    ? '필수 칸이 모두 저장돼 있고 사용 설정이 켜져 있습니다.'
-                    : '연동이 성립하려면 사용 설정을 켜고 필수 칸을 모두 저장해야 합니다.'}
+                    ? '필수 칸이 모두 저장돼 있고 사용 설정이 켜져 있어요.'
+                    : '연동이 성립하려면 사용 설정을 켜고 필수 칸을 모두 저장해야 해요.'}
                 </span>
               </div>
 
@@ -551,14 +603,42 @@ export default function AiConnectionPage() {
                 </span>
               </div>
 
-              {/* 없는 버튼을 그리지 않는다 — 누르면 아무 일도 없거나, 성공을 지어내게 된다 */}
+              {/* 없는 버튼을 그리지 않는다 — 누르면 아무 일도 없거나, 성공을 지어내게 된다.
+                  [근거 한 줄이 늘었다] '브라우저에서 부르지 않는다' 는 우리 취향이 아니라
+                  제공자들이 자기 문서에 적어 둔 것이기도 하다(아래 문장) — 그 사실을 적어 두면
+                  다음 사람이 '버튼 하나 만들면 되지 않나' 를 다시 묻지 않는다. */}
               <Alert tone="info">
-                <strong>자격증명이 채워진 것과 실제로 연결되는 것은 다른 사실입니다.</strong> 연결
-                검증은 서버가 이 프로바이더를 실제로 한 번 호출해 봐야 성립합니다 — 브라우저에서
-                부르면 키가 브라우저로 내려와야 하고, 그 순간 &lsquo;평문을 저장하지 않는다&rsquo;가
-                거짓이 됩니다. 그 서버 경로가 아직 없어 이 화면은 검증 결과를 지어내지 않고
-                &lsquo;확인한 적 없음&rsquo;으로 둡니다.
+                <strong>자격증명이 채워진 것과 실제로 연결되는 것은 다른 사실이에요.</strong> 연결
+                검증은 서버가 이 연동 상대를 실제로 한 번 호출해 봐야 성립해요 — 브라우저에서 부르면
+                키가 브라우저로 내려와야 하고, 그 순간 &lsquo;평문을 저장하지 않는다&rsquo;가 거짓이
+                돼요. 그 서버 경로가 아직 없어 이 화면은 검증 결과를 지어내지 않고 &lsquo;확인한 적
+                없음&rsquo;으로 둬요. <strong>제공자 공식 문서도 같은 말을 해요</strong> — 키를
+                브라우저 같은 클라이언트 코드에 노출하지 말고 자체 백엔드를 거치라고 적고, 공식 SDK
+                는 브라우저 사용을 기본 차단한 뒤 그것을 켜는 옵션 이름을
+                &lsquo;dangerously…&rsquo;로 붙여 두었어요.
               </Alert>
+
+              {/* ── 사용량·요금·한도는 여기 두지 않는다 ─────────────────────────────
+                  넷의 조회 수단이 고르지 않고(프로그램 조회가 되는 곳과 콘솔뿐인 곳이 섞여 있다),
+                  OpenAI 는 일반 API 키로 읽히지도 않는다 — **더 강한 admin 키를 하나 더 받아야**
+                  한다. 받는 비밀을 늘리지 않는다는 이 섹션의 규약과 정면으로 부딪친다.
+                  그래서 숫자를 들이지 않고 **갈 곳만** 가리킨다(주소를 확인한 항목만). */}
+              <p style={hintStyle}>
+                사용량·요금·한도는 이 화면에 없어요 — 프로바이더마다 조회 수단이 다르고, 어떤 곳은
+                자격증명을 하나 더 요구해요. 값의 정본은 각 콘솔이에요.{' '}
+                {entry.rateLimitUrl === null ? (
+                  '이 연동은 한도 안내 주소를 확인하지 못해 링크를 걸지 않았어요.'
+                ) : (
+                  <a
+                    href={entry.rateLimitUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="tds-ui-link tds-ui-focusable"
+                  >
+                    {entry.name} 한도 안내 열기
+                  </a>
+                )}
+              </p>
             </div>
           </Card>
         )}

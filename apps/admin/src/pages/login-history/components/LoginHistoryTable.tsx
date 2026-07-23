@@ -172,12 +172,12 @@ export function LoginHistoryTable({ entries, loading }: LoginHistoryTableProps) 
 
   return (
     <Table
-      caption="로그인 이력 — 행을 누르면 해당 계정의 상세로 이동합니다. 미등록 계정은 가리킬 계정이 없어 이동하지 않습니다. 이 목록은 읽기 전용이며 수정·삭제할 수 없습니다."
+      caption="로그인 이력 — 행을 누르면 해당 계정의 상세로 이동해요. 미등록 계정은 가리킬 계정이 없어 이동하지 않아요. 이 목록은 읽기 전용이며 수정·삭제할 수 없어요."
       columns={COLUMNS}
       rows={rows}
       loading={loading}
       skeletonRows={PAGE_SIZE}
-      empty="조회된 로그인 이력이 없습니다."
+      empty="조회된 로그인 이력이 없어요."
     />
   );
 }

@@ -160,9 +160,9 @@ const DEMO_RECEIVED: DemoInquiry = {
   customerName: '김서연',
   customerContact: '010-2481-7735',
   channel: 'storefront',
-  subject: '구매 전 재고 확인 부탁드립니다',
+  subject: '구매 전 재고 확인 부탁드려요',
   message:
-    '차콜 M 사이즈가 품절로 표시되는데 재입고 예정이 있을까요?\n이번 주 안에 받아야 해서 문의드립니다.',
+    '차콜 M 사이즈가 품절로 표시되는데 재입고 예정이 있을까요?\n이번 주 안에 받아야 해서 문의드려요.',
   status: 'received',
   createdAt: '2026-07-18T01:12:00Z',
   answeredAt: '',
@@ -177,7 +177,7 @@ const DEMO_ANSWERED: DemoInquiry = {
   customerContact: '02-6412-8890',
   channel: 'phone',
   subject: '단체 주문 시 가격 문의',
-  message: '사내 행사용으로 120장을 한 번에 주문하려고 합니다. 별도 단가가 있을까요?',
+  message: '사내 행사용으로 120장을 한 번에 주문하려고 해요. 별도 단가가 있을까요?',
   status: 'answered',
   createdAt: '2026-07-15T00:05:00Z',
   answeredAt: '2026-07-16T02:20:00Z',
@@ -193,7 +193,7 @@ const DEMO_CLOSED: DemoInquiry = {
   customerContact: 'minwoo.j@example.com',
   channel: 'email',
   subject: '카드 결제 대신 계좌이체가 가능한가요',
-  message: '결제 단계에서 카드 결제가 진행되지 않습니다. 무통장 입금으로 주문할 수 있을까요?',
+  message: '결제 단계에서 카드 결제가 진행되지 않아요. 무통장 입금으로 주문할 수 있을까요?',
   status: 'closed',
   createdAt: '2026-07-10T07:30:00Z',
   answeredAt: '2026-07-10T09:02:00Z',
@@ -244,7 +244,7 @@ function inquiryHistory(inquiry: DemoInquiry): readonly TimelineEvent[] {
       author: '고객',
       badgeTone: 'neutral',
       badgeLabel: '접수',
-      text: `${CHANNEL_LABEL[inquiry.channel]} 채널로 문의가 접수되었습니다.`,
+      text: `${CHANNEL_LABEL[inquiry.channel]} 채널로 문의가 접수되었어요.`,
     },
   ];
 
@@ -278,7 +278,7 @@ function inquiryHistory(inquiry: DemoInquiry): readonly TimelineEvent[] {
       badgeTone: 'neutral',
       badgeLabel: '종결',
       // 종결 시각은 저장하지 않는다 — 시각이 답변의 것임을 문구가 밝힌다
-      text: `답변 발송(${formatDateTime(inquiry.answeredAt)}) 후 문의가 종결되었습니다.`,
+      text: `답변 발송(${formatDateTime(inquiry.answeredAt)}) 후 문의가 종결되었어요.`,
     });
   }
 
@@ -480,8 +480,8 @@ function ProductInquiryDetailScreen({
           <div style={alertRowStyle}>
             <span>
               {notFound
-                ? '문의를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '문의를 불러오지 못했습니다.'}
+                ? '문의를 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '문의를 불러오지 못했어요.'}
             </span>
             <span style={badgeRowStyle}>
               {!notFound && <Button variant="secondary">다시 시도</Button>}
@@ -563,7 +563,7 @@ function ProductInquiryDetailScreen({
               value={answer}
               maxLength={ANSWER_MAX}
               disabled={!canUpdate}
-              hint="저장하면 상태가 '답변 완료' 로 넘어갑니다."
+              hint="저장하면 상태가 '답변 완료' 로 넘어가요."
               placeholder="고객에게 전달할 답변을 입력하세요."
               rows={6}
               onChange={setAnswer}
@@ -572,12 +572,12 @@ function ProductInquiryDetailScreen({
             <>
               <span style={fieldLabelStyle}>발송한 답변</span>
               <p style={messageStyle}>{inquiry.answer}</p>
-              <p style={hintStyle}>종결된 문의라 답변을 수정할 수 없습니다.</p>
+              <p style={hintStyle}>종결된 문의라 답변을 수정할 수 없어요.</p>
             </>
           )}
 
           {!canUpdate && (
-            <Alert tone="info">이 문의에 답변할 권한이 없습니다. 조회만 가능합니다.</Alert>
+            <Alert tone="info">이 문의에 답변할 권한이 없어요. 조회만 가능해요.</Alert>
           )}
 
           <div style={actionsStyle}>
@@ -608,8 +608,8 @@ function ProductInquiryDetailScreen({
               <dd style={ddStyle}>{CHANNEL_LABEL[inquiry.channel]}</dd>
             </dl>
             <p style={hintStyle}>
-              답변은 위 연락처로 회신됩니다. 결제대행을 끈 상품은 구매하기 대신 문의하기 버튼이
-              노출됩니다.
+              답변은 위 연락처로 회신돼요. 결제대행을 끈 상품은 구매하기 대신 문의하기 버튼이
+              노출돼요.
             </p>
           </DetailCard>
 

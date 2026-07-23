@@ -93,7 +93,7 @@ export const Empty: Story = {
 /** error — danger 테두리 + role=alert 인라인 오류 (스키마가 내려준 오류가 로컬 검증보다 우선) */
 export const Error: Story = {
   name: 'States/Error',
-  args: { error: '이미지 파일만 올릴 수 있습니다.' },
+  args: { error: '이미지 파일만 올릴 수 있어요.' },
 };
 
 /** 채워진 상태 — 값이 있으면 미리보기 + 업로드 완료 피드백 + 교체/제거 */

@@ -16,6 +16,7 @@ import {
   dlStyle,
   dtStyle,
   hintStyle,
+  inlineBadgeRowStyle,
   StatusBadge,
 } from '../../../shared/ui';
 import type { AdminUser } from '../types';
@@ -86,10 +87,11 @@ export function AdminProfileCards({ admin, role, isSelf }: AdminProfileCardsProp
             {role === null ? (
               EMPTY_MARK
             ) : (
-              <>
+              // 역할 이름 옆 배지 — 감싸지 않으면 '운영자시스템 역할' 로 붙어 읽힌다
+              <span style={inlineBadgeRowStyle}>
                 {role.name}
                 {role.system && <StatusBadge tone="warning" label="시스템 역할" />}
-              </>
+              </span>
             )}
           </dd>
         </dl>
@@ -97,7 +99,7 @@ export function AdminProfileCards({ admin, role, isSelf }: AdminProfileCardsProp
         {/* 없는 역할을 가리키는 상태는 조용히 넘기지 않는다 — 권한이 어떻게 적용되는지 알 수 없다 */}
         {role === null && (
           <p style={hintStyle}>
-            배정된 역할을 권한 목록에서 찾을 수 없습니다. 역할이 삭제되었을 수 있으니 수정 화면에서
+            배정된 역할을 권한 목록에서 찾을 수 없어요. 역할이 삭제되었을 수 있으니 수정 화면에서
             다시 배정해 주세요.
           </p>
         )}
@@ -107,7 +109,7 @@ export function AdminProfileCards({ admin, role, isSelf }: AdminProfileCardsProp
         <CardTitle id="admin-memo-title">관리자 메모</CardTitle>
         {/* 빈 상태 — 없는 것을 빈 칸으로 두면 '아직 안 불러온 것' 과 구분되지 않는다 */}
         {admin.memo === '' ? (
-          <p style={hintStyle}>등록된 메모가 없습니다.</p>
+          <p style={hintStyle}>등록된 메모가 없어요.</p>
         ) : (
           <p style={memoStyle}>{admin.memo}</p>
         )}

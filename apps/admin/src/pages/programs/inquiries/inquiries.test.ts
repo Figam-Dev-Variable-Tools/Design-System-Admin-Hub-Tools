@@ -80,15 +80,15 @@ function inquiry(overrides: Partial<ProgramInquiry> = {}): ProgramInquiry {
 
 describe('applyProgramAnswer — 답변과 상태는 함께 옮겨 간다', () => {
   it('답변을 저장하면 상태가 답변 완료로 넘어가고 답변 시각이 찍힌다', () => {
-    const next = applyProgramAnswer(inquiry(), '스탠드는 1개 포함입니다.', '2026-07-21T00:00:00Z');
-    expect(next.answer).toBe('스탠드는 1개 포함입니다.');
+    const next = applyProgramAnswer(inquiry(), '스탠드는 1개 포함이에요.', '2026-07-21T00:00:00Z');
+    expect(next.answer).toBe('스탠드는 1개 포함이에요.');
     expect(next.status).toBe('answered');
     expect(next.answeredAt).toBe('2026-07-21T00:00:00Z');
   });
 
   it('앞뒤 공백은 다듬어 저장한다 — 후원자에게 그대로 나가는 글이다', () => {
-    expect(applyProgramAnswer(inquiry(), '  확인했습니다.  ', '2026-07-21T00:00:00Z').answer).toBe(
-      '확인했습니다.',
+    expect(applyProgramAnswer(inquiry(), '  확인했어요.  ', '2026-07-21T00:00:00Z').answer).toBe(
+      '확인했어요.',
     );
   });
 
@@ -111,7 +111,7 @@ describe('applyProgramAnswer — 답변과 상태는 함께 옮겨 간다', () =
 
   it('종결된 문의는 답변을 수정할 수 없다 — 기록이다', () => {
     const closed = inquiry({ status: 'closed', answeredAt: '2026-07-18T02:00:00Z', answer: '끝' });
-    expect(() => applyProgramAnswer(closed, '다시 씁니다', '2026-07-21T00:00:00Z')).toThrow(
+    expect(() => applyProgramAnswer(closed, '다시 써요', '2026-07-21T00:00:00Z')).toThrow(
       PROGRAM_ANSWER_ON_CLOSED_ERROR,
     );
   });
@@ -170,7 +170,7 @@ describe('저장소 — answerInquiry / closeInquiry / beginAnsweringInquiry', (
   it('답변하면 저장소의 상태도 함께 넘어간다', () => {
     answerInquiry(
       'PGQ-20260717-001',
-      '2대 세트에는 스탠드 1개가 포함됩니다.',
+      '2대 세트에는 스탠드 1개가 포함돼요.',
       '2026-07-21T00:00:00Z',
     );
     const saved = getProgramInquiry('PGQ-20260717-001');
@@ -196,7 +196,7 @@ describe('저장소 — answerInquiry / closeInquiry / beginAnsweringInquiry', (
   });
 
   it('없는 문의번호는 조회에서 막힌다', () => {
-    expect(() => getProgramInquiry('PGQ-없는번호')).toThrow('문의를 찾을 수 없습니다');
+    expect(() => getProgramInquiry('PGQ-없는번호')).toThrow('문의를 찾을 수 없어요');
   });
 });
 
@@ -429,10 +429,10 @@ describe('programInquiryHistory — 접수·답변·종결', () => {
 
   it('종결이면 접수·답변·종결 세 칸이 된다', () => {
     const events = programInquiryHistory(
-      inquiry({ status: 'closed', answeredAt: '2026-07-18T01:00:00Z', answer: '안내드렸습니다.' }),
+      inquiry({ status: 'closed', answeredAt: '2026-07-18T01:00:00Z', answer: '안내드렸어요.' }),
     );
     expect(events.map((event) => event.badgeLabel)).toEqual(['접수', '답변', '종결']);
-    expect(events[1]?.text).toBe('안내드렸습니다.');
+    expect(events[1]?.text).toBe('안내드렸어요.');
   });
 });
 
@@ -440,7 +440,7 @@ describe('programInquiryHistory — 접수·답변·종결', () => {
 
 describe('programInquiryAnswerSchema — 답변 검증', () => {
   it('정상 답변은 통과한다', () => {
-    expect(programInquiryAnswerSchema.safeParse({ answer: '스탠드는 1개입니다.' }).success).toBe(
+    expect(programInquiryAnswerSchema.safeParse({ answer: '스탠드는 1개예요.' }).success).toBe(
       true,
     );
   });

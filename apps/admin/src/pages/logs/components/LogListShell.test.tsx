@@ -82,7 +82,7 @@ function specOf(fetchPage: LogScreenSpec<Row>['fetchPage']): LogScreenSpec<Row> 
     ],
     columns: [{ id: 'name', label: '이름', render: (entry) => entry.name }],
     sortValues: { name: (entry) => entry.name },
-    caption: '테스트 로그 — 읽기 전용입니다.',
+    caption: '테스트 로그 — 읽기 전용이에요.',
     searchLabel: '검색',
     searchPlaceholder: '검색',
     csvBaseName: 'test-log',
@@ -128,7 +128,7 @@ describe('권한 게이팅', () => {
     const fetchPage = vi.fn();
     renderShell(specOf(fetchPage));
 
-    expect(screen.getByText('접근 권한이 없습니다')).not.toBeNull();
+    expect(screen.getByText('접근 권한이 없어요')).not.toBeNull();
     // 표는 아예 없다 — 숨기는 것이 아니라 그리지 않는다
     expect(screen.queryByRole('table')).toBeNull();
   });
@@ -172,12 +172,12 @@ describe('권한 게이팅', () => {
 describe('조회 실패 (STATE-02)', () => {
   it('read 실패는 **인라인 배너 + 다시 시도**다 — 토스트가 아니다', async () => {
     seedPermissions([]);
-    const fetchPage = vi.fn(() => Promise.reject(new Error('요청을 처리하지 못했습니다.')));
+    const fetchPage = vi.fn(() => Promise.reject(new Error('요청을 처리하지 못했어요.')));
     renderShell(specOf(fetchPage));
 
     // 감사 로그가 '비어 있는 것'과 '못 불러온 것'은 다른 사건이다 — 사라지는 토스트로 알리면
     // 사라진 뒤 빈 화면만 남아 그 둘이 구분되지 않는다
-    expect(await screen.findByText(/불러오지 못했습니다/)).not.toBeNull();
+    expect(await screen.findByText(/불러오지 못했어요/)).not.toBeNull();
     expect(screen.getByRole('button', { name: '다시 시도' })).not.toBeNull();
     expect(screen.queryByRole('table')).toBeNull();
   });

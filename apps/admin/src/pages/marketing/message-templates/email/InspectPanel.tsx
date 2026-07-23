@@ -155,13 +155,13 @@ const SOCIAL_PLATFORMS: readonly SocialPlatform[] = [
 ];
 
 /** 수신거부 링크 아래 안내 — 왜 필수인지를 그 자리에서 알린다(정보통신망법 제50조) */
-const UNSUBSCRIBE_HINT = '수신거부 링크는 법적 필수 항목입니다 (정보통신망법 제50조).';
+const UNSUBSCRIBE_HINT = '수신거부 링크는 법적 필수 항목이에요 (정보통신망법 제50조).';
 
 /** 쌓임 스위치 아래 안내 — 미디어 쿼리를 쓰지 않는다는 사실이 동작을 설명한다 */
-const STACK_HINT = '끄면 좁은 화면에서도 칸이 나란히 남습니다.';
+const STACK_HINT = '끄면 좁은 화면에서도 칸이 나란히 남아요.';
 
 /** 대체 텍스트 안내 — '접근성' 이 아니라 '전달력' 의 문제임을 말한다 */
-export const ALT_TEXT_HINT = '이미지를 차단하는 메일 앱에서 대신 보이는 글입니다.';
+const ALT_TEXT_HINT = '이미지를 차단하는 메일 앱에서 대신 보이는 글이에요.';
 
 /* ── 타입 가드 (SegmentedControl 은 string 을 준다) ──────────────────────── */
 

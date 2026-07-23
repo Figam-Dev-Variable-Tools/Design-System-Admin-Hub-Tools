@@ -13,6 +13,14 @@
 // [마우스 + 키보드] 드래그는 마우스 전용이라, 각 행에 위/아래 이동 버튼(↑↓)을 함께 제공한다.
 // 드래그와 버튼 둘 다 결국 moveArrayItem 으로 귀결된다(같은 순수 연산).
 // 시각 값은 전부 semantic 토큰 CSS 변수 — 하드코딩 hex/px 0건.
+//
+// [onReorder 는 **무엇이 움직였는지**도 함께 준다]
+// 예전에는 새 순서 배열만 넘겼다. 그러면 호출부가 '무엇이 몇 번째로 갔는지' 를 배열 diff 로 되짚어야
+// 하는데, 이웃한 두 행이 자리를 맞바꾼 경우 그 diff 는 **원리적으로 모호하다**(A 를 내린 것과 B 를
+// 올린 것이 같은 배열을 만든다). 그래서 라이브 영역 낭독이 엉뚱한 행을 부르게 된다 —
+// 순서 변경이 보조기술에 전달돼야 한다는 요구를 훅이 스스로 막고 있었던 셈이다.
+// 훅은 두 경로 모두에서 움직인 id 를 이미 알고 있다(드래그: 끌던 행 · 버튼: 그 행). 버리지 않고 넘긴다.
+// 두 번째 인자는 **덧붙임**이라 `(orderedIds) => …` 로 받던 기존 호출부는 그대로 성립한다.
 import { useState } from 'react';
 import type { CSSProperties, DragEvent } from 'react';
 
@@ -99,10 +107,13 @@ interface ReorderableRows {
 /**
  * 표 행 드래그 재정렬 상태. ids(현재 화면 순서)와 onReorder(새 순서 요청), locked(저장 중 잠금)를 받는다.
  * 저장/낙관적 업데이트·롤백은 호출부(페이지)가 한다 — 이 훅은 '새 순서 배열'만 만들어 넘긴다.
+ *
+ * onReorder 의 두 번째 인자 `movedId` 는 **이번에 움직인 행**이다(드래그: 끌던 행 · 버튼: 그 행).
+ * 호출부가 '무엇이 몇 번째로 갔는지' 를 낭독할 때 쓴다 — 배열만으로는 되짚을 수 없다(파일 머리말).
  */
 export function useReorderableRows(
   ids: readonly string[],
-  onReorder: (orderedIds: readonly string[]) => void,
+  onReorder: (orderedIds: readonly string[], movedId: string) => void,
   locked: boolean,
 ): ReorderableRows {
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -113,7 +124,7 @@ export function useReorderableRows(
     const from = ids.indexOf(fromId);
     const to = ids.indexOf(toId);
     if (from < 0 || to < 0) return;
-    onReorder(moveArrayItem(ids, from, to));
+    onReorder(moveArrayItem(ids, from, to), fromId);
   };
 
   const clear = () => {
@@ -153,7 +164,9 @@ export function useReorderableRows(
   };
 
   const moveBy = (index: number, delta: number) => {
-    onReorder(moveArrayItem(ids, index, index + delta));
+    const movedId = ids[index];
+    if (movedId === undefined) return;
+    onReorder(moveArrayItem(ids, index, index + delta), movedId);
   };
 
   return { rowProps, rowStyle, moveBy };

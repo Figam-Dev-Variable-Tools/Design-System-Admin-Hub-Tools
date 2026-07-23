@@ -30,10 +30,12 @@ import type { CSSProperties, ReactNode } from 'react';
 import { useId, useState } from 'react';
 
 import {
+  Alert,
   Button,
   Card,
   DateRangeField,
   FormField,
+  formRowStyle,
   Icon,
   IconButton,
   SelectField,
@@ -131,6 +133,19 @@ interface SeedValues {
   readonly note: string;
 }
 
+/** 차단 안내의 문장 + 두 링크를 한 줄에 — 좁은 화면에서는 접힌다 */
+const blockedRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: cssVar('space.3'),
+  flexWrap: 'wrap',
+};
+
+const blockedLinkStyle: CSSProperties = {
+  color: cssVar('color.action.primary.default'),
+  textDecoration: 'underline',
+};
+
 const EMPTY_SEED: SeedValues = {
   name: '',
   accountName: '',
@@ -180,10 +195,10 @@ interface FieldErrors {
 const DEMO_ERRORS: FieldErrors = {
   name: '프로젝트명을 입력하세요.',
   accountName: '거래처를 입력하세요.',
-  probability: '확률은 0~100 사이여야 합니다.',
+  probability: '확률은 0~100 사이여야 해요.',
   expectedRevenue: '예상매출을 입력하세요.',
-  period: '종료일은 시작일과 같거나 뒤여야 합니다.',
-  progress: '진척률은 0~100 사이여야 합니다.',
+  period: '종료일은 시작일과 같거나 뒤여야 해요.',
+  progress: '진척률은 0~100 사이여야 해요.',
 };
 
 /* ── 스타일(토큰·rem 만) ──────────────────────────────────────────────────────────────────── */
@@ -248,12 +263,6 @@ const cardTitleStyle: CSSProperties = {
   ...typography('typography.title.md'),
   margin: 0,
   color: cssVar('color.text.default'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const controlStyle = (invalid: boolean): CSSProperties => ({
@@ -346,7 +355,6 @@ function FormCard({ title, children }: { readonly title: string; readonly childr
 /* ── 제어형 화면(hooks-of-rules 준수: Capitalized 컴포넌트에서 useState) ───────────────────────── */
 
 interface ProjectFormScreenProps {
-  readonly isEdit?: boolean;
   /** 상세 조회 스켈레톤 — FormPageShell loadingDetail 미러 */
   readonly loadingDetail?: boolean;
   /** 검증 오류 노출 — 제출 실패 상태 재현 */
@@ -355,7 +363,6 @@ interface ProjectFormScreenProps {
 }
 
 function ProjectFormScreen({
-  isEdit = false,
   loadingDetail = false,
   errors = {},
   seed = EMPTY_SEED,
@@ -414,9 +421,9 @@ function ProjectFormScreen({
       </a>
 
       <div>
-        <h1 style={pageTitleStyle}>{isEdit ? '프로젝트 수정' : '프로젝트 등록'}</h1>
+        <h1 style={pageTitleStyle}>'프로젝트 수정'</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 단계를 바꾸면 확률이 기본값으로 채워집니다.
+          별표(*) 항목은 필수예요. 단계를 바꾸면 확률이 기본값으로 채워져요.
         </p>
       </div>
 
@@ -449,7 +456,7 @@ function ProjectFormScreen({
                     />
                   </FormField>
 
-                  <div style={rowStyle}>
+                  <div style={formRowStyle}>
                     <FormField
                       htmlFor={accountId}
                       label="거래처"
@@ -477,7 +484,7 @@ function ProjectFormScreen({
                     </FormField>
                   </div>
 
-                  <div style={rowStyle}>
+                  <div style={formRowStyle}>
                     <FormField htmlFor={stageId} label="단계" required>
                       <SelectField
                         id={stageId}
@@ -571,7 +578,7 @@ function ProjectFormScreen({
             <FormCard title="마일스톤">
               <span style={fieldLabelStyle}>마일스톤</span>
               <p style={hintStyle}>
-                {`주요 마일스톤을 등록하세요. 완료 표시에 따라 진척률이 계산됩니다. (최대 ${String(PROJECT_MAX_MILESTONES)}개)`}
+                {`주요 마일스톤을 등록하세요. 완료 표시에 따라 진척률이 계산돼요. (최대 ${String(PROJECT_MAX_MILESTONES)}개)`}
               </p>
               <div style={milestonesWrapStyle}>
                 {milestones.map((milestone, index) => (
@@ -676,7 +683,7 @@ function ProjectFormScreen({
             취소
           </Button>
           <Button type="submit" variant="primary" size="md">
-            {isEdit ? '저장' : '등록'}
+            저장
           </Button>
         </div>
       </form>
@@ -684,19 +691,53 @@ function ProjectFormScreen({
   );
 }
 
-/** 정상(등록): 빈 폼 — 신규 프로젝트 입력(단계 리드 · 확률 기본값) */
+/**
+ * 사슬 밖 생성 차단 — `/new` 주소로 들어왔을 때 그리는 것.
+ *
+ * 목록의 등록 버튼만 숨기면 막은 것이 아니다: 주소창·즐겨찾기·옛 링크가 그대로 살아 있다.
+ * 조용한 404 나 빈 화면은 고장과 구분되지 않으므로 **왜 못 만드는지와 어디서 만드는지**를 말한다
+ * (실화면 pages/sales/_shared/ChainOnlyCreateNotice · 시스템 설정의 '알 수 없는 프로바이더'와 같은 관용구).
+ */
+function ProjectCreateBlockedScreen() {
+  return (
+    <div style={pageStyle}>
+      <div>
+        <h1 style={pageTitleStyle}>프로젝트 등록</h1>
+        <p style={descriptionStyle}>
+          영업 파이프라인(문의 → 견적 → 계약 → 프로젝트)은 앞 칸에서만 다음 칸이 생겨요.
+        </p>
+      </div>
+      <Alert tone="warning">
+        <div style={blockedRowStyle}>
+          <span>
+            프로젝트는 계약에서 만들어져요. 체결이 끝난 계약(진행중 · 서명완료) 상세에서 ‘프로젝트
+            만들기’를 누르세요.
+          </span>
+          <a href="#계약-list" style={blockedLinkStyle}>
+            계약 목록으로
+          </a>
+          <a href="#프로젝트-list" style={blockedLinkStyle}>
+            프로젝트 목록으로
+          </a>
+        </div>
+      </Alert>
+    </div>
+  );
+}
+
+/** 사슬 밖 생성 차단 — 빈 폼이 아니라 다음 행동을 알려 주는 문장이 뜬다 */
 export const Default: Story = {
-  render: () => <ProjectFormScreen />,
+  render: () => <ProjectCreateBlockedScreen />,
 };
 
 /** 수정: 기존 값이 채워진 폼(마일스톤·파이프라인 미리보기 포함) */
 export const Edit: Story = {
-  render: () => <ProjectFormScreen isEdit seed={EDIT_SEED} />,
+  render: () => <ProjectFormScreen seed={EDIT_SEED} />,
 };
 
 /** 로딩: 상세 조회 중 첫 카드 본문 스켈레톤(FormPageShell loadingDetail 미러) */
 export const Loading: Story = {
-  render: () => <ProjectFormScreen isEdit loadingDetail seed={EDIT_SEED} />,
+  render: () => <ProjectFormScreen loadingDetail seed={EDIT_SEED} />,
 };
 
 /** 검증 오류: 필수 항목을 비우고 제출했을 때 각 필드 인라인 오류 노출 */

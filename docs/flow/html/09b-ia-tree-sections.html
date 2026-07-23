@@ -45,6 +45,8 @@
   <a href="./index.html">← 목록</a>
 </header>
 <div id="stage"><div id="pan"><pre class="mermaid" id="src">%% IA 트리 · 메뉴별 피라미드 (메뉴 15 × 그 잎들 · 그룹 5 는 09a 가 그린다)
+%% Gn 은 고정 id 다 — 비즈니스 묶음(G4~G10)은 사용 빈도순으로 재정렬됐고(2026-07-22),
+%% 세로 순서는 파일 아래 `Gx ~~~ Gy` 사슬이 정한다.
 %%{init: {&quot;flowchart&quot;: {&quot;curve&quot;: &quot;step&quot;, &quot;nodeSpacing&quot;: 14, &quot;rankSpacing&quot;: 66, &quot;wrappingWidth&quot;: 150, &quot;htmlLabels&quot;: true}, &quot;themeVariables&quot;: {&quot;fontSize&quot;: &quot;13px&quot;}} }%%
 flowchart TD
 
@@ -68,17 +70,13 @@ flowchart TD
     subgraph G2[&quot; &quot;]
     direction TB
         S2[&quot;&lt;b&gt;콘텐츠 관리&lt;/b&gt;&quot;]
-        S2 --&gt; S2_0[&quot;페이지 관리&lt;br/&gt;&lt;small&gt;/content/pages&lt;/small&gt;&quot;]
-        S2 --&gt; S2_1[&quot;메뉴 관리&lt;br/&gt;&lt;small&gt;/content/menus&lt;/small&gt;&quot;]
-        S2 --&gt; S2_2[&quot;뉴스·보도자료&lt;br/&gt;&lt;small&gt;/content/news&lt;/small&gt;&quot;]
-        S2 --&gt; S2_3[&quot;폼 관리&lt;br/&gt;&lt;small&gt;/content/forms&lt;/small&gt;&quot;]
-        S2 --&gt; S2_4[&quot;미디어 라이브러리&lt;br/&gt;&lt;small&gt;/content/media&lt;/small&gt;&quot;]
-        S2 --&gt; S2_5[&quot;공지사항&lt;br/&gt;&lt;small&gt;/content/notices&lt;/small&gt;&quot;]
-        S2 --&gt; S2_6[&quot;FAQ&lt;br/&gt;&lt;small&gt;/content/faq&lt;/small&gt;&quot;]
-        S2 --&gt; S2_7[&quot;팝업 관리&lt;br/&gt;&lt;small&gt;/content/popups&lt;/small&gt;&quot;]
-        S2 --&gt; S2_8[&quot;배너 관리&lt;br/&gt;&lt;small&gt;/content/banners&lt;/small&gt;&quot;]
-        S2 --&gt; S2_9[&quot;약관 관리&lt;br/&gt;&lt;small&gt;/content/terms&lt;/small&gt;&quot;]
-        S2 --&gt; S2_10[&quot;개인정보 처리방침&lt;br/&gt;&lt;small&gt;/content/privacy&lt;/small&gt;&quot;]
+        S2 --&gt; S2_0[&quot;뉴스·보도자료&lt;br/&gt;&lt;small&gt;/content/news&lt;/small&gt;&quot;]
+        S2 --&gt; S2_1[&quot;공지사항&lt;br/&gt;&lt;small&gt;/content/notices&lt;/small&gt;&quot;]
+        S2 --&gt; S2_2[&quot;FAQ&lt;br/&gt;&lt;small&gt;/content/faq&lt;/small&gt;&quot;]
+        S2 --&gt; S2_3[&quot;팝업 관리&lt;br/&gt;&lt;small&gt;/content/popups&lt;/small&gt;&quot;]
+        S2 --&gt; S2_4[&quot;배너 관리&lt;br/&gt;&lt;small&gt;/content/banners&lt;/small&gt;&quot;]
+        S2 --&gt; S2_5[&quot;약관 관리&lt;br/&gt;&lt;small&gt;/content/terms&lt;/small&gt;&quot;]
+        S2 --&gt; S2_6[&quot;개인정보 처리방침&lt;br/&gt;&lt;small&gt;/content/privacy&lt;/small&gt;&quot;]
     end
 
     subgraph G3[&quot; &quot;]
@@ -103,14 +101,6 @@ flowchart TD
         S4 --&gt; S4_2[&quot;취소/교환/반품&lt;br/&gt;&lt;small&gt;/orders/claims&lt;/small&gt;&quot;]
     end
 
-    subgraph G5[&quot; &quot;]
-    direction TB
-        S5[&quot;&lt;b&gt;포트폴리오 관리&lt;/b&gt;&quot;]
-        S5 --&gt; S5_0[&quot;포트폴리오&lt;br/&gt;&lt;small&gt;/portfolio/items&lt;/small&gt;&quot;]
-        S5 --&gt; S5_1[&quot;카테고리&lt;br/&gt;&lt;small&gt;/portfolio/categories&lt;/small&gt;&quot;]
-        S5 --&gt; S5_2[&quot;성공 사례&lt;br/&gt;&lt;small&gt;/portfolio/case-studies&lt;/small&gt;&quot;]
-    end
-
     subgraph G6[&quot; &quot;]
     direction TB
         S6[&quot;&lt;b&gt;상품 관리&lt;/b&gt;&quot;]
@@ -129,18 +119,6 @@ flowchart TD
         S7 --&gt; S7_0[&quot;프로그램&lt;br/&gt;&lt;small&gt;/programs&lt;/small&gt;&quot;]
         S7 --&gt; S7_1[&quot;카테고리&lt;br/&gt;&lt;small&gt;/programs/categories&lt;/small&gt;&quot;]
         S7 --&gt; S7_2[&quot;문의 · pg-off&lt;br/&gt;&lt;small&gt;/programs/inquiries&lt;/small&gt;&quot;]
-    end
-
-    subgraph G8[&quot; &quot;]
-    direction TB
-        S8[&quot;&lt;b&gt;영업 관리&lt;/b&gt;&quot;]
-        S8 --&gt; S8_0[&quot;거래처&lt;br/&gt;&lt;small&gt;/sales/accounts&lt;/small&gt;&quot;]
-        S8 --&gt; S8_1[&quot;계약&lt;br/&gt;&lt;small&gt;/sales/contracts&lt;/small&gt;&quot;]
-        S8 --&gt; S8_2[&quot;견적&lt;br/&gt;&lt;small&gt;/sales/quotes&lt;/small&gt;&quot;]
-        S8 --&gt; S8_3[&quot;청구·입금&lt;br/&gt;&lt;small&gt;/sales/billing&lt;/small&gt;&quot;]
-        S8 --&gt; S8_4[&quot;문의&lt;br/&gt;&lt;small&gt;/sales/inquiries&lt;/small&gt;&quot;]
-        S8 --&gt; S8_5[&quot;프로젝트&lt;br/&gt;&lt;small&gt;/sales/projects&lt;/small&gt;&quot;]
-        S8 --&gt; S8_6[&quot;상담 이력&lt;br/&gt;&lt;small&gt;/sales/consultations&lt;/small&gt;&quot;]
     end
 
     subgraph G9[&quot; &quot;]
@@ -162,6 +140,25 @@ flowchart TD
         S10 --&gt; S10_3[&quot;SMS 발송&lt;br/&gt;&lt;small&gt;/marketing/sms&lt;/small&gt;&quot;]
         S10 --&gt; S10_4[&quot;이메일 발송&lt;br/&gt;&lt;small&gt;/marketing/email&lt;/small&gt;&quot;]
         S10 --&gt; S10_5[&quot;발송 템플릿 관리&lt;br/&gt;&lt;small&gt;/marketing/templates&lt;/small&gt;&quot;]
+    end
+
+    subgraph G8[&quot; &quot;]
+    direction TB
+        S8[&quot;&lt;b&gt;영업 관리&lt;/b&gt;&quot;]
+        S8 --&gt; S8_0[&quot;거래처&lt;br/&gt;&lt;small&gt;/sales/accounts&lt;/small&gt;&quot;]
+        S8 --&gt; S8_1[&quot;계약&lt;br/&gt;&lt;small&gt;/sales/contracts&lt;/small&gt;&quot;]
+        S8 --&gt; S8_2[&quot;견적&lt;br/&gt;&lt;small&gt;/sales/quotes&lt;/small&gt;&quot;]
+        S8 --&gt; S8_3[&quot;청구·입금&lt;br/&gt;&lt;small&gt;/sales/billing&lt;/small&gt;&quot;]
+        S8 --&gt; S8_4[&quot;문의&lt;br/&gt;&lt;small&gt;/sales/inquiries&lt;/small&gt;&quot;]
+        S8 --&gt; S8_5[&quot;프로젝트&lt;br/&gt;&lt;small&gt;/sales/projects&lt;/small&gt;&quot;]
+    end
+
+    subgraph G5[&quot; &quot;]
+    direction TB
+        S5[&quot;&lt;b&gt;포트폴리오 관리&lt;/b&gt;&quot;]
+        S5 --&gt; S5_0[&quot;포트폴리오&lt;br/&gt;&lt;small&gt;/portfolio/items&lt;/small&gt;&quot;]
+        S5 --&gt; S5_1[&quot;카테고리&lt;br/&gt;&lt;small&gt;/portfolio/categories&lt;/small&gt;&quot;]
+        S5 --&gt; S5_2[&quot;성공 사례&lt;br/&gt;&lt;small&gt;/portfolio/case-studies&lt;/small&gt;&quot;]
     end
 
     subgraph G11[&quot; &quot;]
@@ -195,13 +192,11 @@ flowchart TD
     direction TB
         S14[&quot;&lt;b&gt;시스템 설정&lt;/b&gt;&quot;]
         S14 --&gt; S14_0[&quot;사이트 설정&lt;br/&gt;&lt;small&gt;/settings/site&lt;/small&gt;&quot;]
-        S14 --&gt; S14_1[&quot;사이트 연동&lt;br/&gt;&lt;small&gt;/settings/site-connect&lt;/small&gt;&quot;]
-        S14 --&gt; S14_2[&quot;API Key 설정&lt;br/&gt;&lt;small&gt;/settings/api-keys&lt;/small&gt;&quot;]
-        S14 --&gt; S14_3[&quot;OAuth 설정&lt;br/&gt;&lt;small&gt;/settings/oauth&lt;/small&gt;&quot;]
-        S14 --&gt; S14_4[&quot;결제 설정&lt;br/&gt;&lt;small&gt;/settings/payment&lt;/small&gt;&quot;]
-        S14 --&gt; S14_5[&quot;플랜·이용 현황&lt;br/&gt;&lt;small&gt;/settings/plan&lt;/small&gt;&quot;]
-        S14 --&gt; S14_6[&quot;알림 설정&lt;br/&gt;&lt;small&gt;/settings/notifications&lt;/small&gt;&quot;]
-        S14 --&gt; S14_7[&quot;다국어 설정&lt;br/&gt;&lt;small&gt;/settings/languages&lt;/small&gt;&quot;]
+        S14 --&gt; S14_1[&quot;API Key 설정&lt;br/&gt;&lt;small&gt;/settings/api-keys&lt;/small&gt;&quot;]
+        S14 --&gt; S14_2[&quot;OAuth 설정&lt;br/&gt;&lt;small&gt;/settings/oauth&lt;/small&gt;&quot;]
+        S14 --&gt; S14_3[&quot;결제 설정&lt;br/&gt;&lt;small&gt;/settings/payment&lt;/small&gt;&quot;]
+        S14 --&gt; S14_4[&quot;플랜·이용 현황&lt;br/&gt;&lt;small&gt;/settings/plan&lt;/small&gt;&quot;]
+        S14 --&gt; S14_5[&quot;알림 설정&lt;br/&gt;&lt;small&gt;/settings/notifications&lt;/small&gt;&quot;]
     end
 
     %% subgraph 를 세로로 쌓는다 — 없으면 옆으로 늘어서 폭이 9800px 가 된다
@@ -209,13 +204,13 @@ flowchart TD
     G1 ~~~ G2
     G2 ~~~ G3
     G3 ~~~ G4
-    G4 ~~~ G5
-    G5 ~~~ G6
+    G4 ~~~ G6
     G6 ~~~ G7
-    G7 ~~~ G8
-    G8 ~~~ G9
+    G7 ~~~ G9
     G9 ~~~ G10
-    G10 ~~~ G11
+    G10 ~~~ G8
+    G8 ~~~ G5
+    G5 ~~~ G11
     G11 ~~~ G12
     G12 ~~~ G13
     G13 ~~~ G14
@@ -226,7 +221,7 @@ flowchart TD
     classDef off fill:#f5f3ff,stroke:#a78bfa,color:#4c1d95,stroke-dasharray:4 3
     classDef grp fill:none,stroke:#e2e8f0,stroke-width:1px
     class S0,S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14 sec
-    class S0_0,S1_0,S1_1,S1_2,S1_3,S1_4,S1_5,S2_0,S2_1,S2_2,S2_3,S2_4,S2_5,S2_6,S2_7,S2_8,S2_9,S2_10,S3_0,S3_1,S3_2,S3_3,S3_4,S3_5,S3_6,S3_7,S3_8,S4_0,S4_1,S4_2,S5_0,S5_1,S5_2,S6_0,S6_1,S6_2,S6_3,S6_4,S6_5,S7_0,S7_1,S8_0,S8_1,S8_2,S8_3,S8_4,S8_5,S8_6,S9_0,S9_1,S9_2,S9_3,S9_4,S10_0,S10_1,S10_2,S10_3,S10_4,S10_5,S11_0,S11_1,S12_0,S12_1,S12_2,S12_3,S12_4,S12_5,S13_0,S13_1,S13_2,S13_3,S14_0,S14_1,S14_2,S14_3,S14_4,S14_5,S14_6,S14_7 leaf
+    class S0_0,S1_0,S1_1,S1_2,S1_3,S1_4,S1_5,S2_0,S2_1,S2_2,S2_3,S2_4,S2_5,S2_6,S3_0,S3_1,S3_2,S3_3,S3_4,S3_5,S3_6,S3_7,S3_8,S4_0,S4_1,S4_2,S5_0,S5_1,S5_2,S6_0,S6_1,S6_2,S6_3,S6_4,S6_5,S7_0,S7_1,S8_0,S8_1,S8_2,S8_3,S8_4,S8_5,S9_0,S9_1,S9_2,S9_3,S9_4,S10_0,S10_1,S10_2,S10_3,S10_4,S10_5,S11_0,S11_1,S12_0,S12_1,S12_2,S12_3,S12_4,S12_5,S13_0,S13_1,S13_2,S13_3,S14_0,S14_1,S14_2,S14_3,S14_4,S14_5 leaf
     %% 조건부 잎 — visibleWhen: 'pg-off' (결제를 켜면 사라지거나 '문의 · 읽기 전용' 으로 남는다)
     class S6_6,S7_2 off
     class G0,G1,G2,G3,G4,G5,G6,G7,G8,G9,G10,G11,G12,G13,G14 grp

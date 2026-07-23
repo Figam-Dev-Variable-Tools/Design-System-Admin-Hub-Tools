@@ -371,8 +371,7 @@ function EsgScreen({
         <Panel
           notice={
             <p style={hintStyle}>
-              환경 · 사회 · 지배구조 세 축으로 활동을 나눕니다. 분류를 고르면 그 축의 활동만
-              남습니다.
+              환경 · 사회 · 지배구조 세 축으로 활동을 나눠요. 분류를 고르면 그 축의 활동만 남아요.
             </p>
           }
         >
@@ -428,7 +427,7 @@ function EsgScreen({
           </SelectionBar>
 
           <Table
-            caption="ESG 활동 목록 — 행을 누르면 수정 화면으로 이동합니다. 체크박스·수정·삭제 버튼은 각자의 동작을 수행합니다."
+            caption="ESG 활동 목록 — 행을 누르면 수정 화면으로 이동해요. 체크박스·수정·삭제 버튼은 각자 따로 동작해요."
             columns={COLUMNS}
             rows={rows}
             leadingHead={[
@@ -463,7 +462,7 @@ function EsgScreen({
         <ConfirmDialog
           intent="delete"
           title="ESG 활동 삭제"
-          message={`'${confirming.title}'을(를) 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${confirming.title}'을(를) 삭제해요. 되돌릴 수 없어요.`}
           confirmLabel="삭제"
           onConfirm={() => {
             removeActivity(confirming.id);

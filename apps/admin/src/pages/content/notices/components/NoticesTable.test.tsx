@@ -47,6 +47,7 @@ function renderTable(overrides: Partial<Parameters<typeof NoticesTable>[0]> = {}
         onToggleOne={onToggleOne}
         onToggleAll={onToggleAll}
         startIndex={10}
+        canRemove
         {...overrides}
       />
     </MemoryRouter>,

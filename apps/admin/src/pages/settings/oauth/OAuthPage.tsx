@@ -50,10 +50,10 @@ import { oauthListSchema, providerLabel } from './validation';
 import type { OAuthSettingsValues } from './validation';
 
 const UNSAVED_MESSAGE =
-  '로그인 버튼 순서 또는 표시 정책에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '로그인 버튼 순서 또는 표시 정책에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const READ_ONLY_NOTICE =
-  '조회 권한만 있습니다. OAuth 설정을 바꾸려면 시스템 설정 수정 권한이 필요합니다.';
+  '조회 권한만 있어요. OAuth 설정을 바꾸려면 시스템 설정 수정 권한이 필요해요.';
 
 const stackStyle: CSSProperties = {
   display: 'flex',
@@ -143,23 +143,23 @@ function saveConfirmMessage(
       .map((provider) => providerLabel(provider.provider));
     parts.push(
       enabledNames.length === 0
-        ? '로그인 버튼 순서를 바꿉니다.'
-        : `로그인 버튼을 ${enabledNames.join(' → ')} 순서로 보여줍니다.`,
+        ? '로그인 버튼 순서를 바꿔요.'
+        : `로그인 버튼을 ${enabledNames.join(' → ')} 순서로 보여줘요.`,
     );
   }
 
   if (saved.display.kakaoTalkInAppLoginOnly !== next.display.kakaoTalkInAppLoginOnly) {
     parts.push(
       next.display.kakaoTalkInAppLoginOnly
-        ? '카카오톡 인앱 브라우저에서는 카카오 로그인만 보여줍니다.'
-        : '카카오톡 인앱 브라우저에서도 모든 소셜 로그인을 보여줍니다.',
+        ? '카카오톡 인앱 브라우저에서는 카카오 로그인만 보여줘요.'
+        : '카카오톡 인앱 브라우저에서도 모든 소셜 로그인을 보여줘요.',
     );
   }
 
   if (parts.length === 0) return '로그인 버튼 순서와 표시 정책을 저장할까요?';
 
   // 자격증명이 함께 저장되지 않는다는 사실을 확인 문구가 직접 말한다
-  return `${parts.join(' ')} 각 제공자의 자격증명은 바뀌지 않습니다. 저장할까요?`;
+  return `${parts.join(' ')} 각 제공자의 자격증명은 바뀌지 않아요. 저장할까요?`;
 }
 
 export default function OAuthPage() {
@@ -226,7 +226,7 @@ export default function OAuthPage() {
             reset(values);
             setPending(null);
             setConflict(null);
-            toast.success('로그인 버튼 순서와 표시 정책을 저장했습니다.');
+            toast.success('로그인 버튼 순서와 표시 정책을 저장했어요.');
           },
           onError: (cause: unknown) => {
             lock.release();
@@ -236,7 +236,7 @@ export default function OAuthPage() {
               setConflict(cause.latest as Revisioned<OAuthSettingsValues>);
               return;
             }
-            setSaveError('OAuth 설정을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+            setSaveError('OAuth 설정을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
           },
         },
       );
@@ -275,7 +275,7 @@ export default function OAuthPage() {
     reset(latest.value);
     setConflict(null);
     void refetch();
-    toast.success('최신 OAuth 설정을 불러왔습니다.');
+    toast.success('최신 OAuth 설정을 불러왔어요.');
   }, [conflict, refetch, reset, toast]);
 
   const overwrite = useCallback(() => {
@@ -368,7 +368,7 @@ export default function OAuthPage() {
     <>
       <SettingsFormShell
         cardTitle="소셜 로그인"
-        description="켜고 끄기와 자격증명은 제공자를 눌러 각자의 화면에서 설정합니다. 이 화면은 로그인 버튼 순서와 표시 정책을 저장합니다."
+        description="켜고 끄기와 자격증명은 제공자를 눌러 각자의 화면에서 설정해요. 이 화면은 로그인 버튼 순서와 표시 정책을 저장해요."
         loading={loading}
         loadFailed={error !== null}
         onRetry={() => void refetch()}
@@ -382,7 +382,7 @@ export default function OAuthPage() {
         warning={
           !anyEnabled && !loading ? (
             <Alert tone="info">
-              켜져 있는 소셜 로그인이 없습니다. 사용자는 이메일과 비밀번호로만 로그인합니다.
+              켜져 있는 소셜 로그인이 없어요. 사용자는 이메일과 비밀번호로만 로그인해요.
             </Alert>
           ) : null
         }
@@ -395,7 +395,7 @@ export default function OAuthPage() {
             heading="사용하고 있는 서비스"
             items={enabledProviders}
             hrefOf={oauthProviderPath}
-            emptyNote="켜져 있는 소셜 로그인이 없습니다. 아래 '이용 가능한 서비스'에서 하나를 골라 자격증명을 넣고 켜세요."
+            emptyNote="켜져 있는 소셜 로그인이 없어요. 아래 '이용 가능한 서비스'에서 하나를 골라 자격증명을 넣고 켜세요."
             action={
               <span style={reorderActionStyle}>
                 <Button
@@ -410,8 +410,8 @@ export default function OAuthPage() {
                 </Button>
                 <p style={reorderHintStyle}>
                   {canReorder
-                    ? '여기 놓인 순서대로 로그인 화면에 버튼이 나옵니다. 저장해야 반영됩니다.'
-                    : '사용 중인 서비스가 2개 이상일 때 순서를 바꿀 수 있습니다.'}
+                    ? '여기 놓인 순서대로 로그인 화면에 버튼이 나와요. 저장해야 반영돼요.'
+                    : '사용 중인 서비스가 2개 이상일 때 순서를 바꿀 수 있어요.'}
                 </p>
               </span>
             }
@@ -424,7 +424,7 @@ export default function OAuthPage() {
             heading="이용 가능한 서비스"
             items={availableProviders}
             hrefOf={oauthProviderPath}
-            emptyNote="모든 소셜 로그인을 사용 중입니다."
+            emptyNote="모든 소셜 로그인을 사용 중이에요."
           />
 
           {/* ── 로그인 화면 표시 정책 ────────────────────────────────────────
@@ -451,9 +451,9 @@ export default function OAuthPage() {
                 }}
               />
               <p style={policyHintStyle}>
-                카카오톡 인앱 브라우저에서는 구글·네이버 로그인이 차단되는 경우가 있습니다. 켜 두면
-                그 환경에서 다른 소셜 버튼을 감추고 카카오 로그인만 보여줍니다. 자격증명이 아니라
-                화면 규칙이므로 카카오 콘솔에서 받아오는 값이 아닙니다.
+                카카오톡 인앱 브라우저에서는 구글·네이버 로그인이 차단되는 경우가 있어요. 켜 두면 그
+                환경에서 다른 소셜 버튼을 감추고 카카오 로그인만 보여줘요. 자격증명이 아니라 화면
+                규칙이므로 카카오 콘솔에서 받아오는 값이 아니에요.
               </p>
 
               {/* [교차 규칙] 카카오가 꺼진 채 이 정책이 켜지면 스키마가 저장을 막는다(validation.ts).

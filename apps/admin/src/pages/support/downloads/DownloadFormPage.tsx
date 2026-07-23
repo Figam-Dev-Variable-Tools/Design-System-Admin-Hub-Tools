@@ -16,6 +16,7 @@ import {
   fieldLabelStyle,
   fieldStyle,
   FormField,
+  formRowStyle,
   Icon,
   pageTitleStyle,
   SelectField,
@@ -35,7 +36,7 @@ import { cssVar } from '@tds/ui';
 const ENTITY_LABEL = '자료';
 const LIST_PATH = '/support/downloads';
 const UNSAVED_MESSAGE =
-  '자료에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '자료에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -76,12 +77,6 @@ const layoutStyle: CSSProperties = {
   gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 13), 1fr))`,
   gap: cssVar('space.5'),
   alignItems: 'start',
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const actionsStyle: CSSProperties = {
@@ -169,8 +164,8 @@ export default function DownloadFormPage() {
           <div style={alertActionRowStyle}>
             <span>
               {loadFailure === 'not-found'
-                ? '자료 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '자료 불러오지 못했습니다.'}
+                ? '자료 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '자료 불러오지 못했어요.'}
             </span>
             {loadFailure === 'error' && (
               <Button variant="secondary" onClick={retryLoad}>
@@ -200,7 +195,7 @@ export default function DownloadFormPage() {
 
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '자료 수정' : '자료 등록'}</h1>
-        <p style={descriptionStyle}>별표(*) 항목은 필수입니다. 배포할 파일을 첨부하세요.</p>
+        <p style={descriptionStyle}>별표(*) 항목은 필수예요. 배포할 파일을 첨부하세요.</p>
       </div>
 
       <form onSubmit={submit} noValidate style={pageStyle}>
@@ -227,7 +222,7 @@ export default function DownloadFormPage() {
               />
             </FormField>
 
-            <div style={rowStyle}>
+            <div style={formRowStyle}>
               <FormField htmlFor="download-category" label="카테고리" required>
                 <SelectField
                   id="download-category"

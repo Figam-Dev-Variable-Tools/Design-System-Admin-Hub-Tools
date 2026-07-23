@@ -204,11 +204,11 @@ function clampPercent(value: number, of: number): number {
  * 적으면 짧은 본문에 제목만 붙인 운영자가 '90byte 를 넘었다' 는 틀린 설명을 읽는다.
  */
 function promotionReasonOf(kind: SmsKind, bytes: number, limit: number): string {
-  if (kind === 'mms') return `이미지가 붙어 MMS 입니다 · 본문 ${String(limit)} byte 까지`;
-  if (kind === 'sms') return `${String(SMS_PROMOTION_THRESHOLD)} byte 를 넘으면 LMS 로 승격됩니다`;
+  if (kind === 'mms') return `이미지가 붙어 MMS 예요 · 본문 ${String(limit)} byte 까지`;
+  if (kind === 'sms') return `${String(SMS_PROMOTION_THRESHOLD)} byte 를 넘으면 LMS 로 승격돼요`;
   return bytes > SMS_PROMOTION_THRESHOLD
-    ? `본문이 ${String(SMS_PROMOTION_THRESHOLD)} byte 눈금을 넘어 LMS 입니다`
-    : '제목이 있어 LMS 입니다 — SMS 에는 제목 필드가 없습니다';
+    ? `본문이 ${String(SMS_PROMOTION_THRESHOLD)} byte 눈금을 넘어 LMS 예요`
+    : '제목이 있어 LMS 예요 — SMS 에는 제목 필드가 없어요';
 }
 
 interface PhoneFrameProps {
@@ -255,7 +255,7 @@ export function PhoneFrame({ sender, subject, body, kind, bytes }: PhoneFramePro
         )}
         {subjectVisible && <p style={subjectStyle}>{subject}</p>}
         {hasSubject && !subjectVisible && (
-          <p style={subjectDroppedStyle}>제목은 SMS 로는 발송되지 않습니다.</p>
+          <p style={subjectDroppedStyle}>제목은 SMS 로는 발송되지 않아요.</p>
         )}
         {body}
       </div>

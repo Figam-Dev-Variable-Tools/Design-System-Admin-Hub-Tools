@@ -15,6 +15,7 @@ import {
   controlStyle,
   errorIdOf,
   FormField,
+  formRowStyle,
   hintStyle,
   Icon,
   pageTitleStyle,
@@ -45,7 +46,7 @@ const RESOURCE = 'marketing-newsletters';
 const ENTITY_LABEL = '뉴스레터';
 const LIST_PATH = '/marketing/newsletters';
 const UNSAVED_MESSAGE =
-  '뉴스레터에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '뉴스레터에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 const NO_TEMPLATE = '';
 
 const pageStyle: CSSProperties = {
@@ -94,12 +95,6 @@ const columnStyle: CSSProperties = {
   flexDirection: 'column',
   gap: cssVar('space.5'),
   minWidth: 0,
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const actionsStyle: CSSProperties = {
@@ -229,8 +224,8 @@ export default function NewsletterFormPage() {
           <div style={alertActionRowStyle}>
             <span>
               {loadFailure === 'not-found'
-                ? '뉴스레터 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '뉴스레터 불러오지 못했습니다.'}
+                ? '뉴스레터 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '뉴스레터 불러오지 못했어요.'}
             </span>
             {loadFailure === 'error' && (
               <Button variant="secondary" onClick={retryLoad}>
@@ -261,8 +256,7 @@ export default function NewsletterFormPage() {
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '뉴스레터 수정' : '뉴스레터 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 회차번호는 저장 시 자동 부여되며, 수신거부 링크는 항상
-          포함됩니다.
+          별표(*) 항목은 필수예요. 회차번호는 저장 시 자동 부여되며, 수신거부 링크는 항상 포함돼요.
         </p>
       </div>
 
@@ -330,7 +324,7 @@ export default function NewsletterFormPage() {
                 <FormField
                   htmlFor="nl-template"
                   label="템플릿 불러오기"
-                  hint="이메일 템플릿의 제목·본문을 채웁니다."
+                  hint="이메일 템플릿의 제목·본문을 채워요."
                 >
                   <SelectField
                     id="nl-template"
@@ -357,7 +351,7 @@ export default function NewsletterFormPage() {
                 maxLength={NEWSLETTER_BODY_MAX}
                 disabled={disabled}
                 error={errors.body?.message}
-                placeholder="뉴스레터 본문을 입력하세요. #{이름} 등 치환변수를 넣을 수 있습니다."
+                placeholder="뉴스레터 본문을 입력하세요. #{이름} 등 치환변수를 넣을 수 있어요."
                 rows={6}
               />
               <VariableInsertBar onInsert={insertVariable} disabled={disabled} />
@@ -365,7 +359,7 @@ export default function NewsletterFormPage() {
 
             <Card>
               <CardTitle>발송 예약</CardTitle>
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="nl-status" label="발송 방식" required>
                   <SelectField id="nl-status" disabled={disabled} {...register('status')}>
                     <option value="draft">초안 저장</option>
@@ -407,8 +401,8 @@ export default function NewsletterFormPage() {
               includeUnsubscribe
             />
             <p style={previewNoteStyle}>
-              구독자 {formatNumber(recipients)}명 · 오픈율/클릭율은 발송 후 집계됩니다. 저장은
-              발송이 아닙니다.
+              구독자 {formatNumber(recipients)}명 · 오픈율/클릭율은 발송 후 집계돼요. 저장은 발송이
+              아니에요.
             </p>
           </Card>
         </div>

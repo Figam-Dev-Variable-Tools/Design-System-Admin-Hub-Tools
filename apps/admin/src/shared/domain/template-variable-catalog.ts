@@ -44,7 +44,6 @@
 //     `Review.reportReason`('스팸/광고') · `InquiryEvent`/`TicketEvent` 의 kind==='note'(내부메모).
 //   · 내부 평가·영업 정보: `Account.creditGrade`·`creditLimit`(여신 심사) ·
 //     `Project.probability`·`expectedRevenue`·`lostReason`(수주 확률·예상 매출·실주 사유) ·
-//     `Consultation.outcome`(고객에 대한 긍정/부정 평가).
 //     이것들은 화면에 라벨이 붙어 있어서 '입력받는 값' 으로 보이지만, 받는 쪽이 고객이 아니다.
 //   · `MemberDetail.lastLoginIp`(최종 로그인 IP) — 보안 텔레메트리. 고객 메시지에 있을 이유가 없다.
 //
@@ -232,7 +231,7 @@ export const TEMPLATE_VARIABLE_CATALOG: TemplateVariableCatalog = [
 
   /* ── 영업 ──────────────────────────────────────────────────────────────────
    *
-   * 거래처·견적·계약·문의·프로젝트·상담 여섯 화면. B2B 문서(견적서·계약서) 발송 문구가
+   * 거래처·견적·계약·문의·프로젝트 다섯 화면. B2B 문서(견적서·계약서) 발송 문구가
    * 가장 많이 쓰는 묶음이다. */
   {
     label: '영업',
@@ -661,56 +660,6 @@ export const TEMPLATE_VARIABLE_CATALOG: TemplateVariableCatalog = [
         sample: '협상',
         source: `${P}/sales/projects/types.ts`,
       },
-
-      // sales/consultations — 상담 이력. outcome(고객 평가)·content(내부 서술)는 뺐다
-      {
-        key: 'consultation.accountName',
-        label: '상담 거래처',
-        sample: '(주)한빛소프트웨어',
-        source: `${P}/sales/consultations/ConsultationDetailPage.tsx`,
-      },
-      {
-        key: 'consultation.contactPerson',
-        label: '상담 대상자',
-        sample: '이영업 팀장',
-        source: `${P}/sales/consultations/ConsultationDetailPage.tsx`,
-      },
-      {
-        key: 'consultation.consultedAt',
-        label: '상담일시',
-        sample: '2026-07-14 15:00',
-        source: `${P}/sales/consultations/ConsultationDetailPage.tsx`,
-      },
-      {
-        key: 'consultation.consultant',
-        label: '상담 담당자',
-        sample: '이영업',
-        source: `${P}/sales/consultations/ConsultationDetailPage.tsx`,
-      },
-      {
-        key: 'consultation.consultType',
-        label: '상담유형',
-        sample: '대면미팅',
-        source: `${P}/sales/consultations/types.ts`,
-      },
-      {
-        key: 'consultation.topic',
-        label: '상담 주제',
-        sample: 'ERP 구축 범위 협의',
-        source: `${P}/sales/consultations/ConsultationListPage.tsx`,
-      },
-      {
-        key: 'consultation.followUpAction',
-        label: '상담 후속조치',
-        sample: '견적서 발송 및 구축 일정표 공유',
-        source: `${P}/sales/consultations/ConsultationDetailPage.tsx`,
-      },
-      {
-        key: 'consultation.followUpAt',
-        label: '상담 후속조치 예정일',
-        sample: '2026-07-18',
-        source: `${P}/sales/consultations/ConsultationDetailPage.tsx`,
-      },
     ],
   },
 
@@ -729,7 +678,7 @@ export const TEMPLATE_VARIABLE_CATALOG: TemplateVariableCatalog = [
       {
         key: 'notice.body',
         label: '공지 본문',
-        sample: '서비스 이용 안내 관련 상세 내용입니다.',
+        sample: '서비스 이용 안내 관련 상세 내용이에요.',
         source: `${P}/content/notices/NoticeFormPage.tsx`,
       },
       {
@@ -1083,7 +1032,7 @@ export const TEMPLATE_VARIABLE_CATALOG: TemplateVariableCatalog = [
       {
         key: 'returnRequest.reasonDetail',
         label: '교환·반품 상세 사유',
-        sample: 'M 사이즈가 작아 L 로 교환 요청합니다.',
+        sample: 'M 사이즈가 작아 L 로 교환 요청해요.',
         source: `${P}/orders/claims/ClaimDetailPage.tsx`,
       },
       {
@@ -1139,7 +1088,7 @@ export const TEMPLATE_VARIABLE_CATALOG: TemplateVariableCatalog = [
       {
         key: 'review.reply',
         label: '리뷰 관리자 답변',
-        sample: '소중한 후기 감사합니다.',
+        sample: '소중한 후기 감사해요.',
         source: `${P}/products/reviews/ReviewDetailPage.tsx`,
       },
 
@@ -1246,7 +1195,7 @@ export const TEMPLATE_VARIABLE_CATALOG: TemplateVariableCatalog = [
       {
         key: 'portfolio.summary',
         label: '포트폴리오 소개',
-        sample: '한강 조망 펜트하우스의 생활 동선을 재구성했습니다.',
+        sample: '한강 조망 펜트하우스의 생활 동선을 재구성했어요.',
         source: `${P}/portfolio/items/validation.ts`,
       },
       {
@@ -1283,19 +1232,19 @@ export const TEMPLATE_VARIABLE_CATALOG: TemplateVariableCatalog = [
       {
         key: 'caseStudy.challenge',
         label: '성공사례 과제',
-        sample: '수작업 검사로 불량 유출이 잦고 라인 정지가 반복됐습니다.',
+        sample: '수작업 검사로 불량 유출이 잦고 라인 정지가 반복됐어요.',
         source: `${P}/portfolio/case-studies/data-source.ts`,
       },
       {
         key: 'caseStudy.solution',
         label: '성공사례 해결',
-        sample: '비전 검사와 실시간 대시보드를 도입해 공정을 표준화했습니다.',
+        sample: '비전 검사와 실시간 대시보드를 도입해 공정을 표준화했어요.',
         source: `${P}/portfolio/case-studies/data-source.ts`,
       },
       {
         key: 'caseStudy.result',
         label: '성공사례 성과',
-        sample: '6개월 만에 불량률을 52% 낮췄습니다.',
+        sample: '6개월 만에 불량률을 52% 낮췄어요.',
         source: `${P}/portfolio/case-studies/data-source.ts`,
       },
       {
@@ -1333,7 +1282,7 @@ export const TEMPLATE_VARIABLE_CATALOG: TemplateVariableCatalog = [
       {
         key: 'ticket.title',
         label: '문의 제목',
-        sample: '결제가 두 번 청구되었습니다',
+        sample: '결제가 두 번 청구되었어요',
         source: `${P}/support/tickets/TicketListPage.tsx`,
       },
       {

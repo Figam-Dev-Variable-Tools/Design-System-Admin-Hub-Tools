@@ -113,8 +113,7 @@ export function RoleFormModal({ mode, initialName, onClose, onSubmit }: RoleForm
 
           {creating && (
             <p style={hintStyle}>
-              새 역할의 권한은 전부 꺼진 상태로 시작합니다. 만든 뒤 권한설정에서 필요한 항목만
-              켜세요.
+              새 역할의 권한은 전부 꺼진 상태로 시작해요. 만든 뒤 권한설정에서 필요한 항목만 켜세요.
             </p>
           )}
         </div>

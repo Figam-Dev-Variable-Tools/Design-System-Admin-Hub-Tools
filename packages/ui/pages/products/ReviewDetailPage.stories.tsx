@@ -353,7 +353,7 @@ function ReviewPreview({
         )}
       </div>
 
-      {!visible && <p style={hiddenNoteStyle}>숨김 상태 — 고객 상품 페이지에 노출되지 않습니다.</p>}
+      {!visible && <p style={hiddenNoteStyle}>숨김 상태 — 고객 상품 페이지에 노출되지 않아요.</p>}
     </div>
   );
 }
@@ -385,7 +385,7 @@ function ReviewDetailScreen({
     return (
       <div style={pageStyle}>
         <Alert tone="danger">
-          <span>리뷰를 불러오지 못했습니다. </span>
+          <span>리뷰를 불러오지 못했어요. </span>
           <Button variant="secondary">목록으로</Button>
         </Alert>
       </div>
@@ -451,7 +451,7 @@ function ReviewDetailScreen({
               value={reply}
               onChange={setReply}
               maxLength={REVIEW_REPLY_MAX}
-              placeholder="고객에게 보일 판매자 답변을 입력하세요. 비우면 답변이 노출되지 않습니다."
+              placeholder="고객에게 보일 판매자 답변을 입력하세요. 비우면 답변이 노출되지 않아요."
               rows={5}
             />
 
@@ -485,7 +485,7 @@ function ReviewDetailScreen({
         <ConfirmDialog
           intent="delete"
           title="리뷰 삭제"
-          message={`${review?.productName ?? ''} 리뷰를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`${review?.productName ?? ''} 리뷰를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="리뷰 삭제"
           onConfirm={() => setConfirming(false)}
           onCancel={() => setConfirming(false)}

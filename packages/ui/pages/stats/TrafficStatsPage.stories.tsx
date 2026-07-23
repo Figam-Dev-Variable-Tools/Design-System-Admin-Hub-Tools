@@ -184,7 +184,7 @@ const KPIS: readonly KpiDef[] = [
     deltaText: '▲ 9.6%',
     deltaTone: 'positive',
     describe: '비교 기간 대비 9.6% (1,240건) 증가',
-    hint: '방문(유입) 기준입니다.',
+    hint: '방문(유입) 기준이에요.',
   },
   {
     id: 'orders',
@@ -194,7 +194,7 @@ const KPIS: readonly KpiDef[] = [
     deltaText: '▲ 12.1%',
     deltaTone: 'positive',
     describe: '비교 기간 대비 12.1% (46건) 증가',
-    hint: '해당 유입으로 들어와 결제까지 이어진 건수입니다.',
+    hint: '해당 유입으로 들어와 결제까지 이어진 건수예요.',
   },
   {
     id: 'revenue',
@@ -204,7 +204,7 @@ const KPIS: readonly KpiDef[] = [
     deltaText: '▲ 14.8%',
     deltaTone: 'positive',
     describe: '비교 기간 대비 14.8% 증가',
-    hint: '해당 유입에서 발생한 결제 금액의 합입니다.',
+    hint: '해당 유입에서 발생한 결제 금액의 합이에요.',
   },
   {
     id: 'conversion',
@@ -214,7 +214,7 @@ const KPIS: readonly KpiDef[] = [
     deltaText: '▲ 0.2%',
     deltaTone: 'positive',
     describe: '비교 기간 대비 0.2%p 증가',
-    hint: '구매건수 ÷ 방문수 × 100 으로 계산합니다.',
+    hint: '구매건수 ÷ 방문수 × 100 으로 계산해요.',
   },
 ];
 
@@ -519,9 +519,9 @@ function TrafficStatsScreen({ state }: { state: ScreenState }) {
   return (
     <div style={pageStyle}>
       <p style={descriptionStyle}>
-        유입이 어디서 왔고 그중 무엇이 실제로 팔았는지 보는 화면입니다. 방문자 통계가 '몇 명이
+        유입이 어디서 왔고 그중 무엇이 실제로 팔았는지 보는 화면이에요. 방문자 통계가 '몇 명이
         왔나'라면 여기서는 채널마다 유입수 옆에 구매건수와 매출액을 붙여 '어느 유입이 매출로
-        이어졌는지'를 봅니다.
+        이어졌는지'를 봐요.
       </p>
 
       {/* 조회 조건 바 (원본 StatsFilterBar) */}
@@ -595,7 +595,7 @@ function TrafficStatsScreen({ state }: { state: ScreenState }) {
         </div>
 
         <p style={mutedLineStyle}>
-          {`조회 범위 ${rangeLabel} · 내보내기는 현재 조건 전체를 담습니다.`}
+          {`조회 범위 ${rangeLabel} · 내보내기는 현재 조건 전체를 담아요.`}
         </p>
       </section>
 
@@ -603,8 +603,8 @@ function TrafficStatsScreen({ state }: { state: ScreenState }) {
       {isEngineView ? (
         <Alert tone="info">
           구글 유입은 개인정보 보호정책에 따라 검색어가 전달되지 않아 카페24에서 '참조검색어
-          없음'으로 집계됩니다. 아래 유입수·매출액은 정상으로 잡히지만, 어떤 검색어로 들어왔는지는
-          확인할 수 없습니다.
+          없음'으로 집계돼요. 아래 유입수·매출액은 정상으로 잡히지만, 어떤 검색어로 들어왔는지는
+          확인할 수 없어요.
         </Alert>
       ) : null}
 
@@ -632,12 +632,12 @@ function TrafficStatsScreen({ state }: { state: ScreenState }) {
         error=""
       >
         {empty ? (
-          <p style={trendEmptyStyle}>선택한 기간에 집계된 값이 없습니다.</p>
+          <p style={trendEmptyStyle}>선택한 기간에 집계된 값이 없어요.</p>
         ) : (
           <LineAreaChart
             series={chartSeries}
             labels={[...DAY_LABELS]}
-            ariaLabel={`${rangeLabel} ${metricLabel} 추이${showCompare ? ' — 비교 기간이 함께 표시됩니다.' : ''}`}
+            ariaLabel={`${rangeLabel} ${metricLabel} 추이${showCompare ? ' — 비교 기간이 함께 표시돼요.' : ''}`}
           />
         )}
       </StatsCard>

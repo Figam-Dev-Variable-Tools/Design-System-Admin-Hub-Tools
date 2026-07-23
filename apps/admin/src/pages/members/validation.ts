@@ -20,7 +20,7 @@ export const createGroupSchema = z.object({
   name: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '그룹명을 입력하세요.' }),
     z.refine((value) => value.trim().length <= GROUP_NAME_MAX_LENGTH, {
-      error: `그룹명은 ${String(GROUP_NAME_MAX_LENGTH)}자를 넘을 수 없습니다.`,
+      error: `그룹명은 ${String(GROUP_NAME_MAX_LENGTH)}자를 넘을 수 없어요.`,
     }),
   ),
   type: z.enum(['member', 'staff']),
@@ -46,14 +46,14 @@ export const passwordChangeSchema = z
     password: z.string().check(
       z.refine((value) => value.trim() !== '', { error: '새 비밀번호를 입력하세요.' }),
       z.refine((value) => value.trim() === '' || value.length >= PASSWORD_MIN_LENGTH, {
-        error: `비밀번호는 ${String(PASSWORD_MIN_LENGTH)}자 이상이어야 합니다.`,
+        error: `비밀번호는 ${String(PASSWORD_MIN_LENGTH)}자 이상이어야 해요.`,
       }),
       z.refine(
         (value) =>
           value.trim() === '' ||
           value.length < PASSWORD_MIN_LENGTH ||
           (/[a-zA-Z]/.test(value) && /[0-9]/.test(value)),
-        { error: '영문과 숫자를 모두 포함해야 합니다.' },
+        { error: '영문과 숫자를 모두 포함해야 해요.' },
       ),
     ),
     confirm: z
@@ -70,7 +70,7 @@ export const passwordChangeSchema = z
       code: 'custom',
       input: ctx.value.confirm,
       path: ['confirm'],
-      message: '비밀번호가 일치하지 않습니다.',
+      message: '비밀번호가 일치하지 않아요.',
     });
   });
 

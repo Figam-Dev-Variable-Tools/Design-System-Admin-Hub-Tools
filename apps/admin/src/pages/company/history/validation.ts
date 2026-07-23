@@ -13,14 +13,14 @@ function intInRange(label: string, min: number, max: number) {
       error: `${label}${objectParticle(label)} 입력하세요.`,
     }),
     z.refine((value) => /^\d+$/.test(value.trim()), {
-      error: `${label}${topicParticle(label)} 숫자여야 합니다.`,
+      error: `${label}${topicParticle(label)} 숫자여야 해요.`,
     }),
     z.refine(
       (value) => {
         const n = Number(value.trim());
         return n >= min && n <= max;
       },
-      { error: `${label}${topicParticle(label)} ${String(min)} ~ ${String(max)} 범위여야 합니다.` },
+      { error: `${label}${topicParticle(label)} ${String(min)} ~ ${String(max)} 범위여야 해요.` },
     ),
   );
 }

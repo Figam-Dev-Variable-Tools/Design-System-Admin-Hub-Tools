@@ -55,7 +55,7 @@ export const Minimal: Story = {
   args: { action: null },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText('등록된 회원이 없습니다')).not.toBeNull();
+    await expect(canvas.getByText('등록된 회원이 없어요')).not.toBeNull();
     await expect(canvas.queryAllByRole('button')).toHaveLength(0);
   },
 };
@@ -75,7 +75,7 @@ export const JosaParticle: Story = {
   args: { label: '카페', createVerb: '등록', action: null },
   play: async ({ canvasElement }) => {
     const status = within(canvasElement).getByRole('status');
-    await expect(status.textContent).toContain('등록된 카페가 없습니다');
+    await expect(status.textContent).toContain('등록된 카페가 없어요');
     await expect(status.textContent).not.toContain('이(가)');
   },
 };
@@ -86,7 +86,7 @@ export const SearchNoResults: Story = {
   args: { hasQuery: true },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText('조건에 맞는 회원이 없습니다')).not.toBeNull();
+    await expect(canvas.getByText('조건에 맞는 회원이 없어요')).not.toBeNull();
     await userEvent.click(canvas.getByRole('button', { name: '검색 지우기' }));
     await expect(args.onClearSearch).toHaveBeenCalled();
   },
@@ -98,7 +98,7 @@ export const FilterNoResults: Story = {
   args: { hasActiveFilters: true },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText('필터에 맞는 회원이 없습니다')).not.toBeNull();
+    await expect(canvas.getByText('필터에 맞는 회원이 없어요')).not.toBeNull();
     await userEvent.click(canvas.getByRole('button', { name: '필터 초기화' }));
     await expect(args.onResetFilters).toHaveBeenCalled();
   },
@@ -113,7 +113,7 @@ export const Aria: Story = {
   play: async ({ canvasElement }) => {
     const status = within(canvasElement).getByRole('status');
     await expect(status).not.toBeNull();
-    await expect(status.textContent).toContain('등록된 회원이 없습니다');
+    await expect(status.textContent).toContain('등록된 회원이 없어요');
   },
 };
 

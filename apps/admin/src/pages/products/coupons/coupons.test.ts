@@ -6,22 +6,39 @@ import {
   buildUsagePeriod,
   conditionSummary,
   conflictingProducts,
+  COUPON_TRIGGER_OPTIONS,
   couponExpiryFor,
+  couponSaveBlockReason,
   couponStatus,
   discountLabel,
+  EMPTY_SCOPE,
   filterByTrigger,
   filterCoupons,
   filterIssuancesBySource,
   isAutoIssued,
+  isBuiltInTier,
   issuancesByCoupon,
+  productsInScope,
+  scopeAddableId,
+  scopeCategoryPath,
   sortCoupons,
   summarizeIssuances,
   toCouponInput,
+  triggerCondition,
   triggerSummary,
   usagePeriodLabel,
   usageRate,
+  withScopeChild,
+  withScopeRoot,
 } from './types';
-import type { Coupon, CouponIssuance } from './types';
+import type {
+  Coupon,
+  CouponGuardInput,
+  CouponIssuance,
+  CouponScope,
+  ScopeCategory,
+  ScopeProduct,
+} from './types';
 import { couponSchema } from './validation';
 import type { CouponFormValues } from './validation';
 import type { Product, ProductCouponPolicy } from '../_shared/store';
@@ -260,8 +277,6 @@ function productOf(id: string, categoryId: string, coupons: ProductCouponPolicy)
       discountType: 'none',
       discountValue: 0,
       taxable: true,
-      priceDisplay: 'amount',
-      inquiryText: '',
     },
     saleStatus: 'on_sale',
     displayed: true,
@@ -552,5 +567,187 @@ describe('couponSchema — 사용 조건', () => {
     expect(couponSchema.safeParse(valuesOf({ usageKind: 'fixed', usageDays: '' })).success).toBe(
       true,
     );
+  });
+});
+
+/* ── 사용 대상 연쇄 선택 (1차 → 2차 → 상품) ─────────────────────────────────── */
+
+const CATEGORIES: readonly ScopeCategory[] = [
+  { id: 'outer', label: '아우터', parentId: null },
+  { id: 'top', label: '상의', parentId: null },
+  { id: 'outer-coat', label: '코트', parentId: 'outer' },
+  { id: 'outer-jacket', label: '재킷', parentId: 'outer' },
+];
+
+const SCOPE_PRODUCTS: readonly ScopeProduct[] = [
+  { id: 'p-outer', name: '패딩', code: 'PAD', categoryId: 'outer' },
+  { id: 'p-coat', name: '롱코트', code: 'COAT', categoryId: 'outer-coat' },
+  { id: 'p-top', name: '티셔츠', code: 'TEE', categoryId: 'top' },
+];
+
+describe('연쇄 선택의 초기화 규칙(순수)', () => {
+  // 이것이 이 종류 UI 의 가장 흔한 버그다 — 남아 있는 하위 선택이 화면과 값을 어긋나게 한다
+  it('1차를 바꾸면 2차와 상품을 버린다', () => {
+    const before: CouponScope = { rootId: 'outer', childId: 'outer-coat', productId: 'p-coat' };
+    expect(withScopeRoot('top')).toEqual({ rootId: 'top', childId: '', productId: '' });
+    expect(withScopeRoot('top').childId).not.toBe(before.childId);
+  });
+
+  it('2차를 바꾸면 상품만 버리고 1차는 남긴다', () => {
+    const before: CouponScope = { rootId: 'outer', childId: 'outer-coat', productId: 'p-coat' };
+    expect(withScopeChild(before, 'outer-jacket')).toEqual({
+      rootId: 'outer',
+      childId: 'outer-jacket',
+      productId: '',
+    });
+  });
+
+  it('같은 1차를 다시 골라도 하위는 버린다 — 되살리지 않는다', () => {
+    expect(withScopeRoot('outer').productId).toBe('');
+  });
+});
+
+describe('productsInScope — 좌표 아래의 상품(순수)', () => {
+  it('2차를 골랐으면 그 2차의 상품만', () => {
+    const list = productsInScope(SCOPE_PRODUCTS, CATEGORIES, {
+      rootId: 'outer',
+      childId: 'outer-coat',
+      productId: '',
+    });
+    expect(list.map((product) => product.id)).toEqual(['p-coat']);
+  });
+
+  it('1차만 골랐으면 그 1차와 그 아래 2차의 상품을 함께 준다', () => {
+    const list = productsInScope(SCOPE_PRODUCTS, CATEGORIES, {
+      rootId: 'outer',
+      childId: '',
+      productId: '',
+    });
+    expect(list.map((product) => product.id).sort()).toEqual(['p-coat', 'p-outer']);
+  });
+
+  it('1차조차 고르지 않았으면 비어 있다 — 전 상품을 쏟아 놓지 않는다', () => {
+    expect(productsInScope(SCOPE_PRODUCTS, CATEGORIES, EMPTY_SCOPE)).toEqual([]);
+  });
+});
+
+describe('scopeAddableId — 지금 더할 수 있는 id(순수)', () => {
+  it('카테고리 대상: 2차가 있으면 2차, 없으면 1차', () => {
+    expect(scopeAddableId('category', { rootId: 'outer', childId: '', productId: '' })).toBe(
+      'outer',
+    );
+    expect(
+      scopeAddableId('category', { rootId: 'outer', childId: 'outer-coat', productId: '' }),
+    ).toBe('outer-coat');
+  });
+
+  it('상품 대상: 상품을 고르기 전에는 더할 것이 없다 — 카테고리만으로 성립하지 않는다', () => {
+    expect(
+      scopeAddableId('product', { rootId: 'outer', childId: 'outer-coat', productId: '' }),
+    ).toBe('');
+    expect(
+      scopeAddableId('product', { rootId: 'outer', childId: 'outer-coat', productId: 'p-coat' }),
+    ).toBe('p-coat');
+  });
+});
+
+describe('scopeCategoryPath — 경로 표기(순수)', () => {
+  it('2차는 부모를 앞에 붙인다', () => {
+    expect(scopeCategoryPath(CATEGORIES, 'outer-coat')).toBe('아우터 > 코트');
+    expect(scopeCategoryPath(CATEGORIES, 'outer')).toBe('아우터');
+  });
+});
+
+/* ── 발급 시점별 조건 ─────────────────────────────────────────────────────── */
+
+describe('triggerCondition — 시점이 더 묻는 것(순수)', () => {
+  it('셋만 조건을 갖는다', () => {
+    expect(triggerCondition('tier_up')).toBe('tier');
+    expect(triggerCondition('birthday')).toBe('birthday-days');
+    expect(triggerCondition('download')).toBe('download-period');
+  });
+
+  // 조건이 없는 시점에 셀렉트를 붙이면 저장되고 아무 데도 쓰이지 않는 값이 생긴다
+  it('운영자 직접·가입·첫 구매는 조건이 없다', () => {
+    expect(triggerCondition('manual')).toBeNull();
+    expect(triggerCondition('signup')).toBeNull();
+    expect(triggerCondition('first_order')).toBeNull();
+  });
+
+  it('여섯 시점의 힌트가 서로 다르고, 조건이 있는 시점은 그 칸을 가리킨다', () => {
+    const hints = COUPON_TRIGGER_OPTIONS.map((option) => option.hint);
+    expect(new Set(hints).size).toBe(hints.length);
+    for (const option of COUPON_TRIGGER_OPTIONS) {
+      const needsCondition = triggerCondition(option.id) !== null;
+      expect(option.hint.includes('아래에서')).toBe(needsCondition);
+      expect(option.hint.includes('조건이 없어요')).toBe(!needsCondition);
+    }
+  });
+});
+
+/* ── 저장 가드 ─────────────────────────────────────────────────────────────── */
+
+function guardOf(overrides: Partial<CouponGuardInput> = {}): CouponGuardInput {
+  return {
+    target: 'all',
+    targetIds: [],
+    triggerType: 'manual',
+    triggerTier: 'vip',
+    targetOptions: 'known',
+    tierOptions: 'known',
+    ...overrides,
+  };
+}
+
+describe('couponSaveBlockReason — 거부 사유(순수)', () => {
+  it('막을 것이 없으면 null', () => {
+    expect(couponSaveBlockReason(guardOf())).toBeNull();
+  });
+
+  it('특정 상품인데 아무것도 고르지 않았으면 사유를 돌려준다', () => {
+    expect(couponSaveBlockReason(guardOf({ target: 'product' }))).toContain('대상 상품');
+    expect(couponSaveBlockReason(guardOf({ target: 'product', targetIds: ['prd-1'] }))).toBeNull();
+  });
+
+  // '모른다' 는 '비었다' 가 아니다 — 고를 수 없었던 것을 고르지 않은 채로 저장시키지 않는다
+  it('선택지를 모르면 고른 것이 있어도 저장을 막는다', () => {
+    const reason = couponSaveBlockReason(
+      guardOf({ target: 'category', targetIds: ['outer'], targetOptions: 'unknown' }),
+    );
+    expect(reason).toContain('불러오지 못했');
+  });
+
+  it('불러오는 중과 못 불러온 것은 다른 말을 한다', () => {
+    expect(
+      couponSaveBlockReason(guardOf({ target: 'category', targetOptions: 'loading' })),
+    ).toContain('불러오는 중');
+  });
+
+  it('등급 승급 시점인데 등급 목록을 모르면 막는다', () => {
+    expect(
+      couponSaveBlockReason(guardOf({ triggerType: 'tier_up', tierOptions: 'unknown' })),
+    ).toContain('회원 등급');
+    expect(couponSaveBlockReason(guardOf({ triggerType: 'tier_up' }))).toBeNull();
+  });
+
+  it('등급 목록을 몰라도 승급 시점이 아니면 막지 않는다 — 필요 없는 조건으로 잠그지 않는다', () => {
+    expect(
+      couponSaveBlockReason(guardOf({ triggerType: 'signup', tierOptions: 'unknown' })),
+    ).toBeNull();
+  });
+
+  it('발급 기준이 들 수 없는 등급(운영자 추가분)이면 막는다', () => {
+    expect(
+      couponSaveBlockReason(guardOf({ triggerType: 'tier_up', triggerTier: 'tier-gold' })),
+    ).toContain('승급 대상 등급');
+  });
+});
+
+describe('isBuiltInTier — 발급 기준이 들 수 있는 등급(순수)', () => {
+  it('기본 제공 3종만 참이다', () => {
+    expect(isBuiltInTier('vip')).toBe(true);
+    expect(isBuiltInTier('normal')).toBe(true);
+    expect(isBuiltInTier('vvip')).toBe(true);
+    expect(isBuiltInTier('tier-gold')).toBe(false);
   });
 });

@@ -40,7 +40,7 @@ export const createAdminGroupSchema = z
     name: z.string().check(
       z.refine((value) => value.trim() !== '', { error: '그룹명을 입력하세요.' }),
       z.refine((value) => value.trim().length <= GROUP_NAME_MAX_LENGTH, {
-        error: `그룹명은 ${String(GROUP_NAME_MAX_LENGTH)}자를 넘을 수 없습니다.`,
+        error: `그룹명은 ${String(GROUP_NAME_MAX_LENGTH)}자를 넘을 수 없어요.`,
       }),
     ),
     /** 사전등록 풀에서 고른 대표 발신번호. 빈 문자열 = 아직 고르지 않음 */
@@ -58,7 +58,7 @@ export const createAdminGroupSchema = z
         code: 'custom',
         input: ctx.value.senderPhone,
         path: ['senderPhone'],
-        message: '발신 프로필로 쓰려면 대표 발신번호를 골라야 합니다.',
+        message: '발신 프로필로 쓰려면 대표 발신번호를 골라야 해요.',
       });
     }
 
@@ -68,7 +68,7 @@ export const createAdminGroupSchema = z
         code: 'custom',
         input: ctx.value.senderEmail,
         path: ['senderEmail'],
-        message: '발신 프로필로 쓰려면 대표 발신 이메일을 입력해야 합니다.',
+        message: '발신 프로필로 쓰려면 대표 발신 이메일을 입력해야 해요.',
       });
       return;
     }
@@ -78,7 +78,7 @@ export const createAdminGroupSchema = z
         code: 'custom',
         input: ctx.value.senderEmail,
         path: ['senderEmail'],
-        message: '이메일 주소 형식이 올바르지 않습니다.',
+        message: '이메일 주소 형식이 올바르지 않아요.',
       });
     }
   });
@@ -107,16 +107,16 @@ export const adminSchema = z.object({
   nickname: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '닉네임을 입력하세요.' }),
     z.refine((value) => value.trim().length <= ADMIN_NICKNAME_MAX_LENGTH, {
-      error: `닉네임은 ${String(ADMIN_NICKNAME_MAX_LENGTH)}자를 넘을 수 없습니다.`,
+      error: `닉네임은 ${String(ADMIN_NICKNAME_MAX_LENGTH)}자를 넘을 수 없어요.`,
     }),
   ),
   account: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '계정(이메일)을 입력하세요.' }),
     z.refine((value) => EMAIL_PATTERN.test(value.trim()), {
-      error: '이메일 주소 형식이 올바르지 않습니다.',
+      error: '이메일 주소 형식이 올바르지 않아요.',
     }),
     z.refine((value) => value.trim().length <= ADMIN_ACCOUNT_MAX_LENGTH, {
-      error: `계정은 ${String(ADMIN_ACCOUNT_MAX_LENGTH)}자를 넘을 수 없습니다.`,
+      error: `계정은 ${String(ADMIN_ACCOUNT_MAX_LENGTH)}자를 넘을 수 없어요.`,
     }),
   ),
   /** 운영진 그룹 = 발신 프로필. 빈 문자열 = 아직 고르지 않음 */
@@ -127,12 +127,12 @@ export const adminSchema = z.object({
   roleId: z.string().check(z.refine((value) => value.trim() !== '', { error: '역할을 고르세요.' })),
   department: z.string().check(
     z.refine((value) => value.trim().length <= ADMIN_DEPARTMENT_MAX_LENGTH, {
-      error: `부서는 ${String(ADMIN_DEPARTMENT_MAX_LENGTH)}자를 넘을 수 없습니다.`,
+      error: `부서는 ${String(ADMIN_DEPARTMENT_MAX_LENGTH)}자를 넘을 수 없어요.`,
     }),
   ),
   position: z.string().check(
     z.refine((value) => value.trim().length <= ADMIN_POSITION_MAX_LENGTH, {
-      error: `직급은 ${String(ADMIN_POSITION_MAX_LENGTH)}자를 넘을 수 없습니다.`,
+      error: `직급은 ${String(ADMIN_POSITION_MAX_LENGTH)}자를 넘을 수 없어요.`,
     }),
   ),
   /**
@@ -148,7 +148,7 @@ export const adminSchema = z.object({
   ),
   memo: z.string().check(
     z.refine((value) => value.trim().length <= ADMIN_MEMO_MAX_LENGTH, {
-      error: `메모는 ${String(ADMIN_MEMO_MAX_LENGTH)}자를 넘을 수 없습니다.`,
+      error: `메모는 ${String(ADMIN_MEMO_MAX_LENGTH)}자를 넘을 수 없어요.`,
     }),
   ),
 });

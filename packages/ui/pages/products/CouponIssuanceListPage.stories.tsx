@@ -689,23 +689,22 @@ function CouponIssuanceScreen({
       <div>
         <h1 style={headingStyle}>쿠폰 발급 현황</h1>
         <p style={descriptionStyle}>
-          쿠폰별 발급·사용 건수와 트리거별 유입을 확인합니다. 행을 누르면 해당 쿠폰 설정으로
-          이동합니다.
+          쿠폰별 발급·사용 건수와 트리거별 유입을 확인해요. 행을 누르면 해당 쿠폰 설정으로 이동해요.
         </p>
       </div>
 
       <SectionCard title="쿠폰별 요약">
         <p style={hintStyle}>
-          발급·사용·사용률은 아래 발급 이력에서 센 값이고, 소진율은 쿠폰의 운영 누계 기준입니다.
+          발급·사용·사용률은 아래 발급 이력에서 센 값이고, 소진율은 쿠폰의 운영 누계 기준이에요.
         </p>
         <div style={tableScrollStyle}>
           <Table
-            caption="쿠폰별 요약 — 발급·사용·사용률은 이력 표본에서, 소진율은 운영 누계에서 셉니다."
+            caption="쿠폰별 요약 — 발급·사용·사용률은 이력 표본에서, 소진율은 운영 누계에서 세요."
             columns={SUMMARY_COLUMNS}
             rows={summaryRows}
             loading={loading}
             skeletonRows={DEMO_COUPONS.length}
-            empty="등록된 쿠폰이 없습니다."
+            empty="등록된 쿠폰이 없어요."
           />
         </div>
       </SectionCard>
@@ -756,7 +755,7 @@ function CouponIssuanceScreen({
 
       <div style={tableScrollStyle}>
         <Table
-          caption="발급 이력 — 행을 누르면 그 쿠폰의 설정으로 이동합니다. 만료일은 캠페인 종료일과 발급일 기준 만료 중 빠른 날입니다."
+          caption="발급 이력 — 행을 누르면 그 쿠폰의 설정으로 이동해요. 만료일은 캠페인 종료일과 발급일 기준 만료 중 빠른 날이에요."
           columns={HISTORY_COLUMNS}
           rows={historyRows}
           leadingHead={[<SeqHeaderCell key="seq" />]}

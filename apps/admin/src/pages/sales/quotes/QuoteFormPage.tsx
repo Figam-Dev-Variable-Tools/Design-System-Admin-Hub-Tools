@@ -1,7 +1,13 @@
-// QuoteFormPage — 견적 등록/수정 (라우트: /sales/quotes/new · /:id/edit)
+// QuoteFormPage — 견적 수정 (라우트: /sales/quotes/:id/edit · /new 는 막힌다)
 //
 // 데이터 배선은 공용 CRUD 프레임워크(useCrudForm)를 재사용하고, 화면은 입력 카드(견적정보 · 라인아이템
 // 편집표 · 비고) + 우측 견적서 문서 미리보기 2단으로 구성한다. 검증의 정본은 ./validation.
+//
+// [등록 모드가 사라졌다] 견적은 **문의에서만** 발행된다(./data-source 의 issueQuoteFromSources —
+// 문의 상세에서 처리 상태를 '견적 발행'으로 바꾸는 것이 그 유일한 문이다). 빈 폼으로 세운 견적은
+// 원본 문의가 없어 '어느 요청에 대한 견적인가' 를 앱이 영영 답하지 못한다. `/new` 는 왜 여기서
+// 만들 수 없는지와 만드는 곳을 말하는 화면으로 돌아간다(../_shared/ChainOnlyCreateNotice).
+// 수정은 그대로다 — 막은 것은 생성뿐이다.
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,6 +24,7 @@ import {
   dtStyle,
   errorIdOf,
   FormField,
+  formRowStyle,
   Icon,
   pageTitleStyle,
   SelectField,
@@ -28,6 +35,7 @@ import {
 import { FormConflictDialog, FormServerError, useCrudForm } from '../../../shared/crud';
 import { AccountSelectField } from '../_shared/AccountSelectField';
 import { formatBizNo } from '../_shared/business';
+import { ChainOnlyCreateNotice } from '../_shared/ChainOnlyCreateNotice';
 import { quoteAdapter } from './data-source';
 import { EMPTY_QUOTE_FORM, quoteSchema } from './validation';
 import type { QuoteFormValues } from './validation';
@@ -36,9 +44,9 @@ import { QuotePreview } from './components/QuotePreview';
 import {
   isInherited,
   QUOTE_NOTE_MAX,
-  QUOTE_STATUS_OPTIONS,
   quoteSourceChannelLabel,
   quoteSourceHref,
+  quoteStatusMeta,
   TAX_MODE_OPTIONS,
 } from './types';
 import type { Quote, QuoteInput, QuoteLineItem } from './types';
@@ -47,8 +55,10 @@ import { cssVar } from '@tds/ui';
 const RESOURCE = 'sales-quotes';
 const ENTITY_LABEL = '견적';
 const LIST_PATH = '/sales/quotes';
+/** 견적을 실제로 만드는 곳 — 사슬 밖 생성 차단이 가리키는 문 */
+const INQUIRY_PATH = '/sales/inquiries';
 const UNSAVED_MESSAGE =
-  '견적에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '견적에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -118,24 +128,11 @@ const previewHeadStyle: CSSProperties = {
  * print 토큰이 **원값 export 없이** 바로 소비된다. 추가 번들은 0 바이트다.
  * (측정치와 근거는 배치 보고서에 있다.)
  *
- * 인쇄 대상 지정은 ../quotes.css 의 `@media print` 가 한다 — 여기서는 인쇄를 부르기만 한다.
+ * 인쇄 대상 지정은 ./quotes.css 의 `@media print` 가 한다 — 여기서는 인쇄를 부르기만 한다.
  */
 function printQuote(): void {
   window.print();
 }
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
-// 공급받는자 4개 필드(거래처·담당자·대표자·사업자번호)는 한 줄에 밀어 넣으면 회사명이 잘린다
-// ('대성물산 주식회…'). 최소 폭을 넉넉히 줘서 좁아지면 2×2 로 접히게 한다.
-const partyRowStyle: CSSProperties = {
-  ...rowStyle,
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 7), 1fr))`,
-};
 
 const actionsStyle: CSSProperties = {
   display: 'flex',
@@ -237,6 +234,20 @@ export default function QuoteFormPage() {
   const sources = watch('sources');
   const inherited = isInherited({ sources });
 
+  // [사슬 밖 생성 차단] 견적은 문의에서만 발행된다 — 빈 폼으로 세운 견적은 원본 문의가 없어
+  // '어느 요청에 대한 견적인가' 를 앱이 영영 답하지 못한다. 버튼은 목록에서 지웠고, 주소로 직접
+  // 들어오는 이 경로는 여기서 받는다. 수정(:id/edit)은 그대로 열린다.
+  if (!isEdit) {
+    return (
+      <ChainOnlyCreateNotice
+        title="견적 등록"
+        reason="견적은 문의에서 발행돼요. 문의 상세에서 처리 상태를 ‘견적 발행’으로 바꾸면 견적이 자동 생성돼요."
+        source={{ to: INQUIRY_PATH, label: '문의 내역으로' }}
+        list={{ to: LIST_PATH, label: '견적 목록으로' }}
+      />
+    );
+  }
+
   // [EXC-12] 404 와 서버 오류는 복구 수단이 다르다 — 이미 삭제된 항목에 '다시 시도'를 권하면
   // 영원히 실패하는 버튼을 누르게 된다.
   if (loadFailure !== null) {
@@ -246,8 +257,8 @@ export default function QuoteFormPage() {
           <div style={alertActionRowStyle}>
             <span>
               {loadFailure === 'not-found'
-                ? '견적을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '견적을 불러오지 못했습니다.'}
+                ? '견적을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '견적을 불러오지 못했어요.'}
             </span>
             {loadFailure === 'error' && (
               <Button variant="secondary" onClick={retryLoad}>
@@ -278,8 +289,8 @@ export default function QuoteFormPage() {
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '견적 수정' : '견적 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 오른쪽 미리보기로 실제 견적서 모습을 확인하세요. 견적번호는
-          시스템이 저장 시 자동 부여하며 수정할 수 없습니다.
+          별표(*) 항목은 필수예요. 오른쪽 미리보기로 실제 견적서 모습을 확인하세요. 견적번호는
+          시스템이 저장 시 자동 부여하며 수정할 수 없어요.
         </p>
       </div>
 
@@ -291,11 +302,11 @@ export default function QuoteFormPage() {
             <Card>
               <CardTitle>견적 정보</CardTitle>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField
                   htmlFor="quote-no"
                   label="견적번호"
-                  hint="시스템이 저장 시 자동 부여합니다 (수정 불가)"
+                  hint="시스템이 저장 시 자동 부여해요 (수정 불가)"
                 >
                   {/* 자동 채번 값 — 편집 불가. register 로 폼에 남겨 수정 시 기존 번호를 보존하고,
                       신규 등록 시 빈 값이면 저장 시점에 자동 부여된다. */}
@@ -310,14 +321,25 @@ export default function QuoteFormPage() {
                     {...register('quoteNo')}
                   />
                 </FormField>
-                <FormField htmlFor="quote-status" label="상태" required>
-                  <SelectField id="quote-status" disabled={disabled} {...register('status')}>
-                    {QUOTE_STATUS_OPTIONS.map((option) => (
-                      <option key={option.id} value={option.id}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </SelectField>
+                {/* [상태는 여기서 고르지 않는다] 예전에는 이 자리에 상태 드롭다운이 있었다 —
+                    전이 규칙을 아무것도 읽지 않는 자유 선택이라, 견적 상세의 상태 관리가 막는
+                    전이(예: 수주 → 작성중 되돌리기)를 이 폼이 그냥 통과시켰다. 같은 사실을 두
+                    화면이 다른 규칙으로 바꾸면 그중 하나는 반드시 틀린다. 상태의 유일한 문은
+                    견적 상세의 '상태 관리' 이고, 그 판정은 ./types 의 quoteStatusChangeBlock 다. */}
+                <FormField
+                  htmlFor="quote-status-readonly"
+                  label="상태"
+                  hint="상태는 견적 상세의 ‘상태 관리’에서 바꿔요"
+                >
+                  <input
+                    id="quote-status-readonly"
+                    type="text"
+                    className="tds-ui-input tds-ui-focusable"
+                    style={systemValueStyle}
+                    value={quoteStatusMeta(watch('status')).label}
+                    readOnly
+                    aria-readonly="true"
+                  />
                 </FormField>
                 <FormField htmlFor="quote-tax" label="과세유형" required>
                   <SelectField id="quote-tax" disabled={disabled} {...register('taxMode')}>
@@ -361,12 +383,12 @@ export default function QuoteFormPage() {
                 }}
               />
 
-              <div style={partyRowStyle}>
+              <div style={formRowStyle}>
                 <FormField
                   htmlFor="quote-contact"
                   label="담당자"
                   error={errors.contactName?.message}
-                  hint={inherited ? '문의에서 승계한 값입니다 (수정 불가)' : ''}
+                  hint={inherited ? '문의에서 승계한 값이에요 (수정 불가)' : ''}
                 >
                   <input
                     id="quote-contact"
@@ -446,8 +468,8 @@ export default function QuoteFormPage() {
                   <StatusBadge tone="info" label="자동 승계" />
                 </CardTitle>
                 <p style={descriptionStyle}>
-                  이 견적은 문의에서 발행되었습니다. 거래처·담당자·문의내용은 원본 문의를 따르며
-                  수정할 수 없습니다. 여러 문의를 합친 견적이면 아래에 모두 나열됩니다.
+                  이 견적은 문의에서 발행되었어요. 거래처·담당자·문의내용은 원본 문의를 따르며
+                  수정할 수 없어요. 여러 문의를 합친 견적이면 아래에 모두 나열돼요.
                 </p>
                 {/* 합쳐진 문의가 여럿일 수 있다 — 어느 문의가 어느 품목이 됐는지 되짚을 수 있어야 한다 */}
                 {sources.map((source) => (

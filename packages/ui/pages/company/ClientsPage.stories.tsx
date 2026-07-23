@@ -292,7 +292,7 @@ function LogoFormModal({ editing, onClose }: LogoFormModalProps) {
           required
           value={logoUrl}
           onChange={setLogoUrl}
-          hint="이미지를 끌어다 놓거나 클릭해 업로드합니다."
+          hint="이미지를 끌어다 놓거나 클릭해 업로드해요."
         />
 
         <FormField htmlFor="client-logo-link" label="링크 URL" hint="클릭 시 이동할 주소 (선택)">
@@ -500,7 +500,7 @@ function ClientsScreen({
       </SelectionBar>
 
       <Table
-        caption="고객사 목록 — 체크박스로 선택하고, 각 행에서 노출 여부를 ON/OFF 토글하거나 수정·삭제할 수 있습니다. 검색어가 없을 때는 각 행의 위/아래 버튼으로 정렬 순서를 바꿉니다."
+        caption="고객사 목록 — 체크박스로 선택하고, 각 행에서 노출 여부를 ON/OFF 토글하거나 수정·삭제할 수 있어요. 검색어가 없을 때는 각 행의 위/아래 버튼으로 정렬 순서를 바꿔요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[
@@ -534,7 +534,7 @@ function ClientsScreen({
         <ConfirmDialog
           intent="delete"
           title="고객사 삭제"
-          message={`'${confirming.name}'을(를) 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${confirming.name}'을(를) 삭제해요. 되돌릴 수 없어요.`}
           confirmLabel="삭제"
           onConfirm={() => {
             removeLogo(confirming.id);

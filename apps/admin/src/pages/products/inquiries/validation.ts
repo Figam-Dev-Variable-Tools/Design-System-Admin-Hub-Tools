@@ -12,7 +12,7 @@ export const productInquiryAnswerSchema = z.object({
   answer: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '답변 내용을 입력하세요.' }),
     z.refine((value) => value.trim().length <= PRODUCT_INQUIRY_ANSWER_MAX, {
-      error: `답변은 ${String(PRODUCT_INQUIRY_ANSWER_MAX)}자를 넘을 수 없습니다.`,
+      error: `답변은 ${String(PRODUCT_INQUIRY_ANSWER_MAX)}자를 넘을 수 없어요.`,
     }),
   ),
 });
@@ -25,5 +25,5 @@ export const productInquiryAnswerSchema = z.object({
 export function answerError(answer: string): string | null {
   const result = productInquiryAnswerSchema.safeParse({ answer });
   if (result.success) return null;
-  return result.error.issues[0]?.message ?? '답변을 저장할 수 없습니다.';
+  return result.error.issues[0]?.message ?? '답변을 저장할 수 없어요.';
 }

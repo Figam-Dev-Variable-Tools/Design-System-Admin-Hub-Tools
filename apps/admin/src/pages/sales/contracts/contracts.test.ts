@@ -4,9 +4,10 @@ import { describe, expect, it } from 'vitest';
 import {
   buildContractFromQuote,
   CONTRACT_DRAFT_DONE,
-  CONTRACT_DRAFT_NOT_ORDERED,
+  CONTRACT_DRAFT_NOT_ACCEPTED,
   contractDraftBlock,
   daysRemaining,
+  isConcludedContract,
   filterContracts,
   isRenewalDue,
   searchContracts,
@@ -180,22 +181,53 @@ function quoteOf(status: Quote['status'], overrides: Partial<Quote> = {}): Quote
   };
 }
 
-describe('계약 초안 가드 — 수주 전환된 견적에서만', () => {
-  it('수주 전환된 견적이면 통과한다', () => {
+/* ── 계약 생성 가드 ──────────────────────────────────────────────────────────
+ *
+ * [겨냥이 옮겨졌다] 예전에는 '수주 전환된 견적에서만' 이었다. 그때는 운영자가 '수주 전환' 을 먼저
+ * 누르고 계약을 또 눌러야 했고, 그래서 한 사건을 두 번 누르다 한 번을 빠뜨린 견적이 생겼다.
+ * 지금 수주는 **계약이 만들어진 결과**이므로 계약의 입구는 그 앞 칸인 '승인' 이다. */
+describe('계약 생성 가드 — 승인된 견적에서만', () => {
+  it('승인된 견적이면 통과한다 — 이것이 사슬의 입구다', () => {
+    expect(contractDraftBlock('accepted', '')).toBeNull();
+  });
+  /* 계약이 지워졌거나 이 규칙 이전의 데이터라 상태만 수주인 견적이 있을 수 있다. 그때 문을 닫으면
+     그 견적은 영원히 계약을 가질 수 없다 — 수동 등록이 막혀 있어 우회로가 없다. */
+  it('계약 없는 수주 견적도 통과한다 — 막다른 골목을 만들지 않는다', () => {
     expect(contractDraftBlock('ordered', '')).toBeNull();
   });
-  // 승인만으로는 아직 거래가 확정되지 않았다 — 전환하지 않은 견적에 계약이 먼저 붙지 않게 한다.
-  it('승인·발송·작성중은 막는다', () => {
-    for (const status of ['draft', 'sent', 'accepted', 'rejected', 'expired'] as const) {
-      expect(contractDraftBlock(status, '')).toBe(CONTRACT_DRAFT_NOT_ORDERED);
+  it('작성중·발송·반려·만료는 막는다', () => {
+    for (const status of ['draft', 'sent', 'rejected', 'expired'] as const) {
+      expect(contractDraftBlock(status, '')).toBe(CONTRACT_DRAFT_NOT_ACCEPTED);
     }
   });
-  it('이미 계약이 있으면 막는다 — 견적 하나에 초안 하나다', () => {
+  it('이미 계약이 있으면 막는다 — 견적 하나에 계약 하나다', () => {
     expect(contractDraftBlock('ordered', 'ct-1')).toBe(CONTRACT_DRAFT_DONE);
+    expect(contractDraftBlock('accepted', 'ct-1')).toBe(CONTRACT_DRAFT_DONE);
   });
 });
 
-describe('견적 → 계약 초안 승계(순수)', () => {
+/* ── '계약 완료' 의 정의 ─────────────────────────────────────────────────────
+ *
+ * 상태 유니온에 '완료' 는 없다. 없는 상태를 만들지 않고, 이미 있는 두 사실의 교집합으로 정의했다 —
+ * 근거는 ./types 의 isConcludedContract 머리말에 있다. 그 판단을 여기 못 박는다. */
+describe('계약 완료 판정 — 진행중 + 서명완료', () => {
+  it('진행중이고 서명이 끝났으면 완료다', () => {
+    expect(isConcludedContract('active', 'signed')).toBe(true);
+  });
+  it('도장이 안 찍혔으면 완료가 아니다 — 검토중·일부서명도 마찬가지다', () => {
+    expect(isConcludedContract('active', 'sent')).toBe(false);
+    expect(isConcludedContract('active', 'partial')).toBe(false);
+    expect(isConcludedContract('review', 'signed')).toBe(false);
+    expect(isConcludedContract('draft', 'signed')).toBe(false);
+  });
+  /* '계약 완료' 는 '계약 체결 완료' 이지 '계약 종료' 가 아니다 — 끝난 계약에서 새 일을 시작하지 않는다. */
+  it('만료·해지는 완료가 아니라 끝난 것이다', () => {
+    expect(isConcludedContract('expired', 'signed')).toBe(false);
+    expect(isConcludedContract('terminated', 'signed')).toBe(false);
+  });
+});
+
+describe('견적 → 계약 승계(순수)', () => {
   it('원 견적을 가리킨다 — 이것이 문서의 화살표다', () => {
     const draft = buildContractFromQuote(quoteOf('ordered'), '2026-07-20');
     expect(draft.quoteId).toBe('qt-9');

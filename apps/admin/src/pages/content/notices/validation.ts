@@ -14,7 +14,7 @@ export const noticeSchema = z
     title: z.string().check(
       z.refine((value) => value.trim() !== '', { error: '제목을 입력하세요.' }),
       z.refine((value) => value.trim().length <= TITLE_MAX_LENGTH, {
-        error: `제목은 ${String(TITLE_MAX_LENGTH)}자를 넘을 수 없습니다.`,
+        error: `제목은 ${String(TITLE_MAX_LENGTH)}자를 넘을 수 없어요.`,
       }),
     ),
     category: z.enum(['notice', 'event', 'maintenance']),
@@ -24,7 +24,7 @@ export const noticeSchema = z
     body: z.string().check(
       z.refine((value) => value.trim() !== '', { error: '본문을 입력하세요.' }),
       z.refine((value) => value.length <= BODY_MAX_LENGTH, {
-        error: `본문은 ${String(BODY_MAX_LENGTH)}자를 넘을 수 없습니다.`,
+        error: `본문은 ${String(BODY_MAX_LENGTH)}자를 넘을 수 없어요.`,
       }),
     ),
   })
@@ -48,7 +48,7 @@ export const noticeSchema = z
         code: 'custom',
         input: ctx.value.publishedAt,
         path: ['publishedAt'],
-        message: '예약 게시일은 오늘 이후여야 합니다.',
+        message: '예약 게시일은 오늘 이후여야 해요.',
       });
     }
   });

@@ -39,8 +39,8 @@ describe('Timeline — 계약 states·format', () => {
   });
 
   it('Timeline: 빈 배열이면 목록 대신 emptyLabel 을 렌더한다', () => {
-    render(<Timeline events={[]} label="이력" emptyLabel="기록된 이력이 없습니다." />);
+    render(<Timeline events={[]} label="이력" emptyLabel="기록된 이력이 없어요." />);
     expect(screen.queryByRole('list')).toBeNull();
-    expect(screen.getByText('기록된 이력이 없습니다.')).not.toBeNull();
+    expect(screen.getByText('기록된 이력이 없어요.')).not.toBeNull();
   });
 });

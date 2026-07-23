@@ -1,25 +1,22 @@
 // HistoryFormPage — 연혁 등록/수정 (라우트: /company/history/new · /company/history/:id/edit)
-import type { CSSProperties } from 'react';
-
-import { controlStyle, errorIdOf, FormField, SelectField, TextareaField } from '../../../shared/ui';
+import {
+  controlStyle,
+  errorIdOf,
+  FormField,
+  formRowStyle,
+  SelectField,
+  TextareaField,
+} from '../../../shared/ui';
 import { FormPageShell, useCrudForm } from '../../../shared/crud';
 import { historyAdapter } from './data-source';
 import { CONTENT_MAX_LENGTH, YEAR_MAX, YEAR_MIN } from './types';
 import type { HistoryInput, HistoryItem } from './types';
 import { historySchema } from './validation';
 import type { HistoryFormValues } from './validation';
-import { cssVar } from '@tds/ui';
-
 const ENTITY_LABEL = '연혁';
 const LIST_PATH = '/company/history';
 const UNSAVED_MESSAGE =
-  '연혁에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
-};
+  '연혁에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const MONTHS = Array.from({ length: 12 }, (_, index) => index + 1);
 
@@ -68,7 +65,7 @@ export default function HistoryFormPage() {
     <FormPageShell
       entityLabel={ENTITY_LABEL}
       cardTitle="연혁 정보"
-      description="별표(*) 항목은 필수입니다. 연도·월과 내용을 입력하세요."
+      description="별표(*) 항목은 필수예요. 연도·월과 내용을 입력하세요."
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
@@ -82,7 +79,7 @@ export default function HistoryFormPage() {
       unsavedMessage={UNSAVED_MESSAGE}
       onSubmit={submit}
     >
-      <div style={rowStyle}>
+      <div style={formRowStyle}>
         <FormField
           htmlFor="history-year"
           label="연도"

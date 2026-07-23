@@ -20,11 +20,8 @@
  * 같은 규칙). 스토리는 판정 기준 시각을 `NOW` 로 고정한다 — `new Date()` 를 읽으면 회귀 비교가
  * 매일 깨진다.
  *
- * [첨부는 참조다 — 그래서 '삭제됨' 과 '확인 불가' 가 다른 문구다] 첨부는 미디어 라이브러리의 자산
- * id 를 가리킨다(사본이 아니다). 그래야 라이브러리가 '이 파일이 어디에 쓰이는지' 를 답할 수 있고,
- * 그 답이 삭제 차단의 근거가 된다. 다만 참조는 끊길 수 있으므로 볼 때마다 조회해 판정한다.
- * 카탈로그를 못 읽은 상태(unknown)를 '삭제됨'(missing)으로 뭉개면 **배선 사고가 데이터 사고처럼
- * 보이고**, 운영자는 멀쩡한 첨부를 지우러 간다.
+ * [첨부 축은 없다] 예전에는 미디어 라이브러리의 자산을 첨부로 걸었다. 그 화면이 IA 에서 빠지면서
+ * 참조가 가리킬 정본이 사라졌고, 실화면과 함께 이 스토리에서도 첨부를 걷었다.
  *
  * [조립 원칙] `../../src` public DS 컴포넌트만 조합한다 — 신규 DS 컴포넌트를 만들지 않고
  * apps/admin 을 import 하지 않는다(레이어 경계). 앱 조각은 DS 표면으로 갈음한다:
@@ -39,7 +36,6 @@
  *   전체선택 / 행 선택칸       → SelectAllHeaderCell · RowSelectCell (+ tableSelectionState)
  *   순번 열                  → SeqHeaderCell · SeqCell
  *   고정 배지                → StatusBadge(info)
- *   첨부 배지(정상 / 확인 필요) → StatusBadge (neutral · danger)
  *   상태 배지(파생)           → StatusBadge
  *   행 액션(수정·삭제)        → RowActions
  *   선택 일괄 삭제 바         → SelectionBar + Button(danger)
@@ -54,7 +50,6 @@ import type { CSSProperties } from 'react';
 import { useMemo, useState } from 'react';
 
 import {
-  Alert,
   Button,
   ConfirmDialog,
   Empty as EmptyState,
@@ -138,8 +133,6 @@ interface DemoPost {
   readonly pinned: boolean;
   readonly status: StoredPublishStatus;
   readonly publishAt: string;
-  /** 미디어 라이브러리 자산 id — 파일을 복사해 들지 않는다(머리말) */
-  readonly attachmentIds: readonly string[];
   readonly updatedAt: string;
 }
 
@@ -151,7 +144,6 @@ const DEMO_POSTS: readonly DemoPost[] = [
     pinned: true,
     status: 'published',
     publishAt: '2026-05-12T09:00',
-    attachmentIds: ['md-005'],
     updatedAt: '2026-05-12T09:00',
   },
   {
@@ -161,7 +153,6 @@ const DEMO_POSTS: readonly DemoPost[] = [
     pinned: false,
     status: 'published',
     publishAt: '2026-04-03T10:00',
-    attachmentIds: ['md-003'],
     updatedAt: '2026-04-03T10:00',
   },
   {
@@ -171,7 +162,6 @@ const DEMO_POSTS: readonly DemoPost[] = [
     pinned: false,
     status: 'published',
     publishAt: '2026-02-20T14:00',
-    attachmentIds: [],
     updatedAt: '2026-02-20T14:00',
   },
   {
@@ -182,7 +172,6 @@ const DEMO_POSTS: readonly DemoPost[] = [
     status: 'published',
     // 미래 시각 — '예약' 상태 경로를 목록에서 실제로 밟게 하는 씨앗이다
     publishAt: '2026-12-15T09:00',
-    attachmentIds: [],
     updatedAt: '2026-07-01T11:20',
   },
   {
@@ -192,30 +181,9 @@ const DEMO_POSTS: readonly DemoPost[] = [
     pinned: false,
     status: 'draft',
     publishAt: '',
-    // 삭제된 자산을 가리킨다 — 끊긴 첨부 경고 경로를 화면에서 실제로 밟게 한다
-    attachmentIds: ['md-지워짐'],
     updatedAt: '2026-07-05T16:40',
   },
 ];
-
-/** 미디어 카탈로그 — 첨부가 살아 있는지 판정할 원본 */
-const MEDIA_CATALOG: readonly string[] = ['md-001', 'md-002', 'md-003', 'md-004', 'md-005'];
-
-const ATTACHMENT_UNKNOWN = '첨부파일 목록을 확인할 수 없습니다.';
-const ATTACHMENT_MISSING = '삭제된 파일을 가리키는 첨부가 있습니다.';
-
-/**
- * 지금 첨부에 문제가 있는가 — 없으면 null.
- * '모른다' 를 '삭제됨' 으로 뭉개지 않는다(머리말) — 문구가 다르면 운영자가 할 일도 달라진다.
- */
-function attachmentWarning(
-  attachmentIds: readonly string[],
-  catalog: readonly string[] | null,
-): string | null {
-  if (attachmentIds.length === 0) return null;
-  if (catalog === null) return ATTACHMENT_UNKNOWN;
-  return attachmentIds.some((id) => !catalog.includes(id)) ? ATTACHMENT_MISSING : null;
-}
 
 /**
  * 고정 → 발행일 내림차순(실화면 sortNewsPosts 미러).
@@ -362,7 +330,7 @@ const countBadgeStyle: CSSProperties = {
   justifyContent: 'center',
   boxSizing: 'border-box',
   minWidth: cssVar('space.5'),
-  height: cssVar('space.5'),
+  aspectRatio: '1',
   paddingLeft: cssVar('space.1'),
   paddingRight: cssVar('space.1'),
   borderRadius: cssVar('radius.full'),
@@ -460,8 +428,6 @@ interface NewsScreenProps {
   readonly initialStatus?: NewsStatusFilter;
   readonly initialCategoryId?: string;
   readonly initialSelectedIds?: readonly string[];
-  /** 미디어 카탈로그 조회기가 배선되지 않은 상태 — null 은 '삭제됨' 이 아니라 '모른다' 다 */
-  readonly catalogUnavailable?: boolean;
 }
 
 function NewsScreen({
@@ -470,7 +436,6 @@ function NewsScreen({
   initialStatus = 'all',
   initialCategoryId = CATEGORY_FILTER_ALL,
   initialSelectedIds = [],
-  catalogUnavailable = false,
 }: NewsScreenProps) {
   const [posts, setPosts] = useState<readonly DemoPost[]>(DEMO_POSTS);
   const [keyword, setKeyword] = useState(initialKeyword);
@@ -481,7 +446,6 @@ function NewsScreen({
   );
   const [confirming, setConfirming] = useState<DemoPost | null>(null);
 
-  const catalog = catalogUnavailable ? null : MEDIA_CATALOG;
   const counts = useMemo(() => countByCategory(posts), [posts]);
 
   // 정렬은 저장소가 이미 했지만, 필터가 걸린 뒤에도 같은 규칙이 유지되어야 한다
@@ -522,13 +486,8 @@ function NewsScreen({
     });
   };
 
-  const brokenAttachments = posts.filter(
-    (post) => attachmentWarning(post.attachmentIds, catalog) === ATTACHMENT_MISSING,
-  ).length;
-
   const rows: TableProps['rows'] = visible.map((post, index) => {
     const current = newsStatus(post);
-    const warning = attachmentWarning(post.attachmentIds, catalog);
     return {
       id: post.id,
       onActivate: () => {
@@ -549,16 +508,6 @@ function NewsScreen({
         <span key="title" style={titleCellStyle}>
           {post.pinned && <StatusBadge tone="info" label="고정" />}
           <span>{post.title}</span>
-          {post.attachmentIds.length > 0 &&
-            (warning === null ? (
-              <StatusBadge
-                key="attach-ok"
-                tone="neutral"
-                label={`첨부 ${fmt(post.attachmentIds.length)}`}
-              />
-            ) : (
-              <StatusBadge key="attach-warn" tone="danger" label="첨부 확인 필요" />
-            ))}
         </span>,
         <span key="category">{categoryLabelOf(post.categoryId)}</span>,
         <StatusBadge
@@ -595,14 +544,7 @@ function NewsScreen({
 
   return (
     <div style={layoutStyle}>
-      <Panel
-        notice={
-          <p style={noticeStyle}>
-            목록은 고정 글이 먼저, 그 다음 발행일 순입니다. 첨부파일은 미디어 라이브러리의 파일을
-            참조합니다.
-          </p>
-        }
-      >
+      <Panel notice={<p style={noticeStyle}>목록은 고정 글이 먼저, 그 다음 발행일 순이에요.</p>}>
         <nav style={filterNavStyle} aria-label="분류 필터">
           <h2 style={filterHeadingStyle}>분류</h2>
           <ul style={filterListStyle}>
@@ -659,14 +601,6 @@ function NewsScreen({
           {createButton}
         </div>
 
-        {/* 배선 사고(모른다)와 데이터 사고(삭제됨)를 다른 색·다른 문장으로 갈라 말한다 */}
-        {catalog === null && <Alert tone="warning">{ATTACHMENT_UNKNOWN}</Alert>}
-        {brokenAttachments > 0 && (
-          <Alert tone="danger">
-            {`${ATTACHMENT_MISSING} (${fmt(brokenAttachments)}건) 해당 글을 열어 첨부를 다시 고르거나 지워 주세요.`}
-          </Alert>
-        )}
-
         <p style={summaryStyle}>
           {loading ? '불러오는 중…' : `전체 ${fmt(visible.length)}건`}
           {selectedCount > 0 ? ` · ${fmt(selectedCount)}건 선택됨` : ''}
@@ -685,7 +619,7 @@ function NewsScreen({
 
         <div style={tableScrollStyle}>
           <Table
-            caption="뉴스·보도자료 목록 — 고정 글이 먼저, 그 다음 발행일 순입니다. 행을 누르면 수정으로 이동합니다."
+            caption="뉴스·보도자료 목록 — 고정 글이 먼저, 그 다음 발행일 순이에요. 행을 누르면 수정으로 이동해요."
             columns={COLUMNS}
             rows={rows}
             leadingHead={[
@@ -726,7 +660,7 @@ function NewsScreen({
         <ConfirmDialog
           intent="delete"
           title="뉴스 삭제"
-          message={`'${confirming.title}' 글을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${confirming.title}' 글을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="뉴스 삭제"
           onConfirm={() => {
             removePost(confirming.id);
@@ -739,10 +673,7 @@ function NewsScreen({
   );
 }
 
-/**
- * 정상: 고정 글이 발행일과 무관하게 맨 위에 서고, 미래 시각의 글은 '예약' 으로, 삭제된 자산을
- * 가리키는 초안은 '첨부 확인 필요' 로 표시된다.
- */
+/** 정상: 고정 글이 발행일과 무관하게 맨 위에 서고, 미래 시각의 글은 '예약' 으로 표시된다. */
 export const Default: Story = {
   render: () => <NewsScreen />,
 };
@@ -755,14 +686,6 @@ export const Loading: Story = {
 /** 예약 필터: 저장값은 '발행' 인데 아직 공개되지 않은 글 — 시각이 지나면 스스로 '발행' 이 된다 */
 export const Scheduled: Story = {
   render: () => <NewsScreen initialStatus="scheduled" />,
-};
-
-/**
- * 미디어 카탈로그 미배선: 첨부가 살아 있는지 **판정하지 못한 상태**다. '삭제됨' 이라고 말하지
- * 않는다 — 배선 사고를 데이터 사고처럼 그리면 운영자가 멀쩡한 첨부를 지우러 간다.
- */
-export const AttachmentUnknown: Story = {
-  render: () => <NewsScreen catalogUnavailable />,
 };
 
 /** 선택됨: 여러 행 선택 → SelectionBar(일괄 삭제) 노출 + 선택 행 강조 */

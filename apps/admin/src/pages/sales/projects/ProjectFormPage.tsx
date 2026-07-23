@@ -1,9 +1,15 @@
-// ProjectFormPage — 프로젝트 등록/수정 (라우트: /sales/projects/new · /:id/edit)
+// ProjectFormPage — 프로젝트 수정 (라우트: /sales/projects/:id/edit · /new 는 막힌다)
+//
+// [등록 모드가 사라졌다] 프로젝트는 **체결이 끝난 계약에서만** 만들어진다(./data-source 의
+// createProjectFromContract — 계약 상세의 '프로젝트 만들기' 가 그 유일한 문이다). 빈 폼으로 세운
+// 프로젝트는 근거가 되는 계약이 없어 '무슨 일을 왜 하고 있는가' 를 앱이 답하지 못한다. `/new` 는
+// 왜 여기서 만들 수 없는지와 만드는 곳을 말하는 화면으로 돌아간다(../_shared/ChainOnlyCreateNotice).
+// 수정은 그대로다 — 막은 것은 생성뿐이다.
 //
 // 데이터 배선은 공용 CRUD 프레임워크(useCrudForm)를 재사용하고, 화면은 입력 카드(기회정보·기간·진척·
 // 마일스톤·산출물) + 우측 파이프라인 스텝퍼/가중예상매출 미리보기 2단으로 구성한다. 검증은 ./validation.
 import type { CSSProperties } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { cssVar, Stepper } from '@tds/ui';
 
 import { formatNumber } from '../../../shared/format';
@@ -18,6 +24,7 @@ import {
   errorIdOf,
   fieldLabelStyle,
   FormField,
+  formRowStyle,
   Icon,
   pageTitleStyle,
   SelectField,
@@ -27,6 +34,7 @@ import {
 } from '../../../shared/ui';
 import { FormConflictDialog, FormServerError, useCrudForm } from '../../../shared/crud';
 import { AccountSelectField } from '../_shared/AccountSelectField';
+import { ChainOnlyCreateNotice } from '../_shared/ChainOnlyCreateNotice';
 import { formatWon } from '../_shared/business';
 import { projectAdapter } from './data-source';
 import { projectSchema } from './validation';
@@ -46,12 +54,14 @@ import type { Milestone, PipelineStage, Project, ProjectInput } from './types';
 const RESOURCE = 'sales-projects';
 const ENTITY_LABEL = '프로젝트';
 const LIST_PATH = '/sales/projects';
+/** 프로젝트를 실제로 만드는 곳 — 사슬 밖 생성 차단과 역링크가 가리키는 문 */
+const CONTRACT_PATH = '/sales/contracts';
 
 // DS Stepper 는 도메인을 모른다 — 흐름(정본은 PIPELINE_FLOW)을 라벨과 짝지어 넘긴다.
 // 실주는 흐름 밖 종료라 여기 없다: 호출부가 StatusBadge 로 따로 알린다.
 const PIPELINE_STEPS = PIPELINE_FLOW.map((stage) => ({ id: stage, label: stageLabel(stage) }));
 const UNSAVED_MESSAGE =
-  '프로젝트에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '프로젝트에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -101,12 +111,6 @@ const columnStyle: CSSProperties = {
   minWidth: 0,
 };
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
 const previewBodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
@@ -147,6 +151,8 @@ const EMPTY: ProjectFormValues = {
   deliverables: [],
   lostReason: '',
   note: '',
+  contractId: '',
+  contractTitle: '',
 };
 
 const digitsToNumber = (raw: string): number => {
@@ -175,6 +181,9 @@ function toInput(values: ProjectFormValues): ProjectInput {
     deliverables: values.deliverables.map((item) => item.trim()).filter((item) => item !== ''),
     lostReason: values.stage === 'lost' ? values.lostReason.trim() : '',
     note: values.note.trim(),
+    // 사람이 고치는 값이 아니다 — 계약에서 승계한 참조를 저장 왕복에서 그대로 보존한다.
+    contractId: values.contractId,
+    contractTitle: values.contractTitle,
   };
 }
 
@@ -194,6 +203,8 @@ function toValues(project: Project): ProjectFormValues {
     deliverables: [...project.deliverables],
     lostReason: project.lostReason,
     note: project.note,
+    contractId: project.contractId,
+    contractTitle: project.contractTitle,
   };
 }
 
@@ -246,6 +257,18 @@ export default function ProjectFormPage() {
     setValue('probability', String(defaultProbability(next)), { shouldDirty: true });
   };
 
+  // [사슬 밖 생성 차단] 프로젝트는 체결이 끝난 계약에서만 만들어진다 — 이 화면 머리말 참조.
+  if (!isEdit) {
+    return (
+      <ChainOnlyCreateNotice
+        title="프로젝트 등록"
+        reason="프로젝트는 계약에서 만들어져요. 체결이 끝난 계약(진행중 · 서명완료) 상세에서 ‘프로젝트 만들기’를 누르세요."
+        source={{ to: CONTRACT_PATH, label: '계약 목록으로' }}
+        list={{ to: LIST_PATH, label: '프로젝트 목록으로' }}
+      />
+    );
+  }
+
   // [EXC-12] 404 와 서버 오류는 복구 수단이 다르다 — 이미 삭제된 항목에 '다시 시도'를 권하면
   // 영원히 실패하는 버튼을 누르게 된다.
   if (loadFailure !== null) {
@@ -255,8 +278,8 @@ export default function ProjectFormPage() {
           <div style={alertActionRowStyle}>
             <span>
               {loadFailure === 'not-found'
-                ? '프로젝트 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '프로젝트 불러오지 못했습니다.'}
+                ? '프로젝트 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '프로젝트 불러오지 못했어요.'}
             </span>
             {loadFailure === 'error' && (
               <Button variant="secondary" onClick={retryLoad}>
@@ -285,11 +308,36 @@ export default function ProjectFormPage() {
       </button>
 
       <div>
-        <h1 style={pageTitleStyle}>{isEdit ? '프로젝트 수정' : '프로젝트 등록'}</h1>
+        <h1 style={pageTitleStyle}>프로젝트 수정</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 단계를 바꾸면 확률이 기본값으로 채워집니다.
+          별표(*) 항목은 필수예요. 단계를 바꾸면 확률이 기본값으로 채워져요.
         </p>
       </div>
+
+      {/* 원 계약으로 가는 역링크 — 계약 ↔ 프로젝트는 양방향이다(계약 → 견적과 같은 모양) */}
+      {watch('contractId') !== '' && (
+        <Alert tone="info">
+          <div style={alertActionRowStyle}>
+            <span>{`원 계약 '${watch('contractTitle')}' 에서 만든 프로젝트예요. 거래처·기간·예상매출은 계약을 따라요.`}</span>
+            <Link
+              to={`${CONTRACT_PATH}/${watch('contractId')}/edit`}
+              className="tds-ui-link tds-ui-focusable"
+            >
+              원 계약 보기
+            </Link>
+          </div>
+        </Alert>
+      )}
+
+      {/* [어긋난 옛 데이터] 이 규칙(프로젝트는 계약에서만 생긴다) 이전에 만들어진 프로젝트는
+          계약 참조가 없다(픽스처의 prj-1~3). 조용히 정상인 척하지 않되 지우지도 않는다 — 실제로
+          진행 중인 일이고, 소급해서 계약을 지어내면 없던 계약이 하나 생긴다. */}
+      {watch('contractId') === '' && (
+        <Alert tone="warning">
+          계약 없이 등록된 프로젝트예요. 이 규칙(프로젝트는 계약에서만 만든다)이 생기기 전의
+          기록이라 원 계약으로 가는 길이 없어요. 프로젝트 내용은 그대로 수정할 수 있어요.
+        </Alert>
+      )}
 
       <form onSubmit={submit} noValidate style={pageStyle}>
         <FormServerError serverError={serverError} errorReference={errorReference} />
@@ -338,7 +386,7 @@ export default function ProjectFormPage() {
                 }}
               />
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="project-owner" label="담당자">
                   <input
                     id="project-owner"
@@ -352,7 +400,7 @@ export default function ProjectFormPage() {
                 </FormField>
               </div>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="project-stage" label="단계" required>
                   <SelectField
                     id="project-stage"

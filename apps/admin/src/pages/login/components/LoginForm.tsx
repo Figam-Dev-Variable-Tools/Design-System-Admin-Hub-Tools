@@ -22,7 +22,7 @@
 //      정확히 같은 문제다.
 //   2. 지목 사유였던 "이 폼이 인증 엔드포인트·세션·returnUrl 을 안다" 는 **사실이 아니다.**
 //      실측: 이 파일에는 fetch 도 세션도 returnUrl 도 없다. 전부 LoginPage 가 소유한다
-//      (./api.ts · ./session.ts · resolveReturnUrl · ALERT_MESSAGES). 이 컴포넌트는 값과
+//      (../api.ts · ../session.ts · resolveReturnUrl · ALERT_MESSAGES). 이 컴포넌트는 값과
 //      콜백만 받는 순수 프레젠테이션이고, 그 경계는 이 파일 머리말이 이미 선언하고 있다.
 //   3. 성격이 컴포넌트가 아니라 **페이지 템플릿**이다. templates 계층은 현재 실체 0이고
 //      그 설계는 아직 열려 있다 — 지금 molecules/organisms 에 밀어 넣으면 오분류가 된다.

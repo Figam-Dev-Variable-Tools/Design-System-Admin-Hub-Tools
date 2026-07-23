@@ -33,6 +33,7 @@ import {
   Button,
   Card,
   FormField,
+  formRowStyle,
   Icon,
   SelectField,
   StatusBadge,
@@ -241,7 +242,7 @@ interface FieldErrors {
 
 const DEMO_ERRORS: FieldErrors = {
   name: '상호를 입력하세요.',
-  bizNo: '올바른 사업자등록번호가 아닙니다. (000-00-00000)',
+  bizNo: '올바른 사업자등록번호가 아니에요. (000-00-00000)',
   ceoName: '대표자명을 입력하세요.',
   contacts: '담당자 이름을 입력하세요.',
 };
@@ -316,12 +317,6 @@ const cardTitleStyle: CSSProperties = {
   color: cssVar('color.text.default'),
 };
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
 const controlBaseStyle: CSSProperties = {
   width: '100%',
   boxSizing: 'border-box',
@@ -383,13 +378,6 @@ const contactGroupStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: cssVar('space.3'),
-};
-
-const contactRowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 3), 1fr))`,
-  gap: cssVar('space.2'),
-  alignItems: 'end',
 };
 
 const contactCellStyle: CSSProperties = {
@@ -578,13 +566,13 @@ function ContactsField({ contacts, disabled, error, onChange }: ContactsFieldPro
     <div style={contactGroupStyle}>
       <span style={fieldLabelStyle}>담당자 *</span>
       <p style={hintStyle}>
-        {`거래처 담당자를 등록하세요. 대표담당 1명이 목록·견적서에 노출됩니다. (최대 ${String(ACCOUNT_MAX_CONTACTS)}명)`}
+        {`거래처 담당자를 등록하세요. 대표담당 1명이 목록·견적서에 노출돼요. (최대 ${String(ACCOUNT_MAX_CONTACTS)}명)`}
       </p>
 
       <div style={contactsRowsStyle}>
         {contacts.map((contact, index) => (
           <div key={contact.id} style={contactGroupStyle}>
-            <div style={contactRowStyle}>
+            <div style={formRowStyle}>
               <ContactCell
                 id={`contact-name-${contact.id}`}
                 label={`담당자 ${String(index + 1)} 이름`}
@@ -785,7 +773,7 @@ function AccountFormScreen({
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '거래처 수정' : '거래처 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 사업자등록번호는 국세청 형식으로 검증됩니다.
+          별표(*) 항목은 필수예요. 사업자등록번호는 국세청 형식으로 검증돼요.
         </p>
       </div>
 
@@ -812,7 +800,7 @@ function AccountFormScreen({
                 />
               </FormField>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField
                   htmlFor="account-biz-no"
                   label="사업자등록번호"
@@ -851,7 +839,7 @@ function AccountFormScreen({
                 </FormField>
               </div>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="account-biz-type" label="업태">
                   <input
                     id="account-biz-type"
@@ -916,7 +904,7 @@ function AccountFormScreen({
             </FormCard>
 
             <FormCard title="거래 조건">
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="account-trade-type" label="거래유형" required>
                   <SelectField
                     id="account-trade-type"
@@ -947,7 +935,7 @@ function AccountFormScreen({
                 </FormField>
               </div>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField
                   htmlFor="account-credit-limit"
                   label="여신한도 (원)"

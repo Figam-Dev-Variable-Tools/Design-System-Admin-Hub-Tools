@@ -229,14 +229,14 @@ export function OgCardPreview({
 
       <div style={ogCardStyle} aria-hidden="true">
         {imageUrl === '' ? (
-          <span style={ogImageEmptyStyle}>대표 이미지가 없습니다</span>
+          <span style={ogImageEmptyStyle}>대표 이미지가 없어요</span>
         ) : (
           <img src={imageUrl} alt="" style={ogImageStyle} />
         )}
         <div style={ogBodyStyle}>
           <span style={ogTitleStyle}>{siteName === '' ? '사이트 이름' : siteName}</span>
           <span style={ogDescriptionStyle}>
-            {siteDescription === '' ? '사이트 설명이 비어 있습니다.' : siteDescription}
+            {siteDescription === '' ? '사이트 설명이 비어 있어요.' : siteDescription}
           </span>
           <span style={ogUrlStyle}>{siteUrl}</span>
         </div>

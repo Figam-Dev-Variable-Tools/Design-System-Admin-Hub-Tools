@@ -131,12 +131,12 @@ const PAYMENT_METHOD_LABEL: Readonly<Record<PaymentMethod, string>> = {
 const ORDER_NOTE_MAX = 500;
 const ORDER_CANCEL_REASON_MAX = 200;
 
-const TRANSITION_CANCELED = '취소된 주문은 상태를 바꿀 수 없습니다.';
-const TRANSITION_CONFIRMED = '구매확정된 주문은 더 이상 진행할 단계가 없습니다.';
-const TRANSITION_BACKWARD = '주문 상태는 되돌릴 수 없습니다.';
-const TRANSITION_UNPAID = '입금이 확인되지 않아 배송 단계로 넘길 수 없습니다.';
-const CANCEL_SHIPPED = '배송이 시작된 주문은 취소할 수 없습니다. 교환/반품으로 접수해 주세요.';
-const CANCEL_DONE = '이미 취소된 주문입니다.';
+const TRANSITION_CANCELED = '취소된 주문은 상태를 바꿀 수 없어요.';
+const TRANSITION_CONFIRMED = '구매확정된 주문은 더 이상 진행할 단계가 없어요.';
+const TRANSITION_BACKWARD = '주문 상태는 되돌릴 수 없어요.';
+const TRANSITION_UNPAID = '입금이 확인되지 않아 배송 단계로 넘길 수 없어요.';
+const CANCEL_SHIPPED = '배송이 시작된 주문은 취소할 수 없어요. 교환/반품으로 접수해 주세요.';
+const CANCEL_DONE = '이미 취소된 주문이에요.';
 
 /** 재고를 언제 빼는가 — 카페24가 실제로 갖는 스위치. 이 픽스처의 설정은 '입금 확인 시' 다 */
 const STOCK_DEDUCT_LABEL = '입금 확인 시';
@@ -584,7 +584,7 @@ function toTimelineEvents(order: DemoOrder): TimelineProps['events'] {
 function cancelReasonError(value: string): string | null {
   if (value.trim() === '') return '취소 사유를 입력하세요.';
   if (value.trim().length > ORDER_CANCEL_REASON_MAX) {
-    return `취소 사유는 ${fmt(ORDER_CANCEL_REASON_MAX)}자를 넘을 수 없습니다.`;
+    return `취소 사유는 ${fmt(ORDER_CANCEL_REASON_MAX)}자를 넘을 수 없어요.`;
   }
   return null;
 }
@@ -830,7 +830,7 @@ function OrderDetailScreen({
       >
         {canceled && (
           <Alert tone="warning">
-            {`${formatDateTime(order.canceledAt)}에 취소된 주문입니다. 사유: ${order.cancelReason}`}
+            {`${formatDateTime(order.canceledAt)}에 취소된 주문이에요. 사유: ${order.cancelReason}`}
           </Alert>
         )}
 
@@ -843,7 +843,7 @@ function OrderDetailScreen({
           {/* 차감 시점은 설정값이다 — 지금 규칙과 실제 결과를 나란히 보여야 '왜 아직 안 빠졌나' 에 답한다 */}
           <dd style={ddStyle}>
             {order.stockAppliedAt === ''
-              ? `아직 차감되지 않았습니다 (설정: ${STOCK_DEDUCT_LABEL})`
+              ? `아직 차감되지 않았어요 (설정: ${STOCK_DEDUCT_LABEL})`
               : `${formatDateTime(order.stockAppliedAt)} 차감 (설정: ${STOCK_DEDUCT_LABEL})`}
           </dd>
           {order.stockRestoredAt !== '' && (
@@ -854,9 +854,7 @@ function OrderDetailScreen({
           )}
         </dl>
 
-        {!canUpdate && (
-          <Alert tone="info">이 주문을 처리할 권한이 없습니다. 조회만 가능합니다.</Alert>
-        )}
+        {!canUpdate && <Alert tone="info">이 주문을 처리할 권한이 없어요. 조회만 가능해요.</Alert>}
 
         {canUpdate && (
           <div style={spreadActionsStyle}>
@@ -916,19 +914,19 @@ function OrderDetailScreen({
       <DetailCard title="주문 품목">
         {/* 값은 주문 시점의 스냅숏이다 — 상품을 고쳐도 이 표는 움직이지 않는다 */}
         <p style={hintStyle}>
-          상품명·옵션·단가는 주문 시점에 복사된 값입니다. 상품을 수정해도 지난 주문의 금액은 바뀌지
-          않습니다.
+          상품명·옵션·단가는 주문 시점에 복사된 값이에요. 상품을 수정해도 지난 주문의 금액은 바뀌지
+          않아요.
         </p>
         <div style={tableScrollStyle}>
           <Table
-            caption="주문 품목 — 주문 시점의 상품명·옵션·단가와 수량별 금액입니다."
+            caption="주문 품목 — 주문 시점의 상품명·옵션·단가와 수량별 금액이에요."
             columns={LINE_COLUMNS}
             rows={lineRows}
-            empty="주문 품목이 없습니다."
+            empty="주문 품목이 없어요."
           />
         </div>
         <p style={hintStyle}>
-          {`적립 예정 ${fmt(amounts.point)}원 — 주문 시점의 적립률로 계산합니다.`}
+          {`적립 예정 ${fmt(amounts.point)}원 — 주문 시점의 적립률로 계산해요.`}
         </p>
       </DetailCard>
 
@@ -961,7 +959,7 @@ function OrderDetailScreen({
         <Timeline
           events={toTimelineEvents(order)}
           label="주문 처리 이력"
-          emptyLabel="기록된 처리 이력이 없습니다."
+          emptyLabel="기록된 처리 이력이 없어요."
         />
       </DetailCard>
 
@@ -991,8 +989,8 @@ function OrderDetailScreen({
           title={pending.kind === 'paid' ? '입금 확인' : `${ORDER_STATUS_LABEL[pending.to]} 처리`}
           message={
             pending.kind === 'paid'
-              ? `입금을 확인 처리합니다. 재고 차감 시점이 '${STOCK_DEDUCT_LABEL}'이면 이 시점에 재고가 빠지며, 되돌릴 수 없습니다.`
-              : `주문 ${order.id}을(를) ${ORDER_STATUS_LABEL[pending.to]}(으)로 진행합니다. 주문 상태는 되돌릴 수 없습니다.`
+              ? `입금을 확인 처리해요. 재고 차감 시점이 '${STOCK_DEDUCT_LABEL}'이면 이 시점에 재고가 빠지며, 되돌릴 수 없어요.`
+              : `주문 ${order.id}을(를) ${ORDER_STATUS_LABEL[pending.to]}(으)로 진행해요. 주문 상태는 되돌릴 수 없어요.`
           }
           confirmLabel={pending.kind === 'paid' ? '입금 확인' : '진행'}
           onConfirm={() => setPending(null)}
@@ -1036,7 +1034,7 @@ function OrderDetailScreen({
           }
         >
           <p style={fieldLabelStyle}>
-            {`주문 ${order.id}을(를) 취소합니다. 취소는 되돌릴 수 없으며, 이미 차감된 재고는 자동으로 복원됩니다.`}
+            {`주문 ${order.id}을(를) 취소해요. 취소는 되돌릴 수 없으며, 이미 차감된 재고는 자동으로 복원돼요.`}
           </p>
           <TextareaField
             label="취소 사유"

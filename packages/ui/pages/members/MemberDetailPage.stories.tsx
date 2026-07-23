@@ -543,7 +543,7 @@ function PointsCard() {
         onChange={setPage}
       />
 
-      <p style={mutedTextStyle}>최근 3개월간 적립 내역만 출력됩니다.</p>
+      <p style={mutedTextStyle}>최근 3개월간 적립 내역만 출력돼요.</p>
     </DetailCard>
   );
 }
@@ -630,7 +630,7 @@ function MemoCard() {
         onChange={setMemo}
         maxLength={MEMO_MAX_LENGTH}
         rows={5}
-        hint="회원 본인에게는 보이지 않는 운영 메모입니다."
+        hint="회원 본인에게는 보이지 않는 운영 메모예요."
         placeholder="회원 응대 시 참고할 내용을 입력하세요."
       />
       <div style={memoFooterStyle}>
@@ -754,7 +754,7 @@ function MemberDetailScreen({ loading = false }: { loading?: boolean }) {
 
       {/* 비밀번호 변경은 실화면에서 모달로 뜬다 — 조립 데모에서는 안내 배지로 열림 상태만 표시 */}
       {changingPassword ? (
-        <p style={mutedTextStyle}>비밀번호 변경 모달이 열립니다. (조립 데모 — 실화면은 모달)</p>
+        <p style={mutedTextStyle}>비밀번호 변경 모달이 열려요. (조립 데모 — 실화면은 모달)</p>
       ) : null}
     </div>
   );

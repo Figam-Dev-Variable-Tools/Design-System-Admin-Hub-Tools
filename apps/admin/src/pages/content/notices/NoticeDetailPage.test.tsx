@@ -30,7 +30,7 @@ const NOTICE: Notice = {
   author: '관리자',
   publishedAtIso: '2026-01-02T03:04:05.000Z',
   views: 12,
-  body: '7월 20일 02:00 ~ 04:00 사이 정기 점검이 있습니다.',
+  body: '7월 20일 02:00 ~ 04:00 사이 정기 점검이 있어요.',
 };
 
 // fetchNotice 만 바꾼다 — 픽스처·상수·라벨은 진짜를 그대로 쓴다(importOriginal).
@@ -119,7 +119,7 @@ describe('NoticeDetailPage — 재조회가 본문을 지우지 않는다 (STATE
     // 고치기 전 코드(`loading || data === undefined`)는 이 단언에서 죽는다.
     expect(skeletonCount()).toBe(0);
     expect(screen.getByText('서비스 점검 안내')).not.toBeNull();
-    expect(screen.getByText(/정기 점검이 있습니다/)).not.toBeNull();
+    expect(screen.getByText(/정기 점검이 있어요/)).not.toBeNull();
 
     releaseSecondFetch(NOTICE);
     await waitFor(() => {

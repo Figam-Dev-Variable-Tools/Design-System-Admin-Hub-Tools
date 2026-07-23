@@ -269,8 +269,8 @@ export function ModePicker({ modeId, onChange }: ModePickerProps) {
           <li>
             <p id={lockNoteId} style={noteStyle}>
               {lockedModes.length === 0
-                ? `${providerNames.join(' · ')} 연동됨 — 모든 응답 모드를 고를 수 있습니다.`
-                : `${lockReason} 규칙 기반 조회는 연동 없이도 동작합니다.`}
+                ? `${providerNames.join(' · ')} 연동됨 — 모든 응답 모드를 고를 수 있어요.`
+                : `${lockReason} 규칙 기반 조회는 연동 없이도 동작해요.`}
             </p>
           </li>
 

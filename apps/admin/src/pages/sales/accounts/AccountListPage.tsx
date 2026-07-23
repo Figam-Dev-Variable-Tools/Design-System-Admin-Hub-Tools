@@ -11,18 +11,12 @@ import { useEffect, useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import {
-  Button,
-  Icon,
-  SearchField,
-  SelectField,
-  StatusBadge,
-  ToggleSwitch,
-} from '../../../shared/ui';
+import { Button, Icon, SearchField, SelectField, StatusBadge } from '../../../shared/ui';
 import {
   CrudListShell,
   DetailCellLink,
   parseFilter,
+  RowToggle,
   useCrudList,
   useCrudRowUpdate,
   useListState,
@@ -160,17 +154,18 @@ export default function AccountListPage() {
       header: '상태',
       nowrap: true,
       render: (item) => (
-        <ToggleSwitch
+        <RowToggle
           checked={item.active}
           busy={toggle.pendingId === item.id}
+          canUpdate={toggle.canUpdate}
           onChange={(next) =>
             toggle.run(
               item.id,
               { ...toAccountInput(item), active: next },
               {
                 success: next
-                  ? `'${item.name}'${objectParticle(item.name)} 거래중으로 바꿨습니다.`
-                  : `'${item.name}' 거래를 중지했습니다.`,
+                  ? `'${item.name}'${objectParticle(item.name)} 거래중으로 바꿨어요.`
+                  : `'${item.name}' 거래를 중지했어요.`,
               },
             )
           }

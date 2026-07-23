@@ -34,6 +34,7 @@ import {
   FileChip,
   FileDropzone,
   FormField,
+  formRowStyle,
   Icon,
   SelectField,
   Skeleton,
@@ -209,12 +210,6 @@ const cardTitleStyle: CSSProperties = {
   color: cssVar('color.text.default'),
 };
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
 const fieldStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
@@ -368,7 +363,7 @@ function DownloadPreview({
       </div>
       <h3 style={previewTitleStyle}>{title.trim() === '' ? '제목을 입력하세요' : title}</h3>
       {fileName.trim() === '' ? (
-        <span style={previewMutedStyle}>첨부 파일이 없습니다.</span>
+        <span style={previewMutedStyle}>첨부 파일이 없어요.</span>
       ) : (
         <span style={previewFileStyle}>
           <Icon name="download" />
@@ -415,8 +410,8 @@ function DownloadFormScreen({
           <div style={alertActionRowStyle}>
             <span>
               {loadFailure === 'not-found'
-                ? '자료를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '자료를 불러오지 못했습니다.'}
+                ? '자료를 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '자료를 불러오지 못했어요.'}
             </span>
             {loadFailure === 'error' && <Button variant="secondary">다시 시도</Button>}
             <Button variant="secondary">목록으로</Button>
@@ -439,7 +434,7 @@ function DownloadFormScreen({
 
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '자료 수정' : '자료 등록'}</h1>
-        <p style={descriptionStyle}>별표(*) 항목은 필수입니다. 배포할 파일을 첨부하세요.</p>
+        <p style={descriptionStyle}>별표(*) 항목은 필수예요. 배포할 파일을 첨부하세요.</p>
       </div>
 
       <form onSubmit={(event) => event.preventDefault()} noValidate style={pageStyle}>
@@ -464,7 +459,7 @@ function DownloadFormScreen({
                   error={errors.title ?? ''}
                 />
 
-                <div style={rowStyle}>
+                <div style={formRowStyle}>
                   <FormField htmlFor="download-category" label="카테고리" required>
                     <SelectField
                       id="download-category"

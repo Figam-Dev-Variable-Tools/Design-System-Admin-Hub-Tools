@@ -21,10 +21,10 @@ function Triggers() {
   const toast = useToast();
   return (
     <>
-      <button type="button" onClick={() => toast.success('저장했습니다.')}>
+      <button type="button" onClick={() => toast.success('저장했어요.')}>
         성공
       </button>
-      <button type="button" onClick={() => toast.error('저장하지 못했습니다.')}>
+      <button type="button" onClick={() => toast.error('저장하지 못했어요.')}>
         실패
       </button>
     </>
@@ -34,7 +34,7 @@ function Triggers() {
 /** aria-live 값으로 라이브 영역을 집는다 (assertive 영역은 role 이 없으므로 role 로 못 집는다) */
 function regionOf(container: HTMLElement, live: 'polite' | 'assertive'): HTMLElement {
   const el = container.querySelector<HTMLElement>(`[aria-live="${live}"]`);
-  if (el === null) throw new Error(`aria-live="${live}" 라이브 영역이 없습니다`);
+  if (el === null) throw new Error(`aria-live="${live}" 라이브 영역이 없어요`);
   return el;
 }
 
@@ -75,7 +75,7 @@ describe('ToastProvider — A11Y-01 persistent live regions', () => {
 
     await userEvent.click(screen.getByRole('button', { name: '성공' }));
 
-    expect(regionOf(container, 'polite').textContent).toContain('저장했습니다.');
+    expect(regionOf(container, 'polite').textContent).toContain('저장했어요.');
     expect(regionOf(container, 'assertive').textContent).toBe('');
   });
 
@@ -88,7 +88,7 @@ describe('ToastProvider — A11Y-01 persistent live regions', () => {
 
     await userEvent.click(screen.getByRole('button', { name: '실패' }));
 
-    expect(regionOf(container, 'assertive').textContent).toContain('저장하지 못했습니다.');
+    expect(regionOf(container, 'assertive').textContent).toContain('저장하지 못했어요.');
     expect(regionOf(container, 'polite').textContent).toBe('');
   });
 
@@ -104,9 +104,9 @@ describe('ToastProvider — A11Y-01 persistent live regions', () => {
 
     const polite = regionOf(container, 'polite');
     const assertive = regionOf(container, 'assertive');
-    expect(polite.textContent).toContain('저장했습니다.');
-    expect(polite.textContent).not.toContain('저장하지 못했습니다.');
-    expect(assertive.textContent).toContain('저장하지 못했습니다.');
-    expect(assertive.textContent).not.toContain('저장했습니다.');
+    expect(polite.textContent).toContain('저장했어요.');
+    expect(polite.textContent).not.toContain('저장하지 못했어요.');
+    expect(assertive.textContent).toContain('저장하지 못했어요.');
+    expect(assertive.textContent).not.toContain('저장했어요.');
   });
 });

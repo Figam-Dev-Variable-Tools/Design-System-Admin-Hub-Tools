@@ -38,6 +38,8 @@ import {
   Card,
   ConfirmDialog,
   FormField,
+  inlineBadgeRowStyle,
+  formRowStyle,
   Icon,
   SelectField,
   StatusBadge,
@@ -352,13 +354,6 @@ const ddStyle: CSSProperties = {
   overflowWrap: 'anywhere',
 };
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
-  alignItems: 'start',
-};
-
 const composerFieldStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
@@ -444,7 +439,7 @@ function TicketDetailScreen({ state }: { state: ScreenState }) {
   const [confirmClose, setConfirmClose] = useState(state === 'closing');
 
   const serverError =
-    state === 'serverError' ? '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.' : null;
+    state === 'serverError' ? '저장하지 못했어요. 잠시 후 다시 시도해 주세요.' : null;
 
   const statusOptions = allowedNextStatuses(TICKET.status);
   const assigneeRequiredError =
@@ -484,7 +479,7 @@ function TicketDetailScreen({ state }: { state: ScreenState }) {
         <h1 style={pageTitleStyle}>문의 처리</h1>
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>문의를 불러오지 못했습니다.</span>
+            <span>문의를 불러오지 못했어요.</span>
             <Button variant="secondary">목록으로</Button>
           </div>
         </Alert>
@@ -513,13 +508,13 @@ function TicketDetailScreen({ state }: { state: ScreenState }) {
         {/* 좌측 — 문의 정보 + 처리(담당·상태·답변/메모 작성) */}
         <WorkCard
           title={
-            <>
+            <span style={inlineBadgeRowStyle}>
               {TICKET.title}
               <StatusBadge
                 tone={priorityTone(TICKET.priority)}
                 label={PRIORITY_LABEL[TICKET.priority]}
               />
-            </>
+            </span>
           }
         >
           {serverError !== null && <Alert tone="danger">{serverError}</Alert>}
@@ -546,7 +541,7 @@ function TicketDetailScreen({ state }: { state: ScreenState }) {
             <dd style={ddStyle}>{TICKET.body}</dd>
           </dl>
 
-          <div style={rowStyle}>
+          <div style={formRowStyle}>
             <TextField
               id="ticket-assignee"
               label="담당 배정"
@@ -616,7 +611,7 @@ function TicketDetailScreen({ state }: { state: ScreenState }) {
               rows={4}
               placeholder={
                 composerKind === 'reply'
-                  ? '고객에게 전달할 답변을 입력하세요. 템플릿을 골라 채운 뒤 수정할 수 있습니다.'
+                  ? '고객에게 전달할 답변을 입력하세요. 템플릿을 골라 채운 뒤 수정할 수 있어요.'
                   : '내부 공유용 처리 메모를 입력하세요.'
               }
             />
@@ -651,7 +646,7 @@ function TicketDetailScreen({ state }: { state: ScreenState }) {
         <ConfirmDialog
           intent="update"
           title="문의 종결"
-          message={`'${TICKET.ticketNo}' 문의를 종결합니다. 종결한 문의는 다시 열 수 없으며, 추가 문의는 새 문의로 접수해야 합니다.`}
+          message={`'${TICKET.ticketNo}' 문의를 종결해요. 종결한 문의는 다시 열 수 없으며, 추가 문의는 새 문의로 접수해야 해요.`}
           confirmLabel="종결"
           onConfirm={() => setConfirmClose(false)}
           onCancel={() => setConfirmClose(false)}

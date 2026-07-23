@@ -78,7 +78,7 @@ describe('NewChatPage — 사용자 예시 질의', () => {
     await ask(QUESTION);
 
     // 픽스처 규칙상 등급 VIP(i%5==0, i%17!=0) ∩ 누적구매>0(i%11==0) = i%55==0 → 9명
-    expect(await screen.findByText('회원 목록 9건을 찾았습니다.')).not.toBeNull();
+    expect(await screen.findByText('회원 목록 9건을 찾았어요.')).not.toBeNull();
     expect(screen.getByText('조건 — 등급 VIP · 누적 구매액 있음')).not.toBeNull();
 
     // 표의 값이 실제 픽스처 행이어야 한다 — 등급 칸이 전부 VIP 다
@@ -112,7 +112,7 @@ describe('NewChatPage — 알아듣지 못한 요청', () => {
     renderPage();
     await ask('이번달 매출이 왜 떨어졌어?');
 
-    expect(await screen.findByText('어떤 데이터를 봐야 할지 알 수 없습니다.')).not.toBeNull();
+    expect(await screen.findByText('어떤 데이터를 봐야 할지 알 수 없어요.')).not.toBeNull();
     // 표가 없어야 한다 — 못 알아들은 요청에 결과를 지어내지 않는다
     expect(screen.queryByRole('table')).toBeNull();
   });
@@ -122,7 +122,7 @@ describe('NewChatPage — 알아듣지 못한 요청', () => {
     await ask('@배송목록 보여줘');
 
     expect(
-      await screen.findByText(/'@배송목록' 는 조회할 수 있는 데이터가 아닙니다/),
+      await screen.findByText(/'@배송목록' 는 조회할 수 있는 데이터가 아니에요/),
     ).not.toBeNull();
     expect(screen.queryByRole('table')).toBeNull();
   });
@@ -131,7 +131,7 @@ describe('NewChatPage — 알아듣지 못한 요청', () => {
     renderPage();
     await ask('@회원목록 이탈 원인 분석해줘');
 
-    expect(await screen.findByText(/이 화면이 할 수 없는 요청입니다/)).not.toBeNull();
+    expect(await screen.findByText(/이 화면이 할 수 없는 요청이에요/)).not.toBeNull();
     expect(screen.queryByRole('table')).toBeNull();
   });
 });
@@ -142,7 +142,7 @@ describe('NewChatPage — 결과가 0건', () => {
     // 오늘 가입한 VVIP — 픽스처의 가입일은 2026-06~07 범위라 '오늘'에는 걸리지 않는다
     await ask('@회원목록 오늘 가입한 VVIP 보여줘');
 
-    expect(await screen.findByText('회원 목록에서 조건에 맞는 대상이 없습니다.')).not.toBeNull();
+    expect(await screen.findByText('회원 목록에서 조건에 맞는 대상이 없어요.')).not.toBeNull();
     expect(screen.queryByRole('table')).toBeNull();
     expect(screen.getByRole('button', { name: /↳ 조건 없이/ })).not.toBeNull();
   });
@@ -157,7 +157,7 @@ describe('NewChatPage — 접근성', () => {
 
     await ask('@회원목록 VIP 보여줘');
     await waitFor(() => {
-      expect(status.textContent).toContain('응답이 도착했습니다');
+      expect(status.textContent).toContain('응답이 도착했어요');
     });
   });
 
@@ -175,7 +175,7 @@ describe('NewChatPage — 최초 로드가 빈 상태로 번쩍이지 않는다 
     // 먼저 대화를 하나 만들어 id 를 얻는다
     renderPage();
     await ask('@회원목록 VIP 보여줘');
-    await screen.findByText(/회원 목록 \d+건을 찾았습니다\./);
+    await screen.findByText(/회원 목록 \d+건을 찾았어요\./);
     const [conversation] = listConversations();
     expect(conversation).not.toBeUndefined();
 
@@ -198,7 +198,7 @@ describe('NewChatPage — 레일 검색어가 URL 에 실린다 (IA-13)', () => 
   it('`?q=` 로 들어오면 기록이 그 검색어로 좁혀진 채 복원된다', async () => {
     renderPage();
     await ask('@회원목록 VIP 보여줘');
-    await screen.findByText(/회원 목록 \d+건을 찾았습니다\./);
+    await screen.findByText(/회원 목록 \d+건을 찾았어요\./);
 
     cleanup();
     // 링크 공유·새로고침을 재현한다 — 검색어가 URL 에서 온다
@@ -207,7 +207,7 @@ describe('NewChatPage — 레일 검색어가 URL 에 실린다 (IA-13)', () => 
     const search = await screen.findByRole('searchbox', { name: '대화 검색' });
     expect(search).toHaveProperty('value', '없는검색어');
     await waitFor(() => {
-      expect(screen.getByText('검색 결과가 없습니다.')).not.toBeNull();
+      expect(screen.getByText('검색 결과가 없어요.')).not.toBeNull();
     });
   });
 });
@@ -216,7 +216,7 @@ describe('NewChatPage — 대화가 이어진다', () => {
   it('두 번 물으면 두 질문과 두 답이 모두 남는다', async () => {
     renderPage();
     await ask('@회원목록 VIP 보여줘');
-    await screen.findByText(/회원 목록 \d+건을 찾았습니다\./);
+    await screen.findByText(/회원 목록 \d+건을 찾았어요\./);
 
     await ask('@회원목록 VVIP 보여줘');
     await waitFor(() => {

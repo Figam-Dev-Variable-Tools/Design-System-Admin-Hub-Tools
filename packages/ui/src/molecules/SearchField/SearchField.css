@@ -44,6 +44,9 @@
   box-sizing: border-box;
   inline-size: 100%;
   min-inline-size: 0;
+  /* dense control 가족 공통 최소 높이 — 근거는 SelectField.css `min-block-size` 주석.
+     검색창은 목록 툴바에서 늘 드롭다운과 나란히 선다. */
+  min-block-size: var(--tds-space-8);
   padding-block: var(--tds-space-2);
   /* 아이콘 폭 + 좌우 여백만큼 시작쪽 패딩을 넓힌다 */
   padding-inline-start: calc(var(--tds-space-6) + var(--tds-space-3));

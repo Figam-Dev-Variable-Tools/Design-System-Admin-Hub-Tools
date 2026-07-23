@@ -140,7 +140,7 @@ export function AlimtalkItemsCard({ items, disabled, error, onChange }: Alimtalk
 
       {items.length === 0 ? (
         <p style={emptyStyle}>
-          {`아이템이 없습니다. 아래에서 추가하세요(최소 2개, 최대 ${String(ALIMTALK_ITEM_LIST_MAX)}개).`}
+          {`아이템이 없어요. 아래에서 추가하세요(최소 2개, 최대 ${String(ALIMTALK_ITEM_LIST_MAX)}개).`}
         </p>
       ) : (
         <div style={listStyle}>

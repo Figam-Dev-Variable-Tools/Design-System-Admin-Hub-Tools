@@ -71,6 +71,7 @@ import {
   tabId,
   tabPanelId,
   typography,
+  inlineBadgeRowStyle,
 } from '../../src';
 import type { StatusBadgeTone, TableProps } from '../../src';
 
@@ -188,7 +189,7 @@ const OPTIONAL_ONLY: readonly ConsentPurpose[] = ['marketing', 'privacy-optional
 /** 필수로 세울 수 없는 항목이면 그 사유, 세울 수 있으면 null */
 function forcedRequiredReason(item: ConsentItemDef): string | null {
   if (!OPTIONAL_ONLY.includes(item.purpose)) return null;
-  return `‘${item.label}’ 은 ${CONSENT_PURPOSE_LABEL[item.purpose]} 동의라 필수로 바꿀 수 없습니다. 이 동의를 강제하면 미동의 이용자의 가입이 막히고, 마케팅 수신 동의의 경우 최대 1,000만 원의 과태료 대상입니다.`;
+  return `‘${item.label}’ 은 ${CONSENT_PURPOSE_LABEL[item.purpose]} 동의라 필수로 바꿀 수 없어요. 이 동의를 강제하면 미동의 이용자의 가입이 막히고, 마케팅 수신 동의의 경우 최대 1,000만 원의 과태료 대상이에요.`;
 }
 
 /**
@@ -400,7 +401,7 @@ const TODAY = '2026-07-22';
 const MARKETING_EMAIL_ITEM: ConsentItemDef = {
   id: 'marketing-email',
   label: '광고성 정보 수신 동의 (이메일)',
-  description: '신규 상품·할인 소식을 이메일로 보냅니다.',
+  description: '신규 상품·할인 소식을 이메일로 보내요.',
   purpose: 'marketing',
   necessity: 'optional',
   termsTypeId: 'marketing',
@@ -411,7 +412,7 @@ const DEMO_ITEMS: readonly ConsentItemDef[] = [
   {
     id: 'terms-service',
     label: '이용약관 동의',
-    description: '서비스 이용에 필요한 기본 약관입니다.',
+    description: '서비스 이용에 필요한 기본 약관이에요.',
     purpose: 'service',
     necessity: 'required',
     termsTypeId: 'service',
@@ -420,7 +421,7 @@ const DEMO_ITEMS: readonly ConsentItemDef[] = [
   {
     id: 'privacy-essential',
     label: '개인정보 수집·이용 동의 (필수)',
-    description: '회원 식별·주문 처리에 필요한 최소 항목을 수집합니다.',
+    description: '회원 식별·주문 처리에 필요한 최소 항목을 수집해요.',
     purpose: 'privacy-essential',
     necessity: 'required',
     termsTypeId: null,
@@ -429,7 +430,7 @@ const DEMO_ITEMS: readonly ConsentItemDef[] = [
   {
     id: 'privacy-optional',
     label: '개인정보 수집·이용 동의 (선택)',
-    description: '맞춤 추천을 위한 관심 분야·생년월일을 추가로 수집합니다.',
+    description: '맞춤 추천을 위한 관심 분야·생년월일을 추가로 수집해요.',
     purpose: 'privacy-optional',
     necessity: 'optional',
     termsTypeId: null,
@@ -439,7 +440,7 @@ const DEMO_ITEMS: readonly ConsentItemDef[] = [
   {
     id: 'marketing-sms',
     label: '광고성 정보 수신 동의 (문자)',
-    description: '신규 상품·할인 소식을 문자로 보냅니다.',
+    description: '신규 상품·할인 소식을 문자로 보내요.',
     purpose: 'marketing',
     necessity: 'optional',
     termsTypeId: 'marketing',
@@ -797,10 +798,9 @@ const columnStyle: CSSProperties = {
 };
 
 const groupHeadStyle: CSSProperties = {
+  // 항목 이름 옆 배지 둘 — 간격의 정의는 DS 한 곳이다(@tds/ui inlineBadgeRowStyle)
+  ...inlineBadgeRowStyle,
   display: 'flex',
-  alignItems: 'center',
-  gap: cssVar('space.2'),
-  flexWrap: 'wrap',
   marginTop: cssVar('space.4'),
   marginBottom: cssVar('space.2'),
   marginLeft: 0,
@@ -854,12 +854,12 @@ function ConsentItemsPanel({ items, canUpdate, initialRejected }: ConsentItemsPa
       <div style={cardBodyStyle}>
         <h2 style={cardTitleStyle}>동의 항목</h2>
         <p style={hintStyle}>
-          각 항목은 가입 화면에서 <strong>구분해</strong> 안내하고 따로 동의를 받습니다. 선택 항목에
-          동의하지 않아도 가입은 완료되어야 합니다.
+          각 항목은 가입 화면에서 <strong>구분해</strong> 안내하고 따로 동의를 받아요. 선택 항목에
+          동의하지 않아도 가입은 완료되어야 해요.
         </p>
 
         {rejected !== null && <Alert tone="danger">{rejected}</Alert>}
-        {!canUpdate && <Alert tone="info">조회 권한만 있어 동의 항목을 변경할 수 없습니다.</Alert>}
+        {!canUpdate && <Alert tone="info">조회 권한만 있어 동의 항목을 변경할 수 없어요.</Alert>}
 
         {draft.map((item) => {
           const lockReason = necessityChangeBlock(item, 'required');
@@ -905,7 +905,7 @@ function ConsentItemsPanel({ items, canUpdate, initialRejected }: ConsentItemsPa
         {canUpdate && (
           <div style={actionsStyle}>
             <p style={hintStyle}>
-              {dirty ? '저장하지 않은 변경 사항이 있습니다.' : '변경 사항이 없습니다.'}
+              {dirty ? '저장하지 않은 변경 사항이 있어요.' : '변경 사항이 없어요.'}
             </p>
             <Button variant="primary" size="md" disabled={!dirty}>
               저장
@@ -1033,7 +1033,7 @@ function ConsentHistoryPanel({
 
       <div style={tableScrollStyle}>
         <Table
-          caption="동의 이력 — 조회 전용입니다. 덧붙이기만 하며 수정·삭제 표면이 없고, 행에는 열어 볼 상세가 없습니다."
+          caption="동의 이력 — 조회 전용이에요. 덧붙이기만 하며 수정·삭제 표면이 없고, 행에는 열어 볼 상세가 없어요."
           columns={HISTORY_COLUMNS}
           rows={rows}
           leadingHead={[<SeqHeaderCell key="seq" />]}
@@ -1090,26 +1090,25 @@ function CompliancePanel({ items, events, active }: CompliancePanelProps) {
           <h2 style={cardTitleStyle}>재동의 대상</h2>
           <p style={hintStyle}>
             지금 시행 중인 약관 버전과 <strong>다른 버전</strong>에 동의한 채로 남아 있는
-            이용자입니다. 철회한 이용자는 대상에 넣지 않습니다 — 개정을 이유로 다시 권유하는 것은
-            철회 의사를 무시하는 재권유입니다.
+            이용자예요. 철회한 이용자는 대상에 넣지 않아요 — 개정을 이유로 다시 권유하는 것은 철회
+            의사를 무시하는 재권유예요.
           </p>
 
           {report === null ? (
             <Alert tone="warning">
-              시행 중인 약관 버전을 확인할 수 없어 재동의 대상을{' '}
-              <strong>판정하지 못했습니다</strong>. 대상이 없다는 뜻이 아닙니다 — 약관 관리 연동을
-              확인해 주세요.
+              시행 중인 약관 버전을 확인할 수 없어 재동의 대상을 <strong>판정하지 못했어요</strong>.
+              대상이 없다는 뜻이 아니에요 — 약관 관리 연동을 확인해 주세요.
             </Alert>
           ) : (
             <>
               {report.unresolvedItems.length > 0 && (
                 <Alert tone="warning">
-                  {`시행 중인 버전을 찾지 못한 항목이 있어 그 항목은 판정에서 빠졌습니다: ${report.unresolvedItems.join(' · ')}`}
+                  {`시행 중인 버전을 찾지 못한 항목이 있어 그 항목은 판정에서 빠졌어요: ${report.unresolvedItems.join(' · ')}`}
                 </Alert>
               )}
 
               {report.groups.length === 0 ? (
-                <p style={hintStyle}>모든 동의가 시행 중인 버전 기준입니다.</p>
+                <p style={hintStyle}>모든 동의가 시행 중인 버전 기준이에요.</p>
               ) : (
                 report.groups.map((group) => (
                   <div key={group.item.id}>
@@ -1143,12 +1142,12 @@ function CompliancePanel({ items, events, active }: CompliancePanelProps) {
         <div style={cardBodyStyle}>
           <h2 style={cardTitleStyle}>보관 기간 경과 (파기 대상)</h2>
           <p style={hintStyle}>
-            철회한 뒤 항목별 보관 기간이 지난 이력입니다. 이 화면은 <strong>세어 보여 줄 뿐</strong>{' '}
-            지우지 않습니다 — 실제 파기는 백업까지 함께 다뤄야 하는 서버의 일입니다.
+            철회한 뒤 항목별 보관 기간이 지난 이력이에요. 이 화면은 <strong>세어 보여 줄 뿐</strong>{' '}
+            지우지 않아요 — 실제 파기는 백업까지 함께 다뤄야 하는 서버의 일이에요.
           </p>
 
           {purge.length === 0 ? (
-            <p style={hintStyle}>보관 기간이 지난 이력이 없습니다.</p>
+            <p style={hintStyle}>보관 기간이 지난 이력이 없어요.</p>
           ) : (
             <div style={tableScrollStyle}>
               <Table
@@ -1216,8 +1215,8 @@ function ConsentsScreen({
     <div style={pageStyle}>
       <h1 style={headingStyle}>동의 이력</h1>
       <p style={descriptionStyle}>
-        동의 항목의 정의와 동의·철회 이력을 관리합니다. 이력은 <strong>덧붙이기만</strong> 하며
-        수정·삭제 표면이 없습니다 — 고칠 수 있는 기록은 증거가 되지 못합니다.
+        동의 항목의 정의와 동의·철회 이력을 관리해요. 이력은 <strong>덧붙이기만</strong> 하며
+        수정·삭제 표면이 없어요 — 고칠 수 있는 기록은 증거가 되지 못해요.
       </p>
 
       <Tabs

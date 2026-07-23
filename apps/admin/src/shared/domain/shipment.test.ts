@@ -178,7 +178,7 @@ describe('택배사 삭제 차단 — 배송 건이 있으면 막고, 모르면 
   it('사용 건이 있으면 사유와 함께 막는다', () => {
     const reason = carrierDeleteBlock({ name: '가상택배' }, 3);
     expect(reason).toContain('배송 3건');
-    expect(reason).toContain('삭제할 수 없습니다');
+    expect(reason).toContain('삭제할 수 없어요');
   });
 
   it('사용 건이 없으면 통과한다 — 가드가 모든 삭제를 막아 버리지 않는다', () => {

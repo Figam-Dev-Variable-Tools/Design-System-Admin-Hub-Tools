@@ -19,9 +19,7 @@ import {
   visuallyHiddenStyle,
 } from '../../../shared/ui';
 import { directionParticle, formatNumber, formatSignedNumber } from '../../../shared/format';
-import { TIER_LABEL } from '../../../shared/domain/member';
 import type { Distribution } from '../distribution';
-import { TIER_ORDER } from '../types';
 import { cssVar } from '@tds/ui';
 
 const bodyStyle: CSSProperties = {
@@ -73,29 +71,36 @@ function deltaText(delta: number): string {
   return delta === 0 ? '변화 없음' : `${formatSignedNumber(delta)}명`;
 }
 
+/**
+ * 이동 문구 — 등급 이름은 분포 행이 들고 있는 것을 쓴다.
+ *
+ * [왜 TIER_LABEL 을 더 안 읽나] 그 Record 는 기본 제공 등급 3종만 안다. 운영자가 추가한 등급으로
+ * 승급하는 회원이 생기는 순간 `TIER_LABEL[id]` 는 undefined 이고, 문장은 'undefined로 승급됩니다'
+ * 가 된다. 분포는 이미 이름을 함께 들고 오므로(distribution.ts) 그것을 그대로 쓴다.
+ */
 function movementSentences(distribution: Distribution): readonly string[] {
   const sentences: string[] = [];
 
-  for (const tier of TIER_ORDER) {
-    const promoted = distribution.promotedInto[tier];
+  for (const row of distribution.rows) {
+    const promoted = distribution.promotedInto[row.tierId] ?? 0;
     if (promoted > 0) {
       sentences.push(
-        `저장하면 ${formatNumber(promoted)}명이 ${TIER_LABEL[tier]}${directionParticle(TIER_LABEL[tier])} 승급됩니다.`,
+        `저장하면 ${formatNumber(promoted)}명이 ${row.label}${directionParticle(row.label)} 승급돼요.`,
       );
     }
   }
 
-  for (const tier of TIER_ORDER) {
-    const demoted = distribution.demotedInto[tier];
+  for (const row of distribution.rows) {
+    const demoted = distribution.demotedInto[row.tierId] ?? 0;
     if (demoted > 0) {
       sentences.push(
-        `저장하면 ${formatNumber(demoted)}명이 ${TIER_LABEL[tier]}${directionParticle(TIER_LABEL[tier])} 강등됩니다.`,
+        `저장하면 ${formatNumber(demoted)}명이 ${row.label}${directionParticle(row.label)} 강등돼요.`,
       );
     }
   }
 
   if (sentences.length === 0) {
-    sentences.push('저장해도 등급이 바뀌는 회원은 없습니다.');
+    sentences.push('저장해도 등급이 바뀌는 회원은 없어요.');
   }
   return sentences;
 }
@@ -116,13 +121,13 @@ export function TierDistributionCard({ distribution, allowDemotion }: TierDistri
 
       <div style={bodyStyle}>
         <Alert tone="info">
-          아직 저장되지 않은 <strong>미리보기</strong>입니다. 아래 숫자는 지금 입력한 정책을
-          적용했을 때의 예상값이며, 저장하기 전에는 회원 등급이 바뀌지 않습니다.
+          아직 저장되지 않은 <strong>미리보기</strong>예요. 아래 숫자는 지금 입력한 정책을 적용했을
+          때의 예상값이며, 저장하기 전에는 회원 등급이 바뀌지 않아요.
         </Alert>
 
         {distribution === null ? (
           <p style={hintStyle}>
-            승급 조건 또는 할인율 값이 올바르지 않아 미리보기를 계산할 수 없습니다. 위 표의 입력값을
+            승급 조건 또는 할인율 값이 올바르지 않아 미리보기를 계산할 수 없어요. 위 표의 입력값을
             확인해 주세요.
           </p>
         ) : (
@@ -150,9 +155,9 @@ export function TierDistributionCard({ distribution, allowDemotion }: TierDistri
                 </thead>
                 <tbody>
                   {distribution.rows.map((row) => (
-                    <tr key={row.tier}>
+                    <tr key={row.tierId}>
                       <th scope="row" style={tierCellStyle}>
-                        {TIER_LABEL[row.tier]}
+                        {row.label}
                       </th>
                       <td style={numericCellStyle}>{`${formatNumber(row.current)}명`}</td>
                       <td style={numericCellStyle}>{`${formatNumber(row.projected)}명`}</td>
@@ -178,10 +183,10 @@ export function TierDistributionCard({ distribution, allowDemotion }: TierDistri
 
             <p style={hintStyle}>
               {allowDemotion
-                ? '강등 허용이 켜져 있어, 조건에 미달하는 회원은 등급이 내려간 것으로 계산했습니다.'
-                : '강등 허용이 꺼져 있어, 조건에 미달해도 현재 등급을 유지하는 것으로 계산했습니다.'}
+                ? '강등 허용이 켜져 있어, 조건에 미달하는 회원은 등급이 내려간 것으로 계산했어요.'
+                : '강등 허용이 꺼져 있어, 조건에 미달해도 현재 등급을 유지하는 것으로 계산했어요.'}
               {
-                ' 집계 기간은 백엔드 집계에 반영되는 값이라, 이 미리보기는 회원의 누적 구매금액 총액을 그대로 사용합니다.'
+                ' 집계 기간은 백엔드 집계에 반영되는 값이라, 이 미리보기는 회원의 누적 구매금액 총액을 그대로 사용해요.'
               }
             </p>
           </>

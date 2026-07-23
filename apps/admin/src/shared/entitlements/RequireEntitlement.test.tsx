@@ -63,11 +63,11 @@ const DASHBOARD_BODY = '대시보드 본문';
 const PREVIOUS_BODY = '직전 화면';
 
 /** 403 의 말투 — 잠금 화면에 **이 두 조각이 없다는 사실**이 네 말투 규칙의 전부다 */
-const FORBIDDEN_TITLE = '접근 권한이 없습니다';
+const FORBIDDEN_TITLE = '접근 권한이 없어요';
 const FORBIDDEN_HINT = '관리자에게 권한을 요청';
 
 /** 잠금 화면의 말투 — 문구의 정본은 ErrorScreens.UpgradeScreen · plan.ts 의 lockReason 이다 */
-const UPGRADE_TITLE = `${PLAN_TIER_LABEL[LOCKED_UPGRADE_TO]} 플랜에서 사용할 수 있습니다`;
+const UPGRADE_TITLE = `${PLAN_TIER_LABEL[LOCKED_UPGRADE_TO]} 플랜에서 사용할 수 있어요`;
 
 /* ── 축 조작 ──────────────────────────────────────────────────────────────── */
 
@@ -254,7 +254,7 @@ describe('absent — 살 수 없는 모듈은 설명 대신 되돌린다 (EXC-21
     expect(screen.getByText(DASHBOARD_BODY)).not.toBeNull();
     expect(screen.queryByText(SCREEN_BODY)).toBeNull();
     // '살 수 없는 것' 에 자물쇠를 달면 그 화면 자체가 티저가 된다 — 업그레이드 문구가 없어야 한다
-    expect(bodyText()).not.toContain('플랜에서 사용할 수 있습니다');
+    expect(bodyText()).not.toContain('플랜에서 사용할 수 있어요');
     expect(bodyText()).not.toContain('플랜 보기');
   });
 

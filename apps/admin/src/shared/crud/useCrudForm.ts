@@ -194,7 +194,7 @@ export function useCrudForm<T extends { id: string }, Input, Values extends Fiel
         setConflict({
           message: isHttpError(cause)
             ? cause.message
-            : '다른 사용자가 먼저 변경했습니다. 최신 내용을 확인해 주세요.',
+            : '다른 사용자가 먼저 변경했어요. 최신 내용을 확인해 주세요.',
           reload: () => {
             setConflict(null);
             // 서버 최신본으로 폼을 덮는다 — detail 쿼리가 도착하면 위 effect 가 reset 한다
@@ -218,7 +218,7 @@ export function useCrudForm<T extends { id: string }, Input, Values extends Fiel
         return;
       }
 
-      setServerError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      setServerError('저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
       setErrorReference(referenceOf(cause));
     },
     [detailQuery, setError, setFocus],
@@ -246,7 +246,7 @@ export function useCrudForm<T extends { id: string }, Input, Values extends Fiel
       // 성공했으니 이 거래는 끝났다 — 다음 제출은 새 키를 받는다
       idempotencyKeyRef.current = null;
       // ERP-13 — '공지사항을 저장했습니다' / '카테고리를 저장했습니다'
-      toast.success(`${config.entityLabel}${objectParticle(config.entityLabel)} ${verb}했습니다.`);
+      toast.success(`${config.entityLabel}${objectParticle(config.entityLabel)} ${verb}했어요.`);
       navigate(config.listPath, { replace: true });
     };
 
@@ -291,8 +291,8 @@ export function useCrudForm<T extends { id: string }, Input, Values extends Fiel
         event.preventDefault();
         setServerError(
           isEdit
-            ? '이 항목을 수정할 권한이 없습니다. 필요하다면 관리자에게 권한을 요청해 주세요.'
-            : '이 항목을 등록할 권한이 없습니다. 필요하다면 관리자에게 권한을 요청해 주세요.',
+            ? '이 항목을 수정할 권한이 없어요. 필요하다면 관리자에게 권한을 요청해 주세요.'
+            : '이 항목을 등록할 권한이 없어요. 필요하다면 관리자에게 권한을 요청해 주세요.',
         );
         return;
       }

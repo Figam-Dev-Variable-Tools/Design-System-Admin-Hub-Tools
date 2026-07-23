@@ -44,6 +44,7 @@
     "radius": "radius.md",
     "paddingX": "space.3",
     "paddingY": "space.2",
+    "minHeight": "space.8",
     "iconGap": "space.6",
     "typography": "typography.label.md"
   },

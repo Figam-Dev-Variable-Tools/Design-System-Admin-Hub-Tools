@@ -8,6 +8,10 @@
 //
 // [상태는 저장하지 않는다] 미입금/부분입금/입금완료는 입금 기록의 **누적 합**에서 파생한다
 // (./types 의 billingPaymentState). 그래서 상태를 고르는 select 가 없다 — 기록이 상태를 만든다.
+//
+// [남의 입금을 지우는 저장은 조용히 성공하지 않는다] 이 화면의 저장은 문서 한 벌을 통째로 보내므로,
+// 두 운영자가 같은 청구를 열어 두면 뒤에 저장한 쪽이 앞서 기록된 입금을 지울 수 있었다. 저장소가
+// 그 저장을 409 로 거절하고(./types 의 ledgerLossBlock), 이 화면은 그것을 충돌 다이얼로그로 받는다.
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -16,9 +20,10 @@ import { cssVar } from '@tds/ui';
 
 import { isAbort } from '../../../shared/async';
 import { formatDateTime } from '../../../shared/format';
-import { isNotFound } from '../../../shared/errors/http-error';
+import { isConflict, isHttpError, isNotFound } from '../../../shared/errors/http-error';
 import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
-import { useCrudUpdate } from '../../../shared/crud';
+import { FormConflictDialog, useCrudUpdate } from '../../../shared/crud';
+import type { ConflictState } from '../../../shared/crud';
 import {
   Alert,
   alertActionRowStyle,
@@ -31,6 +36,7 @@ import {
   dtStyle,
   fieldLabelStyle,
   FormField,
+  formRowStyle,
   hintStyle,
   Icon,
   mutedTextStyle,
@@ -120,12 +126,6 @@ const layoutStyle: CSSProperties = {
   alignItems: 'start',
 };
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
 const numericStyle: CSSProperties = {
   fontVariantNumeric: 'tabular-nums',
   whiteSpace: 'nowrap',
@@ -176,6 +176,8 @@ export default function BillingDetailPage() {
   const [channel, setChannel] = useState<BillingNoticeChannel>('email');
   const [noticeMemo, setNoticeMemo] = useState('');
   const [serverError, setServerError] = useState<string | null>(null);
+  /** [EXC-04] 409 — 내가 읽은 뒤 다른 관리자가 기록을 남겼다. 덮어쓰지 않고 물어본다 */
+  const [conflict, setConflict] = useState<ConflictState | null>(null);
   // 저장 결과를 화면에도 남긴다 — 토스트만 쓰면 스크린리더 사용자가 결과를 놓친다 (A11Y-16)
   const [statusMessage, setStatusMessage] = useState('');
 
@@ -185,10 +187,15 @@ export default function BillingDetailPage() {
   /**
    * 저장의 단일 경로 — 입금 기록도 안내 기록도 청구 설정도 '다음 청구 한 벌' 을 만들어 통째로 보낸다.
    * 세 동작이 각자 mutate 를 배선하면 성공/실패 처리와 abort 정리가 셋으로 갈라진다.
+   *
+   * @param afterSave 저장에 **성공했을 때만** 도는 뒷정리(입력 비우기). 호출 직후에 비우면 409·5xx
+   *   로 되돌아왔을 때 방금 친 금액·메모가 사라져 있고, 사용자는 그것을 다시 쳐야 한다 —
+   *   충돌 다이얼로그가 '입력을 버리지 않는다' 고 말하는 동안 입력은 이미 없어진 상태가 된다.
    */
-  const commit = (next: Billing, message: string) => {
+  const commit = (next: Billing, message: string, afterSave?: () => void) => {
     if (id === undefined) return;
     setServerError(null);
+    setConflict(null);
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
@@ -200,10 +207,33 @@ export default function BillingDetailPage() {
           setServerError(null);
           void detailQuery.refetch();
           setStatusMessage(message);
+          afterSave?.();
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setServerError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          /*
+           * [EXC-04] 409 는 재시도가 푸는 실패가 아니다 — 다시 보내면 또 같은 것을 지우려 한다.
+           * 그래서 배너가 아니라 충돌 다이얼로그로 받는다(관용구는 shared/crud 의 FormConflictDialog:
+           * '최신 내용 불러오기'(내 입력을 버린다) / '이어서 편집'(그대로 둔다)).
+           *
+           * **'덮어쓰기' 선택지는 두지 않는다.** 시스템 설정의 3-액션 다이얼로그에는 그 갈래가
+           * 있지만(pages/settings/_shared/ConflictDialog), 여기서 덮어쓴다는 것은 곧 남의 입금
+           * 기록을 지운다는 뜻이다 — 회계 기록에는 그 문을 열지 않는다(./types 규칙 ①).
+           */
+          if (isConflict(cause)) {
+            setConflict({
+              message: isHttpError(cause)
+                ? cause.message
+                : '다른 관리자가 먼저 이 청구를 변경했어요.',
+              reload: () => {
+                setConflict(null);
+                void detailQuery.refetch();
+              },
+              dismiss: () => setConflict(null),
+            });
+            return;
+          }
+          setServerError('저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -218,8 +248,8 @@ export default function BillingDetailPage() {
           <div style={alertActionRowStyle}>
             <span>
               {notFound
-                ? '청구를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '청구를 불러오지 못했습니다.'}
+                ? '청구를 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '청구를 불러오지 못했어요.'}
             </span>
             {!notFound && (
               <Button variant="secondary" onClick={() => void detailQuery.refetch()}>
@@ -255,6 +285,7 @@ export default function BillingDetailPage() {
 
   const onRecordPayment = () => {
     if (paymentBlock !== null) return;
+    // 입력은 **저장에 성공한 뒤에만** 비운다 — 409 로 되돌아왔을 때 다시 칠 것이 남아 있어야 한다
     commit(
       applyPayment(billing, {
         id: `bp-${String(Date.now())}`,
@@ -262,10 +293,12 @@ export default function BillingDetailPage() {
         amount,
         memo: memo.trim(),
       }),
-      '입금을 확인 처리했습니다.',
+      '입금을 확인 처리했어요.',
+      () => {
+        setAmountInput('');
+        setMemo('');
+      },
     );
-    setAmountInput('');
-    setMemo('');
   };
 
   const onRecordNotice = () => {
@@ -277,9 +310,9 @@ export default function BillingDetailPage() {
         channel,
         memo: noticeMemo.trim(),
       }),
-      '청구 안내 발송을 기록했습니다.',
+      '청구 안내 발송을 기록했어요.',
+      () => setNoticeMemo(''),
     );
-    setNoticeMemo('');
   };
 
   const onChangeMethod = (next: BillingMethod) => {
@@ -290,7 +323,7 @@ export default function BillingDetailPage() {
         method: next,
         paymentLinkUrl: next === 'bank_transfer' ? '' : billing.paymentLinkUrl,
       },
-      '청구 방식을 변경했습니다.',
+      '청구 방식을 변경했어요.',
     );
   };
 
@@ -323,9 +356,7 @@ export default function BillingDetailPage() {
 
       {serverError !== null && <Alert tone="danger">{serverError}</Alert>}
 
-      {!canUpdate && (
-        <Alert tone="info">입금확인 권한이 없습니다. 이 화면은 조회만 가능합니다.</Alert>
-      )}
+      {!canUpdate && <Alert tone="info">입금확인 권한이 없어요. 이 화면은 조회만 가능해요.</Alert>}
 
       <div style={layoutStyle}>
         <div style={pageStyle}>
@@ -339,7 +370,7 @@ export default function BillingDetailPage() {
               <dt style={dtStyle}>원 견적</dt>
               <dd style={ddStyle}>
                 {billing.quoteId === '' ? (
-                  <span style={mutedTextStyle}>견적 없이 만든 청구입니다.</span>
+                  <span style={mutedTextStyle}>견적 없이 만든 청구예요.</span>
                 ) : (
                   <Link
                     to={`${QUOTE_PATH}/${billing.quoteId}`}
@@ -371,10 +402,10 @@ export default function BillingDetailPage() {
           <Card>
             <CardTitle>청구 방식</CardTitle>
             <p style={hintStyle}>
-              결제대행을 쓰지 않으므로 앱은 결제를 처리하지 않습니다. 개인결제창은 링크를 보관만
-              하고, 입금 사실은 아래에서 사람이 확인해 기록합니다.
+              결제대행을 쓰지 않으므로 앱은 결제를 처리하지 않아요. 개인결제창은 링크를 보관만 하고,
+              입금 사실은 아래에서 사람이 확인해 기록해요.
             </p>
-            <div style={rowStyle}>
+            <div style={formRowStyle}>
               <FormField htmlFor="billing-method" label="청구 방식">
                 <SelectField
                   id="billing-method"
@@ -396,7 +427,7 @@ export default function BillingDetailPage() {
                 <FormField
                   htmlFor="billing-link"
                   label="개인결제창 링크"
-                  hint="링크만 보관합니다 — 결제 상태를 조회하지 않습니다."
+                  hint="링크만 보관해요 — 결제 상태를 조회하지 않아요."
                 >
                   <input
                     id="billing-link"
@@ -409,7 +440,7 @@ export default function BillingDetailPage() {
                     onChange={(event) =>
                       commit(
                         { ...billing, paymentLinkUrl: event.target.value },
-                        '개인결제창 링크를 저장했습니다.',
+                        '개인결제창 링크를 저장했어요.',
                       )
                     }
                   />
@@ -419,7 +450,7 @@ export default function BillingDetailPage() {
             <TextareaField
               label="비고"
               value={billing.note}
-              onChange={(next) => commit({ ...billing, note: next }, '비고를 저장했습니다.')}
+              onChange={(next) => commit({ ...billing, note: next }, '비고를 저장했어요.')}
               maxLength={BILLING_NOTE_MAX}
               disabled={saving || !canUpdate}
               placeholder="결제조건·세금계산서 발행 등을 기록하세요."
@@ -432,11 +463,11 @@ export default function BillingDetailPage() {
           <Card>
             <CardTitle>입금확인</CardTitle>
             <p style={hintStyle}>
-              통장에 찍힌 입금을 기록합니다. 여러 번 나눠 들어오면 그때마다 기록하고, 누적 합이
-              청구액에 닿으면 입금완료가 됩니다. <strong>기록한 입금은 되돌릴 수 없습니다.</strong>
+              통장에 찍힌 입금을 기록해요. 여러 번 나눠 들어오면 그때마다 기록하고, 누적 합이
+              청구액에 닿으면 입금완료가 돼요. <strong>기록한 입금은 되돌릴 수 없어요.</strong>
             </p>
 
-            <div style={rowStyle}>
+            <div style={formRowStyle}>
               <FormField htmlFor="payment-date" label="입금일" required>
                 <input
                   id="payment-date"
@@ -503,7 +534,7 @@ export default function BillingDetailPage() {
             <div style={tableScrollStyle}>
               <table style={tableStyle}>
                 <caption style={{ ...hintStyle, textAlign: 'left' }}>
-                  입금 내역 — 덧붙이기만 하는 기록입니다.
+                  입금 내역 — 덧붙이기만 하는 기록이에요.
                 </caption>
                 <thead>
                   <tr>
@@ -522,7 +553,7 @@ export default function BillingDetailPage() {
                   {billing.payments.length === 0 ? (
                     <tr>
                       <td style={tdStyle} colSpan={3}>
-                        <span style={mutedTextStyle}>아직 입금 기록이 없습니다.</span>
+                        <span style={mutedTextStyle}>아직 입금 기록이 없어요.</span>
                       </td>
                     </tr>
                   ) : (
@@ -550,11 +581,11 @@ export default function BillingDetailPage() {
           <Card>
             <CardTitle>청구 안내</CardTitle>
             <p style={hintStyle}>
-              고객에게 청구를 안내한 사실을 남깁니다. 앱이 메시지를 보내지는 않습니다 — 보낸 사실을
-              기록할 뿐입니다.
+              고객에게 청구를 안내한 사실을 남겨요. 앱이 메시지를 보내지는 않아요 — 보낸 사실을
+              기록할 뿐이에요.
             </p>
 
-            <div style={rowStyle}>
+            <div style={formRowStyle}>
               <FormField htmlFor="notice-channel" label="안내 창구">
                 <SelectField
                   id="notice-channel"
@@ -621,7 +652,7 @@ export default function BillingDetailPage() {
                   {billing.notices.length === 0 ? (
                     <tr>
                       <td style={tdStyle} colSpan={3}>
-                        <span style={mutedTextStyle}>아직 안내를 보내지 않았습니다.</span>
+                        <span style={mutedTextStyle}>아직 안내를 보내지 않았어요.</span>
                       </td>
                     </tr>
                   ) : (
@@ -647,6 +678,9 @@ export default function BillingDetailPage() {
           목록으로
         </Button>
       </div>
+
+      {/* [EXC-04] 저장이 남의 기록을 지우려 했다 — 입력은 그대로 살아 있고 사용자가 고른다 */}
+      <FormConflictDialog conflict={conflict} />
     </div>
   );
 }

@@ -20,6 +20,10 @@ import { isAbort } from '../../../shared/async';
 import { parseFilter, useListState } from '../../../shared/crud';
 import { formatNumber } from '../../../shared/format';
 import {
+  useRouteWritePermissions,
+  WRITE_DENIED,
+} from '../../../shared/permissions/RequirePermission';
+import {
   Alert,
   Button,
   ConfirmDialog,
@@ -92,6 +96,17 @@ const errorBodyStyle: CSSProperties = {
 export default function NoticesPage() {
   const toast = useToast();
   const navigate = useNavigate();
+
+  /**
+   * [EXC-03] 이 화면의 쓰기 권한 — **한 번만 읽어 네 자리로 흘린다.**
+   *
+   * 콘텐츠 목록 6종은 CrudListShell 보다 먼저 손으로 만들어져 껍데기의 게이팅을 하나도 받지
+   * 못했다: 등록 CTA · 행 삭제 · 일괄 삭제가 조회 권한만으로 전부 열려 있었다.
+   * 여기서 얻은 값이 (1) 등록 버튼의 존재, (2) 일괄 삭제 바의 존재, (3) 표의 체크박스·휴지통,
+   * (4) 삭제 뮤테이션의 거절을 **동시에** 정한다 — 버튼을 없애는 술어와 저장을 거절하는 술어가
+   * 한 값이라 갈라질 수 없다.
+   */
+  const { canCreate, canRemove } = useRouteWritePermissions();
 
   /**
    * [IA-13] 분류·상태·검색어·페이지의 단일 원천 = URL.
@@ -170,6 +185,12 @@ export default function NoticesPage() {
 
   const onConfirmDelete = () => {
     if (pendingDelete === null) return;
+    // 휴지통을 없앤 술어와 **같은 술어**가 저장 경로도 막는다 — 감추기만 하면 막은 것이 아니다.
+    // (다른 탭에서 방금 강등된 세션의 잔여 클릭이 정확히 이 모양이다.)
+    if (!canRemove) {
+      setDeleteError(WRITE_DENIED.remove);
+      return;
+    }
     const target = pendingDelete;
 
     const controller = new AbortController();
@@ -182,11 +203,11 @@ export default function NoticesPage() {
         onSuccess: () => {
           if (controller.signal.aborted) return;
           setPendingDelete(null);
-          toast.success(`'${target.title}' 공지를 삭제했습니다.`);
+          toast.success(`'${target.title}' 공지를 삭제했어요.`);
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setDeleteError('공지를 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setDeleteError('공지를 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -205,6 +226,10 @@ export default function NoticesPage() {
   const onConfirmBulkDelete = () => {
     const ids = [...selectedIds];
     if (ids.length === 0) return;
+    if (!canRemove) {
+      setBulkError(WRITE_DENIED.remove);
+      return;
+    }
     const controller = new AbortController();
     bulkControllerRef.current = controller;
     setBulkError(null);
@@ -216,13 +241,13 @@ export default function NoticesPage() {
           if (controller.signal.aborted) return;
           if (failed > 0) {
             setBulkError(
-              `공지 ${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.`,
+              `공지 ${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.`,
             );
             return;
           }
           setBulkOpen(false);
           clearSelection();
-          toast.success(`공지 ${formatNumber(ids.length)}건을 삭제했습니다.`);
+          toast.success(`공지 ${formatNumber(ids.length)}건을 삭제했어요.`);
         },
       },
     );
@@ -248,10 +273,13 @@ export default function NoticesPage() {
               label="공지 제목 검색"
               {...list.searchInputProps}
             />
-            <Button variant="primary" size="md" onClick={() => navigate('/content/notices/new')}>
-              <Icon name="plus-circle" />
-              공지 등록
-            </Button>
+            {/* 등록 권한이 없으면 CTA 는 '비활성' 이 아니라 '부재' 다 (EXC-03) */}
+            {canCreate && (
+              <Button variant="primary" size="md" onClick={() => navigate('/content/notices/new')}>
+                <Icon name="plus-circle" />
+                공지 등록
+              </Button>
+            )}
           </div>
 
           {error === null ? (
@@ -263,11 +291,19 @@ export default function NoticesPage() {
                 </p>
               </div>
 
-              <SelectionBar count={selectedCount} onClear={clearSelection}>
-                <Button variant="danger" disabled={bulkDeleting} onClick={() => setBulkOpen(true)}>
-                  {`선택 ${formatNumber(selectedCount)}건 삭제`}
-                </Button>
-              </SelectionBar>
+              {/* 이 바의 유일한 액션이 일괄 삭제다 — 삭제 권한이 없으면 바 자체를 그리지 않는다
+                  (CrudListShell 이 SelectionBar 에 하는 것과 같은 판정이다) */}
+              {canRemove && (
+                <SelectionBar count={selectedCount} onClear={clearSelection}>
+                  <Button
+                    variant="danger"
+                    disabled={bulkDeleting}
+                    onClick={() => setBulkOpen(true)}
+                  >
+                    {`선택 ${formatNumber(selectedCount)}건 삭제`}
+                  </Button>
+                </SelectionBar>
+              )}
 
               <NoticesTable
                 notices={notices}
@@ -283,6 +319,7 @@ export default function NoticesPage() {
                   )
                 }
                 startIndex={(page - 1) * PAGE_SIZE}
+                canRemove={canRemove}
               />
 
               <Pagination
@@ -295,7 +332,7 @@ export default function NoticesPage() {
           ) : (
             <Alert tone="danger">
               <div style={errorBodyStyle}>
-                <span>공지사항을 불러오지 못했습니다.</span>
+                <span>공지사항을 불러오지 못했어요.</span>
                 <Button
                   variant="secondary"
                   onClick={() => {
@@ -314,7 +351,7 @@ export default function NoticesPage() {
         <ConfirmDialog
           intent="delete"
           title="공지 삭제"
-          message={`'${pendingDelete.title}' 공지를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.title}' 공지를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="공지 삭제"
           busy={deleting}
           error={deleteError}
@@ -327,7 +364,7 @@ export default function NoticesPage() {
         <ConfirmDialog
           intent="delete"
           title="공지 일괄 삭제"
-          message={`선택한 공지 ${formatNumber(selectedCount)}건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 공지 ${formatNumber(selectedCount)}건을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel={`${formatNumber(selectedCount)}건 삭제`}
           busy={bulkDeleting}
           error={bulkError}

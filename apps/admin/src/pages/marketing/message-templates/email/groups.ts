@@ -192,7 +192,7 @@ export const EMAIL_BLOCK_GROUPS: readonly EmailBlockGroup[] = [
   {
     id: 'product-grid',
     label: '상품 카드 2단',
-    description: '사진·상품명·설명·가격·버튼이 든 카드 두 장을 나란히 놓습니다.',
+    description: '사진·상품명·설명·가격·버튼이 든 카드 두 장을 나란히 놓아요.',
     build: (nextId) => [
       columnsOf(
         nextId,
@@ -221,7 +221,7 @@ export const EMAIL_BLOCK_GROUPS: readonly EmailBlockGroup[] = [
   {
     id: 'product-row',
     label: '상품 카드 가로형',
-    description: '왼쪽 사진 · 오른쪽 설명. 상품 하나를 크게 소개할 때 씁니다.',
+    description: '왼쪽 사진 · 오른쪽 설명. 상품 하나를 크게 소개할 때 써요.',
     build: (nextId) => [
       columnsOf(
         nextId,
@@ -243,7 +243,7 @@ export const EMAIL_BLOCK_GROUPS: readonly EmailBlockGroup[] = [
   {
     id: 'article-cards',
     label: '소식 카드 3단',
-    description: '사진과 제목만 있는 카드 세 장. 뉴스레터의 지난 소식 묶음에 씁니다.',
+    description: '사진과 제목만 있는 카드 세 장. 뉴스레터의 지난 소식 묶음에 써요.',
     build: (nextId) => [
       columnsOf(
         nextId,
@@ -261,7 +261,7 @@ export const EMAIL_BLOCK_GROUPS: readonly EmailBlockGroup[] = [
   {
     id: 'cta-banner',
     label: 'CTA 배너',
-    description: '옅은 면 위에 한 문장과 버튼 하나. 본문 끝에서 행동을 요청합니다.',
+    description: '옅은 면 위에 한 문장과 버튼 하나. 본문 끝에서 행동을 요청해요.',
     build: (nextId) => {
       const headline = createLeafBlock('heading', nextId());
       const cta = createLeafBlock('button', nextId());

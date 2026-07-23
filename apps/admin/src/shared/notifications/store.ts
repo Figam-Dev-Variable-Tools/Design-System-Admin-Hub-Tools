@@ -71,7 +71,7 @@ interface Spec {
 const SPECS: readonly Spec[] = [
   {
     kind: 'product-inquiry-new',
-    title: '새 상품 문의가 접수되었습니다',
+    title: '새 상품 문의가 접수되었어요',
     body: '‘접이식 회의 테이블’ 재고 문의 · 한**',
     targetId: 'PIQ-20260721-005',
     daysAgo: 0,
@@ -79,15 +79,15 @@ const SPECS: readonly Spec[] = [
   },
   {
     kind: 'product-inquiry-sla',
-    title: '상품 문의 응답 기한이 임박했습니다',
-    body: '접수 후 3일 — 오늘 안에 답변해야 약속을 지킵니다.',
+    title: '상품 문의 응답 기한이 임박했어요',
+    body: '접수 후 3일 — 오늘 안에 답변해야 약속을 지켜요.',
     targetId: 'PIQ-20260710-004',
     daysAgo: 0,
     hour: 8,
   },
   {
     kind: 'order-new',
-    title: '새 주문이 접수되었습니다',
+    title: '새 주문이 접수되었어요',
     body: 'ORD-20260721-0001 · 결제 대기',
     targetId: 'ORD-20260721-0001',
     daysAgo: 0,
@@ -95,7 +95,7 @@ const SPECS: readonly Spec[] = [
   },
   {
     kind: 'order-claim',
-    title: '반품 요청이 접수되었습니다',
+    title: '반품 요청이 접수되었어요',
     body: '주문 ORD-20260712-0031 · 사유: 단순 변심',
     targetId: 'clm-1',
     daysAgo: 1,
@@ -103,7 +103,7 @@ const SPECS: readonly Spec[] = [
   },
   {
     kind: 'program-inquiry-new',
-    title: '새 프로그램 문의가 접수되었습니다',
+    title: '새 프로그램 문의가 접수되었어요',
     body: '‘도심형 공유오피스’ 후원 조건 문의 · 유**',
     targetId: 'PGQ-20260721-005',
     daysAgo: 1,
@@ -111,7 +111,7 @@ const SPECS: readonly Spec[] = [
   },
   {
     kind: 'member-signup',
-    title: '새 회원이 가입했습니다',
+    title: '새 회원이 가입했어요',
     body: '차** (c***@example.com) · 유입: 네이버쇼핑',
     targetId: 'M-00001',
     daysAgo: 2,
@@ -119,7 +119,7 @@ const SPECS: readonly Spec[] = [
   },
   {
     kind: 'support-ticket-new',
-    title: '새 1:1 문의가 접수되었습니다',
+    title: '새 1:1 문의가 접수되었어요',
     body: '배송 지연 문의 · 서**',
     targetId: 'tkt-1',
     daysAgo: 3,

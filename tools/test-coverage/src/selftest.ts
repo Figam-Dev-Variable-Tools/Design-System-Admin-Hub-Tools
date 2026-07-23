@@ -31,6 +31,7 @@ import { loadSpecs } from './lib/specs.ts';
 import { scanTests } from './lib/tests.ts';
 import { productScopes } from './lib/workspace.ts';
 import { buildReport, writeReport, type Gap, type Report, type ScopeRow } from './report.ts';
+import { RATCHET_UNIT } from './thresholds.ts';
 
 const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const FIXTURE = path.join(HERE, '__fixtures__', 'covered');
@@ -43,25 +44,34 @@ interface Measured {
   fsTargets: number;
   fsCells: number;
   fsCovered: number;
-  fsTotalElements: number;
+  fsScreens: number;
+  fsSkipped: number;
+  fsSituationsMissing: number;
   scopes: ScopeRow[];
 }
 
 /** 래칫 기준선 0 — 최초 실행과 동등 (후퇴가 성립하지 않는다) */
 const NO_BASELINE: Baseline = {
   covered: 0,
+  fsCellsTotal: 0,
+  unit: RATCHET_UNIT,
   contractStatesTotal: 0,
   contractBlockedTotal: 0,
   source: '(selftest — 기준선 0)',
 };
 
+/** 인위적 기준선 — 래칫·분모 검증에서 과거를 심는다 */
+function baselineOf(over: Partial<Baseline>): Baseline {
+  return { ...NO_BASELINE, ...over };
+}
+
 /** 픽스처 루트 하나를 5축으로 측정한다 — index.ts 와 같은 축 함수를 쓴다 (경로만 다르다) */
 function measure(root: string, baseline: Baseline = NO_BASELINE): Measured {
   const contracts = loadContracts(root);
-  const specs = loadSpecs(root);
+  const { specs, skipped } = loadSpecs(root);
   const scan = scanTests(root);
   const scopes = productScopes(root);
-  const fs4 = checkFsExceptions(specs, scan.units, baseline);
+  const fs4 = checkFsExceptions(specs, scan.units, baseline, skipped.length);
   const existence = checkExistence(scan, scopes);
 
   const gaps = [
@@ -77,10 +87,12 @@ function measure(root: string, baseline: Baseline = NO_BASELINE): Measured {
     assertionFree: scan.assertionFree.length,
     blockers: gaps.filter((g) => g.severity === 'blocker'),
     majors: gaps.filter((g) => g.severity === 'major'),
-    fsTargets: fs4.stats.elementsTargeted,
+    fsTargets: fs4.stats.screensTargeted,
     fsCells: fs4.stats.cellsBehavioral,
     fsCovered: fs4.result.covered,
-    fsTotalElements: fs4.stats.elementsTotal,
+    fsScreens: fs4.stats.screensTotal,
+    fsSkipped: fs4.stats.docsSkipped,
+    fsSituationsMissing: fs4.stats.situationsMissing,
     scopes: existence.rows,
   };
 }
@@ -98,10 +110,10 @@ function mutate(name: string, fn: (root: string) => void, baseline?: Baseline): 
 /** 픽스처를 실제 Report 로 만든다 (index.ts main() 과 같은 buildReport 경로) — 결정론 검증용 */
 function buildFixtureReport(root: string, baseline: Baseline): Report {
   const contracts = loadContracts(root);
-  const specs = loadSpecs(root);
+  const { specs, skipped } = loadSpecs(root);
   const scan = scanTests(root);
   const scopes = productScopes(root);
-  const fs4 = checkFsExceptions(specs, scan.units, baseline);
+  const fs4 = checkFsExceptions(specs, scan.units, baseline, skipped.length);
   const existence = checkExistence(scan, scopes);
   return buildReport({
     scope: 'selftest',
@@ -125,7 +137,10 @@ function buildFixtureReport(root: string, baseline: Baseline): Report {
       baseline: baseline.covered,
       current: fs4.result.covered,
       source: baseline.source,
-      regressed: fs4.result.covered < baseline.covered,
+      regressed: baseline.unit === RATCHET_UNIT && fs4.result.covered < baseline.covered,
+      unit: RATCHET_UNIT,
+      baselineUnit: baseline.unit,
+      total: fs4.result.total,
     },
     assertionFree: scan.assertionFree.map((u) => ({
       file: u.file,
@@ -170,13 +185,18 @@ check(
   `단언을 가진 실행 단위 ${base.testUnits}건 (렌더 3 + blockedWhen 2 + FS 2)`,
 );
 
-/* ── 2. "동작이 정의된 요소" 판정 규칙 ────────────────────────────────────── */
+/* ── 2. "동작이 정의된 예외" 판정 규칙 ────────────────────────────────────── */
 
-console.log('\n[selftest] 2. FS 판정 규칙 — 정적 요소는 테스트를 요구하지 않는다');
+console.log('\n[selftest] 2. FSD §7 판정 규칙 — `해당 없음` 은 테스트를 요구하지 않는다');
 check(
-  '정적 라벨(EL-001) · 순수 위임(EL-003) 은 테스트 대상이 아니다',
-  base.fsTotalElements === 3 && base.fsTargets === 1,
-  `요소 ${base.fsTotalElements}개 중 테스트 대상 ${base.fsTargets}개 (EL-002 만) · 동작 칸 ${base.fsCells}칸 (빈 상태 · 로딩)`,
+  '`해당 없음` 10칸은 배제되고 동작 칸 2개만 남는다 (`〃` 는 윗행 판정을 물려받는다)',
+  base.fsScreens === 1 && base.fsTargets === 1 && base.fsCells === 2,
+  `화면 ${base.fsScreens}건 중 테스트 대상 ${base.fsTargets}건 · 동작 칸 ${base.fsCells}칸 (조회 결과 없음 · 권한 없음)`,
+);
+check(
+  '§7 의 12상황이 전부 있으면 누락 신고 0건',
+  base.fsSituationsMissing === 0 && base.fsSkipped === 0,
+  `상황 누락 ${base.fsSituationsMissing}칸 · 화면 ID 없는 문서 ${base.fsSkipped}건`,
 );
 
 /* ── 3. 검출 — 위반을 심으면 정확히 그 항목이 RED 가 된다 ────────────────── */
@@ -436,22 +456,23 @@ check(
   `커버 ${base.fsCovered}칸 / 기준선 0 — 과거가 없으면 후퇴도 없다`,
 );
 
+const RATCHET_2 = baselineOf({
+  covered: 2,
+  fsCellsTotal: 2,
+  source: '(selftest — 인위적 기준선 2칸)',
+});
+
 // M9 — **기준선을 인위적으로 올린 뒤 커버 칸을 줄인다.** e2e 테스트 1건을 지워 2칸 → 1칸.
 //      기준선 2칸이므로 1칸 후퇴 → blocker 여야 한다.
 const m9 = mutate(
   'ratchet-regress',
   (root) => {
-    const p = abs(root, 'e2e/widget/FS-009-widget.spec.ts');
+    const p = abs(root, 'e2e/widget/widget.spec.ts');
     const src = fsm.readFileSync(p, 'utf8');
-    // '로딩' 축 테스트를 삭제한다 → 커버 2칸 → 1칸
-    fsm.writeFileSync(p, src.slice(0, src.indexOf("it('FS-009-EL-002: 로딩")), 'utf8');
+    // '권한 없음' 상황 테스트를 삭제한다 → 커버 2칸 → 1칸
+    fsm.writeFileSync(p, src.slice(0, src.indexOf("it('SCR-WIDGET / 권한 없음")), 'utf8');
   },
-  {
-    covered: 2,
-    contractStatesTotal: 0,
-    contractBlockedTotal: 0,
-    source: '(selftest — 인위적 기준선 2칸)',
-  },
+  RATCHET_2,
 );
 const m9r = m9.blockers.filter((g) => g.id === 'fs-exception-axes');
 check(
@@ -461,12 +482,7 @@ check(
 );
 
 // M10 — 후퇴를 원복한다(픽스처 원본 그대로). 같은 기준선 2칸에서 blocker 가 사라져야 한다.
-const m10 = measure(FIXTURE, {
-  covered: 2,
-  contractStatesTotal: 0,
-  contractBlockedTotal: 0,
-  source: '(selftest — 인위적 기준선 2칸)',
-});
+const m10 = measure(FIXTURE, RATCHET_2);
 check(
   'M10 후퇴 원복 → 커버 2칸 = 기준선 2칸 → 래칫 blocker 소멸 (동률은 후퇴가 아니다)',
   m10.fsCovered === 2 && !m10.blockers.some((g) => g.id === 'fs-exception-axes'),
@@ -474,16 +490,101 @@ check(
 );
 
 // M11 — 커버가 기준선보다 **늘면** 당연히 통과. 래칫은 전진을 막지 않는다.
-const m11 = measure(FIXTURE, {
-  covered: 1,
-  contractStatesTotal: 0,
-  contractBlockedTotal: 0,
-  source: '(selftest — 기준선 1칸)',
-});
+const m11 = measure(FIXTURE, baselineOf({ covered: 1, fsCellsTotal: 1, source: '(기준선 1칸)' }));
 check(
   'M11 커버 2칸 > 기준선 1칸 → 통과 (래칫은 전진을 막지 않는다)',
   !m11.blockers.some((g) => g.id === 'fs-exception-axes'),
   `커버 ${m11.fsCovered}칸 > 기준선 1칸`,
+);
+
+/* ── 3c-2. 명세 쪽 세탁 — 분모를 줄여 커버리지를 올리는 두 경로 ──────────── */
+
+console.log('\n[selftest] 3c-2. 명세 쪽 세탁 (§7 을 고쳐 미커버를 지우는 경로)');
+
+// M9b — **테스트는 그대로 두고 명세의 동작 칸을 `해당 없음` 으로 바꾼다.**
+//       '조회 결과 없음' 이 배제되면 분모 2 → 1. 커버도 함께 1로 떨어지므로 **후퇴 blocker** 가
+//       뜨고, 동시에 **분모 축소 major** 가 뜬다. 둘 다 없으면 명세만 고쳐 RED 를 지울 수 있다.
+const m9b = mutate(
+  'spec-cell-to-na',
+  (root) => {
+    const p = abs(root, 'docs/FSD/widget/index.md');
+    const src = fsm.readFileSync(p, 'utf8');
+    fsm.writeFileSync(
+      p,
+      src.replace(
+        '| 조회 결과 없음 | `표시할 항목이 없습니다` 안내를 렌더한다 | 표 골격은 남긴다 | 조건을 바꾼다 |',
+        '| 조회 결과 없음 | 해당 없음 — 0건이 나올 수 없다 | — | — |',
+      ),
+      'utf8',
+    );
+  },
+  RATCHET_2,
+);
+const m9bShrink = m9b.majors.filter((g) => g.item.includes('명세 표면 축소'));
+check(
+  'M9b 명세의 동작 칸 → `해당 없음` (테스트는 그대로) → **분모 축소 major** + 커버 후퇴 blocker',
+  m9b.fsCells === 1 &&
+    m9bShrink.length === 1 &&
+    m9b.blockers.some((g) => g.id === 'fs-exception-axes'),
+  m9bShrink.length === 1
+    ? `동작 칸 2 → ${m9b.fsCells} · ${m9bShrink[0]?.item.replace(/\*/g, '')}`
+    : '분모 축소를 놓쳤다 — 명세만 고쳐 커버리지를 올릴 수 있다',
+);
+
+// M9c — **§7 의 행 자체를 지운다.** 템플릿은 "행을 지우지 않는다" 고 못박았다.
+//       행이 사라지면 분모가 줄어도 '해당 없음' 흔적조차 남지 않는다 — 가장 조용한 세탁이다.
+const m9c = mutate(
+  'spec-row-deleted',
+  (root) => {
+    const p = abs(root, 'docs/FSD/widget/index.md');
+    const src = fsm.readFileSync(p, 'utf8');
+    fsm.writeFileSync(
+      p,
+      src.replace('| 중복 데이터 | 해당 없음 — 아무것도 만들지 않는다 | — | — |\n', ''),
+      'utf8',
+    );
+  },
+  RATCHET_2,
+);
+const m9cMissing = m9c.majors.filter((g) => g.item.includes('§7 상황'));
+check(
+  'M9c §7 의 12상황 중 한 행 삭제 → **상황 누락 major** (템플릿: "행을 지우지 않는다")',
+  m9c.fsSituationsMissing === 1 && m9cMissing.length === 1,
+  m9cMissing.length === 1
+    ? (m9cMissing[0]?.item.replace(/\*/g, '') ?? '')
+    : `누락 ${m9c.fsSituationsMissing}칸 — 행 삭제를 놓쳤다`,
+);
+
+// M9d — §7 표 자체를 없앤다. "잴 것이 없으니 통과"가 아니라 "잴 수 없으니 실패"다.
+const m9d = mutate('spec-section-gone', (root) => {
+  const p = abs(root, 'docs/FSD/widget/index.md');
+  const src = fsm.readFileSync(p, 'utf8');
+  fsm.writeFileSync(p, src.slice(0, src.indexOf('## 7. 예외 처리')), 'utf8');
+});
+check(
+  'M9d §7 절 삭제 → 축4 blocker "대조 불가" (측정 불가 ≠ 통과)',
+  m9d.blockers.some((g) => g.id === 'fs-exception-axes' && g.item.includes('대조 불가')),
+  m9d.blockers.find((g) => g.id === 'fs-exception-axes')?.evidence.slice(0, 70) ?? '탐지 실패',
+);
+
+// M9e — **래칫 단위가 다른 옛 기준선.** 삭제된 specs/** 의 137칸과 새 단위를 크기 비교하면
+//       거짓 후퇴 blocker 가 뜬다. 비교하지 않고 **재수립을 major 로 신고**해야 한다.
+const m9e = measure(
+  FIXTURE,
+  baselineOf({
+    covered: 137,
+    fsCellsTotal: 13017,
+    unit: 'el-x-axis/v1',
+    source: '(selftest — 옛 단위 137칸)',
+  }),
+);
+const m9eReset = m9e.majors.filter((g) => g.item.includes('래칫 기준선 재수립'));
+check(
+  'M9e 옛 단위 기준선 137칸 → 거짓 후퇴 blocker 없음 + **재수립 major** 로 신고 (조용한 리셋 금지)',
+  !m9e.blockers.some((g) => g.id === 'fs-exception-axes') && m9eReset.length === 1,
+  m9eReset.length === 1
+    ? (m9eReset[0]?.item.replace(/\*/g, '') ?? '')
+    : '재수립을 신고하지 않았다 — 숫자가 바뀐 이유가 리포트에 남지 않는다',
 );
 
 /* ── 3d. 분모 세탁 — 계약 표면 축소 감시 ─────────────────────────────────── */
@@ -509,12 +610,11 @@ const m12 = mutate(
       'utf8',
     );
   },
-  {
-    covered: 0,
+  baselineOf({
     contractStatesTotal: 3,
     contractBlockedTotal: 2,
     source: '(selftest — 직전 states 3칸)',
-  },
+  }),
 );
 const m12s = m12.majors.filter((g) => g.id === 'contract-states' && g.item.includes('표면 축소'));
 check(
@@ -527,12 +627,14 @@ check(
 
 check(
   '표면이 그대로면 표면 축소 신고 없음 (거짓 양성 없음)',
-  !measure(FIXTURE, {
-    covered: 0,
-    contractStatesTotal: 3,
-    contractBlockedTotal: 2,
-    source: '(selftest — 동일 표면)',
-  }).majors.some((g) => g.item.includes('표면 축소')),
+  !measure(
+    FIXTURE,
+    baselineOf({
+      contractStatesTotal: 3,
+      contractBlockedTotal: 2,
+      source: '(selftest — 동일 표면)',
+    }),
+  ).majors.some((g) => g.item.includes('표면 축소')),
   'states 3칸 = 기준선 3칸 · blockedWhen 2칸 = 기준선 2칸 → 신고 없음',
 );
 
@@ -577,12 +679,11 @@ check(
 
 console.log('\n[selftest] 3f. 결정론 — 커밋되는 기준선은 벽시계 churn 이 없어야 한다');
 
-const B0: Baseline = {
-  covered: 0,
+const B0: Baseline = baselineOf({
   contractStatesTotal: 46,
   contractBlockedTotal: 9,
   source: 'reports/test-coverage/selftest.json',
-};
+});
 
 // (1) buildReport 는 벽시계를 넣지 않는다 — 두 번 빌드해 JSON 이 바이트 동일해야 한다.
 const j1 = JSON.stringify(buildFixtureReport(FIXTURE, B0));

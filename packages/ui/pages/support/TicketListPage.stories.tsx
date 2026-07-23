@@ -528,7 +528,7 @@ function TicketListScreen({ state }: { state: ScreenState }) {
       {failed ? (
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>1:1 문의 목록을 불러오지 못했습니다.</span>
+            <span>1:1 문의 목록을 불러오지 못했어요.</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
@@ -539,7 +539,7 @@ function TicketListScreen({ state }: { state: ScreenState }) {
           </p>
 
           <Table
-            caption="1:1 문의 목록 — 행을 누르면 문의 상세로 이동합니다. 문의는 고객이 접수하므로 삭제·일괄 작업이 없습니다."
+            caption="1:1 문의 목록 — 행을 누르면 문의 상세로 이동해요. 문의는 고객이 접수하므로 삭제·일괄 작업이 없어요."
             columns={COLUMNS}
             rows={rows}
             loading={loading}

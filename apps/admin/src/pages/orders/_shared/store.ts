@@ -317,7 +317,7 @@ export const ORDER_SEED: readonly Order[] = [
       zipCode: '34126',
       address: '대전광역시 유성구 대덕대로 512',
       addressDetail: '',
-      request: '배송 전 연락 부탁드립니다.',
+      request: '배송 전 연락 부탁드려요.',
     },
     lines: [
       {

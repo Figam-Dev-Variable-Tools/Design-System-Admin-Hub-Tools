@@ -29,11 +29,11 @@ describe('HttpError', () => {
 
   it('422 의 필드 위반을 실어 나른다 — 폼이 그 입력에 인라인 에러를 꽂는다 (EXC-07)', () => {
     const error = new HttpError(HTTP_STATUS.unprocessable, '검증 실패', {
-      violations: [{ field: 'quoteNo', message: '이미 사용 중인 견적번호입니다.' }],
+      violations: [{ field: 'quoteNo', message: '이미 사용 중인 견적번호예요.' }],
     });
 
     expect(error.violations).toEqual([
-      { field: 'quoteNo', message: '이미 사용 중인 견적번호입니다.' },
+      { field: 'quoteNo', message: '이미 사용 중인 견적번호예요.' },
     ]);
   });
 

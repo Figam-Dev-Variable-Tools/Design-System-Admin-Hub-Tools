@@ -29,24 +29,9 @@ import {
   registerQuoteFunnelLookup,
 } from './shared/commerce/inquiry-backlog';
 import { registerQuoteIssuer } from './shared/domain/quote-issue';
-import { registerSitePageCatalogLookup } from './shared/domain/site-page-catalog';
-import { listCatalogSitePages } from './pages/content/pages/data-source';
-import {
-  registerMediaCatalogLookup,
-  registerMediaUsageLookup,
-} from './shared/domain/media-library';
-import { listCatalogMediaAssets } from './pages/content/media/data-source';
-import { listNewsMediaUsage } from './pages/content/news/data-source';
-import { registerTrafficSourceLookup } from './shared/domain/traffic-source';
-import { findTrafficSource } from './pages/settings/site-connect/data-source';
 import { registerActiveTermsLookup } from './shared/domain/terms-version';
 import type { ActiveTermsVersion } from './shared/domain/terms-version';
 import { fetchTermsTypes, fetchTermsVersions } from './pages/content/terms/data-source';
-import { registerTranslatableLookup } from './shared/domain/translatable-catalog';
-import type { TranslatableEntry } from './shared/domain/translatable-catalog';
-import { NOTICES } from './pages/content/notices/data-source';
-import { registerApplicationFormLookup } from './shared/domain/application-form';
-import { listContentForms } from './pages/content/forms/data-source';
 import { issueQuoteRef, listQuotes } from './pages/sales/quotes/data-source';
 import { listProductInquiries } from './pages/products/inquiries/_shared/store';
 import { listProgramInquiries } from './pages/programs/inquiries/_shared/store';
@@ -57,7 +42,12 @@ import { registerCarrierCatalogLookup, registerCarrierUsageLookup } from './shar
 import { listShippingCarriers, shippingPolicyKey } from './pages/products/shipping/data-source';
 import type { ShippingPolicyValues } from './pages/products/shipping/validation';
 import { countShipmentsByCarrier } from './pages/orders/shipments/data-source';
-import { appendPointEntry } from './shared/fixtures/members';
+import { appendPointEntry, countMembersByTier } from './shared/fixtures/members';
+import {
+  registerMemberTierCatalogLookup,
+  registerMemberTierUsageLookup,
+} from './shared/domain/member-tier-catalog';
+import { listMemberTierCatalog } from './pages/customer-settings/data-source';
 import { registerStockApplier, applyMovements } from './shared/domain/stock';
 import { listOrderRefs } from './pages/orders/data-source';
 import { listProducts, updateProduct } from './pages/products/_shared/store';
@@ -244,50 +234,12 @@ export function wireDomains(): void {
   // pages/products → pages/sales 는 축1 위반이라 공통 층이 자리를 만들고 여기가 꽂는다.
   registerQuoteIssuer(issueQuoteRef);
 
-  // 메뉴 관리가 가리킬 수 있는 페이지 — 정본은 페이지 관리다.
-  // 미배선이면 null('모른다')이라 메뉴 화면은 내부 페이지를 고를 수 없다고 문장으로 말하고
-  // 끊긴 링크 판정을 아예 하지 않는다 — 빈 배열을 주면 멀쩡한 메뉴가 전부 '끊김'으로 붉어진다.
-  registerSitePageCatalogLookup(listCatalogSitePages);
-
-  // 뉴스 첨부가 고를 수 있는 파일 — 정본은 미디어 라이브러리다.
-  // 미배선이면 '첨부를 고를 수 없다'고 알리되 이미 붙은 첨부는 그대로 둔다
-  // (모르는 것을 삭제로 해석하지 않는다).
-  registerMediaCatalogLookup(listCatalogMediaAssets);
-
-  // 미디어 삭제 차단의 근거 — '이 파일이 어디에 쓰이나'. 답은 쓰는 쪽이 갖고 있다.
-  // 등록기가 이름표를 갖는 이유: 나중에 다른 도메인이 붙어도 앞의 것을 덮지 않는다.
-  // **미배선이면 삭제가 전부 막힌다(fail-closed)** — 0건이 아니다. 모르는 채로 지우면
-  // 홈페이지의 이미지가 조용히 깨지고 되돌릴 수 없다.
-  registerMediaUsageLookup('news', listNewsMediaUsage);
-
-  // 주문·문의·회원이 '어디서 왔는가' 를 물을 때 답하는 곳 — 정본은 사이트 연동의 관측 원장이다.
-  // 미배선이면 null('모른다')이지 'direct 유입' 이 아니다. 둘을 뭉개면 배선 사고가
-  // '직접 유입 100%' 라는 그럴듯한 통계로 둔갑한다.
-  // 짝이 되는 setter 는 없다(앞으로도 만들지 않는다) — 유입은 관측값이지 의견이 아니다.
-  registerTrafficSourceLookup(findTrafficSource);
-
-  // 다국어 설정의 번역 현황이 읽는 원본 — 정본은 각 작성 화면이다.
-  // 계약이 '발행분만' 이라 여기서 거른다: 초안을 번역시키면 발행 직전에 원문이 바뀌어 그 작업이 버려진다.
-  // 미배선이면 null('모른다')이지 [] 가 아니다 — 빈 배열은 '번역이 끝났다' 로 읽힌다.
-  registerTranslatableLookup(() =>
-    NOTICES.filter((notice) => notice.status === 'published').map((notice): TranslatableEntry => ({
-      id: notice.id,
-      kindLabel: '공지사항',
-      title: notice.title,
-      publishedAt: notice.publishedAtIso,
-    })),
-  );
-
-  // 채용 공고의 '지원 방법: 폼' 이 가리킬 목록 — 정본은 폼 관리 화면이다.
-  // 미배선이어도 화면은 돈다: 조회기가 null 이면 선택지가 잠기고 이유를 말한다. 빈 목록으로
-  // 뭉개면 '등록된 폼이 없습니다' 라는 완결된 문장이 되어 운영자가 이미 있는 폼을 다시 만든다.
-  registerApplicationFormLookup(() =>
-    listContentForms().map((form) => ({
-      id: form.id,
-      name: form.name,
-      published: form.status === 'published',
-    })),
-  );
+  // [지원 폼 이음매는 여기 없다 — 참조하는 쪽이 사라졌기 때문이다]
+  // 폼의 정본이던 화면(/content/forms)이 IA 에서 빠지자 채용 공고의 '지원 방법: 폼' 은
+  // 고를 수는 있는데 절대 공개할 수 없는 선택지가 됐다. 그래서 그 선택지를 걷었고
+  // (pages/company/careers/types.ts), 소비자가 0 이 된 shared/domain/application-form.ts 도
+  // 함께 지웠다 — 이 리포는 소비자 없는 공개 표면을 남기지 않는다.
+  // 옛 공고가 그 값을 들고 있어도 공개되지 않는다: applyMethodBlock 이 fail-closed 로 거절한다.
 
   wireActiveTerms();
 
@@ -351,6 +303,17 @@ export function wireDomains(): void {
     (roleId) => listAdmins().filter((admin) => admin.roleId === roleId).length,
   );
 
+  // 회원 등급 카탈로그 — 정본은 고객 설정 화면(/users/settings)이다. 기본 제공 3종 위에 운영자가
+  // 추가한 등급이 얹히므로, `shared/domain/member.ts` 의 닫힌 유니온만으로는 '등급의 전부'를
+  // 알 수 없다. 읽는 쪽이 그 화면을 import 하면 축1(page-coupling) 위반이라 여기서 꽂는다.
+  // 미배선이면 조회기가 빈 배열이 아니라 null 을 준다 — '등록된 등급이 없다'는 완결된 거짓말을
+  // 그리지 않기 위해서다(shared/domain/member-tier-catalog.ts 머리말).
+  registerMemberTierCatalogLookup(listMemberTierCatalog);
+
+  // 그 반대 방향 — '이 등급을 쓰는 회원이 몇 명인가'. 등급 삭제 가드가 묻고, 회원 명부가 답한다.
+  // 역할 삭제 가드(위)와 같은 모양이고, 배선 전에는 null(확인 불가)이라 삭제가 전부 막힌다.
+  registerMemberTierUsageLookup(countMembersByTier);
+
   wireSitePolicy();
   wireSupplier();
 }
@@ -382,13 +345,25 @@ function wireSitePolicy(): void {
   });
 }
 
-/** 회사 정보 → 견적서가 인쇄하는 공급자 정보. 필드 대응은 여기 한 곳에서만 정한다 */
+/**
+ * 회사 정보 → 견적서가 인쇄하는 공급자 정보. 필드 대응은 여기 한 곳에서만 정한다.
+ *
+ * [주소는 두 칸을 다시 합친다] 회사 정보는 주소를 `address`(주소 검색으로 고른 도로명)와
+ * `addressDetail`(층·호수)로 **나눠서** 저장한다 — 검색으로 고른 값과 사람이 적는 값의
+ * 성격이 달라서다. 그러나 `SupplierInfo.address` 는 **한 줄**이다: 견적서에 인쇄되는 것은
+ * 우편물이 실제로 닿는 한 줄짜리 주소이지 입력 칸의 구조가 아니다.
+ *
+ * 합치지 않으면 상세주소가 조용히 사라진다 — 화면에는 '8층' 이 보이는데 고객이 받는
+ * 견적서에는 없는, 알아채기 어려운 종류의 누락이다.
+ */
 function toSupplier(profile: CompanyProfile): SupplierInfo {
+  const detail = profile.addressDetail.trim();
+  const base = profile.address.trim();
   return {
     name: profile.companyName,
     bizNo: profile.businessNumber,
     ceoName: profile.ceoName,
-    address: profile.address,
+    address: detail === '' ? base : `${base} ${detail}`,
     phone: profile.contact,
   };
 }

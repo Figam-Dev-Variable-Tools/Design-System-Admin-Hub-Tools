@@ -32,6 +32,7 @@ import {
   Button,
   Card,
   FormField,
+  formRowStyle,
   Icon,
   ImageGalleryField,
   ImageUploadField,
@@ -188,12 +189,6 @@ const cardTitleStyle: CSSProperties = {
   color: cssVar('color.text.default'),
 };
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
 const controlBaseStyle: CSSProperties = {
   width: '100%',
   boxSizing: 'border-box',
@@ -292,7 +287,7 @@ function PortfolioFormScreen({
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '포트폴리오 수정' : '포트폴리오 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 분류·대표 이미지와 소개를 입력하세요.
+          별표(*) 항목은 필수예요. 분류·대표 이미지와 소개를 입력하세요.
         </p>
       </div>
 
@@ -306,7 +301,7 @@ function PortfolioFormScreen({
             </div>
           ) : (
             <>
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField
                   htmlFor="portfolio-category"
                   label="분류"
@@ -380,7 +375,7 @@ function PortfolioFormScreen({
                 required
                 value={coverImageUrl}
                 onChange={setCoverImageUrl}
-                hint="목록에는 노출되지 않습니다 — 상세/미리보기의 대표 이미지입니다."
+                hint="목록에는 노출되지 않아요 — 상세/미리보기의 대표 이미지예요."
                 error={errors.coverImageUrl ?? ''}
               />
 
@@ -389,7 +384,7 @@ function PortfolioFormScreen({
                 values={imageUrls}
                 onChange={setImageUrls}
                 maxFiles={MAX_IMAGES}
-                hint={`프로젝트를 보여줄 이미지를 여러 장 올릴 수 있습니다. 최대 ${String(MAX_IMAGES)}장.`}
+                hint={`프로젝트를 보여줄 이미지를 여러 장 올릴 수 있어요. 최대 ${String(MAX_IMAGES)}장.`}
               />
 
               <div style={toggleFieldStyle}>

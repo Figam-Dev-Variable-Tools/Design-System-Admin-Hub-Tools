@@ -396,7 +396,7 @@ export function EmailBuilder({
 
             {panelTab === 'inspect' &&
               (selectedBlock === undefined ? (
-                <p style={panelEmptyStyle}>블록을 선택하면 설정을 편집할 수 있습니다.</p>
+                <p style={panelEmptyStyle}>블록을 선택하면 설정을 편집할 수 있어요.</p>
               ) : (
                 <>
                   <h3 style={panelHeadingStyle}>{inspectHeadingOf(selectedBlock)}</h3>

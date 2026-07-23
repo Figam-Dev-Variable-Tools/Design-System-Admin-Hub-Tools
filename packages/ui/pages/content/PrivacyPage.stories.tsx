@@ -262,7 +262,7 @@ function PrivacyScreen({
         <h1 style={headingStyle}>개인정보 처리방침</h1>
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>개인정보 처리방침을 불러오지 못했습니다.</span>
+            <span>개인정보 처리방침을 불러오지 못했어요.</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
@@ -341,7 +341,7 @@ function PrivacyScreen({
       </SelectionBar>
 
       <Table
-        caption="개인정보 처리방침 버전 이력 — 체크박스로 선택하고, 행을 누르면 전문을 봅니다. 수정/삭제 버튼으로 각 버전을 관리합니다."
+        caption="개인정보 처리방침 버전 이력 — 체크박스로 선택하고, 행을 누르면 전문을 봐요. 수정/삭제 버튼으로 각 버전을 관리해요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[
@@ -374,7 +374,7 @@ function PrivacyScreen({
         <ConfirmDialog
           intent="delete"
           title="처리방침 버전 삭제"
-          message={`${confirming.version} 버전을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`${confirming.version} 버전을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="버전 삭제"
           onConfirm={() => {
             removeVersions(new Set([confirming.id]));
@@ -388,7 +388,7 @@ function PrivacyScreen({
         <ConfirmDialog
           intent="delete"
           title="처리방침 버전 일괄 삭제"
-          message={`선택한 버전 ${fmt(selectedCount)}건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 버전 ${fmt(selectedCount)}건을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel={`${fmt(selectedCount)}건 삭제`}
           onConfirm={() => {
             removeVersions(selectedIds);

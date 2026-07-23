@@ -20,13 +20,13 @@ describe('ConfirmDialog — 계약 intent·states', () => {
       <ConfirmDialog
         intent="delete"
         title="삭제할까요?"
-        message="되돌릴 수 없습니다."
+        message="되돌릴 수 없어요."
         onConfirm={vi.fn()}
         onCancel={vi.fn()}
       />,
     );
     expect(screen.getByRole('dialog', { name: '삭제할까요?' })).not.toBeNull();
-    expect(screen.getByText('되돌릴 수 없습니다.')).not.toBeNull();
+    expect(screen.getByText('되돌릴 수 없어요.')).not.toBeNull();
     const confirm = screen.getByRole('button', { name: '삭제' }) as HTMLButtonElement;
     expect(confirm.getAttribute('aria-busy')).not.toBe('true');
     expect(confirm.disabled).toBe(false);
@@ -38,7 +38,7 @@ describe('ConfirmDialog — 계약 intent·states', () => {
       <ConfirmDialog
         intent="delete"
         title="삭제할까요?"
-        message="정말 삭제하시겠습니까? 되돌릴 수 없습니다."
+        message="정말 삭제할까요? 되돌릴 수 없어요."
         onConfirm={vi.fn()}
         onCancel={vi.fn()}
       />,
@@ -48,7 +48,7 @@ describe('ConfirmDialog — 계약 intent·states', () => {
     expect(describedby).not.toBeNull();
     const messageEl = document.getElementById(describedby ?? '');
     expect(messageEl).not.toBeNull();
-    expect(messageEl?.textContent).toBe('정말 삭제하시겠습니까? 되돌릴 수 없습니다.');
+    expect(messageEl?.textContent).toBe('정말 삭제할까요? 되돌릴 수 없어요.');
   });
 
   it('ConfirmDialog: intent 가 기본 확인 라벨을 정한다 (create=만들기 · update=저장 · discard=나가기)', () => {
@@ -112,12 +112,12 @@ describe('ConfirmDialog — 계약 intent·states', () => {
         intent="delete"
         title="t"
         message="m"
-        error="삭제에 실패했습니다."
+        error="삭제에 실패했어요."
         onConfirm={onConfirm}
         onCancel={vi.fn()}
       />,
     );
-    expect(screen.getByRole('alert').textContent).toContain('삭제에 실패했습니다.');
+    expect(screen.getByRole('alert').textContent).toContain('삭제에 실패했어요.');
     fireEvent.click(screen.getByRole('button', { name: '삭제' }));
     expect(onConfirm).toHaveBeenCalledTimes(1);
   });

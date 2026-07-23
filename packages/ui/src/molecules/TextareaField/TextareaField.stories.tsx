@@ -34,7 +34,7 @@ const meta: Meta<typeof TextareaField> = {
   argTypes: { ...TextareaFieldArgTypes },
   args: {
     label: '본문',
-    value: '공지 본문 예시입니다.',
+    value: '공지 본문 예시예요.',
     maxLength: 500,
     required: false,
     disabled: false,
@@ -53,7 +53,7 @@ export default meta;
 type Story = StoryObj<typeof TextareaField>;
 
 /** Overview — 대표 쓰임새. 라벨 + 값이 채워진 여러 줄 입력 + 힌트 */
-export const Overview: Story = { args: { value: '공지 본문 예시입니다.', hint: '최대 500자' } };
+export const Overview: Story = { args: { value: '공지 본문 예시예요.', hint: '최대 500자' } };
 
 /** Playground — Controls 에서 required·disabled·error·rows·maxLength 를 바꿔 전 조합을 본다 */
 export const Playground: Story = {};
@@ -104,7 +104,7 @@ export const Optional: Story = {
 /** 글자수 카운터 — FormField 우측에 'N/max' 형식으로 현재 길이를 보여 준다 */
 export const Counter: Story = {
   name: 'Form/Counter',
-  args: { value: '공지 본문 예시입니다.', hint: '최대 500자' },
+  args: { value: '공지 본문 예시예요.', hint: '최대 500자' },
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getByText('12/500')).toBeVisible();
   },
@@ -140,8 +140,9 @@ export const MinimalContent: Story = {
 export const LongContent: Story = {
   name: 'Content/Long',
   args: {
-    value:
-      '이 공지는 매우 긴 본문을 담고 있어 카운터가 상한에 가까워진 상태를 보여 줍니다. '.repeat(4),
+    value: '이 공지는 매우 긴 본문을 담고 있어 카운터가 상한에 가까워진 상태를 보여 줘요. '.repeat(
+      4,
+    ),
     hint: '최대 500자',
   },
 };

@@ -43,6 +43,15 @@ interface AdminGroupPanelProps {
   readonly totalAll: number | null;
   /** 삭제 대상 확인 중 — 참조 현황을 조회하는 동안 버튼을 잠근다 */
   readonly checkingDeletion: boolean;
+  /**
+   * 이 라우트(`/users/admins`)의 쓰기 권한.
+   *
+   * [왜 '부재' 인가] 잠긴 삭제 버튼('전체 운영자' 를 고른 상태·확인 중)은 **할 수는 있는데 지금
+   * 이 대상에는 못 한다**는 뜻이라 남아서 이유를 말한다. 권한 없음은 그 일 자체가 내 것이
+   * 아니라는 뜻이므로 컨트롤이 사라진다 (B2 명세 §9.3).
+   */
+  readonly canCreate: boolean;
+  readonly canRemove: boolean;
   readonly onChange: (groupId: string) => void;
   readonly onCreate: () => void;
   readonly onDelete: () => void;
@@ -54,6 +63,8 @@ export function AdminGroupPanel({
   counts,
   totalAll,
   checkingDeletion,
+  canCreate,
+  canRemove,
   onChange,
   onCreate,
   onDelete,
@@ -80,11 +91,11 @@ export function AdminGroupPanel({
       notice={
         <>
           <p style={hintStyle}>
-            여러 사람과 함께 사이트를 관리할 수 있습니다. 믿을 수 있는 사용자 그룹에게만 조심해서
-            관리 권한을 주세요.
+            여러 사람과 함께 사이트를 관리할 수 있어요. 믿을 수 있는 사용자 그룹에게만 조심해서 관리
+            권한을 주세요.
           </p>
           <p style={hintStyle}>
-            각 항목에는 알림 발신 및 수신 권한과 사이트 내 조회 및 편집 권한을 포함하고 있습니다.
+            각 항목에는 알림 발신 및 수신 권한과 사이트 내 조회 및 편집 권한을 포함하고 있어요.
           </p>
           <p style={hintStyle}>
             회원가입과 관련된 설정은{' '}
@@ -124,24 +135,31 @@ export function AdminGroupPanel({
          * 목록이 길어져 사이드바가 늘어나는 쪽이, 방금 만든 것이 안 보이는 쪽보다 낫다.
          */
         footer={
-          <div style={footerActionsStyle}>
-            <Button variant="secondary" onClick={onCreate}>
-              + 새 그룹 만들기
-            </Button>
-            <Button
-              variant="secondary"
-              // 고른 것이 그룹일 때만 지운다. 무엇을 지우는지 라벨이 직접 말한다 —
-              // '삭제' 한 낱말이면 눌러 보기 전에는 대상을 알 수 없다
-              disabled={selectedGroup === null || checkingDeletion}
-              onClick={onDelete}
-            >
-              {selectedGroup === null
-                ? '그룹 삭제'
-                : checkingDeletion
-                  ? '확인 중…'
-                  : `'${selectedGroup.name}' 그룹 삭제`}
-            </Button>
-          </div>
+          // 둘 다 없으면 footer 자체를 넘기지 않는다 — 빈 칸만 남기지 않는다
+          canCreate || canRemove ? (
+            <div style={footerActionsStyle}>
+              {canCreate && (
+                <Button variant="secondary" onClick={onCreate}>
+                  + 새 그룹 만들기
+                </Button>
+              )}
+              {canRemove && (
+                <Button
+                  variant="secondary"
+                  // 고른 것이 그룹일 때만 지운다. 무엇을 지우는지 라벨이 직접 말한다 —
+                  // '삭제' 한 낱말이면 눌러 보기 전에는 대상을 알 수 없다
+                  disabled={selectedGroup === null || checkingDeletion}
+                  onClick={onDelete}
+                >
+                  {selectedGroup === null
+                    ? '그룹 삭제'
+                    : checkingDeletion
+                      ? '확인 중…'
+                      : `'${selectedGroup.name}' 그룹 삭제`}
+                </Button>
+              )}
+            </div>
+          ) : undefined
         }
       />
     </FilterRail>

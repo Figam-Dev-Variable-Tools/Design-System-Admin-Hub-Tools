@@ -62,8 +62,8 @@ export function FormConflictDialog({ conflict }: { readonly conflict: ConflictSt
   return (
     <ConfirmDialog
       intent="delete"
-      title="다른 사용자가 먼저 변경했습니다"
-      message={`${conflict.message} 최신 내용을 불러오면 지금 입력한 내용은 사라집니다. 입력한 내용을 지키려면 '이어서 편집'을 선택하세요.`}
+      title="다른 사용자가 먼저 변경했어요"
+      message={`${conflict.message} 최신 내용을 불러오면 지금 입력한 내용은 사라져요. 입력한 내용을 지키려면 '이어서 편집'을 선택하세요.`}
       confirmLabel="최신 내용 불러오기"
       cancelLabel="이어서 편집"
       busy={false}

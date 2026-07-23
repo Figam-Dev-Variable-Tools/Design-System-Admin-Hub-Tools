@@ -27,7 +27,6 @@ import {
 } from '../../../shared/ui';
 import { roleDeletionBlock, SYSTEM_ROLE_REASON } from '../../../shared/permissions/roles';
 import type { Role } from '../../../shared/permissions/roles';
-import { LockIcon, PlusIcon } from '../icons';
 import { cssVar } from '@tds/ui';
 
 /**
@@ -87,6 +86,16 @@ interface RolePanelProps {
   readonly assigneeCounts: Readonly<Record<string, number | null>>;
   /** 시스템 역할 비활성 사유 문구의 id — 비활성 버튼이 aria-describedby 로 가리킨다 */
   readonly systemReasonId: string;
+  /**
+   * 이 라우트(`/users/roles`)의 쓰기 권한.
+   *
+   * [왜 '비활성' 이 아니라 '부재' 인가] 시스템 역할 잠금(위의 systemReasonId)은 **할 수는 있지만
+   * 이 대상에는 못 한다**는 뜻이라 버튼이 남고 사유를 말한다. 권한 없음은 **애초에 이 일이
+   * 내 것이 아니다**라는 뜻이므로 컨트롤 자체가 없다 — 이 앱의 규약이다(B2 명세 §9.3).
+   */
+  readonly canCreate: boolean;
+  readonly canUpdate: boolean;
+  readonly canRemove: boolean;
   readonly onSelect: (roleId: string) => void;
   readonly onCreate: () => void;
   readonly onRename: () => void;
@@ -99,6 +108,9 @@ export function RolePanel({
   activeRoleId,
   assigneeCounts,
   systemReasonId,
+  canCreate,
+  canUpdate,
+  canRemove,
   onSelect,
   onCreate,
   onRename,
@@ -129,12 +141,12 @@ export function RolePanel({
             {SYSTEM_ROLE_REASON}
           </p>
           <p style={hintStyle}>
-            '적용 중' 역할의 권한이 곧 이 관리자 앱의 유효 권한입니다. 조회를 끄면 사이드바의 메뉴와
-            하위 메뉴가 즉시 사라집니다.
+            '적용 중' 역할의 권한이 곧 이 관리자 앱의 유효 권한이에요. 조회를 끄면 사이드바의 메뉴와
+            하위 메뉴가 즉시 사라져요.
           </p>
           <p style={hintStyle}>
-            체크는 누르는 즉시 저장됩니다 — 따로 저장 버튼이 없습니다. 설정은 이 브라우저에
-            저장되며, 열려 있는 다른 탭에도 실시간으로 반영됩니다.
+            체크는 누르는 즉시 저장돼요 — 따로 저장 버튼이 없어요. 설정은 이 브라우저에 저장되며,
+            열려 있는 다른 탭에도 실시간으로 반영돼요.
           </p>
         </>
       }
@@ -142,35 +154,44 @@ export function RolePanel({
       <nav style={filterNavStyle} aria-label="역할 목록">
         <h2 style={filterHeadingStyle}>역할</h2>
 
-        <div style={actionsStyle}>
-          <Button variant="ghost" onClick={onCreate}>
-            <PlusIcon />
-            추가
-          </Button>
-          <Button
-            variant="ghost"
-            disabled={locked}
-            aria-describedby={locked ? systemReasonId : undefined}
-            title={locked ? SYSTEM_ROLE_REASON : undefined}
-            onClick={onRename}
-          >
-            <Icon name="pencil" />
-            수정
-          </Button>
-          <Button
-            variant="ghost"
-            disabled={deleteLocked}
-            aria-describedby={locked ? systemReasonId : undefined}
-            // 배정 사유는 이 화면에만 있는 문장이라 보이는 문구(systemReasonId)로 가리킬 수 없다 —
-            // 버튼 자신이 이름과 툴팁으로 말한다
-            aria-label={deleteBlock ?? undefined}
-            title={locked ? SYSTEM_ROLE_REASON : (deleteBlock ?? undefined)}
-            onClick={onDelete}
-          >
-            <Icon name="trash" />
-            삭제
-          </Button>
-        </div>
+        {/* 셋 다 없으면 액션바 자체를 그리지 않는다 — 빈 테두리만 남기지 않는다 */}
+        {(canCreate || canUpdate || canRemove) && (
+          <div style={actionsStyle}>
+            {canCreate && (
+              <Button variant="ghost" onClick={onCreate}>
+                <Icon name="plus" />
+                추가
+              </Button>
+            )}
+            {canUpdate && (
+              <Button
+                variant="ghost"
+                disabled={locked}
+                aria-describedby={locked ? systemReasonId : undefined}
+                title={locked ? SYSTEM_ROLE_REASON : undefined}
+                onClick={onRename}
+              >
+                <Icon name="pencil" />
+                수정
+              </Button>
+            )}
+            {canRemove && (
+              <Button
+                variant="ghost"
+                disabled={deleteLocked}
+                aria-describedby={locked ? systemReasonId : undefined}
+                // 배정 사유는 이 화면에만 있는 문장이라 보이는 문구(systemReasonId)로 가리킬 수 없다 —
+                // 버튼 자신이 이름과 툴팁으로 말한다
+                aria-label={deleteBlock ?? undefined}
+                title={locked ? SYSTEM_ROLE_REASON : (deleteBlock ?? undefined)}
+                onClick={onDelete}
+              >
+                <Icon name="trash" />
+                삭제
+              </Button>
+            )}
+          </div>
+        )}
 
         <ul style={filterListStyle}>
           {roles.map((role) => {
@@ -188,7 +209,7 @@ export function RolePanel({
                     <span>{role.name}</span>
                     {role.system && (
                       <span style={lockStyle} title={SYSTEM_ROLE_REASON}>
-                        <LockIcon />
+                        <Icon name="lock" />
                       </span>
                     )}
                   </span>

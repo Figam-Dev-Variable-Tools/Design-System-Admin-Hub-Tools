@@ -53,6 +53,7 @@ import {
   Button,
   Card,
   FormField,
+  formRowStyle,
   Icon,
   SelectField,
   StatusBadge,
@@ -117,11 +118,11 @@ const STATE_META: Readonly<
 const BILLING_NOTE_MAX = 300;
 const BILLING_MEMO_MAX = 60;
 
-const PAYMENT_ALREADY_PAID = '이미 입금이 완료된 청구입니다.';
-const PAYMENT_AMOUNT_POSITIVE = '입금액은 0보다 커야 합니다.';
-const PAYMENT_OVER_OUTSTANDING = '입금액이 잔액보다 클 수 없습니다.';
+const PAYMENT_ALREADY_PAID = '이미 입금이 완료된 청구예요.';
+const PAYMENT_AMOUNT_POSITIVE = '입금액은 0보다 커야 해요.';
+const PAYMENT_OVER_OUTSTANDING = '입금액이 잔액보다 클 수 없어요.';
 const PAYMENT_DATE_REQUIRED = '입금일을 YYYY-MM-DD 형식으로 입력하세요.';
-const NOTICE_LINK_REQUIRED = '개인결제창 링크를 먼저 등록해야 안내를 보낼 수 있습니다.';
+const NOTICE_LINK_REQUIRED = '개인결제창 링크를 먼저 등록해야 안내를 보낼 수 있어요.';
 
 /** 입금일의 초기값 — 화면이 `new Date()` 를 읽으면 스토리 비교가 매일 깨진다 */
 const TODAY = '2026-07-21';
@@ -347,12 +348,6 @@ const layoutStyle: CSSProperties = {
   alignItems: 'start',
 };
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
 const cardBodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
@@ -552,9 +547,7 @@ function BillingDetailScreen({
         </div>
       </div>
 
-      {!canUpdate && (
-        <Alert tone="info">입금확인 권한이 없습니다. 이 화면은 조회만 가능합니다.</Alert>
-      )}
+      {!canUpdate && <Alert tone="info">입금확인 권한이 없어요. 이 화면은 조회만 가능해요.</Alert>}
 
       <div style={layoutStyle}>
         <div style={columnStyle}>
@@ -565,7 +558,7 @@ function BillingDetailScreen({
               <dt style={dtStyle}>원 견적</dt>
               <dd style={ddStyle}>
                 {billing.quoteNo === '' ? (
-                  <span style={mutedStyle}>견적 없이 만든 청구입니다.</span>
+                  <span style={mutedStyle}>견적 없이 만든 청구예요.</span>
                 ) : (
                   <a href="#quote-detail" style={linkStyle}>
                     {billing.quoteNo}
@@ -593,10 +586,10 @@ function BillingDetailScreen({
 
           <DetailCard title="청구 방식">
             <p style={hintStyle}>
-              결제대행을 쓰지 않으므로 앱은 결제를 처리하지 않습니다. 개인결제창은 링크를 보관만
-              하고, 입금 사실은 아래에서 사람이 확인해 기록합니다.
+              결제대행을 쓰지 않으므로 앱은 결제를 처리하지 않아요. 개인결제창은 링크를 보관만 하고,
+              입금 사실은 아래에서 사람이 확인해 기록해요.
             </p>
-            <div style={rowStyle}>
+            <div style={formRowStyle}>
               <FormField htmlFor="billing-method" label="청구 방식">
                 <SelectField
                   id="billing-method"
@@ -621,7 +614,7 @@ function BillingDetailScreen({
                 <FormField
                   htmlFor="billing-link"
                   label="개인결제창 링크"
-                  hint="링크만 보관합니다 — 결제 상태를 조회하지 않습니다."
+                  hint="링크만 보관해요 — 결제 상태를 조회하지 않아요."
                 >
                   <input
                     id="billing-link"
@@ -650,11 +643,11 @@ function BillingDetailScreen({
         <div style={columnStyle}>
           <DetailCard title="입금확인">
             <p style={hintStyle}>
-              통장에 찍힌 입금을 기록합니다. 여러 번 나눠 들어오면 그때마다 기록하고, 누적 합이
-              청구액에 닿으면 입금완료가 됩니다. <strong>기록한 입금은 되돌릴 수 없습니다.</strong>
+              통장에 찍힌 입금을 기록해요. 여러 번 나눠 들어오면 그때마다 기록하고, 누적 합이
+              청구액에 닿으면 입금완료가 돼요. <strong>기록한 입금은 되돌릴 수 없어요.</strong>
             </p>
 
-            <div style={rowStyle}>
+            <div style={formRowStyle}>
               <FormField htmlFor="payment-date" label="입금일" required>
                 <input
                   id="payment-date"
@@ -703,21 +696,21 @@ function BillingDetailScreen({
 
             <div style={tableScrollStyle}>
               <Table
-                caption="입금 내역 — 덧붙이기만 하는 기록입니다."
+                caption="입금 내역 — 덧붙이기만 하는 기록이에요."
                 columns={PAYMENT_COLUMNS}
                 rows={paymentRows}
-                empty="아직 입금 기록이 없습니다."
+                empty="아직 입금 기록이 없어요."
               />
             </div>
           </DetailCard>
 
           <DetailCard title="청구 안내">
             <p style={hintStyle}>
-              고객에게 청구를 안내한 사실을 남깁니다. 앱이 메시지를 보내지는 않습니다 — 보낸 사실을
-              기록할 뿐입니다.
+              고객에게 청구를 안내한 사실을 남겨요. 앱이 메시지를 보내지는 않아요 — 보낸 사실을
+              기록할 뿐이에요.
             </p>
 
-            <div style={rowStyle}>
+            <div style={formRowStyle}>
               <FormField htmlFor="notice-channel" label="안내 창구">
                 <SelectField
                   id="notice-channel"
@@ -763,7 +756,7 @@ function BillingDetailScreen({
                 caption="청구 안내 발송 기록"
                 columns={NOTICE_COLUMNS}
                 rows={noticeRows}
-                empty="아직 안내를 보내지 않았습니다."
+                empty="아직 안내를 보내지 않았어요."
               />
             </div>
           </DetailCard>

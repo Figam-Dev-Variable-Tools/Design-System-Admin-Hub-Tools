@@ -10,7 +10,7 @@
 // [픽스처는 가상이다] 상호·담당자·계좌 표기는 모두 지어낸 값이고 실제 사업자와 겹치지 않는다.
 import { createStoreAdapter } from '../../../shared/crud';
 import { HTTP_STATUS, HttpError } from '../../../shared/errors/http-error';
-import { buildBillingFromQuote, makeBillNo, sortBillings } from './types';
+import { buildBillingFromQuote, ledgerLossBlock, makeBillNo, sortBillings } from './types';
 import type { Billing, BillingInput } from './types';
 import type { Quote } from '../quotes/types';
 
@@ -109,7 +109,7 @@ function listBillings(): readonly Billing[] {
 function getBilling(id: string): Billing {
   const found = billings.find((billing) => billing.id === id);
   // 404 와 500 은 복구 수단이 다르다 — '목록으로' vs '다시 시도' (EXC-12).
-  if (found === undefined) throw new HttpError(HTTP_STATUS.notFound, '청구를 찾을 수 없습니다.');
+  if (found === undefined) throw new HttpError(HTTP_STATUS.notFound, '청구를 찾을 수 없어요.');
   return found;
 }
 
@@ -119,9 +119,28 @@ function addBilling(input: BillingInput): void {
 
 function updateBilling(id: string, input: BillingInput): void {
   // [EXC-04] 없는 id 를 조용히 지나치고 성공을 반환하면 '저장했습니다' 유령 토스트가 뜬다.
-  if (!billings.some((billing) => billing.id === id)) {
-    throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 청구입니다.');
+  const current = billings.find((billing) => billing.id === id);
+  if (current === undefined) {
+    throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 청구예요.');
   }
+
+  /**
+   * [EXC-04] **입금·안내 기록을 지우는 저장은 받지 않는다.**
+   *
+   * 이 저장은 문서 한 벌을 통째로 갈아 끼운다. 내가 읽은 뒤 다른 관리자가 입금을 기록했다면,
+   * 내 문서에는 그 입금이 없으므로 저장하는 순간 **회계 기록이 흔적 없이 사라진다** — 되돌릴
+   * 수단이 없는 종류의 사고다(./types 의 ledgerLossBlock 머리말). 그래서 원장이 덧붙기만 한
+   * 저장인지 먼저 보고, 아니면 덮어쓰지 않고 409 로 거절한다. 화면은 이 409 를 충돌
+   * 다이얼로그로 받아 '최신 내용 불러오기 / 이어서 편집' 을 묻는다.
+   *
+   * TODO(backend): 서버에서는 `PUT /api/sales/billing/:id` 가 원장을 아예 받지 않고
+   *   `POST /api/sales/billing/:id/payments` 가 append 를 전담하는 것이 정본이다. 그때 이
+   *   가드는 그 엔드포인트 분리로 대체된다 — 지금은 어댑터 표면이 update 하나뿐이라 저장소가
+   *   같은 불변식을 지킨다.
+   */
+  const lost = ledgerLossBlock(current, input);
+  if (lost !== null) throw new HttpError(HTTP_STATUS.conflict, lost);
+
   billings = sortBillings(
     billings.map((billing) => (billing.id === id ? { ...billing, ...input, id } : billing)),
   );
@@ -129,7 +148,7 @@ function updateBilling(id: string, input: BillingInput): void {
 
 function removeBilling(id: string): void {
   if (!billings.some((billing) => billing.id === id)) {
-    throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 청구입니다.');
+    throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 청구예요.');
   }
   billings = billings.filter((billing) => billing.id !== id);
 }

@@ -167,7 +167,7 @@ export function listItems(): readonly PortfolioItem[] {
 
 export function getItem(id: string): PortfolioItem {
   const found = items.find((item) => item.id === id);
-  if (found === undefined) throw new Error('포트폴리오를 찾을 수 없습니다');
+  if (found === undefined) throw new Error('포트폴리오를 찾을 수 없어요');
   return found;
 }
 
@@ -205,7 +205,7 @@ export function listCategoryUsage(): readonly PortfolioCategoryUsage[] {
 
 export function getCategoryUsage(id: string): PortfolioCategoryUsage {
   const found = categories.find((category) => category.id === id);
-  if (found === undefined) throw new Error('카테고리를 찾을 수 없습니다');
+  if (found === undefined) throw new Error('카테고리를 찾을 수 없어요');
   return { ...found, itemCount: countItemsUsingCategory(found.id, items) };
 }
 
@@ -228,7 +228,7 @@ export function updateCategory(id: string, label: string): void {
 /** 사용 중이면 삭제하지 않는다(서버는 409 로 막는다). 프론트도 버튼을 잠근다. */
 export function removeCategory(id: string): void {
   if (countItemsUsingCategory(id, items) > 0) {
-    throw new Error('사용 중인 카테고리는 삭제할 수 없습니다.');
+    throw new Error('사용 중인 카테고리는 삭제할 수 없어요.');
   }
   categories = categories.filter((category) => category.id !== id);
 }

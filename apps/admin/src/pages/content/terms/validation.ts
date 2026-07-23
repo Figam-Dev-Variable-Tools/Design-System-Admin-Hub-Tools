@@ -11,7 +11,7 @@ export const termsVersionSchema = z.object({
   version: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '버전을 입력하세요. (예: v1.2)' }),
     z.refine((value) => value.trim().length <= VERSION_MAX_LENGTH, {
-      error: `버전 표기는 ${String(VERSION_MAX_LENGTH)}자를 넘을 수 없습니다.`,
+      error: `버전 표기는 ${String(VERSION_MAX_LENGTH)}자를 넘을 수 없어요.`,
     }),
   ),
   effectiveDate: z.string().check(
@@ -24,7 +24,7 @@ export const termsVersionSchema = z.object({
   body: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '본문을 입력하세요.' }),
     z.refine((value) => value.length <= BODY_MAX_LENGTH, {
-      error: `본문은 ${String(BODY_MAX_LENGTH)}자를 넘을 수 없습니다.`,
+      error: `본문은 ${String(BODY_MAX_LENGTH)}자를 넘을 수 없어요.`,
     }),
   ),
 });

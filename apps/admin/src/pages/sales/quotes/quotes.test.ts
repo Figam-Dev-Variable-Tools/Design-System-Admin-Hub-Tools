@@ -14,7 +14,6 @@ import {
 import {
   addDays,
   buildQuoteFromSources,
-  canConvertToOrder,
   computeTotals,
   filterQuotes,
   isInherited,
@@ -22,9 +21,16 @@ import {
   makeQuoteNo,
   QUOTE_CONVERT_DONE,
   QUOTE_CONVERT_NOT_ACCEPTED,
+  QUOTE_MANUAL_STATUSES,
+  QUOTE_STATUS_NEXT_IS_CONTRACT,
   QUOTE_VALID_DAYS,
   quoteConvertBlock,
+  quoteOrderDriftBlock,
   quoteSourceHref,
+  quoteStatusAlready,
+  quoteStatusChangeBlock,
+  quoteStatusTerminal,
+  quoteStatusTransitions,
   quoteSupplier,
   searchQuotes,
   sortQuotes,
@@ -79,11 +85,67 @@ describe('금액 계산(순수)', () => {
   });
 });
 
-describe('수주 전환 가능 여부(순수)', () => {
-  it('승인된 견적만 전환 가능', () => {
-    expect(canConvertToOrder('accepted')).toBe(true);
-    expect(canConvertToOrder('sent')).toBe(false);
-    expect(canConvertToOrder('ordered')).toBe(false);
+/* ── 상태 전이표 ──────────────────────────────────────────────────────────────
+ *
+ * [무엇을 지키나] 견적 상세의 상태 버튼과 저장 경로가 **같은 술어**를 읽는다. 그래서 여기 고정하는
+ * 것은 화면이 아니라 규칙이다 — 표가 바뀌면 두 곳이 함께 바뀐다.
+ *
+ * `canConvertToOrder` 가 있던 자리다. 그 함수는 사라졌지만 그것이 지키던 규칙('승인된 견적만
+ * 수주가 된다')은 사라지지 않았다 — 아래 '수주 되돌려 쓰기 가드' 가 같은 규칙을 지킨다. */
+describe('상태 전이표(순수)', () => {
+  it('작성중 → 발송만 열려 있다', () => {
+    expect(quoteStatusTransitions('draft')).toEqual(['sent']);
+    expect(quoteStatusChangeBlock('draft', 'sent')).toBeNull();
+  });
+  it('발송 → 승인·반려 두 갈래', () => {
+    expect(quoteStatusChangeBlock('sent', 'accepted')).toBeNull();
+    expect(quoteStatusChangeBlock('sent', 'rejected')).toBeNull();
+  });
+  /* 되돌리는 전이를 열면 '계약이 이미 생긴 견적을 되돌리면 무엇이 되는가' 에 답해야 한다.
+     답할 수 없으므로 막는다 — 그 판단을 여기 못 박는다. */
+  it('되돌리는 전이는 전부 막힌다 — 승인·수주에서 발송으로 돌아갈 수 없다', () => {
+    expect(quoteStatusChangeBlock('accepted', 'sent')).toBe(QUOTE_STATUS_NEXT_IS_CONTRACT);
+    expect(quoteStatusChangeBlock('ordered', 'sent')).toBe(quoteStatusTerminal('ordered'));
+    expect(quoteStatusChangeBlock('ordered', 'accepted')).toBe(quoteStatusTerminal('ordered'));
+  });
+  it('반려·만료는 종점이다', () => {
+    expect(quoteStatusTransitions('rejected')).toEqual([]);
+    expect(quoteStatusChangeBlock('rejected', 'sent')).toBe(quoteStatusTerminal('rejected'));
+    expect(quoteStatusChangeBlock('expired', 'accepted')).toBe(quoteStatusTerminal('expired'));
+  });
+  it('건너뛰는 전이는 지금 갈 수 있는 곳을 알려 준다 — 거절은 boolean 이 아니라 문장이다', () => {
+    const blocked = quoteStatusChangeBlock('draft', 'accepted');
+    expect(blocked).not.toBeNull();
+    expect(blocked).toContain('승인');
+    expect(blocked).toContain('발송');
+  });
+  it('같은 상태로 바꾸는 것은 이미 그 상태라고 말한다', () => {
+    expect(quoteStatusChangeBlock('sent', 'sent')).toBe(quoteStatusAlready('sent'));
+  });
+  /* `ordered` 가 손으로 고르는 칸에 섞이면 '계약 없는 수주 견적' 을 사람이 만들 수 있게 된다 —
+     그러면 청구가 계약 없이 열린다(../billing/types 규칙 ③ 의 근거가 무너진다). */
+  it('수주(계약 진행)는 사람이 고르는 칸이 아니다 — 계약이 만든다', () => {
+    expect(QUOTE_MANUAL_STATUSES).not.toContain('ordered');
+    expect(QUOTE_MANUAL_STATUSES).toEqual(['sent', 'accepted', 'rejected']);
+  });
+});
+
+/* ── 되돌려 쓰기의 어긋남 ────────────────────────────────────────────────────
+ *
+ * 계약은 있는데 견적 상태가 따라오지 못한 상태 — 반쪽 저장의 자국이거나 이 규칙 이전의 데이터다.
+ * 화면이 조용히 정상인 척하지 않게, 그 어긋남을 규칙이 이름으로 갖고 있다. */
+describe('계약 ↔ 견적 상태 어긋남', () => {
+  it('계약이 없으면 어긋남도 없다 — 상태가 무엇이든', () => {
+    expect(quoteOrderDriftBlock('sent', '')).toBeNull();
+    expect(quoteOrderDriftBlock('draft', '')).toBeNull();
+  });
+  it('계약이 있고 수주면 멀쩡하다', () => {
+    expect(quoteOrderDriftBlock('ordered', 'ct-1')).toBeNull();
+  });
+  it('계약이 있는데 승인에 머물러 있으면 그 사실을 말한다', () => {
+    const drift = quoteOrderDriftBlock('accepted', 'ct-1');
+    expect(drift).not.toBeNull();
+    expect(drift).toContain('승인');
   });
 });
 
@@ -131,7 +193,7 @@ describe('문의 → 견적 승계(순수)', () => {
     customerName: '김담당',
     // 영업 문의는 무엇을 파는지 모른다 — 품목은 운영자가 세운다
     itemName: '',
-    body: '100석 기준 ERP 견적을 요청드립니다.',
+    body: '100석 기준 ERP 견적을 요청드려요.',
   };
   const ISSUE_DATE = '2026-07-16';
   const built = () => buildQuoteFromSources([salesSource], ISSUE_DATE);
@@ -140,7 +202,7 @@ describe('문의 → 견적 승계(순수)', () => {
     const quote = built();
     expect(quote.accountName).toBe('(주)한빛소프트웨어');
     expect(quote.contactName).toBe('김담당');
-    expect(quote.sources[0]?.body).toBe('100석 기준 ERP 견적을 요청드립니다.');
+    expect(quote.sources[0]?.body).toBe('100석 기준 ERP 견적을 요청드려요.');
     expect(quote.sources[0]?.no).toBe('INQ-20260714-001');
     expect(quote.sources[0]?.id).toBe('inq-1');
   });
@@ -246,18 +308,17 @@ describe('원본 문의 경로 — 창구마다 목적지가 다르다', () => {
   });
 });
 
-/* ── 수주 전환 가드 ────────────────────────────────────────────────────────────
+/* ── 수주 되돌려 쓰기 가드 ──────────────────────────────────────────────────────
  *
- * 목록의 인라인 액션과 상세의 액션이 **같은 술어**를 읽는다. 거절 사유가 문자열인 이유는
- * 두 화면이 같은 거절을 각자의 문장으로 설명하지 않게 하기 위해서다. */
-describe('수주 전환 가드', () => {
-  it('승인된 견적만 전환한다', () => {
+ * 사람이 부르는 술어가 아니다 — 계약이 만들어질 때 견적 저장소가 읽는다(./data-source 의
+ * markQuoteOrdered). 거절 사유가 문자열인 이유는 반쪽 저장이 났을 때 화면이 **왜** 못 바꿨는지를
+ * 자기 문장으로 지어내지 않게 하기 위해서다. */
+describe('수주 되돌려 쓰기 가드', () => {
+  it('승인된 견적만 수주가 된다', () => {
     expect(quoteConvertBlock('accepted')).toBeNull();
-    expect(canConvertToOrder('accepted')).toBe(true);
   });
-  it('이미 전환된 견적은 그 사실을 이유로 돌려준다 — 되돌리는 전이는 없다', () => {
+  it('이미 수주면 그 사실을 이유로 돌려준다 — 되돌리는 전이는 없다', () => {
     expect(quoteConvertBlock('ordered')).toBe(QUOTE_CONVERT_DONE);
-    expect(canConvertToOrder('ordered')).toBe(false);
   });
   it('작성중·발송·반려·만료는 막는다', () => {
     for (const status of ['draft', 'sent', 'rejected', 'expired'] as const) {

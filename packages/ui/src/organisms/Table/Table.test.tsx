@@ -154,14 +154,14 @@ describe('Table — 빈 상태', () => {
   it('rows 가 비면 empty 슬롯이 전체 열을 가로지른다', () => {
     const { container } = renderTable({
       rows: [],
-      empty: <p>등록된 보고서가 없습니다.</p>,
+      empty: <p>등록된 보고서가 없어요.</p>,
       leadingHead: [<th key="s" scope="col" />],
       trailingHead: [<th key="a" scope="col" />],
     });
     const cell = container.querySelector('tbody td');
     // 1(leading) + 3(data) + 1(trailing) = 5
     expect(cell?.getAttribute('colSpan')).toBe('5');
-    expect(screen.getByText('등록된 보고서가 없습니다.')).not.toBeNull();
+    expect(screen.getByText('등록된 보고서가 없어요.')).not.toBeNull();
   });
 
   it('empty 를 주지 않아도 표가 깨지지 않는다 — 카피는 앱의 것이라 DS 가 기본값을 발명하지 않는다', () => {

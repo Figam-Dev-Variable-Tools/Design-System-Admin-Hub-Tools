@@ -120,7 +120,7 @@ export default function AdminDetailPage() {
     admin === undefined || guardContext === null ? null : adminDeletionBlock(admin, guardContext);
   const guardPending = admin !== undefined && guardContext === null && !guardUnavailable;
   const blockReason = guardUnavailable
-    ? '다른 운영자 명부를 불러오지 못해 삭제 가능 여부를 판단할 수 없습니다. 잠시 후 다시 시도해 주세요.'
+    ? '다른 운영자 명부를 불러오지 못해 삭제 가능 여부를 판단할 수 없어요. 잠시 후 다시 시도해 주세요.'
     : deletionBlock;
   const deletable = admin !== undefined && !guardPending && blockReason === null;
 
@@ -151,7 +151,7 @@ export default function AdminDetailPage() {
       {
         onSuccess: () => {
           setConfirming(false);
-          toast.success(`'${admin.nickname}' 운영자를 삭제했습니다.`);
+          toast.success(`'${admin.nickname}' 운영자를 삭제했어요.`);
           // 지운 것의 상세에 남아 있을 이유가 없다 — 뒤로가기로도 돌아오지 않게 replace 로 나간다
           navigate(LIST_PATH, { replace: true });
         },
@@ -162,7 +162,7 @@ export default function AdminDetailPage() {
           setDeleteError(
             isHttpError(cause) && cause.message !== ''
               ? cause.message
-              : '운영자를 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+              : '운영자를 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.',
           );
         },
       },
@@ -178,8 +178,8 @@ export default function AdminDetailPage() {
           <div style={alertActionRowStyle}>
             <span>
               {notFound
-                ? '운영자를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '운영자 정보를 불러오지 못했습니다.'}
+                ? '운영자를 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '운영자 정보를 불러오지 못했어요.'}
             </span>
             {!notFound && (
               <Button variant="secondary" onClick={() => void detailQuery.refetch()}>
@@ -265,7 +265,7 @@ export default function AdminDetailPage() {
         <ConfirmDialog
           intent="delete"
           title="운영자 삭제"
-          message={`'${admin.nickname}'(${admin.account}) 운영자를 삭제합니다. 이 계정으로는 더 이상 로그인할 수 없으며, 삭제는 되돌릴 수 없습니다.`}
+          message={`'${admin.nickname}'(${admin.account}) 운영자를 삭제할까요? 이 계정으로는 더 이상 로그인할 수 없으며, 삭제는 되돌릴 수 없어요.`}
           confirmLabel="운영자 삭제"
           busy={remove.isPending}
           error={deleteError}

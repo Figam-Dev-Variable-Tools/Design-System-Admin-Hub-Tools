@@ -184,6 +184,6 @@ export function formatMaskedPayload(payload: unknown): string {
   try {
     return JSON.stringify(maskPayload(payload), null, 2) ?? String(payload);
   } catch {
-    return '[페이로드를 표시할 수 없습니다]';
+    return '[페이로드를 표시할 수 없어요]';
   }
 }

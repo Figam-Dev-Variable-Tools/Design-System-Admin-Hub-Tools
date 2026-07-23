@@ -117,7 +117,7 @@ describe('period — 비교 기간', () => {
 
 describe('period — 검증과 표시 (COMP-11)', () => {
   it('종료일이 시작일보다 빠르면 조용한 empty 가 아니라 오류다', () => {
-    expect(periodErrorOf({ start: '2026-07-16', end: '2026-07-10' })).toContain('빠를 수 없습니다');
+    expect(periodErrorOf({ start: '2026-07-16', end: '2026-07-10' })).toContain('빠를 수 없어요');
   });
 
   it('같은 날은 유효하다', () => {

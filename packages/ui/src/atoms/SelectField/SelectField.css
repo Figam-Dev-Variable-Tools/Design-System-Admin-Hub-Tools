@@ -32,6 +32,24 @@
    * 디센더)가 잘렸다 — 채널 필터 등에서 보이던 글리프 클리핑. `normal` 은 글꼴 자신의 행 메트릭을 써서
    * 잉크를 온전히 담는다(픽셀 리터럴 0건 유지). 여백/높이는 padding-block 이 담당한다. */
   line-height: normal;
+  /*
+   * ┌ 왜 높이를 못 박는가 — 입력 칸과 드롭다운의 키가 달랐다 ───────────────────┐
+   * │ dense control 가족(controlStyle · daterange · searchfield · textarea)은     │
+   * │ box-sizing · padding-block(space-2) · padding-inline(space-3) ·            │
+   * │ border-width(thin) · font-size(label.md) 가 **전부 같다**. 어긋난 값은      │
+   * │ 오직 line-height 하나다: 나머지는 무단위 body.md(1.5em 라인박스)인데        │
+   * │ 여기만 위 주석의 이유로 `normal`(글꼴 자연 메트릭 ≈ 1.3em)이다. 라인박스가  │
+   * │ 0.2em 낮으니, 같은 줄에 선 <input> 옆에서 <select> 만 낮아 보였다.          │
+   * │                                                                          │
+   * │ `normal` 을 1.5 로 되돌리면 0f6aab8 이 고친 한글 글리프 잘림이 되살아난다.  │
+   * │ 그래서 line-height 를 맞추는 대신 **높이가 line-height 에 의존하지 않게**   │
+   * │ 한다 — 가족 전체가 같은 최소 높이(space-8)를 바닥으로 깔면, 라인박스가      │
+   * │ 어떻게 계산되든 모든 칸이 정확히 같은 키가 된다. space-8 을 고른 이유는     │
+   * │ 그 토큰의 설명이 이미 "컨트롤/아이콘 버튼의 터치 표면" 이라고 못박고        │
+   * │ 있어서다 — 새 값을 지어내지 않았다. (치수 자체는 토큰 정의가 갖는다:        │
+   * │ 여기에 숫자를 옮겨 적으면 그것이 곧 두 번째 정본이 된다.)                   │
+   * └──────────────────────────────────────────────────────────────────────────┘ */
+  min-block-size: var(--tds-space-8);
   cursor: pointer;
 }
 

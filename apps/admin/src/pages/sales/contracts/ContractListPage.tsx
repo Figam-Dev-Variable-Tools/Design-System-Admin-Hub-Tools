@@ -12,10 +12,9 @@ import type { CSSProperties } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { formatDate } from '../../../shared/format';
-import { Button, Icon, SearchField, SelectField, StatusBadge } from '../../../shared/ui';
+import { SearchField, SelectField, StatusBadge } from '../../../shared/ui';
 import { CrudListShell, parseFilter, useCrudList, useListState } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
-import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
 import { AccountLink } from '../_shared/AccountLink';
 import { formatWon } from '../_shared/business';
 import { contractAdapter } from './data-source';
@@ -79,7 +78,6 @@ const nameOf = (item: Contract) => item.title;
 
 export default function ContractListPage() {
   const navigate = useNavigate();
-  const { canCreate } = useRouteWritePermissions();
 
   // 상태·검색어의 단일 원천 = URL (IA-13). 검색은 IME 안전 (COMP-10).
   const list = useListState({ filterDefaults: FILTER_DEFAULTS });
@@ -182,13 +180,10 @@ export default function ContractListPage() {
           </SelectField>
         </span>
       </div>
-      {/* 등록 버튼은 create 권한이 있을 때만 존재한다 — 누를 수 없는 것을 보여 주지 않는다 (EXC-03) */}
-      {canCreate && (
-        <Button variant="primary" size="md" onClick={() => navigate(`${LIST_PATH}/new`)}>
-          <Icon name="plus-circle" />
-          계약 등록
-        </Button>
-      )}
+      {/* [등록 CTA 가 없다 — 권한 문제가 아니라 순서 문제다]
+          계약은(는) 견적에서만 생긴다. 그래서 create 권한이 있어도 이 자리에 버튼을 두지 않는다:
+          앞 칸 없이 세운 계약은(는) 어디서 왔는지 앱이 영영 답하지 못한다. 주소로 직접 들어오는
+          /new 도 막혀 있고, 왜 막혔는지와 어디서 만드는지를 말한다(ChainOnlyCreateNotice). */}
     </div>
   );
 

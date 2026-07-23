@@ -169,9 +169,10 @@ interface ProductCardPreviewProps {
   /**
    * 금액 자리에 넣을 문구 — 빈 문자열이면 금액을 그린다.
    *
-   * 이 컴포넌트가 정하지 않는다: 두 축(결제 사용 여부 · 상품별 가격 표시)을 합치는 것은
-   * shared/commerce 의 resolvePriceDisplay 하나뿐이다. 목록도 같은 함수의 답을 그리므로
-   * 미리보기와 목록이 어긋날 수 없다 — 여기서 조건을 한 번 더 쓰면 그 보장이 사라진다.
+   * 이 컴포넌트가 정하지 않는다: 금액을 노출하는가를 판정하는 것은 shared/commerce 의
+   * resolvePriceDisplay 하나뿐이고, 그 답은 **사이트 전역 결제 연동 상태**에서 나온다(상품마다
+   * 고르던 축은 없다). 목록도 같은 함수의 답을 그리므로 미리보기와 목록이 어긋날 수 없다 —
+   * 여기서 조건을 한 번 더 쓰면 그 보장이 사라진다.
    */
   readonly priceText: string;
 }
@@ -251,8 +252,8 @@ export function ProductCardPreview({
 
       <p style={captionStyle}>
         {displayed
-          ? '전시중 — 고객 스토어에 이 모습으로 노출됩니다.'
-          : '숨김 — 저장해도 고객에게 보이지 않습니다.'}
+          ? '전시중 — 고객 스토어에 이 모습으로 노출돼요.'
+          : '숨김 — 저장해도 고객에게 보이지 않아요.'}
       </p>
     </div>
   );

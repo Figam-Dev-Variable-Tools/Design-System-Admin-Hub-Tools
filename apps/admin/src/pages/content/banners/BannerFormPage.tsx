@@ -8,6 +8,8 @@ import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { isAbort } from '../../../shared/async';
+import { ForbiddenScreen } from '../../../shared/errors/ErrorScreens';
+import { useRouteCanSubmitForm, WRITE_DENIED } from '../../../shared/permissions/RequirePermission';
 import { zodResolver } from '../../../shared/form/zodResolver';
 import {
   Alert,
@@ -19,6 +21,7 @@ import {
   errorIdOf,
   fieldLabelStyle,
   FormField,
+  formRowStyle,
   ImageUploadField,
   pageTitleStyle,
   SelectField,
@@ -33,7 +36,7 @@ import type { BannerFormValues } from './validation';
 import { cssVar } from '@tds/ui';
 
 const UNSAVED_MESSAGE =
-  '배너에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '배너에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -61,12 +64,6 @@ const layoutStyle: CSSProperties = {
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: cssVar('space.4'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 6), 1fr))`,
   gap: cssVar('space.4'),
 };
 
@@ -123,6 +120,10 @@ export default function BannerFormPage() {
   const saving = create.isPending || update.isPending;
 
   const detailQuery = useBannerQuery(id ?? '');
+  /* [EXC-03] 이 폼은 FormPageShell 을 쓰지 않아 껍데기의 403 을 받지 못했다 — RequirePermission 은
+     read 만 보므로 등록 라우트가 조회 권한만으로 열리고 제출까지 됐다. 판정은 폼 껍데기·폼
+     컨트롤러와 같은 한 벌이다: 등록이면 create, 수정이면 update. */
+  const canSubmit = useRouteCanSubmitForm(isEdit);
   const loadingDetail = isEdit && detailQuery.isFetching && detailQuery.data === undefined;
   const disabled = saving || loadingDetail;
   const [serverError, setServerError] = useState<string | null>(null);
@@ -164,6 +165,11 @@ export default function BannerFormPage() {
   const enabled = watch('enabled');
 
   const onValid = (values: BannerFormValues) => {
+    // 화면을 403 으로 덮은 술어가 저장 경로도 막는다
+    if (!canSubmit) {
+      setServerError(isEdit ? WRITE_DENIED.update : WRITE_DENIED.create);
+      return;
+    }
     setServerError(null);
     const controller = new AbortController();
     controllerRef.current = controller;
@@ -181,7 +187,7 @@ export default function BannerFormPage() {
 
     const onError = (cause: unknown) => {
       if (isAbort(cause)) return;
-      setServerError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      setServerError('저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
     };
 
     if (isEdit && id !== undefined) {
@@ -189,7 +195,7 @@ export default function BannerFormPage() {
         { id, input, signal: controller.signal },
         {
           onSuccess: () => {
-            toast.success('배너를 저장했습니다.');
+            toast.success('배너를 저장했어요.');
             navigate('/content/banners', { replace: true });
           },
           onError,
@@ -202,7 +208,7 @@ export default function BannerFormPage() {
       { input, signal: controller.signal },
       {
         onSuccess: () => {
-          toast.success('배너를 등록했습니다.');
+          toast.success('배너를 등록했어요.');
           navigate('/content/banners', { replace: true });
         },
         onError,
@@ -212,11 +218,14 @@ export default function BannerFormPage() {
 
   const periodError = errors.startAt?.message ?? errors.endAt?.message;
 
+  /* 쓸 수 없는 폼은 열지 않는다 — 조회 실패 분기보다 앞선다 (FormPageShell 과 같은 순서) */
+  if (!canSubmit) return <ForbiddenScreen />;
+
   if (isEdit && detailQuery.error !== null) {
     return (
       <div style={pageStyle}>
         <Alert tone="danger">
-          <span>배너를 불러오지 못했습니다. </span>
+          <span>배너를 불러오지 못했어요. </span>
           <Button variant="secondary" onClick={() => navigate('/content/banners')}>
             목록으로
           </Button>
@@ -230,7 +239,7 @@ export default function BannerFormPage() {
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '배너 수정' : '배너 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 오른쪽 미리보기로 사용자에게 보일 모습을 확인하세요.
+          별표(*) 항목은 필수예요. 오른쪽 미리보기로 사용자에게 보일 모습을 확인하세요.
         </p>
       </div>
 
@@ -268,7 +277,7 @@ export default function BannerFormPage() {
                 }
                 disabled={disabled}
                 error={errors.imageUrl?.message}
-                hint="이미지를 끌어다 놓거나 클릭해 업로드합니다."
+                hint="이미지를 끌어다 놓거나 클릭해 업로드해요."
               />
 
               <FormField
@@ -292,7 +301,7 @@ export default function BannerFormPage() {
                 />
               </FormField>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="banner-placement" label="노출 위치" required>
                   <SelectField id="banner-placement" disabled={disabled} {...register('placement')}>
                     {PLACEMENT_OPTIONS.map((option) => (
@@ -308,7 +317,7 @@ export default function BannerFormPage() {
                   label="정렬 순서"
                   required
                   error={errors.order?.message}
-                  hint="작을수록 앞에 노출됩니다."
+                  hint="작을수록 앞에 노출돼요."
                 >
                   <input
                     id="banner-order"

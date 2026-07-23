@@ -22,10 +22,15 @@
 // ┌ 형식 검사를 어디까지 하는가 — '막는 것' 과 '알려 주는 것' 을 나눈다 ──────────┐
 // │ **API 키의 길이·문자셋·접두어를 검사하지 않는다.** `sk-` 로 시작한다는 것은     │
 // │ 관찰이지 규약이 아니고, 프로바이더가 키 형식을 바꾸는 날 멀쩡한 값이 거절된다.   │
-// │ 13종 전부에 그 위험이 있고 우리는 그중 어느 형식도 문서로 보장받지 못했다.       │
+// │ 카탈로그 전 항목에 그 위험이 있고 우리는 그중 어느 형식도 문서로 보장받지 못했다. │
 // │                                                                          │
 // │ 막는 것은 **비어 있음**과 **길이 폭주** 둘뿐이다. 그 외의 의심은 경고로만       │
 // │ 말한다(endpointWarning) — ../oauth/validation.ts 가 세운 것과 같은 규율이다.   │
+// │                                                                          │
+// │ ✔ **모델 id 도 같은 규율을 따른다**(modelIdWarning). 여기서만은 유혹이 더 크다 —  │
+// │ '모델 목록을 카탈로그에 박고 고르게 하면 오타가 없다' 는 것이다. 그런데 그 목록은  │
+// │ 우리 배포 주기보다 빨리 낡고(예: claude-opus-4-1-20250805 는 2026-08-05 retire),  │
+// │ **키마다 보이는 모델이 다르다.** 박아 둔 목록은 그날부터 멀쩡한 값을 거절한다.     │
 // └──────────────────────────────────────────────────────────────────────────┘
 //
 // ┌ 켜지 않은 연동은 검증하지 않는다 ──────────────────────────────────────────┐
@@ -35,7 +40,7 @@
 // └──────────────────────────────────────────────────────────────────────────┘
 import * as z from 'zod/mini';
 
-import { AI_CREDENTIAL_FIELDS } from './ai-connections';
+import { AI_CREDENTIAL_FIELDS, credentialIsSecret } from './ai-connections';
 import type { AiCredentialField, AiCredentialFieldKey } from './ai-connections';
 
 /**
@@ -46,7 +51,13 @@ import type { AiCredentialField, AiCredentialFieldKey } from './ai-connections';
  */
 export const CREDENTIAL_VALUE_MAX = 500;
 
-/** 폼이 다루는 값 — 여덟 칸을 모두 갖는다(안 쓰는 칸은 빈 문자열로 남는다) */
+/**
+ * 폼이 다루는 값 — 열두 칸을 모두 갖는다(안 쓰는 칸은 빈 문자열로 남는다).
+ *
+ * ⚠ 여기 적힌 칸 목록은 `AI_CREDENTIAL_FIELDS` 와 **같아야 한다.** zod/mini 에는 유니온에서
+ * 객체 스키마를 만드는 표현이 없어 손으로 옮겨 적는다 — 어긋나면 그 칸의 폼 값이 스키마를 통과하지
+ * 못하고, 고칠 입력칸이 없는 오류가 저장을 막는다. 테스트가 두 목록을 대조해 잡는다.
+ */
 const credentialsSchema = z.object({
   apiKey: z.string(),
   baseUrl: z.string(),
@@ -56,13 +67,17 @@ const credentialsSchema = z.object({
   region: z.string(),
   accessKeyId: z.string(),
   secretAccessKey: z.string(),
+  customerCode: z.string(),
+  defaultModel: z.string(),
+  organizationId: z.string(),
+  projectId: z.string(),
 });
 
 /**
- * 폼 문서 — 한 프로바이더의 연동 하나.
+ * 폼 문서 — 연동 하나.
  *
- * [왜 여덟 칸을 다 갖는가] RHF 의 등록 경로(`credentials.deployment`)가 정적이어야 하고,
- * 카탈로그가 요구하는 칸만 담으면 프로바이더마다 폼 타입이 달라져 화면이 유니온 분기로 뒤덮인다.
+ * [왜 아홉 칸을 다 갖는가] RHF 의 등록 경로(`credentials.deployment`)가 정적이어야 하고,
+ * 카탈로그가 요구하는 칸만 담으면 연동마다 폼 타입이 달라져 화면이 유니온 분기로 뒤덮인다.
  * **그리지 않는 칸은 빈 문자열로 남고 저장에서 빠진다**(../api-keys/data-source.ts 의
  * applyCredentials) — 화면에 없는 값이 저장되지 않는다는 사실은 그쪽이 보장한다.
  */
@@ -89,6 +104,10 @@ export const EMPTY_CONNECTION_FORM: AiConnectionFormValues = {
     region: '',
     accessKeyId: '',
     secretAccessKey: '',
+    customerCode: '',
+    defaultModel: '',
+    organizationId: '',
+    projectId: '',
   },
   storedSecrets: [],
 };
@@ -103,7 +122,8 @@ export function credentialFilled(
   field: AiCredentialField,
   values: AiConnectionFormValues,
 ): boolean {
-  if (field.secret && values.storedSecrets.includes(field.key)) return true;
+  // 비밀 여부는 항목이 아니라 **칸 이름**이 정한다(./ai-connections.ts 의 CREDENTIAL_SECRECY)
+  if (credentialIsSecret(field.key) && values.storedSecrets.includes(field.key)) return true;
   return values.credentials[field.key].trim() !== '';
 }
 
@@ -131,7 +151,7 @@ export function credentialIssues(
     if (raw.length > CREDENTIAL_VALUE_MAX) {
       issues.push({
         field: field.key,
-        message: `${field.label}는 ${String(CREDENTIAL_VALUE_MAX)}자를 넘을 수 없습니다.`,
+        message: `${field.label}는 ${String(CREDENTIAL_VALUE_MAX)}자를 넘을 수 없어요.`,
       });
       continue;
     }
@@ -141,8 +161,8 @@ export function credentialIssues(
     if (!credentialFilled(field, values)) {
       issues.push({
         field: field.key,
-        message: field.secret
-          ? `연동을 켜려면 ${field.label}를 입력해야 합니다.`
+        message: credentialIsSecret(field.key)
+          ? `연동을 켜려면 ${field.label}를 입력해야 해요.`
           : `연동을 켜려면 ${field.label}를 입력하세요.`,
       });
     }
@@ -154,7 +174,7 @@ export function credentialIssues(
 /**
  * 이 프로바이더의 자격증명 스키마 — **그리는 칸만** 검증한다.
  *
- * 폼은 여덟 칸을 담지만 화면에 보이는 것은 카탈로그가 요구한 칸뿐이다. 보이지 않는 칸까지
+ * 폼은 열두 칸을 담지만 화면에 보이는 것은 카탈로그가 요구한 칸뿐이다. 보이지 않는 칸까지
  * 검증하면 **고칠 입력칸이 없는 오류**가 저장을 막는다 — 그것이 '저장을 눌렀는데 아무 일도
  * 안 난다' 의 정체다(../oauth/validation.ts 의 제공자 범위 스키마와 같은 이유).
  */
@@ -186,10 +206,65 @@ export function endpointWarning(value: string): string | null {
   if (trimmed === '') return null;
 
   if (!trimmed.startsWith('https://')) {
-    return '엔드포인트는 보통 https:// 로 시작합니다. 주소를 다시 확인해 보세요.';
+    return '엔드포인트는 보통 https:// 로 시작해요. 주소를 다시 확인해 보세요.';
   }
   if (trimmed.includes('/openai/deployments/')) {
-    return '배포 경로까지 붙어 있습니다. 리소스 주소(https://내리소스이름.openai.azure.com)까지만 넣고 배포명은 아래 칸에 넣으세요.';
+    return '배포 경로까지 붙어 있어요. 리소스 주소(https://내리소스이름.openai.azure.com)까지만 넣고 배포명은 아래 칸에 넣으세요.';
+  }
+  return null;
+}
+
+/**
+ * 베이스 URL 이 '평소와 다르다' 는 **경고** — 저장을 막지 않는다.
+ *
+ * ┌ 무엇을 되묻고 무엇을 되묻지 않는가 ─────────────────────────────────────┐
+ * │ 되묻는 것은 **스킴 하나**다. 경로는 되묻지 않는다 — 이 칸에 들어오는        │
+ * │ 정상값이 실제로 경로를 갖는다:                                          │
+ * │   · xAI          `https://api.x.ai/v1`                                 │
+ * │   · Gemini 호환  `https://generativelanguage.googleapis.com/v1beta/openai/` │
+ * │ '/v1 이 붙어 있다' 를 오타로 잡으면 두 프로바이더의 **공식 사용법이 거절된다.**│
+ * │                                                                       │
+ * │ 사내 프록시가 http 로만 열려 있는 구성도 실재하므로 http 도 막지 않는다 —   │
+ * │ 다만 키가 평문으로 나가는 구성이라 한 번 되묻는다.                        │
+ * └───────────────────────────────────────────────────────────────────────┘
+ */
+export function baseUrlWarning(value: string): string | null {
+  const trimmed = value.trim();
+  if (trimmed === '') return null;
+
+  if (trimmed.startsWith('http://')) {
+    return '평문(http) 주소예요. 사내 프록시가 아니라면 https 주소인지 다시 확인해 보세요.';
+  }
+  if (!trimmed.startsWith('https://')) {
+    return '베이스 URL 은 보통 https:// 로 시작해요. 주소를 다시 확인해 보세요.';
+  }
+  return null;
+}
+
+/**
+ * 모델 id 가 '모델 id 같지 않다' 는 **경고** — 역시 저장을 막지 않는다.
+ *
+ * ┌ 왜 형식(정규식)으로 막지 않는가 — 이 파일 머리말의 규율 그대로다 ────────┐
+ * │ `^gpt-`·`^claude-` 를 박으면 실재하는 id 가 거절된다: `o3` ·             │
+ * │ `grok-build-0.1` · `veo-3.1-generate-preview` 가 전부 그 모양이 아니다.   │
+ * │ 게다가 **키마다 보이는 모델이 다르다** — 어떤 목록도 전역으로는 정확할 수  │
+ * │ 없다(./integrations.ts 의 defaultModelField 머리말).                     │
+ * │                                                                        │
+ * │ 그래서 막는 것은 폭주·공백뿐이고(credentialIssues), 여기서는 **가장 흔한   │
+ * │ 두 가지 헛디딤**만 되묻는다:                                             │
+ * │   ① 표시명을 붙여 넣었다 → 값 안에 공백이 있다('GPT-5.6 Sol' 같은 것)      │
+ * │   ② 주소를 붙여 넣었다   → http 로 시작한다(그건 위 베이스 URL 칸이다)     │
+ * └────────────────────────────────────────────────────────────────────────┘
+ */
+export function modelIdWarning(value: string): string | null {
+  const trimmed = value.trim();
+  if (trimmed === '') return null;
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return '모델 id 가 아닌 것 같아요 — 주소는 위 베이스 URL 칸에 넣어요. 그대로 저장할 수는 있어요.';
+  }
+  if (/\s/.test(trimmed)) {
+    return '모델 id 가 아닌 것 같아요 — 표시명이 아니라 API 가 받는 id 를 넣으세요(표시명 GPT-5.6 Sol → id gpt-5.6-sol). 그대로 저장할 수는 있어요.';
   }
   return null;
 }
@@ -207,5 +282,27 @@ export function regionWarning(value: string): string | null {
   // us-east-1 · ap-northeast-2 처럼 '문자-문자-숫자' 꼴이 아니면 되묻는다
   return /^[a-z]{2,4}(-[a-z]+)+-\d+$/.test(trimmed)
     ? null
-    : '리전 코드 형태가 아닙니다(예: us-east-1). 엔드포인트 주소에 그대로 들어가는 값입니다.';
+    : '리전 코드 형태가 아니에요(예: us-east-1). 엔드포인트 주소에 그대로 들어가는 값이에요.';
+}
+
+/**
+ * 고객코드가 '평소와 다르다' 는 경고 — 역시 막지 않는다.
+ *
+ * ┌ 왜 8자리인가, 그리고 왜 그걸로 막지 않는가 ──────────────────────────────┐
+ * │ CJ대한통운 기업고객 계약 후 발급되는 고객코드(주관고객번호)가 **숫자 8자리** │
+ * │ 라는 것은 독립된 두 출처(카페24 지원 문서 · plto 연동 가이드)가 같이 말한다. │
+ * │ 그래서 자릿수를 되물을 근거는 있다.                                       │
+ * │                                                                        │
+ * │ 그래도 막지 않는 이유는 이 화면의 다른 경고와 같다: 우리가 본 것은 **재판매  │
+ * │ 솔루션의 안내**이지 CJ 의 1차 문서가 아니고, 계약 형태에 따라 다른 자릿수를   │
+ * │ 받는 고객이 있을 수 있다. 막으면 실재하는 구성이 거절된다.                  │
+ * └────────────────────────────────────────────────────────────────────────┘
+ */
+export function customerCodeWarning(value: string): string | null {
+  const trimmed = value.trim();
+  if (trimmed === '') return null;
+
+  return /^\d{8}$/.test(trimmed)
+    ? null
+    : '고객코드는 보통 숫자 8자리예요(주관고객번호). 값을 다시 확인해 보세요.';
 }

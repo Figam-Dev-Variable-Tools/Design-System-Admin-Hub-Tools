@@ -95,11 +95,11 @@ export interface AdminGroupUsage {
  */
 export function adminGroupDeletionBlock(groupName: string, usage: AdminGroupUsage): string | null {
   if (usage.adminCount > 0) {
-    return `'${groupName}' 그룹에는 운영자 ${formatNumber(usage.adminCount)}명이 속해 있어 삭제할 수 없습니다. 이 운영자들을 다른 그룹으로 옮긴 뒤 다시 삭제해 주세요.`;
+    return `'${groupName}' 그룹에는 운영자 ${formatNumber(usage.adminCount)}명이 속해 있어 삭제할 수 없어요. 이 운영자들을 다른 그룹으로 옮긴 뒤 다시 삭제해 주세요.`;
   }
   if (usage.senderTemplateNames.length > 0) {
     const names = usage.senderTemplateNames.map((name) => `'${name}'`).join(', ');
-    return `'${groupName}' 그룹을 발신 프로필로 쓰는 메시지 템플릿이 있어 삭제할 수 없습니다 (${names}). 해당 템플릿의 발신 프로필을 먼저 바꾼 뒤 다시 삭제해 주세요.`;
+    return `'${groupName}' 그룹을 발신 프로필로 쓰는 메시지 템플릿이 있어 삭제할 수 없어요 (${names}). 해당 템플릿의 발신 프로필을 먼저 바꾼 뒤 다시 삭제해 주세요.`;
   }
   return null;
 }

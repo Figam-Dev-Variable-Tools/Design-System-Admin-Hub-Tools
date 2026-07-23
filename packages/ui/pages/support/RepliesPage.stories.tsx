@@ -310,7 +310,7 @@ function RepliesScreen({ state }: { state: ScreenState }) {
       </SelectionBar>
 
       <Table
-        caption="답변 템플릿 목록 — 행을 누르면 수정 화면으로 이동합니다. 체크박스·수정·삭제 버튼은 각자의 동작을 수행합니다."
+        caption="답변 템플릿 목록 — 행을 누르면 수정 화면으로 이동해요. 체크박스·수정·삭제 버튼은 각자 따로 동작해요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[

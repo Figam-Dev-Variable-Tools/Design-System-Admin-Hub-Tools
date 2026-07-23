@@ -62,7 +62,7 @@ export function resetPointLedgerAppender(): void {
  * 기입기가 던지면 그대로 올려보낸다 — 여기서 삼키면 원장 사고가 '조용한 성공' 으로 둔갑한다.
  */
 export function appendPointRestore(entry: PointRestore): boolean {
-  if (entry.amount < 0) throw new Error('적립금 복원은 양수만 기입할 수 있습니다.');
+  if (entry.amount < 0) throw new Error('적립금 복원은 양수만 기입할 수 있어요.');
   if (entry.amount === 0) return true;
   if (appender === null) return false;
   appender(entry);

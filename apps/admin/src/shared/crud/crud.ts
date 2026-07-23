@@ -109,7 +109,7 @@ export function createCrudAdapter<T extends { id: string }, Input>(
           // 404 와 500 은 복구 수단이 다르다 — '목록으로' vs '다시 시도' (EXC-12). status 를 실어
           // 폼 셸이 그 둘을 구분할 수 있게 한다. 예전에는 generic Error 라 loadFailed 로 뭉개졌다.
           if (found === undefined) {
-            throw new HttpError(HTTP_STATUS.notFound, '항목을 찾을 수 없습니다.');
+            throw new HttpError(HTTP_STATUS.notFound, '항목을 찾을 수 없어요.');
           }
           return found;
         },
@@ -142,7 +142,7 @@ export function createCrudAdapter<T extends { id: string }, Input>(
           // 관리자가 방금 지운 항목을 편집하면 '저장했습니다' 토스트가 뜨고 목록으로 돌아가지만
           // 저장된 것은 아무것도 없었다 — 유령 저장(ghost saved)이다. 없으면 409 로 알린다.
           if (!items.some((item) => item.id === id)) {
-            throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 항목입니다.');
+            throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 항목이에요.');
           }
 
           items = order(items.map((item) => (item.id === id ? spec.patch(item, input) : item)));
@@ -161,7 +161,7 @@ export function createCrudAdapter<T extends { id: string }, Input>(
 
           // 같은 이유로 filter 도 없는 id 를 조용히 통과시켰다 — 삭제되지 않았는데 삭제 성공이었다.
           if (!items.some((item) => item.id === id)) {
-            throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 항목입니다.');
+            throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 항목이에요.');
           }
 
           items = items.filter((item) => item.id !== id);
@@ -215,7 +215,7 @@ export function createStoreAdapter<T extends { id: string }, Input>(
            * 형제 팩토리 createCrudAdapter.fetchOne 이 같은 자리에서 이미 이렇게 한다.
            */
           if (!exists(id)) {
-            throw new HttpError(HTTP_STATUS.notFound, '항목을 찾을 수 없습니다.');
+            throw new HttpError(HTTP_STATUS.notFound, '항목을 찾을 수 없어요.');
           }
           return spec.getOne(id);
         },
@@ -254,7 +254,7 @@ export function createStoreAdapter<T extends { id: string }, Input>(
            * 주기만 하면 화면 코드 0 줄로 복구 경로가 열린다.
            */
           if (!exists(id)) {
-            throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 항목입니다.');
+            throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 항목이에요.');
           }
 
           spec.update(id, input);
@@ -273,7 +273,7 @@ export function createStoreAdapter<T extends { id: string }, Input>(
 
           // 같은 이유로 store 의 filter 도 없는 id 를 조용히 통과시켰다 — 삭제되지 않았는데 삭제 성공.
           if (!exists(id)) {
-            throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 항목입니다.');
+            throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 항목이에요.');
           }
 
           spec.remove(id);

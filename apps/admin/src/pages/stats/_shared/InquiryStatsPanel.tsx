@@ -53,7 +53,7 @@ function kpiOf(
     value: value ?? 0,
     // 비교 기간이 없다 — 결제를 끈 기간과 견줄 '지난 기간의 매출' 이 애초에 없다
     compareValue: null,
-    hint: value === null ? `${hint} (아직 집계를 불러오지 못했습니다)` : hint,
+    hint: value === null ? `${hint} (아직 집계를 불러오지 못했어요)` : hint,
   };
 }
 
@@ -78,28 +78,28 @@ export function InquiryStatsPanel({ replacedLabel }: InquiryStatsPanelProps) {
       '문의 건수',
       'count',
       inquiries,
-      '종결되지 않은 상품·프로그램 문의의 합입니다.',
+      '종결되지 않은 상품·프로그램 문의의 합이에요.',
     ),
     kpiOf(
       'response',
       '평균 응답시간',
       'seconds',
       responseHours === null ? null : responseHours * 3600,
-      '문의 접수부터 첫 답변까지 걸린 평균 시간입니다.',
+      '문의 접수부터 첫 답변까지 걸린 평균 시간이에요.',
     ),
     kpiOf(
       'quotes',
       '견적 발행',
       'count',
       funnel?.issued ?? null,
-      '기간 안에 발행한 견적 건수입니다.',
+      '기간 안에 발행한 견적 건수예요.',
     ),
     kpiOf(
       'accepted',
       '견적 수락률',
       'percent',
       funnel === null ? null : quoteAcceptanceRate(funnel),
-      '발행한 견적 중 고객이 수락한 비율입니다.',
+      '발행한 견적 중 고객이 수락한 비율이에요.',
     ),
   ];
 
@@ -108,8 +108,8 @@ export function InquiryStatsPanel({ replacedLabel }: InquiryStatsPanelProps) {
       <Alert tone="info">
         <div style={alertActionRowStyle}>
           <span>
-            현재 결제를 사용하지 않아 주문·매출이 발생하지 않습니다. {replacedLabel} 대신 지금
-            실제로 움직이는 지표(문의·견적)를 보여 줍니다.
+            현재 결제를 사용하지 않아 주문·매출이 발생하지 않아요. {replacedLabel} 대신 지금 실제로
+            움직이는 지표(문의·견적)를 보여 줘요.
           </span>
           <Link to={PAYMENT_SETTINGS_PATH} className="tds-ui-link tds-ui-focusable">
             결제 설정 열기
@@ -126,7 +126,7 @@ export function InquiryStatsPanel({ replacedLabel }: InquiryStatsPanelProps) {
         <CardTitle>지금 볼 수 있는 것</CardTitle>
         <div style={listStyle}>
           <span>
-            · 문의의 내용과 응대 이력은 문의 화면에서 봅니다 —{' '}
+            · 문의의 내용과 응대 이력은 문의 화면에서 봐요 —{' '}
             <Link to={INQUIRY_PATH.product} className="tds-ui-link tds-ui-focusable">
               상품 문의
             </Link>
@@ -136,14 +136,13 @@ export function InquiryStatsPanel({ replacedLabel }: InquiryStatsPanelProps) {
             </Link>
           </span>
           <span>
-            · 견적의 발행·수락 이력은 영업 관리의 견적 화면이 갖습니다 —{' '}
+            · 견적의 발행·수락 이력은 영업 관리의 견적 화면이 가져요 —{' '}
             <Link to="/sales/quotes" className="tds-ui-link tds-ui-focusable">
               견적
             </Link>
           </span>
           <span>
-            · 결제를 켜면 이 화면은 다시 {replacedLabel}로 돌아옵니다. 지난 기록은 사라지지
-            않습니다.
+            · 결제를 켜면 이 화면은 다시 {replacedLabel}로 돌아와요. 지난 기록은 사라지지 않아요.
           </span>
         </div>
       </Card>

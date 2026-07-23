@@ -51,7 +51,7 @@ const TEST_CARRIERS: readonly Carrier[] = [
 
 function rowOf(orderId: string): ShipmentRow {
   const row = ROWS.find((candidate) => candidate.id === orderId);
-  if (row === undefined) throw new Error(`픽스처에 ${orderId} 행이 없습니다.`);
+  if (row === undefined) throw new Error(`픽스처에 ${orderId} 행이 없어요.`);
   return row;
 }
 

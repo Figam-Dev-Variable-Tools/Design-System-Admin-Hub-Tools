@@ -58,7 +58,7 @@ const rtlFrame: Decorator = (Story) => (
 
 /** Overview — 대표 사용. 기본 표면(md · flat) 위에 본문이 놓인다 */
 export const Overview: Story = {
-  args: { children: '대시보드 요약 카드 본문이 이 표면 위에 놓입니다.' },
+  args: { children: '대시보드 요약 카드 본문이 이 표면 위에 놓여요.' },
 };
 
 /* ── Variants ───────────────────────────────────────────────────────────── */
@@ -123,7 +123,7 @@ export const States: Story = {
       <div>
         <span style={captionStyle}>loading · aria-busy</span>
         <Card {...args} busy>
-          데이터를 불러오는 중입니다…
+          데이터를 불러오는 중이에요…
         </Card>
       </div>
     </div>
@@ -154,7 +154,7 @@ export const ContentRich: Story = {
   render: (args) => (
     <Card {...args}>
       <h3 style={titleStyle}>주간 방문자</h3>
-      <p style={bodyStyle}>지난주 대비 12% 증가했습니다.</p>
+      <p style={bodyStyle}>지난주 대비 12% 증가했어요.</p>
     </Card>
   ),
 };
@@ -181,5 +181,5 @@ export const ExampleLabelledPanel: Story = {
 export const RightToLeft: Story = {
   name: 'Accessibility/RTL',
   decorators: [rtlFrame],
-  args: { children: '카드는 문서 방향(RTL)을 따라 흐릅니다.' },
+  args: { children: '카드는 문서 방향(RTL)을 따라 흘러요.' },
 };

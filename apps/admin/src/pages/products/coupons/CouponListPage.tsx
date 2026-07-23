@@ -13,17 +13,11 @@ import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { formatDate, formatNumber } from '../../../shared/format';
-import {
-  Button,
-  Icon,
-  SearchField,
-  SelectField,
-  StatusBadge,
-  ToggleSwitch,
-} from '../../../shared/ui';
+import { Button, Icon, SearchField, SelectField, StatusBadge } from '../../../shared/ui';
 import {
   CrudListShell,
   parseFilter,
+  RowToggle,
   useCrudList,
   useCrudRowUpdate,
   useListState,
@@ -204,9 +198,11 @@ export default function CouponListPage() {
       header: '발급',
       nowrap: true,
       render: (item) => (
-        <ToggleSwitch
+        <RowToggle
           checked={item.enabled}
           busy={toggle.pendingId === item.id}
+          // 판정 순서는 권한 → 설정이다 — 수정 권한이 없으면 PG 잠금과 무관하게 값만 남는다
+          canUpdate={toggle.canUpdate}
           disabled={lock.locked}
           onChange={(next) =>
             toggle.run(
@@ -214,8 +210,8 @@ export default function CouponListPage() {
               { ...toCouponInput(item), enabled: next },
               {
                 success: next
-                  ? `'${item.name}' 쿠폰을 발급중으로 바꿨습니다.`
-                  : `'${item.name}' 쿠폰 발급을 중지했습니다.`,
+                  ? `'${item.name}' 쿠폰을 발급중으로 바꿨어요.`
+                  : `'${item.name}' 쿠폰 발급을 중지했어요.`,
               },
             )
           }
@@ -229,7 +225,10 @@ export default function CouponListPage() {
 
   const toolbar = (
     <div style={toolbarColumnStyle}>
-      {lock.locked && <PgLockNotice reason={lock.reason} inquiryDomain="product" />}
+      {/* 문의 링크를 걸지 않는다 — 쿠폰은 '발급 정책' 이지 고객이 사는 것이 아니라, 대응하는
+          문의 대기열이 없다. `INQUIRY_PATH['product']` 는 **상품** 문의 목록으로 보내는데,
+          방금 쿠폰을 보던 운영자에게 그것은 다른 주제다(적립금 정책 화면과 같은 이유). */}
+      {lock.locked && <PgLockNotice reason={lock.reason} />}
       <div style={toolbarStyle}>
         <div style={filtersStyle}>
           <SearchField

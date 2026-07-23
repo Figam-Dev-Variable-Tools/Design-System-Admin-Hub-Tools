@@ -85,7 +85,7 @@ describe('Menu — 계약 states[]', () => {
       <Menu
         label="구글 로그인 더보기"
         items={[
-          { id: 'edit', label: '수정', disabledReason: '발송 중에는 바꿀 수 없습니다' },
+          { id: 'edit', label: '수정', disabledReason: '발송 중에는 바꿀 수 없어요' },
           { id: 'view', label: '보기' },
         ]}
       />,
@@ -107,7 +107,7 @@ describe('Menu — 잠긴 이유 (계약 items[].disabledReason)', () => {
     render(
       <Menu
         label="구글 로그인 더보기"
-        items={[{ id: 'edit', label: '수정', disabledReason: '연동을 먼저 껐다 켜야 합니다' }]}
+        items={[{ id: 'edit', label: '수정', disabledReason: '연동을 먼저 껐다 켜야 해요' }]}
       />,
     );
 
@@ -116,9 +116,7 @@ describe('Menu — 잠긴 이유 (계약 items[].disabledReason)', () => {
     const reasonId = item.getAttribute('aria-describedby');
 
     expect(reasonId).not.toBeNull();
-    expect(document.getElementById(reasonId ?? '')?.textContent).toBe(
-      '연동을 먼저 껐다 켜야 합니다',
-    );
+    expect(document.getElementById(reasonId ?? '')?.textContent).toBe('연동을 먼저 껐다 켜야 해요');
   });
 
   it('Menu: disabledReason 이 없으면 aria-describedby 를 붙이지 않는다', async () => {
@@ -235,7 +233,7 @@ describe('Menu — 계약 events', () => {
       <Menu
         label="구글 로그인 더보기"
         items={[
-          { id: 'edit', label: '수정', disabledReason: '발송 중에는 바꿀 수 없습니다' },
+          { id: 'edit', label: '수정', disabledReason: '발송 중에는 바꿀 수 없어요' },
           { id: 'lock', label: '잠금', disabled: true },
         ]}
         onSelect={onSelect}

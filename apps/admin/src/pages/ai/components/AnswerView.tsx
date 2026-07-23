@@ -90,7 +90,7 @@ export function AnswerView({ answer }: { readonly answer: AgentAnswer }) {
     return (
       <div style={blockStyle}>
         <Alert tone="warning">
-          {`'${answer.domainLabel}' 은 아직 이 화면에 연결되지 않았습니다. 데이터 연동 후 조회할 수 있습니다.`}
+          {`'${answer.domainLabel}' 은 아직 이 화면에 연결되지 않았어요. 데이터 연동 후 조회할 수 있어요.`}
         </Alert>
       </div>
     );
@@ -117,8 +117,8 @@ export function AnswerView({ answer }: { readonly answer: AgentAnswer }) {
 
       <p style={summaryStyle}>
         {outcome.total === 0
-          ? `${outcome.domainLabel}에서 조건에 맞는 대상이 없습니다.`
-          : `${outcome.domainLabel} ${formatNumber(outcome.total)}건을 찾았습니다.`}
+          ? `${outcome.domainLabel}에서 조건에 맞는 대상이 없어요.`
+          : `${outcome.domainLabel} ${formatNumber(outcome.total)}건을 찾았어요.`}
       </p>
       <p style={mutedStyle}>{`조건 — ${outcome.conditionSummary}`}</p>
 
@@ -161,7 +161,7 @@ export function AnswerView({ answer }: { readonly answer: AgentAnswer }) {
 
           {outcome.total > shown ? (
             <p style={mutedStyle}>
-              {`전체 ${formatNumber(outcome.total)}건 중 ${formatNumber(ROW_LIMIT)}건만 표시했습니다. `}
+              {`전체 ${formatNumber(outcome.total)}건 중 ${formatNumber(ROW_LIMIT)}건만 표시했어요. `}
               <Link to={outcome.listUrl}>목록 화면에서 전체 보기</Link>
             </p>
           ) : (

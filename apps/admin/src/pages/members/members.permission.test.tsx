@@ -217,6 +217,33 @@ describe('MembersPage — 액션마다 다른 권한을 탄다 (EXC-03)', () => 
     expect(screen.getByRole('button', { name: /회원 액션/ })).not.toBeNull();
     expect(screen.queryAllByRole('checkbox').length).toBeGreaterThan(0);
   });
+
+  /**
+   * [이 화면에서 마지막까지 남아 있던 구멍]
+   * 툴바의 네 액션(내보내기·발송·삭제·행 액션)은 위에서 보듯 옳게 게이팅돼 있었는데, 좌측 그룹
+   * 필터 아래의 '+ 새 그룹 만들기' **하나만** 빠져 있었다. 한 화면 안에서 축이 하나만 빠지는
+   * 이 모양이 가장 찾기 어렵다 — 나머지가 잠겨 있어 '이 화면은 게이팅돼 있다' 로 읽힌다.
+   *
+   * 그룹은 만들고 나면 배송비 정책이 붙는 실체다(CreateGroupModal 머리말). 조회 권한만 가진
+   * 사람이 만들 수 있는 것이 아니다.
+   */
+  it('create 권한이 없으면 + 새 그룹 만들기 버튼이 존재하지 않는다', async () => {
+    seedPermissions(['create']);
+    renderList();
+    await waitForRow();
+
+    expect(screen.queryByRole('button', { name: '+ 새 그룹 만들기' })).toBeNull();
+    // 같은 화면의 다른 축은 그대로다 — create 만 끈 것이지 화면을 닫은 것이 아니다
+    expect(screen.getByRole('button', { name: /내보내기/ })).not.toBeNull();
+  });
+
+  it('create 권한이 있으면 + 새 그룹 만들기 버튼이 보인다 — 위 단언이 헛돌지 않는다', async () => {
+    seedPermissions([]);
+    renderList();
+    await waitForRow();
+
+    expect(screen.queryByRole('button', { name: '+ 새 그룹 만들기' })).not.toBeNull();
+  });
 });
 
 describe('MemberDetailPage — 읽기는 열리고 쓰기만 닫힌다 (EXC-03)', () => {

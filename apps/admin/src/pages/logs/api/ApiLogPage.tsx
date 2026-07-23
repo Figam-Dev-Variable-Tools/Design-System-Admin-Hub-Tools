@@ -127,7 +127,7 @@ export default function ApiLogPage() {
       columns: COLUMNS,
       sortValues: apiLogSpec.sortValues,
       caption:
-        'API 로그 — 행을 누르면 그 호출의 요청·응답이 열립니다. 이 목록은 읽기 전용이며 수정·삭제할 수 없습니다.',
+        'API 로그 — 행을 누르면 그 호출의 요청·응답이 열려요. 이 목록은 읽기 전용이며 수정·삭제할 수 없어요.',
       searchLabel: '경로, 클라이언트 또는 요청 ID 검색',
       searchPlaceholder: '경로 · 클라이언트 · 요청 ID 검색',
       csvBaseName: 'api-log',

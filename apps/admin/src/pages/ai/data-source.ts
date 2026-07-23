@@ -89,7 +89,7 @@ export interface AskResult {
 /** 대화가 사라진 뒤 이어 물으려 했을 때 — 화면이 이 종류를 보고 안내를 바꾼다 */
 export class ConversationGoneError extends Error {
   constructor() {
-    super('대화를 찾을 수 없습니다.');
+    super('대화를 찾을 수 없어요.');
     this.name = 'ConversationGoneError';
   }
 }

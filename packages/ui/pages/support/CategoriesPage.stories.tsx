@@ -227,7 +227,7 @@ function CategoryRow({ category, onEdit, onDelete }: CategoryRowProps) {
         <IconButton
           icon={<Icon name="trash" />}
           label={
-            inUse ? `${category.label} — ${usage}라 삭제할 수 없습니다` : `${category.label} 삭제`
+            inUse ? `${category.label} — ${usage}라 삭제할 수 없어요` : `${category.label} 삭제`
           }
           size="sm"
           disabled={inUse}
@@ -339,14 +339,14 @@ function CategoriesScreen({
       {error ? (
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>문의 유형을 불러오지 못했습니다.</span>
+            <span>문의 유형을 불러오지 못했어요.</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
       ) : (
         <Card>
           {categories.length === 0 ? (
-            <p style={summaryStyle}>{loading ? '불러오는 중…' : '등록된 문의 유형이 없습니다.'}</p>
+            <p style={summaryStyle}>{loading ? '불러오는 중…' : '등록된 문의 유형이 없어요.'}</p>
           ) : (
             <ul style={listStyle}>
               {categories.map((category) => (
@@ -360,7 +360,7 @@ function CategoriesScreen({
             </ul>
           )}
           <p style={hintStyle}>
-            사용 중인 유형은 삭제할 수 없습니다 — 먼저 그 티켓·템플릿의 유형을 바꾸거나, 사용여부를
+            사용 중인 유형은 삭제할 수 없어요 — 먼저 그 티켓·템플릿의 유형을 바꾸거나, 사용여부를
             꺼서 신규 선택에서 숨기세요.
           </p>
         </Card>
@@ -377,7 +377,7 @@ function CategoriesScreen({
         <ConfirmDialog
           intent="delete"
           title="문의 유형 삭제"
-          message={`'${pendingDelete.label}' 유형을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.label}' 유형을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="유형 삭제"
           onConfirm={() => setPendingDelete(null)}
           onCancel={() => setPendingDelete(null)}

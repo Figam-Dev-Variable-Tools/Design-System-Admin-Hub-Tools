@@ -164,7 +164,7 @@ export function KakaoButtonsCard({ buttons, context, disabled, onChange }: Kakao
       <h3 style={sectionHeadingStyle}>{KAKAO_LABEL_BUTTONS}</h3>
 
       {buttons.length === 0 ? (
-        <p style={emptyStyle}>버튼이 없습니다. 필요하면 아래에서 추가하세요.</p>
+        <p style={emptyStyle}>버튼이 없어요. 필요하면 아래에서 추가하세요.</p>
       ) : (
         <div style={listStyle}>
           {buttons.map((button, index) => {

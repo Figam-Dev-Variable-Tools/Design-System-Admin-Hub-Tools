@@ -160,7 +160,7 @@ export function SegmentPicker({
       ) : (
         <p id={noteId} style={hintStyle}>
           선택 대상 <span style={totalStyle}>{formatNumber(total)}명</span> — 중복 수신자는 발송 시
-          1회로 합산됩니다.
+          1회로 합산돼요.
         </p>
       )}
     </div>

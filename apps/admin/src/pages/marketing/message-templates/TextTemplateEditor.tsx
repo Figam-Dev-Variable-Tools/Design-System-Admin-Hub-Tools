@@ -40,7 +40,7 @@ import { cssVar } from '@tds/ui';
 
 const ENTITY_LABEL = '메시지 템플릿';
 const UNSAVED_MESSAGE =
-  '메시지 템플릿에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '메시지 템플릿에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 /** 문자 발송 대행사 — 계약된 회선. 지금은 픽스처의 기본값이고 상세의 'Text message type' 이 보여 준다 */
 const DEFAULT_VENDOR: TextMessageVendor = 'SureM';
@@ -301,8 +301,8 @@ export default function TextTemplateEditor() {
         <div style={alertActionRowStyle}>
           <span>
             {loadFailure === 'not-found'
-              ? '메시지 템플릿을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-              : '메시지 템플릿을 불러오지 못했습니다.'}
+              ? '메시지 템플릿을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+              : '메시지 템플릿을 불러오지 못했어요.'}
           </span>
           {loadFailure === 'error' && (
             <Button variant="secondary" onClick={retryLoad}>
@@ -356,7 +356,7 @@ export default function TextTemplateEditor() {
               /* 치환 후 값은 별도의 칩이다 — 위 숫자와 한 줄에 붙이면 어느 쪽이 상한에 걸리는
                  값인지 흐려진다. 등급까지 갈리면 색을 바꿔 '과금이 달라진다' 를 먼저 알린다. */
               <span style={gradeShifts ? gradeShiftStyle : gradeStyle}>
-                {`치환 후 ${smsKindLabel(sampleGrade)} · ${String(sampleBytes)} byte (표본 기준 — 수신자마다 달라집니다)`}
+                {`치환 후 ${smsKindLabel(sampleGrade)} · ${String(sampleBytes)} byte (표본 기준 — 수신자마다 달라져요)`}
               </span>
             )}
           </div>

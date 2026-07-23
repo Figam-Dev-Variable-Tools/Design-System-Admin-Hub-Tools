@@ -13,6 +13,10 @@ import { cssVar } from '@tds/ui';
 
 import { isAbort } from '../../../../shared/async';
 import { zodResolver } from '../../../../shared/form/zodResolver';
+import {
+  useRouteCanSubmitForm,
+  WRITE_DENIED,
+} from '../../../../shared/permissions/RequirePermission';
 import { useCrudCreate, useCrudUpdate } from '../../../../shared/crud';
 import {
   Alert,
@@ -84,6 +88,16 @@ export function CarrierFormModal({ editing, onClose, onSaved }: CarrierFormModal
   const { requestClose, discardDialog } = useModalDirtyGuard(isDirty && !saving, onClose);
 
   const [serverError, setServerError] = useState<string | null>(null);
+
+  /**
+   * [EXC-03] 이 팝업은 **부모의 판정을 물려받지 않는다.**
+   *
+   * 부모(배송 정책 화면)는 권한이 없으면 여는 버튼('택배사 추가'·연필)을 만들지 않는다. 그러나
+   * 그것은 '열리지 않는다' 는 보장일 뿐 '저장되지 않는다' 는 보장이 아니다 — 열려 있는 동안 다른
+   * 탭에서 강등되면 부모의 판정은 이미 지나간 과거다. 등록이면 create, 수정이면 update —
+   * 폼 라우트·다른 팝업과 **같은 한 벌**(useRouteCanSubmitForm)이다.
+   */
+  const canSubmit = useRouteCanSubmitForm(isEdit);
   const nameRef = useRef<HTMLInputElement | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
   useEffect(() => () => controllerRef.current?.abort(), []);
@@ -91,6 +105,10 @@ export function CarrierFormModal({ editing, onClose, onSaved }: CarrierFormModal
   const active = watch('active');
 
   const onValid = (values: CarrierFormValues) => {
+    if (!canSubmit) {
+      setServerError(isEdit ? WRITE_DENIED.update : WRITE_DENIED.create);
+      return;
+    }
     setServerError(null);
     const controller = new AbortController();
     controllerRef.current = controller;
@@ -104,7 +122,7 @@ export function CarrierFormModal({ editing, onClose, onSaved }: CarrierFormModal
 
     const onError = (cause: unknown) => {
       if (isAbort(cause)) return;
-      setServerError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      setServerError('저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
     };
 
     if (editing !== null) {
@@ -142,9 +160,11 @@ export function CarrierFormModal({ editing, onClose, onSaved }: CarrierFormModal
             <Button variant="secondary" size="md" disabled={saving} onClick={requestClose}>
               취소
             </Button>
-            <Button variant="primary" size="md" type="submit" disabled={saving}>
-              {saving ? '저장 중…' : isEdit ? '저장' : '추가'}
-            </Button>
+            {canSubmit && (
+              <Button variant="primary" size="md" type="submit" disabled={saving}>
+                {saving ? '저장 중…' : isEdit ? '저장' : '추가'}
+              </Button>
+            )}
           </>
         }
       >
@@ -182,7 +202,7 @@ export function CarrierFormModal({ editing, onClose, onSaved }: CarrierFormModal
             label="택배사 코드"
             required
             error={errors.code?.message}
-            hint="연동 키입니다. 이름을 바꿔도 이 값은 그대로 둡니다."
+            hint="연동 키예요. 이름을 바꿔도 이 값은 그대로 둬요."
           >
             <input
               id="carrier-code"

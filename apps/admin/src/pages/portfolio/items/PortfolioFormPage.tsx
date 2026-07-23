@@ -2,10 +2,16 @@
 //
 // 승격된 CRUD 프레임워크(useCrudForm + FormPageShell) 위에 대표 이미지·본문 다중 이미지·노출 토글을
 // 얹는다. 검증의 정본은 ./validation 의 zod 스키마다.
-import type { CSSProperties } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { controlStyle, errorIdOf, FormField, SelectField, TextareaField } from '../../../shared/ui';
+import {
+  controlStyle,
+  errorIdOf,
+  FormField,
+  formRowStyle,
+  SelectField,
+  TextareaField,
+} from '../../../shared/ui';
 import { FormPageShell, useCrudForm } from '../../../shared/crud';
 import { PortfolioMediaFields } from '../_shared/PortfolioMediaFields';
 import { fetchPortfolioCategoryOptions, portfolioAdapter } from './data-source';
@@ -18,19 +24,11 @@ import {
   PORTFOLIO_TITLE_MAX,
 } from '../_shared/store';
 import type { PortfolioItem, PortfolioItemInput } from '../_shared/store';
-import { cssVar } from '@tds/ui';
-
 const RESOURCE = 'portfolio';
 const ENTITY_LABEL = '포트폴리오';
 const LIST_PATH = '/portfolio/items';
 const UNSAVED_MESSAGE =
-  '포트폴리오에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
-};
+  '포트폴리오에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 export default function PortfolioFormPage() {
   const {
@@ -107,7 +105,7 @@ export default function PortfolioFormPage() {
     <FormPageShell
       entityLabel={ENTITY_LABEL}
       cardTitle="포트폴리오 정보"
-      description="별표(*) 항목은 필수입니다. 분류·대표 이미지와 소개를 입력하세요."
+      description="별표(*) 항목은 필수예요. 분류·대표 이미지와 소개를 입력하세요."
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
@@ -121,7 +119,7 @@ export default function PortfolioFormPage() {
       unsavedMessage={UNSAVED_MESSAGE}
       onSubmit={submit}
     >
-      <div style={rowStyle}>
+      <div style={formRowStyle}>
         <FormField
           htmlFor="portfolio-category"
           label="분류"
@@ -213,7 +211,7 @@ export default function PortfolioFormPage() {
         galleryValues={imageUrls}
         onGalleryChange={(next) => setValue('imageUrls', [...next], { shouldDirty: true })}
         galleryError={imagesError}
-        galleryHint={`프로젝트를 보여줄 이미지를 여러 장 올릴 수 있습니다. 최대 ${String(MAX_PORTFOLIO_IMAGES)}장.`}
+        galleryHint={`프로젝트를 보여줄 이미지를 여러 장 올릴 수 있어요. 최대 ${String(MAX_PORTFOLIO_IMAGES)}장.`}
         maxImages={MAX_PORTFOLIO_IMAGES}
         published={published}
         onPublishedChange={(next) => setValue('published', next, { shouldDirty: true })}

@@ -12,7 +12,7 @@ import {
   ToggleSwitch,
 } from '../../../shared/ui';
 
-const COVER_HINT = '목록에는 노출되지 않습니다 — 상세/미리보기의 대표 이미지입니다.';
+const COVER_HINT = '목록에는 노출되지 않아요 — 상세/미리보기의 대표 이미지예요.';
 
 interface PortfolioMediaFieldsProps {
   readonly disabled: boolean;

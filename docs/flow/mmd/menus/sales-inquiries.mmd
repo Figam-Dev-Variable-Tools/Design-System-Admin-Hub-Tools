@@ -58,8 +58,8 @@ flowchart TD
     DIRTY -->|"예"| SV["onSave: 타임라인 조립(append-only)<br/>status 변경 → directionParticle 로 조사 계산 (ERP-13)<br/>composer → reply/note 이벤트"]
     SV --> MU["useCrudUpdate.mutate(toInquiryInput + assignee·status·timeline)"]
     MU --> PATCH{"어댑터 patch: issueQuoteIfRequested<br/>requestsQuoteIssue(status) && !hasIssuedQuote(item)"}
-    PATCH -->|"중복 — 이미 발행"| PX["견적 재생성 안 함 (quoteId 가 멱등 키)<br/>저장소도 findQuoteByInquiry 로 교차 확인"]
-    PATCH -->|"신규 발행"| PY["issueQuoteFromInquiry<br/>buildQuoteFromInquiry: 거래처·담당자·문의내용 승계<br/>status='draft' · validUntil=+30일 · quoteId 역링크<br/>타임라인 '견적 자동 생성 — Q-…'"]
+    PATCH -->|"중복 — 이미 발행"| PX["견적 재생성 안 함 (quoteId 가 멱등 키)<br/>저장소도 findQuoteBySource 로 교차 확인"]
+    PATCH -->|"신규 발행"| PY["issueQuoteFromSources<br/>buildQuoteFromSources: 거래처·담당자·문의내용 승계<br/>status='draft' · validUntil=+30일 · quoteId 역링크<br/>타임라인 '견적 자동 생성 — Q-…'"]
     PX --> MR{"mutation 결과"}
     PY --> MR
     MR -->|"abort"| ABT["무시 (isAbort)"]

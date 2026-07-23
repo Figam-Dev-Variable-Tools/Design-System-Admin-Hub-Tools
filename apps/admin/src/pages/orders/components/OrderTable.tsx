@@ -32,7 +32,7 @@ import {
   StatusBadge,
   tableSelectionState,
 } from '../../../shared/ui';
-import { PAYMENT_METHOD_LABEL } from '../../../shared/commerce/payment-settings';
+import { PAYMENT_METHOD_LABEL } from '../../../shared/commerce/pg-catalog';
 import { orderStatusLabel } from '../../../shared/domain/order';
 import type { Order } from '../../../shared/domain/order';
 import {
@@ -181,8 +181,8 @@ export function OrderTable({
     <Table
       caption={
         selectable
-          ? '주문 목록 — 행을 누르면 주문 상세로 이동합니다. 체크박스로 여러 건을 골라 상태를 한 번에 처리할 수 있습니다.'
-          : '주문 목록 — 행을 누르면 주문 상세로 이동합니다. 상태를 바꿀 권한이 없어 조회만 가능합니다.'
+          ? '주문 목록 — 행을 누르면 주문 상세로 이동해요. 체크박스로 여러 건을 골라 상태를 한 번에 처리할 수 있어요.'
+          : '주문 목록 — 행을 누르면 주문 상세로 이동해요. 상태를 바꿀 권한이 없어 조회만 가능해요.'
       }
       columns={COLUMNS}
       rows={rows}

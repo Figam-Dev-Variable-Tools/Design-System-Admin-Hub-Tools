@@ -6,7 +6,7 @@ import type { CeoMessageFormValues } from './validation';
 
 function valuesOf(overrides: Partial<CeoMessageFormValues> = {}): CeoMessageFormValues {
   return {
-    title: '고객과 함께 성장하겠습니다',
+    title: '고객과 함께 성장할게요',
     body: '안녕하십니까. 방문해 주셔서 감사합니다.',
     photoUrl: 'https://cdn.example.com/ceo.jpg',
     ...overrides,

@@ -39,6 +39,9 @@
   box-sizing: border-box;
   inline-size: 100%;
   min-inline-size: 0;
+  /* dense control 가족 공통 최소 높이 — 근거는 SelectField.css `min-block-size` 주석.
+     날짜 칸은 select 바로 옆에 서는 일이 잦아 여기서 어긋나면 가장 먼저 눈에 띈다. */
+  min-block-size: var(--tds-space-8);
   padding-block: var(--tds-space-2);
   padding-inline: var(--tds-space-3);
   border-style: solid;

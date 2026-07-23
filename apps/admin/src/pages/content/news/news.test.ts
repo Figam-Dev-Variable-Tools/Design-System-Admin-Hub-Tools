@@ -3,23 +3,15 @@
 // [무엇을 못 박는가]
 //   ① 고정글이 발행일에 밀려 내려가는 것 — 고정의 의미가 사라진다
 //   ② '예약' 을 저장값으로 착각하는 것 (파생 상태는 시간이 만든다)
-//   ③ 첨부가 가리키는 자산이 사라졌는데 조용히 넘어가는 것, 그리고 그 반대(모르는데 삭제라고 말하는 것)
 import { describe, expect, it } from 'vitest';
 
-import type { CatalogMediaAsset } from '../../../shared/domain/media-library';
 import {
-  ATTACHMENT_MISSING,
-  ATTACHMENT_UNKNOWN,
-  attachmentViews,
-  attachmentWarning,
   CATEGORY_FILTER_ALL,
   categoryLabelOf,
   countByCategory,
   filterNewsPosts,
   newsStatus,
   sortNewsPosts,
-  withAttachment,
-  withoutAttachment,
 } from './types';
 import type { NewsCategory, NewsPost } from './types';
 
@@ -31,7 +23,6 @@ const post = (overrides: Partial<NewsPost> = {}): NewsPost => ({
   status: 'published',
   publishAt: '2026-03-01T09:00',
   body: '본문',
-  attachmentIds: [],
   updatedAt: '2026-03-01T09:00',
   ...overrides,
 });
@@ -39,10 +30,6 @@ const post = (overrides: Partial<NewsPost> = {}): NewsPost => ({
 const CATEGORIES: readonly NewsCategory[] = [
   { id: 'press', label: '언론보도' },
   { id: 'award', label: '수상·인증' },
-];
-
-const CATALOG: readonly CatalogMediaAsset[] = [
-  { id: 'md-1', fileName: 'press-kit.zip', url: '/x.svg', alt: '보도자료 묶음', sizeBytes: 100 },
 ];
 
 const NOW = new Date('2026-07-01T00:00:00');
@@ -110,33 +97,5 @@ describe('필터 · 건수', () => {
   it('모르는 분류는 지어내지 않는다', () => {
     expect(categoryLabelOf(CATEGORIES, 'press')).toBe('언론보도');
     expect(categoryLabelOf(CATEGORIES, '없음')).toBe('미분류');
-  });
-});
-
-describe('첨부', () => {
-  it('살아 있는 자산과 이어 준다', () => {
-    const views = attachmentViews(['md-1'], CATALOG);
-    expect(views[0]?.asset?.fileName).toBe('press-kit.zip');
-    expect(attachmentWarning(['md-1'], CATALOG)).toBeNull();
-  });
-
-  it('사라진 자산은 경고한다', () => {
-    expect(attachmentViews(['md-없음'], CATALOG)[0]?.asset).toBeNull();
-    expect(attachmentWarning(['md-없음'], CATALOG)).toBe(ATTACHMENT_MISSING);
-  });
-
-  it('카탈로그를 모르면 삭제됐다고 말하지 않는다 — 다른 문장을 쓴다', () => {
-    expect(attachmentWarning(['md-1'], null)).toBe(ATTACHMENT_UNKNOWN);
-    expect(attachmentViews(['md-1'], null)[0]?.asset).toBeNull();
-  });
-
-  it('첨부가 없으면 경고할 것도 없다', () => {
-    expect(attachmentWarning([], null)).toBeNull();
-  });
-
-  it('같은 파일을 두 번 붙이지 않는다 (멱등)', () => {
-    expect(withAttachment(['md-1'], 'md-1')).toEqual(['md-1']);
-    expect(withAttachment(['md-1'], 'md-2')).toEqual(['md-1', 'md-2']);
-    expect(withoutAttachment(['md-1', 'md-2'], 'md-1')).toEqual(['md-2']);
   });
 });

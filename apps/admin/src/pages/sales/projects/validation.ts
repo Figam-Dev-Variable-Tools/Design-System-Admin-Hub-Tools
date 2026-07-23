@@ -20,10 +20,10 @@ const milestoneSchema = z.object({
 const percentString = (label: string) =>
   z.string().check(
     z.refine((value) => INT_RE.test(value.trim()), {
-      error: `${label}${topicParticle(label)} 숫자만 입력할 수 있습니다.`,
+      error: `${label}${topicParticle(label)} 숫자만 입력할 수 있어요.`,
     }),
     z.refine((value) => !INT_RE.test(value.trim()) || Number(value.trim()) <= 100, {
-      error: `${label}${topicParticle(label)} 0~100 사이여야 합니다.`,
+      error: `${label}${topicParticle(label)} 0~100 사이여야 해요.`,
     }),
   );
 
@@ -37,7 +37,7 @@ export const projectSchema = z
     probability: percentString('확률'),
     expectedRevenue: z.string().check(
       z.refine((value) => INT_RE.test(value.trim()), {
-        error: '예상매출은 숫자만 입력할 수 있습니다.',
+        error: '예상매출은 숫자만 입력할 수 있어요.',
       }),
     ),
     startAt: z.string(),
@@ -48,6 +48,11 @@ export const projectSchema = z
     deliverables: z.array(z.string()),
     lostReason: z.string(),
     note: z.string(),
+    // 원 계약 참조 — 사람이 채우는 칸이 아니다(계약이 프로젝트를 만들 때 승계한다). 폼에 남겨
+    // 두는 이유는 계약 참조가 저장 왕복에서 조용히 사라지지 않게 하기 위해서다(계약의 quoteId 와
+    // 같은 규약). 빈 문자열은 '계약 없이 생긴 옛 프로젝트' 다.
+    contractId: z.string(),
+    contractTitle: z.string(),
   })
   .check((ctx) => {
     // 기간 — 실재 날짜 + 종료 ≥ 시작.
@@ -67,7 +72,7 @@ export const projectSchema = z
         code: 'custom',
         input: ctx.value.endAt,
         path: ['endAt'],
-        message: '종료일은 시작일보다 빠를 수 없습니다.',
+        message: '종료일은 시작일보다 빠를 수 없어요.',
       });
     }
   })

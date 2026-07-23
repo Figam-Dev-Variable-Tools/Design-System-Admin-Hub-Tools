@@ -21,7 +21,7 @@ import { isAbort } from '../../shared/async';
 import { parseFilter, useListState } from '../../shared/crud';
 import { adminGroupDeletionBlock } from '../../shared/domain/admin-group';
 import { usePermissions } from '../../shared/permissions/PermissionProvider';
-import { useRouteWritePermissions } from '../../shared/permissions/RequirePermission';
+import { useRouteWritePermissions, WRITE_DENIED } from '../../shared/permissions/RequirePermission';
 import {
   Alert,
   Button,
@@ -118,7 +118,11 @@ const errorBodyStyle: CSSProperties = {
 
 export default function AdminsPage() {
   const navigate = useNavigate();
-  const { canCreate } = useRouteWritePermissions();
+  /* [EXC-03] 운영자 등록 CTA 만 게이팅돼 있었고, 좌측 패널의 **그룹 만들기·그룹 삭제**는
+     무방비였다. 그룹 삭제는 이 화면에서 가장 넓게 번지는 삭제다: 운영진 그룹은 메시지 템플릿의
+     '발신 프로필' 과 같은 실체라(shared/domain/admin-group.ts) 지우면 등록된 발신번호·발신
+     이메일까지 함께 사라진다. 조회 권한만 있는 사람이 누를 수 있는 버튼이 아니다. */
+  const { canCreate, canRemove } = useRouteWritePermissions();
   const [tab, setTab] = useState<AdminTabId>('list');
 
   /**
@@ -254,7 +258,7 @@ export default function AdminsPage() {
   useEffect(() => {
     if (usage.error === null) return;
     setDeletionBlock(
-      '그룹의 사용 현황을 확인하지 못해 삭제할 수 없습니다. 잠시 후 다시 시도해 주세요.',
+      '그룹의 사용 현황을 확인하지 못해 삭제할 수 없어요. 잠시 후 다시 시도해 주세요.',
     );
     setDeletingGroupId(null);
   }, [usage.error]);
@@ -269,6 +273,12 @@ export default function AdminsPage() {
 
   const confirmDelete = () => {
     if (deletingGroup === null) return;
+    // 저장 경로도 같은 술어를 읽는다 — 버튼만 감추고 확인 경로가 열려 있으면 막은 것이 아니다.
+    // (다이얼로그가 떠 있는 동안 다른 탭에서 강등되면 여기서만 잡힌다.)
+    if (!canRemove) {
+      setDeleteError(WRITE_DENIED.remove);
+      return;
+    }
     const target = deletingGroup;
     setDeleteError(null);
 
@@ -282,7 +292,7 @@ export default function AdminsPage() {
           setDeletingGroupId(null);
           // 지운 그룹이 필터에 걸린 채로 남으면 목록이 영원히 0건이다 — '전체 운영자' 로 되돌린다
           setGroupId(GROUP_ALL);
-          toast.success(`'${target.name}' 그룹을 삭제했습니다.`);
+          toast.success(`'${target.name}' 그룹을 삭제했어요.`);
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
@@ -291,7 +301,7 @@ export default function AdminsPage() {
           setDeleteError(
             cause instanceof Error && cause.message !== ''
               ? cause.message
-              : '그룹을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+              : '그룹을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.',
           );
         },
       },
@@ -318,9 +328,15 @@ export default function AdminsPage() {
           counts={data?.groupCounts ?? null}
           totalAll={data?.totalAll ?? null}
           checkingDeletion={usage.isFetching}
+          canCreate={canCreate}
+          canRemove={canRemove}
           onChange={setGroupId}
-          onCreate={() => setCreatingGroup(true)}
+          onCreate={() => {
+            if (!canCreate) return;
+            setCreatingGroup(true);
+          }}
           onDelete={() => {
+            if (!canRemove) return;
             setDeletionBlock(null);
             setDeleteError(null);
             setDeletingGroupId(groupId);
@@ -381,7 +397,7 @@ export default function AdminsPage() {
             ) : (
               <Alert tone="danger">
                 <div style={errorBodyStyle}>
-                  <span>운영자 목록을 불러오지 못했습니다.</span>
+                  <span>운영자 목록을 불러오지 못했어요.</span>
                   <Button
                     variant="secondary"
                     onClick={() => {
@@ -402,7 +418,7 @@ export default function AdminsPage() {
           onClose={() => setCreatingGroup(false)}
           onCreated={(name) => {
             setCreatingGroup(false);
-            toast.success(`'${name}' 그룹을 만들었습니다.`);
+            toast.success(`'${name}' 그룹을 만들었어요.`);
             // 좌측 목록·건수 재조회는 useCreateAdminGroup 의 무효화가 맡는다
           }}
         />
@@ -414,8 +430,8 @@ export default function AdminsPage() {
           title="운영진 그룹 삭제"
           message={
             deletingGroup.usableAsSender
-              ? `'${deletingGroup.name}' 그룹을 삭제합니다. 이 그룹에 속한 운영자는 없으며, 등록된 발신번호·발신 이메일도 함께 사라져 메시지 템플릿의 발신 프로필 목록에서 빠집니다.`
-              : `'${deletingGroup.name}' 그룹을 삭제합니다. 이 그룹에 속한 운영자는 없으며, 좌측 그룹 필터에서 사라집니다.`
+              ? `'${deletingGroup.name}' 그룹을 삭제할까요? 이 그룹에 속한 운영자는 없으며, 등록된 발신번호·발신 이메일도 함께 사라져 메시지 템플릿의 발신 프로필 목록에서 빠져요.`
+              : `'${deletingGroup.name}' 그룹을 삭제할까요? 이 그룹에 속한 운영자는 없으며, 좌측 그룹 필터에서 사라져요.`
           }
           confirmLabel="그룹 삭제"
           busy={remove.isPending}

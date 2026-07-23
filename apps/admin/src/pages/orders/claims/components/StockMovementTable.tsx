@@ -52,7 +52,7 @@ export function StockMovementTable({ movements, emptyHint }: StockMovementTableP
   return (
     <table style={tableStyle}>
       <caption style={visuallyHiddenStyle}>
-        이 클레임으로 확정된 재고 이동 이력 — 입고는 회수분, 출고는 교환 재발송분입니다.
+        이 클레임으로 확정된 재고 이동 이력 — 입고는 회수분, 출고는 교환 재발송분이에요.
       </caption>
       <thead>
         <tr>

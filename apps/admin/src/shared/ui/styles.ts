@@ -290,12 +290,19 @@ export function filterItemStyle(active: boolean): CSSProperties {
  * 규칙으로 두는 게 자연스럽지만, 이 함수가 `background` 를 **인라인 style 로** 박기 때문에 규칙이
  * 항상 진다(인라인이 스타일시트를 이긴다). `!important` 로 억지로 이기게 하는 대신, 배경을 정하는
  * 곳이 상태도 함께 알게 한다 — 배경의 주인은 한 곳이어야 한다.
+ *
+ * [높이는 DS 를 따른다] 이 함수는 DS 의 dense control 표면(.tds-select__control ·
+ * .tds-daterange__control · .tds-search__control · .tds-textarea__control)의 **앱 쪽 사본**이다.
+ * 값이 갈리면 같은 줄에 선 <input> 과 드롭다운의 키가 달라진다 — 실제로 어긋나 있었고, 원인은
+ * line-height 하나였다(자세한 계산은 packages/ui/src/atoms/SelectField/SelectField.css 주석).
+ * 그래서 DS 가 깐 최소 높이(space.8)를 여기서도 그대로 읽는다. DS 가 정본이고 이쪽이 따라간다.
  */
 export function controlStyle(invalid = false, disabled = false): CSSProperties {
   return {
     boxSizing: 'border-box',
     width: '100%',
     minWidth: 0,
+    minHeight: cssVar('space.8'),
     paddingTop: cssVar('space.2'),
     paddingBottom: cssVar('space.2'),
     paddingLeft: cssVar('space.3'),
@@ -451,11 +458,20 @@ export const badgeStyle: CSSProperties = {
  *
  * [badgeStyle 과 무엇이 다른가] badgeStyle 은 글자 배지(‘실패 3회 연속’·역할 이름)라 좌우 여백을
  * 넉넉히 준 알약이다. 그것으로 한 자리 숫자를 그리면 세로보다 가로가 길쭉한 알약이 된다 —
- * 필터 개수 ‘1’ 이 화면마다 찌그러져 보였다. 카운트는 **높이 = 최소 너비**로 못 박아 한 자리는
- * 정원, 여러 자리는 그때만 옆으로 늘어나는 알약이 되게 한다(표준 카운트 배지).
+ * 필터 개수 ‘1’ 이 화면마다 찌그러져 보였다.
  *
- * height 와 minWidth 를 같은 토큰(space.5)으로 두는 것이 ‘가로 세로 같게’ 의 전부다.
- * box-sizing:border-box 라 좌우 최소 여백(space.1)이 높이를 밀지 않는다.
+ * ┌ 자릿수가 늘어도 **원을 유지한다** ───────────────────────────────────────┐
+ * │ 예전에는 `height` 를 space.5 로 못 박아, 한 자리는 정원이고 여러 자리는       │
+ * │ 좌우 여백에 밀려 **가로로만 늘어난 타원**이 됐다. 그때 주석은 그것을 '표준     │
+ * │ 카운트 배지' 라고 적었지만, 실제로는 9 에서 10 으로 넘어가는 순간 같은 자리의  │
+ * │ 도형이 원에서 알약으로 바뀌어 보였다 — 수가 하나 늘었을 뿐인데 모양이 변한다.  │
+ * │                                                                          │
+ * │ 그래서 높이를 고정하지 않고 `aspectRatio: 1` 로 **너비를 따라가게** 한다.     │
+ * │ 너비는 여전히 `minWidth`(space.5)와 내용 중 큰 쪽이므로, 한 자리는 정원이고    │
+ * │ 두 자리부터는 **더 큰 정원**이 된다. 가로 세로가 언제나 같다.                 │
+ * │                                                                          │
+ * │ box-sizing:border-box 라 좌우 여백(space.1)이 이 계산 안에 들어 있다.        │
+ * └──────────────────────────────────────────────────────────────────────────┘
  */
 export const countBadgeStyle: CSSProperties = {
   display: 'inline-flex',
@@ -463,7 +479,7 @@ export const countBadgeStyle: CSSProperties = {
   justifyContent: 'center',
   boxSizing: 'border-box',
   minWidth: cssVar('space.5'),
-  height: cssVar('space.5'),
+  aspectRatio: '1',
   paddingLeft: cssVar('space.1'),
   paddingRight: cssVar('space.1'),
   borderRadius: cssVar('radius.full'),

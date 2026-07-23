@@ -58,7 +58,7 @@ function ariaLabelOf(trend: StatsTrend, period: StatsPeriod, compare: StatsPerio
   const head = `${formatPeriodLabel(period)} ${trend.label} 추이 — 합계 ${formatMetric(total, trend.unit)}, 최고 ${formatMetric(peak, trend.unit)}`;
   return compare === null
     ? head
-    : `${head}. 비교 기간 ${formatPeriodLabel(compare)}이 함께 표시됩니다.`;
+    : `${head}. 비교 기간 ${formatPeriodLabel(compare)}이 함께 표시돼요.`;
 }
 
 export function StatsTrendCard({
@@ -100,7 +100,7 @@ export function StatsTrendCard({
         />
       ) : (
         // 조회는 성공했는데 집계된 값이 0건 — 에러가 아니다 (STATE-01)
-        <p style={emptyStyle}>선택한 기간에 집계된 값이 없습니다.</p>
+        <p style={emptyStyle}>선택한 기간에 집계된 값이 없어요.</p>
       )}
     </StatsCard>
   );

@@ -442,11 +442,11 @@ function TermsScreen({
           notice={
             <>
               <p style={railNoticeStyle}>
-                약관은 종류마다 버전 이력을 따로 갖습니다. 시행 중인 버전은 목록에서
-                &apos;현재&apos; 배지로 표시됩니다.
+                약관은 종류마다 버전 이력을 따로 가져요. 시행 중인 버전은 목록에서 &apos;현재&apos;
+                배지로 표시돼요.
               </p>
               <p style={railNoticeStyle}>
-                전문은 버전 행을 눌러 상세에서 봅니다 — 목록은 이력만 보여줍니다.
+                전문은 버전 행을 눌러 상세에서 봐요 — 목록은 이력만 보여줘요.
               </p>
             </>
           }
@@ -494,7 +494,7 @@ function TermsScreen({
           {failed ? (
             <Alert tone="danger">
               <div style={errorBodyStyle}>
-                <span>약관을 불러오지 못했습니다.</span>
+                <span>약관을 불러오지 못했어요.</span>
                 <Button variant="secondary">다시 시도</Button>
               </div>
             </Alert>
@@ -512,7 +512,7 @@ function TermsScreen({
               </SelectionBar>
 
               <Table
-                caption="약관 버전 이력 — 체크박스로 선택하고, 행을 누르면 전문을 봅니다. 수정/삭제 버튼으로 각 버전을 관리합니다."
+                caption="약관 버전 이력 — 체크박스로 선택하고, 행을 누르면 전문을 봐요. 수정/삭제 버튼으로 각 버전을 관리해요."
                 columns={COLUMNS}
                 rows={rows}
                 leadingHead={[
@@ -553,7 +553,7 @@ function TermsScreen({
         <ConfirmDialog
           intent="delete"
           title="약관 버전 삭제"
-          message={`${confirming.version} 버전을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`${confirming.version} 버전을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="버전 삭제"
           onConfirm={() => {
             removeVersions(new Set([confirming.id]));
@@ -567,7 +567,7 @@ function TermsScreen({
         <ConfirmDialog
           intent="delete"
           title="약관 버전 일괄 삭제"
-          message={`선택한 버전 ${fmt(selectedCount)}건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 버전 ${fmt(selectedCount)}건을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel={`${fmt(selectedCount)}건 삭제`}
           onConfirm={() => {
             removeVersions(selectedIds);

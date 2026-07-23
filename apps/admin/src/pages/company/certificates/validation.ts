@@ -12,7 +12,7 @@ export const certSchema = z.object({
   issuedOn: z.string().check(
     z.refine((value) => value.trim() !== '', { error: '발급일을 입력하세요.' }),
     z.refine((value) => ISO_DATE_RE.test(value.trim()), {
-      error: '발급일 형식이 올바르지 않습니다.',
+      error: '발급일 형식이 올바르지 않아요.',
     }),
   ),
   kind: z.string().check(

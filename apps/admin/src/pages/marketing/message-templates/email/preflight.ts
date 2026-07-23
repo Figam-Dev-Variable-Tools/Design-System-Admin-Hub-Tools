@@ -100,16 +100,14 @@ function blockIssues(block: EmailBlock): readonly PreflightIssue[] {
     case 'button': {
       const issues: PreflightIssue[] = [];
       if (block.content.trim() === '') {
-        issues.push(
-          at('cta-label-missing', 'error', '버튼에 문구가 없습니다. 빈 버튼이 나갑니다.'),
-        );
+        issues.push(at('cta-label-missing', 'error', '버튼에 문구가 없어요. 빈 버튼이 나가요.'));
       }
       if (isDeadLink(block.url)) {
         issues.push(
           at(
             'cta-url-missing',
             'error',
-            '버튼 링크가 비어 있거나 주소로 인정되지 않습니다. 버튼은 그려지지만 눌러도 아무 데도 가지 않습니다.',
+            '버튼 링크가 비어 있거나 주소로 인정되지 않아요. 버튼은 그려지지만 눌러도 아무 데도 가지 않아요.',
           ),
         );
       }
@@ -119,7 +117,7 @@ function blockIssues(block: EmailBlock): readonly PreflightIssue[] {
     case 'image': {
       const issues: PreflightIssue[] = [];
       if (block.fileName.trim() === '') {
-        issues.push(at('image-file-missing', 'error', '이미지 파일이 지정되지 않았습니다.'));
+        issues.push(at('image-file-missing', 'error', '이미지 파일이 지정되지 않았어요.'));
       }
       // 장식용은 alt="" 로 나가는 것이 옳다 — 요구하면 오히려 스크린리더가 파일명을 읽는다
       if (!block.decorative && block.alt.trim() === '') {
@@ -127,7 +125,7 @@ function blockIssues(block: EmailBlock): readonly PreflightIssue[] {
           at(
             'image-alt-missing',
             'error',
-            '이미지 대체 텍스트가 없습니다. 이미지를 차단하는 메일 클라이언트(Outlook 기본값)에서는 빈 상자만 도착합니다.',
+            '이미지 대체 텍스트가 없어요. 이미지를 차단하는 메일 클라이언트(Outlook 기본값)에서는 빈 상자만 도착해요.',
           ),
         );
       }
@@ -136,24 +134,24 @@ function blockIssues(block: EmailBlock): readonly PreflightIssue[] {
 
     case 'video':
       return isDeadLink(block.videoUrl)
-        ? [at('link-url-missing', 'error', '비디오 링크 주소가 비어 있거나 유효하지 않습니다.')]
+        ? [at('link-url-missing', 'error', '비디오 링크 주소가 비어 있거나 유효하지 않아요.')]
         : [];
 
     case 'logo':
     case 'avatar':
       return block.fileName.trim() === ''
-        ? [at('image-file-missing', 'error', `${label(block)} 파일이 지정되지 않았습니다.`)]
+        ? [at('image-file-missing', 'error', `${label(block)} 파일이 지정되지 않았어요.`)]
         : [];
 
     case 'heading':
     case 'text':
       return block.content.trim() === ''
-        ? [at('content-empty', 'error', `${label(block)} 블록이 비어 있습니다.`)]
+        ? [at('content-empty', 'error', `${label(block)} 블록이 비어 있어요.`)]
         : [];
 
     case 'list':
       return block.items.every((item) => item.text.trim() === '')
-        ? [at('content-empty', 'error', '목록 블록에 항목이 하나도 채워지지 않았습니다.')]
+        ? [at('content-empty', 'error', '목록 블록에 항목이 하나도 채워지지 않았어요.')]
         : [];
 
     case 'menu':
@@ -162,7 +160,7 @@ function blockIssues(block: EmailBlock): readonly PreflightIssue[] {
             at(
               'link-url-missing',
               'error',
-              '메뉴 항목 중 이름이나 주소가 빠진 것이 있습니다. 그 항목은 눌리지 않는 글자로 나갑니다.',
+              '메뉴 항목 중 이름이나 주소가 빠진 것이 있어요. 그 항목은 눌리지 않는 글자로 나가요.',
             ),
           ]
         : [];
@@ -173,7 +171,7 @@ function blockIssues(block: EmailBlock): readonly PreflightIssue[] {
             at(
               'link-url-missing',
               'error',
-              '소셜 링크 중 주소가 빠진 것이 있습니다. 그 항목은 눌리지 않는 글자로 나갑니다.',
+              '소셜 링크 중 주소가 빠진 것이 있어요. 그 항목은 눌리지 않는 글자로 나가요.',
             ),
           ]
         : [];
@@ -186,7 +184,7 @@ function blockIssues(block: EmailBlock): readonly PreflightIssue[] {
           at(
             'sender-name-missing',
             'error',
-            '푸터에 전송자 명칭이 없습니다. 광고성 메일은 전송자를 밝혀야 합니다.',
+            '푸터에 전송자 명칭이 없어요. 광고성 메일은 전송자를 밝혀야 해요.',
           ),
         );
       }
@@ -195,7 +193,7 @@ function blockIssues(block: EmailBlock): readonly PreflightIssue[] {
           at(
             'unsubscribe-url-missing',
             'error',
-            '수신거부 링크 주소가 비어 있거나 유효하지 않습니다. 수신거부 문구만 있고 실제로 거부할 수 없는 메일이 됩니다.',
+            '수신거부 링크 주소가 비어 있거나 유효하지 않아요. 수신거부 문구만 있고 실제로 거부할 수 없는 메일이 돼요.',
           ),
         );
       }
@@ -205,7 +203,7 @@ function blockIssues(block: EmailBlock): readonly PreflightIssue[] {
     case 'columns':
       // 칸이 전부 비면 그릴 것이 없다. 칸 **안**의 블록은 flattenBlocks 가 따로 훑으므로 여기서 보지 않는다
       return block.columns.every((column) => column.blocks.length === 0)
-        ? [at('content-empty', 'error', '다단 블록의 칸이 모두 비어 있습니다.')]
+        ? [at('content-empty', 'error', '다단 블록의 칸이 모두 비어 있어요.')]
         : [];
 
     case 'divider':
@@ -232,34 +230,30 @@ export function emailPreflight(content: EmailTemplateContent): readonly Prefligh
 
   /* ── 머리 ── */
   if (content.subject.trim() === '') {
-    push(
-      'subject-missing',
-      'error',
-      '제목이 없습니다. 수신함에서 이 메일을 여는 유일한 단서입니다.',
-    );
+    push('subject-missing', 'error', '제목이 없어요. 수신함에서 이 메일을 여는 유일한 단서예요.');
   } else if (content.subject.trim().length > SUBJECT_TRUNCATE_HINT) {
     push(
       'subject-long',
       'warning',
-      `제목이 ${String(SUBJECT_TRUNCATE_HINT)}자를 넘습니다. 모바일 수신함에서는 뒷부분이 잘려 보입니다.`,
+      `제목이 ${String(SUBJECT_TRUNCATE_HINT)}자를 넘어요. 모바일 수신함에서는 뒷부분이 잘려 보여요.`,
     );
   }
 
   if (content.senderEmail.trim() === '') {
-    push('sender-missing', 'error', '발신 주소가 선택되지 않았습니다.');
+    push('sender-missing', 'error', '발신 주소가 선택되지 않았어요.');
   }
 
   if (content.preheader.trim() === '') {
     push(
       'preheader-missing',
       'warning',
-      '프리헤더가 비어 있습니다. 수신함에서 제목 뒤에 본문 맨 앞 글자가 그대로 끌려 나옵니다.',
+      '프리헤더가 비어 있어요. 수신함에서 제목 뒤에 본문 맨 앞 글자가 그대로 끌려 나와요.',
     );
   }
 
   /* ── 몸 ── */
   if (content.blocks.length === 0) {
-    push('blocks-empty', 'error', '본문 블록이 하나도 없습니다. 수신자는 빈 메일을 받습니다.');
+    push('blocks-empty', 'error', '본문 블록이 하나도 없어요. 수신자는 빈 메일을 받아요.');
     return issues;
   }
 
@@ -270,7 +264,7 @@ export function emailPreflight(content: EmailTemplateContent): readonly Prefligh
     push(
       'cta-missing',
       'warning',
-      '버튼(CTA)이 하나도 없습니다. 수신자가 다음에 무엇을 하면 되는지 알 수 없습니다.',
+      '버튼(CTA)이 하나도 없어요. 수신자가 다음에 무엇을 하면 되는지 알 수 없어요.',
     );
   }
 
@@ -283,7 +277,7 @@ export function emailPreflight(content: EmailTemplateContent): readonly Prefligh
     push(
       'unsubscribe-missing',
       'error',
-      '수신거부 안내(법적 푸터)가 없습니다. 광고성 정보를 전송하려면 전송자 명칭과 무료 수신거부 방법을 본문에 밝혀야 합니다(정보통신망법 제50조).',
+      '수신거부 안내(법적 푸터)가 없어요. 광고성 정보를 전송하려면 전송자 명칭과 무료 수신거부 방법을 본문에 밝혀야 해요(정보통신망법 제50조).',
     );
   }
 

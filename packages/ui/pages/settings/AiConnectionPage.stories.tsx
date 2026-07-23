@@ -78,23 +78,23 @@ const API_KEY_FIELD: CredentialField = {
   label: 'API 키',
   secret: true,
   required: true,
-  hint: '프로바이더 콘솔에서 발급한 키입니다. 저장하면 다시 볼 수 없습니다.',
+  hint: '프로바이더 콘솔에서 발급한 키예요. 저장하면 다시 볼 수 없어요.',
 };
 
-/** 클라우드 — 키 하나로 되지 않는 곳(리소스 주소·배포명이 함께 필요하다) */
+/** 파운데이션 모델 — 키 하나로 되지 않는 곳(리소스 주소·배포명이 함께 필요하다) */
 const AZURE_OPENAI: DemoProvider = {
   id: 'azure-openai',
   name: 'Azure OpenAI',
   glyph: 'Az',
-  categoryLabel: '클라우드',
+  categoryLabel: '파운데이션 모델',
   description:
-    '우리 Azure 구독 안에서 OpenAI 모델을 돌립니다. 키 외에 리소스 주소와 배포명이 필요합니다.',
+    '우리 Azure 구독 안에서 OpenAI 모델을 돌려요. 키 외에 리소스 주소와 배포명이 필요해요.',
   connectionNotice:
-    'API 버전을 비우면 v1 엔드포인트로, 채우면 기존(dated) 엔드포인트로 부릅니다. 선택이지만 아무래도 좋은 칸은 아닙니다 — 이 칸의 유무가 어느 표면을 부를지를 가릅니다.',
+    'API 버전을 비우면 v1 엔드포인트로, 채우면 기존(dated) 엔드포인트로 불러요. 선택이지만 아무래도 좋은 칸은 아니에요 — 이 칸의 유무가 어느 표면을 부를지를 갈라요.',
   credentials: [
     {
       ...API_KEY_FIELD,
-      hint: 'Azure 포털의 해당 OpenAI 리소스 > 키 및 엔드포인트에서 복사합니다.',
+      hint: 'Azure 포털의 해당 OpenAI 리소스 > 키 및 엔드포인트에서 복사해요.',
     },
     {
       key: 'endpoint',
@@ -108,29 +108,64 @@ const AZURE_OPENAI: DemoProvider = {
       label: '배포명',
       secret: false,
       required: true,
-      hint: '모델명이 아니라 배포에 붙인 이름입니다. 다르면 호출이 404가 납니다.',
+      hint: '모델명이 아니라 배포에 붙인 이름이에요. 다르면 호출이 404가 나요.',
     },
     {
       key: 'apiVersion',
       label: 'API 버전',
       secret: false,
       required: false,
-      hint: '기존(dated) 엔드포인트를 쓸 때만 채웁니다. 예: 2024-06-01. v1 엔드포인트는 비웁니다.',
+      hint: '기존(dated) 엔드포인트를 쓸 때만 채워요. 예: 2024-06-01. v1 엔드포인트는 비워요.',
     },
   ],
 };
 
-/** 모델 — 키 한 칸으로 끝나는 곳 */
+/**
+ * 모델 — 비밀은 키 하나뿐이고 **나머지는 전부 공개 선택 칸**이다.
+ *
+ * 실화면과 같은 다섯 칸을 그린다: 키(비밀·필수) · 베이스 URL · 기본 모델 · 조직 ID · 프로젝트 ID.
+ * 뒤의 넷이 왜 칸으로 있는지(그리고 왜 비밀이 아닌지)는 실화면 카탈로그 주석에 있다 —
+ * 요약하면 ① 주소 교체가 정상 사용법인 프로바이더가 있고 ② 조직·프로젝트 ID 가 없으면 아예
+ * 연동되지 않는 계정이 실재하며 ③ 그 값들만으로는 어떤 호출도 인증되지 않는다.
+ */
 const OPENAI: DemoProvider = {
   id: 'openai',
   name: 'OpenAI',
   glyph: 'OA',
   categoryLabel: '모델',
-  description: 'GPT 계열 모델을 부릅니다. 글 생성·요약·분류 전반에 씁니다. 키 하나로 연동됩니다.',
+  description: 'GPT 계열 모델을 불러요. 글 생성·요약·분류 전반에 써요. 키 하나로 연동돼요.',
   connectionNotice:
-    '조직·프로젝트 헤더는 다중 조직 계정에서만 쓰는 선택 값이라 이 화면에 칸을 두지 않습니다. 빈 값을 보내면 오히려 401 이 나므로, 비어 있으면 헤더 자체를 보내지 않습니다.',
+    '조직·프로젝트 ID 는 선택이에요 — 다중 조직 계정이거나 레거시 사용자 API 키를 쓰면 필요해요(공식 문서 기준). 그때는 이 값이 없으면 연동되지 않아요. 둘 다 비밀이 아니라 계정 안에서 우리를 가리키는 식별자이므로 저장한 값을 다시 보여 줘요. 비어 있으면 해당 헤더를 보내지 않아요.',
   credentials: [
-    { ...API_KEY_FIELD, hint: 'OpenAI 대시보드의 API keys 에서 발급합니다. sk- 로 시작합니다.' },
+    { ...API_KEY_FIELD, hint: 'OpenAI 대시보드의 API keys 에서 발급해요. sk- 로 시작해요.' },
+    {
+      key: 'baseUrl',
+      label: '베이스 URL',
+      secret: false,
+      required: false,
+      hint: '비우면 기본 주소(https://api.openai.com/v1)로 불러요. 프록시·게이트웨이를 거칠 때만 채워요.',
+    },
+    {
+      key: 'defaultModel',
+      label: '기본 모델',
+      secret: false,
+      required: false,
+      hint: '비우면 클라이언트 기본값으로 불러요. 표시명이 아니라 API 가 받는 id 를 넣어요. 예: gpt-5.6-sol · gpt-5.6-terra · gpt-5.6-luna (2026-07 확인분 — 모델 목록은 빠르게 낡아요.)',
+    },
+    {
+      key: 'organizationId',
+      label: '조직 ID',
+      secret: false,
+      required: false,
+      hint: 'OpenAI-Organization 헤더로 나가요. org- 로 시작해요. 다중 조직 계정이거나 레거시 사용자 API 키를 쓸 때만 필요해요.',
+    },
+    {
+      key: 'projectId',
+      label: '프로젝트 ID',
+      secret: false,
+      required: false,
+      hint: 'OpenAI-Project 헤더로 나가요. proj_ 로 시작해요. 위 조직 ID 와 같은 조건에서만 필요해요.',
+    },
   ],
 };
 
@@ -377,8 +412,8 @@ function AiConnectionScreen({
                   onChange={setEnabled}
                 />
                 <p style={hintStyle}>
-                  켜면 필수 자격증명을 모두 요구합니다. 끄는 것은 언제나 할 수 있습니다 — 자격증명은
-                  지워지지 않고 그대로 남습니다.
+                  켜면 필수 자격증명을 모두 요구해요. 끄는 것은 언제나 할 수 있어요 — 자격증명은
+                  지워지지 않고 그대로 남아요.
                 </p>
               </div>
 
@@ -404,8 +439,8 @@ function AiConnectionScreen({
                           </Button>
                         </span>
                         <p style={hintStyle}>
-                          저장돼 있습니다. 값은 다시 표시할 수 없습니다 — 바꾸려면 프로바이더
-                          콘솔에서 새로 발급해 넣으세요.
+                          저장돼 있어요. 값은 다시 표시할 수 없어요 — 바꾸려면 프로바이더 콘솔에서
+                          새로 발급해 넣으세요.
                         </p>
                       </>
                     ) : (
@@ -419,7 +454,7 @@ function AiConnectionScreen({
                             value={values[field.key] ?? ''}
                             onChange={(event) => setField(field.key, event.target.value)}
                             {...(stored
-                              ? { placeholder: '비워 두면 저장된 키를 그대로 씁니다' }
+                              ? { placeholder: '비워 두면 저장된 키를 그대로 써요' }
                               : {})}
                           />
                           {stored ? (
@@ -469,8 +504,8 @@ function AiConnectionScreen({
                 />
                 <span style={hintStyle}>
                   {usable
-                    ? '필수 칸이 모두 저장돼 있고 사용 설정이 켜져 있습니다.'
-                    : '연동이 성립하려면 사용 설정을 켜고 필수 칸을 모두 저장해야 합니다.'}
+                    ? '필수 칸이 모두 저장돼 있고 사용 설정이 켜져 있어요.'
+                    : '연동이 성립하려면 사용 설정을 켜고 필수 칸을 모두 저장해야 해요.'}
                 </span>
               </div>
               <div style={factRowStyle}>
@@ -479,10 +514,11 @@ function AiConnectionScreen({
                 <span style={hintStyle}>-</span>
               </div>
               <Alert tone="info">
-                <strong>자격증명이 채워진 것과 실제로 연결되는 것은 다른 사실입니다.</strong> 연결
-                검증은 서버가 이 프로바이더를 실제로 한 번 호출해 봐야 성립합니다. 그 서버 경로가
-                아직 없어 이 화면은 검증 결과를 지어내지 않고 &lsquo;확인한 적 없음&rsquo;으로
-                둡니다.
+                <strong>자격증명이 채워진 것과 실제로 연결되는 것은 다른 사실이에요.</strong> 연결
+                검증은 서버가 이 프로바이더를 실제로 한 번 호출해 봐야 성립해요. 그 서버 경로가 아직
+                없어 이 화면은 검증 결과를 지어내지 않고 &lsquo;확인한 적 없음&rsquo;으로 둬요.{' '}
+                <strong>제공자 공식 문서도 같은 말을 해요</strong> — 키를 브라우저 같은 클라이언트
+                코드에 노출하지 말고 자체 백엔드를 거치라고 적어요.
               </Alert>
             </div>
           </div>

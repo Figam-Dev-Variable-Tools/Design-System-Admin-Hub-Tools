@@ -28,6 +28,8 @@ function projectOf(overrides: Partial<Project> & { id: string }): Project {
     progress: 30,
     milestones: [],
     deliverables: [],
+    contractId: '',
+    contractTitle: '',
     lostReason: '',
     note: '',
     ...overrides,
@@ -93,6 +95,8 @@ function valuesOf(overrides: Partial<ProjectFormValues> = {}): ProjectFormValues
     deliverables: [],
     lostReason: '',
     note: '',
+    contractId: '',
+    contractTitle: '',
     ...overrides,
   };
 }

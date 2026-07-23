@@ -181,7 +181,7 @@ const DEMO_INQUIRIES: readonly DemoInquiry[] = [
     customerName: '배시온',
     channel: 'kakao',
     topic: 'etc',
-    subject: '오픈 알림을 받고 싶습니다',
+    subject: '오픈 알림을 받고 싶어요',
     status: 'received',
     createdAt: '2026-07-20T22:10:00Z',
     answeredAt: '',
@@ -192,7 +192,7 @@ const DEMO_INQUIRIES: readonly DemoInquiry[] = [
     customerName: '서예린',
     channel: 'app',
     topic: 'delivery',
-    subject: '배송 예정일이 언제인지 궁금합니다',
+    subject: '배송 예정일이 언제인지 궁금해요',
     status: 'answering',
     createdAt: '2026-07-19T07:15:00Z',
     answeredAt: '',
@@ -225,7 +225,7 @@ const DEMO_INQUIRIES: readonly DemoInquiry[] = [
     customerName: '유하람',
     channel: 'phone',
     topic: 'payment',
-    subject: '카드 결제가 되지 않아 후원을 못 했습니다',
+    subject: '카드 결제가 되지 않아 후원을 못 했어요',
     status: 'closed',
     createdAt: '2026-07-08T05:05:00Z',
     answeredAt: '2026-07-08T08:30:00Z',
@@ -382,7 +382,7 @@ const countBadgeStyle: CSSProperties = {
   justifyContent: 'center',
   boxSizing: 'border-box',
   minWidth: cssVar('space.5'),
-  height: cssVar('space.5'),
+  aspectRatio: '1',
   paddingLeft: cssVar('space.1'),
   paddingRight: cssVar('space.1'),
   borderRadius: cssVar('radius.full'),
@@ -552,14 +552,14 @@ function ProgramInquiriesScreen({
           <>
             <p style={noticeStyle}>
               {loading
-                ? '미답변 건수를 세는 중입니다.'
-                : `답변을 기다리는 문의가 ${fmt(pending)}건 있습니다.`}
+                ? '미답변 건수를 세는 중이에요.'
+                : `답변을 기다리는 문의가 ${fmt(pending)}건 있어요.`}
             </p>
             <p style={noticeStyle}>
               결제대행을 끈 프로그램은 후원하기 대신 문의하기 버튼이 노출되고, 그 문의가 이 목록으로
-              들어옵니다. 마감이 있는 펀딩이라 답변이 늦으면 후원이 사라집니다.
+              들어와요. 마감이 있는 펀딩이라 답변이 늦으면 후원이 사라져요.
             </p>
-            {!canUpdate && <p style={noticeStyle}>답변 권한이 없어 조회만 가능합니다.</p>}
+            {!canUpdate && <p style={noticeStyle}>답변 권한이 없어 조회만 가능해요.</p>}
           </>
         }
       >
@@ -627,7 +627,7 @@ function ProgramInquiriesScreen({
         <p style={summaryStyle}>{loading ? '불러오는 중…' : `전체 ${fmt(visible.length)}건`}</p>
 
         <Table
-          caption="프로그램 문의 목록 — 행을 누르면 문의 상세로 이동해 답변을 작성합니다. 삭제·일괄작업은 없습니다."
+          caption="프로그램 문의 목록 — 행을 누르면 문의 상세로 이동해 답변을 작성해요. 삭제·일괄작업은 없어요."
           columns={COLUMNS}
           rows={rows}
           leadingHead={[<SeqHeaderCell key="seq" />]}

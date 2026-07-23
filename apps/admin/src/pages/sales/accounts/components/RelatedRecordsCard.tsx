@@ -60,7 +60,7 @@ export function RelatedRecordsCard<T extends { readonly id: string }>({
         <CardTitle>{title}</CardTitle>
         <Alert tone="danger">
           <div style={alertActionRowStyle}>
-            <span>{`${entityLabel} 이력을 불러오지 못했습니다.`}</span>
+            <span>{`${entityLabel} 이력을 불러오지 못했어요.`}</span>
             <Button variant="secondary" onClick={onRetry}>
               다시 시도
             </Button>
@@ -74,7 +74,7 @@ export function RelatedRecordsCard<T extends { readonly id: string }>({
     <Card>
       <CardTitle>{title}</CardTitle>
       <Table
-        caption={`이 거래처의 ${entityLabel} 목록 — 각 행의 링크로 해당 화면으로 이동합니다.`}
+        caption={`이 거래처의 ${entityLabel} 목록 — 각 행의 링크로 해당 화면으로 이동해요.`}
         columns={columns.map((column) => ({
           id: column.id,
           header: column.header,

@@ -116,8 +116,7 @@ export function MembersTable({
   return (
     <table style={tableStyle} aria-busy={loading}>
       <caption style={visuallyHiddenStyle}>
-        회원 목록 — 행을 누르면 회원 상세로 이동합니다. 체크박스·메모·액션 버튼은 각자의 동작을
-        수행합니다.
+        회원 목록 — 행을 누르면 회원 상세로 이동해요. 체크박스·메모·액션 버튼은 각자 따로 동작해요.
       </caption>
 
       <thead>
@@ -149,7 +148,7 @@ export function MembersTable({
         ) : members.length === 0 ? (
           <tr>
             <td colSpan={totalColumns} style={emptyCellStyle}>
-              검색 결과가 없습니다.
+              검색 결과가 없어요.
             </td>
           </tr>
         ) : (

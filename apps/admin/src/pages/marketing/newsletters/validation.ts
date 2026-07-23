@@ -41,7 +41,7 @@ export const newsletterSchema = z
         code: 'custom',
         input: ctx.value.senderId,
         path: ['senderId'],
-        message: '검증이 완료된 발신자만 사용할 수 있습니다.',
+        message: '검증이 완료된 발신자만 사용할 수 있어요.',
       });
     }
   })
@@ -71,7 +71,7 @@ export const newsletterSchema = z
         code: 'custom',
         input: ctx.value.scheduledAt,
         path: ['scheduledAt'],
-        message: '예약 일시는 현재 시각 이후여야 합니다.',
+        message: '예약 일시는 현재 시각 이후여야 해요.',
       });
     }
   });

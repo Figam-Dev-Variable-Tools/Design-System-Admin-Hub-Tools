@@ -284,7 +284,7 @@ export function QuotePreview({
                 colSpan={5}
                 style={{ ...cellStyle, textAlign: 'center', color: cssVar('color.text.muted') }}
               >
-                품목이 없습니다.
+                품목이 없어요.
               </td>
             </tr>
           ) : (

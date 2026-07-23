@@ -204,13 +204,13 @@ export default function LoginHistoryPage() {
           // 성공 안내에도 실패 건수를 함께 적는다 — 파일 안에 무엇이 들어 있는지 숨기지 않는다
           toast.success(
             failed === 0
-              ? `로그인 이력 ${formatNumber(all.length)}건을 CSV 로 내보냈습니다.`
-              : `로그인 이력 ${formatNumber(all.length)}건을 CSV 로 내보냈습니다. (실패 ${formatNumber(failed)}건 포함)`,
+              ? `로그인 이력 ${formatNumber(all.length)}건을 CSV 로 내보냈어요.`
+              : `로그인 이력 ${formatNumber(all.length)}건을 CSV 로 내보냈어요. (실패 ${formatNumber(failed)}건 포함)`,
           );
         },
         onError: () => {
           // 실패는 성공 톤으로 알릴 수 없다 — 자동으로 사라지지 않는 실패 토스트 + 재시도
-          toast.error('내보내기에 실패했습니다. 잠시 후 다시 시도해 주세요.', { retry: onExport });
+          toast.error('내보내기에 실패했어요. 잠시 후 다시 시도해 주세요.', { retry: onExport });
         },
       },
     );
@@ -274,7 +274,7 @@ export default function LoginHistoryPage() {
             // 조회 실패는 인라인이다 — 토스트로 띄우면 사라진 뒤 '기록이 없다'와 구분되지 않는다
             <Alert tone="danger">
               <div style={errorBodyStyle}>
-                <span>로그인 이력을 불러오지 못했습니다.</span>
+                <span>로그인 이력을 불러오지 못했어요.</span>
                 <Button
                   variant="secondary"
                   onClick={() => {

@@ -35,7 +35,7 @@ import type { EmailTemplateFormValues } from './validation';
 
 const ENTITY_LABEL = '메시지 템플릿';
 const UNSAVED_MESSAGE =
-  '메시지 템플릿에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '메시지 템플릿에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const EMPTY_CONTENT: EmailTemplateContent = {
   kind: 'email',
@@ -164,8 +164,8 @@ export default function EmailTemplateEditor() {
         <div style={alertActionRowStyle}>
           <span>
             {loadFailure === 'not-found'
-              ? '메시지 템플릿을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-              : '메시지 템플릿을 불러오지 못했습니다.'}
+              ? '메시지 템플릿을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+              : '메시지 템플릿을 불러오지 못했어요.'}
           </span>
           {loadFailure === 'error' && (
             <Button variant="secondary" onClick={retryLoad}>

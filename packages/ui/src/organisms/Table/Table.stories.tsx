@@ -84,7 +84,7 @@ export const Playground: Story = {};
 /** empty — 카피는 슬롯이다. 조사(이/가)와 복구 액션은 앱의 지식이라 DS 가 문자열로 들지 않는다 */
 export const Empty: Story = {
   name: 'States/Empty',
-  args: { rows: [], empty: <span>등록된 보고서가 없습니다.</span> },
+  args: { rows: [], empty: <span>등록된 보고서가 없어요.</span> },
 };
 
 /** loading — aria-busy 가 켜지고 본문이 스켈레톤 격자로 대체된다 (STATE-01) */

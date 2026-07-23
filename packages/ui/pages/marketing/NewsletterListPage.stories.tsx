@@ -449,8 +449,8 @@ function NewsletterListScreen({
   const announcement = loading
     ? ''
     : visible.length === 0
-      ? '조건에 맞는 뉴스레터 결과가 없습니다.'
-      : `뉴스레터 ${String(visible.length)}건을 찾았습니다.`;
+      ? '조건에 맞는 뉴스레터 결과가 없어요.'
+      : `뉴스레터 ${String(visible.length)}건을 찾았어요.`;
 
   const toolbar: ReactNode = (
     <div style={toolbarStyle}>
@@ -511,7 +511,7 @@ function NewsletterListScreen({
       </SelectionBar>
 
       <Table
-        caption="뉴스레터 발송회차 목록 — 초안·예약 회차는 행을 누르면 수정 화면으로 이동합니다. 발송중·발송완료·취소 회차는 수정할 수 없습니다."
+        caption="뉴스레터 발송회차 목록 — 초안·예약 회차는 행을 누르면 수정 화면으로 이동해요. 발송중·발송완료·취소 회차는 수정할 수 없어요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[
@@ -546,7 +546,7 @@ function NewsletterListScreen({
         <ConfirmDialog
           intent="delete"
           title="뉴스레터 삭제"
-          message={`${nameOf(confirming)} 회차를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`${nameOf(confirming)} 회차를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="회차 삭제"
           onConfirm={() => {
             removeIssue(confirming.id);

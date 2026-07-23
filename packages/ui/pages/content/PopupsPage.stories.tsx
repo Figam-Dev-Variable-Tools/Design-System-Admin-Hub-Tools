@@ -470,7 +470,7 @@ function PopupsScreen({
       {failed ? (
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>팝업 목록을 불러오지 못했습니다.</span>
+            <span>팝업 목록을 불러오지 못했어요.</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
@@ -495,7 +495,7 @@ function PopupsScreen({
           </SelectionBar>
 
           <Table
-            caption="팝업 목록 — 체크박스로 선택하고 수정/삭제 버튼으로 각 팝업을 관리합니다. 상태 스위치는 노출을 바로 켜고 끕니다."
+            caption="팝업 목록 — 체크박스로 선택하고 수정/삭제 버튼으로 각 팝업을 관리해요. 상태 스위치는 노출을 바로 켜고 꺼요."
             columns={COLUMNS}
             rows={rows}
             leadingHead={[
@@ -539,7 +539,7 @@ function PopupsScreen({
         <ConfirmDialog
           intent="delete"
           title="팝업 삭제"
-          message={`'${confirming.title}' 팝업을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${confirming.title}' 팝업을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="팝업 삭제"
           onConfirm={() => {
             removePopups(new Set([confirming.id]));
@@ -553,7 +553,7 @@ function PopupsScreen({
         <ConfirmDialog
           intent="delete"
           title="팝업 일괄 삭제"
-          message={`선택한 팝업 ${fmt(selectedCount)}건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 팝업 ${fmt(selectedCount)}건을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel={`${fmt(selectedCount)}건 삭제`}
           onConfirm={() => {
             removePopups(selectedIds);

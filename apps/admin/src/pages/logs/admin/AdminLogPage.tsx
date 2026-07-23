@@ -159,7 +159,7 @@ export default function AdminLogPage() {
       // 어댑터는 그 키를 모르는 상태가 조용히 생긴다 (컬럼 id = 정렬 키의 단일 원천)
       sortValues: adminLogSpec.sortValues,
       caption:
-        '관리자 로그 — 행을 누르면 그 요청의 상세 페이로드가 열리고, 행위자 계정이나 대상 이름을 누르면 그 화면으로 이동합니다. 이 목록은 읽기 전용이며 수정·삭제할 수 없습니다.',
+        '관리자 로그 — 행을 누르면 그 요청의 상세 페이로드가 열리고, 행위자 계정이나 대상 이름을 누르면 그 화면으로 이동해요. 이 목록은 읽기 전용이며 수정·삭제할 수 없어요.',
       searchLabel: '행위자, 대상 또는 IP 검색',
       searchPlaceholder: '행위자 · 대상 · IP 검색',
       csvBaseName: 'admin-log',

@@ -95,7 +95,7 @@ export const Disabled: Story = {
 /** error — 메시지가 aria-describedby 로 입력에 연결되고 테두리가 danger 로 바뀐다 */
 export const Error: Story = {
   name: 'States/Error',
-  args: { value: 'invalid-email', error: '올바른 이메일 형식이 아닙니다.' },
+  args: { value: 'invalid-email', error: '올바른 이메일 형식이 아니에요.' },
 };
 
 /* ── Types ──────────────────────────────────────────────────────────────── */

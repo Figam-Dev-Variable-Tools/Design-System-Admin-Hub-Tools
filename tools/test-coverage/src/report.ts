@@ -100,8 +100,25 @@ export interface Report {
   }[];
   /** 축 1 — 워크스페이스에서 파생된 스코프별 판정 */
   scopes: ScopeRow[];
-  /** 축 4 래칫 — 후퇴 판정의 기준선 */
-  ratchet: { baseline: number; current: number; source: string; regressed: boolean };
+  /**
+   * 축 4 래칫 — 후퇴 판정의 기준선.
+   *
+   * `unit` 은 **이 수가 무엇을 세는가**를 리포트가 스스로 말하는 자리다. 단위가 바뀌면 옛 수와
+   * 크기 비교가 성립하지 않으므로 후퇴 판정을 하지 않고 기준선을 재수립한다(`baselineUnit` 에
+   * 옛 단위가 남는다). 이 두 필드가 없으면 "137 → 13" 이 후퇴인지 자가 교체인지 알 수 없다.
+   */
+  ratchet: {
+    baseline: number;
+    current: number;
+    source: string;
+    regressed: boolean;
+    /** 지금 실행이 센 단위 */
+    unit: string;
+    /** 기준선 리포트가 셌던 단위 (다르면 비교 불가 → 재수립) */
+    baselineUnit: string;
+    /** 축 4 분모 — 명세가 선언한 동작 칸 총수 */
+    total: number;
+  };
   counts: { blocker: number; major: number; total: number };
   gaps: Gap[];
   assertionFree: AssertionFreeUnit[];
@@ -192,14 +209,16 @@ export function renderMarkdown(report: Report): string {
   L.push(
     '> 커밋되는 기준선이다 — **커버리지가 실제로 바뀔 때만 바뀐다.** 실행 시각은 여기 없다(콘솔/tmp 참조).',
   );
-  L.push('> **커버리지는 라인 %가 아니다.** 계약이 정의한 상태 전부 + FS가 정의한 예외 축 전부다.');
+  L.push(
+    '> **커버리지는 라인 %가 아니다.** 계약이 정의한 상태 전부 + FSD §7 이 정의한 예외 상황 전부다.',
+  );
   L.push('');
   L.push(
     `- 판정: **${r.status}** (exit ${r.exitCode}) — blocker ${r.counts.blocker}건 · major ${r.counts.major}건`,
   );
   if (r.blockedGates.length > 0) L.push(`- 차단 게이트: **${r.blockedGates.join(' · ')} BLOCKED**`);
   L.push(
-    `- 입력: 계약 ${r.inputs.contracts}종 · FS ${r.inputs.specs}건 · 테스트 파일 ${r.inputs.testFiles}개 · 스토리 파일 ${r.inputs.storyFiles}개`,
+    `- 입력: 계약 ${r.inputs.contracts}종 · FSD 화면 ${r.inputs.specs}건 · 테스트 파일 ${r.inputs.testFiles}개 · 스토리 파일 ${r.inputs.storyFiles}개`,
   );
   L.push(
     `- **단언을 가진 실행 단위(= 테스트): ${r.inputs.testUnits}건** / 단언 없는 실행 단위: ${r.inputs.assertionFreeUnits}건`,
@@ -246,16 +265,25 @@ export function renderMarkdown(report: Report): string {
 
   L.push('### 축 4 — 래칫 (후퇴 금지)');
   L.push('');
+  const sameUnit = r.ratchet.unit === r.ratchet.baselineUnit;
   L.push(
-    `- 기준선 **${r.ratchet.baseline}칸** · 현재 **${r.ratchet.current}칸** → ${
-      r.ratchet.regressed
-        ? `**후퇴 ${r.ratchet.baseline - r.ratchet.current}칸 → BLOCKER**`
-        : '후퇴 없음'
+    `- **이 수가 세는 것**: \`${r.ratchet.unit}\` — FSD \`docs/FSD/**\` §7 예외 처리 표의 **(화면 ID × 예외 상황)** 칸 중 명세가 \`해당 없음\` 으로 선언하지 않은 것. 라인 %가 아니다.`,
+  );
+  L.push(
+    `- 기준선 **${r.ratchet.baseline}칸** · 현재 **${r.ratchet.current}칸** / 분모 **${r.ratchet.total}칸** → ${
+      !sameUnit
+        ? `**단위 변경(\`${r.ratchet.baselineUnit}\` → \`${r.ratchet.unit}\`) — 크기 비교 불가. 기준선을 ${r.ratchet.current}칸으로 재수립한다**`
+        : r.ratchet.regressed
+          ? `**후퇴 ${r.ratchet.baseline - r.ratchet.current}칸 → BLOCKER**`
+          : '후퇴 없음'
     }`,
   );
   L.push(`- 기준선 출처: \`${r.ratchet.source}\``);
   L.push(
     '- 축 4는 major 다 — **새 테스트를 요구하지 않는다.** 그러나 **있던 커버리지를 잃으면 blocker** 다. 커버 칸 수는 단조 증가만 한다.',
+  );
+  L.push(
+    '- 분모도 함께 지킨다: §7 의 칸을 `해당 없음` 으로 바꾸거나 12상황의 행을 지우면 **명세 표면 축소 major** 가 뜬다 — 테스트 없이 커버리지를 올리는 길을 막는다.',
   );
   L.push('');
 
@@ -324,7 +352,7 @@ export function renderMarkdown(report: Report): string {
   );
   L.push('- 하한 조정 요청은 **아키텍처(ADR)**. 미달이 많다고 하한을 내리지 않는다.');
   L.push(
-    '- 계약 `states` 공백 → **계약 엔지니어** 경유 계약 리뷰 / FS 예외 표 공백 → **기능 명세** 경유 명세 리뷰.',
+    '- 계약 `states` 공백 → **계약 엔지니어** 경유 계약 리뷰 / FSD §7 예외 표 공백·상황 누락 → **기능 명세** 경유 명세 리뷰.',
   );
   L.push('');
   return L.join('\n');

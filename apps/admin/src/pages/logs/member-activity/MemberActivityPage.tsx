@@ -140,7 +140,7 @@ export default function MemberActivityPage() {
       columns: COLUMNS,
       sortValues: memberActivitySpec.sortValues,
       caption:
-        '회원 활동 로그 — 행을 누르면 그 요청의 상세 페이로드가 열리고, 계정을 누르면 회원 상세로 이동합니다. 이 목록은 읽기 전용이며 수정·삭제할 수 없습니다.',
+        '회원 활동 로그 — 행을 누르면 그 요청의 상세 페이로드가 열리고, 계정을 누르면 회원 상세로 이동해요. 이 목록은 읽기 전용이며 수정·삭제할 수 없어요.',
       searchLabel: '회원, 내용 또는 IP 검색',
       searchPlaceholder: '회원 · 내용 · IP 검색',
       csvBaseName: 'member-activity-log',

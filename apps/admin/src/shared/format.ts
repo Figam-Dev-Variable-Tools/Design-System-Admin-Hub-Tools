@@ -65,7 +65,7 @@ const DISPLAY_TIME_ZONE = 'Asia/Seoul';
 /** 화면에 적는 기준 표기 — 운영자가 '무슨 시각인지' 묻지 않아도 되게 한다 */
 const TIME_ZONE_LABEL = 'KST (UTC+9)';
 
-export const TIME_ZONE_NOTICE = `모든 시각은 ${TIME_ZONE_LABEL} 기준입니다.`;
+export const TIME_ZONE_NOTICE = `모든 시각은 ${TIME_ZONE_LABEL} 기준이에요.`;
 
 /**
  * 날짜/시각 조각 추출기.

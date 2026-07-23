@@ -15,6 +15,10 @@ import { isAbort } from '../../../shared/async';
 import { useListState } from '../../../shared/crud';
 import { formatNumber, objectParticle } from '../../../shared/format';
 import {
+  useRouteWritePermissions,
+  WRITE_DENIED,
+} from '../../../shared/permissions/RequirePermission';
+import {
   Alert,
   Button,
   ConfirmDialog,
@@ -89,6 +93,15 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
    */
   const list = useListState();
   const { keyword, selectedIds, clearSelection } = list;
+
+  /**
+   * [EXC-03] 이 화면의 쓰기 권한 — 한 번 읽어 CTA · 일괄 삭제 바 · 표 · 네 뮤테이션으로 흘린다.
+   *
+   * 두 라우트(/company/partners · /company/clients)가 이 컴포넌트를 공유한다. 리소스는 라우트에서
+   * 파생되므로(route-resource.ts) 이 훅은 자기가 어느 쪽인지 몰라도 옳게 묻는다 — 파트너사만
+   * 쓰기 권한을 준 역할에게 고객사 화면이 열리지 않는다.
+   */
+  const { canCreate, canUpdate, canRemove } = useRouteWritePermissions();
   const [modal, setModal] = useState<ModalState>({ kind: 'closed' });
 
   const [pendingDelete, setPendingDelete] = useState<LogoItem | null>(null);
@@ -132,6 +145,11 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
   const reorderable = keyword === '';
 
   const onReorder = (orderedIds: readonly string[]) => {
+    // 순서 변경은 수정이다 — 표가 핸들을 지운 것과 같은 술어로 저장도 거절한다
+    if (!canUpdate) {
+      toast.error(WRITE_DENIED.update);
+      return;
+    }
     reorderControllerRef.current?.abort();
     const controller = new AbortController();
     reorderControllerRef.current = controller;
@@ -140,17 +158,22 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
       {
         onSuccess: () => {
           if (controller.signal.aborted) return;
-          toast.success('정렬 순서를 변경했습니다.');
+          toast.success('정렬 순서를 변경했어요.');
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          toast.error('정렬 순서를 변경하지 못했습니다.', { retry: () => onReorder(orderedIds) });
+          toast.error('정렬 순서를 변경하지 못했어요.', { retry: () => onReorder(orderedIds) });
         },
       },
     );
   };
 
   const onToggleActive = (item: LogoItem, next: boolean) => {
+    // 스위치를 배지로 바꾼 술어와 **같은 술어**가 저장을 거절한다 (RowToggle ↔ 여기)
+    if (!canUpdate) {
+      toast.error(WRITE_DENIED.update);
+      return;
+    }
     const controller = new AbortController();
     setTogglingIds((prev) => new Set(prev).add(item.id));
     setActiveLogo.mutate(
@@ -159,13 +182,13 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
         onSuccess: () => {
           toast.success(
             next
-              ? `'${item.name}'${objectParticle(item.name)} 노출합니다.`
-              : `'${item.name}'${objectParticle(item.name)} 숨깁니다.`,
+              ? `'${item.name}'${objectParticle(item.name)} 노출해요.`
+              : `'${item.name}'${objectParticle(item.name)} 숨겨요.`,
           );
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          toast.error('노출 여부를 변경하지 못했습니다.', {
+          toast.error('노출 여부를 변경하지 못했어요.', {
             retry: () => onToggleActive(item, next),
           });
         },
@@ -195,6 +218,10 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
 
   const onConfirmDelete = () => {
     if (pendingDelete === null) return;
+    if (!canRemove) {
+      setDeleteError(WRITE_DENIED.remove);
+      return;
+    }
     const target = pendingDelete;
     const controller = new AbortController();
     deleteControllerRef.current = controller;
@@ -206,11 +233,11 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
         onSuccess: () => {
           if (controller.signal.aborted) return;
           setPendingDelete(null);
-          toast.success(`'${target.name}'${objectParticle(target.name)} 삭제했습니다.`);
+          toast.success(`'${target.name}'${objectParticle(target.name)} 삭제했어요.`);
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setDeleteError('삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setDeleteError('삭제하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -227,6 +254,10 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
   const onConfirmBulkDelete = () => {
     const ids = [...selectedIds];
     if (ids.length === 0) return;
+    if (!canRemove) {
+      setBulkError(WRITE_DENIED.remove);
+      return;
+    }
     const controller = new AbortController();
     bulkControllerRef.current = controller;
     setBulkError(null);
@@ -238,13 +269,13 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
           if (controller.signal.aborted) return;
           if (failed > 0) {
             setBulkError(
-              `${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.`,
+              `${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.`,
             );
             return;
           }
           setBulkOpen(false);
           clearSelection();
-          toast.success(`${entityLabel} ${formatNumber(ids.length)}건을 삭제했습니다.`);
+          toast.success(`${entityLabel} ${formatNumber(ids.length)}건을 삭제했어요.`);
         },
       },
     );
@@ -254,8 +285,8 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
     setModal({ kind: 'closed' });
     toast.success(
       isEdit
-        ? `'${name}'${objectParticle(name)} 저장했습니다.`
-        : `'${name}'${objectParticle(name)} 추가했습니다.`,
+        ? `'${name}'${objectParticle(name)} 저장했어요.`
+        : `'${name}'${objectParticle(name)} 추가했어요.`,
     );
   };
 
@@ -268,10 +299,13 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
           label={`${entityLabel} 이름 검색`}
           {...list.searchInputProps}
         />
-        <Button variant="primary" size="md" onClick={() => setModal({ kind: 'create' })}>
-          <Icon name="plus-circle" />
-          {entityLabel} 추가
-        </Button>
+        {/* 등록 권한이 없으면 CTA 는 '비활성' 이 아니라 '부재' 다 (EXC-03) */}
+        {canCreate && (
+          <Button variant="primary" size="md" onClick={() => setModal({ kind: 'create' })}>
+            <Icon name="plus-circle" />
+            {entityLabel} 추가
+          </Button>
+        )}
       </div>
 
       {error === null ? (
@@ -284,11 +318,14 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
             </p>
           </div>
 
-          <SelectionBar count={selectedCount} onClear={clearSelection}>
-            <Button variant="danger" disabled={bulkDeleting} onClick={() => setBulkOpen(true)}>
-              {`선택 ${formatNumber(selectedCount)}건 삭제`}
-            </Button>
-          </SelectionBar>
+          {/* 이 바의 유일한 액션이 일괄 삭제다 — 삭제 권한이 없으면 바 자체가 없다 */}
+          {canRemove && (
+            <SelectionBar count={selectedCount} onClear={clearSelection}>
+              <Button variant="danger" disabled={bulkDeleting} onClick={() => setBulkOpen(true)}>
+                {`선택 ${formatNumber(selectedCount)}건 삭제`}
+              </Button>
+            </SelectionBar>
+          )}
 
           <LogoListTable
             items={visible}
@@ -310,12 +347,14 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
             }
             onToggleActive={onToggleActive}
             togglingIds={togglingIds}
+            canUpdate={canUpdate}
+            canRemove={canRemove}
           />
         </>
       ) : (
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>{entityLabel} 목록을 불러오지 못했습니다.</span>
+            <span>{entityLabel} 목록을 불러오지 못했어요.</span>
             <Button
               variant="secondary"
               onClick={() => {
@@ -343,7 +382,7 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
         <ConfirmDialog
           intent="delete"
           title={`${entityLabel} 삭제`}
-          message={`'${pendingDelete.name}'${objectParticle(pendingDelete.name)} 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.name}'${objectParticle(pendingDelete.name)} 삭제해요. 되돌릴 수 없어요.`}
           confirmLabel="삭제"
           busy={deleting}
           error={deleteError}
@@ -356,7 +395,7 @@ export function LogoListPage({ resource, entityLabel, adapter }: LogoListConfig)
         <ConfirmDialog
           intent="delete"
           title={`${entityLabel} 일괄 삭제`}
-          message={`선택한 ${entityLabel} ${formatNumber(selectedCount)}건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 ${entityLabel} ${formatNumber(selectedCount)}건을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel={`${formatNumber(selectedCount)}건 삭제`}
           busy={bulkDeleting}
           error={bulkError}

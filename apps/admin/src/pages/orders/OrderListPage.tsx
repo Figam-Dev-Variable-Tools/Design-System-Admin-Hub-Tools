@@ -195,21 +195,19 @@ export default function OrderListPage() {
         setBulkBusy(false);
         if (failed === 0) {
           toast.success(
-            `${formatNumber(eligible.length)}건을 ${orderStatusLabel(to)}(으)로 처리했습니다.`,
+            `${formatNumber(eligible.length)}건을 ${orderStatusLabel(to)}(으)로 처리했어요.`,
           );
           list.clearSelection();
           setPendingTransition(null);
           return;
         }
         // 실패가 남으면 다이얼로그를 닫지 않는다 — 재클릭이 곧 재시도다(ConfirmDialog 계약).
-        setBulkError(
-          `${formatNumber(failed)}건을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.`,
-        );
+        setBulkError(`${formatNumber(failed)}건을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.`);
       })
       .catch((cause: unknown) => {
         if (isAbort(cause)) return;
         setBulkBusy(false);
-        setBulkError('상태를 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+        setBulkError('상태를 처리하지 못했어요. 잠시 후 다시 시도해 주세요.');
       });
   };
 
@@ -220,9 +218,9 @@ export default function OrderListPage() {
       <Alert tone="info">
         <div style={alertActionRowStyle}>
           <span>
-            현재 결제를 사용하지 않아 주문이 들어오지 않습니다. 지금 상품 페이지의 버튼은
+            현재 결제를 사용하지 않아 주문이 들어오지 않아요. 지금 상품 페이지의 버튼은
             &lsquo;구매하기&rsquo; 대신 &lsquo;문의하기&rsquo;이며, 고객의 글은 상품 문의로
-            접수됩니다.
+            접수돼요.
           </span>
           <Link to={PAYMENT_SETTINGS_PATH} className="tds-ui-link tds-ui-focusable">
             결제 설정 열기
@@ -250,11 +248,11 @@ export default function OrderListPage() {
         notice={
           <>
             <p style={hintStyle}>
-              주문은 고객의 결제로 만들어집니다. 이 화면에서는 상태를 진행하고 취소·메모를 남깁니다.
+              주문은 고객의 결제로 만들어져요. 이 화면에서는 상태를 진행하고 취소·메모를 남겨요.
             </p>
             {!canArrive && (
               <p style={hintStyle}>
-                결제 설정이 꺼져 있어 새 주문이 들어오지 않습니다.{' '}
+                결제 설정이 꺼져 있어 새 주문이 들어오지 않아요.{' '}
                 <Link to={PAYMENT_SETTINGS_PATH} className="tds-ui-link tds-ui-focusable">
                   결제 설정
                 </Link>{' '}
@@ -264,7 +262,7 @@ export default function OrderListPage() {
                 </Link>
               </p>
             )}
-            {!canUpdate && <p style={hintStyle}>상태를 바꿀 권한이 없어 조회만 가능합니다.</p>}
+            {!canUpdate && <p style={hintStyle}>상태를 바꿀 권한이 없어 조회만 가능해요.</p>}
           </>
         }
       >
@@ -286,10 +284,10 @@ export default function OrderListPage() {
           {firstLoading
             ? ''
             : error !== null
-              ? `${ENTITY_LABEL} 목록을 불러오지 못했습니다.`
+              ? `${ENTITY_LABEL} 목록을 불러오지 못했어요.`
               : visible.length === 0
-                ? `조건에 맞는 ${ENTITY_LABEL} 결과가 없습니다.`
-                : `${ENTITY_LABEL} ${formatNumber(visible.length)}건을 찾았습니다.`}
+                ? `조건에 맞는 ${ENTITY_LABEL} 결과가 없어요.`
+                : `${ENTITY_LABEL} ${formatNumber(visible.length)}건을 찾았어요.`}
         </div>
 
         <div style={toolbarStyle}>
@@ -359,7 +357,7 @@ export default function OrderListPage() {
         ) : (
           <Alert tone="danger">
             <div style={alertActionRowStyle}>
-              <span>주문 목록을 불러오지 못했습니다.</span>
+              <span>주문 목록을 불러오지 못했어요.</span>
               <Button
                 variant="secondary"
                 onClick={() => {
@@ -381,8 +379,8 @@ export default function OrderListPage() {
           title={`${orderStatusLabel(pendingTransition)} 일괄 처리`}
           message={
             eligible.length === selectedCount
-              ? `선택한 주문 ${formatNumber(selectedCount)}건을 ${orderStatusLabel(pendingTransition)}(으)로 진행합니다. 주문 상태는 되돌릴 수 없습니다.`
-              : `선택한 ${formatNumber(selectedCount)}건 중 ${formatNumber(eligible.length)}건만 ${orderStatusLabel(pendingTransition)}(으)로 진행합니다. 나머지 ${formatNumber(selectedCount - eligible.length)}건은 이미 지난 단계이거나, 취소되었거나, ${ORDER_TRANSITION_UNPAID}`
+              ? `선택한 주문 ${formatNumber(selectedCount)}건을 ${orderStatusLabel(pendingTransition)}(으)로 진행해요. 주문 상태는 되돌릴 수 없어요.`
+              : `선택한 ${formatNumber(selectedCount)}건 중 ${formatNumber(eligible.length)}건만 ${orderStatusLabel(pendingTransition)}(으)로 진행해요. 나머지 ${formatNumber(selectedCount - eligible.length)}건은 이미 지난 단계이거나, 취소되었거나, ${ORDER_TRANSITION_UNPAID}`
           }
           confirmLabel={`${formatNumber(eligible.length)}건 처리`}
           busy={bulkBusy}

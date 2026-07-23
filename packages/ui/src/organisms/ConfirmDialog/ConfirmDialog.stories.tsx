@@ -49,7 +49,7 @@ const meta: Meta<typeof ConfirmDialog> = {
   args: {
     intent: 'delete',
     title: '항목을 삭제할까요?',
-    message: '이 작업은 되돌릴 수 없습니다.',
+    message: '되돌릴 수 없어요.',
     confirmLabel: '',
     cancelLabel: '취소',
     busy: false,
@@ -92,7 +92,7 @@ export const Playground: Story = {};
 /** 생성 — primary 톤, 기본 라벨 '만들기' */
 export const CreateDefault: Story = {
   name: 'Variants/Create',
-  args: { intent: 'create', title: '그룹을 만들까요?', message: '새 그룹이 생성됩니다.' },
+  args: { intent: 'create', title: '그룹을 만들까요?', message: '새 그룹이 생성돼요.' },
 };
 
 /** 수정 — primary 톤, 기본 라벨 '저장' */
@@ -101,7 +101,7 @@ export const UpdateDefault: Story = {
   args: {
     intent: 'update',
     title: '변경 사항을 저장할까요?',
-    message: '수정한 내용을 저장합니다.',
+    message: '수정한 내용을 저장해요.',
   },
 };
 
@@ -117,7 +117,7 @@ export const DiscardDefault: Story = {
   args: {
     intent: 'discard',
     title: '저장하지 않고 나갈까요?',
-    message: '입력한 내용이 사라집니다.',
+    message: '입력한 내용이 사라져요.',
   },
 };
 
@@ -143,11 +143,11 @@ export const BlockedWhenBusyOnConfirm: Story = {
 /** Error — 본문 아래 danger 배너(Alert). 확인 버튼이 되살아나 재클릭이 곧 재시도다 */
 export const WithError: Story = {
   name: 'States/Error',
-  args: { intent: 'delete', error: '삭제에 실패했습니다. 다시 시도하세요.' },
+  args: { intent: 'delete', error: '삭제에 실패했어요. 다시 시도하세요.' },
   play: async () => {
     const dialog = await dialogInDocument();
     await expect(within(dialog).getByRole('alert')).toHaveTextContent(
-      '삭제에 실패했습니다. 다시 시도하세요.',
+      '삭제에 실패했어요. 다시 시도하세요.',
     );
     // 실패는 다이얼로그를 닫지 않는다 — 확인 버튼은 계속 눌린다
     await expect(within(dialog).getByRole('button', { name: '삭제' })).toBeEnabled();
@@ -163,14 +163,14 @@ export const LongMessage: Story = {
     intent: 'delete',
     title: '회원을 삭제할까요?',
     message:
-      '이 회원과 연결된 모든 주문 내역·적립 포인트·문의 기록이 함께 삭제됩니다. 삭제 후에는 어떤 방법으로도 데이터를 복구할 수 없으니 신중하게 확인해 주세요.',
+      '이 회원과 연결된 모든 주문 내역·적립 포인트·문의 기록이 함께 삭제돼요. 삭제 후에는 어떤 방법으로도 데이터를 복구할 수 없으니 신중하게 확인해 주세요.',
   },
 };
 
 /** 최소 확인 문구 — 가장 단순한 한 줄 확인 */
 export const MinimalMessage: Story = {
   name: 'Content/Minimal',
-  args: { intent: 'discard', title: '나갈까요?', message: '변경 내용이 저장되지 않습니다.' },
+  args: { intent: 'discard', title: '나갈까요?', message: '변경 내용이 저장되지 않아요.' },
 };
 
 /* ── Examples ───────────────────────────────────────────────────────────── */
@@ -225,7 +225,7 @@ export const RightToLeft: Story = {
   args: {
     intent: 'delete',
     title: '항목을 삭제할까요?',
-    message: '이 작업은 되돌릴 수 없습니다.',
+    message: '되돌릴 수 없어요.',
   },
 };
 

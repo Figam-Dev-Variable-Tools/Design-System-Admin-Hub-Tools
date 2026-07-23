@@ -76,10 +76,10 @@ function hasDangerousDeclaredType(file: PickedFile): boolean {
 /** 위반이면 화면에 띄울 문구, 통과면 null */
 export function faviconFileError(file: PickedFile): string | null {
   if (extensionOf(file.name) !== 'ico' || hasDangerousDeclaredType(file)) {
-    return '파비콘은 ICO 파일만 올릴 수 있습니다.';
+    return '파비콘은 ICO 파일만 올릴 수 있어요.';
   }
   if (file.size > FAVICON_MAX_BYTES) {
-    return '파비콘 용량은 100KB 를 넘을 수 없습니다.';
+    return '파비콘 용량은 100KB 를 넘을 수 없어요.';
   }
   return null;
 }
@@ -91,10 +91,10 @@ export function imageFileError(file: PickedFile): string | null {
     !IMAGE_EXTENSIONS.some((extension) => extension === extensionOf(file.name)) ||
     hasDangerousDeclaredType(file)
   ) {
-    return 'PNG · JPG · GIF 파일만 올릴 수 있습니다.';
+    return 'PNG · JPG · GIF 파일만 올릴 수 있어요.';
   }
   if (file.size > IMAGE_MAX_BYTES) {
-    return '이미지 용량은 5MB 를 넘을 수 없습니다.';
+    return '이미지 용량은 5MB 를 넘을 수 없어요.';
   }
   return null;
 }
@@ -102,7 +102,7 @@ export function imageFileError(file: PickedFile): string | null {
 /** 해상도는 파일을 실제로 읽어야 알 수 있다 — 읽어 온 크기를 여기서 판정한다 */
 export function faviconDimensionError(width: number, height: number): string | null {
   if (width < FAVICON_MIN_EDGE || height < FAVICON_MIN_EDGE) {
-    return '파비콘은 가로·세로 16 이상이어야 합니다.';
+    return '파비콘은 가로·세로 16 이상이어야 해요.';
   }
   return null;
 }
@@ -141,7 +141,7 @@ const siteAssetSchema = z.nullable(
           code: 'custom',
           input: ctx.value.url,
           path: ['url'],
-          message: '이미지 주소는 https 또는 사이트 내부 경로여야 합니다.',
+          message: '이미지 주소는 https 또는 사이트 내부 경로여야 해요.',
         });
       }
     }),
@@ -172,11 +172,11 @@ export const siteSettingsSchema = z
   .object({
     siteName: requiredText(SITE_NAME_MAX, {
       missing: '사이트 이름을 입력하세요.',
-      tooLong: `사이트 이름은 ${String(SITE_NAME_MAX)}자를 넘을 수 없습니다.`,
+      tooLong: `사이트 이름은 ${String(SITE_NAME_MAX)}자를 넘을 수 없어요.`,
     }),
     siteDescription: optionalText(
       SITE_DESCRIPTION_MAX,
-      `사이트 설명은 ${String(SITE_DESCRIPTION_MAX)}자를 넘을 수 없습니다.`,
+      `사이트 설명은 ${String(SITE_DESCRIPTION_MAX)}자를 넘을 수 없어요.`,
     ),
 
     messagingNameEnabled: z.boolean(),
@@ -208,7 +208,7 @@ export const siteSettingsSchema = z
           code: 'custom',
           input: draft.messagingName,
           path: ['messagingName'],
-          message: '전용 이름을 켰다면 이름을 입력하세요. 끄면 사이트 이름이 그대로 쓰입니다.',
+          message: '전용 이름을 켰다면 이름을 입력하세요. 끄면 사이트 이름이 그대로 쓰여요.',
         });
       } else if (byteLengthOf(draft.messagingName) > MESSAGING_NAME_MAX_BYTES) {
         // 글자 수가 아니라 바이트다 — 한글 1자 = 2byte (EUC-KR)
@@ -216,7 +216,7 @@ export const siteSettingsSchema = z
           code: 'custom',
           input: draft.messagingName,
           path: ['messagingName'],
-          message: `전용 이름은 ${String(MESSAGING_NAME_MAX_BYTES)}byte 를 넘을 수 없습니다. 한글은 1자가 2byte 입니다.`,
+          message: `전용 이름은 ${String(MESSAGING_NAME_MAX_BYTES)}byte 를 넘을 수 없어요. 한글은 1자가 2byte 예요.`,
         });
       }
     }
@@ -233,7 +233,7 @@ export const siteSettingsSchema = z
         code: 'custom',
         input: draft.privateImage,
         path: ['privateImage'],
-        message: '비공개용 이미지를 다시 올려 주세요. 업로드가 끝나지 않았습니다.',
+        message: '비공개용 이미지를 다시 올려 주세요. 업로드가 끝나지 않았어요.',
       });
     }
   });

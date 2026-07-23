@@ -162,10 +162,10 @@ export default function MemberDetailPage() {
 
     notify.mutate(memberId, {
       onSuccess: () => {
-        toast.success('회원에게 알림을 발송했습니다.');
+        toast.success('회원에게 알림을 발송했어요.');
       },
       onError: () => {
-        toast.error('알림을 발송하지 못했습니다. 잠시 후 다시 시도해 주세요.', { retry: onNotify });
+        toast.error('알림을 발송하지 못했어요. 잠시 후 다시 시도해 주세요.', { retry: onNotify });
       },
     });
   };
@@ -193,14 +193,14 @@ export default function MemberDetailPage() {
           // 삭제된 회원의 상세에 머물 수 없다 — 목록으로 돌려보낸다(히스토리 대체).
           // 결과는 토스트가 나른다 — 페이지가 바뀌어도 살아남는 유일한 통지 수단이다.
           toast.success(
-            data === undefined ? '회원을 삭제했습니다.' : `${data.nickname} 회원을 삭제했습니다.`,
+            data === undefined ? '회원을 삭제했어요.' : `${data.nickname} 회원을 삭제했어요.`,
           );
           navigate(LIST_PATH, { replace: true });
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
           // 실패하면 다이얼로그를 닫지 않는다 — 안내를 띄우고 버튼을 되살린다(재클릭 = 재시도)
-          setDeleteError('회원을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setDeleteError('회원을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -247,9 +247,9 @@ export default function MemberDetailPage() {
         <Alert tone="danger">
           <div style={topRowStyle}>
             <span>
-              {error.message === '회원을 찾을 수 없습니다'
-                ? '회원을 찾을 수 없습니다.'
-                : '회원 정보를 불러오지 못했습니다.'}
+              {error.message === '회원을 찾을 수 없어요'
+                ? '회원을 찾을 수 없어요.'
+                : '회원 정보를 불러오지 못했어요.'}
             </span>
             <span style={errorActionsStyle}>
               <Button
@@ -302,7 +302,7 @@ export default function MemberDetailPage() {
           onClose={() => setChangingPassword(false)}
           onSaved={() => {
             setChangingPassword(false);
-            toast.success('비밀번호를 변경했습니다.');
+            toast.success('비밀번호를 변경했어요.');
           }}
         />
       )}
@@ -311,7 +311,7 @@ export default function MemberDetailPage() {
         <ConfirmDialog
           intent="delete"
           title="회원 삭제"
-          message={`${data.nickname}(${data.account}) 회원을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`${data.nickname}(${data.account}) 회원을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="회원 삭제"
           busy={deleting}
           error={deleteError}

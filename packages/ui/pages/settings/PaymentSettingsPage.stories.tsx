@@ -174,8 +174,8 @@ function checkoutCta(settings: DemoPaymentSettings, domain: CommerceDomain): Che
       kind: 'inquiry',
       label: INQUIRY_LABEL,
       reason: settings.usePg
-        ? 'PG 상점 ID 가 비어 있어 결제창을 열 수 없습니다. 지금은 문의로 받습니다.'
-        : 'PG 결제를 쓰지 않도록 설정되어 있어 결제 대신 문의로 받습니다.',
+        ? 'PG 상점 ID 가 비어 있어 결제창을 열 수 없어요. 지금은 문의로 받아요.'
+        : 'PG 결제를 쓰지 않도록 설정되어 있어 결제 대신 문의로 받아요.',
       inquiryPath: INQUIRY_PATH[domain],
     };
   }
@@ -187,8 +187,8 @@ function checkoutCta(settings: DemoPaymentSettings, domain: CommerceDomain): Che
     // 테스트 모드는 결제창이 뜨지만 돈이 움직이지 않는다 — '연동됨' 과 뭉뚱그리면 운영 전환을 잊는다
     reason:
       settings.mode === 'test'
-        ? `${provider} 테스트 모드로 결제창이 열립니다. 실제 결제는 일어나지 않습니다.`
-        : `${provider} 결제창이 열립니다.`,
+        ? `${provider} 테스트 모드로 결제창이 열려요. 실제 결제는 일어나지 않아요.`
+        : `${provider} 결제창이 열려요.`,
     inquiryPath: null,
   };
 }
@@ -202,8 +202,7 @@ const PG_OFF: DemoPaymentSettings = {
   merchantId: '',
   mode: 'test',
   methods: ['card', 'transfer'],
-  inquiryGuide:
-    '현재 온라인 결제를 준비 중입니다. 문의를 남겨 주시면 담당자가 확인 후 연락드립니다.',
+  inquiryGuide: '현재 온라인 결제를 준비 중이에요. 문의를 남겨 주시면 담당자가 확인 후 연락드려요.',
 };
 
 /** PG 를 켠 상태 — 상점 ID 가 채워져 있어 '구매하기 · 후원하기' 가 그려진다 */
@@ -213,8 +212,7 @@ const PG_ON: DemoPaymentSettings = {
   merchantId: 'tosspayments-mid-0001',
   mode: 'test',
   methods: ['card', 'transfer', 'easypay'],
-  inquiryGuide:
-    '현재 온라인 결제를 준비 중입니다. 문의를 남겨 주시면 담당자가 확인 후 연락드립니다.',
+  inquiryGuide: '현재 온라인 결제를 준비 중이에요. 문의를 남겨 주시면 담당자가 확인 후 연락드려요.',
 };
 
 /** 검증 오류 데모 — 실화면 zod 스키마(교차 필드)가 내는 문구를 그대로 미러 */
@@ -225,7 +223,7 @@ interface FieldErrors {
 }
 
 const PG_ON_ERRORS: FieldErrors = {
-  merchantId: 'PG 결제를 켰다면 상점 ID 를 입력하세요. PG 사에서 발급한 값입니다.',
+  merchantId: 'PG 결제를 켰다면 상점 ID 를 입력하세요. PG 사에서 발급한 값이에요.',
   methods: '결제수단을 하나 이상 선택하세요.',
 };
 
@@ -518,8 +516,8 @@ function PaymentSettingsScreen({
   return (
     <div style={pageStyle}>
       <p style={descriptionStyle}>
-        상품과 프로그램을 결제로 판매할지, 문의로 받을지 정합니다. PG 결제를 끄면 구매·후원 버튼이
-        문의하기로 바뀝니다.
+        상품과 프로그램을 결제로 판매할지, 문의로 받을지 정해요. PG 결제를 끄면 구매·후원 버튼이
+        문의하기로 바뀌어요.
       </p>
 
       <Card>
@@ -528,13 +526,13 @@ function PaymentSettingsScreen({
 
           {!canUpdate && (
             <Alert tone="info">
-              조회 권한만 있습니다. 결제 설정을 바꾸려면 시스템 설정 수정 권한이 필요합니다.
+              조회 권한만 있어요. 결제 설정을 바꾸려면 시스템 설정 수정 권한이 필요해요.
             </Alert>
           )}
 
           {!usePg && (
             <Alert tone="info">
-              지금은 <strong>PG 결제를 쓰지 않는 상태</strong>입니다. 상품의 구매하기와 프로그램의
+              지금은 <strong>PG 결제를 쓰지 않는 상태</strong>예요. 상품의 구매하기와 프로그램의
               후원하기가 모두 <strong>문의하기</strong>로 보이고, 접수된 문의는{' '}
               <a href="#product-inquiries" style={linkStyle}>
                 상품 문의
@@ -543,7 +541,7 @@ function PaymentSettingsScreen({
               <a href="#program-inquiries" style={linkStyle}>
                 프로그램 문의
               </a>
-              로 들어옵니다.
+              로 들어와요.
             </Alert>
           )}
 
@@ -558,7 +556,7 @@ function PaymentSettingsScreen({
               {/* ── 구획 1 · 결제 연동 ── */}
               <Section
                 title="결제 연동"
-                description="이 스위치 하나가 판매 방식을 정합니다. 끄면 상품·프로그램의 구매·후원 버튼이 문의하기로 바뀌고, 문의는 상품 문의·프로그램 문의로 들어옵니다."
+                description="이 스위치 하나가 판매 방식을 정해요. 끄면 상품·프로그램의 구매·후원 버튼이 문의하기로 바뀌고, 문의는 상품 문의·프로그램 문의로 들어와요."
               >
                 <ToggleSwitch
                   checked={usePg}
@@ -583,7 +581,7 @@ function PaymentSettingsScreen({
               {usePg && (
                 <Section
                   title="PG 설정"
-                  description="PG사에서 발급받은 정보를 넣습니다. 상점 ID 가 비어 있으면 결제창을 열 수 없어 버튼은 문의하기로 남습니다."
+                  description="PG사에서 발급받은 정보를 넣어요. 상점 ID 가 비어 있으면 결제창을 열 수 없어 버튼은 문의하기로 남아요."
                 >
                   <div style={rowStyle}>
                     <FormField htmlFor="payment-provider" label="PG사" required>
@@ -612,8 +610,8 @@ function PaymentSettingsScreen({
                       required
                       hint={
                         mode === 'test'
-                          ? '테스트 모드에서는 결제창이 열려도 실제 결제가 일어나지 않습니다.'
-                          : '운영 모드에서는 고객의 결제가 실제로 승인됩니다.'
+                          ? '테스트 모드에서는 결제창이 열려도 실제 결제가 일어나지 않아요.'
+                          : '운영 모드에서는 고객의 결제가 실제로 승인돼요.'
                       }
                     >
                       <SelectField
@@ -656,8 +654,8 @@ function PaymentSettingsScreen({
                       }}
                     />
                     <p style={hintStyle}>
-                      PG사 관리자에서 발급한 상점 아이디(MID)입니다. 결제 API 키는 여기가 아니라 API
-                      연동 설정에서 관리합니다.
+                      PG사 관리자에서 발급한 상점 아이디(MID)예요. 결제 API 키는 여기가 아니라 API
+                      연동 설정에서 관리해요.
                     </p>
                   </div>
 
@@ -691,7 +689,7 @@ function PaymentSettingsScreen({
 
                     {errors.methods === undefined ? (
                       <p style={hintStyle}>
-                        고객 결제창에 노출할 수단입니다. PG 계약에 있는 것만 켭니다.
+                        고객 결제창에 노출할 수단이에요. PG 계약에 있는 것만 켜요.
                       </p>
                     ) : (
                       <p id={methodsErrorId} role="alert" style={errorTextStyle}>
@@ -706,7 +704,7 @@ function PaymentSettingsScreen({
               {!usePg && (
                 <Section
                   title="문의 전환 안내"
-                  description="결제 대신 문의를 받는 동안 고객에게 보일 문구입니다. 왜 지금 살 수 없는지 말하지 않으면 문의 버튼만 덩그러니 남습니다."
+                  description="결제 대신 문의를 받는 동안 고객에게 보일 문구예요. 왜 지금 살 수 없는지 말하지 않으면 문의 버튼만 덩그러니 남아요."
                 >
                   <TextareaField
                     label="안내 문구"
@@ -715,8 +713,8 @@ function PaymentSettingsScreen({
                     maxLength={INQUIRY_GUIDE_MAX}
                     disabled={disabled}
                     {...(errors.inquiryGuide === undefined ? {} : { error: errors.inquiryGuide })}
-                    hint="상품 카드와 프로그램 상세의 문의하기 버튼 아래에 그대로 보입니다."
-                    placeholder="예: 현재 온라인 결제를 준비 중입니다. 문의를 남겨 주시면 담당자가 확인 후 연락드립니다."
+                    hint="상품 카드와 프로그램 상세의 문의하기 버튼 아래에 그대로 보여요."
+                    placeholder="예: 현재 온라인 결제를 준비 중이에요. 문의를 남겨 주시면 담당자가 확인 후 연락드려요."
                     rows={4}
                     onChange={(next) => {
                       setInquiryGuide(next);
@@ -733,10 +731,10 @@ function PaymentSettingsScreen({
             <div style={footerStyle}>
               <p style={hintStyle}>
                 {saving
-                  ? '저장하는 중입니다…'
+                  ? '저장하는 중이에요…'
                   : dirty
-                    ? '저장하지 않은 변경 사항이 있습니다.'
-                    : '변경 사항이 없습니다.'}
+                    ? '저장하지 않은 변경 사항이 있어요.'
+                    : '변경 사항이 없어요.'}
               </p>
               <Button
                 type="submit"

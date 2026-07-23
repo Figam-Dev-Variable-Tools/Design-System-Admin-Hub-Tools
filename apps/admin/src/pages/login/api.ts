@@ -52,7 +52,7 @@ export type LoginResult =
 /** 요청 중단(타임아웃 포함) — 호출부는 이 에러를 네트워크 오류(§3 에러 (d))로 처리한다 */
 class LoginAbortError extends Error {
   constructor() {
-    super('로그인 요청이 중단되었습니다.');
+    super('로그인 요청이 중단되었어요.');
     this.name = 'LoginAbortError';
   }
 }

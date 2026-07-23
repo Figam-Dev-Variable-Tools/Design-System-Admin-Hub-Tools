@@ -77,13 +77,19 @@ const noteStyle: CSSProperties = {
 
 interface CouponTargetPickerProps {
   readonly label: string;
-  readonly options: readonly CouponTargetOption[];
+  /**
+   * 선택지 — **null 은 '모른다'** 다(조회기 미배선·조회 실패). 빈 배열('없다')과 섞지 않는다:
+   * 빈 목록은 '먼저 등록하라' 는 완결된 지시가 되어, 이미 있는 것을 다시 만들게 한다.
+   */
+  readonly options: readonly CouponTargetOption[] | null;
   readonly selectedIds: readonly string[];
   readonly onChange: (ids: readonly string[]) => void;
   readonly disabled?: boolean;
   readonly error?: string | undefined;
   /** 선택지를 아직 불러오는 중인가 — 빈 목록과 '없다' 를 가른다 */
   readonly loading?: boolean;
+  /** options 가 null 일 때 화면이 말할 이유 — 무엇을 못 읽었는지 */
+  readonly unknownReason?: string;
 }
 
 export function CouponTargetPicker({
@@ -94,6 +100,7 @@ export function CouponTargetPicker({
   disabled = false,
   error,
   loading = false,
+  unknownReason = '선택지를 불러오지 못했어요.',
 }: CouponTargetPickerProps) {
   const noteId = useId();
   const selected = new Set(selectedIds);
@@ -115,10 +122,13 @@ export function CouponTargetPicker({
       </span>
 
       {loading ? (
-        <p style={hintStyle}>선택지를 불러오는 중입니다…</p>
+        <p style={hintStyle}>선택지를 불러오는 중이에요…</p>
+      ) : options === null ? (
+        // '모른다' 는 '없다' 가 아니다 — 이유를 말하고, 저장은 호출부의 가드가 막는다
+        <p style={errorTextStyle}>{unknownReason} 지금은 대상을 고를 수 없어요.</p>
       ) : options.length === 0 ? (
         // 빈 목록으로 뭉개지 않는다 — 고를 것이 없다는 사실과 이유를 함께 말한다
-        <p style={hintStyle}>고를 수 있는 대상이 없습니다. 먼저 대상을 등록해 주세요.</p>
+        <p style={hintStyle}>고를 수 있는 대상이 없어요. 먼저 대상을 등록해 주세요.</p>
       ) : (
         <ul style={listStyle} role="group" aria-label={`${label} (필수)`} aria-describedby={noteId}>
           {options.map((option) => (

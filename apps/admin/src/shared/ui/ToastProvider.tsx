@@ -32,8 +32,8 @@ interface ToastItem {
 const MAX_TOASTS = 3;
 
 /** 호출부가 문구를 주지 않았을 때의 기본값 */
-const DEFAULT_SUCCESS_MESSAGE = '작업이 완료되었습니다';
-const DEFAULT_CANCELLED_MESSAGE = '작업이 취소되었습니다';
+const DEFAULT_SUCCESS_MESSAGE = '작업이 완료되었어요';
+const DEFAULT_CANCELLED_MESSAGE = '작업이 취소되었어요';
 
 interface ToastErrorOptions {
   /** 주면 실패 토스트에 '다시 시도' 버튼이 붙는다 */
@@ -182,7 +182,7 @@ export function ToastProvider({ children }: { readonly children: ReactNode }) {
 export function useToast(): ToastApi {
   const api = useContext(ToastContext);
   if (api === null) {
-    throw new Error('useToast()는 <ToastProvider> 안에서만 쓸 수 있습니다 — App.tsx를 확인하세요.');
+    throw new Error('useToast()는 <ToastProvider> 안에서만 쓸 수 있어요 — App.tsx를 확인하세요.');
   }
   return api;
 }

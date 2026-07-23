@@ -326,7 +326,7 @@ function LogoFormModal({
           label="로고 이미지"
           required
           value={logoUrl}
-          hint="이미지를 끌어다 놓거나 클릭해 업로드합니다."
+          hint="이미지를 끌어다 놓거나 클릭해 업로드해요."
           onChange={setLogoUrl}
         />
 
@@ -439,7 +439,7 @@ function LogoListScreen({
         <h1 style={headingStyle}>{entityLabel}</h1>
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>{`${entityLabel} 목록을 불러오지 못했습니다.`}</span>
+            <span>{`${entityLabel} 목록을 불러오지 못했어요.`}</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
@@ -543,8 +543,8 @@ function LogoListScreen({
 
       <Card>
         <Table
-          caption={`${entityLabel} 목록 — 체크박스로 선택하고, 각 행에서 노출 여부를 토글하거나 수정·삭제할 수 있습니다.${
-            reorderable ? ' 각 행의 위/아래 버튼으로 정렬 순서를 바꿉니다.' : ''
+          caption={`${entityLabel} 목록 — 체크박스로 선택하고, 각 행에서 노출 여부를 토글하거나 수정·삭제할 수 있어요.${
+            reorderable ? ' 각 행의 위/아래 버튼으로 정렬 순서를 바꿔요.' : ''
           }`}
           columns={COLUMNS}
           rows={rows}
@@ -588,7 +588,7 @@ function LogoListScreen({
         <ConfirmDialog
           intent="delete"
           title={`${entityLabel} 삭제`}
-          message={`'${pendingDelete.name}'을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.name}'을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="삭제"
           onConfirm={() => {
             removeLogos([pendingDelete.id]);
@@ -602,7 +602,7 @@ function LogoListScreen({
         <ConfirmDialog
           intent="delete"
           title={`${entityLabel} 일괄 삭제`}
-          message={`선택한 ${entityLabel} ${fmt(selectedCount)}건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 ${entityLabel} ${fmt(selectedCount)}건을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel={`${fmt(selectedCount)}건 삭제`}
           onConfirm={() => {
             removeLogos([...selectedIds]);

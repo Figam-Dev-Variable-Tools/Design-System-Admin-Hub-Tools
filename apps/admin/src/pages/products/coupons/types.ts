@@ -8,7 +8,7 @@
 // [왜 트리거가 별도 축인가] '누구에게 쓸 수 있나(target)' 와 '언제 손에 들어오나(trigger)' 는
 // 다른 질문이다. VIP 등급 승급 시 발급되는 쿠폰이 전 상품에 쓰일 수 있고, 전 회원이 받아 가는
 // 다운로드 쿠폰이 특정 카테고리에만 쓰일 수 있다. 두 축을 한 필드로 묶으면 그 조합이 표현되지 않는다.
-import { formatNumber, shiftDays } from '../../../shared/format';
+import { formatNumber, objectParticle, shiftDays } from '../../../shared/format';
 import type { StatusTone } from '../../../shared/ui';
 import { TIER_LABEL } from '../../../shared/domain/member';
 import type { MemberTier } from '../../../shared/domain/member';
@@ -55,17 +55,44 @@ interface TriggerOption {
   readonly hint: string;
 }
 
+/**
+ * 발급 시점 목록.
+ *
+ * [힌트는 조건 칸과 짝을 이룬다] 조건을 더 묻는 시점의 힌트는 **아래에 무엇이 뜨는지**를 말하고,
+ * 묻지 않는 시점의 힌트는 **더 정할 것이 없다**고 못 박는다. 안 그러면 운영자는 조건 칸이 안 뜨는
+ * 것을 화면 고장으로 읽고 같은 자리를 계속 눌러 본다.
+ */
 export const COUPON_TRIGGER_OPTIONS: readonly TriggerOption[] = [
-  { id: 'manual', label: '운영자 직접 발급', hint: '운영자가 회원을 골라 발급합니다.' },
-  { id: 'signup', label: '회원 가입 시', hint: '가입이 완료된 직후 자동 발급됩니다.' },
+  {
+    id: 'manual',
+    label: '운영자 직접 발급',
+    hint: '운영자가 회원을 골라 발급해요. 받을 회원은 발급하는 순간 고르므로 여기서 더 정할 조건이 없어요.',
+  },
+  {
+    id: 'signup',
+    label: '회원 가입 시',
+    hint: '가입이 완료된 직후 모든 신규 회원에게 자동 발급돼요. 더 정할 조건이 없어요.',
+  },
   {
     id: 'tier_up',
     label: '회원 등급 승급 시',
-    hint: '지정한 등급으로 올라간 회원에게 자동 발급됩니다.',
+    hint: '지정한 등급으로 올라간 회원에게 자동 발급돼요. 아래에서 승급 대상 등급을 고르세요.',
   },
-  { id: 'birthday', label: '생일', hint: '생일 기준 지정한 일수 전에 자동 발급됩니다.' },
-  { id: 'first_order', label: '첫 구매', hint: '첫 주문이 결제 완료되면 자동 발급됩니다.' },
-  { id: 'download', label: '고객 다운로드', hint: '지정한 기간 동안 고객이 직접 받아 갑니다.' },
+  {
+    id: 'birthday',
+    label: '생일',
+    hint: '생일 기준 지정한 일수 전에 자동 발급돼요. 아래에서 며칠 전에 보낼지 정하세요.',
+  },
+  {
+    id: 'first_order',
+    label: '첫 구매',
+    hint: '첫 주문이 결제 완료되면 자동 발급돼요. 첫 주문은 한 번뿐이라 더 정할 조건이 없어요.',
+  },
+  {
+    id: 'download',
+    label: '고객 다운로드',
+    hint: '고객이 직접 받아 가요. 아래에서 받아 갈 수 있는 기간을 정하세요.',
+  },
 ];
 
 const TRIGGER_LABEL: Record<CouponTriggerType, string> = {
@@ -219,12 +246,25 @@ export const COUPON_TARGET_OPTIONS: readonly {
   { id: 'product', label: '특정 상품' },
 ];
 
-/** 회원등급 대상의 선택지 — 등급 개념의 정본은 shared/domain/member 다 */
-export const MEMBER_TIER_TARGETS: readonly { readonly id: MemberTier; readonly label: string }[] = [
-  { id: 'normal', label: TIER_LABEL.normal },
-  { id: 'vip', label: TIER_LABEL.vip },
-  { id: 'vvip', label: TIER_LABEL.vvip },
-];
+/**
+ * 쿠폰이 참조할 수 있는 **기본 제공 등급 3종**.
+ *
+ * [왜 이 목록이 선택지가 아닌가] 운영자는 등급을 더 만들 수 있고(고객 설정 화면), 그 목록의 정본은
+ * `shared/domain/member-tier-catalog` 이음매다 — 선택지는 거기서 온다. 이 배열이 남는 이유는 하나:
+ * `CouponTrigger.tier` 가 닫힌 유니온(MemberTier)이라 **발급 기준**은 여기 셋까지만 들 수 있다.
+ * 그 사실은 숨기지 않고 화면이 말한다(등급 정책 화면의 TierUpCouponCard 가 반대편에서 같은 말을 한다).
+ */
+const BUILT_IN_TIER_IDS: readonly MemberTier[] = ['normal', 'vip', 'vvip'];
+
+/** 이 등급 id 를 발급 기준이 들 수 있는가 — 운영자가 추가한 등급은 아직 들 수 없다 */
+export function isBuiltInTier(id: string): id is MemberTier {
+  return (BUILT_IN_TIER_IDS as readonly string[]).includes(id);
+}
+
+/** 기본 제공 등급의 라벨 — 등급 개념의 정본은 shared/domain/member 다 */
+export function builtInTierLabel(tier: MemberTier): string {
+  return TIER_LABEL[tier];
+}
 
 export const COUPON_FILTER_ALL = 'all';
 export type CouponIssueFilter = typeof COUPON_FILTER_ALL | CouponIssueType;
@@ -251,6 +291,196 @@ export function targetPickerLabel(target: CouponTarget): string {
     case 'all':
       return '대상';
   }
+}
+
+/* ── 사용 대상 연쇄 선택 (1차 카테고리 → 2차 카테고리 → 상품) ─────────────────
+ *
+ * 상품 등록 화면이 이미 쓰고 있는 관용구를 그대로 가져왔다(ProductFormPage 의 '카테고리(대분류)' +
+ * '카테고리(중분류)' 두 셀렉트): **저장하는 값은 최종 선택 하나**이고 두 셀렉트는 그 값에서 되짚어
+ * 그린다. 쿠폰은 대상이 여러 개일 수 있어(픽스처 cpn-2 의 ['vip','vvip']) 그 위에 '추가' 한 단을
+ * 얹었을 뿐, 좁혀 가는 규칙은 같다.
+ *
+ * [초기화 규칙 — 이 종류 UI 의 가장 흔한 버그가 여기다]
+ *   1차를 바꾸면 2차와 상품을 **버린다**. 다른 갈래의 2차가 조용히 남아 있으면 화면이 보여 주는
+ *   선택과 실제로 더해질 값이 어긋난다. 2차를 바꾸면 상품을 버린다(같은 이유, 한 단 아래).
+ *   되돌릴 값을 기억해 두지도 않는다 — '아까 고른 것' 을 되살리는 것이 바로 그 어긋남이다.
+ */
+
+/** 카테고리 최소 모양 — 컴포넌트가 상품 저장소 타입을 몰라도 되게 여기서 좁힌다 */
+export interface ScopeCategory {
+  readonly id: string;
+  readonly label: string;
+  readonly parentId: string | null;
+}
+
+/** 상품 최소 모양 — 위와 같은 이유 */
+export interface ScopeProduct {
+  readonly id: string;
+  readonly name: string;
+  readonly code: string;
+  readonly categoryId: string;
+}
+
+/** 연쇄 선택의 현재 좌표 — **화면 상태**다. 저장되는 것은 여기서 뽑아낸 id 하나뿐이다 */
+export interface CouponScope {
+  readonly rootId: string;
+  readonly childId: string;
+  readonly productId: string;
+}
+
+export const EMPTY_SCOPE: CouponScope = { rootId: '', childId: '', productId: '' };
+
+/** 1차를 고른다 — 2차·상품은 버린다 */
+export function withScopeRoot(rootId: string): CouponScope {
+  return { rootId, childId: '', productId: '' };
+}
+
+/** 2차를 고른다 — 상품은 버린다 */
+export function withScopeChild(scope: CouponScope, childId: string): CouponScope {
+  return { rootId: scope.rootId, childId, productId: '' };
+}
+
+export function withScopeProduct(scope: CouponScope, productId: string): CouponScope {
+  return { ...scope, productId };
+}
+
+/** 카테고리 목록 중 1차(대분류)만 */
+export function scopeRootOptions(categories: readonly ScopeCategory[]): readonly ScopeCategory[] {
+  return categories.filter((category) => category.parentId === null);
+}
+
+/** 고른 1차의 2차(중분류)들 — 1차를 고르지 않았으면 비어 있다 */
+export function scopeChildOptions(
+  categories: readonly ScopeCategory[],
+  rootId: string,
+): readonly ScopeCategory[] {
+  if (rootId === '') return [];
+  return categories.filter((category) => category.parentId === rootId);
+}
+
+/**
+ * 지금 좌표 아래의 상품들.
+ *
+ * 2차를 골랐으면 그 2차의 상품만, 1차만 골랐으면 **그 1차와 그 아래 2차 전부**의 상품이다 —
+ * 상품의 categoryId 는 1차일 수도 2차일 수도 있기 때문이다(store 의 카테고리는 2단계다).
+ * 1차조차 고르지 않았으면 빈 목록이다: 전 상품을 한 셀렉트에 쏟아 놓는 것은 '고르게 해 준' 것이 아니다.
+ */
+export function productsInScope(
+  products: readonly ScopeProduct[],
+  categories: readonly ScopeCategory[],
+  scope: CouponScope,
+): readonly ScopeProduct[] {
+  if (scope.childId !== '') {
+    return products.filter((product) => product.categoryId === scope.childId);
+  }
+  if (scope.rootId === '') return [];
+  const inRoot = new Set<string>([scope.rootId]);
+  for (const category of categories) {
+    if (category.parentId === scope.rootId) inRoot.add(category.id);
+  }
+  return products.filter((product) => inRoot.has(product.categoryId));
+}
+
+/** '아우터 > 코트' 표기 — 넘겨받은 목록만 보고 만든다(저장소를 모른다) */
+export function scopeCategoryPath(categories: readonly ScopeCategory[], id: string): string {
+  const found = categories.find((category) => category.id === id);
+  if (found === undefined) return id;
+  if (found.parentId === null) return found.label;
+  const parent = categories.find((category) => category.id === found.parentId);
+  return parent === undefined ? found.label : `${parent.label} > ${found.label}`;
+}
+
+/**
+ * 지금 좌표에서 대상에 더할 수 있는 id — 아직 없으면 빈 문자열.
+ *
+ * 카테고리 대상이면 2차가 있으면 2차, 없으면 1차다('아우터' 전체를 대상으로 잡는 것은 정상 운영이다).
+ * 상품 대상이면 상품을 고르기 전에는 더할 것이 없다 — 카테고리만으로는 상품 대상이 성립하지 않는다.
+ */
+export function scopeAddableId(target: CouponTarget, scope: CouponScope): string {
+  if (target === 'product') return scope.productId;
+  if (target === 'category') return scope.childId !== '' ? scope.childId : scope.rootId;
+  return '';
+}
+
+/* ── 발급 시점별 조건 ─────────────────────────────────────────────────────────
+ *
+ * [조건이 없는 시점을 지어내지 않는다] 여섯 시점 중 셋만 더 묻는다.
+ *   · manual      : 누구에게 줄지는 **발급을 실행하는 순간** 고른다 — 쿠폰 정의가 미리 담을 값이 없다.
+ *   · signup      : 가입 이벤트에는 파라미터가 없다(이 리포의 회원 모델에 가입 경로·추천인 축이 없다).
+ *                   없는 데이터를 묻는 셀렉트는 저장은 되고 동작하지 않는다.
+ *   · first_order : 첫 주문은 정의상 한 번뿐이라 '몇 번째' 를 물을 것이 없다. 금액 조건은 이미
+ *                   쿠폰 정보의 '최소 주문 금액' 이 갖고 있다 — 같은 질문을 두 곳에서 묻지 않는다.
+ */
+
+/** 이 시점이 더 물어야 하는 것 — 없으면 null */
+export type CouponTriggerCondition = 'tier' | 'birthday-days' | 'download-period';
+
+export function triggerCondition(type: CouponTriggerType): CouponTriggerCondition | null {
+  switch (type) {
+    case 'tier_up':
+      return 'tier';
+    case 'birthday':
+      return 'birthday-days';
+    case 'download':
+      return 'download-period';
+    case 'manual':
+    case 'signup':
+    case 'first_order':
+      return null;
+  }
+}
+
+/* ── 저장 가드 ────────────────────────────────────────────────────────────────
+ *
+ * [왜 zod 밖에 또 있나] zod 는 폼 값만 본다 — '선택지 목록을 읽지 못했다' 는 폼 값이 아니다.
+ * 그런데 그 상태에서 저장을 열어 두면 운영자는 **고를 수 없었던 것을 고르지 않은 채로** 저장한다.
+ * 그래서 술어를 한 벌 만들고, 버튼의 disabled 와 제출 거부가 **둘 다 이것을 읽는다**(하나만 읽으면
+ * 키보드 Enter 나 URL 로 걸어 들어온 제출이 그대로 통과한다).
+ */
+
+/** 선택지 목록의 상태 — '모른다'(unknown)와 '비었다'는 다른 말이다 */
+export type OptionsState = 'known' | 'loading' | 'unknown';
+
+export interface CouponGuardInput {
+  readonly target: CouponTarget;
+  readonly targetIds: readonly string[];
+  readonly triggerType: CouponTriggerType;
+  /** 승급 대상 등급 — 고르지 않았으면 빈 문자열 */
+  readonly triggerTier: string;
+  /** 사용 대상 선택지를 아는가 */
+  readonly targetOptions: OptionsState;
+  /** 발급 시점 조건(등급) 선택지를 아는가 */
+  readonly tierOptions: OptionsState;
+}
+
+/** 저장을 막아야 하는 이유 — 막을 것이 없으면 null. 문구가 곧 화면에 나가는 말이다 */
+export function couponSaveBlockReason(input: CouponGuardInput): string | null {
+  if (targetNeedsIds(input.target)) {
+    const label = targetPickerLabel(input.target);
+    if (input.targetOptions === 'loading') {
+      return `${label} 선택지를 불러오는 중이에요. 목록이 뜬 뒤에 저장할 수 있어요.`;
+    }
+    if (input.targetOptions === 'unknown') {
+      return `${label} 목록을 불러오지 못했어요. 고를 수 없는 채로 저장하지 않아요.`;
+    }
+    if (input.targetIds.length === 0) {
+      return `${label}${objectParticle(label)} 한 개 이상 선택하세요.`;
+    }
+  }
+
+  if (triggerCondition(input.triggerType) === 'tier') {
+    if (input.tierOptions === 'loading') {
+      return '회원 등급 목록을 불러오는 중이에요. 목록이 뜬 뒤에 저장할 수 있어요.';
+    }
+    if (input.tierOptions === 'unknown') {
+      return '회원 등급 목록을 불러오지 못해 승급 대상 등급을 고를 수 없어요.';
+    }
+    if (!isBuiltInTier(input.triggerTier)) {
+      return '승급 대상 등급을 선택하세요.';
+    }
+  }
+
+  return null;
 }
 
 /** 할인 요약 문구 — 목록·미리보기가 함께 쓴다 */

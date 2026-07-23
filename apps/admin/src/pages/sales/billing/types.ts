@@ -145,13 +145,13 @@ export function lastNoticeAt(billing: Pick<Billing, 'notices'>): string {
  * 실패하는 버튼' 또는 '눌리지 않는데 저장은 되는 동작' 이 생긴다
  * (shared/domain/order.ts 의 orderTransitionBlock 과 같은 규약). */
 
-export const BILLING_CREATE_NOT_ORDERED = '수주로 전환된 견적만 청구할 수 있습니다.';
-export const BILLING_CREATE_DONE = '이미 청구가 생성된 견적입니다.';
-export const PAYMENT_ALREADY_PAID = '이미 입금이 완료된 청구입니다.';
-export const PAYMENT_AMOUNT_POSITIVE = '입금액은 0보다 커야 합니다.';
-export const PAYMENT_OVER_OUTSTANDING = '입금액이 잔액보다 클 수 없습니다.';
+export const BILLING_CREATE_NOT_ORDERED = '수주로 전환된 견적만 청구할 수 있어요.';
+export const BILLING_CREATE_DONE = '이미 청구가 생성된 견적이에요.';
+export const PAYMENT_ALREADY_PAID = '이미 입금이 완료된 청구예요.';
+export const PAYMENT_AMOUNT_POSITIVE = '입금액은 0보다 커야 해요.';
+export const PAYMENT_OVER_OUTSTANDING = '입금액이 잔액보다 클 수 없어요.';
 export const PAYMENT_DATE_REQUIRED = '입금일을 YYYY-MM-DD 형식으로 입력하세요.';
-export const NOTICE_LINK_REQUIRED = '개인결제창 링크를 먼저 등록해야 안내를 보낼 수 있습니다.';
+export const NOTICE_LINK_REQUIRED = '개인결제창 링크를 먼저 등록해야 안내를 보낼 수 있어요.';
 
 /**
  * 지금 이 견적으로 청구를 만들 수 없는 이유 — 만들 수 있으면 null (규칙 ③).
@@ -186,6 +186,65 @@ export function recordPaymentBlock(
   if (!Number.isInteger(amount) || amount <= 0) return PAYMENT_AMOUNT_POSITIVE;
   if (amount > outstandingAmount(billing)) return PAYMENT_OVER_OUTSTANDING;
   if (!DATE_RE.test(paidOn)) return PAYMENT_DATE_REQUIRED;
+  return null;
+}
+
+/* ── 동시 저장 가드 (기록 소실) ──────────────────────────────────────────────
+ *
+ * ┌ 무엇이 문제였나 ─────────────────────────────────────────────────────────┐
+ * │ 이 화면의 저장은 **문서 한 벌을 통째로** 보낸다(BillingDetailPage 의 commit).  │
+ * │ 그래서 두 운영자가 같은 청구를 열어 두면 이런 일이 일어났다:                  │
+ * │   ① A 가 입금 2,000,000원을 기록한다 → 저장된다                              │
+ * │   ② B 는 그 전에 화면을 열었다. B 의 문서에는 그 입금이 없다.                 │
+ * │   ③ B 가 비고 한 줄을 고쳐 저장한다 → 문서 전체가 갈리면서 **A 의 입금이       │
+ * │      흔적 없이 사라진다.** 성공 토스트까지 뜬다.                              │
+ * │ 입금은 회계 기록이고 되돌릴 수단이 없다(규칙 ①). 조용히 지워지면 끝이다.       │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ *
+ * [왜 revision 이 아니라 기록 자체를 토큰으로 쓰는가]
+ * 시스템 설정 섹션은 문서마다 revision 을 달아 낙관적 잠금을 건다(pages/settings/_shared/store.ts).
+ * 그 방식은 **모든 동시 편집**을 충돌로 본다 — 비고를 고친 것과 입금을 기록한 것을 구분하지 않는다.
+ * 청구에서 되돌릴 수 없는 것은 문서가 아니라 **원장**(payments · notices)이고, 원장은 덧붙이기만
+ * 하므로 '저장된 기록이 들어온 기록의 앞부분 그대로인가' 만 보면 된다. 이 판정은 revision 보다
+ * 좁고(기록이 실제로 사라질 때만 거절한다) 정확하다(입금 기록끼리도 순서가 어긋나면 잡는다).
+ * 새 동시성 모델이 아니라, 이 도메인이 이미 갖고 있던 append-only 규약을 저장 경로에 세운 것이다.
+ *
+ * [이 가드에는 짝이 되는 disabled 버튼이 없다 — 그럴 수 없다]
+ * 다른 가드들과 달리 이 판정의 근거는 **화면이 볼 수 없는 사실**(내가 읽은 뒤 서버에서 벌어진 일)
+ * 이다. 그래서 버튼을 미리 잠글 수 없고, 짝은 저장 실패의 표면 — 409 충돌 다이얼로그다(EXC-04).
+ *
+ * [지금은 청구만이다] `version`/`updatedAt`/`If-Match` 는 이 앱 어디에도 없고, 나머지 화면은
+ * 전부 last-write-wins 다. 전면 도입은 더 큰 결정이라 여기서 하지 않는다 — 청구를 먼저 막는
+ * 이유는 잃는 것이 **되돌릴 수 없는 회계 기록**이기 때문이다.
+ */
+
+export const BILLING_PAYMENT_LOST =
+  '내가 화면을 연 뒤 다른 관리자가 입금을 기록했어요. 그대로 저장하면 그 입금이 사라져요. 최신 내용을 불러온 뒤 다시 기록해 주세요.';
+export const BILLING_NOTICE_LOST =
+  '내가 화면을 연 뒤 다른 관리자가 안내 발송을 기록했어요. 그대로 저장하면 그 기록이 사라져요. 최신 내용을 불러와 주세요.';
+
+/** 원장 1행이 갖는 최소 모양 — 입금·안내가 같은 규약(덧붙이기만)이라 한 술어로 본다 */
+interface LedgerEntry {
+  readonly id: string;
+}
+
+/**
+ * 들어온 기록이 저장된 기록에 **덧붙이기만 한** 것인가.
+ *
+ * 앞부분이 한 칸이라도 다르면(사라졌거나 뒤바뀌었다) 거짓이다 — 그것은 저장이 아니라 소실이다.
+ */
+function isAppendOf(stored: readonly LedgerEntry[], incoming: readonly LedgerEntry[]): boolean {
+  if (incoming.length < stored.length) return false;
+  return stored.every((entry, index) => incoming[index]?.id === entry.id);
+}
+
+/** 이 저장이 이미 기록된 것을 지우는가 — 지우면 사유, 아니면 null */
+export function ledgerLossBlock(
+  current: Pick<Billing, 'payments' | 'notices'>,
+  next: Pick<BillingInput, 'payments' | 'notices'>,
+): string | null {
+  if (!isAppendOf(current.payments, next.payments)) return BILLING_PAYMENT_LOST;
+  if (!isAppendOf(current.notices, next.notices)) return BILLING_NOTICE_LOST;
   return null;
 }
 

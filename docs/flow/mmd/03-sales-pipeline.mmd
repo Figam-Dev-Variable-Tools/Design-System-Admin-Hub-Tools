@@ -1,4 +1,5 @@
-%% 영업 파이프라인 — 문의 → 견적 → 계약 · 청구·입금 · 프로젝트 (실제 상태값 기준)
+%% 영업 파이프라인 — 문의 → 견적 → 계약 → 프로젝트 · 청구·입금 (실제 상태값 기준)
+%% 각 칸은 앞 칸에서만 생긴다 — 수동 등록(/new)은 전부 차단 화면으로 간다
 %%{init: {"flowchart": {"curve": "step", "nodeSpacing": 25, "rankSpacing": 38, "wrappingWidth": 170}, "themeVariables": {"fontSize": "13px"}} }%%
 flowchart TD
     In0(["고객 문의 유입"]) --> Ch{"어느 창구인가<br/>QuoteSourceChannel"}
@@ -34,15 +35,22 @@ flowchart TD
     QRes -->|"반려"| Q4["반려 · rejected"]
     QRes -->|"기한 경과"| Q5["만료 · expired"]
 
-    Q3 --> Conv{"수주 전환<br/>canConvertToOrder · quoteConvertBlock"}
-    Q4 --> NoConv["전환 불가"]
-    Q5 --> NoConv
-    Conv -->|"accepted 에서만 가능"| Q6["수주전환 · ordered"]
+    QMan{"상태 관리 · quoteStatusChangeBlock(from,to)<br/>draft→sent · sent→accepted|rejected<br/>되돌리는 전이 없음 · ordered 는 사람이 고르지 않는다"}
+    Q1 --- QMan
+    Q2 --- QMan
 
-    Q6 --> CGate{"계약 초안 게이트<br/>contractDraftBlock(status, contractId)"}
-    CGate -->|"CONTRACT_DRAFT_NOT_ORDERED"| CNo["초안 불가"]
-    CGate -->|"CONTRACT_DRAFT_DONE<br/>findContractIdByQuote"| CNo
-    CGate -->|"null"| C1["계약 초안 · draft<br/>/sales/contracts/new?quoteId=…<br/>buildContractFromQuote → quoteId · quoteNo"]
+    Q3 --> CGate{"계약 생성 게이트<br/>contractDraftBlock(status, contractId)"}
+    Q4 --> NoConv["다음 칸 없음"]
+    Q5 --> NoConv
+    CGate -->|"CONTRACT_DRAFT_NOT_ACCEPTED"| CNo["계약 불가"]
+    CGate -->|"CONTRACT_DRAFT_DONE<br/>findContractIdByQuote · 멱등키 quoteId"| CNo
+    CGate -->|"null"| C1["계약 · draft<br/>createContractFromQuote(quote, today)<br/>buildContractFromQuote → quoteId · quoteNo"]
+
+    C1 --> WB{"되돌려 쓰기 · markQuoteOrdered(quoteId)<br/>트랜잭션 없음 — 반쪽 저장이 실재한다"}
+    WB -->|"null"| Q6["수주(계약 진행) · ordered"]
+    WB -->|"사유 문자열"| Drift["어긋남 · quoteOrderDriftBlock<br/>계약은 남고 견적 상태는 안 바뀜<br/>견적 상세의 '견적 상태 맞추기' 로 복구"]
+    Drift --> WB
+
     C1 --> C2["검토중 · review"] --> C3["진행중 · active"]
     C3 --> C4["만료 · expired"]
     C3 --> C5["해지 · terminated"]
@@ -64,22 +72,22 @@ flowchart TD
     BState -.->|"되돌리는 전이가 없다 — 감액 엔트리를 만들 수 없다"| B4
     BState --> BOk["입금완료 · paid"]
 
-    Q6 --> P1["프로젝트 리드 · lead · 10%"]
-    P1 --> P2["상담 · qualified · 30%"] --> P3["제안 · proposal · 50%"] --> P4["협상 · negotiation · 70%"] --> P5["수주 · won · 100%"]
-    P2 --> PL["실주 · lost · 0%<br/>lostReason 필수 · 스텝퍼 밖"]
-    P3 --> PL
-    P4 --> PL
+    C3 --> PGate{"프로젝트 게이트 · projectDraftBlock(concluded, projectId)<br/>계약 완료 = isConcludedContract(active, signed)"}
+    S4 --> PGate
+    PGate -->|"PROJECT_DRAFT_NOT_CONCLUDED"| PNo["프로젝트 불가"]
+    PGate -->|"PROJECT_DRAFT_DONE<br/>findProjectIdByContract · 멱등키 contractId"| PNo
+    PGate -->|"null"| P5["프로젝트 · 수주 won · 100%<br/>createProjectFromContract → contractId · contractTitle"]
+    P5 --> PL["실주 · lost · 0%<br/>lostReason 필수 · 스텝퍼 밖"]
+    P5 -.->|"지우면 게이트가 다시 열린다 — 막다른 골목이 아니다"| PGate
 
-    I3 --> CS["상담 이력 기록<br/>조회 전용 · 생성·수정 UI 없음"]
-    CS --> CSO{"결과 outcome"}
-    CSO -->|"긍정 positive"| CSF
-    CSO -->|"보통 neutral"| CSF
-    CSO -->|"부정 negative"| CSF
-    CSF["후속조치 followUpAction<br/>미완료면 hasPendingFollowUp"]
+    NewBlocked["/sales/quotes/new · /sales/contracts/new · /sales/projects/new<br/>ChainOnlyCreateNotice — 빈 폼이 아니라 '어디서 만드는가' 를 말한다"]
+    NewBlocked -.->|"견적은 문의에서"| I3
+    NewBlocked -.->|"계약은 견적에서"| Q3
+    NewBlocked -.->|"프로젝트는 계약에서"| C3
 
     classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
     classDef err fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
     classDef ok fill:#dcfce7,stroke:#16a34a,color:#14532d
-    class Ch,IQ,Gate,Cross,QRes,Conv,CGate,BGate,B3,Renew,CSO gate
-    class Blocked,NoConv,CNo,BNo,BErr,Q4,Q5,C5,PL err
+    class Ch,IQ,Gate,Cross,QRes,QMan,CGate,WB,BGate,PGate,B3,Renew gate
+    class Blocked,NoConv,CNo,BNo,PNo,BErr,Drift,NewBlocked,Q4,Q5,C5,PL err
     class Q3,Q6,C3,B4,BOk,P5,S4 ok

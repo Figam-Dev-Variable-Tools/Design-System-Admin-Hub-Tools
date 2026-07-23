@@ -34,6 +34,22 @@ export function useRouteCan(action: PermissionAction): boolean {
   return can(resourceId, action);
 }
 
+/**
+ * 쓰기를 거절하는 **사유 문장** — 거부는 boolean 이 아니다.
+ *
+ * [왜 한 벌인가] 이 문장은 두 자리에 동시에 선다: 컨트롤을 남겨야 하는 곳의 `title`/`aria-label`,
+ * 그리고 저장 경로가 거절할 때의 배너·토스트. 화면마다 따로 적으면 같은 상황에 다른 문장이 뜨고,
+ * 무엇보다 **버튼이 말하는 이유와 저장이 말하는 이유가 갈라진다**.
+ * (컨트롤을 아예 없애는 것이 기본이다 — 이 문장이 필요한 곳은 없앨 수 없는 컨트롤과 저장 경로다.)
+ */
+export const WRITE_DENIED: Readonly<Record<PermissionAction, string>> = {
+  read: '이 화면을 볼 권한이 없어요.',
+  create: '이 화면의 등록 권한이 없어요. 필요하다면 관리자에게 권한을 요청해 주세요.',
+  update: '이 화면의 수정 권한이 없어요. 필요하다면 관리자에게 권한을 요청해 주세요.',
+  remove: '이 화면의 삭제 권한이 없어요. 필요하다면 관리자에게 권한을 요청해 주세요.',
+  export: '이 화면의 내보내기 권한이 없어요. 필요하다면 관리자에게 권한을 요청해 주세요.',
+};
+
 /** 목록/폼이 쓰는 쓰기 권한 묶음 — 한 번 구독해 네 갈래를 함께 받는다 */
 export interface RouteWritePermissions {
   readonly canCreate: boolean;

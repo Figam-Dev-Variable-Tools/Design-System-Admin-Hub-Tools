@@ -33,11 +33,11 @@ function ControlledRichTextField(args: ComponentProps<typeof RichTextField>) {
 
 /** 대표 서식 본문 — 제목·굵게·기울임·목록을 한 번에 담는다 */
 const SAMPLE_HTML =
-  '<h2>제품 특징</h2><p>가벼운 충전재로 <strong>보온성</strong>과 <em>활동성</em>을 모두 잡았습니다.</p><ul><li>초경량 충전재</li><li>발수 가공</li></ul>';
+  '<h2>제품 특징</h2><p>가벼운 충전재로 <strong>보온성</strong>과 <em>활동성</em>을 모두 잡았어요.</p><ul><li>초경량 충전재</li><li>발수 가공</li></ul>';
 
 /** 서식 전체(굵게·기울임·제목·글머리/번호 목록·링크)를 한 화면에 보이는 콘텐츠 */
 const RICH_HTML =
-  '<h2>상세 안내</h2><p><strong>굵게</strong>와 <em>기울임</em>, 그리고 <a href="https://example.com" target="_blank">링크</a>를 함께 쓸 수 있습니다.</p><h3>소재</h3><ul><li>초경량 충전재</li><li>발수 가공</li></ul><ol><li>세탁 전 지퍼를 잠급니다</li><li>단독 세탁합니다</li></ol>';
+  '<h2>상세 안내</h2><p><strong>굵게</strong>와 <em>기울임</em>, 그리고 <a href="https://example.com" target="_blank">링크</a>를 함께 쓸 수 있어요.</p><h3>소재</h3><ul><li>초경량 충전재</li><li>발수 가공</li></ul><ol><li>세탁 전 지퍼를 잠가요</li><li>단독 세탁해요</li></ol>';
 
 const meta: Meta<typeof RichTextField> = {
   title: 'Design System/Components/RichTextField',
@@ -85,7 +85,7 @@ const surfaceFrame: Decorator = (Story) => (
 
 /** Overview — 대표 쓰임새. 툴바 + 서식 있는 본문 + 평문 길이 카운터 */
 export const Overview: Story = {
-  args: { hint: '최대 2000자 (서식은 글자 수에 세지 않습니다)' },
+  args: { hint: '최대 2000자 (서식은 글자 수에 세지 않아요)' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(await canvas.findByRole('toolbar', { name: '본문 서식' })).toBeVisible();
@@ -141,7 +141,7 @@ export const RequiredField: Story = {
 /** 선택 입력 — required 없이 라벨에 '(선택)' 을 명시하는 관례 */
 export const Optional: Story = {
   name: 'Form/Optional',
-  args: { label: '상세설명 (선택)', value: '', hint: '입력하지 않아도 저장할 수 있습니다.' },
+  args: { label: '상세설명 (선택)', value: '', hint: '입력하지 않아도 저장할 수 있어요.' },
 };
 
 /** 폼 배경 위 — surface.raised 컨테이너 안에서의 대비를 본다 */
@@ -162,7 +162,7 @@ export const MinimalContent: Story = {
 export const LongContent: Story = {
   name: 'Content/Long Content',
   args: {
-    value: `<p>${'이 상품은 매우 긴 상세설명을 담고 있어 카운터가 상한에 가까워진 상태를 보여 줍니다. '.repeat(6)}</p>`,
+    value: `<p>${'이 상품은 매우 긴 상세설명을 담고 있어 카운터가 상한에 가까워진 상태를 보여 줘요. '.repeat(6)}</p>`,
     hint: '최대 2000자',
   },
 };
@@ -181,7 +181,7 @@ export const ProductDescription: Story = {
   args: {
     label: '상품 상세설명',
     value: RICH_HTML,
-    hint: '최대 2000자 (서식은 글자 수에 세지 않습니다)',
+    hint: '최대 2000자 (서식은 글자 수에 세지 않아요)',
   },
 };
 

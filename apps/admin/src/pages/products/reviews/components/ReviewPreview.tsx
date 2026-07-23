@@ -169,7 +169,7 @@ export function ReviewPreview({
         )}
       </div>
 
-      {!visible && <p style={hiddenNoteStyle}>숨김 상태 — 고객 상품 페이지에 노출되지 않습니다.</p>}
+      {!visible && <p style={hiddenNoteStyle}>숨김 상태 — 고객 상품 페이지에 노출되지 않아요.</p>}
     </div>
   );
 }

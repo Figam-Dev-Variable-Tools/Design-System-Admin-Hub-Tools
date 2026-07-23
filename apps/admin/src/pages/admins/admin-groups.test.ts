@@ -109,13 +109,13 @@ describe('운영진 그룹 = 발신 프로필 — 정본이 하나다', () => {
 
     await createAdminGroup(draft, signal());
     await expect(createAdminGroup(draft, signal())).rejects.toThrow(
-      '같은 이름의 그룹이 이미 있습니다.',
+      '같은 이름의 그룹이 이미 있어요.',
     );
 
     // 대소문자·앞뒤 공백만 다른 것도 같은 이름이다
     await expect(
       createAdminGroup({ ...draft, name: '  중복 검사 그룹  ' }, signal()),
-    ).rejects.toThrow('같은 이름의 그룹이 이미 있습니다.');
+    ).rejects.toThrow('같은 이름의 그룹이 이미 있어요.');
   });
 
   it('삭제하면 좌측 목록과 발신 프로필 셀렉트에서 **함께** 사라진다', async () => {
@@ -144,7 +144,7 @@ describe('삭제 가드 — 고아를 만들지 않는다', () => {
     expect(usage.adminCount).toBeGreaterThan(0);
 
     await expect(deleteAdminGroup('admin', signal())).rejects.toThrow(
-      /운영자 3명이 속해 있어 삭제할 수 없습니다/,
+      /운영자 3명이 속해 있어 삭제할 수 없어요/,
     );
     // 거절했으면 실제로 남아 있어야 한다 — 문구만 띄우고 지우는 일이 없게
     expect(await groupNames()).toContain('운영팀 admin');
@@ -184,7 +184,7 @@ describe('실패 경로 — 화면이 재시도를 띄울 수 있어야 한다',
         { name: '실패할 그룹', phoneNumbers: [], emails: [], usableAsSender: false },
         signal(),
       ),
-    ).rejects.toThrow('요청을 처리하지 못했습니다.');
+    ).rejects.toThrow('요청을 처리하지 못했어요.');
 
     window.history.replaceState({}, '', '/users/admins');
     expect(await groupNames()).not.toContain('실패할 그룹');
@@ -198,7 +198,7 @@ describe('실패 경로 — 화면이 재시도를 띄울 수 있어야 한다',
 
     window.history.replaceState({}, '', '/users/admins?fail=deleteGroup');
     await expect(deleteAdminGroup(created.id, signal())).rejects.toThrow(
-      '요청을 처리하지 못했습니다.',
+      '요청을 처리하지 못했어요.',
     );
 
     window.history.replaceState({}, '', '/users/admins');
@@ -216,7 +216,7 @@ describe('실패 경로 — 화면이 재시도를 띄울 수 있어야 한다',
     );
     controller.abort();
 
-    await expect(pending).rejects.toThrow('요청이 취소되었습니다.');
+    await expect(pending).rejects.toThrow('요청이 취소되었어요.');
     expect(await groupNames()).not.toContain('취소될 그룹');
   });
 });

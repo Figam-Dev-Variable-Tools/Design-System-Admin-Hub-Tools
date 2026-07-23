@@ -78,9 +78,9 @@ export function TierCriteriaCard({
               집계 기간
             </label>
             <HelpTip label="집계 기간 설명">
-              승급 조건과 비교할 누적 구매금액을 어느 구간에서 합산할지 정합니다. '최근 12개월'을
+              승급 조건과 비교할 누적 구매금액을 어느 구간에서 합산할지 정해요. '최근 12개월'을
               고르면 그보다 오래된 주문은 누적에서 빠지므로, 강등 허용과 함께 쓰면 활동이 끊긴
-              회원의 등급이 내려갑니다.
+              회원의 등급이 내려가요.
             </HelpTip>
           </span>
           <SelectField
@@ -100,7 +100,7 @@ export function TierCriteriaCard({
             ))}
           </SelectField>
           <p id={periodHintId} style={hintStyle}>
-            누적 구매금액을 합산할 구간입니다.
+            누적 구매금액을 합산할 구간이에요.
           </p>
         </div>
 
@@ -121,15 +121,15 @@ export function TierCriteriaCard({
               강등 허용
             </label>
             <HelpTip label="강등 허용 설명">
-              켜면 집계 기간의 누적 구매금액이 승급 조건에 미달할 때 등급이 내려갑니다. 끄면 한 번
-              오른 등급은 조건에 미달해도 유지됩니다. 오른쪽 '현재 등급 분포'의 미리보기가 이 설정을
-              반영해 다시 계산됩니다.
+              켜면 집계 기간의 누적 구매금액이 승급 조건에 미달할 때 등급이 내려가요. 끄면 한 번
+              오른 등급은 조건에 미달해도 유지돼요. 오른쪽 '현재 등급 분포'의 미리보기가 이 설정을
+              반영해 다시 계산돼요.
             </HelpTip>
           </span>
           <p id={demotionHintId} style={hintStyle}>
             {allowDemotion
-              ? '조건에 미달하면 등급이 내려갑니다.'
-              : '한 번 오른 등급은 조건에 미달해도 유지됩니다.'}
+              ? '조건에 미달하면 등급이 내려가요.'
+              : '한 번 오른 등급은 조건에 미달해도 유지돼요.'}
           </p>
         </div>
 
@@ -140,8 +140,8 @@ export function TierCriteriaCard({
               재계산 시점
             </label>
             <HelpTip label="재계산 시점 설명">
-              등급을 다시 산정하는 트리거입니다. '주문 완료 시'는 결제가 확정될 때마다 그 회원만
-              다시 계산하고, '매일 자정' · '매월 1일'은 전체 회원을 한 번에 다시 계산합니다.
+              등급을 다시 산정하는 트리거예요. '주문 완료 시'는 결제가 확정될 때마다 그 회원만 다시
+              계산하고, '매일 자정' · '매월 1일'은 전체 회원을 한 번에 다시 계산해요.
             </HelpTip>
           </span>
           <SelectField
@@ -161,7 +161,7 @@ export function TierCriteriaCard({
             ))}
           </SelectField>
           <p id={recalcHintId} style={hintStyle}>
-            등급을 다시 산정하는 시점입니다.
+            등급을 다시 산정하는 시점이에요.
           </p>
         </div>
       </div>

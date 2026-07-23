@@ -16,6 +16,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { isAbort } from '../../../shared/async';
 import { formatDateTime } from '../../../shared/format';
 import {
+  useRouteWritePermissions,
+  WRITE_DENIED,
+} from '../../../shared/permissions/RequirePermission';
+import {
   Alert,
   alertActionRowStyle,
   Button,
@@ -27,11 +31,10 @@ import {
   dtStyle,
   Icon,
   StatusBadge,
-  ToggleSwitch,
   useToast,
 } from '../../../shared/ui';
 import type { StatusTone } from '../../../shared/ui';
-import { useCrudDelete, useCrudItem } from '../../../shared/crud';
+import { RowToggle, useCrudDelete, useCrudItem } from '../../../shared/crud';
 import { SenderProfileCard } from './components/SenderProfileCard';
 import { TextPreviewCard } from './components/TextPreviewCard';
 import { EmailPreviewCard } from './components/EmailPreviewCard';
@@ -244,10 +247,34 @@ export default function MessageTemplateDetailPage() {
     },
   });
 
+  /**
+   * 상태 변경의 유일한 입구 — 토글과 '발행' 버튼이 **같은 문**을 지난다.
+   * 컨트롤을 없앤 술어(canUpdate)가 여기서 요청을 거절하므로 둘이 갈라질 수 없다.
+   */
+  const requestStatus = (next: TemplateStatus) => {
+    if (!canUpdate) {
+      toast.error(WRITE_DENIED.update);
+      return;
+    }
+    changeStatus.mutate(next);
+  };
+
   const remove = useCrudDelete<MessageTemplate, MessageTemplateDraft>(
     MESSAGE_TEMPLATE_RESOURCE,
     messageTemplateAdapter,
   );
+
+  /**
+   * [EXC-03] 이 상세의 액션은 서로 다른 권한을 탄다 — 사용 토글·발행·수정은 update, 삭제는 remove.
+   *
+   * 이 화면은 껍데기를 쓰지 않아 게이팅을 하나도 받지 못했다. 그런데 여기 '발행' 은 **실제 발송에
+   * 쓰이는 템플릿을 살아 있게 만드는** 조작이고, 사용 토글은 그것을 즉시 끄고 켠다.
+   *
+   * [도메인 잠금과 권한 잠금은 다르다] `actionsFor(status)` 는 **상태가 허용하는가**를 말하고
+   * (초안은 삭제할 수 있지만 승인 대기 중인 알림톡은 아니다), 이 두 값은 **내가 해도 되는가**를
+   * 말한다. 둘 다 통과해야 컨트롤이 존재한다 — 순서는 권한이 먼저다.
+   */
+  const { canUpdate, canRemove } = useRouteWritePermissions();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const deleteControllerRef = useRef<AbortController | null>(null);
@@ -262,6 +289,11 @@ export default function MessageTemplateDetailPage() {
 
   const confirmDelete = () => {
     if (template === undefined) return;
+    // 휴지통을 없앤 술어가 삭제 경로도 막는다 (EXC-03)
+    if (!canRemove) {
+      setDeleteError(WRITE_DENIED.remove);
+      return;
+    }
     const controller = new AbortController();
     deleteControllerRef.current = controller;
     setDeleteError(null);
@@ -271,12 +303,12 @@ export default function MessageTemplateDetailPage() {
       {
         onSuccess: () => {
           if (controller.signal.aborted) return;
-          toast.success(`'${template.name}'을(를) 삭제했습니다.`);
+          toast.success(`'${template.name}'을(를) 삭제했어요.`);
           navigate(MESSAGE_TEMPLATE_LIST_PATH, { replace: true });
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setDeleteError('삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setDeleteError('삭제하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -286,7 +318,7 @@ export default function MessageTemplateDetailPage() {
     return (
       <Alert tone="danger">
         <div style={alertActionRowStyle}>
-          <span>{ENTITY_LABEL}을(를) 불러오지 못했습니다. 이미 삭제되었을 수 있습니다.</span>
+          <span>{ENTITY_LABEL}을(를) 불러오지 못했어요. 이미 삭제되었을 수 있어요.</span>
           <Button variant="secondary" onClick={() => navigate(MESSAGE_TEMPLATE_LIST_PATH)}>
             목록으로
           </Button>
@@ -321,16 +353,21 @@ export default function MessageTemplateDetailPage() {
 
         <div style={actionsStyle}>
           {actions.canToggleActive && (
-            // 토글에는 보이는 라벨이 없다 — 무엇을 켜는지는 접근성 이름이 말한다 (A11Y)
-            <ToggleSwitch
+            /* 토글에는 보이는 라벨이 없다 — 무엇을 켜는지는 접근성 이름이 말한다 (A11Y).
+               권한이 없으면 스위치는 사라지고 '지금 사용 중인가' 라는 사실만 배지로 남는다
+               (shared/crud/RowToggle 이 그 규칙의 정본이다). */
+            <RowToggle
               checked={template.status === 'active'}
-              label={`'${template.name}' 발송 사용 여부`}
               busy={busy}
-              onChange={() => changeStatus.mutate(toggledStatusOf(template.status))}
+              canUpdate={canUpdate}
+              label={`'${template.name}' 발송 사용 여부`}
+              onLabel="ON"
+              offLabel="OFF"
+              onChange={() => requestStatus(toggledStatusOf(template.status))}
             />
           )}
 
-          {actions.canDelete && (
+          {actions.canDelete && canRemove && (
             <button
               type="button"
               className="tds-ui-focusable"
@@ -343,7 +380,7 @@ export default function MessageTemplateDetailPage() {
             </button>
           )}
 
-          {actions.canEdit && (
+          {actions.canEdit && canUpdate && (
             <Button
               variant="secondary"
               size="md"
@@ -354,12 +391,12 @@ export default function MessageTemplateDetailPage() {
             </Button>
           )}
 
-          {actions.canPublish && (
+          {actions.canPublish && canUpdate && (
             <Button
               variant="primary"
               size="md"
               disabled={busy}
-              onClick={() => changeStatus.mutate(publishedStatusOf(template.status))}
+              onClick={() => requestStatus(publishedStatusOf(template.status))}
             >
               발행
             </Button>
@@ -492,7 +529,7 @@ export default function MessageTemplateDetailPage() {
         <ConfirmDialog
           intent="delete"
           title={`${ENTITY_LABEL} 삭제`}
-          message={`'${template.name}'을(를) 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${template.name}'을(를) 삭제해요. 되돌릴 수 없어요.`}
           confirmLabel="삭제"
           busy={remove.isPending}
           error={deleteError}

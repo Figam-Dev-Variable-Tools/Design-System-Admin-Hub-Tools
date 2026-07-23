@@ -72,10 +72,10 @@ export const Playground: Story = { name: 'Playground' };
 /** error — role=alert 오류를 그리고 힌트 대신 표시한다(색+시맨틱 이중 전달) */
 export const Error: Story = {
   name: 'States/Error',
-  args: { required: true, hint: '최대 50자', error: '필수 항목입니다' },
+  args: { required: true, hint: '최대 50자', error: '필수 항목이에요' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole('alert')).toHaveTextContent('필수 항목입니다');
+    await expect(canvas.getByRole('alert')).toHaveTextContent('필수 항목이에요');
     await expect(canvas.queryByText('최대 50자')).toBeNull();
   },
 };
@@ -108,7 +108,7 @@ export const WithCounter: Story = {
 /** 힌트(보조 안내) — 오류가 없을 때만 hintIdOf 파생 id 로 그린다 */
 export const HelperText: Story = {
   name: 'Form/Helper Text',
-  args: { label: '표시 이름', hint: '나중에 언제든지 변경할 수 있습니다.' },
+  args: { label: '표시 이름', hint: '나중에 언제든지 변경할 수 있어요.' },
 };
 
 /* ── Content ────────────────────────────────────────────────────────────── */
@@ -137,8 +137,8 @@ export const LongHelp: Story = {
     label: '구분',
     help: (
       <span>
-        적립과 차감은 회원 등급과 프로모션 조건에 따라 다르게 계산됩니다. 자세한 규칙은 정책 문서를
-        참고하세요. 이 도움말은 길어질 수 있으며 패널 안에서 자연스럽게 줄바꿈됩니다.
+        적립과 차감은 회원 등급과 프로모션 조건에 따라 다르게 계산돼요. 자세한 규칙은 정책 문서를
+        참고하세요. 이 도움말은 길어질 수 있으며 패널 안에서 자연스럽게 줄바꿈돼요.
       </span>
     ),
   },

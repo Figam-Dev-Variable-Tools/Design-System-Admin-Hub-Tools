@@ -101,5 +101,5 @@ export const ERROR_LOG_AXES: readonly LogFilterAxis[] = [
  */
 export const ERROR_LOG_RETENTION: RetentionPolicy = {
   label: '180일',
-  basis: '재발 추적에 필요한 기간. 보존기간이 지나면 자동 폐기됩니다.',
+  basis: '재발 추적에 필요한 기간. 보존기간이 지나면 자동 폐기돼요.',
 };

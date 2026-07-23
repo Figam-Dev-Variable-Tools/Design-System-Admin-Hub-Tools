@@ -60,13 +60,13 @@ export function createLogoAdapter(scope: string, seed: readonly LogoItem[]): Log
     async update(id, input, signal) {
       await wait(LATENCY_MS, signal);
       failIfRequested(scope, 'save');
-      requireExisting(id, '다른 사용자가 먼저 삭제한 항목입니다.');
+      requireExisting(id, '다른 사용자가 먼저 삭제한 항목이에요.');
       items = items.map((item) => (item.id === id ? { ...item, ...input } : item));
     },
     async remove(id, signal) {
       await wait(LATENCY_MS, signal);
       failIfRequested(scope, 'delete');
-      requireExisting(id, '이미 삭제된 항목입니다.');
+      requireExisting(id, '이미 삭제된 항목이에요.');
       items = items.filter((item) => item.id !== id);
     },
     async reorder(orderedIds, signal) {
@@ -77,7 +77,7 @@ export function createLogoAdapter(scope: string, seed: readonly LogoItem[]): Log
     async setActive(id, active, signal) {
       await wait(LATENCY_MS, signal);
       failIfRequested(scope, 'save');
-      requireExisting(id, '다른 사용자가 먼저 삭제한 항목입니다.');
+      requireExisting(id, '다른 사용자가 먼저 삭제한 항목이에요.');
       items = items.map((item) => (item.id === id ? { ...item, active } : item));
     },
   };

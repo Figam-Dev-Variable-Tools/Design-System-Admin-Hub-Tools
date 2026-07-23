@@ -1,27 +1,22 @@
 // QuoteListPage — 견적 목록 (라우트: /sales/quotes)
 //
 // CRUD 프레임워크(useCrudList + CrudListShell) 위에 상태 필터 + 검색 + 합계금액 + 상태 배지 +
-// 승인 견적 인라인 '수주 전환' 액션 + 삭제팝업을 얹는다. 목록엔 이미지 열이 없다.
+// 사슬의 앞뒤(원본 문의 · 연결된 계약) 링크 + 삭제팝업을 얹는다. 목록엔 이미지 열이 없다.
+//
+// [등록 CTA 도, 인라인 '수주 전환' 도 없다] 견적은 문의에서만 발행되고, 수주는 계약이 만들어진
+// 결과다. 둘 다 이 목록이 시작할 수 있는 일이 아니다 — 이유는 각 자리의 주석에 적혀 있다.
 import { useEffect, useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { objectParticle } from '../../../shared/format';
-import { Button, Icon, SearchField, SelectField, StatusBadge } from '../../../shared/ui';
-import {
-  CrudListShell,
-  parseFilter,
-  useCrudList,
-  useCrudRowUpdate,
-  useListState,
-} from '../../../shared/crud';
+import { SearchField, SelectField, StatusBadge } from '../../../shared/ui';
+import { CrudListShell, parseFilter, useCrudList, useListState } from '../../../shared/crud';
 import type { CrudColumn } from '../../../shared/crud';
-import { useRouteWritePermissions } from '../../../shared/permissions/RequirePermission';
 import { AccountLink } from '../_shared/AccountLink';
 import { formatWon } from '../_shared/business';
+import { findContractIdByQuote } from '../contracts/data-source';
 import { quoteAdapter } from './data-source';
 import {
-  canConvertToOrder,
   computeTotals,
   filterQuotes,
   isInherited,
@@ -31,7 +26,6 @@ import {
   quoteSourceHref,
   quoteStatusMeta,
   searchQuotes,
-  toQuoteInput,
 } from './types';
 import type { Quote, QuoteInput, QuoteStatusFilter } from './types';
 import { cssVar } from '@tds/ui';
@@ -39,6 +33,7 @@ import { cssVar } from '@tds/ui';
 const RESOURCE = 'sales-quotes';
 const ENTITY_LABEL = '견적';
 const LIST_PATH = '/sales/quotes';
+const CONTRACT_PATH = '/sales/contracts';
 const QUOTE_STATUS_FILTER_VALUES: readonly QuoteStatusFilter[] = [
   QUOTE_FILTER_ALL,
   ...QUOTE_STATUS_OPTIONS.map((option) => option.id),
@@ -81,7 +76,6 @@ const nameOf = (item: Quote) => item.quoteNo;
 
 export default function QuoteListPage() {
   const navigate = useNavigate();
-  const { canCreate } = useRouteWritePermissions();
   // 조회 상태의 단일 원천은 URL 이다 (IA-13) — 선택 해제도 여기가 맡는다 (STATE-04).
   const list = useListState({ filterDefaults: FILTER_DEFAULTS });
   const filter: QuoteStatusFilter = parseFilter(
@@ -96,7 +90,6 @@ export default function QuoteListPage() {
     entityLabel: ENTITY_LABEL,
     nameOf,
   });
-  const convert = useCrudRowUpdate<Quote, QuoteInput>(RESOURCE, quoteAdapter);
 
   // 보고 있는 행 집합이 바뀌면 선택은 무의미해진다 — 화면에 없는 행이 선택된 채
   // '선택 3건 삭제' 가 되지 않게 한다. 선택은 useCrudList(=CrudListShell)가 쥐고 있으므로
@@ -164,30 +157,25 @@ export default function QuoteListPage() {
       },
     },
     {
-      header: '수주 전환',
+      // [예전에는 여기가 '수주 전환' 버튼이었다] 그 버튼은 사라졌다 — 수주는 이제 사람이 따로
+      // 누르는 일이 아니라 **계약이 만들어진 결과**다(./types 의 상태 전이 머리말). 대신 이 칸은
+      // 사슬의 다음 문서가 실제로 생겼는지를 보여 준다: 견적 목록에서 '계약까지 갔는가' 를
+      // 알 수 없다는 것이 운영자가 말한 '따로 노는 느낌' 의 한 조각이었다.
+      header: '계약',
       nowrap: true,
-      render: (item) =>
-        canConvertToOrder(item.status) ? (
-          <Button
-            variant="secondary"
-            disabled={convert.pendingId === item.id}
-            onClick={() =>
-              convert.run(
-                item.id,
-                { ...toQuoteInput(item), status: 'ordered' },
-                // [ERP-13] 조사는 shared/format 이 런타임에 고른다 — 견적번호마다 받침이 달라도
-                // objectParticle 이 마지막 글자를 보고 '을/를' 을 정한다.
-                {
-                  success: `'${item.quoteNo}'${objectParticle(item.quoteNo)} 수주로 전환했습니다.`,
-                },
-              )
-            }
+      render: (item) => {
+        const contractId = findContractIdByQuote(item.id);
+        if (contractId === '') return <span style={mutedStyle}>—</span>;
+        return (
+          <Link
+            to={`${CONTRACT_PATH}/${contractId}/edit`}
+            className="tds-ui-link tds-ui-focusable"
+            aria-label={`${item.quoteNo} 의 계약 열기`}
           >
-            수주 전환
-          </Button>
-        ) : (
-          <span style={mutedStyle}>—</span>
-        ),
+            계약 열기
+          </Link>
+        );
+      },
     },
   ];
 
@@ -216,13 +204,11 @@ export default function QuoteListPage() {
           </SelectField>
         </span>
       </div>
-      {/* 등록 버튼은 create 권한이 있을 때만 존재한다 — 누를 수 없는 것을 보여 주지 않는다 (EXC-03) */}
-      {canCreate && (
-        <Button variant="primary" size="md" onClick={() => navigate(`${LIST_PATH}/new`)}>
-          <Icon name="plus-circle" />
-          견적 등록
-        </Button>
-      )}
+      {/* [등록 CTA 가 없다 — 권한 문제가 아니라 순서 문제다]
+          견적은 문의에서만 발행된다. 그래서 create 권한이 있어도 이 자리에 버튼을 두지 않는다:
+          빈 폼으로 세운 견적은 원본 문의가 없어 '어느 요청에 대한 견적인가' 를 앱이 영영 답하지
+          못한다. 주소로 직접 들어오는 /new 도 막혀 있고, 왜 막혔는지와 어디서 만드는지를 말한다
+          (./QuoteFormPage 의 ChainOnlyCreateNotice). */}
     </div>
   );
 

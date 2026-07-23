@@ -125,7 +125,7 @@ export const LongContent: Story = {
         {Array.from({ length: 12 }, (_, i) => (
           <p key={i} style={{ margin: 0 }}>
             제{i + 1}조 — 이 약관은 서비스 이용에 관한 조건과 절차, 회사와 회원의 권리·의무를
-            규정합니다.
+            규정해요.
           </p>
         ))}
       </div>
@@ -137,8 +137,8 @@ export const LongContent: Story = {
 export const Minimal: Story = {
   name: 'Content/Minimal',
   args: {
-    title: '저장했습니다',
-    children: <p style={{ margin: 0 }}>변경 사항이 반영되었습니다.</p>,
+    title: '저장했어요',
+    children: <p style={{ margin: 0 }}>변경 사항이 반영되었어요.</p>,
     footer: <button type="button">확인</button>,
   },
 };
@@ -195,7 +195,7 @@ export const RightToLeft: Story = {
   args: {
     title: '항목을 삭제할까요?',
     icon: <TrashGlyph />,
-    children: <p style={{ margin: 0 }}>이 작업은 되돌릴 수 없습니다.</p>,
+    children: <p style={{ margin: 0 }}>되돌릴 수 없어요.</p>,
   },
 };
 

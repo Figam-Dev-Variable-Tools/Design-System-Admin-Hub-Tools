@@ -227,7 +227,7 @@ function CustomerFaqScreen({
         <h1 style={headingStyle}>자주 묻는 질문</h1>
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>고객노출 FAQ 를 불러오지 못했습니다.</span>
+            <span>고객노출 FAQ 를 불러오지 못했어요.</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
@@ -283,9 +283,9 @@ function CustomerFaqScreen({
       <Alert tone="info">
         <div style={noticeStyle}>
           <span>
-            콘텐츠 관리에서 노출 중인 FAQ 가 이 목록에 그대로 올라옵니다. 질문·답변·카테고리 수정과
+            콘텐츠 관리에서 노출 중인 FAQ 가 이 목록에 그대로 올라와요. 질문·답변·카테고리 수정과
             등록·삭제는 콘텐츠 관리에서 하고, 이 화면은 고객센터 노출 순서·노출 여부·BEST 고정만
-            큐레이션합니다.
+            큐레이션해요.
           </span>
           <a href="#content-faq" style={noticeLinkStyle}>
             콘텐츠 관리 FAQ 로 이동
@@ -301,7 +301,7 @@ function CustomerFaqScreen({
 
       <Card>
         <Table
-          caption="고객노출 FAQ 큐레이션 — 각 행의 위/아래 버튼으로 고객센터 표시 순서를 바꾸고, 노출·BEST 를 토글합니다."
+          caption="고객노출 FAQ 큐레이션 — 각 행의 위/아래 버튼으로 고객센터 표시 순서를 바꾸고, 노출·BEST 를 토글해요."
           columns={COLUMNS}
           rows={rows}
           leadingHead={[

@@ -12,12 +12,18 @@
 // 그래서 여기 '기본 적립률'은 **새 상품의 초기값**(DEFAULT_POINTS)으로 남고, 상품이 그 값을 자기
 // 사정에 맞게 덮어쓴다. 배송(전역 배송 정책 ↔ 상품별 배송 카드)과 정확히 같은 구조다.
 import { useEffect, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { isAbort } from '../../../shared/async';
 import { zodResolver } from '../../../shared/form/zodResolver';
-import { controlStyle, errorIdOf, FormField, SelectField, useToast } from '../../../shared/ui';
+import {
+  controlStyle,
+  errorIdOf,
+  FormField,
+  formRowStyle,
+  SelectField,
+  useToast,
+} from '../../../shared/ui';
 import { DocumentFormShell, useDocumentQuery, useSaveDocument } from '../../../shared/crud';
 import { readPaymentSettings } from '../../../shared/commerce/payment-settings';
 import { pgLock } from '../../../shared/commerce/pg-lock';
@@ -26,16 +32,9 @@ import { pointsPolicyKey, pointsPolicyStore } from './data-source';
 import { DEFAULT_POINTS_POLICY, EARN_BASELINE_OPTIONS } from './types';
 import { pointsPolicySchema } from './validation';
 import type { PointsPolicyValues } from './validation';
-import { cssVar } from '@tds/ui';
 
 const UNSAVED_MESSAGE =
-  '적립금 정책에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 6), 1fr))`,
-  gap: cssVar('space.4'),
-};
+  '적립금 정책에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 interface NumberFieldSpec {
   readonly name: keyof PointsPolicyValues;
@@ -51,7 +50,7 @@ const NUMBER_FIELDS: readonly NumberFieldSpec[] = [
     id: 'pts-earn-rate',
     label: '기본 적립률 (%)',
     placeholder: '예: 1',
-    hint: '새 상품의 초기 적립률입니다. 상품별 적립 설정이 이 값을 덮어씁니다.',
+    hint: '새 상품의 초기 적립률이에요. 상품별 적립 설정이 이 값을 덮어써요.',
   },
   { name: 'signupBonus', id: 'pts-signup', label: '회원가입 적립금 (원)', placeholder: '예: 3000' },
   {
@@ -112,11 +111,11 @@ export default function PointsPolicyPage() {
       {
         onSuccess: () => {
           reset(values);
-          toast.success('적립금 정책을 저장했습니다.');
+          toast.success('적립금 정책을 저장했어요.');
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setServerError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setServerError('저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -125,7 +124,7 @@ export default function PointsPolicyPage() {
   return (
     <DocumentFormShell
       cardTitle="적립금 정책"
-      description="별표(*) 항목은 필수입니다. 적립률은 상품별로 설정하며, 여기서는 새 상품의 기본 적립률과 적립금 사용·소멸 규칙을 정합니다."
+      description="별표(*) 항목은 필수예요. 적립률은 상품별로 설정하며, 여기서는 새 상품의 기본 적립률과 적립금 사용·소멸 규칙을 정해요."
       loading={loading}
       loadFailed={error !== null}
       onRetry={() => void refetch()}
@@ -135,7 +134,11 @@ export default function PointsPolicyPage() {
       unsavedMessage={UNSAVED_MESSAGE}
       onSubmit={(event) => void handleSubmit(onValid)(event)}
     >
-      {lock.locked && <PgLockNotice reason={lock.reason} inquiryDomain="product" />}
+      {/* [왜 문의 링크가 없나] `inquiryDomain` 은 '결제가 없는 동안 고객 요청이 실제로 쌓이는 곳'
+          을 가리키라고 있는 것이다(PgLockNotice 머리말). 이 화면은 **정책 문서 한 건**이라 대응하는
+          문의 대기열이 없다 — 상품 목록·쿠폰 목록처럼 '지금 무엇을 봐야 하는가' 의 답이 문의함인
+          자리가 아니다. 넘기지 않으면 결제 설정 링크만 남는다(prop 이 선택 인자다). */}
+      {lock.locked && <PgLockNotice reason={lock.reason} />}
 
       <FormField htmlFor="pts-baseline" label="적립 기준" required>
         <SelectField id="pts-baseline" disabled={disabled} {...register('earnBaseline')}>
@@ -147,7 +150,7 @@ export default function PointsPolicyPage() {
         </SelectField>
       </FormField>
 
-      <div style={rowStyle}>
+      <div style={formRowStyle}>
         {NUMBER_FIELDS.map((spec) => {
           const fieldError = errors[spec.name]?.message;
           return (

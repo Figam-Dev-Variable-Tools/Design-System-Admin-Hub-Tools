@@ -42,6 +42,7 @@ import {
   Card,
   Checkbox,
   FormField,
+  formRowStyle,
   Icon,
   SelectField,
   Skeleton,
@@ -217,7 +218,7 @@ const DEMO_ERRORS: FieldErrors = {
   senderId: '발신자를 선택하세요.',
   segmentIds: '수신자 세그먼트를 한 개 이상 선택하세요.',
   body: '본문을 입력하세요.',
-  includeUnsubscribe: '마케팅 이메일에는 수신거부 링크가 반드시 포함되어야 합니다.',
+  includeUnsubscribe: '마케팅 이메일에는 수신거부 링크가 반드시 포함되어야 해요.',
 };
 
 /* ── 스타일(토큰·rem·% 만) ────────────────────────────────────────────────────────────────── */
@@ -274,12 +275,6 @@ const cardTitleStyle: CSSProperties = {
   ...typography('typography.title.md'),
   margin: 0,
   color: cssVar('color.text.default'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const fieldStyle: CSSProperties = {
@@ -536,8 +531,8 @@ function EmailFormScreen({
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '이메일 발송 수정' : '이메일 발송 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 저장은 발송 예약일 뿐이며 이 화면에서 메일이 즉시 전송되지
-          않습니다.
+          별표(*) 항목은 필수예요. 저장은 발송 예약일 뿐이며 이 화면에서 메일이 즉시 전송되지
+          않아요.
         </p>
       </div>
 
@@ -576,13 +571,13 @@ function EmailFormScreen({
                     maxLength={EMAIL_SUBJECT_MAX}
                     error={errors.subject ?? ''}
                   />
-                  <p style={hintStyle}>광고성 메일은 제목이 (광고)로 시작해야 합니다.</p>
+                  <p style={hintStyle}>광고성 메일은 제목이 (광고)로 시작해야 해요.</p>
 
                   <FormField
                     htmlFor="email-sender"
                     label="발신자"
                     required
-                    hint="도메인 인증(SPF/DKIM)이 완료된 발신자만 선택할 수 있습니다."
+                    hint="도메인 인증(SPF/DKIM)이 완료된 발신자만 선택할 수 있어요."
                     {...(errors.senderId !== undefined && { error: errors.senderId })}
                   >
                     <SelectField
@@ -635,7 +630,7 @@ function EmailFormScreen({
                       onLabel="광고성"
                       offLabel="정보성"
                     />
-                    <p style={hintStyle}>광고성이면 제목에 (광고) 표기가 필요합니다.</p>
+                    <p style={hintStyle}>광고성이면 제목에 (광고) 표기가 필요해요.</p>
                   </div>
                 </FormCard>
 
@@ -643,7 +638,7 @@ function EmailFormScreen({
                   <FormField
                     htmlFor="email-template"
                     label="템플릿 불러오기"
-                    hint="발행되어 켜져 있는(Active) 이메일 템플릿의 제목·본문을 채웁니다."
+                    hint="발행되어 켜져 있는(Active) 이메일 템플릿의 제목·본문을 채워요."
                   >
                     <SelectField
                       id="email-template"
@@ -666,7 +661,7 @@ function EmailFormScreen({
                     onChange={setBody}
                     maxLength={EMAIL_BODY_MAX}
                     rows={6}
-                    placeholder="메일 본문을 입력하세요. #{이름} 등 치환변수를 넣을 수 있습니다."
+                    placeholder="메일 본문을 입력하세요. #{이름} 등 치환변수를 넣을 수 있어요."
                     error={errors.body ?? ''}
                   />
 
@@ -687,7 +682,7 @@ function EmailFormScreen({
 
                   {adSubjectWarning && (
                     <Alert tone="warning">
-                      광고성 메일입니다. 제목을 (광고)로 시작하도록 수정하세요.
+                      광고성 메일이에요. 제목을 (광고)로 시작하도록 수정하세요.
                     </Alert>
                   )}
 
@@ -702,7 +697,7 @@ function EmailFormScreen({
                     />
                     {errors.includeUnsubscribe === undefined ? (
                       <p style={hintStyle}>
-                        마케팅 이메일에는 수신거부 링크가 반드시 포함되어야 합니다.
+                        마케팅 이메일에는 수신거부 링크가 반드시 포함되어야 해요.
                       </p>
                     ) : (
                       <p style={errorTextStyle} role="alert">
@@ -713,7 +708,7 @@ function EmailFormScreen({
                 </FormCard>
 
                 <FormCard title="발송 예약">
-                  <div style={rowStyle}>
+                  <div style={formRowStyle}>
                     <FormField htmlFor="email-status" label="발송 방식" required>
                       <SelectField
                         id="email-status"
@@ -753,7 +748,7 @@ function EmailFormScreen({
               includeUnsubscribe={includeUnsubscribe}
             />
             <p style={hintStyle}>
-              {`선택 대상 ${fmt(recipients)}명 · 오픈율/클릭율은 발송 후 집계됩니다. 저장은 발송이 아닙니다.`}
+              {`선택 대상 ${fmt(recipients)}명 · 오픈율/클릭율은 발송 후 집계돼요. 저장은 발송이 아니에요.`}
             </p>
           </FormCard>
         </div>

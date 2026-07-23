@@ -10,6 +10,10 @@ import { cssVar, Skeleton } from '@tds/ui';
 import { isAbort } from '../../../shared/async';
 import { formatNumber } from '../../../shared/format';
 import {
+  useRouteWritePermissions,
+  WRITE_DENIED,
+} from '../../../shared/permissions/RequirePermission';
+import {
   Alert,
   Button,
   Card,
@@ -60,13 +64,6 @@ const backLinkStyle: CSSProperties = {
   cursor: 'pointer',
 };
 
-const titleGroupStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: cssVar('space.2'),
-  flexWrap: 'wrap',
-};
-
 const answerTextStyle: CSSProperties = {
   marginTop: 0,
   marginBottom: 0,
@@ -102,6 +99,9 @@ export default function FaqDetailPage() {
   const deleteFaq = useDeleteFaq();
   const deleting = deleteFaq.isPending;
 
+  /* [EXC-03] 상세의 두 액션은 서로 다른 권한을 탄다 — '수정' 은 update, '삭제' 는 remove */
+  const { canUpdate, canRemove } = useRouteWritePermissions();
+
   const closeDelete = () => {
     deleteControllerRef.current?.abort();
     deleteControllerRef.current = null;
@@ -111,6 +111,11 @@ export default function FaqDetailPage() {
   };
 
   const onConfirmDelete = () => {
+    // 버튼을 없앤 술어가 저장 경로도 막는다 (EXC-03)
+    if (!canRemove) {
+      setDeleteError(WRITE_DENIED.remove);
+      return;
+    }
     const controller = new AbortController();
     deleteControllerRef.current = controller;
     setDeleteError(null);
@@ -119,12 +124,12 @@ export default function FaqDetailPage() {
       { id: faqId, signal: controller.signal },
       {
         onSuccess: () => {
-          toast.success('FAQ 를 삭제했습니다.');
+          toast.success('FAQ 를 삭제했어요.');
           navigate('/content/faq', { replace: true });
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setDeleteError('FAQ 를 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setDeleteError('FAQ 를 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -143,20 +148,24 @@ export default function FaqDetailPage() {
           목록으로
         </button>
 
-        {data !== undefined && (
+        {data !== undefined && (canUpdate || canRemove) && (
           <div style={actionsStyle}>
-            <Button variant="secondary" onClick={() => navigate(`/content/faq/${faqId}/edit`)}>
-              수정
-            </Button>
-            <Button
-              variant="danger"
-              onClick={() => {
-                setDeleteError(null);
-                setConfirmingDelete(true);
-              }}
-            >
-              삭제
-            </Button>
+            {canUpdate && (
+              <Button variant="secondary" onClick={() => navigate(`/content/faq/${faqId}/edit`)}>
+                수정
+              </Button>
+            )}
+            {canRemove && (
+              <Button
+                variant="danger"
+                onClick={() => {
+                  setDeleteError(null);
+                  setConfirmingDelete(true);
+                }}
+              >
+                삭제
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -165,9 +174,9 @@ export default function FaqDetailPage() {
         <Alert tone="danger">
           <div style={topRowStyle}>
             <span>
-              {error.message === 'FAQ 를 찾을 수 없습니다'
-                ? 'FAQ 를 찾을 수 없습니다.'
-                : 'FAQ 를 불러오지 못했습니다.'}
+              {error.message === 'FAQ 를 찾을 수 없어요'
+                ? 'FAQ 를 찾을 수 없어요.'
+                : 'FAQ 를 불러오지 못했어요.'}
             </span>
             <span style={actionsStyle}>
               <Button
@@ -195,13 +204,11 @@ export default function FaqDetailPage() {
       ) : (
         <Card>
           <CardTitle>
-            <span style={titleGroupStyle}>
-              {data.question}
-              <StatusBadge
-                tone={visibilityTone(data.visible)}
-                label={visibilityLabel(data.visible)}
-              />
-            </span>
+            {data.question}
+            <StatusBadge
+              tone={visibilityTone(data.visible)}
+              label={visibilityLabel(data.visible)}
+            />
           </CardTitle>
 
           <dl style={dlStyle}>
@@ -220,7 +227,7 @@ export default function FaqDetailPage() {
         <ConfirmDialog
           intent="delete"
           title="FAQ 삭제"
-          message={`'${data.question}' FAQ 를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${data.question}' FAQ 를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="FAQ 삭제"
           busy={deleting}
           error={deleteError}

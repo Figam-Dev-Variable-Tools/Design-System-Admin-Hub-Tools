@@ -160,11 +160,11 @@
     </p>
     <p>
       그게 번거로우면 <a href="html/index.html">html/index.html</a> 을 브라우저로 열면 된다 — 휠
-      확대·드래그 이동이 되고 mermaid.live 가 필요 없다. 서브그래프를 쓰는 06·08 은
+      확대·드래그 이동이 되고 mermaid.live 가 필요 없다. 서브그래프를 쓰는 05·06·08 은
       <code>~~~</code> 보이지 않는 링크로 세로로 쌓아 뒀다. 이 줄을 지우면 서브그래프가 옆으로
       늘어서 폭이 5000px 를 넘고, 그때부터 "빈 화면"으로 보이기 시작한다.
     </p>
-    <h2>메뉴별 플로우 (전수 81장)</h2>
+    <h2>메뉴별 플로우 (전수 74장)</h2>
     <p>
       사이드바 메뉴 하나하나의 상세 플로우는 <a href="menus.html">menus.md</a> 에 표로 있다. 아래
       12장은 그 위를 덮는 <strong>횡단 다이어그램</strong>이다 — 전체 흐름과 도메인별 워크플로.
@@ -182,47 +182,11 @@
       </thead>
       <tbody>
         <tr>
-          <td><a href="mmd/menus/content-pages.mmd">content-pages</a></td>
-          <td>페이지 관리 <code>/content/pages</code></td>
-          <td>
-            저장하는 것은 <code>status</code>+<code>publishAt</code> 둘뿐 ·
-            <strong>&#39;예약&#39; 은 파생</strong>(<code>effectivePublishStatus</code>) · 슬러그
-            변경은 막지 않고 경고하며 옛 슬러그를 보관한다
-          </td>
-        </tr>
-        <tr>
-          <td><a href="mmd/menus/content-menus.mmd">content-menus</a></td>
-          <td>메뉴 관리 <code>/content/menus</code></td>
-          <td>
-            <strong>2뎁스 상한</strong>(<code>menuParentBlock</code>) · 내부 참조가
-            <code>ok</code>·<code>missing</code>·<code>hidden</code>·<code>unknown</code> 넷으로
-            갈린다(<code>sitePageRefHealth</code>)
-          </td>
-        </tr>
-        <tr>
           <td><a href="mmd/menus/content-news.mmd">content-news</a></td>
           <td>뉴스·보도자료 <code>/content/news</code></td>
           <td>
-            페이지와 <strong>같은 예약 판정 한 벌</strong>을 읽는다 · 첨부는 사본이 아니라 미디어
-            자산 참조다
-          </td>
-        </tr>
-        <tr>
-          <td><a href="mmd/menus/content-forms.mmd">content-forms</a></td>
-          <td>폼 관리 <code>/content/forms</code></td>
-          <td>
-            <code>privacy-consent</code> 를 특수 타입으로 분리 · 발행 후 필드는
-            <strong>삭제 금지·숨김만</strong>(<code>fieldDeleteBlock</code>)
-          </td>
-        </tr>
-        <tr>
-          <td><a href="mmd/menus/content-media.mmd">content-media</a></td>
-          <td>미디어 라이브러리 <code>/content/media</code></td>
-          <td>
-            사용처가 있으면 삭제 차단, <strong>사용처 조회기가 미배선이면 전면 차단</strong>(<code
-              >mediaDeleteBlock</code
-            >
-            — fail-closed)
+            <strong>예약 판정 한 벌</strong>(publish-schedule)을 읽는다 · 첨부는 사본이 아니라
+            미디어 자산 참조다
           </td>
         </tr>
         <tr>
@@ -243,26 +207,11 @@
           </td>
         </tr>
         <tr>
-          <td><a href="mmd/menus/settings-site-connect.mmd">settings-site-connect</a></td>
-          <td>사이트 연동 <code>/settings/site-connect</code></td>
-          <td>
-            유입원은 <strong>최초 접점 하나만 불변 저장</strong>(<code>firstTouch</code>) — 수정
-            표면이 없다
-          </td>
-        </tr>
-        <tr>
           <td><a href="mmd/menus/settings-notifications.mmd">settings-notifications</a></td>
           <td>알림 설정 <code>/settings/notifications</code></td>
           <td>
             알림은 <strong>읽음/안읽음만</strong> 갖고 권한을 통과한 것만 목록에
             들어간다(fail-closed)
-          </td>
-        </tr>
-        <tr>
-          <td><a href="mmd/menus/settings-languages.mmd">settings-languages</a></td>
-          <td>다국어 설정 <code>/settings/languages</code></td>
-          <td>
-            통화·시간대는 언어가 아니라 <strong>지역</strong>이 갖는다 · URL 전략은 사이트당 하나
           </td>
         </tr>
       </tbody>
@@ -305,7 +254,7 @@
           <td><a href="mmd/03-sales-pipeline.mmd">03-sales-pipeline.mmd</a></td>
           <td>
             영업 — 문의(3창구) → 견적 바구니 → 견적 → 수주 → <strong>계약 · 청구·입금</strong> ·
-            프로젝트, 상담 이력
+            프로젝트
           </td>
         </tr>
         <tr>
@@ -315,8 +264,11 @@
         </tr>
         <tr>
           <td>05</td>
-          <td><a href="mmd/05-returns-reviews.mmd">05-returns-reviews.mmd</a></td>
-          <td>교환·반품 처리(재고 이동 게이트) · 리뷰 노출 관리</td>
+          <td><a href="mmd/05-claims-reviews.mmd">05-claims-reviews.mmd</a></td>
+          <td>
+            클레임(취소·교환·반품) 처리 — 유형별 흐름 · 재고 게이트 · <strong>환불 축</strong> ·
+            리뷰 노출 관리
+          </td>
         </tr>
         <tr>
           <td>06</td>
@@ -336,7 +288,7 @@
         <tr>
           <td>09</td>
           <td><a href="mmd/09-ia-tree.mmd">09-ia-tree.mmd</a></td>
-          <td>IA 트리 — 루트 → 그룹 5 → 메뉴 15 → 잎 81 (플로우가 아닌 참고용)</td>
+          <td>IA 트리 — 루트 → 그룹 5 → 메뉴 15 → 잎 74 (플로우가 아닌 참고용)</td>
         </tr>
         <tr>
           <td>09a</td>
@@ -352,10 +304,27 @@
     </table>
     <blockquote>
       <p>
-        <strong>05 는 이제 <code>/orders/claims</code> 를 그린다.</strong> 교환·반품이 상품 관리에서
-        주문 관리로 옮겨 가며 취소가 축으로 들어왔고, 환불이 별개 축이 됐다. 05 의 노드 이름은 아직
-        옛 <code>/products/returns</code> 어휘를 쓴다 — 갱신 대상이며 그때까지는
-        <a href="mmd/menus/orders-claims.mmd">mmd/menus/orders-claims.mmd</a> 가 정본이다.
+        <strong>05 는 <code>/orders/claims</code> 로 다시 그렸다</strong> (2026-07-22). 파일 이름도
+        <code>05-returns-reviews</code> → <code>05-claims-reviews</code> 로 바꿨다 — 교환·반품이
+        상품 관리에서 주문 관리로 옮겨 가며 취소가 세 번째 유형으로 들어왔고, 환불이
+        <code>refundStatus: none → requested → completed</code> 라는
+        <strong>나란한 별개의 축</strong>이 됐다. 옛 이름은 <code>/products/returns</code> 시절의
+        어휘라 내용과 어긋났다.
+      </p>
+      <p>
+        <strong>리뷰를 같은 장에 남긴 것은 판단이다.</strong> 원래의 짝짓기 근거는 &#39;반품&#39;과
+        &#39;리뷰&#39;라는 단어가 아니라
+        <strong>구매 이후 고객이 만든 사건을 운영자가 처리만 하는 화면</strong>이라는 성격이었고(둘
+        다 등록 폼이 없는 유형 E), 그 근거는 반품이 클레임으로 승격되면서도 깨지지 않았다. 깨진 것은
+        어휘뿐이라 어휘만 고쳤다. 한 장이 두 섹션(주문 관리·상품 관리)에 걸치는 것은 이 12장이
+        <strong>횡단 다이어그램</strong>이기 때문이다.
+      </p>
+      <p>
+        화면 단위의 정본은 여전히
+        <a href="mmd/menus/orders-claims.mmd">mmd/menus/orders-claims.mmd</a> 다 — 05 는 그 위를
+        덮는 도메인 흐름이라 목록 상태·에러 배너 같은 화면 층은 담지 않는다. 두 장은 같은
+        코드(<code>pages/orders/claims/{types,refund,data-source}.ts</code>)에서 나왔고 어휘가 서로
+        어긋나지 않는다.
       </p>
     </blockquote>
     <h2>이 차트가 담고 있는 규칙 (코드에서 읽어 온 것)</h2>
@@ -458,10 +427,12 @@
         근거는 <a href="../adr/0013-entitlement-layer.html">ADR-0013</a>.
       </li>
       <li>
-        <strong>PG 스위치</strong> 두 축이다 — 사이트 전역 <code>pgSellable</code>(fail-closed)과
-        상품별 <code>priceDisplay</code>. 전역이 개별을 이긴다. 잠금은 <strong>입력만</strong> 막고
-        저장된 값은 보존된다. 근거는
-        <a href="../adr/0014-pg-switch-screen-impact.html">ADR-0014</a>.
+        <strong>PG 스위치</strong> 축은 <strong>하나</strong>다 — 사이트 전역
+        <code>pgSellable</code>(fail-closed). 상품별 <code>priceDisplay</code> 축은 제거됐고 가격
+        표시는 <code>resolvePriceDisplay(readPaymentSettings())</code> 하나에서 나온다. 잠금은
+        <strong>입력만</strong> 막고 저장된 값은 보존된다. 근거는
+        <a href="../adr/0015-price-display-single-axis.html">ADR-0015</a>(축 제거) 와
+        <a href="../adr/0014-pg-switch-screen-impact.html">ADR-0014</a> §2~§5(잠금·문구·통계·메뉴).
       </li>
       <li>
         <strong>로그·통계</strong> 쓰기 라우트가 존재하지 않는다. 감사 기록은 불변이다. 다만 결제가
@@ -524,8 +495,11 @@
           <td>1707 × 1572</td>
         </tr>
         <tr>
-          <td>05-returns-reviews</td>
-          <td>1178 × 1504</td>
+          <td>05-claims-reviews</td>
+          <td>
+            미측정 (클레임·환불 축으로 다시 그린 뒤 재렌더 필요 — 옛 05-returns-reviews 는 1178 ×
+            1504 였다)
+          </td>
         </tr>
         <tr>
           <td>06-content-publish</td>

@@ -59,14 +59,14 @@ export type RowTarget<T> =
 export function rowTargetSentence<T>(target: RowTarget<T>, entityLabel: string): string {
   switch (target.kind) {
     case 'detail':
-      return `${entityLabel} 목록 — 행을 누르면 상세 화면으로 이동합니다.`;
+      return `${entityLabel} 목록 — 행을 누르면 상세 화면으로 이동해요.`;
     case 'edit':
-      return `${entityLabel} 목록 — 행을 누르면 수정 화면으로 이동합니다.`;
+      return `${entityLabel} 목록 — 행을 누르면 수정 화면으로 이동해요.`;
     case 'modal':
       // '이동' 이라고 말하지 않는다 — 실제로 이동하지 않는다
-      return `${entityLabel} 목록 — 행을 누르면 편집 창이 열립니다.`;
+      return `${entityLabel} 목록 — 행을 누르면 편집 창이 열려요.`;
     case 'none':
-      return `${entityLabel} 목록 — 조회 전용입니다.`;
+      return `${entityLabel} 목록 — 조회 전용이에요.`;
   }
 }
 

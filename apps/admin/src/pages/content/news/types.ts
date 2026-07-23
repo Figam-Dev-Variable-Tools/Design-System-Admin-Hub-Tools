@@ -5,20 +5,14 @@
 // 회사가 밖으로 내보내는 소식이다. 독자·톤·수명이 다르고, 홈페이지에서 서는 자리도 다르다.
 // 한 게시판에 섞으면 방문자가 점검 안내와 수상 소식을 같은 목록에서 보게 된다.
 //
-// [발행 예약은 여기서 판정하지 않는다] '예약중' 은 status + publishAt + 지금 시각의 파생값이고,
-// 페이지 관리도 같은 판정을 한다. 규칙이 두 벌이 되지 않도록 shared/domain/publish-schedule.ts
-// 한 곳에만 둔다 — 이 파일은 그것을 쓸 뿐 다시 계산하지 않는다.
+// [발행 예약은 여기서 판정하지 않는다] '예약중' 은 status + publishAt + 지금 시각의 파생값이다.
+// 규칙이 두 벌이 되지 않도록 shared/domain/publish-schedule.ts 한 곳에만 둔다 —
+// 이 파일은 그것을 쓸 뿐 다시 계산하지 않는다.
 //
-// [첨부는 참조다 — 사본이 아니다]
-// 첨부파일은 미디어 라이브러리의 자산 id 를 가리킨다. 파일을 복사해 들지 않는 이유는 그래야
-// 라이브러리가 '이 파일이 어디에 쓰이는지' 를 답할 수 있기 때문이다(그 답이 삭제 차단의 근거다).
-// 다만 참조는 끊길 수 있으므로, 가리키는 자산이 사라졌는지를 **볼 때마다 조회**해 판정한다.
-// 조회기는 shared/domain/media-library.ts 에 있고 배선은 src/wiring.ts 가 한다.
+// [첨부는 없다] 예전에는 미디어 라이브러리의 자산 id 를 참조로 들었다. 그 화면이 IA 에서 빠지면서
+// 참조가 가리킬 정본이 사라졌고, 모델만 남기면 어떤 화면도 그것을 해석할 수 없다 — 해석되지 않는
+// id 목록은 데이터가 아니라 잔해다. 그래서 필드째 걷었다.
 // ─────────────────────────────────────────────────────────────────────────────
-import {
-  findCatalogMediaAsset,
-  type CatalogMediaAsset,
-} from '../../../shared/domain/media-library';
 import {
   effectivePublishStatus,
   isPubliclyVisible,
@@ -51,8 +45,6 @@ export interface NewsPost {
   /** 공개 시각 'YYYY-MM-DDTHH:mm' — '' 면 즉시(발행 상태일 때) */
   readonly publishAt: string;
   readonly body: string;
-  /** 미디어 라이브러리 자산 id — 파일을 복사해 들지 않는다(머리말) */
-  readonly attachmentIds: readonly string[];
   readonly updatedAt: string;
 }
 
@@ -70,7 +62,6 @@ export function toNewsPostInput(post: NewsPost): NewsPostInput {
     status: post.status,
     publishAt: post.publishAt,
     body: post.body,
-    attachmentIds: [...post.attachmentIds],
     updatedAt: post.updatedAt,
   };
 }
@@ -157,57 +148,4 @@ export function filterNewsPosts(
     if (needle === '') return true;
     return post.title.toLowerCase().includes(needle);
   });
-}
-
-/* ── 첨부 (미디어 참조) ──────────────────────────────────────────────────── */
-
-/** 첨부 한 건의 표시용 결합 — 자산이 사라졌으면 asset 이 null 이다 */
-export interface AttachmentView {
-  readonly id: string;
-  readonly asset: CatalogMediaAsset | null;
-}
-
-export const ATTACHMENT_UNKNOWN = '첨부파일 목록을 확인할 수 없습니다.';
-export const ATTACHMENT_MISSING = '삭제된 파일을 가리키는 첨부가 있습니다.';
-
-/**
- * 첨부 목록을 자산과 잇는다 — 카탈로그를 모르면 **전부 null** 로 준다.
- *
- * '모른다' 를 '삭제됨' 으로 뭉개지 않는 이유는 메뉴의 끊긴 링크와 같다: 배선 사고를 데이터
- * 사고처럼 보이게 만들면 운영자가 멀쩡한 첨부를 지우러 간다.
- */
-export function attachmentViews(
-  attachmentIds: readonly string[],
-  catalog: readonly CatalogMediaAsset[] | null,
-): readonly AttachmentView[] {
-  return attachmentIds.map((id) => ({
-    id,
-    asset: catalog === null ? null : findCatalogMediaAsset(catalog, id),
-  }));
-}
-
-/** 지금 첨부에 문제가 있는가 — 없으면 null */
-export function attachmentWarning(
-  attachmentIds: readonly string[],
-  catalog: readonly CatalogMediaAsset[] | null,
-): string | null {
-  if (attachmentIds.length === 0) return null;
-  if (catalog === null) return ATTACHMENT_UNKNOWN;
-  const missing = attachmentIds.some((id) => findCatalogMediaAsset(catalog, id) === null);
-  return missing ? ATTACHMENT_MISSING : null;
-}
-
-/** 같은 파일을 두 번 붙이지 않는다 — 목록에 같은 줄이 두 개 뜨는 것을 막는다 */
-export function withAttachment(
-  attachmentIds: readonly string[],
-  assetId: string,
-): readonly string[] {
-  return attachmentIds.includes(assetId) ? attachmentIds : [...attachmentIds, assetId];
-}
-
-export function withoutAttachment(
-  attachmentIds: readonly string[],
-  assetId: string,
-): readonly string[] {
-  return attachmentIds.filter((id) => id !== assetId);
 }

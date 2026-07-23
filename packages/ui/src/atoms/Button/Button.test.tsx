@@ -253,11 +253,22 @@ describe('Button — 계약 props.isFullWidth', () => {
   });
 });
 
+describe('Button — 레이블은 접히지 않는다', () => {
+  // jsdom 은 레이아웃을 계산하지 않는다(줄바꿈이 실제로 일어나는지 볼 수 없다). 그래서 검증할 수
+  // 있는 유일한 진짜 단언은 **규칙 자체**다 — 이 선언을 지우면 여기서 실패한다.
+  it('Button: .tds-button 규칙이 white-space: nowrap 을 선언한다 (좁은 줄에서 레이블이 두 줄로 접히지 않는다)', () => {
+    const rule = ruleBody(buttonCss, '.tds-button');
+
+    expect(rule).not.toBeNull();
+    expect(rule).toContain('white-space: nowrap');
+  });
+});
+
 describe('Button — 네이티브 속성 패스스루 (Card 선례)', () => {
   it('Button: 계약에 없는 표준 HTML/ARIA 속성을 <button> 으로 그대로 전달한다 (aria-label · title · aria-describedby)', () => {
     render(
       <>
-        <span id="help">포인트를 지급합니다</span>
+        <span id="help">포인트를 지급해요</span>
         <Button aria-label="포인트 지급" title="지급" aria-describedby="help">
           지급
         </Button>

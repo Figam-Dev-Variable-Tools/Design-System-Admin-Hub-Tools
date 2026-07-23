@@ -20,7 +20,7 @@ import { Modal } from '@tds/ui';
 import { ToastProvider } from './ToastProvider';
 import { useModalDirtyGuard } from './useModalDirtyGuard';
 
-const DISCARD_TITLE = '저장하지 않은 변경 사항이 있습니다';
+const DISCARD_TITLE = '저장하지 않은 변경 사항이 있어요';
 
 /**
  * 실제 호출부(CategoryFormModal 등)와 같은 배선: requestClose 를 Modal.onClose(=Esc·딤·×)와

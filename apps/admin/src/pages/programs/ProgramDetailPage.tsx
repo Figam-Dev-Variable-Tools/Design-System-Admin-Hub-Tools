@@ -21,6 +21,9 @@ import {
   PAYMENT_SETTINGS_PATH,
   readPaymentSettings,
 } from '../../shared/commerce/payment-settings';
+// 금액 노출 여부도 같은 층이 답한다 — 상품의 판매가와 프로그램의 리워드 금액이 한 술어를 공유한다
+import { PgLockNotice } from '../../shared/commerce/PgLockNotice';
+import { resolvePriceDisplay } from '../../shared/commerce/price-display';
 import {
   Alert,
   alertActionRowStyle,
@@ -33,6 +36,7 @@ import {
   dtStyle,
   hintStyle,
   Icon,
+  inlineBadgeRowStyle,
   pageTitleStyle,
   StatusBadge,
   tableStyle,
@@ -73,6 +77,12 @@ const backLinkStyle: CSSProperties = {
   textDecoration: 'none',
 };
 
+/**
+ * 페이지 `<h1>` 옆에 상태 배지와 **수정 버튼까지** 함께 세우는 줄.
+ *
+ * inlineBadgeRowStyle(글자+배지)과 합치지 않는다 — 이쪽은 '제목 + 액션' 이라 축이 다르고,
+ * 그래서 간격도 한 단 넓다(space.3).
+ */
 const titleRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
@@ -184,18 +194,30 @@ const storyStyle: CSSProperties = {
   whiteSpace: 'pre-wrap',
 };
 
-/** 리워드 표 (이 화면 전용) — 한정 수량 0 은 '무제한' 이지 '0개' 가 아니다 */
-function RewardTable({ program }: { readonly program: Program }) {
+/**
+ * 리워드 표 (이 화면 전용) — 한정 수량 0 은 '무제한' 이지 '0개' 가 아니다.
+ *
+ * [금액 칸은 이 표가 정하지 않는다] 후원 금액은 고객이 실제로 결제하는 값이라, 결제 연동이 없으면
+ * 상품의 판매가와 **같은 술어**로 가격문의가 된다(운영 지시: "프로그램 관리도 동일하게").
+ * 판정은 shared/commerce 의 resolvePriceDisplay 하나가 하고, 여기는 그 답만 받아 그린다 —
+ * 폼의 잠금 안내·상품 목록의 금액 칸과 어긋날 수 없게 하는 유일한 방법이다.
+ */
+function RewardTable({
+  program,
+  priceText,
+}: {
+  readonly program: Program;
+  /** 금액 자리에 넣을 문구 — 빈 문자열이면 금액을 그대로 그린다 */
+  readonly priceText: string;
+}) {
   if (program.rewards.length === 0) {
-    return (
-      <p style={hintStyle}>등록된 리워드가 없습니다. 리워드는 등록/수정 화면에서 추가합니다.</p>
-    );
+    return <p style={hintStyle}>등록된 리워드가 없어요. 리워드는 등록/수정 화면에서 추가해요.</p>;
   }
 
   return (
     <table style={tableStyle}>
       <caption style={visuallyHiddenStyle}>
-        {`'${program.title}' 의 리워드 목록 — 후원 금액과 그 대가, 한정 수량과 신청 수입니다.`}
+        {`'${program.title}' 의 리워드 목록 — 후원 금액과 그 대가, 한정 수량과 신청 수예요.`}
       </caption>
       <thead>
         <tr>
@@ -222,10 +244,14 @@ function RewardTable({ program }: { readonly program: Program }) {
           return (
             <tr key={reward.id}>
               <td style={tdStyle}>
-                {reward.title}
-                {soldOut && <StatusBadge tone="warning" label="마감" />}
+                <span style={inlineBadgeRowStyle}>
+                  {reward.title}
+                  {soldOut && <StatusBadge tone="warning" label="마감" />}
+                </span>
               </td>
-              <td style={numericCellStyle}>{`${formatNumber(reward.amount)}원`}</td>
+              <td style={numericCellStyle}>
+                {priceText === '' ? `${formatNumber(reward.amount)}원` : priceText}
+              </td>
               <td style={tdStyle}>{reward.description}</td>
               <td style={numericCellStyle}>
                 {reward.limitCount === 0 ? '무제한' : `${formatNumber(reward.limitCount)}개`}
@@ -285,8 +311,8 @@ export default function ProgramDetailPage() {
           <div style={alertActionRowStyle}>
             <span>
               {notFound
-                ? '프로그램을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '프로그램을 불러오지 못했습니다.'}
+                ? '프로그램을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '프로그램을 불러오지 못했어요.'}
             </span>
             {!notFound && (
               <Button variant="secondary" onClick={() => void detailQuery.refetch()}>
@@ -320,7 +346,17 @@ export default function ProgramDetailPage() {
    * 고객이 보게 될 후원 버튼 — PG 를 쓰지 않도록 설정돼 있으면 '후원하기' 가 아니라 '문의하기' 이고,
    * 그 문의는 프로그램 문의로 들어온다. 판정은 shared/commerce 의 규칙 하나가 한다.
    */
-  const checkout = checkoutCta(readPaymentSettings(), 'program');
+  const paymentSettings = readPaymentSettings();
+  const checkout = checkoutCta(paymentSettings, 'program');
+
+  /**
+   * 리워드 금액을 그대로 노출할 수 있는가 — **상품 판매가와 같은 술어**다.
+   *
+   * 운영자가 "프로그램 관리도 동일하게" 라고 못박은 자리다: 결제 연동이 없으면 이미 정해 둔
+   * 후원 금액도 전부 가격문의로 대체된다. 저장된 금액은 지워지지 않으므로 연동을 마치면
+   * 이 표가 곧바로 원래 숫자를 되찾는다.
+   */
+  const priceDisplay = resolvePriceDisplay(paymentSettings);
 
   return (
     <div style={pageStyle}>
@@ -426,7 +462,16 @@ export default function ProgramDetailPage() {
 
       <Card>
         <CardTitle>{`리워드 ${formatNumber(program.rewards.length)}종`}</CardTitle>
-        <RewardTable program={program} />
+        {/* 왜 금액 자리가 문구로 바뀌었는지 표 바로 위에서 말한다 — 사유 문장은 상품 목록·프로그램
+            폼이 쓰는 것과 **같은 한 벌**이다(화면마다 다시 쓰지 않는다).
+            문의 링크를 붙인다: 결제가 없는 동안 이 프로그램에 실제로 들어오는 것이 후원이 아니라
+            문의이고, 바로 위 CTA 도 '문의하기' 를 가리키고 있다. */}
+        {priceDisplay.amountFieldsLocked && (
+          <PgLockNotice reason={priceDisplay.reason} inquiryDomain="program">
+            {' 저장된 후원 금액은 그대로 보존되며, 연동을 마치면 다시 금액으로 표시돼요.'}
+          </PgLockNotice>
+        )}
+        <RewardTable program={program} priceText={priceDisplay.text} />
       </Card>
     </div>
   );

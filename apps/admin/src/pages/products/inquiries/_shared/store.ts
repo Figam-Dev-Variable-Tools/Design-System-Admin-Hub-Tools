@@ -75,11 +75,11 @@ export const PRODUCT_INQUIRY_ANSWER_MAX = 1000;
  * 하면 '눌리는데 실패하는 버튼' 또는 '눌리지 않는데 서버는 허용하는 동작' 이 생긴다. 화면은
  * 아래 술어를 그대로 읽어 버튼을 그리고, 저장소도 같은 술어로 막는다. */
 
-export const ANSWER_ON_CLOSED_ERROR = '종결된 문의는 답변을 수정할 수 없습니다.';
-export const CLOSE_UNANSWERED_ERROR = '답변하지 않은 문의는 종결할 수 없습니다.';
+export const ANSWER_ON_CLOSED_ERROR = '종결된 문의는 답변을 수정할 수 없어요.';
+export const CLOSE_UNANSWERED_ERROR = '답변하지 않은 문의는 종결할 수 없어요.';
 export const EMPTY_ANSWER_ERROR = '답변 내용을 입력하세요.';
-export const QUOTE_ISSUE_ON_CLOSED_ERROR = '종결된 문의는 견적을 발행할 수 없습니다.';
-export const BEGIN_ANSWERING_ERROR = '접수 상태의 문의만 답변 착수로 바꿀 수 있습니다.';
+export const QUOTE_ISSUE_ON_CLOSED_ERROR = '종결된 문의는 견적을 발행할 수 없어요.';
+export const BEGIN_ANSWERING_ERROR = '접수 상태의 문의만 답변 착수로 바꿀 수 있어요.';
 
 /**
  * 아직 고객이 답을 못 받은 상태인가 — 미답변 집계·경과 문구의 단일 정의.
@@ -217,9 +217,9 @@ let inquiries: ProductInquiry[] = [
     customerName: '김서연',
     customerContact: '010-2481-7735',
     channel: 'storefront',
-    subject: '구매 전 재고 확인 부탁드립니다',
+    subject: '구매 전 재고 확인 부탁드려요',
     message:
-      '차콜 M 사이즈가 품절로 표시되는데 재입고 예정이 있을까요? 이번 주 안에 받아야 해서 문의드립니다.',
+      '차콜 M 사이즈가 품절로 표시되는데 재입고 예정이 있을까요? 이번 주 안에 받아야 해서 문의드려요.',
     status: 'received',
     createdAt: '2026-07-18T01:12:00Z',
     answeredAt: '',
@@ -233,8 +233,8 @@ let inquiries: ProductInquiry[] = [
     customerName: '박지훈',
     customerContact: 'jihoon.p@example.com',
     channel: 'app',
-    subject: '사이즈 교환이 가능한지 궁금합니다',
-    message: '260 을 받았는데 조금 큽니다. 착용 전이라면 250 으로 교환할 수 있나요?',
+    subject: '사이즈 교환이 가능한지 궁금해요',
+    message: '260 을 받았는데 조금 커요. 착용 전이라면 250 으로 교환할 수 있나요?',
     status: 'answering',
     createdAt: '2026-07-20T05:40:00Z',
     answeredAt: '',
@@ -249,7 +249,7 @@ let inquiries: ProductInquiry[] = [
     customerContact: '02-6412-8890',
     channel: 'phone',
     subject: '단체 주문 시 가격 문의',
-    message: '사내 행사용으로 120장을 한 번에 주문하려고 합니다. 별도 단가가 있을까요?',
+    message: '사내 행사용으로 120장을 한 번에 주문하려고 해요. 별도 단가가 있을까요?',
     status: 'answered',
     createdAt: '2026-07-15T00:05:00Z',
     answeredAt: '2026-07-16T02:20:00Z',
@@ -265,7 +265,7 @@ let inquiries: ProductInquiry[] = [
     customerContact: 'minwoo.j@example.com',
     channel: 'email',
     subject: '카드 결제 대신 계좌이체가 가능한가요',
-    message: '결제 단계에서 카드 결제가 진행되지 않습니다. 무통장 입금으로 주문할 수 있을까요?',
+    message: '결제 단계에서 카드 결제가 진행되지 않아요. 무통장 입금으로 주문할 수 있을까요?',
     status: 'closed',
     createdAt: '2026-07-10T07:30:00Z',
     answeredAt: '2026-07-10T09:02:00Z',
@@ -280,7 +280,7 @@ let inquiries: ProductInquiry[] = [
     customerName: '최유진',
     customerContact: '010-3390-5521',
     channel: 'kakao',
-    subject: '입고 알림을 받고 싶습니다',
+    subject: '입고 알림을 받고 싶어요',
     message: '30 사이즈가 다시 들어오면 알려 주실 수 있나요?',
     status: 'received',
     createdAt: '2026-07-20T23:30:00Z',
@@ -308,7 +308,7 @@ export function listProductInquiries(): readonly ProductInquiry[] {
 
 export function getProductInquiry(id: string): ProductInquiry {
   const found = inquiries.find((inquiry) => inquiry.id === id);
-  if (found === undefined) throw new Error('문의를 찾을 수 없습니다');
+  if (found === undefined) throw new Error('문의를 찾을 수 없어요');
   return found;
 }
 

@@ -15,7 +15,7 @@
 export function wait(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
     if (signal?.aborted === true) {
-      reject(new DOMException('요청이 취소되었습니다.', 'AbortError'));
+      reject(new DOMException('요청이 취소되었어요.', 'AbortError'));
       return;
     }
 
@@ -24,7 +24,7 @@ export function wait(ms: number, signal?: AbortSignal): Promise<void> {
       'abort',
       () => {
         clearTimeout(timer);
-        reject(new DOMException('요청이 취소되었습니다.', 'AbortError'));
+        reject(new DOMException('요청이 취소되었어요.', 'AbortError'));
       },
       { once: true },
     );

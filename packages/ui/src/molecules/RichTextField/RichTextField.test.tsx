@@ -141,7 +141,7 @@ describe('isRichTextEmpty — 빈 본문 판정', () => {
 
 describe('plainToRichText / ensureRichText — 평문(textarea 시절) 마이그레이션', () => {
   it('plainToRichText: 한 줄 평문을 <p> 로 감싼다', () => {
-    expect(plainToRichText('가벼운 패딩입니다.')).toBe('<p>가벼운 패딩입니다.</p>');
+    expect(plainToRichText('가벼운 패딩이에요.')).toBe('<p>가벼운 패딩이에요.</p>');
   });
 
   it('plainToRichText: 빈 줄로 나뉜 덩어리를 각각 <p> 로 옮긴다', () => {

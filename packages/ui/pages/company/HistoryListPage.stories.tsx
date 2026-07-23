@@ -236,7 +236,7 @@ function HistoryListScreen({
         <h1 style={headingStyle}>연혁</h1>
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>연혁 목록을 불러오지 못했습니다.</span>
+            <span>연혁 목록을 불러오지 못했어요.</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
@@ -297,8 +297,8 @@ function HistoryListScreen({
         {loading
           ? ''
           : rowsData.length === 0
-            ? '조건에 맞는 연혁 결과가 없습니다.'
-            : `연혁 ${fmt(rowsData.length)}건을 찾았습니다.`}
+            ? '조건에 맞는 연혁 결과가 없어요.'
+            : `연혁 ${fmt(rowsData.length)}건을 찾았어요.`}
       </div>
 
       <div style={toolbarStyle}>{canCreate && registerButton}</div>
@@ -320,8 +320,8 @@ function HistoryListScreen({
       <Table
         caption={
           canRemove
-            ? '연혁 목록 — 행을 누르면 수정 폼으로 이동합니다. 체크박스·수정·삭제 버튼은 각자의 동작을 수행합니다.'
-            : '연혁 목록 — 행을 누르면 수정 폼으로 이동합니다. 조회 권한만 있어 삭제 버튼은 없습니다.'
+            ? '연혁 목록 — 행을 누르면 수정 폼으로 이동해요. 체크박스·수정·삭제 버튼은 각자 따로 동작해요.'
+            : '연혁 목록 — 행을 누르면 수정 폼으로 이동해요. 조회 권한만 있어 삭제 버튼은 없어요.'
         }
         columns={COLUMNS}
         rows={rows}
@@ -353,7 +353,7 @@ function HistoryListScreen({
         <ConfirmDialog
           intent="delete"
           title="연혁 삭제"
-          message={`'${nameOf(confirming)}'을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${nameOf(confirming)}'을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="삭제"
           onConfirm={() => {
             removeItems([confirming.id]);
@@ -367,7 +367,7 @@ function HistoryListScreen({
         <ConfirmDialog
           intent="delete"
           title="연혁 일괄 삭제"
-          message={`선택한 연혁 ${fmt(selectedCount)}건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 연혁 ${fmt(selectedCount)}건을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel={`${fmt(selectedCount)}건 삭제`}
           onConfirm={() => {
             removeItems([...selectedIds]);

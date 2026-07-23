@@ -16,10 +16,11 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { formatNumber, objectParticle } from '../../../shared/format';
-import { Button, Icon, SearchField, StatusBadge, ToggleSwitch } from '../../../shared/ui';
+import { Button, Icon, SearchField, StatusBadge } from '../../../shared/ui';
 import {
   CrudListShell,
   parseFilter,
+  RowToggle,
   useCrudList,
   useCrudRowUpdate,
   useListState,
@@ -33,7 +34,6 @@ import {
   readPaymentSettings,
 } from '../../../shared/commerce/payment-settings';
 import { PgLockNotice } from '../../../shared/commerce/PgLockNotice';
-import { pgLock } from '../../../shared/commerce/pg-lock';
 import { resolvePriceDisplay } from '../../../shared/commerce/price-display';
 import { inquiryCountFor } from '../../../shared/commerce/inquiry-backlog';
 import { fetchProductCategoryOptions, productAdapter } from './data-source';
@@ -188,20 +188,22 @@ export default function ProductListPage() {
 
   /* 결제 설정은 렌더 시점에 읽는다 — 설정을 바꾸면 다음 렌더가 곧바로 새 규칙을 쓴다
      (checkoutCta 와 같은 어법). 목록이 이 사실로 바꾸는 것은 셋이다:
-       · 금액 칸    — 두 축을 합친 resolvePriceDisplay 의 답을 그린다
+       · 금액 칸    — resolvePriceDisplay 의 답을 그린다. 연동이 없으면 **전 행이** 가격문의다
+                      (상품마다 고르던 축은 사라졌다 — 표시는 연동 상태의 결과다)
        · 재고 칸    — 차감 주체(주문)가 없으므로 아예 감춘다. 0 을 그리면 품절로 읽힌다
        · 문의 칸    — 대신 이 상품에 쌓인 문의 건수를 보여 주고 문의 화면으로 보낸다 */
   const paymentSettings = readPaymentSettings();
   const ordersArrive = pgSellable(paymentSettings);
-  const stockLock = pgLock(paymentSettings, 'product-stock');
+  /* 한 번만 부른다 — 행마다 다시 부르면 같은 답을 상품 수만큼 되묻는 셈이고, 무엇보다 '행에 따라
+     달라질 수 있는 값' 처럼 읽힌다. 이 답은 사이트 전역 하나다. */
+  const priceDisplay = resolvePriceDisplay(paymentSettings);
 
   const priceColumn: CrudColumn<Product> = {
     header: '판매가',
     numeric: true,
     render: (item) => {
-      const display = resolvePriceDisplay(paymentSettings, item.pricing);
-      if (display.kind === 'inquiry') {
-        return <span style={priceCellStyle}>{display.text}</span>;
+      if (priceDisplay.kind === 'inquiry') {
+        return <span style={priceCellStyle}>{priceDisplay.text}</span>;
       }
       const final = finalPrice(item.pricing);
       const discounted = item.pricing.discountType !== 'none' && final < item.pricing.price;
@@ -274,17 +276,18 @@ export default function ProductListPage() {
       header: '전시',
       nowrap: true,
       render: (item) => (
-        <ToggleSwitch
+        <RowToggle
           checked={item.displayed}
           busy={toggle.pendingId === item.id}
+          canUpdate={toggle.canUpdate}
           onChange={(next) =>
             toggle.run(
               item.id,
               { ...toProductInput(item), displayed: next },
               {
                 success: next
-                  ? `'${item.name}'${objectParticle(item.name)} 전시했습니다.`
-                  : `'${item.name}'${objectParticle(item.name)} 숨겼습니다.`,
+                  ? `'${item.name}'${objectParticle(item.name)} 전시했어요.`
+                  : `'${item.name}'${objectParticle(item.name)} 숨겼어요.`,
               },
             )
           }
@@ -346,10 +349,16 @@ export default function ProductListPage() {
       />
 
       <div style={mainColumnStyle}>
-        {stockLock.locked && (
-          <PgLockNotice reason={stockLock.reason} inquiryDomain="product">
-            {' '}
-            재고 열을 감추고 그 자리에 문의 건수를 보여 줍니다.
+        {/* 배너는 **한 장**이다 — 금액 대체와 재고 열 교체는 같은 사실(결제를 열 수 없다)의 두 결과라,
+            두 장을 세우면 운영자가 같은 이야기를 두 번 읽고 원인이 둘이라고 오해한다.
+            사유는 금액 쪽 문장을 그대로 쓴다: 폼의 잠금 안내·설정 화면이 말하는 것과 **같은 문장**
+            이어야 '왜 지금 이런가' 의 답이 화면마다 갈리지 않는다. 이 화면에서 달라지는 것들만
+            children 으로 덧붙인다.
+            문의 링크는 붙인다 — 결제가 없는 동안 이 목록의 상품에 실제로 쌓이는 것이 문의이고,
+            바로 옆 칸이 그 건수를 세고 있어 '눌러서 볼 곳' 이 화면 안에 이미 있다. */}
+        {priceDisplay.amountFieldsLocked && (
+          <PgLockNotice reason={priceDisplay.reason} inquiryDomain="product">
+            {` 저장된 판매가는 그대로 보존되며, 재고 열 대신 문의 건수를 보여 줘요.`}
           </PgLockNotice>
         )}
 

@@ -56,6 +56,8 @@ function renderTable(overrides: Partial<Parameters<typeof FaqTable>[0]> = {}) {
         startIndex={0}
         onToggleVisible={vi.fn()}
         togglingIds={new Set()}
+        canUpdate
+        canRemove
         {...overrides}
       />
     </MemoryRouter>,
@@ -67,15 +69,18 @@ describe('FaqTable — 정렬 재정렬', () => {
   it('아래로 이동 버튼은 그 행을 한 칸 아래 순서로 onReorder 한다', async () => {
     const user = userEvent.setup();
     const { onReorder } = renderTable();
+    // 두 번째 인자는 **움직인 행**이다 — DS useReorderableRows 가 함께 넘긴다(라이브 영역 낭독용).
+    // ['a','b','c'] → ['b','a','c'] 는 'a 를 내렸다' 와 'b 를 올렸다' 가 만드는 같은 배열이라,
+    // 배열만 단언하면 어느 쪽 버튼을 눌러도 통과한다.
     await user.click(screen.getByRole('button', { name: '첫 번째 질문 아래로 이동' }));
-    expect(onReorder).toHaveBeenCalledWith(['b', 'a', 'c']);
+    expect(onReorder).toHaveBeenCalledWith(['b', 'a', 'c'], 'a');
   });
 
   it('위로 이동 버튼은 그 행을 한 칸 위 순서로 onReorder 한다', async () => {
     const user = userEvent.setup();
     const { onReorder } = renderTable();
     await user.click(screen.getByRole('button', { name: '세 번째 질문 위로 이동' }));
-    expect(onReorder).toHaveBeenCalledWith(['a', 'c', 'b']);
+    expect(onReorder).toHaveBeenCalledWith(['a', 'c', 'b'], 'c');
   });
 
   it('첫 행의 위로·마지막 행의 아래로 버튼은 잠긴다', () => {

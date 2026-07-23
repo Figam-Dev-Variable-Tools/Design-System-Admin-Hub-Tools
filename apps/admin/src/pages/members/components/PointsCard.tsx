@@ -150,7 +150,7 @@ export function PointsCard({
       return;
     }
     if (kind === 'deduct' && parsed > points) {
-      setError('보유 적립금보다 많이 차감할 수 없습니다.');
+      setError('보유 적립금보다 많이 차감할 수 없어요.');
       return;
     }
 
@@ -187,12 +187,12 @@ export function PointsCard({
           // 새 행은 표 맨 위에 붙는다 — 그 행이 보이도록 첫 페이지로 돌아간다
           setPage(1);
           toast.success(
-            `적립금 ${formatNumber(parsed)}포인트를 ${POINT_ADJUST_LABEL[kind]}했습니다.`,
+            `적립금 ${formatNumber(parsed)}포인트를 ${POINT_ADJUST_LABEL[kind]}했어요.`,
           );
         },
         onError: () => {
           // 키는 남겨 둔다 — 재시도가 같은 거래임을 서버가 알아야 중복 지급이 없다
-          setError('처리에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+          setError('처리에 실패했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -216,14 +216,14 @@ export function PointsCard({
           setEntries((prev) => prev.filter((item) => item.id !== entry.id));
           setPoints((prev) => prev - entry.amount);
           setPendingRemove(null);
-          toast.success('적립금 내역을 삭제했습니다.');
+          toast.success('적립금 내역을 삭제했어요.');
         },
         onError: (cause: unknown) => {
           // 취소는 실패가 아니다 — 사용자가 다이얼로그를 닫은 것이므로 아무것도 알리지 않는다
           if (isAbort(cause) || controller.signal.aborted) return;
           // 실패하면 다이얼로그를 열어 둔 채 위험 톤으로 알린다 (ConfirmDialog 가 Alert 로 렌더한다).
           // 복구 경로는 '내역 삭제' 버튼 재클릭 또는 취소다.
-          setRemoveError('적립금 내역을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setRemoveError('적립금 내역을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -345,7 +345,7 @@ export function PointsCard({
             <tr>
               {/* 삭제 열은 권한이 있을 때만 존재한다 — 빈 상태의 colSpan 도 그것을 따라간다 */}
               <td colSpan={canRemove ? 5 : 4} style={emptyCellStyle}>
-                적립 내역이 없습니다.
+                적립 내역이 없어요.
               </td>
             </tr>
           ) : (
@@ -384,13 +384,13 @@ export function PointsCard({
         label="적립금 증감 내역 페이지"
       />
 
-      <p style={hintStyle}>최근 3개월간 적립 내역만 출력됩니다.</p>
+      <p style={hintStyle}>최근 3개월간 적립 내역만 출력돼요.</p>
 
       {pendingRemove !== null && (
         <ConfirmDialog
           intent="delete"
           title="적립금 내역 삭제"
-          message={`${pendingRemove.date} '${pendingRemove.reason}' 내역(${formatSignedNumber(pendingRemove.amount)})을 삭제하고 잔액을 되돌립니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`${pendingRemove.date} '${pendingRemove.reason}' 내역(${formatSignedNumber(pendingRemove.amount)})을 삭제하고 잔액을 되돌려요. 되돌릴 수 없어요.`}
           confirmLabel="내역 삭제"
           busy={removing}
           error={removeError}

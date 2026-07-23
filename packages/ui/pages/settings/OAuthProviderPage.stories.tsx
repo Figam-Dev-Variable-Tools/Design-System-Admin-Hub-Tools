@@ -134,7 +134,7 @@ const APPLE: ProviderMeta = {
   consoleHint:
     'Apple Developer → Certificates, Identifiers & Profiles → Identifiers(Services IDs) · Keys',
   consoleNotice:
-    'Apple 은 고정된 시크릿을 주지 않습니다. 아래 네 값으로 서버가 client_secret(JWT)을 서명해 만들고, 그 JWT 는 최대 6개월까지만 유효해 주기적으로 다시 만들어야 합니다. 유료 Apple Developer Program 멤버십이 필요합니다.',
+    'Apple 은 고정된 시크릿을 주지 않아요. 아래 네 값으로 서버가 client_secret(JWT)을 서명해 만들고, 그 JWT 는 최대 6개월까지만 유효해 주기적으로 다시 만들어야 해요. 유료 Apple Developer Program 멤버십이 필요해요.',
 };
 
 const GOOGLE_CLIENT_ID_SUFFIX = '.apps.googleusercontent.com';
@@ -356,7 +356,7 @@ function SecretField({
           type="password"
           value={value}
           onChange={(event) => setValue(event.target.value)}
-          {...(stored ? { placeholder: '비워 두면 기존 시크릿을 유지합니다' } : {})}
+          {...(stored ? { placeholder: '비워 두면 기존 시크릿을 유지해요' } : {})}
         />
         {stored ? (
           <Button variant="secondary" size="sm" onClick={() => setChanging(false)}>
@@ -398,7 +398,7 @@ function ClientSecretFields({
         id="oauth-secret"
         label={meta.secretLabel ?? 'Client Secret'}
         stored={false}
-        hint="입력한 값은 저장 후 다시 표시되지 않습니다."
+        hint="입력한 값은 저장 후 다시 표시되지 않아요."
       />
 
       {meta.hasIosUrlScheme === true ? (
@@ -406,14 +406,14 @@ function ClientSecretFields({
           <span style={fieldLabelStyle}>iOS URL 스키마</span>
           {derivedScheme === null ? (
             <output style={derivedEmptyStyle}>
-              클라이언트 ID를 먼저 입력하면 여기에 자동으로 만들어집니다.
+              클라이언트 ID를 먼저 입력하면 여기에 자동으로 만들어져요.
             </output>
           ) : (
             <output style={derivedValueStyle}>{derivedScheme}</output>
           )}
           <p style={hintStyle}>
-            클라이언트 ID를 뒤집어 만든 값입니다. 직접 입력하는 값이 아니므로 클라이언트 ID를 바꾸면
-            함께 바뀝니다.
+            클라이언트 ID를 뒤집어 만든 값이에요. 직접 입력하는 값이 아니므로 클라이언트 ID를 바꾸면
+            함께 바뀌어요.
           </p>
         </div>
       ) : null}
@@ -427,7 +427,7 @@ function ClientSecretFields({
             onChange={(event) => setNativeAppKey(event.target.value)}
           />
           <p style={hintStyle}>
-            모바일 앱에서 카카오톡으로 로그인할 때 씁니다. 웹에서만 쓴다면 비워 두어도 됩니다.
+            모바일 앱에서 카카오톡으로 로그인할 때 써요. 웹에서만 쓴다면 비워 두어도 돼요.
           </p>
         </div>
       ) : null}
@@ -450,8 +450,8 @@ function AppleKeyFields() {
           onChange={(event) => setServicesId(event.target.value)}
         />
         <p style={hintStyle}>
-          Apple Developer의 Identifiers에서 만든 Services ID입니다. com.example.web 처럼 도메인을
-          뒤집은 모양입니다.
+          Apple Developer의 Identifiers에서 만든 Services ID예요. com.example.web 처럼 도메인을
+          뒤집은 모양이에요.
         </p>
       </div>
       <div style={fieldStyle}>
@@ -461,9 +461,7 @@ function AppleKeyFields() {
           value={teamId}
           onChange={(event) => setTeamId(event.target.value)}
         />
-        <p style={hintStyle}>
-          Apple Developer 계정의 팀 식별자입니다. 서명할 JWT의 iss에 들어갑니다.
-        </p>
+        <p style={hintStyle}>Apple Developer 계정의 팀 식별자예요. 서명할 JWT의 iss에 들어가요.</p>
       </div>
       <div style={fieldStyle}>
         <TextField
@@ -473,7 +471,7 @@ function AppleKeyFields() {
           onChange={(event) => setKeyId(event.target.value)}
         />
         <p style={hintStyle}>
-          아래 .p8 키를 만들 때 함께 발급된 식별자입니다. 서명할 JWT 헤더의 kid에 들어갑니다.
+          아래 .p8 키를 만들 때 함께 발급된 식별자예요. 서명할 JWT 헤더의 kid에 들어가요.
         </p>
       </div>
       <div style={fieldStyle}>
@@ -481,7 +479,7 @@ function AppleKeyFields() {
         <input type="file" accept=".p8" style={filePickerStyle} />
         <p style={hintStyle}>
           Apple Developer → Keys에서 내려받은 .p8 파일을 고르세요. 이 파일은 발급 직후 단 한 번만
-          내려받을 수 있고 Apple에서 다시 받을 수 없으니, 잃어버렸다면 새 키를 발급해야 합니다.
+          내려받을 수 있고 Apple에서 다시 받을 수 없으니, 잃어버렸다면 새 키를 발급해야 해요.
         </p>
       </div>
     </>
@@ -521,7 +519,7 @@ function ProviderScreen({
         <form style={cardBodyStyle} onSubmit={(event) => event.preventDefault()}>
           <h3 style={cardTitleStyle}>자격증명</h3>
           <p style={cardDescriptionStyle}>
-            {`${meta.title}의 자격증명과 Redirect URI를 관리합니다. 켠 제공자만 검증합니다.`}
+            {`${meta.title}의 자격증명과 Redirect URI를 관리해요. 켠 제공자만 검증해요.`}
           </p>
 
           {loading ? (
@@ -564,7 +562,7 @@ function ProviderScreen({
                     onChange={(event) => setRedirectUri(event.target.value)}
                   />
                   <p style={hintStyle}>
-                    {`이 주소를 ${meta.title} 콘솔의 '${meta.redirectLabel}'에도 한 글자도 다르지 않게 등록해야 합니다.`}
+                    {`이 주소를 ${meta.title} 콘솔의 '${meta.redirectLabel}'에도 한 글자도 다르지 않게 등록해야 해요.`}
                   </p>
                 </div>
 
@@ -574,7 +572,7 @@ function ProviderScreen({
                       카카오싱크 간편 설정
                     </Button>
                     <p style={hintStyle}>
-                      동의항목·약관 연결은 Kakao Developers 콘솔에서 설정합니다. 새 창으로 엽니다.
+                      동의항목·약관 연결은 Kakao Developers 콘솔에서 설정해요. 새 창으로 열어요.
                     </p>
                   </div>
                 ) : null}
@@ -584,7 +582,7 @@ function ProviderScreen({
                   <Button variant="secondary" size="sm" disabled>
                     연결 테스트
                   </Button>
-                  <p style={hintStyle}>연결 테스트는 백엔드 연동 후 제공됩니다.</p>
+                  <p style={hintStyle}>연결 테스트는 백엔드 연동 후 제공돼요.</p>
                 </div>
               </div>
 

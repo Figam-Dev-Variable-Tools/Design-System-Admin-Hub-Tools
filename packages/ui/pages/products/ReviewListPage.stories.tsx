@@ -454,7 +454,7 @@ function ReviewsScreen({
       </SelectionBar>
 
       <Table
-        caption="리뷰 목록 — 행을 누르면 리뷰 상세로 이동합니다. 체크박스·수정·삭제 버튼은 각자의 동작을 수행합니다."
+        caption="리뷰 목록 — 행을 누르면 리뷰 상세로 이동해요. 체크박스·수정·삭제 버튼은 각자 따로 동작해요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[
@@ -487,7 +487,7 @@ function ReviewsScreen({
         <ConfirmDialog
           intent="delete"
           title="리뷰 삭제"
-          message={`${confirming.productName} 리뷰를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`${confirming.productName} 리뷰를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="리뷰 삭제"
           onConfirm={() => {
             removeReview(confirming.id);

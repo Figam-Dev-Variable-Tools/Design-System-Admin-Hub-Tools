@@ -77,7 +77,7 @@ const PROVIDERS: readonly Provider[] = [
     name: 'OpenAI',
     glyph: 'OA',
     category: 'model',
-    description: 'GPT 계열 모델을 부릅니다. 글 생성·요약·분류 전반에 씁니다. 키 하나로 연동됩니다.',
+    description: 'GPT 계열 모델을 불러요. 글 생성·요약·분류 전반에 써요. 키 하나로 연동돼요.',
   },
   {
     id: 'claude',
@@ -85,7 +85,7 @@ const PROVIDERS: readonly Provider[] = [
     glyph: 'Cl',
     category: 'model',
     description:
-      'Claude 모델을 부릅니다. 긴 문서 이해와 도구 사용에 강합니다. 키와 함께 API 버전을 보냅니다.',
+      'Claude 모델을 불러요. 긴 문서 이해와 도구 사용에 강해요. 키와 함께 API 버전을 보내요.',
   },
   {
     id: 'gemini',
@@ -93,50 +93,49 @@ const PROVIDERS: readonly Provider[] = [
     glyph: 'Gm',
     category: 'model',
     description:
-      'Gemini 모델을 부릅니다. 이미지·문서를 함께 다룰 때 씁니다. Vertex AI 와는 다른 연동입니다.',
+      'Gemini 모델을 불러요. 이미지·문서를 함께 다룰 때 써요. Vertex AI 와는 다른 연동이에요.',
   },
   {
     id: 'grok',
     name: 'Grok',
     glyph: 'Gk',
     category: 'model',
-    description: 'Grok 모델을 부릅니다. OpenAI 호환 형식이라 기존 호출부를 그대로 씁니다.',
+    description: 'Grok 모델을 불러요. OpenAI 호환 형식이라 기존 호출부를 그대로 써요.',
   },
   {
     id: 'mistral',
     name: 'Mistral AI',
     glyph: 'Mi',
     category: 'model',
-    description: '유럽에서 운영하는 모델입니다. 데이터 처리 위치가 중요할 때 후보가 됩니다.',
+    description: '유럽에서 운영하는 모델이에요. 데이터 처리 위치가 중요할 때 후보가 돼요.',
   },
   {
     id: 'perplexity',
     name: 'Perplexity',
     glyph: 'Px',
     category: 'model',
-    description: '웹 검색에 근거해 답합니다. 최신 정보가 필요한 질문에 씁니다.',
+    description: '웹 검색에 근거해 답해요. 최신 정보가 필요한 질문에 써요.',
   },
   {
     id: 'cohere',
     name: 'Cohere',
     glyph: 'Co',
     category: 'model',
-    description: '검색용 임베딩과 재순위(rerank)에 강합니다. 사내 문서 검색에 씁니다.',
+    description: '검색용 임베딩과 재순위(rerank)에 강해요. 사내 문서 검색에 써요.',
   },
   {
     id: 'deepseek',
     name: 'DeepSeek',
     glyph: 'DS',
     category: 'model',
-    description: '추론에 특화된 모델을 낮은 단가로 제공합니다. OpenAI 호환 형식입니다.',
+    description: '추론에 특화된 모델을 낮은 단가로 제공해요. OpenAI 호환 형식이에요.',
   },
   {
     id: 'groq',
     name: 'Groq',
     glyph: 'Gq',
     category: 'model',
-    description:
-      '공개 모델을 자체 하드웨어에서 매우 빠르게 돌립니다. 응답 속도가 중요할 때 씁니다.',
+    description: '공개 모델을 자체 하드웨어에서 매우 빠르게 돌려요. 응답 속도가 중요할 때 써요.',
   },
   {
     id: 'azure-openai',
@@ -144,7 +143,7 @@ const PROVIDERS: readonly Provider[] = [
     glyph: 'Az',
     category: 'cloud',
     description:
-      '우리 Azure 구독 안에서 OpenAI 모델을 돌립니다. 키 외에 리소스 주소와 배포명이 필요합니다.',
+      '우리 Azure 구독 안에서 OpenAI 모델을 돌려요. 키 외에 리소스 주소와 배포명이 필요해요.',
   },
   {
     id: 'amazon-bedrock',
@@ -152,21 +151,21 @@ const PROVIDERS: readonly Provider[] = [
     glyph: 'Br',
     category: 'cloud',
     description:
-      '여러 회사의 모델을 AWS 계정 안에서 부릅니다. 자격증명이 리전에 묶여 있어 리전을 함께 지정합니다.',
+      '여러 회사의 모델을 AWS 계정 안에서 불러요. 자격증명이 리전에 묶여 있어 리전을 함께 지정해요.',
   },
   {
     id: 'openrouter',
     name: 'OpenRouter',
     glyph: 'OR',
     category: 'gateway',
-    description: '키 하나로 여러 회사의 모델을 골라 부릅니다. 모델을 바꿔 가며 비교할 때 편합니다.',
+    description: '키 하나로 여러 회사의 모델을 골라 불러요. 모델을 바꿔 가며 비교할 때 편해요.',
   },
   {
     id: 'together',
     name: 'Together AI',
     glyph: 'Tg',
     category: 'gateway',
-    description: '공개 모델을 호스팅해 제공합니다. 직접 서버를 두지 않고 오픈 모델을 쓸 때 씁니다.',
+    description: '공개 모델을 호스팅해 제공해요. 직접 서버를 두지 않고 오픈 모델을 쓸 때 써요.',
   },
 ];
 
@@ -352,14 +351,14 @@ function tabItems(failClosed: boolean): readonly { readonly id: string; readonly
 
 /** 더보기 메뉴 — exactOptionalPropertyTypes 라 disabledReason 은 있을 때만 스프레드한다 */
 function menuItemsOf(status: Status): MenuProps['items'] {
-  const disconnectReason = status === 'disconnected' ? '이미 연동 해제 상태입니다.' : null;
+  const disconnectReason = status === 'disconnected' ? '이미 연동 해제 상태예요.' : null;
   return [
     {
       id: 'disconnect',
       label: '연동 해제',
       ...(disconnectReason === null ? {} : { disabledReason: disconnectReason }),
     },
-    { id: 'guide', label: '연동 방법 안내', disabledReason: '공개된 연동 문서가 아직 없습니다.' },
+    { id: 'guide', label: '연동 방법 안내', disabledReason: '공개된 연동 문서가 아직 없어요.' },
   ];
 }
 
@@ -385,7 +384,7 @@ function IntegrationsCard({ failClosed }: { failClosed: boolean }) {
         />
 
         {rows.length === 0 ? (
-          <p style={emptyStyle}>이 상태에 해당하는 연동이 없습니다.</p>
+          <p style={emptyStyle}>이 상태에 해당하는 연동이 없어요.</p>
         ) : (
           <div style={tableWrapStyle}>
             <table style={tableStyle}>
@@ -464,16 +463,16 @@ function ApiKeysScreen({ loading = false, loadFailed = false }: ApiKeysScreenPro
   return (
     <div style={pageStyle}>
       <p style={descriptionStyle}>
-        이 사이트에 연동할 수 있는 AI 모델 프로바이더를 모아 둔 곳입니다. 이름을 누르면 그
-        프로바이더가 요구하는 자격증명을 넣고 연동을 켤 수 있습니다.
+        이 사이트에 연동할 수 있는 AI 모델 프로바이더를 모아 둔 곳이에요. 이름을 누르면 그
+        프로바이더가 요구하는 자격증명을 넣고 연동을 켤 수 있어요.
       </p>
 
       {loadFailed ? (
         <Alert tone="danger">
           <div style={errorBodyStyle}>
             <span>
-              저장된 연동을 불러오지 못했습니다. 아래 목록은{' '}
-              <strong>연동 상태를 확인하지 못한</strong> 상태이며, 실제로는 연동돼 있을 수 있습니다.
+              저장된 연동을 불러오지 못했어요. 아래 목록은{' '}
+              <strong>연동 상태를 확인하지 못한</strong> 상태이며, 실제로는 연동돼 있을 수 있어요.
             </span>
             <Button variant="secondary">다시 시도</Button>
           </div>

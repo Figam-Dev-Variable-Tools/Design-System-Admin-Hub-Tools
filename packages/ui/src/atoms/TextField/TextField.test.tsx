@@ -65,26 +65,26 @@ describe('TextField — 계약 states[]', () => {
   });
 
   it('TextField: error 상태 — 메시지 텍스트를 렌더하고 aria-invalid + aria-describedby 로 연결한다 (색상만으로 전달하지 않는다 · WCAG 1.4.1)', () => {
-    render(<TextField id="email" label="이메일" value="x" error="이메일 형식이 아닙니다" />);
+    render(<TextField id="email" label="이메일" value="x" error="이메일 형식이 아니에요" />);
     const input = screen.getByLabelText('이메일');
 
     expect(input.getAttribute('aria-invalid')).toBe('true');
     expect(input.getAttribute('aria-describedby')).toBe(textFieldErrorId('email'));
-    expect(screen.getByText('이메일 형식이 아닙니다').id).toBe(textFieldErrorId('email'));
+    expect(screen.getByText('이메일 형식이 아니에요').id).toBe(textFieldErrorId('email'));
     expect(ruleBody(textFieldCss, '.tds-textfield--error .tds-textfield__input')).toContain(
       'var(--tds-color-feedback-danger-border)',
     );
   });
 
   it('TextField: error 상태 — 에러 메시지 <p> 가 role="alert" 를 가진다 (포커스된 필드의 on-blur 에러도 announce · A11Y-10)', () => {
-    render(<TextField id="email" label="이메일" value="x" error="이메일 형식이 아닙니다" />);
+    render(<TextField id="email" label="이메일" value="x" error="이메일 형식이 아니에요" />);
     const alert = screen.getByRole('alert');
-    expect(alert.textContent).toBe('이메일 형식이 아닙니다');
+    expect(alert.textContent).toBe('이메일 형식이 아니에요');
     expect(alert.id).toBe(textFieldErrorId('email'));
   });
 
   it('TextField: A11Y-11 — aria-invalid 는 반드시 aria-describedby 로 에러 <p> id 와 짝을 이룬다', () => {
-    render(<TextField id="email" label="이메일" value="x" error="이메일 형식이 아닙니다" />);
+    render(<TextField id="email" label="이메일" value="x" error="이메일 형식이 아니에요" />);
     const input = screen.getByLabelText('이메일');
     // aria-invalid 가 있으면 describedby 도 있고, 그 대상은 실제 에러 요소 id 다 (dangling 금지)
     expect(input.getAttribute('aria-invalid')).toBe('true');

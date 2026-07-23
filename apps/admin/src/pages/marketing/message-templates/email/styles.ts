@@ -243,27 +243,11 @@ export const blockStackStyle: CSSProperties = {
   overflow: 'hidden',
 };
 
-/** 블록 한 칸의 껍데기 — 선택/hover 면 보라색 윤곽 */
-export function blockShellStyle(active: boolean): CSSProperties {
-  return {
-    position: 'relative',
-    boxSizing: 'border-box',
-    width: '100%',
-    minWidth: 0,
-    borderStyle: 'solid',
-    borderWidth: cssVar('border-width.medium'),
-    borderColor: active ? cssVar('color.action.primary.default') : 'transparent',
-    cursor: 'pointer',
-    // 윤곽이 생겨도 내용이 밀리지 않게 항상 같은 두께의 테두리를 둔다(투명 → 보라)
-    display: 'block',
-    textAlign: 'inherit',
-    background: 'transparent',
-    paddingTop: 0,
-    paddingBottom: 0,
-    paddingLeft: 0,
-    paddingRight: 0,
-  };
-}
+/* [삭제됨 — blockShellStyle] 블록 하나를 통째로 <button> 이 감싸던 시절의 껍데기였다
+ * (cursor/textAlign/background/padding 0 은 전부 버튼 리셋이다). 컬럼(다단)이 생기면서 그 방식이
+ * 무너져 **평범한 <div> 의 윤곽 + 형제로 놓인 투명 버튼** 둘로 갈라졌다 — 지금은
+ * blockOutlineStyle(윤곽)과 blockSelectOverlayStyle(클릭)이 그 일을 나눠 한다(바로 아래 머리말에
+ * 왜 갈랐는지가 있다). 갈라진 뒤로 호출부가 0이 되었는데 함수만 남아 있었다. */
 
 /**
  * 선택용 투명 덮개 — 블록 위에 겹쳐 놓는 **버튼**.

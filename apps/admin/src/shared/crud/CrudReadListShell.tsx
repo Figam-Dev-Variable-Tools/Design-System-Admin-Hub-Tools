@@ -77,9 +77,9 @@ function announcementOf(
   count: number,
 ): string {
   if (firstLoading) return '';
-  if (error !== null) return `${entityLabel} 목록을 불러오지 못했습니다.`;
-  if (count === 0) return `조건에 맞는 ${entityLabel} 결과가 없습니다.`;
-  return `${entityLabel} ${formatNumber(count)}건을 찾았습니다.`;
+  if (error !== null) return `${entityLabel} 목록을 불러오지 못했어요.`;
+  if (count === 0) return `조건에 맞는 ${entityLabel} 결과가 없어요.`;
+  return `${entityLabel} ${formatNumber(count)}건을 찾았어요.`;
 }
 
 /* 선택·삭제가 없으므로 CrudTable 의 선택 관련 prop 은 빈 값을 준다.
@@ -153,7 +153,7 @@ export function CrudReadListShell<T extends { id: string }>({
       ) : (
         <Alert tone="danger">
           <div style={alertActionRowStyle}>
-            <span>{entityLabel} 목록을 불러오지 못했습니다.</span>
+            <span>{entityLabel} 목록을 불러오지 못했어요.</span>
             <Button variant="secondary" onClick={state.refetch}>
               다시 시도
             </Button>

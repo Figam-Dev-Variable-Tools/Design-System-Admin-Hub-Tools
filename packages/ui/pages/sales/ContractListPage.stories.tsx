@@ -32,7 +32,6 @@ import { useMemo, useState } from 'react';
 import {
   Button,
   Empty as EmptyState,
-  Icon,
   RowActions,
   RowSelectCell,
   SearchField,
@@ -391,8 +390,8 @@ function ContractListScreen({
   const announcement = loading
     ? ''
     : visible.length === 0
-      ? '조건에 맞는 계약 결과가 없습니다.'
-      : `계약 ${String(visible.length)}건을 찾았습니다.`;
+      ? '조건에 맞는 계약 결과가 없어요.'
+      : `계약 ${String(visible.length)}건을 찾았어요.`;
 
   const toolbar: ReactNode = (
     <div style={toolbarStyle}>
@@ -419,9 +418,8 @@ function ContractListScreen({
         </span>
       </div>
       {/* 등록 CTA — 실화면은 create 권한이 있을 때만 존재한다(EXC-03). 템플릿은 항상 표시 */}
-      <Button variant="primary" size="md" iconLeft={<Icon name="plus-circle" />}>
-        계약 등록
-      </Button>
+      {/* 등록 CTA 가 없다 — 권한 문제가 아니라 순서 문제다. 계약은(는) 앞 칸에서만 생긴다
+          (실화면의 같은 자리 주석). */}
     </div>
   );
 
@@ -449,7 +447,7 @@ function ContractListScreen({
       </SelectionBar>
 
       <Table
-        caption="계약 목록 — 행을 누르면 계약 수정 화면으로 이동합니다. 체크박스·수정·삭제 버튼은 각자의 동작을 수행합니다."
+        caption="계약 목록 — 행을 누르면 계약 수정 화면으로 이동해요. 체크박스·수정·삭제 버튼은 각자 따로 동작해요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[

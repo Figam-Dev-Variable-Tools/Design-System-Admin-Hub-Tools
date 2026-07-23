@@ -97,10 +97,10 @@ export default function ConsentsPage() {
     },
     onSuccess: () => {
       void client.invalidateQueries({ queryKey: consentItemsKey });
-      toast.success('동의 항목을 저장했습니다.');
+      toast.success('동의 항목을 저장했어요.');
     },
     onError: () => {
-      toast.error('동의 항목을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      toast.error('동의 항목을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
     },
   });
 
@@ -112,19 +112,22 @@ export default function ConsentsPage() {
    */
   const items = itemsQuery.data?.items ?? CONSENT_ITEM_SEED;
   const loadingItems = itemsQuery.isFetching && itemsQuery.data === undefined;
+  // [STATE-01] '조회 중' 이 아니라 '아직 보여 줄 것이 없는 조회 중' 만 로딩이다 — 재조회 중에는
+  // 이전 값을 그대로 그린다(이력 탭의 껍데기가 쓰는 firstLoading 과 같은 정의다)
+  const loadingEvents = eventsQuery.isFetching && eventsQuery.data === undefined;
   const today = formatDate(new Date());
 
   return (
     <div style={pageStyle}>
       <p style={descriptionStyle}>
-        동의 항목의 정의와 동의·철회 이력을 관리합니다. 이력은 <strong>덧붙이기만</strong> 하며
-        수정·삭제 표면이 없습니다 — 고칠 수 있는 기록은 증거가 되지 못합니다.
+        동의 항목의 정의와 동의·철회 이력을 관리해요. 이력은 <strong>덧붙이기만</strong> 하며
+        수정·삭제 표면이 없어요 — 고칠 수 있는 기록은 증거가 되지 못해요.
       </p>
 
       {itemsQuery.error !== null && (
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>동의 항목 정의를 불러오지 못했습니다. 아래는 기본 정의입니다.</span>
+            <span>동의 항목 정의를 불러오지 못했어요. 아래는 기본 정의예요.</span>
             <Button
               variant="secondary"
               onClick={() => {
@@ -166,7 +169,17 @@ export default function ConsentsPage() {
         {tab === 'history' && <ConsentHistoryPanel items={items} query={eventsQuery} />}
 
         {tab === 'compliance' && (
-          <CompliancePanel items={items} events={eventsQuery.data ?? []} today={today} />
+          <CompliancePanel
+            items={items}
+            /* `?? []` 가 아니다 — 아직 못 읽은 이력을 '없는 이력' 으로 넘기면 이 탭이 '대상 없음'
+               이라고 완결되게 말한다. `null` 로 넘겨 패널이 세 상태를 가르게 한다 */
+            events={eventsQuery.data ?? null}
+            loading={loadingEvents}
+            onRetry={() => {
+              void eventsQuery.refetch();
+            }}
+            today={today}
+          />
         )}
       </div>
     </div>

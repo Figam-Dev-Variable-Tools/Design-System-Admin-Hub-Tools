@@ -41,7 +41,7 @@ const ROUTE = '/stats/traffic';
 
 /** 카페24의 '북마크'가 무엇을 담는지 — 이름만 보면 즐겨찾기로 오해한다 */
 const BOOKMARK_HINT =
-  '북마크에는 즐겨찾기뿐 아니라 주소창 직접입력·앱 접속처럼 유입 경로가 남지 않은 방문이 함께 담깁니다.';
+  '북마크에는 즐겨찾기뿐 아니라 주소창 직접입력·앱 접속처럼 유입 경로가 남지 않은 방문이 함께 담겨요.';
 
 function segmentOf(value: string): TrafficSegment {
   return isTrafficSegment(value) ? value : 'all';
@@ -161,7 +161,7 @@ export default function TrafficStatsPage() {
         unit: 'count',
         value: ordersOf(daily),
         compareValue: compare === null ? null : ordersOf(compare),
-        hint: '해당 유입으로 들어와 결제까지 이어진 건수입니다.',
+        hint: '해당 유입으로 들어와 결제까지 이어진 건수예요.',
       },
       {
         id: 'revenue',
@@ -169,7 +169,7 @@ export default function TrafficStatsPage() {
         unit: 'won',
         value: revenueOf(daily),
         compareValue: compare === null ? null : revenueOf(compare),
-        hint: '해당 유입에서 발생한 결제 금액의 합입니다.',
+        hint: '해당 유입에서 발생한 결제 금액의 합이에요.',
       },
       {
         id: 'conversion',
@@ -177,7 +177,7 @@ export default function TrafficStatsPage() {
         unit: 'percent',
         value: rateOf(daily),
         compareValue: compare === null ? null : rateOf(compare),
-        hint: '구매건수 ÷ 방문수 × 100 으로 계산합니다.',
+        hint: '구매건수 ÷ 방문수 × 100 으로 계산해요.',
       },
     ];
   }, [stats, segment]);
@@ -264,7 +264,7 @@ export default function TrafficStatsPage() {
 
   return (
     <StatsPageShell
-      description="유입이 어디서 왔고 그중 무엇이 실제로 팔았는지 보는 화면입니다. 방문자 통계가 '몇 명이 왔나'라면 여기서는 채널마다 유입수 옆에 구매건수와 매출액을 붙여 '어느 유입이 매출로 이어졌는지'를 봅니다."
+      description="유입이 어디서 왔고 그중 무엇이 실제로 팔았는지 보는 화면이에요. 방문자 통계가 '몇 명이 왔나'라면 여기서는 채널마다 유입수 옆에 구매건수와 매출액을 붙여 '어느 유입이 매출로 이어졌는지'를 봐요."
       route={ROUTE}
       params={params}
       segments={TRAFFIC_SEGMENTS}
@@ -295,8 +295,8 @@ export default function TrafficStatsPage() {
           // '참조검색어 없음'으로 집계한다. 유입수는 정상으로 잡히고 검색어만 빈다.
           <Alert tone="info">
             구글 유입은 개인정보 보호정책에 따라 검색어가 전달되지 않아 카페24에서 '참조검색어
-            없음'으로 집계됩니다. 아래 유입수·매출액은 정상으로 잡히지만, 어떤 검색어로 들어왔는지는
-            확인할 수 없습니다.
+            없음'으로 집계돼요. 아래 유입수·매출액은 정상으로 잡히지만, 어떤 검색어로 들어왔는지는
+            확인할 수 없어요.
           </Alert>
         ) : null
       }

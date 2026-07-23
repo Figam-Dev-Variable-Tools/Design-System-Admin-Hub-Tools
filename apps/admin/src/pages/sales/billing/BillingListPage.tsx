@@ -208,18 +208,18 @@ export default function BillingListPage() {
           <>
             <p style={hintStyle}>
               {loaded
-                ? `아직 받지 못한 금액은 ${formatWon(outstanding)}입니다.`
-                : '미수금을 세는 중입니다.'}
+                ? `아직 받지 못한 금액은 ${formatWon(outstanding)}이에요.`
+                : '미수금을 세는 중이에요.'}
             </p>
             <p style={hintStyle}>
-              청구는 수주로 전환된 견적에서만 만들어집니다. 견적 상세의 &lsquo;청구 만들기&rsquo;로
+              청구는 수주로 전환된 견적에서만 만들어져요. 견적 상세의 &lsquo;청구 만들기&rsquo;로
               시작하세요.
             </p>
             <p style={hintStyle}>
-              결제대행을 쓰지 않으므로 입금은 사람이 확인해 기록합니다. 기록한 입금은 되돌릴 수
-              없습니다.
+              결제대행을 쓰지 않으므로 입금은 사람이 확인해 기록해요. 기록한 입금은 되돌릴 수
+              없어요.
             </p>
-            {!canUpdate && <p style={hintStyle}>입금확인 권한이 없어 조회만 가능합니다.</p>}
+            {!canUpdate && <p style={hintStyle}>입금확인 권한이 없어 조회만 가능해요.</p>}
           </>
         }
       >

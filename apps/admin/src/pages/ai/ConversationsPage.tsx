@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 
 import './ai.css';
 import { isAbort } from '../../shared/async';
+import { useRouteCan, WRITE_DENIED } from '../../shared/permissions/RequirePermission';
 import { Alert, Button, Card, ConfirmDialog, Empty, useToast } from '../../shared/ui';
 import { useConversationsQuery, useDeleteConversations } from './queries';
 import { cssVar } from '@tds/ui';
@@ -83,12 +84,24 @@ export default function ConversationsPage() {
   const [confirming, setConfirming] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
+  /**
+   * [EXC-03] 이 화면의 쓰기는 삭제 하나뿐이다 — 대화는 채팅 화면에서 생기고, 여기서 고치지 않는다.
+   * 그래서 remove 만 묻는다. 판정 하나가 버튼의 존재와 삭제 요청의 거절을 함께 정한다.
+   */
+  const canRemove = useRouteCan('remove');
+
   const items = conversations.data ?? [];
   const firstLoading = conversations.isFetching && conversations.data === undefined;
 
   const confirmDelete = (): void => {
     const id = confirming;
     if (id === null) return;
+    // 버튼을 없앤 술어가 삭제 경로도 막는다 — 거절은 침묵이 아니다 (EXC-03)
+    if (!canRemove) {
+      setConfirming(null);
+      toast.error(WRITE_DENIED.remove);
+      return;
+    }
 
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -99,13 +112,13 @@ export default function ConversationsPage() {
       {
         onSuccess: () => {
           setConfirming(null);
-          toast.success('대화를 삭제했습니다.');
+          toast.success('대화를 삭제했어요.');
         },
         onError: (error) => {
           if (isAbort(error)) return;
           setConfirming(null);
           // 실패 토스트는 자동으로 사라지지 않는다 — 재시도 경로를 함께 준다
-          toast.error('대화를 삭제하지 못했습니다.', { retry: confirmDelete });
+          toast.error('대화를 삭제하지 못했어요.', { retry: confirmDelete });
         },
       },
     );
@@ -128,12 +141,11 @@ export default function ConversationsPage() {
       </div>
 
       <Alert tone="info">
-        대화는 브라우저 메모리에만 있습니다 — 새로고침하면 사라집니다. 보관은 백엔드 연동 후
-        가능합니다.
+        대화는 브라우저 메모리에만 있어요 — 새로고침하면 사라져요. 보관은 백엔드 연동 후 가능해요.
       </Alert>
 
       {conversations.isError ? (
-        <Alert tone="danger">대화 목록을 불러오지 못했습니다.</Alert>
+        <Alert tone="danger">대화 목록을 불러오지 못했어요.</Alert>
       ) : firstLoading ? (
         <p style={mutedStyle}>불러오는 중…</p>
       ) : items.length === 0 ? (
@@ -158,16 +170,18 @@ export default function ConversationsPage() {
                 </span>
                 <span style={mutedStyle}>{`${String(conversation.messages.length)}개 메시지`}</span>
                 <span style={mutedStyle}>{formatWhen(conversation.updatedAtIso)}</span>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => {
-                    setConfirming(conversation.id);
-                  }}
-                >
-                  삭제
-                </Button>
+                {canRemove && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setConfirming(conversation.id);
+                    }}
+                  >
+                    삭제
+                  </Button>
+                )}
               </li>
             ))}
           </ul>
@@ -178,7 +192,7 @@ export default function ConversationsPage() {
       {confirming === null ? null : (
         <ConfirmDialog
           title="대화를 삭제할까요?"
-          message="삭제한 대화는 되돌릴 수 없습니다."
+          message="삭제한 대화는 되돌릴 수 없어요."
           intent="delete"
           busy={remove.isPending}
           onConfirm={confirmDelete}

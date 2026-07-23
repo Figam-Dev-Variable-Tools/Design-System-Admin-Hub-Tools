@@ -41,13 +41,13 @@ describe('FormField — 계약 states[]', () => {
 
   it('FormField: error 상태 — role=alert 오류를 그리고 힌트 대신 표시한다 (색+시맨틱 이중 전달)', () => {
     render(
-      <FormField htmlFor="title" label="제목" hint="최대 50자" error="필수 항목입니다">
+      <FormField htmlFor="title" label="제목" hint="최대 50자" error="필수 항목이에요">
         {control('title')}
       </FormField>,
     );
 
     const alert = screen.getByRole('alert');
-    expect(alert.textContent).toBe('필수 항목입니다');
+    expect(alert.textContent).toBe('필수 항목이에요');
     expect(alert.id).toBe(errorIdOf('title'));
     // 오류가 있으면 힌트는 그리지 않는다
     expect(screen.queryByText('최대 50자')).toBeNull();

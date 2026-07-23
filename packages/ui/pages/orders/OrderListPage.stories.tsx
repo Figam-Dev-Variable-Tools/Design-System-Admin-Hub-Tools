@@ -142,7 +142,7 @@ const STATUS_FILTERS: readonly { readonly id: OrderStatusFilter; readonly label:
  */
 const BULK_TRANSITIONS: readonly OrderStatus[] = ['preparing', 'waiting', 'shipping', 'delivered'];
 
-const TRANSITION_UNPAID = '입금이 확인되지 않아 배송 단계로 넘길 수 없습니다.';
+const TRANSITION_UNPAID = '입금이 확인되지 않아 배송 단계로 넘길 수 없어요.';
 
 /* ── 데모 데이터(실화면 _shared/store 의 ORDER_SEED 를 목록이 쓰는 필드만 축약해 미러) ────────── */
 
@@ -460,9 +460,9 @@ function statusIndex(status: OrderStatus): number {
  * 문자열을 돌려주는 이유: 화면이 비활성 버튼 옆에 **왜 못 누르는지**를 그대로 쓸 수 있어야 한다.
  */
 function transitionBlock(order: DemoOrder, to: OrderStatus): string | null {
-  if (isCanceled(order)) return '취소된 주문은 상태를 바꿀 수 없습니다.';
-  if (order.status === 'confirmed') return '구매확정된 주문은 더 이상 진행할 단계가 없습니다.';
-  if (statusIndex(to) <= statusIndex(order.status)) return '주문 상태는 되돌릴 수 없습니다.';
+  if (isCanceled(order)) return '취소된 주문은 상태를 바꿀 수 없어요.';
+  if (order.status === 'confirmed') return '구매확정된 주문은 더 이상 진행할 단계가 없어요.';
+  if (statusIndex(to) <= statusIndex(order.status)) return '주문 상태는 되돌릴 수 없어요.';
   if (order.status === 'pending' && order.paidAt === '') return TRANSITION_UNPAID;
   return null;
 }
@@ -835,9 +835,9 @@ function OrderListScreen({
       <Alert tone="info">
         <div style={alertRowStyle}>
           <span>
-            현재 결제를 사용하지 않아 주문이 들어오지 않습니다. 지금 상품 페이지의 버튼은
+            현재 결제를 사용하지 않아 주문이 들어오지 않아요. 지금 상품 페이지의 버튼은
             &lsquo;구매하기&rsquo; 대신 &lsquo;문의하기&rsquo;이며, 고객의 글은 상품 문의로
-            접수됩니다.
+            접수돼요.
           </span>
           <a href="#payment-settings" style={linkStyle}>
             결제 설정 열기
@@ -865,11 +865,11 @@ function OrderListScreen({
       <div style={layoutStyle}>
         <aside style={railStyle}>
           <p style={railNoticeStyle}>
-            주문은 고객의 결제로 만들어집니다. 이 화면에서는 상태를 진행하고 취소·메모를 남깁니다.
+            주문은 고객의 결제로 만들어져요. 이 화면에서는 상태를 진행하고 취소·메모를 남겨요.
           </p>
           {!canArrive && (
             <p style={railNoticeStyle}>
-              결제 설정이 꺼져 있어 새 주문이 들어오지 않습니다.{' '}
+              결제 설정이 꺼져 있어 새 주문이 들어오지 않아요.{' '}
               <a href="#payment-settings" style={linkStyle}>
                 결제 설정
               </a>{' '}
@@ -924,7 +924,7 @@ function OrderListScreen({
 
           <div style={tableScrollStyle}>
             <Table
-              caption="주문 목록 — 행을 누르면 주문 상세로 이동합니다. 체크박스로 여러 건을 골라 상태를 한 번에 처리할 수 있습니다."
+              caption="주문 목록 — 행을 누르면 주문 상세로 이동해요. 체크박스로 여러 건을 골라 상태를 한 번에 처리할 수 있어요."
               columns={COLUMNS}
               rows={rows}
               leadingHead={[
@@ -953,8 +953,8 @@ function OrderListScreen({
           title={`${ORDER_STATUS_LABEL[pendingTransition]} 일괄 처리`}
           message={
             eligible.length === selectedCount
-              ? `선택한 주문 ${fmt(selectedCount)}건을 ${ORDER_STATUS_LABEL[pendingTransition]}(으)로 진행합니다. 주문 상태는 되돌릴 수 없습니다.`
-              : `선택한 ${fmt(selectedCount)}건 중 ${fmt(eligible.length)}건만 ${ORDER_STATUS_LABEL[pendingTransition]}(으)로 진행합니다. 나머지 ${fmt(selectedCount - eligible.length)}건은 이미 지난 단계이거나, 취소되었거나, ${TRANSITION_UNPAID}`
+              ? `선택한 주문 ${fmt(selectedCount)}건을 ${ORDER_STATUS_LABEL[pendingTransition]}(으)로 진행해요. 주문 상태는 되돌릴 수 없어요.`
+              : `선택한 ${fmt(selectedCount)}건 중 ${fmt(eligible.length)}건만 ${ORDER_STATUS_LABEL[pendingTransition]}(으)로 진행해요. 나머지 ${fmt(selectedCount - eligible.length)}건은 이미 지난 단계이거나, 취소되었거나, ${TRANSITION_UNPAID}`
           }
           confirmLabel={`${fmt(eligible.length)}건 처리`}
           onConfirm={() => {

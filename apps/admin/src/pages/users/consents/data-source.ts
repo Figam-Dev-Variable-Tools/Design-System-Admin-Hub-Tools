@@ -32,7 +32,7 @@ const DEFAULT_ITEMS: readonly ConsentItemDef[] = [
   {
     id: 'terms-service',
     label: '이용약관 동의',
-    description: '서비스 이용에 필요한 기본 약관입니다.',
+    description: '서비스 이용에 필요한 기본 약관이에요.',
     purpose: 'service',
     necessity: 'required',
     termsTypeId: 'service',
@@ -41,7 +41,7 @@ const DEFAULT_ITEMS: readonly ConsentItemDef[] = [
   {
     id: 'privacy-essential',
     label: '개인정보 수집·이용 동의 (필수)',
-    description: '회원 식별·주문 처리에 필요한 최소 항목을 수집합니다.',
+    description: '회원 식별·주문 처리에 필요한 최소 항목을 수집해요.',
     purpose: 'privacy-essential',
     necessity: 'required',
     termsTypeId: null,
@@ -50,7 +50,7 @@ const DEFAULT_ITEMS: readonly ConsentItemDef[] = [
   {
     id: 'privacy-optional',
     label: '개인정보 수집·이용 동의 (선택)',
-    description: '맞춤 추천을 위한 관심 분야·생년월일을 추가로 수집합니다.',
+    description: '맞춤 추천을 위한 관심 분야·생년월일을 추가로 수집해요.',
     purpose: 'privacy-optional',
     necessity: 'optional',
     termsTypeId: null,
@@ -59,7 +59,7 @@ const DEFAULT_ITEMS: readonly ConsentItemDef[] = [
   {
     id: 'marketing-email',
     label: '광고성 정보 수신 동의 (이메일)',
-    description: '신규 상품·할인 소식을 이메일로 보냅니다.',
+    description: '신규 상품·할인 소식을 이메일로 보내요.',
     purpose: 'marketing',
     necessity: 'optional',
     termsTypeId: 'marketing',
@@ -68,7 +68,7 @@ const DEFAULT_ITEMS: readonly ConsentItemDef[] = [
   {
     id: 'marketing-sms',
     label: '광고성 정보 수신 동의 (문자)',
-    description: '신규 상품·할인 소식을 문자로 보냅니다.',
+    description: '신규 상품·할인 소식을 문자로 보내요.',
     purpose: 'marketing',
     necessity: 'optional',
     termsTypeId: 'marketing',

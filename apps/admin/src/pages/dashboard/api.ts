@@ -39,7 +39,7 @@ function wait(ms: number, signal: AbortSignal): Promise<void> {
       'abort',
       () => {
         clearTimeout(timer);
-        reject(new DOMException('요청이 취소되었습니다.', 'AbortError'));
+        reject(new DOMException('요청이 취소되었어요.', 'AbortError'));
       },
       { once: true },
     );
@@ -138,7 +138,7 @@ const INQUIRY_DATA: TabData = {
       rows: [
         {
           id: 'q-1',
-          title: '헤드폰 케이블 단선 A/S 문의드립니다',
+          title: '헤드폰 케이블 단선 A/S 문의드려요',
           actor: '김민***',
           date: '2026-07-14',
         },
@@ -169,12 +169,13 @@ const SALES_DATA: TabData = {
   ],
   cards: [
     {
-      title: '최근 상담',
+      // 상담 이력 화면이 IA 에서 빠지면서 이 자리는 영업 문의가 받는다 — 위 할일의 '신규문의' 와 같은 곳을 가리킨다
+      title: '최근 문의',
       count: 2,
-      moreTo: '/sales/consultations',
+      moreTo: '/sales/inquiries',
       icon: 'question',
       rows: [
-        { id: 'c-1', title: '스튜디오 음향 시공 견적 상담', actor: '한음***', date: '2026-07-14' },
+        { id: 'c-1', title: '스튜디오 음향 시공 견적 문의', actor: '한음***', date: '2026-07-14' },
         { id: 'c-2', title: '연습실 방음 공사 일정 협의', actor: '오준***', date: '2026-07-12' },
       ],
     },
@@ -217,7 +218,7 @@ export async function fetchTabData(tab: TabId, signal: AbortSignal): Promise<Tab
   await wait(options.delayMs, signal);
 
   if (options.shouldFail) {
-    throw new ApiError('데이터를 불러오지 못했습니다.');
+    throw new ApiError('데이터를 불러오지 못했어요.');
   }
 
   const data = DATA_BY_TAB[tab];

@@ -9,7 +9,7 @@
  *
  * [이 화면이 생긴 두 가지 이유] ① 거래처에는 읽기 전용 상세가 없어 **고칠 수 없는 사람에게도 수정
  * 폼을 열어야** 했다(오조작의 초대장이다). 여기는 전부 읽기 전용이고 고치는 길은 명시적 버튼 하나뿐이다.
- * ② **거래처 → 그 거래처의 계약/견적/프로젝트/상담** 역방향 조회가 앱 전체에 없었다 — 계약도 견적도
+ * ② **거래처 → 그 거래처의 계약/견적/프로젝트** 역방향 조회가 앱 전체에 없었다 — 계약도 견적도
  * 거래처를 자유 입력 문자열로 들고 있었으니 애초에 물을 수 없는 질문이었다. accountId 참조가 생긴
  * 지금 그 질문에 답하는 곳이 여기고, 그래서 아래 네 구획이 이 화면의 본론이다.
  *
@@ -29,7 +29,7 @@
  *   거래처 수정 CTA            → Button(primary) — 권한이 없으면 그리지 않는다 (EXC-03)
  *   기본 정보 · 거래 조건 · 신용   → Card ×2 + dl/dt/dd(토큰) + 신용등급 StatusBadge
  *   담당자 목록(대표담당 배지)    → 토큰 <ul>/<li> + StatusBadge(info)
- *   이 거래처의 계약/견적/프로젝트/상담 → Card + Table ×4 (역방향 조회 · 각 행은 링크)
+ *   이 거래처의 계약/견적/프로젝트 → Card + Table ×3 (역방향 조회 · 각 행은 링크)
  *   구획 조회 실패             → Alert(danger) + Button(다시 시도)
  *   구획 스켈레톤 / 빈 구획      → Table loading · Table empty 슬롯(토큰 안내 문구)
  *   404 / 조회 실패            → Alert(danger) (+ 서버 오류에만 다시 시도 · EXC-12)
@@ -52,7 +52,7 @@ export default meta;
 
 type Story = StoryObj;
 
-/* ── 상수 · 도메인 규칙(실화면 sales/accounts·contracts·quotes·projects·consultations types 미러) ─ */
+/* ── 상수 · 도메인 규칙(실화면 sales/accounts·contracts·quotes·projects types 미러) ─ */
 
 type TradeType = 'sales' | 'purchase' | 'both';
 type TaxType = 'general' | 'simplified' | 'exempt' | 'zero_rated';
@@ -105,8 +105,6 @@ type ContractStatus = 'draft' | 'review' | 'active' | 'expired' | 'terminated';
 type ContractType = 'supply' | 'service' | 'maintenance' | 'license' | 'lease' | 'nda';
 type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired' | 'ordered';
 type PipelineStage = 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'won' | 'lost';
-type ConsultType = 'phone' | 'visit' | 'email' | 'video' | 'meeting';
-type ConsultOutcome = 'positive' | 'neutral' | 'negative';
 
 interface BadgeMeta {
   readonly label: string;
@@ -148,29 +146,9 @@ const STAGE_META: Record<PipelineStage, BadgeMeta> = {
   lost: { label: '실주', tone: 'danger' },
 };
 
-const CONSULT_TYPE_LABEL: Record<ConsultType, string> = {
-  phone: '전화상담',
-  visit: '방문상담',
-  email: '이메일',
-  video: '화상상담',
-  meeting: '대면미팅',
-};
-
-const CONSULT_OUTCOME_META: Record<ConsultOutcome, BadgeMeta> = {
-  positive: { label: '긍정', tone: 'success' },
-  neutral: { label: '보통', tone: 'neutral' },
-  negative: { label: '부정', tone: 'danger' },
-};
-
-/** 연결이 없을 때의 문구 — '—' 한 글자로는 '없다' 와 '못 불러왔다' 가 구분되지 않는다 */
-const CONSULT_NO_RELATION = '연결된 견적·문의·계약이 없습니다.';
-
 const KO_NUMBER = new Intl.NumberFormat('ko-KR');
 /** '36,000,000원' — 실화면 formatWon 미러 */
 const formatWon = (value: number): string => `${KO_NUMBER.format(value)}원`;
-
-/** 'YYYY-MM-DD HH:mm' — 실화면 formatDateTime 미러(상담일시는 로컬 표기 문자열이다) */
-const formatDateTime = (value: string): string => value.replace('T', ' ').slice(0, 16);
 
 /** 빈 문자열은 '값이 없다' 는 뜻이다 — 빈 칸으로 두면 로딩 중인지 없는 것인지 구분되지 않는다 */
 const dash = (value: string): string => (value.trim() === '' ? '—' : value);
@@ -236,21 +214,10 @@ interface DemoProject {
   readonly endAt: string;
 }
 
-interface DemoConsultation {
-  readonly id: string;
-  readonly consultedAt: string;
-  readonly topic: string;
-  readonly consultType: ConsultType;
-  readonly outcome: ConsultOutcome;
-  /** 연결된 견적·문의·계약의 링크 글자. '' 면 연결이 없다 */
-  readonly relatedLabel: string;
-}
-
 interface DemoRecords {
   readonly contracts: readonly DemoContract[];
   readonly quotes: readonly DemoQuote[];
   readonly projects: readonly DemoProject[];
-  readonly consultations: readonly DemoConsultation[];
 }
 
 /** acc-1 — 담당자 둘(대표담당 1명)·여신 5천만·Net-30 (실화면 ACCOUNT_SEED 미러) */
@@ -346,26 +313,15 @@ const DEMO_RECORDS: DemoRecords = {
       endAt: '2026-10-31',
     },
   ],
-  consultations: [
-    {
-      id: 'cs-1',
-      consultedAt: '2026-07-14T15:00:00',
-      topic: 'ERP 구축 범위 협의',
-      consultType: 'meeting',
-      outcome: 'positive',
-      relatedLabel: '견적 보기',
-    },
-  ],
 };
 
 const EMPTY_RECORDS: DemoRecords = {
   contracts: [],
   quotes: [],
   projects: [],
-  consultations: [],
 };
 
-/* ── 표 열 정의(역방향 조회 네 구획) ────────────────────────────────────────────────────────── */
+/* ── 표 열 정의(역방향 조회 세 구획) ────────────────────────────────────────────────────────── */
 
 const CONTRACT_COLUMNS: TableProps['columns'] = [
   { id: 'title', header: '계약명' },
@@ -387,14 +343,6 @@ const PROJECT_COLUMNS: TableProps['columns'] = [
   { id: 'stage', header: '단계', nowrap: true },
   { id: 'revenue', header: '예상매출', align: 'end' },
   { id: 'period', header: '기간', nowrap: true },
-];
-
-const CONSULTATION_COLUMNS: TableProps['columns'] = [
-  { id: 'consultedAt', header: '상담일시', nowrap: true },
-  { id: 'topic', header: '주제' },
-  { id: 'type', header: '유형', nowrap: true },
-  { id: 'outcome', header: '결과', nowrap: true },
-  { id: 'related', header: '관련', nowrap: true },
 ];
 
 /* ── 스타일(토큰·rem·calc·% 만) ───────────────────────────────────────────────────────────── */
@@ -596,7 +544,7 @@ function RelatedRecordsCard({
       <DetailCard title={title}>
         <Alert tone="danger">
           <div style={alertRowStyle}>
-            <span>{`${entityLabel} 이력을 불러오지 못했습니다.`}</span>
+            <span>{`${entityLabel} 이력을 불러오지 못했어요.`}</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
@@ -607,7 +555,7 @@ function RelatedRecordsCard({
   return (
     <DetailCard title={title}>
       <Table
-        caption={`이 거래처의 ${entityLabel} 목록 — 각 행의 링크로 해당 화면으로 이동합니다.`}
+        caption={`이 거래처의 ${entityLabel} 목록 — 각 행의 링크로 해당 화면으로 이동해요.`}
         columns={columns}
         rows={rows}
         loading={loading}
@@ -655,8 +603,8 @@ function AccountDetailScreen({
           <div style={alertRowStyle}>
             <span>
               {notFound
-                ? '거래처를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '거래처를 불러오지 못했습니다.'}
+                ? '거래처를 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '거래처를 불러오지 못했어요.'}
             </span>
             <span style={actionsStyle}>
               {!notFound && <Button variant="secondary">다시 시도</Button>}
@@ -726,34 +674,6 @@ function AccountDetailScreen({
       <span key="period" style={mutedTextStyle}>
         {`${project.startAt} ~ ${project.endAt}`}
       </span>,
-    ],
-  }));
-
-  const consultationRows: TableProps['rows'] = records.consultations.map((consultation) => ({
-    id: consultation.id,
-    cells: [
-      <span key="consultedAt" style={numericStyle}>
-        {formatDateTime(consultation.consultedAt)}
-      </span>,
-      <a key="topic" href="#consultation-detail" style={detailLinkStyle}>
-        {consultation.topic}
-      </a>,
-      CONSULT_TYPE_LABEL[consultation.consultType],
-      <StatusBadge
-        key="outcome"
-        tone={CONSULT_OUTCOME_META[consultation.outcome].tone}
-        label={CONSULT_OUTCOME_META[consultation.outcome].label}
-      />,
-      consultation.relatedLabel === '' ? (
-        // 반쪽 연결은 링크로 만들지 않는다 — 404 로 가는 링크다
-        <span key="related" style={mutedTextStyle} title={CONSULT_NO_RELATION}>
-          —
-        </span>
-      ) : (
-        <a key="related" href="#related-record" style={detailLinkStyle}>
-          {consultation.relatedLabel}
-        </a>
-      ),
     ],
   }));
 
@@ -835,7 +755,7 @@ function AccountDetailScreen({
 
       <DetailCard title="담당자">
         {account.contacts.length === 0 ? (
-          <p style={hintStyle}>등록된 담당자가 없습니다.</p>
+          <p style={hintStyle}>등록된 담당자가 없어요.</p>
         ) : (
           <ul style={contactListStyle}>
             {account.contacts.map((contact) => (
@@ -864,7 +784,7 @@ function AccountDetailScreen({
         rows={contractRows}
         loading={loading}
         failed={recordsFailed}
-        emptyText="이 거래처로 체결된 계약이 없습니다."
+        emptyText="이 거래처로 체결된 계약이 없어요."
       />
 
       <RelatedRecordsCard
@@ -873,7 +793,7 @@ function AccountDetailScreen({
         columns={QUOTE_COLUMNS}
         rows={quoteRows}
         loading={loading}
-        emptyText="이 거래처로 발행된 견적이 없습니다."
+        emptyText="이 거래처로 발행된 견적이 없어요."
       />
 
       <RelatedRecordsCard
@@ -882,16 +802,7 @@ function AccountDetailScreen({
         columns={PROJECT_COLUMNS}
         rows={projectRows}
         loading={loading}
-        emptyText="이 거래처로 진행 중인 영업 기회가 없습니다."
-      />
-
-      <RelatedRecordsCard
-        title="이 거래처의 상담 이력"
-        entityLabel="상담 이력"
-        columns={CONSULTATION_COLUMNS}
-        rows={consultationRows}
-        loading={loading}
-        emptyText="이 거래처와의 상담 기록이 없습니다."
+        emptyText="이 거래처로 진행 중인 영업 기회가 없어요."
       />
 
       <div style={actionsStyle}>

@@ -114,7 +114,7 @@ export const LongDescription: Story = {
         value: 'public',
         label: '전체 공개',
         description:
-          '누구나 내 사이트에 접속할 수 있어요. 검색엔진 수집도 함께 허용되며, 로그인하지 않은 방문자에게도 모든 공개 페이지가 그대로 보입니다.',
+          '누구나 내 사이트에 접속할 수 있어요. 검색엔진 수집도 함께 허용되며, 로그인하지 않은 방문자에게도 모든 공개 페이지가 그대로 보여요.',
       },
       { value: 'private', label: '비공개', description: '관리자만 접근할 수 있어요' },
     ],

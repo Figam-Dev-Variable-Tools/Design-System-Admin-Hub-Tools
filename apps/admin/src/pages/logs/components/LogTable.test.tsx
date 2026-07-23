@@ -40,7 +40,7 @@ const DESC: SortState = { key: 'occurredAt', direction: 'desc' };
 
 function renderTable(overrides: Partial<Parameters<typeof LogTable<Row>>[0]> = {}) {
   const props = {
-    caption: '테스트 로그 — 읽기 전용입니다.',
+    caption: '테스트 로그 — 읽기 전용이에요.',
     entries: ROWS,
     columns: COLUMNS,
     sortValues: SORT_VALUES,
@@ -123,7 +123,7 @@ describe('로딩', () => {
     renderTable({ entries: [], loading: true, skeletonRows: 3 });
 
     // '없습니다' 가 보이면 운영자는 기록이 없다고 오판한다
-    expect(screen.queryByText(/없습니다/)).toBeNull();
+    expect(screen.queryByText(/없어요/)).toBeNull();
     expect(screen.getByRole('table').getAttribute('aria-busy')).toBe('true');
   });
 });
@@ -134,7 +134,7 @@ describe('빈 상태 — 왜 비었는지 구분한다', () => {
   it('(a) 진짜 비어있음 — 생성 CTA 가 **없다**. 감사 기록은 만들 수 없다', () => {
     renderTable({ entries: [] });
 
-    expect(screen.getByText('기록된 관리자 로그가 없습니다')).not.toBeNull();
+    expect(screen.getByText('기록된 관리자 로그가 없어요')).not.toBeNull();
     expect(screen.queryByRole('button', { name: '검색 지우기' })).toBeNull();
     expect(screen.queryByRole('button', { name: '필터 초기화' })).toBeNull();
   });
@@ -143,7 +143,7 @@ describe('빈 상태 — 왜 비었는지 구분한다', () => {
     const user = userEvent.setup();
     const props = renderTable({ entries: [], hasQuery: true });
 
-    expect(screen.getByText('조건에 맞는 관리자 로그가 없습니다')).not.toBeNull();
+    expect(screen.getByText('조건에 맞는 관리자 로그가 없어요')).not.toBeNull();
     await user.click(screen.getByRole('button', { name: '검색 지우기' }));
     expect(props.onClearSearch).toHaveBeenCalled();
   });
@@ -152,7 +152,7 @@ describe('빈 상태 — 왜 비었는지 구분한다', () => {
     const user = userEvent.setup();
     const props = renderTable({ entries: [], hasActiveFilters: true });
 
-    expect(screen.getByText('필터에 맞는 관리자 로그가 없습니다')).not.toBeNull();
+    expect(screen.getByText('필터에 맞는 관리자 로그가 없어요')).not.toBeNull();
     await user.click(screen.getByRole('button', { name: '필터 초기화' }));
     expect(props.onResetFilters).toHaveBeenCalled();
   });

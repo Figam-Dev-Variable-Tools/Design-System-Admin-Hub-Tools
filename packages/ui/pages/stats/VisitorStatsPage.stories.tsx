@@ -314,7 +314,7 @@ const KPIS: readonly KpiDef[] = [
     deltaText: '▲ 12.3%',
     deltaTone: 'positive',
     describe: '비교 기간 대비 12.3% (1,742건) 증가',
-    hint: '같은 사람이 두 번 오면 2회로 셉니다.',
+    hint: '같은 사람이 두 번 오면 2회로 세요.',
   },
   {
     id: 'unique',
@@ -324,7 +324,7 @@ const KPIS: readonly KpiDef[] = [
     deltaText: '▲ 8.4%',
     deltaTone: 'positive',
     describe: '비교 기간 대비 8.4% (1,051명) 증가',
-    hint: '중복을 제거한 실제 방문자 수입니다.',
+    hint: '중복을 제거한 실제 방문자 수예요.',
   },
   {
     id: 'pageViews',
@@ -334,7 +334,7 @@ const KPIS: readonly KpiDef[] = [
     deltaText: '▲ 6.1%',
     deltaTone: 'positive',
     describe: '비교 기간 대비 6.1% (2,410건) 증가',
-    hint: '방문자가 열람한 페이지 수의 합입니다.',
+    hint: '방문자가 열람한 페이지 수의 합이에요.',
   },
   {
     id: 'revisit',
@@ -344,7 +344,7 @@ const KPIS: readonly KpiDef[] = [
     deltaText: '▲ 1.8%',
     deltaTone: 'positive',
     describe: '비교 기간 대비 1.8%p 증가',
-    hint: '전체 방문 중 다시 온 방문의 비율입니다.',
+    hint: '전체 방문 중 다시 온 방문의 비율이에요.',
   },
   {
     id: 'duration',
@@ -354,7 +354,7 @@ const KPIS: readonly KpiDef[] = [
     deltaText: '▲ 4.2%',
     deltaTone: 'positive',
     describe: '비교 기간 대비 4.2% 증가',
-    hint: '방문 수로 가중평균한 체류시간입니다.',
+    hint: '방문 수로 가중평균한 체류시간이에요.',
   },
 ];
 
@@ -558,8 +558,8 @@ function VisitorStatsScreen({ state }: { state: ScreenState }) {
   return (
     <div style={pageStyle}>
       <p style={descriptionStyle}>
-        기간을 좁혀 비교하고, 방문자 유형과 시간대·요일까지 파고드는 방문 분석입니다. 대시보드의
-        방문자 위젯이 '지금 몇 명'이라면 여기서는 '지난 기간과 견주어 어떻게 달라졌는지'를 봅니다.
+        기간을 좁혀 비교하고, 방문자 유형과 시간대·요일까지 파고드는 방문 분석이에요. 대시보드의
+        방문자 위젯이 '지금 몇 명'이라면 여기서는 '지난 기간과 견주어 어떻게 달라졌는지'를 봐요.
       </p>
 
       {/* 조회 조건 바 (원본 StatsFilterBar) */}
@@ -634,7 +634,7 @@ function VisitorStatsScreen({ state }: { state: ScreenState }) {
         </div>
 
         <p style={mutedLineStyle}>
-          {`조회 범위 ${rangeLabel} · 내보내기는 현재 조건 전체를 담습니다.`}
+          {`조회 범위 ${rangeLabel} · 내보내기는 현재 조건 전체를 담아요.`}
         </p>
       </section>
 
@@ -662,12 +662,12 @@ function VisitorStatsScreen({ state }: { state: ScreenState }) {
         error=""
       >
         {empty ? (
-          <p style={trendEmptyStyle}>선택한 기간에 집계된 값이 없습니다.</p>
+          <p style={trendEmptyStyle}>선택한 기간에 집계된 값이 없어요.</p>
         ) : (
           <LineAreaChart
             series={chartSeries}
             labels={[...DAY_LABELS]}
-            ariaLabel={`${rangeLabel} ${metricLabel} 추이${showCompare ? ' — 비교 기간이 함께 표시됩니다.' : ''}`}
+            ariaLabel={`${rangeLabel} ${metricLabel} 추이${showCompare ? ' — 비교 기간이 함께 표시돼요.' : ''}`}
           />
         )}
       </StatsCard>

@@ -436,7 +436,7 @@ function InquiryListScreen({
       </p>
 
       <Table
-        caption="문의 목록 — 조회 전용입니다. 행을 누르면 문의 상세로 이동합니다."
+        caption="문의 목록 — 조회 전용이에요. 행을 누르면 문의 상세로 이동해요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[<SeqHeaderCell key="seq" />]}

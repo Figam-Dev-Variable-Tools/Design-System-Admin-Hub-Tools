@@ -112,10 +112,10 @@ export function formatBytes(bytes: number): string {
  */
 export function downloadFileError(file: File, maxSizeMB: number): string | null {
   if (fileKindOf(file.name) === 'etc') {
-    return '문서·이미지·압축 파일만 올릴 수 있습니다.';
+    return '문서·이미지·압축 파일만 올릴 수 있어요.';
   }
   if (file.size > maxSizeMB * 1024 * 1024) {
-    return `파일 용량은 ${String(maxSizeMB)}MB 를 넘을 수 없습니다.`;
+    return `파일 용량은 ${String(maxSizeMB)}MB 를 넘을 수 없어요.`;
   }
   return null;
 }

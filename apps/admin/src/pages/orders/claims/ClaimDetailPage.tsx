@@ -89,7 +89,7 @@ import type { ClaimRefund, RefundStatus } from './refund';
 const RESOURCE = 'claims';
 const LIST_PATH = '/orders/claims';
 const UNSAVED_MESSAGE =
-  '처리 내용에 저장하지 않은 변경이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '처리 내용에 저장하지 않은 변경이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -330,7 +330,7 @@ export default function ClaimDetailPage() {
             return;
           }
           setServerError(
-            isHttpError(cause) ? cause.message : '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+            isHttpError(cause) ? cause.message : '저장하지 못했어요. 잠시 후 다시 시도해 주세요.',
           );
           setErrorReference(referenceOf(cause));
           if (!confirmOpen) setFocusTarget('banner');
@@ -348,7 +348,7 @@ export default function ClaimDetailPage() {
         exchangeOptionValues: [...exchangeValues],
         refund: draftRefund,
       },
-      willMoveStock ? '처리 내용을 저장하고 재고를 반영했습니다.' : '처리 내용을 저장했습니다.',
+      willMoveStock ? '처리 내용을 저장하고 재고를 반영했어요.' : '처리 내용을 저장했어요.',
     );
   };
 
@@ -356,7 +356,7 @@ export default function ClaimDetailPage() {
     if (draftRefund === undefined) return;
     submit(
       { refund: { ...draftRefund, status: to } },
-      to === 'completed' ? '환불을 완료 처리했습니다.' : '환불을 접수했습니다.',
+      to === 'completed' ? '환불을 완료 처리했어요.' : '환불을 접수했어요.',
     );
   };
 
@@ -369,8 +369,8 @@ export default function ClaimDetailPage() {
           <div style={alertActionRowStyle}>
             <span>
               {notFound
-                ? '클레임을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '클레임을 불러오지 못했습니다.'}
+                ? '클레임을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '클레임을 불러오지 못했어요.'}
             </span>
             {!notFound && (
               <Button variant="secondary" onClick={() => void detailQuery.refetch()}>
@@ -459,7 +459,7 @@ export default function ClaimDetailPage() {
               <dt style={dtStyle}>주문 상태</dt>
               <dd style={ddStyle}>
                 {order === null
-                  ? '주문 정보를 확인할 수 없습니다.'
+                  ? '주문 정보를 확인할 수 없어요.'
                   : `${orderStatusLabel(order.status)}${order.canceled ? ' · 취소됨' : ''}`}
               </dd>
               <dt style={dtStyle}>상품</dt>
@@ -506,7 +506,7 @@ export default function ClaimDetailPage() {
             />
 
             {!canUpdate && (
-              <Alert tone="info">이 클레임을 처리할 권한이 없습니다. 조회만 가능합니다.</Alert>
+              <Alert tone="info">이 클레임을 처리할 권한이 없어요. 조회만 가능해요.</Alert>
             )}
 
             <div style={actionsStyle}>
@@ -545,8 +545,8 @@ export default function ClaimDetailPage() {
                   <div style={alertActionRowStyle}>
                     <span>
                       {isNotFound(variantQuery.error)
-                        ? '연결된 상품을 찾을 수 없어 교환 옵션을 불러오지 못했습니다.'
-                        : '상품 옵션을 불러오지 못했습니다.'}
+                        ? '연결된 상품을 찾을 수 없어 교환 옵션을 불러오지 못했어요.'
+                        : '상품 옵션을 불러오지 못했어요.'}
                     </span>
                     {!isNotFound(variantQuery.error) && (
                       <Button variant="secondary" onClick={() => void variantQuery.refetch()}>
@@ -559,7 +559,7 @@ export default function ClaimDetailPage() {
                 <p style={hintStyle}>옵션·재고를 불러오는 중…</p>
               ) : applied ? (
                 <p style={hintStyle}>
-                  {`재고가 이미 반영되어 교환 옵션을 바꿀 수 없습니다. 재발송 옵션: ${optionLabel(claim.exchangeOptionValues)}`}
+                  {`재고가 이미 반영되어 교환 옵션을 바꿀 수 없어요. 재발송 옵션: ${optionLabel(claim.exchangeOptionValues)}`}
                 </p>
               ) : (
                 <ExchangeOptionField
@@ -607,8 +607,8 @@ export default function ClaimDetailPage() {
               movements={claim.stockMovements}
               emptyHint={
                 claim.kind === 'cancel'
-                  ? '취소는 이 화면에서 재고를 움직이지 않습니다. 출고 전 재고는 주문을 취소할 때 되돌아갑니다.'
-                  : '아직 반영된 재고 이동이 없습니다. 완료 처리 시 기록됩니다.'
+                  ? '취소는 이 화면에서 재고를 움직이지 않아요. 출고 전 재고는 주문을 취소할 때 되돌아가요.'
+                  : '아직 반영된 재고 이동이 없어요. 완료 처리 시 기록돼요.'
               }
             />
           </Card>
@@ -621,7 +621,7 @@ export default function ClaimDetailPage() {
         <ConfirmDialog
           intent="update"
           title={isExchange ? '교환 재고 반영' : '반품 재고 반영'}
-          message={`'${claim.productName}' ${formatNumber(claim.quantity)}개의 재고가 이동합니다. 재고 반영은 되돌릴 수 없으며, 반영 후에는 교환 옵션을 바꿀 수 없습니다.`}
+          message={`'${claim.productName}' ${formatNumber(claim.quantity)}개의 재고가 이동해요. 재고 반영은 되돌릴 수 없으며, 반영 후에는 교환 옵션을 바꿀 수 없어요.`}
           confirmLabel="재고 반영"
           busy={saving}
           {...(serverError !== null && { error: serverError })}
@@ -638,7 +638,7 @@ export default function ClaimDetailPage() {
         <ConfirmDialog
           intent="update"
           title="환불 완료 처리"
-          message={`${formatNumber(refundBreakdown(draftRefund).total)}원을 환불 완료로 기록하고, 사용한 적립금 ${formatNumber(draftRefund.pointUsed)}원을 원장에 복원합니다. 이 처리는 되돌릴 수 없습니다.`}
+          message={`${formatNumber(refundBreakdown(draftRefund).total)}원을 환불 완료로 기록하고, 사용한 적립금 ${formatNumber(draftRefund.pointUsed)}원을 원장에 복원해요. 이 처리는 되돌릴 수 없어요.`}
           confirmLabel="환불 완료"
           busy={saving}
           {...(serverError !== null && { error: serverError })}

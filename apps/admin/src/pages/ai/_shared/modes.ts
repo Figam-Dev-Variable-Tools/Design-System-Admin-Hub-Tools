@@ -86,7 +86,7 @@ export { AI_PROVIDER_SETTINGS_PATH };
  */
 function lockReasonText(): string {
   const names = AI_PROVIDER_CATALOG.map((provider) => provider.label).join(' · ');
-  return `${names} 중 하나를 연동하면 열립니다.`;
+  return `${names} 중 하나를 연동하면 열려요.`;
 }
 
 /**

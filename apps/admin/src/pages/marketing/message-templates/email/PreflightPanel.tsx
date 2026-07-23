@@ -53,7 +53,7 @@ export function PreflightPanel({ value, onSelectBlock }: PreflightPanelProps) {
 
       {issues.length === 0 ? (
         <p style={preflightOkStyle}>
-          제목·발신 주소·프리헤더·버튼 링크·이미지 대체 텍스트·수신거부 안내를 모두 확인했습니다.
+          제목·발신 주소·프리헤더·버튼 링크·이미지 대체 텍스트·수신거부 안내를 모두 확인했어요.
         </p>
       ) : (
         <ul style={preflightListStyle}>

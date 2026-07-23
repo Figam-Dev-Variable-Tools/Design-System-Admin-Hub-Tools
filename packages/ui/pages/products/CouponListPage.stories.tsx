@@ -468,7 +468,7 @@ function CouponListScreen({
       {error ? (
         <Alert tone="danger">
           <div style={errorRowStyle}>
-            <span>쿠폰 목록을 불러오지 못했습니다.</span>
+            <span>쿠폰 목록을 불러오지 못했어요.</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
@@ -487,7 +487,7 @@ function CouponListScreen({
           </p>
 
           <Table
-            caption="쿠폰 목록 — 행을 누르면 쿠폰 수정으로 이동합니다. 체크박스·발급 토글·수정·삭제 버튼은 각자의 동작을 수행합니다."
+            caption="쿠폰 목록 — 행을 누르면 쿠폰 수정으로 이동해요. 체크박스·발급 토글·수정·삭제 버튼은 각자 따로 동작해요."
             columns={COLUMNS}
             rows={rows}
             leadingHead={[
@@ -524,7 +524,7 @@ function CouponListScreen({
         <ConfirmDialog
           intent="delete"
           title="쿠폰 삭제"
-          message={`'${pendingDelete.name}' 쿠폰을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.name}' 쿠폰을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="쿠폰 삭제"
           onConfirm={() => setPendingDelete(null)}
           onCancel={() => setPendingDelete(null)}

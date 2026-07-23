@@ -17,6 +17,10 @@ import { isAbort } from '../../../shared/async';
 import { parseFilter, useListState } from '../../../shared/crud';
 import { formatNumber } from '../../../shared/format';
 import {
+  useRouteWritePermissions,
+  WRITE_DENIED,
+} from '../../../shared/permissions/RequirePermission';
+import {
   Alert,
   Button,
   ConfirmDialog,
@@ -106,6 +110,15 @@ export default function FaqPage() {
   const navigate = useNavigate();
 
   /**
+   * [EXC-03] 이 화면의 쓰기 권한 — 한 번 읽어 **여섯 자리**로 흘린다.
+   *
+   * 등록 CTA · 카테고리 관리 모달 · 일괄 노출/숨김 · 일괄 삭제 · 표(체크박스·휴지통·노출
+   * 스위치·순서 이동) · 그리고 그 모든 뮤테이션의 거절. 손으로 만든 목록이라 껍데기의 게이팅을
+   * 하나도 받지 못했고, 조회 권한만으로 노출 스위치가 눌리고 저장까지 됐다.
+   */
+  const { canCreate, canUpdate, canRemove } = useRouteWritePermissions();
+
+  /**
    * [IA-13] 카테고리·노출 필터·검색어·페이지의 단일 원천 = URL.
    *
    * FAQ 는 '결제 카테고리의 숨김 항목' 처럼 좁힌 뒤 한 건을 열어 고치고 돌아오는 일이 반복된다.
@@ -154,6 +167,11 @@ export default function FaqPage() {
   const reorderable = categoryId === CATEGORY_ALL && visibility === 'all' && keyword === '';
 
   const onReorder = (orderedIds: readonly string[]) => {
+    // 순서 변경은 수정이다 — 표가 핸들을 지운 것과 같은 술어로 저장도 거절한다
+    if (!canUpdate) {
+      toast.error(WRITE_DENIED.update);
+      return;
+    }
     reorderControllerRef.current?.abort();
     const controller = new AbortController();
     reorderControllerRef.current = controller;
@@ -163,12 +181,12 @@ export default function FaqPage() {
       {
         onSuccess: () => {
           if (controller.signal.aborted) return;
-          toast.success('정렬 순서를 변경했습니다.');
+          toast.success('정렬 순서를 변경했어요.');
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
           // 낙관적 업데이트는 mutation 이 롤백했다 — 사용자에게 알리고 같은 순서로 재시도 경로를 준다
-          toast.error('정렬 순서를 변경하지 못했습니다.', { retry: () => onReorder(orderedIds) });
+          toast.error('정렬 순서를 변경하지 못했어요.', { retry: () => onReorder(orderedIds) });
         },
       },
     );
@@ -216,6 +234,10 @@ export default function FaqPage() {
 
   const onConfirmDelete = () => {
     if (pendingDelete === null) return;
+    if (!canRemove) {
+      setDeleteError(WRITE_DENIED.remove);
+      return;
+    }
     const target = pendingDelete;
 
     const controller = new AbortController();
@@ -228,11 +250,11 @@ export default function FaqPage() {
         onSuccess: () => {
           if (controller.signal.aborted) return;
           setPendingDelete(null);
-          toast.success('FAQ 를 삭제했습니다.');
+          toast.success('FAQ 를 삭제했어요.');
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setDeleteError('FAQ 를 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setDeleteError('FAQ 를 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -251,18 +273,21 @@ export default function FaqPage() {
 
   const onToggleVisible = (faq: FaqSummary, next: boolean) => {
     if (togglingIds.has(faq.id)) return;
+    // 스위치를 배지로 바꾼 술어와 **같은 술어**가 저장을 거절한다 (RowToggle ↔ 여기)
+    if (!canUpdate) {
+      toast.error(WRITE_DENIED.update);
+      return;
+    }
     markToggling(faq.id, true);
     visibilityMutation.mutate(
       { id: faq.id, visible: next },
       {
         onSuccess: () => {
-          toast.success(
-            next ? `'${faq.question}' 를 노출합니다.` : `'${faq.question}' 를 숨겼습니다.`,
-          );
+          toast.success(next ? `'${faq.question}' 를 노출해요.` : `'${faq.question}' 를 숨겼어요.`);
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          toast.error('노출 상태를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.', {
+          toast.error('노출 상태를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.', {
             retry: () => onToggleVisible(faq, next),
           });
         },
@@ -274,6 +299,10 @@ export default function FaqPage() {
   const onBulkVisibility = (visible: boolean) => {
     const ids = [...selectedIds];
     if (ids.length === 0 || bulkTogglingVisibility) return;
+    if (!canUpdate) {
+      toast.error(WRITE_DENIED.update);
+      return;
+    }
     bulkVisibility.mutate(
       { ids, visible },
       {
@@ -281,13 +310,13 @@ export default function FaqPage() {
           const label = visible ? '노출' : '숨김';
           if (failed > 0) {
             toast.error(
-              `FAQ ${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 ${label} 처리하지 못했습니다.`,
+              `FAQ ${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 ${label} 처리하지 못했어요.`,
               { retry: () => onBulkVisibility(visible) },
             );
             return;
           }
           clearSelection();
-          toast.success(`FAQ ${formatNumber(ids.length)}건을 ${label} 처리했습니다.`);
+          toast.success(`FAQ ${formatNumber(ids.length)}건을 ${label} 처리했어요.`);
         },
       },
     );
@@ -304,6 +333,10 @@ export default function FaqPage() {
   const onConfirmBulkDelete = () => {
     const ids = [...selectedIds];
     if (ids.length === 0) return;
+    if (!canRemove) {
+      setBulkError(WRITE_DENIED.remove);
+      return;
+    }
     const controller = new AbortController();
     bulkControllerRef.current = controller;
     setBulkError(null);
@@ -315,13 +348,13 @@ export default function FaqPage() {
           if (controller.signal.aborted) return;
           if (failed > 0) {
             setBulkError(
-              `FAQ ${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.`,
+              `FAQ ${formatNumber(ids.length)}건 중 ${formatNumber(failed)}건을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.`,
             );
             return;
           }
           setBulkOpen(false);
           clearSelection();
-          toast.success(`FAQ ${formatNumber(ids.length)}건을 삭제했습니다.`);
+          toast.success(`FAQ ${formatNumber(ids.length)}건을 삭제했어요.`);
         },
       },
     );
@@ -349,13 +382,18 @@ export default function FaqPage() {
               {...list.searchInputProps}
             />
             <div style={toolbarActionsStyle}>
-              <Button variant="secondary" size="md" onClick={() => setManagingCategories(true)}>
-                카테고리 관리
-              </Button>
-              <Button variant="primary" size="md" onClick={() => navigate('/content/faq/new')}>
-                <Icon name="plus-circle" />
-                FAQ 등록
-              </Button>
+              {/* 이 모달이 하는 일은 카테고리 등록·삭제뿐이다 — 둘 다 없으면 열 이유가 없다 */}
+              {(canCreate || canRemove) && (
+                <Button variant="secondary" size="md" onClick={() => setManagingCategories(true)}>
+                  카테고리 관리
+                </Button>
+              )}
+              {canCreate && (
+                <Button variant="primary" size="md" onClick={() => navigate('/content/faq/new')}>
+                  <Icon name="plus-circle" />
+                  FAQ 등록
+                </Button>
+              )}
             </div>
           </div>
 
@@ -368,25 +406,39 @@ export default function FaqPage() {
                 </p>
               </div>
 
-              <SelectionBar count={selectedCount} onClear={clearSelection}>
-                <Button
-                  variant="secondary"
-                  disabled={bulkTogglingVisibility}
-                  onClick={() => onBulkVisibility(true)}
-                >
-                  일괄 노출
-                </Button>
-                <Button
-                  variant="secondary"
-                  disabled={bulkTogglingVisibility}
-                  onClick={() => onBulkVisibility(false)}
-                >
-                  일괄 숨김
-                </Button>
-                <Button variant="danger" disabled={bulkDeleting} onClick={() => setBulkOpen(true)}>
-                  {`선택 ${formatNumber(selectedCount)}건 삭제`}
-                </Button>
-              </SelectionBar>
+              {/* 선택을 소비하는 것은 일괄 노출/숨김(update)과 일괄 삭제(remove)뿐이다.
+                  둘 다 없으면 바 자체를 그리지 않는다 — 표도 같은 조건에서 체크박스를 지운다 */}
+              {(canUpdate || canRemove) && (
+                <SelectionBar count={selectedCount} onClear={clearSelection}>
+                  {canUpdate && (
+                    <>
+                      <Button
+                        variant="secondary"
+                        disabled={bulkTogglingVisibility}
+                        onClick={() => onBulkVisibility(true)}
+                      >
+                        일괄 노출
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        disabled={bulkTogglingVisibility}
+                        onClick={() => onBulkVisibility(false)}
+                      >
+                        일괄 숨김
+                      </Button>
+                    </>
+                  )}
+                  {canRemove && (
+                    <Button
+                      variant="danger"
+                      disabled={bulkDeleting}
+                      onClick={() => setBulkOpen(true)}
+                    >
+                      {`선택 ${formatNumber(selectedCount)}건 삭제`}
+                    </Button>
+                  )}
+                </SelectionBar>
+              )}
 
               <FaqTable
                 faqs={faqs}
@@ -407,6 +459,8 @@ export default function FaqPage() {
                 startIndex={(page - 1) * PAGE_SIZE}
                 onToggleVisible={onToggleVisible}
                 togglingIds={togglingIds}
+                canUpdate={canUpdate}
+                canRemove={canRemove}
               />
 
               <Pagination
@@ -419,7 +473,7 @@ export default function FaqPage() {
           ) : (
             <Alert tone="danger">
               <div style={errorBodyStyle}>
-                <span>FAQ 를 불러오지 못했습니다.</span>
+                <span>FAQ 를 불러오지 못했어요.</span>
                 <Button
                   variant="secondary"
                   onClick={() => {
@@ -437,8 +491,8 @@ export default function FaqPage() {
       {managingCategories && (
         <ManageFaqCategoriesModal
           onClose={() => setManagingCategories(false)}
-          onCreated={(name) => toast.success(`'${name}' 카테고리를 만들었습니다.`)}
-          onDeleted={(label) => toast.success(`'${label}' 카테고리를 삭제했습니다.`)}
+          onCreated={(name) => toast.success(`'${name}' 카테고리를 만들었어요.`)}
+          onDeleted={(label) => toast.success(`'${label}' 카테고리를 삭제했어요.`)}
         />
       )}
 
@@ -446,7 +500,7 @@ export default function FaqPage() {
         <ConfirmDialog
           intent="delete"
           title="FAQ 삭제"
-          message={`'${pendingDelete.question}' FAQ 를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.question}' FAQ 를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="FAQ 삭제"
           busy={deleting}
           error={deleteError}
@@ -459,7 +513,7 @@ export default function FaqPage() {
         <ConfirmDialog
           intent="delete"
           title="FAQ 일괄 삭제"
-          message={`선택한 FAQ ${formatNumber(selectedCount)}건을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 FAQ ${formatNumber(selectedCount)}건을 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel={`${formatNumber(selectedCount)}건 삭제`}
           busy={bulkDeleting}
           error={bulkError}

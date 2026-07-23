@@ -2,8 +2,8 @@
 //
 // ┌ 이 파일이 생기면서 해소된 것 ──────────────────────────────────────────────┐
 // │ **자격증명 저장 경로가 통째로 없었다**(BE-069 §7.5 #1) — `settingsPath` 가     │
-// │ 13건 전부 null 이라 '앱 설정' 버튼이 전부 비활성이었고, 그래서 저장된 연동이     │
-// │ 0건이고 13/13 이 연동 해제였다. 이제 저장이 실제로 일어난다.                    │
+// │ 전 항목 null 이라 '앱 설정' 버튼이 전부 비활성이었고, 그래서 저장된 연동이       │
+// │ 0건이고 전 행이 연동 해제였다. 이제 저장이 실제로 일어난다.                     │
 // │                                                                          │
 // │ **그리고 저장만 일어난다.** 검증(verify)은 여전히 없다 — 그것은 서버가          │
 // │ 프로바이더를 실제로 불러 봐야 성립하고, 브라우저가 부르면 키가 브라우저로        │
@@ -22,7 +22,12 @@
 //
 // [실패/충돌 재현] /settings/api-keys?fail=load · ?fail=save · ?fail=conflict
 import { createRevisionedStore } from '../_shared/store';
-import { AI_CREDENTIAL_FIELDS, connectionIsUsable, toConnection } from './ai-connections';
+import {
+  AI_CREDENTIAL_FIELDS,
+  connectionIsUsable,
+  credentialIsSecret,
+  toConnection,
+} from './ai-connections';
 import type { AiConnection, AiConnectionRecord, AiCredentialFieldKey } from './ai-connections';
 import { integrationCatalogue, resolveIntegrations } from './integrations';
 import type { Integration } from './integrations';
@@ -57,6 +62,35 @@ const DEFAULT_AI_CONNECTIONS: AiConnectionsValues = { connections: [] };
 //   부분 저장을 허용하지 않는다 — 연동 하나를 통째로 쓴다(그래서 PATCH 가 아니라 PUT 이다).
 // TODO(backend): POST /api/settings/ai-connections/:providerId/verify (BE-069 EP-04)
 //   **이 화면은 아직 부르지 않는다.** 프론트에서 검증 시늉을 내지 않는다.
+//
+//   ┌ 계약을 지금 적어 두는 이유 ─────────────────────────────────────────────┐
+//   │ 2026-07 재조사에서 **무엇을 부를지가 확정됐다.** 네 곳 모두 '모델 목록'      │
+//   │ 계열의 읽기 전용 엔드포인트를 갖는다:                                      │
+//   │   · OpenAI    `GET /v1/models`                                          │
+//   │   · Anthropic `GET /v1/models`                                          │
+//   │   · Gemini    `GET /v1beta/models`                                      │
+//   │   · xAI       `GET /v1/models` (그리고 `GET /v1/api-key` 가 키 이름·차단   │
+//   │                여부까지 돌려준다 — 더 값싼 확인이다)                       │
+//   │ 부작용이 없고, 과금이 없고, 실패가 곧 '이 키로는 안 된다' 를 뜻한다.         │
+//   │ 계약을 지금 적어 두지 않으면 나중에 '검증' 이 채팅 한 번 보내기로 구현될 수   │
+//   │ 있다 — 그것은 돈이 나가고 사이드이펙트가 있는 확인이다.                      │
+//   └────────────────────────────────────────────────────────────────────────┘
+//
+//   요청: POST /api/settings/integrations/:id/verify + X-CSRF-Token (본문 없음)
+//     → **키를 보내지 않는다.** 서버가 자기가 보관한 자격증명으로 부른다.
+//   응답: { ok: boolean, checkedAt: string, reason: string | null }
+//     · 이것이 전부다. 상대의 응답 본문·헤더·모델 목록을 그대로 흘리지 않는다.
+//     · `ok === true` 일 때만 `lastVerifiedAt = checkedAt` 이 된다(프론트는 시각을 만들지 않는다).
+//     · `reason` 은 **운영자가 고칠 수 있는 말**이어야 한다(401/403/네트워크 구분).
+//   ⚠ 브라우저에서 직접 부르지 않는다 — 그러면 키가 브라우저로 내려와야 하고,
+//     그 순간 '평문을 저장하지 않는다' 가 거짓이 된다(./ai-connections.ts 의 lastVerifiedAt).
+//
+// TODO(backend): GET /api/settings/integrations/:id/models
+//   '기본 모델' 칸을 자유 입력 대신 **그 키로 실제로 보이는 목록**으로 도울 자리다.
+//   응답: { models: string[] } — **id 문자열 배열만.** 키도, 상대 응답 원문도 넘어가지 않는다.
+//   전역 카탈로그로 대신할 수 없는 이유는 ./integrations.ts 의 defaultModelField 머리말에 있다
+//   (요약: 목록이 빠르게 낡고, 표시명과 id 가 다르고, **키마다 보이는 모델이 다르다**).
+//   ⚠ 이 경로가 생겨도 **자유 입력을 없애지 않는다** — 목록에 없는 신모델을 넣어야 하는 날이 온다.
 export const aiConnectionsStore = createRevisionedStore<AiConnectionsValues>(
   'api-keys',
   DEFAULT_AI_CONNECTIONS,
@@ -243,16 +277,23 @@ export function recordToForm(record: AiConnectionRecord): AiConnectionFormValues
 /**
  * 폼 값 → 저장 문서. 평문은 여기서 마지막으로 존재하고 `applyCredentials` 가 버린다.
  *
- * `secretKeys` 는 **카탈로그가 정한다** — 화면이 정하면 어떤 칸을 비밀로 볼지가 두 곳에 살고,
- * 갈라지는 날 평문이 문서에 남는다.
+ * ┌ `secretKeys` 의 정본이 어디인가 — 이 함수가 그 질문의 급소다 ─────────────┐
+ * │ 이 목록에서 빠진 칸의 값은 **평문 그대로 `publicValues` 에 저장된다.**        │
+ * │ 그래서 '어느 칸이 비밀인가' 가 항목마다 다르게 적힐 수 있으면, 오탈자 하나가   │
+ * │ **그 프로바이더에서만 키가 평문으로 남는** 사고가 된다.                       │
+ * │                                                                          │
+ * │ 그래서 판단을 항목에서 뺐다: 비밀 여부는 **칸 이름 하나**가 갖는다             │
+ * │ (./ai-connections.ts 의 CREDENTIAL_SECRECY). 카탈로그는 어떤 칸을 요구하는지  │
+ * │ 만 말하고, 그 칸이 비밀인지는 말하지 않는다 — 말할 자리가 타입에 없다.        │
+ * └──────────────────────────────────────────────────────────────────────────┘
  */
 export function formToRecord(
   base: AiConnectionRecord,
   values: AiConnectionFormValues,
 ): AiConnectionRecord {
   const secretKeys = credentialsOf(values.providerId)
-    .filter((field) => field.secret)
-    .map((field) => field.key);
+    .map((field) => field.key)
+    .filter(credentialIsSecret);
 
   return applyCredentials({ ...base, enabled: values.enabled }, secretKeys, values.credentials);
 }
@@ -272,8 +313,14 @@ export function currentIntegrations(): readonly Integration[] {
 /**
  * 공통 층이 읽는 프로바이더 상태 — **핵심 4종으로 좁혀서** 넘긴다.
  *
- * 카탈로그는 이보다 넓지만(게이트웨이·클라우드 포함), 응답 모드 잠금이 그것들까지 알 이유가 없다.
- * 유니온을 넓히면 소비자 쪽 분기가 프로바이더를 하나 더할 때마다 깨진다.
+ * 카탈로그는 이보다 넓지만(파운데이션 모델 2종 + 배송 1종을 포함한다), 응답 모드 잠금이 그것들까지
+ * 알 이유가 없다 — 특히 배송 연동은 AI 와 아무 관계가 없다. 유니온을 넓히면 소비자 쪽 분기가
+ * 항목을 하나 더할 때마다 깨진다.
+ *
+ * [지금은 '모델' 분류와 같은 넷이다 — 그래도 파생시키지 않는다] 카탈로그가 좁아지면서 핵심 4종이
+ * 마침 `category === 'model'` 인 항목 전부와 같아졌다. 그렇다고 분류에서 파생시키면, 분류에 모델
+ * 하나를 더하는 순간 **AI 화면의 잠금 계약이 조용히 넓어진다**. 여기 적힌 넷은 그 화면이 아는
+ * 유니온이지 이 카탈로그의 파생값이 아니다.
  *
  * ⚠ `enabled === true` 는 '**자격증명이 갖춰졌다**' 이지 '방금 호출해 확인했다' 가 아니다 —
  * 후자는 `lastVerifiedAt` 이고 그것은 서버만 채울 수 있다(./ai-connections.ts).

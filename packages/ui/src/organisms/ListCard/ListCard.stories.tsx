@@ -70,7 +70,7 @@ const meta: Meta<typeof ListCard> = {
     count: 12,
     rows: ROWS,
     loading: false,
-    empty: '표시할 항목이 없습니다.',
+    empty: '표시할 항목이 없어요.',
     icon: null,
     onRowClick: fn(),
   },
@@ -126,7 +126,7 @@ export const WithoutCount: Story = {
 /** 빈 문구 커스텀 — empty prop 으로 도메인 문구를 준다 */
 export const EmptyCustomMessage: Story = {
   name: 'Features/Custom Empty Message',
-  args: { rows: [], count: 0, empty: '아직 접수된 주문이 없습니다.' },
+  args: { rows: [], count: 0, empty: '아직 접수된 주문이 없어요.' },
 };
 
 /* ── Content ────────────────────────────────────────────────────────────── */
@@ -162,13 +162,13 @@ export const LongContent: Story = {
       {
         id: 'a',
         title:
-          '주문한 상품이 배송 예정일을 지나도 도착하지 않아 문의드립니다. 송장 번호 조회 시에도 상태가 갱신되지 않습니다.',
+          '주문한 상품이 배송 예정일을 지나도 도착하지 않아 문의드려요. 송장 번호 조회 시에도 상태가 갱신되지 않아요.',
         meta: '고객센터 · 담당자 미지정 · 2026-07-14 09:31 · 재문의 3회',
         href: '#/inquiries/8821',
       },
       {
         id: 'b',
-        title: '교환 접수 후 회수 일정이 잡히지 않습니다',
+        title: '교환 접수 후 회수 일정이 잡히지 않아요',
         meta: '고객센터 · 김담당 · 2026-07-13 18:02',
         href: '#/inquiries/8820',
       },

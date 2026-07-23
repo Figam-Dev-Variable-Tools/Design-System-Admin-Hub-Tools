@@ -112,7 +112,7 @@ function authFailures(now: Date): readonly Draft[] {
           'x-api-key': client.apiKey,
         },
       },
-      response: { status: 401, code: 'INVALID_API_KEY', message: '유효하지 않은 API 키입니다.' },
+      response: { status: 401, code: 'INVALID_API_KEY', message: '유효하지 않은 API 키예요.' },
     },
   }));
 }

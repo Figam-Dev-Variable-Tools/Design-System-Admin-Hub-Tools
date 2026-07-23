@@ -17,7 +17,7 @@ export const bannerSchema = z
     title: z.string().check(
       z.refine((value) => value.trim() !== '', { error: '제목을 입력하세요.' }),
       z.refine((value) => value.trim().length <= TITLE_MAX_LENGTH, {
-        error: `제목은 ${String(TITLE_MAX_LENGTH)}자를 넘을 수 없습니다.`,
+        error: `제목은 ${String(TITLE_MAX_LENGTH)}자를 넘을 수 없어요.`,
       }),
     ),
     // 업로드된 이미지 값(object/data URL 또는 업로드 응답 URL) — 형식은 강제하지 않고 등록 여부만 본다
@@ -36,7 +36,7 @@ export const bannerSchema = z
     order: z.string().check(
       z.refine((value) => value.trim() !== '', { error: '정렬 순서를 입력하세요.' }),
       z.refine((value) => /^\d+$/.test(value.trim()), {
-        error: '정렬 순서는 0 이상의 정수입니다.',
+        error: '정렬 순서는 0 이상의 정수예요.',
       }),
     ),
   })
@@ -66,7 +66,7 @@ export const bannerSchema = z
         code: 'custom',
         input: ctx.value.endAt,
         path: ['endAt'],
-        message: '종료일은 시작일보다 빠를 수 없습니다.',
+        message: '종료일은 시작일보다 빠를 수 없어요.',
       });
     }
   });

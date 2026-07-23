@@ -249,7 +249,7 @@ export function StatsFilterBar({
       </div>
 
       <p style={{ ...mutedTextStyle, margin: 0 }}>
-        {`조회 범위 ${formatPeriodLabel(params.period)} · 내보내기는 현재 조건 전체를 담습니다.`}
+        {`조회 범위 ${formatPeriodLabel(params.period)} · 내보내기는 현재 조건 전체를 담아요.`}
       </p>
     </section>
   );

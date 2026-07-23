@@ -32,7 +32,7 @@ export function DataTable({
   summaryRows = [],
   caption,
   dimZero = true,
-  empty = '표시할 항목이 없습니다.',
+  empty = '표시할 항목이 없어요.',
 }: DataTableProps) {
   const bodyColumns = columns.filter((column) => column.key !== rowKey);
   const keyColumn = columns.find((column) => column.key === rowKey);

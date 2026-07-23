@@ -21,9 +21,12 @@ import {
   createMatrix,
   createReadOnlyMatrix,
   matrixFromLegacyPermissions,
+  navPageResourceId,
   normalizeMatrix,
+  withResourceAction,
 } from './resources';
 import type { PermissionMatrix } from './resources';
+import { ROLE_ADMIN_PATH } from './route-resource';
 
 /* ── 데이터 접근 범위 ────────────────────────────────────────────────────── */
 
@@ -41,9 +44,9 @@ interface RoleScopeMeta {
 }
 
 export const ROLE_SCOPE_META: readonly RoleScopeMeta[] = [
-  { key: 'all', label: '전체', description: '모든 데이터를 조회·처리할 수 있습니다.' },
-  { key: 'department', label: '소속 부서', description: '자신이 속한 부서의 데이터만 다룹니다.' },
-  { key: 'own', label: '본인', description: '자신이 만든 데이터만 다룹니다.' },
+  { key: 'all', label: '전체', description: '모든 데이터를 조회·처리할 수 있어요.' },
+  { key: 'department', label: '소속 부서', description: '자신이 속한 부서의 데이터만 다뤄요.' },
+  { key: 'own', label: '본인', description: '자신이 만든 데이터만 다뤄요.' },
 ];
 
 function normalizeScope(raw: unknown): RoleScope {
@@ -91,7 +94,7 @@ export const ROLE_NAME_MAX_LENGTH = 30;
 
 /** 시스템 역할을 수정할 수 없는 이유 — 비활성 컨트롤의 aria-describedby 문구로도 쓴다 */
 export const SYSTEM_ROLE_REASON =
-  '슈퍼어드민(전체권한)은 시스템 역할이라 이름 변경·삭제·권한 수정을 할 수 없습니다. 항상 모든 리소스의 모든 액션을 가집니다.';
+  '슈퍼어드민(전체권한)은 시스템 역할이라 이름 변경·삭제·권한 수정을 할 수 없어요. 항상 모든 리소스의 모든 액션을 가져요.';
 
 /* ── 기본 역할 ───────────────────────────────────────────────────────────── */
 
@@ -104,6 +107,28 @@ export function createSuperAdminRole(): Role {
     permissions: createMatrix(true),
     widgets: createWidgets(true),
   };
+}
+
+/**
+ * '뷰어' 역할의 권한 — 전 리소스 조회, **단 권한 관리(`/users/roles`)는 제외**.
+ *
+ * [왜 여기서 read 를 뺀다] 권한 관리 화면은 역할을 편집하고 그 안에는 '이 역할 적용' 버튼이 있다.
+ * 조회 전용 역할이 그 화면에 닿으면 클릭 한 번으로 슈퍼어드민으로 신원을 바꿀 수 있다. 버튼 자체를
+ * 막으면 update 를 잃은 역할에서 빠져나올 길이 사라져 영구 잠금이 되므로(permission-store.ts 의
+ * activateRole 머리말), 대신 **뷰어가 이 화면에 아예 닿지 못하게** 한다 — read 를 빼면 사이드바에서
+ * 사라지고(AppShell), 주소로 들어와도 403 이며(RequirePermission), 그 버튼에 이르는 길이 없어진다.
+ * 다른 기본 역할(운영자·슈퍼어드민)은 이 화면을 봐야 하므로 건드리지 않는다.
+ *
+ * 정본은 createReadOnlyMatrix 다 — 그것을 읽고 이 리소스 하나만 read=false 로 덮는다. enforceMatrix
+ * 가 그룹(사용자 관리) 행을 남은 자식(관리자 관리)의 합집합으로 다시 계산하므로 그룹은 그대로 보인다.
+ */
+export function createViewerMatrix(): PermissionMatrix {
+  return withResourceAction(
+    createReadOnlyMatrix(),
+    navPageResourceId(ROLE_ADMIN_PATH),
+    'read',
+    false,
+  );
 }
 
 /**
@@ -130,9 +155,9 @@ function createDefaultRoles(
       id: VIEWER_ROLE_ID,
       name: '뷰어',
       system: false,
-      // 읽기 전용 역할의 표본 — 모든 리소스 조회만, 본인 데이터만
+      // 읽기 전용 역할의 표본 — 권한 관리를 뺀 모든 리소스 조회만, 본인 데이터만
       scope: 'own',
-      permissions: createReadOnlyMatrix(),
+      permissions: createViewerMatrix(),
       widgets: createWidgets(true),
     },
   ];
@@ -298,14 +323,14 @@ export function validateRoleName(
   const trimmed = name.trim();
   if (trimmed === '') return '역할명을 입력하세요.';
   if (trimmed.length > ROLE_NAME_MAX_LENGTH) {
-    return `역할명은 ${String(ROLE_NAME_MAX_LENGTH)}자를 넘을 수 없습니다.`;
+    return `역할명은 ${String(ROLE_NAME_MAX_LENGTH)}자를 넘을 수 없어요.`;
   }
 
   const key = trimmed.toLocaleLowerCase();
   const duplicated = roles.some(
     (role) => role.id !== ignoreRoleId && role.name.trim().toLocaleLowerCase() === key,
   );
-  return duplicated ? '이미 같은 이름의 역할이 있습니다.' : null;
+  return duplicated ? '이미 같은 이름의 역할이 있어요.' : null;
 }
 
 /* ── 삭제 가드 ────────────────────────────────────────────────────────────────
@@ -330,10 +355,10 @@ export function validateRoleName(
  */
 export function roleDeletionBlock(roleName: string, assigneeCount: number | null): string | null {
   if (assigneeCount === null) {
-    return `'${roleName}' 역할을 쓰는 운영자를 확인하지 못해 삭제할 수 없습니다. 잠시 후 다시 시도해 주세요.`;
+    return `'${roleName}' 역할을 쓰는 운영자를 확인하지 못해 삭제할 수 없어요. 잠시 후 다시 시도해 주세요.`;
   }
   if (assigneeCount > 0) {
-    return `'${roleName}' 역할을 쓰는 운영자가 ${formatNumber(assigneeCount)}명 있어 삭제할 수 없습니다. 관리자 관리에서 이 운영자들의 역할을 먼저 바꾼 뒤 다시 삭제해 주세요.`;
+    return `'${roleName}' 역할을 쓰는 운영자가 ${formatNumber(assigneeCount)}명 있어 삭제할 수 없어요. 관리자 관리에서 이 운영자들의 역할을 먼저 바꾼 뒤 다시 삭제해 주세요.`;
   }
   return null;
 }

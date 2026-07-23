@@ -43,7 +43,7 @@ function Nested({ confirming }: { readonly confirming: boolean }) {
       </Modal>
       {confirming && (
         <Modal title="확인 다이얼로그" footer={Footer} onClose={vi.fn()}>
-          <p>정말 나가시겠습니까?</p>
+          <p>정말 나갈까요?</p>
         </Modal>
       )}
     </>

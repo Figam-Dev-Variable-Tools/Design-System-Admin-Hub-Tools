@@ -92,7 +92,7 @@ export function InboxRow({ from, subject, preheader, body }: InboxRowProps) {
         </span>
         {preview === '' ? (
           <span style={fallbackNoteStyle}>
-            (프리헤더가 비어 있고 본문도 아직 없습니다 — 수신함에는 제목만 보입니다)
+            (프리헤더가 비어 있고 본문도 아직 없어요 — 수신함에는 제목만 보여요)
           </span>
         ) : (
           <span style={previewStyle}>{preview}</span>

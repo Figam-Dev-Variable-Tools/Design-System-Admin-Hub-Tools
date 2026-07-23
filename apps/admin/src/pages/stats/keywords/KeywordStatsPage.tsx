@@ -9,9 +9,8 @@
 // 한글 IME 안전 커밋(조합 중에는 조회하지 않는다)은 셸이 StatsFilterBar → useImeSearch 로
 // 처리하고, 여기서는 **확정된** params.keyword 로 행을 거를 뿐이다 (COMP-10).
 import { useCallback, useMemo } from 'react';
-import type { CSSProperties } from 'react';
 
-import { Card, CardTitle, StatusBadge } from '../../../shared/ui';
+import { Card, CardTitle, inlineBadgeRowStyle, StatusBadge } from '../../../shared/ui';
 import { formatNumber } from '../../../shared/format';
 import { StatsKpiRow } from '../_shared/StatsKpiRow';
 import { StatsPageShell } from '../_shared/StatsPageShell';
@@ -41,7 +40,6 @@ import {
   zeroResultCountOf,
 } from './types';
 import type { KeywordDailyRow, KeywordRow, KeywordSegment } from './types';
-import { cssVar } from '@tds/ui';
 
 const ROUTE = '/stats/keywords';
 
@@ -52,16 +50,10 @@ function segmentOf(value: string): KeywordSegment {
   return isKeywordSegment(value) ? value : 'all';
 }
 
-const keywordCellStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: cssVar('space.2'),
-};
-
 /** 결과 없음 검색어는 이 화면에서 유일하게 '지금 손대야 하는' 행이다 — 색이 아니라 문구가 말한다 */
 function KeywordCell({ row }: { readonly row: KeywordRow }) {
   return (
-    <span style={keywordCellStyle}>
+    <span style={inlineBadgeRowStyle}>
       {row.keyword}
       {isZeroResultKeyword(row) ? <StatusBadge tone="warning" label="결과 없음" /> : null}
     </span>
@@ -183,7 +175,7 @@ export default function KeywordStatsPage() {
         unit: 'count',
         value: searchOf(rows),
         compareValue: compare === null ? null : searchOf(compare),
-        hint: '조회 조건에 걸린 검색어로 유입된 검색 횟수의 합입니다.',
+        hint: '조회 조건에 걸린 검색어로 유입된 검색 횟수의 합이에요.',
       },
       {
         id: 'unique',
@@ -191,7 +183,7 @@ export default function KeywordStatsPage() {
         unit: 'count',
         value: rows.length,
         compareValue: compare === null ? null : compare.length,
-        hint: '중복을 제거한 서로 다른 검색어의 개수입니다.',
+        hint: '중복을 제거한 서로 다른 검색어의 개수예요.',
       },
       {
         id: 'zeroResult',
@@ -201,7 +193,7 @@ export default function KeywordStatsPage() {
         isLowerBetter: true,
         value: zeroResultCountOf(rows),
         compareValue: compare === null ? null : zeroResultCountOf(compare),
-        hint: '걸리는 상품이 0개인 검색어입니다. 상품을 추가하거나 동의어를 걸면 줄어듭니다.',
+        hint: '걸리는 상품이 0개인 검색어예요. 상품을 추가하거나 동의어를 걸면 줄어들어요.',
       },
       {
         id: 'clickRate',
@@ -209,7 +201,7 @@ export default function KeywordStatsPage() {
         unit: 'percent',
         value: averageClickRate(rows),
         compareValue: compare === null ? null : averageClickRate(compare),
-        hint: '클릭수를 검색수로 나눈 값이며, 검색수로 가중평균합니다.',
+        hint: '클릭수를 검색수로 나눈 값이며, 검색수로 가중평균해요.',
       },
       {
         id: 'conversion',
@@ -217,7 +209,7 @@ export default function KeywordStatsPage() {
         unit: 'percent',
         value: totalConversionRate(rows),
         compareValue: compare === null ? null : totalConversionRate(compare),
-        hint: '구매건수를 방문수로 나눈 값입니다.',
+        hint: '구매건수를 방문수로 나눈 값이에요.',
       },
     ];
   }, [rows, compareRows]);
@@ -247,7 +239,7 @@ export default function KeywordStatsPage() {
 
   return (
     <StatsPageShell
-      description="손님이 무엇을 찾아 들어왔는지, 그중 우리 카탈로그가 받아내지 못한 검색어가 무엇인지 봅니다. 결과 없음으로 표시된 검색어는 상품을 추가하거나 동의어를 걸어 지금 메울 수 있는 자리입니다."
+      description="손님이 무엇을 찾아 들어왔는지, 그중 우리 카탈로그가 받아내지 못한 검색어가 무엇인지 봐요. 결과 없음으로 표시된 검색어는 상품을 추가하거나 동의어를 걸어 지금 메울 수 있는 자리예요."
       route={ROUTE}
       params={params}
       segments={KEYWORD_SEGMENTS}

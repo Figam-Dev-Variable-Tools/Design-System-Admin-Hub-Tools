@@ -174,14 +174,14 @@ export function parseFeeInput(value: string): number | null {
 
 /* ── 전이 규칙 (순수 술어 — 버튼과 저장이 **같은 것을** 읽는다) ──────────────── */
 
-const REFUND_TRANSITION_SAME = '이미 그 환불 상태입니다.';
-export const REFUND_TRANSITION_DONE = '환불이 완료되어 더 이상 바꿀 수 없습니다.';
-export const REFUND_TRANSITION_BACKWARD = '환불 처리는 되돌릴 수 없습니다.';
-export const REFUND_NOT_REFUNDABLE = '교환은 환불 대상이 아닙니다.';
-export const REFUND_CLAIM_CLOSED = '반려·철회된 클레임은 환불할 수 없습니다.';
-export const REFUND_CLAIM_INCOMPLETE = '클레임 처리를 완료해야 환불을 완료할 수 있습니다.';
+const REFUND_TRANSITION_SAME = '이미 그 환불 상태예요.';
+export const REFUND_TRANSITION_DONE = '환불이 완료되어 더 이상 바꿀 수 없어요.';
+export const REFUND_TRANSITION_BACKWARD = '환불 처리는 되돌릴 수 없어요.';
+export const REFUND_NOT_REFUNDABLE = '교환은 환불 대상이 아니에요.';
+export const REFUND_CLAIM_CLOSED = '반려·철회된 클레임은 환불할 수 없어요.';
+export const REFUND_CLAIM_INCOMPLETE = '클레임 처리를 완료해야 환불을 완료할 수 있어요.';
 export const REFUND_NO_MEMBER =
-  '비회원 주문이라 적립금 원장이 없습니다. 사용한 적립금을 복원할 수 없어 환불을 완료할 수 없습니다.';
+  '비회원 주문이라 적립금 원장이 없어요. 사용한 적립금을 복원할 수 없어 환불을 완료할 수 없어요.';
 
 /** 환불 가드가 보는 최소 모양 */
 type RefundGate = Pick<Claim, 'kind' | 'status' | 'memberId' | 'refund'>;
@@ -215,7 +215,7 @@ export function canTransitionRefund(claim: RefundGate, to: RefundStatus): boolea
 }
 
 export const REFUND_UNSAVED_CLAIM =
-  '저장하지 않은 처리 내용이 있습니다. 처리 저장을 먼저 한 뒤 환불을 진행하세요.';
+  '저장하지 않은 처리 내용이 있어요. 처리 저장을 먼저 한 뒤 환불을 진행하세요.';
 
 /**
  * 환불 버튼이 읽는 사유 — **저장이 실제로 보낼 값**으로 판정한다. 누를 수 있으면 null.

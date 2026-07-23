@@ -87,7 +87,18 @@ export interface EntitlementStore {
    */
   readonly receivePlan: (next: PlanState) => void;
 
-  /* 아래 둘은 개발용 전환 패널 전용 — 운영 빌드에서는 호출부가 통째로 사라진다(import.meta.env.DEV) */
+  /*
+   * 아래 둘은 **화면이 아니라 재현 수단**이다 — UI 호출부가 0이다.
+   *
+   * 예전에는 /settings/plan 아래에 DEV 전용 전환 패널이 이 둘을 불렀다. 그 패널은 없앴다:
+   * '이 어드민은 플랜을 바꾸지 않는다' 고 말하는 화면 안에 플랜을 바꾸는 select 를 두면 —
+   * 운영 빌드에서 접힌다 해도 — 개발·스테이징을 보는 사람에게 그것이 곧 플랜 변경 UI 다.
+   *
+   * 액션 자체는 남긴다. 이 앱의 기본 상태는 '전 기능 가용'(DEFAULT_PLAN_STATE)이라 낮은 티어의
+   * 잠금 배지·업그레이드 화면·쿼터 소진을 재현할 통로가 하나는 있어야 하고, 그 통로가 화면이
+   * 아니어야 한다는 것이 위 판단이다. 지금 소비자는 테스트다
+   * (pages/settings/plan/PlanPage.test.tsx · 청구 상태 3종).
+   */
   readonly devSetTier: (tier: PlanTier) => void;
   readonly devSetBillingState: (billingState: BillingState) => void;
 

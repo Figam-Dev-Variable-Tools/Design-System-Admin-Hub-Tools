@@ -118,7 +118,7 @@ export function MemberInfoCard({ detail, onChangePassword }: MemberInfoCardProps
           <span style={passwordRowStyle}>
             {/* 실제 값은 절대 내려오지 않는다 — 자리표시자만 보여준다 */}
             <span aria-hidden="true">••••••••</span>
-            <span style={visuallyHiddenStyle}>비밀번호는 표시되지 않습니다</span>
+            <span style={visuallyHiddenStyle}>비밀번호는 표시되지 않아요</span>
             {onChangePassword !== null && (
               <Button variant="secondary" onClick={onChangePassword}>
                 비밀번호 변경

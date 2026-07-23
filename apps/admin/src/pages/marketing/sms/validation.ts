@@ -45,7 +45,7 @@ export const smsSchema = z
         code: 'custom',
         input: ctx.value.senderId,
         path: ['senderId'],
-        message: '사전등록(검증)이 완료된 발신번호만 사용할 수 있습니다.',
+        message: '사전등록(검증)이 완료된 발신번호만 사용할 수 있어요.',
       });
     }
   })
@@ -67,7 +67,7 @@ export const smsSchema = z
         code: 'custom',
         input: ctx.value.body,
         path: ['body'],
-        message: `메시지는 ${String(LMS_MAX_BYTES)} byte(LMS)를 넘을 수 없습니다.`,
+        message: `메시지는 ${String(LMS_MAX_BYTES)} byte(LMS)를 넘을 수 없어요.`,
       });
     }
   })
@@ -78,7 +78,7 @@ export const smsSchema = z
         code: 'custom',
         input: ctx.value.body,
         path: ['body'],
-        message: '광고 발송은 본문에 "(광고)" 표기와 무료수신거부(예: 080) 안내를 포함해야 합니다.',
+        message: '광고 발송은 본문에 "(광고)" 표기와 무료수신거부(예: 080) 안내를 포함해야 해요.',
       });
     }
   })
@@ -99,7 +99,7 @@ export const smsSchema = z
         code: 'custom',
         input: ctx.value.scheduledAt,
         path: ['scheduledAt'],
-        message: '예약 일시는 현재 시각 이후여야 합니다.',
+        message: '예약 일시는 현재 시각 이후여야 해요.',
       });
       return;
     }
@@ -109,7 +109,7 @@ export const smsSchema = z
         code: 'custom',
         input: ctx.value.scheduledAt,
         path: ['scheduledAt'],
-        message: '광고성 메시지는 21시~익일 8시에 예약할 수 없습니다(야간 광고 전송 제한).',
+        message: '광고성 메시지는 21시~익일 8시에 예약할 수 없어요(야간 광고 전송 제한).',
       });
     }
   });

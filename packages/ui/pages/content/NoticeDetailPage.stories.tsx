@@ -39,6 +39,7 @@ import {
   Card,
   ConfirmDialog,
   Icon,
+  inlineBadgeRowStyle,
   Skeleton,
   StatusBadge,
   cssVar,
@@ -109,7 +110,7 @@ const PUBLISHED_NOTICE: DemoNotice = {
     '· 주요 변경: 위탁 업체 추가, 보관 기간 명확화\n' +
     '· 적용 대상: 전체 회원\n' +
     '· 문의: 고객센터 1:1 문의\n\n' +
-    '개정 내용에 동의하지 않으시는 경우 서비스 탈퇴가 가능합니다. 감사합니다.',
+    '개정 내용에 동의하지 않으시는 경우 서비스 탈퇴가 가능해요. 감사해요.',
 };
 
 const SCHEDULED_NOTICE: DemoNotice = {
@@ -125,8 +126,8 @@ const SCHEDULED_NOTICE: DemoNotice = {
     '더 안정적인 서비스 제공을 위해 정기 점검을 진행합니다.\n\n' +
     '· 점검 일시: 2027년 1월 25일(월) 02:00 ~ 05:00 (3시간)\n' +
     '· 점검 대상: 결제 모듈, 주문 조회\n' +
-    '· 점검 중에는 결제와 주문 조회가 일시 중단됩니다.\n\n' +
-    '이용에 불편을 드려 죄송합니다.',
+    '· 점검 중에는 결제와 주문 조회가 일시 중단돼요.\n\n' +
+    '이용에 불편을 드려 죄송해요.',
 };
 
 /** ko-KR 자릿수 구분 — 실화면 shared/format.formatNumber 규약(@tds/ui 경계라 직접 구현) */
@@ -262,7 +263,7 @@ function NoticeDetailScreen({
         <div style={topRowStyle}>{backLink}</div>
         <Alert tone="danger">
           <div style={errorBodyStyle}>
-            <span>공지를 불러오지 못했습니다.</span>
+            <span>공지를 불러오지 못했어요.</span>
             <span style={actionsStyle}>
               <Button variant="secondary">다시 시도</Button>
               <Button variant="secondary">목록으로</Button>
@@ -303,11 +304,11 @@ function NoticeDetailScreen({
 
       <TitledCard
         title={
-          <>
+          <span style={inlineBadgeRowStyle}>
             {notice.pinned && <StatusBadge tone="warning" label="고정" />}
             {notice.title}
             <StatusBadge tone={STATUS_TONE[notice.status]} label={STATUS_LABEL[notice.status]} />
-          </>
+          </span>
         }
       >
         <dl style={dlStyle}>
@@ -331,7 +332,7 @@ function NoticeDetailScreen({
         <ConfirmDialog
           intent="delete"
           title="공지 삭제"
-          message={`'${notice.title}' 공지를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${notice.title}' 공지를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="공지 삭제"
           onConfirm={() => setConfirming(false)}
           onCancel={() => setConfirming(false)}

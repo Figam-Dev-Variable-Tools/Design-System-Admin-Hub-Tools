@@ -50,10 +50,10 @@ describe('DataTable — 계약 states[]', () => {
         rows={[]}
         rowKey="period"
         caption="기간별 방문자"
-        empty="데이터가 없습니다."
+        empty="데이터가 없어요."
       />,
     );
-    expect(screen.getByText('데이터가 없습니다.')).not.toBeNull();
+    expect(screen.getByText('데이터가 없어요.')).not.toBeNull();
     unmount();
 
     render(

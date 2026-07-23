@@ -22,7 +22,7 @@ import { ceoMessageSchema } from './validation';
 import type { CeoMessageFormValues } from './validation';
 
 const UNSAVED_MESSAGE =
-  'CEO 인사말에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  'CEO 인사말에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const photoWrapStyle: CSSProperties = {
   maxWidth: 'calc(var(--tds-space-6) * 10)',
@@ -72,11 +72,11 @@ export default function CeoMessagePage() {
       {
         onSuccess: () => {
           reset(values);
-          toast.success('CEO 인사말을 저장했습니다.');
+          toast.success('CEO 인사말을 저장했어요.');
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setServerError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setServerError('저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -85,7 +85,7 @@ export default function CeoMessagePage() {
   return (
     <DocumentFormShell
       cardTitle="CEO 인사말"
-      description="별표(*) 항목은 필수입니다. 저장하면 사용자 화면의 인사말 페이지에 반영됩니다."
+      description="별표(*) 항목은 필수예요. 저장하면 사용자 화면의 인사말 페이지에 반영돼요."
       loading={loading}
       loadFailed={error !== null}
       onRetry={() => void refetch()}
@@ -131,7 +131,7 @@ export default function CeoMessagePage() {
           }
           disabled={disabled}
           error={errors.photoUrl?.message}
-          hint="대표/CEO 사진 URL (선택). 이미지를 끌어다 놓거나 클릭해 업로드합니다."
+          hint="대표/CEO 사진 URL (선택). 이미지를 끌어다 놓거나 클릭해 업로드해요."
         />
       </div>
     </DocumentFormShell>

@@ -23,6 +23,7 @@ import {
   fieldStyle,
   FilterRail,
   FormField,
+  formRowStyle,
   FormSectionAnchor,
   FormSectionNav,
   hintStyle,
@@ -50,6 +51,7 @@ import {
   PAYMENT_SETTINGS_PATH,
   readPaymentSettings,
 } from '../../../shared/commerce/payment-settings';
+import { PgLockNotice } from '../../../shared/commerce/PgLockNotice';
 import { pgLock } from '../../../shared/commerce/pg-lock';
 import { resolvePriceDisplay } from '../../../shared/commerce/price-display';
 import { fetchProductCategoryOptions, productAdapter } from './data-source';
@@ -85,7 +87,7 @@ const RESOURCE = 'products';
 const ENTITY_LABEL = '상품';
 const LIST_PATH = '/products';
 const UNSAVED_MESSAGE =
-  '상품에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '상품에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -141,7 +143,7 @@ const SECTIONS = [
   {
     id: 'product-section-pricing',
     label: '가격 · 할인',
-    fields: ['price', 'discountType', 'discountValue', 'taxable', 'priceDisplay', 'inquiryText'],
+    fields: ['price', 'discountType', 'discountValue', 'taxable'],
   },
   { id: 'product-section-points', label: '적립금', fields: ['points'] },
   { id: 'product-section-coupons', label: '쿠폰 사용 설정', fields: ['coupons'] },
@@ -176,12 +178,6 @@ const columnStyle: CSSProperties = {
   minWidth: 0,
 };
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 5), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
 const toggleFieldStyle: CSSProperties = fieldStyle;
 
 const actionsStyle: CSSProperties = {
@@ -199,9 +195,6 @@ const EMPTY: ProductFormValues = {
   discountType: 'none',
   discountValue: '',
   taxable: true,
-  // 새 상품은 금액을 노출한다 — 감추는 것은 명시적 결정이어야 한다(쿠폰 기본값과 같은 결)
-  priceDisplay: 'amount',
-  inquiryText: '',
   saleStatus: 'on_sale',
   displayed: true,
   shipping: {
@@ -249,15 +242,14 @@ function toInput(values: ProductFormValues): ProductInput {
     code: values.code.trim(),
     categoryId: values.categoryId,
     brand: values.brand.trim(),
+    // [잠금은 값을 지우지 않는다] 결제 연동이 없어 금액 칸이 잠겨 있어도 판매가·할인 방식·할인값·
+    // 과세는 **폼이 들고 있던 그대로** 저장된다. 여기서 0 으로 눕히면 연동을 마치는 순간 운영자가
+    // 예전 값을 기억으로 복원해야 한다(shared/commerce/pg-lock.ts 제1원칙).
     pricing: {
       price: Number(values.price.trim() || '0'),
-      // [잠금은 값을 지우지 않는다] '가격문의' 로 두어도 할인 방식·할인값·과세는 입력된 그대로
-      // 저장된다. 지우면 '금액 노출' 로 되돌리는 순간 운영자가 기억으로 복원해야 한다.
       discountType: values.discountType,
       discountValue,
       taxable: values.taxable,
-      priceDisplay: values.priceDisplay,
-      inquiryText: values.inquiryText.trim(),
     },
     saleStatus: values.saleStatus,
     displayed: values.displayed,
@@ -309,8 +301,6 @@ function toValues(product: Product): ProductFormValues {
     discountValue:
       product.pricing.discountType === 'none' ? '' : String(product.pricing.discountValue),
     taxable: product.pricing.taxable,
-    priceDisplay: product.pricing.priceDisplay,
-    inquiryText: product.pricing.inquiryText,
     saleStatus: product.saleStatus,
     displayed: product.displayed,
     shipping: {
@@ -414,8 +404,6 @@ export default function ProductFormPage() {
   const saleStatus = watch('saleStatus');
   const displayed = watch('displayed');
   const taxable = watch('taxable');
-  const priceDisplay = watch('priceDisplay');
-  const inquiryText = watch('inquiryText');
   const coverImageUrl = watch('coverImageUrl');
   const imageUrls = watch('imageUrls');
   const description = watch('description');
@@ -482,13 +470,14 @@ export default function ProductFormPage() {
   const checkout = checkoutCta(paymentSettings, 'product');
 
   /**
-   * 두 축이 이 폼에서 만나는 자리.
+   * 결제 연동 상태가 이 폼에서 잠그는 것들 — **술어는 하나다**.
    *
-   * 축 A(결제 사용 여부)는 적립·쿠폰·재고·배송 구획을 잠그고, 축 B(이 상품의 가격 표시)는
-   * 할인·과세를 잠근다. 잠금은 **입력만** 막는다 — 저장된 값은 그대로 남아 결제를 다시 켜거나
-   * '금액 노출' 로 되돌리면 살아난다(shared/commerce/pg-lock.ts 제1원칙).
+   * 같은 사실(결제를 열 수 있는가)이 금액·할인·과세 입력을 잠그고, 적립·쿠폰·재고·배송 구획도
+   * 잠근다. 상품마다 고르던 '가격 표시' 라디오는 사라졌다 — 표시는 고르는 값이 아니라 연동 상태의
+   * 결과다(shared/commerce/price-display.ts). 잠금은 **입력만** 막는다: 저장된 값은 그대로 남아
+   * 연동을 마치면 살아난다(shared/commerce/pg-lock.ts 제1원칙).
    */
-  const priceDisplayState = resolvePriceDisplay(paymentSettings, { priceDisplay, inquiryText });
+  const priceDisplayState = resolvePriceDisplay(paymentSettings);
   const pointsLock = pgLock(paymentSettings, 'product-points');
   const couponsLock = pgLock(paymentSettings, 'product-coupons');
   const stockLock = pgLock(paymentSettings, 'product-stock');
@@ -513,8 +502,8 @@ export default function ProductFormPage() {
           <div style={alertActionRowStyle}>
             <span>
               {loadFailure === 'not-found'
-                ? '상품을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '상품을 불러오지 못했습니다.'}
+                ? '상품을 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '상품을 불러오지 못했어요.'}
             </span>
             {loadFailure === 'error' && (
               <Button variant="secondary" onClick={retryLoad}>
@@ -546,7 +535,7 @@ export default function ProductFormPage() {
         <h1 style={pageTitleStyle}>{isEdit ? '상품 수정' : '상품 등록'}</h1>
         <p style={descriptionStyle}>
           {/* 방향('왼쪽·오른쪽')을 적지 않는다 — 좁은 화면에서는 목차가 폼 위로 접혀 올라간다 */}
-          별표(*) 항목은 필수입니다. 목차로 구획을 오가고, 미리보기로 고객에게 보일 상품 카드를
+          별표(*) 항목은 필수예요. 목차로 구획을 오가고, 미리보기로 고객에게 보일 상품 카드를
           확인하세요.
         </p>
       </div>
@@ -563,8 +552,8 @@ export default function ProductFormPage() {
             <FilterRail
               notice={
                 <p style={hintStyle}>
-                  구획을 누르면 해당 위치로 이동합니다. 붉은 점이 붙은 구획에는 확인이 필요한 입력이
-                  남아 있습니다.
+                  구획을 누르면 해당 위치로 이동해요. 붉은 점이 붙은 구획에는 확인이 필요한 입력이
+                  남아 있어요.
                 </p>
               }
             >
@@ -607,7 +596,7 @@ export default function ProductFormPage() {
                     />
                   </FormField>
 
-                  <div style={rowStyle}>
+                  <div style={formRowStyle}>
                     <FormField
                       htmlFor="product-code"
                       label="상품코드(SKU)"
@@ -648,7 +637,7 @@ export default function ProductFormPage() {
                     </FormField>
                   </div>
 
-                  <div style={rowStyle}>
+                  <div style={formRowStyle}>
                     <FormField
                       htmlFor="product-category"
                       label="카테고리 (대분류)"
@@ -685,8 +674,8 @@ export default function ProductFormPage() {
                         categoryRootId === ''
                           ? '대분류를 먼저 선택하세요.'
                           : categoryChildOptions.length === 0
-                            ? '이 대분류에는 중분류가 없습니다.'
-                            : '선택하지 않으면 대분류에 등록됩니다.'
+                            ? '이 대분류에는 중분류가 없어요.'
+                            : '선택하지 않으면 대분류에 등록돼요.'
                       }
                     >
                       <SelectField
@@ -748,7 +737,6 @@ export default function ProductFormPage() {
                   disabled={disabled}
                   discountType={discountType}
                   taxable={taxable}
-                  priceDisplay={priceDisplay}
                   amountFieldsLocked={priceDisplayState.amountFieldsLocked}
                   displayReason={priceDisplayState.reason}
                 />
@@ -786,6 +774,11 @@ export default function ProductFormPage() {
               <FormSectionAnchor id={SECTIONS[4].id} label={SECTIONS[4].label}>
                 <Card>
                   <CardTitle>옵션 · 재고</CardTitle>
+                  {/* 왜 수량 칸만 잠겼는지 여기서 말한다 — 잠긴 입력 바로 위가 그 사유의 자리다.
+                      (예전에는 이 문장이 목록 화면에만 있었다. 목록에는 편집할 옵션이 없어
+                      '옵션은 계속 편집할 수 있습니다' 가 가리킬 대상이 없었다.)
+                      문의 링크는 붙이지 않는다 — 여기서 할 일은 옵션 구성을 마저 채우는 것이다. */}
+                  {stockLock.locked && <PgLockNotice reason={stockLock.reason} />}
                   <ProductOptionMatrix
                     disabled={disabled}
                     stockLocked={stockLock.locked}
@@ -834,7 +827,7 @@ export default function ProductFormPage() {
                     onChange={(value) => setValue('coverImageUrl', value, { shouldDirty: true })}
                     disabled={disabled}
                     error={errors.coverImageUrl?.message}
-                    hint="목록에는 노출되지 않습니다 — 상세/미리보기의 대표 이미지입니다."
+                    hint="목록에는 노출되지 않아요 — 상세/미리보기의 대표 이미지예요."
                   />
                   <ImageGalleryField
                     label="상세 이미지"
@@ -842,7 +835,7 @@ export default function ProductFormPage() {
                     onChange={(next) => setValue('imageUrls', [...next], { shouldDirty: true })}
                     disabled={disabled}
                     error={imagesError}
-                    hint={`상품 상세를 보여줄 이미지를 여러 장 올릴 수 있습니다. 최대 ${String(MAX_PRODUCT_IMAGES)}장.`}
+                    hint={`상품 상세를 보여줄 이미지를 여러 장 올릴 수 있어요. 최대 ${String(MAX_PRODUCT_IMAGES)}장.`}
                     maxFiles={MAX_PRODUCT_IMAGES}
                   />
                 </Card>
@@ -862,7 +855,7 @@ export default function ProductFormPage() {
                     maxLength={PRODUCT_DESCRIPTION_MAX}
                     disabled={disabled}
                     error={errors.description?.message}
-                    hint="굵게·기울임·제목·목록·링크·이미지를 쓸 수 있습니다. 글자 수는 서식을 빼고 셉니다."
+                    hint="굵게·기울임·제목·목록·링크·이미지를 쓸 수 있어요. 글자 수를 셀 때 서식은 빼요."
                     placeholder="상품의 소재·핏·관리법 등 상세 정보를 입력하세요."
                     rows={6}
                   />

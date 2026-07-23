@@ -40,16 +40,16 @@ import type { TemplateKind } from './types';
 /** 본문 입력 위 콜아웃 — 길이 등급·이미지 승격·변수 여유분 */
 export const BODY_CALLOUT_LINES: readonly string[] = [
   `SMS : 90자 이내 / LMS, MMS : ${String(TEXT_BODY_MAX)}자 이내`,
-  '이미지를 첨부하면 MMS로 발송됩니다.',
+  '이미지를 첨부하면 MMS로 발송돼요.',
   '치환변수 자리에 들어갈 내용에 따라 실제 발송 글자 수가 달라지므로, 템플릿을 작성할 때 20~30자 정도 여유를 두세요.',
 ];
 
 /** 첨부 이미지 콜아웃 — 장수·확장자·용량·픽셀 */
 export const IMAGE_CALLOUT_LINES: readonly string[] = [
-  '이미지는 한 장만 등록할 수 있습니다.',
-  `첨부할 수 있는 이미지 형식은 ${TEXT_IMAGE_FORMAT} 입니다.`,
-  '500KB 이하 이미지만 첨부할 수 있습니다.',
-  `크기는 ${String(TEXT_IMAGE_MAX_EDGE)}×${String(TEXT_IMAGE_MAX_EDGE)}px 이하여야 합니다.`,
+  '이미지는 한 장만 등록할 수 있어요.',
+  `첨부할 수 있는 이미지 형식은 ${TEXT_IMAGE_FORMAT} 예요.`,
+  '500KB 이하 이미지만 첨부할 수 있어요.',
+  `크기는 ${String(TEXT_IMAGE_MAX_EDGE)}×${String(TEXT_IMAGE_MAX_EDGE)}px 이하여야 해요.`,
 ];
 
 /* ── 편집기 라벨 ─────────────────────────────────────────────────────────────── */
@@ -76,10 +76,10 @@ export const SUBJECT_PLACEHOLDER = '제목을 입력하세요';
 
 /** 제목 칸 콜아웃 — 이 칸이 단가를 바꾼다는 사실을 입력 옆에서 말한다 */
 export const SUBJECT_CALLOUT_LINES: readonly string[] = [
-  'SMS 에는 제목 칸이 없습니다.',
+  'SMS 에는 제목 칸이 없어요.',
   // 단위는 'byte' 로 적는다 — 바로 옆 카운터가 '0 / 40 byte', 등급 힌트가 '90 byte 를 넘으면'
   // 이라 적으므로, 여기서만 '바이트' 라고 쓰면 한 화면에 두 표기가 선다.
-  '제목을 입력하면 90 byte 이하여도 LMS 로 발송됩니다.',
+  '제목을 입력하면 90 byte 이하여도 LMS 로 발송돼요.',
 ];
 export const LABEL_ATTACH_IMAGE = '이미지 첨부';
 export const LABEL_FILE_NAME = '파일명';
@@ -203,9 +203,9 @@ export const BRAND_MESSAGE_LABEL_AD = '광고성 메시지';
  */
 export const ALIMTALK_IMAGE_CALLOUT_LINES: readonly string[] = [
   `권장 크기 ${String(ALIMTALK_IMAGE_WIDTH)}×${String(ALIMTALK_IMAGE_HEIGHT)}px (가로:세로 = ${ALIMTALK_IMAGE_RATIO_LABEL} 고정)`,
-  `${String(ALIMTALK_IMAGE_MIN_WIDTH)}×${String(ALIMTALK_IMAGE_MIN_HEIGHT)}px 이하이거나 비율이 다르면 업로드할 수 없습니다.`,
+  `${String(ALIMTALK_IMAGE_MIN_WIDTH)}×${String(ALIMTALK_IMAGE_MIN_HEIGHT)}px 이하이거나 비율이 다르면 업로드할 수 없어요.`,
   `JPG · PNG · 최대 ${String(ALIMTALK_IMAGE_MAX_BYTES / 1024)}KB`,
-  '이미지에는 링크를 걸 수 없고, 템플릿당 한 장만 쓸 수 있습니다.',
+  '이미지에는 링크를 걸 수 없고, 템플릿당 한 장만 쓸 수 있어요.',
 ];
 
 /** 상세 뷰의 카카오 전용 줄 */

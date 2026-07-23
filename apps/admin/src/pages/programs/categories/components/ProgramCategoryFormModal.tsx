@@ -10,6 +10,10 @@ import { isAbort } from '../../../../shared/async';
 import { zodResolver } from '../../../../shared/form/zodResolver';
 import { useCrudCreate, useCrudUpdate } from '../../../../shared/crud';
 import {
+  useRouteCanSubmitForm,
+  WRITE_DENIED,
+} from '../../../../shared/permissions/RequirePermission';
+import {
   Alert,
   Button,
   controlStyle,
@@ -86,7 +90,21 @@ export function ProgramCategoryFormModal({
   const controllerRef = useRef<AbortController | null>(null);
   useEffect(() => () => controllerRef.current?.abort(), []);
 
+  /**
+   * 이 팝업은 부모의 판정을 물려받지 않는다.
+   *
+   * 부모(카테고리 목록)는 권한이 없으면 여는 버튼('카테고리 추가'·연필)을 만들지 않는다. 그러나
+   * 그것은 '열리지 않는다' 는 보장일 뿐 '저장되지 않는다' 는 보장이 아니다 — 열려 있는 동안
+   * 다른 탭에서 강등되면 부모의 판정은 이미 지나간 과거다. 그래서 같은 술어를 여기서 다시 읽는다.
+   * 등록이면 create, 수정이면 update — 폼 라우트와 **같은 한 벌**(useRouteCanSubmitForm)이다.
+   */
+  const canSubmit = useRouteCanSubmitForm(isEdit);
+
   const onValid = (values: ProgramCategoryFormValues) => {
+    if (!canSubmit) {
+      setServerError(isEdit ? WRITE_DENIED.update : WRITE_DENIED.create);
+      return;
+    }
     setServerError(null);
     const controller = new AbortController();
     controllerRef.current = controller;
@@ -96,7 +114,7 @@ export function ProgramCategoryFormModal({
 
     const onError = (cause: unknown) => {
       if (isAbort(cause)) return;
-      setServerError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      setServerError('저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
     };
 
     if (isEdit && editing !== null) {
@@ -173,8 +191,8 @@ export function ProgramCategoryFormModal({
             label="상위 카테고리"
             hint={
               parentLocked
-                ? '하위 카테고리가 있어 상위를 바꿀 수 없습니다.'
-                : '선택하지 않으면 대분류(1Depth)로 만들어집니다. 카테고리는 2단계까지 만들 수 있습니다.'
+                ? '하위 카테고리가 있어 상위를 바꿀 수 없어요.'
+                : '선택하지 않으면 대분류(1Depth)로 만들어져요. 카테고리는 2단계까지 만들 수 있어요.'
             }
           >
             <SelectField

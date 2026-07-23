@@ -135,14 +135,14 @@ export function ImageGalleryField({
     if (disabled) return;
     const remaining = maxFiles - values.length;
     if (remaining <= 0) {
-      setLocalError(`이미지는 최대 ${String(maxFiles)}장까지 등록할 수 있습니다.`);
+      setLocalError(`이미지는 최대 ${String(maxFiles)}장까지 등록할 수 있어요.`);
       return;
     }
     const accepted: string[] = [];
     let nextError: string | null = null;
     for (const file of Array.from(fileList)) {
       if (accepted.length >= remaining) {
-        nextError = `이미지는 최대 ${String(maxFiles)}장까지 등록할 수 있습니다.`;
+        nextError = `이미지는 최대 ${String(maxFiles)}장까지 등록할 수 있어요.`;
         break;
       }
       const fileError = imageFileError(file, maxSizeMB);
@@ -243,7 +243,7 @@ export function ImageGalleryField({
             <UploadGlyph />
           </span>
           <span className="tds-imagegallery__zone-title">
-            {dragActive ? '여기에 놓으면 업로드됩니다' : '파일을 올리세요 또는 드래그하여 업로드'}
+            {dragActive ? '여기에 놓으면 업로드돼요' : '파일을 올리세요 또는 드래그하여 업로드'}
           </span>
           <span className="tds-imagegallery__zone-hint">
             클릭하거나 이미지를 이 영역에 끌어다 놓으세요

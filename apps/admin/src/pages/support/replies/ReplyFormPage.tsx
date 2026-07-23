@@ -27,7 +27,7 @@ const ENTITY_LABEL = '답변 템플릿';
 const LIST_PATH = '/support/replies';
 const ALL_TAG = '';
 const UNSAVED_MESSAGE =
-  '답변 템플릿에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '답변 템플릿에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const EMPTY: ReplyTemplateFormValues = { title: '', categoryId: ALL_TAG, body: '' };
 
@@ -80,7 +80,7 @@ export default function ReplyFormPage() {
     <FormPageShell
       entityLabel={ENTITY_LABEL}
       cardTitle="템플릿 내용"
-      description="자주 쓰는 답변을 템플릿으로 저장해 두면 티켓 답변 작성 시 골라 삽입할 수 있습니다."
+      description="자주 쓰는 답변을 템플릿으로 저장해 두면 티켓 답변 작성 시 골라 삽입할 수 있어요."
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
@@ -112,7 +112,7 @@ export default function ReplyFormPage() {
       <FormField
         htmlFor="template-category"
         label="유형 태그"
-        hint="특정 유형 티켓에만 노출됩니다. '전체'는 모든 유형에 노출됩니다."
+        hint="특정 유형 티켓에만 노출돼요. '전체'는 모든 유형에 노출돼요."
       >
         <SelectField id="template-category" disabled={disabled} {...register('categoryId')}>
           <option value={ALL_TAG}>{TEMPLATE_ALL_LABEL}</option>
@@ -136,7 +136,7 @@ export default function ReplyFormPage() {
       />
       <p style={varHintStyle}>
         치환 변수: <code>{'{{고객명}}'}</code> · <code>{'{{문의번호}}'}</code> ·{' '}
-        <code>{'{{담당자}}'}</code> — 티켓에 삽입할 때 실제 값으로 바뀝니다.
+        <code>{'{{담당자}}'}</code> — 티켓에 삽입할 때 실제 값으로 바뀌어요.
       </p>
     </FormPageShell>
   );

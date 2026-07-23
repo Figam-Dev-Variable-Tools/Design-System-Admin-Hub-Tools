@@ -44,6 +44,7 @@ import {
   Card,
   DateRangeField,
   FormField,
+  formRowStyle,
   Icon,
   SelectField,
   Skeleton,
@@ -143,7 +144,7 @@ const DEMO_ERRORS: FieldErrors = {
   title: '프로모션명을 입력하세요.',
   period: '프로모션 기간을 YYYY-MM-DD 형식으로 입력하세요.',
   target: '대상을 입력하세요.',
-  discountValue: '정률 할인은 100%를 넘을 수 없습니다.',
+  discountValue: '정률 할인은 100%를 넘을 수 없어요.',
   couponCode: '연동할 쿠폰코드를 입력하세요.',
 };
 
@@ -202,12 +203,6 @@ const cardTitleStyle: CSSProperties = {
   ...typography('typography.title.md'),
   margin: 0,
   color: cssVar('color.text.default'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const fieldStyle: CSSProperties = {
@@ -303,14 +298,14 @@ function PromotionFormScreen({
 
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '프로모션 수정' : '프로모션 등록'}</h1>
-        <p style={descriptionStyle}>별표(*) 항목은 필수입니다. 기간·할인 조건을 확인하세요.</p>
+        <p style={descriptionStyle}>별표(*) 항목은 필수예요. 기간·할인 조건을 확인하세요.</p>
       </div>
 
       <form onSubmit={(event) => event.preventDefault()} noValidate style={formStyle}>
         {/* 서버 오류 배너 — 실화면 FormServerError 의 자리 */}
         {hasErrors && (
           <Alert tone="danger">
-            입력한 내용을 다시 확인하세요. 표시된 항목을 수정해야 저장됩니다.
+            입력한 내용을 다시 확인하세요. 표시된 항목을 수정해야 저장돼요.
           </Alert>
         )}
 
@@ -346,7 +341,7 @@ function PromotionFormScreen({
                 error={errors.period ?? ''}
               />
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="promo-phase" label="상태" required>
                   <SelectField
                     id="promo-phase"
@@ -374,7 +369,7 @@ function PromotionFormScreen({
                 />
               </div>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="promo-discount-type" label="할인 유형" required>
                   <SelectField
                     id="promo-discount-type"

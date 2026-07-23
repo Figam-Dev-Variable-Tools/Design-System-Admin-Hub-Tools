@@ -11,7 +11,7 @@ const intString = (label: string) =>
       error: `${label}${objectParticle(label)} 입력하세요.`,
     }),
     z.refine((value) => INT_RE.test(value.trim()), {
-      error: `${label}${topicParticle(label)} 0 이상의 정수만 입력할 수 있습니다.`,
+      error: `${label}${topicParticle(label)} 0 이상의 정수만 입력할 수 있어요.`,
     }),
   );
 

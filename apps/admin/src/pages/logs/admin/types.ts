@@ -147,5 +147,5 @@ export const ADMIN_LOG_AXES: readonly LogFilterAxis[] = [
  */
 export const ADMIN_LOG_RETENTION: RetentionPolicy = {
   label: '3년',
-  basis: '내부 통제·감사 대응 기록. 보존기간이 지나면 자동 폐기됩니다.',
+  basis: '내부 통제·감사 대응 기록. 보존기간이 지나면 자동 폐기돼요.',
 };

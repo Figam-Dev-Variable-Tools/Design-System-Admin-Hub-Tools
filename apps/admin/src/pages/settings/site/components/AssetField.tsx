@@ -97,7 +97,7 @@ export function AssetField({
       ) : (
         busy && (
           <p id={messageId} style={busyStyle}>
-            올리는 중입니다…
+            올리는 중이에요…
           </p>
         )
       )}

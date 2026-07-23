@@ -39,11 +39,29 @@ export {
   DateRangeField,
   Empty,
   errorIdOf,
+  /**
+   * 폼 줄바꿈 규약 — **입력 칸은 한 줄에 하나**, 예외는 날짜 쌍(formDateRowStyle)뿐이다.
+   *
+   * 예전에는 화면마다 `repeat(auto-fit, minmax(calc(space.6 * N), 1fr))` 을 손으로 적었고 N 이
+   * 3·4·5·6·7·8 로 갈려 같은 폭에서도 화면마다 칸 수가 달랐다. 정의는 DS 한 곳뿐이다
+   * (packages/ui/src/foundations/FormLayout/index.ts).
+   */
+  formDateRowStyle,
+  formRowStyle,
   FormField,
   HelpTip,
   hintIdOf,
   Icon,
   ImageThumb,
+  /**
+   * 글자 + 배지가 나란히 서는 한 줄 (카드 제목 옆 · 표 셀 안 · dd 안).
+   *
+   * 감싸지 않으면 '…오지 않아요높음' 처럼 배지가 낱말에 붙어 읽힌다. 예전엔 화면마다
+   * titleGroupStyle · cellRowStyle · keywordCellStyle 이라는 이름으로 사본이 흩어져 있었고,
+   * 사본을 만들지 않은 화면이 정확히 그 증상을 갖고 있었다. 정의는 DS 한 곳뿐이다
+   * (packages/ui/src/foundations/FormLayout/index.ts) — Templates 스토리도 같은 객체를 읽는다.
+   */
+  inlineBadgeRowStyle,
   moveArrayItem,
   Pagination,
   rangeTextOf,

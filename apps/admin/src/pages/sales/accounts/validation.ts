@@ -40,7 +40,7 @@ export const accountSchema = z
     lastTradeAt: z.string(),
     note: z.string().check(
       z.refine((value) => value.trim().length <= ACCOUNT_NOTE_MAX, {
-        error: `비고는 ${String(ACCOUNT_NOTE_MAX)}자를 넘을 수 없습니다.`,
+        error: `비고는 ${String(ACCOUNT_NOTE_MAX)}자를 넘을 수 없어요.`,
       }),
     ),
   })
@@ -51,7 +51,7 @@ export const accountSchema = z
         code: 'custom',
         input: ctx.value.bizNo,
         path: ['bizNo'],
-        message: '올바른 사업자등록번호가 아닙니다. (000-00-00000)',
+        message: '올바른 사업자등록번호가 아니에요. (000-00-00000)',
       });
     }
   })
@@ -62,7 +62,7 @@ export const accountSchema = z
         code: 'custom',
         input: ctx.value.creditLimit,
         path: ['creditLimit'],
-        message: '여신한도는 숫자만 입력할 수 있습니다.',
+        message: '여신한도는 숫자만 입력할 수 있어요.',
       });
     }
   })
@@ -96,7 +96,7 @@ export const accountSchema = z
         code: 'custom',
         input: contacts,
         path: ['contacts'],
-        message: '담당자 이메일 형식이 올바르지 않습니다.',
+        message: '담당자 이메일 형식이 올바르지 않아요.',
       });
     }
   });

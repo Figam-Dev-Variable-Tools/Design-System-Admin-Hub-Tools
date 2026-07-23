@@ -225,7 +225,7 @@ type PageSize = (typeof PAGE_SIZE_OPTIONS)[number];
 /** 보존기간 — 실화면 ADMIN_LOG_RETENTION 미러(관리자 로그는 가장 오래 남는다) */
 const RETENTION = {
   label: '3년',
-  basis: '내부 통제·감사 대응 기록. 보존기간이 지나면 자동 폐기됩니다.',
+  basis: '내부 통제·감사 대응 기록. 보존기간이 지나면 자동 폐기돼요.',
 } as const;
 
 /* ── 표 열 정의(실화면 admin/AdminLogPage COLUMNS 6열 미러) ──────────────────────────────────── */
@@ -488,10 +488,10 @@ function AdminLogScreen({ loading = false, initialKeyword = '' }: AdminLogScreen
               <p style={retentionStyle}>{`보존기간 ${RETENTION.label}`}</p>
               <p style={noticeHintStyle}>{RETENTION.basis}</p>
               <p style={noticeHintStyle}>
-                이 기록은 감사 로그입니다. 관리자도 수정하거나 삭제할 수 없으며, 조회와 내보내기만
-                제공합니다.
+                이 기록은 감사 로그예요. 관리자도 수정하거나 삭제할 수 없으며, 조회와 내보내기만
+                제공해요.
               </p>
-              <p style={noticeHintStyle}>시각은 모두 한국 표준시(KST) 기준입니다.</p>
+              <p style={noticeHintStyle}>시각은 모두 한국 표준시(KST) 기준이에요.</p>
             </>
           }
         >
@@ -613,7 +613,7 @@ function AdminLogScreen({ loading = false, initialKeyword = '' }: AdminLogScreen
 
           <div style={tableWrapStyle}>
             <Table
-              caption="관리자 로그 — 행을 누르면 그 요청의 상세 페이로드가 열립니다. 이 목록은 읽기 전용이며 수정·삭제할 수 없습니다."
+              caption="관리자 로그 — 행을 누르면 그 요청의 상세 페이로드가 열려요. 이 목록은 읽기 전용이며 수정·삭제할 수 없어요."
               columns={COLUMNS}
               rows={rows}
               sortKey="occurredAt"
@@ -664,7 +664,7 @@ function DateRange({
         endValue={to}
         onStartChange={onFrom}
         onEndChange={onTo}
-        hint="한 번에 최대 90일까지 조회할 수 있습니다."
+        hint="한 번에 최대 90일까지 조회할 수 있어요."
       />
     </div>
   );
@@ -692,7 +692,7 @@ export const LoadError: Story = {
       <h1 style={headingStyle}>관리자 로그</h1>
       <Alert tone="danger">
         <div style={errorBodyStyle}>
-          <span>관리자 로그를 불러오지 못했습니다.</span>
+          <span>관리자 로그를 불러오지 못했어요.</span>
           <Button variant="secondary">다시 시도</Button>
         </div>
       </Alert>

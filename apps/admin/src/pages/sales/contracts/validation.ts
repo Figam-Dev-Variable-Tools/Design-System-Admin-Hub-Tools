@@ -33,7 +33,7 @@ export const contractSchema = z
     quoteNo: z.string(),
     terms: z.string().check(
       z.refine((value) => value.trim().length <= CONTRACT_TERMS_MAX, {
-        error: `조항 요약은 ${String(CONTRACT_TERMS_MAX)}자를 넘을 수 없습니다.`,
+        error: `조항 요약은 ${String(CONTRACT_TERMS_MAX)}자를 넘을 수 없어요.`,
       }),
     ),
     note: z.string(),
@@ -46,7 +46,7 @@ export const contractSchema = z
         code: 'custom',
         input: ctx.value.amount,
         path: ['amount'],
-        message: '계약금액은 숫자만 입력할 수 있습니다.',
+        message: '계약금액은 숫자만 입력할 수 있어요.',
       });
       return;
     }
@@ -55,7 +55,7 @@ export const contractSchema = z
         code: 'custom',
         input: ctx.value.amount,
         path: ['amount'],
-        message: '계약금액은 0보다 커야 합니다.',
+        message: '계약금액은 0보다 커야 해요.',
       });
     }
   })
@@ -77,7 +77,7 @@ export const contractSchema = z
         code: 'custom',
         input: ctx.value.endAt,
         path: ['endAt'],
-        message: '종료일은 시작일보다 빠를 수 없습니다.',
+        message: '종료일은 시작일보다 빠를 수 없어요.',
       });
     }
   })
@@ -89,7 +89,7 @@ export const contractSchema = z
         code: 'custom',
         input: ctx.value.renewNoticeDays,
         path: ['renewNoticeDays'],
-        message: '갱신 통지기한(일)은 숫자만 입력할 수 있습니다.',
+        message: '갱신 통지기한(일)은 숫자만 입력할 수 있어요.',
       });
     }
   });

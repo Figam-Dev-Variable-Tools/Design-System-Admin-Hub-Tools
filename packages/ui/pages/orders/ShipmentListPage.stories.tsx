@@ -796,13 +796,13 @@ function InvoiceBulkDialog({
       }
       if (!isValidInvoiceNo(entry.invoiceNo)) {
         found[entry.orderId] =
-          '송장번호는 숫자와 하이픈(-)만 입력할 수 있습니다. 한글·공백이 섞이면 택배사 접수 파일이 깨집니다.';
+          '송장번호는 숫자와 하이픈(-)만 입력할 수 있어요. 한글·공백이 섞이면 택배사 접수 파일이 깨져요.';
         continue;
       }
       const key = `${entry.carrierId}:${entry.invoiceNo.trim()}`;
       const clash = seen.get(key);
       if (clash !== undefined) {
-        found[entry.orderId] = `이 다이얼로그의 ${clash} 줄과 송장번호가 같습니다.`;
+        found[entry.orderId] = `이 다이얼로그의 ${clash} 줄과 송장번호가 같아요.`;
         continue;
       }
       seen.set(key, entry.orderId);
@@ -836,8 +836,8 @@ function InvoiceBulkDialog({
     >
       <div style={dialogBodyStyle}>
         <p style={hintStyle}>
-          택배사는 배송 설정에 등록된 목록에서만 고를 수 있습니다. 송장을 등록하면 배송대기가 되고,
-          발송처리해야 배송중이 됩니다.
+          택배사는 배송 설정에 등록된 목록에서만 고를 수 있어요. 송장을 등록하면 배송대기가 되고,
+          발송처리해야 배송중이 돼요.
         </p>
         <ul style={entryListStyle}>
           {rows.map((row) => {
@@ -860,7 +860,7 @@ function InvoiceBulkDialog({
                     onChange={(event) => patch(row.id, { carrierId: event.target.value })}
                   >
                     {options.length === 0 ? (
-                      <option value="">등록된 택배사가 없습니다</option>
+                      <option value="">등록된 택배사가 없어요</option>
                     ) : (
                       options.map((carrier) => (
                         <option key={carrier.id} value={carrier.id}>
@@ -1012,10 +1012,10 @@ function ShipmentListScreen({
       <div style={layoutStyle}>
         <aside style={railStyle}>
           <p style={railNoticeStyle}>
-            송장을 등록하면 배송대기, 발송처리하면 배송중이 됩니다. 일부만 나간 주문은 남은 품목
-            기준으로 발송대기에 남습니다.
+            송장을 등록하면 배송대기, 발송처리하면 배송중이 돼요. 일부만 나간 주문은 남은 품목
+            기준으로 발송대기에 남아요.
           </p>
-          <p style={railNoticeStyle}>택배사는 배송 설정에 등록된 목록에서만 고를 수 있습니다.</p>
+          <p style={railNoticeStyle}>택배사는 배송 설정에 등록된 목록에서만 고를 수 있어요.</p>
           <WorkFilterPanel value={work} onChange={setWork} counts={loading ? null : WORK_COUNTS} />
         </aside>
 
@@ -1054,7 +1054,7 @@ function ShipmentListScreen({
 
           <div style={tableScrollStyle}>
             <Table
-              caption="배송 처리 목록 — 행을 누르면 주문 상세로 이동합니다. 체크박스로 여러 건을 골라 송장을 등록하고 발송처리할 수 있습니다."
+              caption="배송 처리 목록 — 행을 누르면 주문 상세로 이동해요. 체크박스로 여러 건을 골라 송장을 등록하고 발송처리할 수 있어요."
               columns={COLUMNS}
               rows={rows}
               leadingHead={[
@@ -1088,7 +1088,7 @@ function ShipmentListScreen({
         <ConfirmDialog
           intent="update"
           title="배송준비중 일괄 처리"
-          message={`선택한 ${fmt(selectedCount)}건 중 ${fmt(prepareTargets.length)}건만 배송준비중으로 진행합니다. 나머지는 이미 지난 단계이거나 입금이 확인되지 않은 주문입니다.`}
+          message={`선택한 ${fmt(selectedCount)}건 중 ${fmt(prepareTargets.length)}건만 배송준비중으로 진행해요. 나머지는 이미 지난 단계이거나 입금이 확인되지 않은 주문이에요.`}
           confirmLabel={`${fmt(prepareTargets.length)}건 처리`}
           onConfirm={() => setPending(null)}
           onCancel={() => setPending(null)}
@@ -1103,7 +1103,7 @@ function ShipmentListScreen({
         <ConfirmDialog
           intent="update"
           title="발송처리"
-          message={`선택한 ${fmt(dispatchTargets.length)}건을 발송처리합니다. 전 품목이 나간 주문만 배송중이 되고, 일부만 나간 주문은 발송대기에 남습니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`선택한 ${fmt(dispatchTargets.length)}건을 발송처리해요. 전 품목이 나간 주문만 배송중이 되고, 일부만 나간 주문은 발송대기에 남아요. 되돌릴 수 없어요.`}
           confirmLabel={`${fmt(dispatchTargets.length)}건 발송처리`}
           onConfirm={() => {
             setPending(null);

@@ -1,6 +1,20 @@
 // 상품 동작 회귀 테스트 — 재고·가격·옵션 매트릭스·필터(순수) + 폼 검증
-import { describe, expect, it } from 'vitest';
+//
+// [왜 결제 설정이 여기 나오나] 가격 표시는 상품이 고르는 값이 아니라 **사이트 전역 결제 연동
+// 상태의 결과**다. 그래서 폼 검증(판매가 필수·할인 범위)도 그 사실을 읽는다 — 잠긴 칸을 검증하면
+// 손댈 수 없는 값 때문에 저장이 영원히 막히기 때문이다(validation.ts 머리말).
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import {
+  DEFAULT_PAYMENT_SETTINGS,
+  resetPaymentSettings,
+  writePaymentSettings,
+} from '../../../shared/commerce/payment-settings';
+import type { PaymentSettings } from '../../../shared/commerce/payment-settings';
+import {
+  DEFAULT_PRICE_INQUIRY_TEXT,
+  resolvePriceDisplay,
+} from '../../../shared/commerce/price-display';
 import {
   buildVariantMatrix,
   countProductsByCategory,
@@ -23,6 +37,26 @@ import { toProductInput } from './types';
 import { productSchema } from './validation';
 import type { ProductFormValues } from './validation';
 
+/** 결제를 실제로 열 수 있는 설정 — 공개 값 + 저장된 비밀까지 채워야 결제창이 열린다 */
+const PG_ON: PaymentSettings = {
+  ...DEFAULT_PAYMENT_SETTINGS,
+  usePg: true,
+  connection: {
+    mode: 'direct',
+    provider: 'toss',
+    publicValues: { clientKey: 'live_ck_1234', mid: 'tosspayments-1234' },
+    storedSecrets: ['secretKey'],
+  },
+};
+
+/** 기본값이 곧 '연동 없음' 이다 — 이 앱은 계약이 없는 상태에서 출발한다 */
+const PG_OFF: PaymentSettings = DEFAULT_PAYMENT_SETTINGS;
+
+// 테스트가 서로의 저장을 물려받지 않게 한다 — 설정은 모듈 지역 상태다
+afterEach(() => {
+  resetPaymentSettings();
+});
+
 function variantOf(overrides: Partial<ProductVariant> & { id: string }): ProductVariant {
   return { sku: 'SKU', optionValues: [], addPrice: 0, stock: 10, soldOut: false, ...overrides };
 }
@@ -39,8 +73,6 @@ function productOf(overrides: Partial<Product> & { id: string }): Product {
       discountType: 'none',
       discountValue: 0,
       taxable: true,
-      priceDisplay: 'amount',
-      inquiryText: '',
     },
     saleStatus: 'on_sale',
     displayed: true,
@@ -74,8 +106,6 @@ describe('finalPrice · discountRate — 할인 반영(순수)', () => {
       discountType: 'percent' as const,
       discountValue: 20,
       taxable: true,
-      priceDisplay: 'amount' as const,
-      inquiryText: '',
     };
     expect(finalPrice(pricing)).toBe(80000);
     expect(discountRate(pricing)).toBe(20);
@@ -87,8 +117,6 @@ describe('finalPrice · discountRate — 할인 반영(순수)', () => {
       discountType: 'amount' as const,
       discountValue: 10000,
       taxable: true,
-      priceDisplay: 'amount' as const,
-      inquiryText: '',
     };
     expect(finalPrice(pricing)).toBe(79000);
   });
@@ -99,8 +127,6 @@ describe('finalPrice · discountRate — 할인 반영(순수)', () => {
       discountType: 'none' as const,
       discountValue: 0,
       taxable: true,
-      priceDisplay: 'amount' as const,
-      inquiryText: '',
     };
     expect(finalPrice(pricing)).toBe(19900);
     expect(discountRate(pricing)).toBe(0);
@@ -250,8 +276,8 @@ describe('toProductInput — 항목 → 폼 입력', () => {
   // [상세설명 마이그레이션] description 은 이제 HTML 이다(RichTextField). textarea 시절에 저장된
   // 평문이 남아 있어도 폼이 그대로 먹으면 서식이 없는 한 덩어리가 되므로 여기서 승격한다.
   it('상세설명이 평문이면(textarea 시절 값) <p> 로 승격한다', () => {
-    const input = toProductInput(productOf({ id: 'a', description: '가벼운 패딩입니다.' }));
-    expect(input.description).toBe('<p>가벼운 패딩입니다.</p>');
+    const input = toProductInput(productOf({ id: 'a', description: '가벼운 패딩이에요.' }));
+    expect(input.description).toBe('<p>가벼운 패딩이에요.</p>');
   });
 
   it('상세설명이 이미 HTML 이면 그대로 둔다 — 읽을 때마다 불러도 안전하다(멱등)', () => {
@@ -278,8 +304,6 @@ function valuesOf(overrides: Partial<ProductFormValues> = {}): ProductFormValues
     discountType: 'percent',
     discountValue: '20',
     taxable: true,
-    priceDisplay: 'amount',
-    inquiryText: '',
     saleStatus: 'on_sale',
     displayed: true,
     shipping: { method: 'courier', feeType: 'conditional', fee: '3000', freeThreshold: '50000' },
@@ -303,41 +327,67 @@ function messageFor(values: ProductFormValues, path: string): string | undefined
   return result.error.issues.find((issue) => issue.path.join('.') === path)?.message;
 }
 
+/* ── 걷어낸 축 — 상품은 '가격 표시' 를 더 이상 저장하지 않는다 ─────────────────
+ *
+ * 예전에는 상품마다 `priceDisplay`('금액 노출'/'가격문의')와 `inquiryText`(대체 문구)를 저장했고,
+ * 폼에 그 라디오와 문구 입력이 있었다. 운영 요구로 표시는 **사이트 전역 결제 연동 상태의 결과**가
+ * 됐다. 아래 두 단언은 그 축이 조용히 되살아나는 것을 막는다 — 필드를 되돌려 놓으면 깨진다. */
+describe('가격 표시 축은 저장 모델에서 걷혔다', () => {
+  it('저장 페이로드의 가격 조각은 금액·할인·과세 넷뿐이다', () => {
+    const pricing = toProductInput(productOf({ id: 'a' })).pricing;
+    expect(Object.keys(pricing).sort()).toEqual([
+      'discountType',
+      'discountValue',
+      'price',
+      'taxable',
+    ]);
+  });
+
+  it('대체 문구는 상품마다 고르는 값이 아니라 정본 한 벌이다', () => {
+    // 상품별 문구를 저장하던 시절에는 이 문구가 상품마다 달랐다. 이제 정본은 한 곳뿐이고,
+    // 목록·폼·미리보기가 그 한 글자를 그대로 쓴다.
+    expect(resolvePriceDisplay(PG_OFF).text).toBe(DEFAULT_PRICE_INQUIRY_TEXT);
+    expect(resolvePriceDisplay(PG_ON).text).toBe('');
+  });
+});
+
 describe('productSchema — 폼 검증', () => {
+  // 스키마는 '지금 금액 칸이 잠겼는가' 를 결제 설정에서 읽는다(validation.ts 머리말).
+  // 금액 규칙을 보는 블록은 **연동된 상태**를 전제로 한다 — 잠긴 상태에서는 그 규칙 자체가 쉰다.
+  beforeEach(() => {
+    writePaymentSettings(PG_ON);
+  });
+
   it('정상 입력은 통과한다', () => {
     expect(productSchema.safeParse(valuesOf()).success).toBe(true);
   });
 
-  /* ── 가격 표시 축(축 B) ────────────────────────────────────────────────────
+  /* ── 금액 칸의 잠금과 검증은 같은 사실을 읽는다 ────────────────────────────
    *
-   * 잠긴 필드가 저장을 막으면 안 된다. '가격문의' 로 바꾼 상품에는 예전 할인값이 그대로 남아
-   * 있는데(값 보존), 그 값을 계속 검증하면 손댈 수 없는 필드 때문에 저장이 거절된다. */
+   * 잠긴 필드가 저장을 막으면 안 된다. 연동이 없는 동안에도 저장된 판매가·할인은 그대로 남아
+   * 있는데(값 보존), 그 값을 계속 검증하면 손댈 수 없는 필드 때문에 저장이 거절된다 —
+   * 상품명 한 글자만 고치려 해도 막힌다. */
 
-  it("'가격문의' 상품은 판매가가 비어 있어도 저장된다 — 값은 견적으로 정해진다", () => {
-    const values = valuesOf({ priceDisplay: 'inquiry', price: '', discountType: 'none' });
+  it('결제 연동이 없으면 판매가가 비어 있어도 저장된다 — 넣을 칸 자체가 잠겨 있다', () => {
+    writePaymentSettings(PG_OFF);
+    const values = valuesOf({ price: '', discountType: 'none' });
     expect(productSchema.safeParse(values).success).toBe(true);
   });
 
-  it("'금액 노출' 상품은 판매가가 비어 있으면 막는다", () => {
+  it('결제 연동이 되어 있으면 판매가가 비어 있을 때 막는다', () => {
     expect(messageFor(valuesOf({ price: '' }), 'price')).toBe('판매가를 입력하세요.');
   });
 
-  it("'가격문의' 로 두면 잠긴 할인값은 검증하지 않는다 — 값 보존이 저장을 막지 않는다", () => {
-    // 정률 할인 999% 는 '금액 노출' 이었다면 거절될 값이다
-    const locked = valuesOf({
-      priceDisplay: 'inquiry',
-      discountType: 'percent',
-      discountValue: '999',
-    });
+  it('잠긴 동안에는 보존된 할인값을 검증하지 않는다 — 값 보존이 저장을 막지 않는다', () => {
+    // 정률 할인 999% 는 연동된 상태였다면 거절될 값이다. 그 값이 저장돼 있는 상품을 연동이 끊긴
+    // 채로 열면, 할인 칸은 잠겨 있어 고칠 수 없다 — 그런데도 막으면 영원히 저장할 수 없다.
+    writePaymentSettings(PG_OFF);
+    const locked = valuesOf({ discountType: 'percent', discountValue: '999' });
     expect(productSchema.safeParse(locked).success).toBe(true);
 
+    writePaymentSettings(PG_ON);
     const shown = valuesOf({ discountType: 'percent', discountValue: '999' });
     expect(messageFor(shown, 'discountValue')).toBe('할인율은 1% 이상 100% 이하로 입력하세요.');
-  });
-
-  it('대체 문구는 길이 상한을 지킨다 — 목록 한 칸에 들어가야 한다', () => {
-    const long = valuesOf({ priceDisplay: 'inquiry', inquiryText: '가'.repeat(50) });
-    expect(messageFor(long, 'inquiryText')).toContain('넘을 수 없습니다');
   });
 
   // [상세설명 상한은 평문 길이다] value.length 로 재면 '굵게' 한 번에 <strong></strong> 17자가
@@ -461,7 +511,7 @@ describe('productSchema — 쿠폰 사용 설정', () => {
         valuesOf({ coupons: { usable: true, mode: 'include', couponIds: [] } }),
         'coupons.couponIds',
       ),
-    ).toContain('모든 쿠폰이 막힙니다');
+    ).toContain('모든 쿠폰이 막혀요');
   });
 
   it('제외 목록을 비워 두면 막는다', () => {

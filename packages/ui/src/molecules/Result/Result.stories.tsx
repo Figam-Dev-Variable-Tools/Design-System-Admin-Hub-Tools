@@ -29,7 +29,7 @@ const meta: Meta<typeof Result> = {
   args: {
     title: '문제가 발생했어요',
     description:
-      '화면을 그리는 중 예상하지 못한 오류가 났습니다. 다시 시도해도 같은 문제가 계속되면 아래 코드와 함께 알려 주세요.',
+      '화면을 그리는 중 예상하지 못한 오류가 났어요. 다시 시도해도 같은 문제가 계속되면 아래 코드와 함께 알려 주세요.',
     reference: 'A1B2-C3D4',
   },
   parameters: { layout: 'padded' },
@@ -75,7 +75,7 @@ export const LongMessage: Story = {
   name: 'Content/Long Message',
   args: {
     description:
-      '요청을 처리하는 중 서버가 응답하지 않았습니다. 잠시 후 다시 시도해 주세요. 문제가 계속되면 화면 하단의 참조 코드를 복사해 운영 담당자에게 전달해 주시면 더 빠르게 확인할 수 있습니다.',
+      '요청을 처리하는 중 서버가 응답하지 않았어요. 잠시 후 다시 시도해 주세요. 문제가 계속되면 화면 하단의 참조 코드를 복사해 운영 담당자에게 전달해 주시면 더 빠르게 확인할 수 있어요.',
     actions: <Button variant="primary">다시 시도</Button>,
   },
 };
@@ -102,9 +102,8 @@ export const WithoutActions: Story = {
 export const Forbidden: Story = {
   name: 'Examples/Forbidden',
   args: {
-    title: '접근 권한이 없습니다',
-    description:
-      '이 화면을 볼 수 있는 권한이 없습니다. 필요하다면 관리자에게 권한을 요청해 주세요.',
+    title: '접근 권한이 없어요',
+    description: '이 화면을 볼 수 있는 권한이 없어요. 필요하다면 관리자에게 권한을 요청해 주세요.',
     reference: '',
     actions: <Button variant="secondary">대시보드로</Button>,
   },
@@ -119,8 +118,8 @@ export const Forbidden: Story = {
 export const NotFound: Story = {
   name: 'Examples/Not Found',
   args: {
-    title: '페이지를 찾을 수 없습니다',
-    description: '주소가 바뀌었거나 삭제된 화면입니다. 목록에서 다시 찾아 주세요.',
+    title: '페이지를 찾을 수 없어요',
+    description: '주소가 바뀌었거나 삭제된 화면이에요. 목록에서 다시 찾아 주세요.',
     reference: '',
     actions: <Button variant="secondary">목록으로</Button>,
   },
@@ -143,7 +142,7 @@ export const RightToLeft: Story = {
   name: 'Accessibility/RTL',
   args: {
     title: '문제가 발생했어요',
-    description: '화면을 그리는 중 예상하지 못한 오류가 났습니다. 다시 시도해 주세요.',
+    description: '화면을 그리는 중 예상하지 못한 오류가 났어요. 다시 시도해 주세요.',
     reference: 'A1B2-C3D4',
     actions: <Button variant="primary">다시 시도</Button>,
   },

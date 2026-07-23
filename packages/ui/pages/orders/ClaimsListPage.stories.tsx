@@ -433,8 +433,8 @@ function ClaimsListScreen({
     <div style={pageStyle}>
       <h1 style={headingStyle}>취소/교환/반품</h1>
       <p style={descriptionStyle}>
-        고객이 접수하고 관리자는 처리합니다. 클레임 처리와 환불은 별개의 축이라 열이 둘입니다 —
-        적립금·쿠폰은 <strong>환불 완료</strong>에서만 복원됩니다.
+        고객이 접수하고 관리자는 처리해요. 클레임 처리와 환불은 별개의 축이라 열이 둘이에요 —
+        적립금·쿠폰은 <strong>환불 완료</strong>에서만 복원돼요.
       </p>
 
       <div style={toolbarStyle}>
@@ -487,7 +487,7 @@ function ClaimsListScreen({
 
       <div style={tableScrollStyle}>
         <Table
-          caption="클레임 목록 — 행을 누르면 클레임 상세(처리)로 이동합니다. 상태와 환불은 별개의 축이라 열이 둘입니다."
+          caption="클레임 목록 — 행을 누르면 클레임 상세(처리)로 이동해요. 상태와 환불은 별개의 축이라 열이 둘이에요."
           columns={COLUMNS}
           rows={rows}
           leadingHead={[<SeqHeaderCell key="seq" />]}

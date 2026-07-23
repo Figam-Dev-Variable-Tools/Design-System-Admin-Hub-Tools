@@ -31,7 +31,7 @@ import { scanTests } from './lib/tests.ts';
 import { productScopes } from './lib/workspace.ts';
 import { writeEnvelopes } from './escalation.ts';
 import { buildReport, writeReport, type AxisResult } from './report.ts';
-import { CONTRACTS_DIR, SPECS_DIR } from './thresholds.ts';
+import { CONTRACTS_DIR, RATCHET_UNIT, SPECS_DIR } from './thresholds.ts';
 
 function main(): void {
   const root = findRepoRoot(process.cwd());
@@ -44,7 +44,7 @@ function main(): void {
   const hasSpecs = exists(root, SPECS_DIR);
   if (!hasContracts && !hasSpecs) {
     console.error(
-      '[test-coverage] 원천이 하나도 없다 — contracts/ 도 specs/ 도 없다. ' +
+      `[test-coverage] 원천이 하나도 없다 — ${CONTRACTS_DIR}/ 도 ${SPECS_DIR}/ 도 없다. ` +
         '대조할 기준이 없으면 커버리지는 PASS 가 아니라 **NOT_VERIFIED** 다. exit 2',
     );
     process.exitCode = 2;
@@ -52,10 +52,10 @@ function main(): void {
   }
 
   const contracts = hasContracts ? loadContracts(root) : [];
-  const specs = hasSpecs ? loadSpecs(root) : [];
+  const { specs, skipped } = hasSpecs ? loadSpecs(root) : { specs: [], skipped: [] };
   if (contracts.length === 0 && specs.length === 0) {
     console.error(
-      '[test-coverage] 계약 0종 · FS 0건 — 대조표를 만들 수 없다. 측정 불가 ≠ 통과. exit 2',
+      '[test-coverage] 계약 0종 · FSD 화면 0건 — 대조표를 만들 수 없다. 측정 불가 ≠ 통과. exit 2',
     );
     process.exitCode = 2;
     return;
@@ -72,16 +72,18 @@ function main(): void {
   const existence = checkExistence(scan, scopes);
   const states = checkContractStates(contracts, scan.units, baseline);
   const blocked = checkBlockedWhen(contracts, scan.units, baseline);
-  const fs4 = checkFsExceptions(specs, scan.units, baseline);
+  const fs4 = checkFsExceptions(specs, scan.units, baseline, skipped.length);
   const fixtures = checkToolFixtures(root, scan.units);
 
   const results: AxisResult[] = [existence.result, states, blocked, fs4.result, fixtures];
 
   /* ── 자기 감사 — 이 도구가 공허 통과할 수 있는 경로를 스스로 신고한다 ──── */
   const selfAudit: string[] = [
-    `대조 키는 **테스트 이름**이다. 이름이 계약 상태·FS 요소 번호를 인용하지 않으면 이 도구는 그것을 "없는 것"으로 센다 — 거짓 음성(실제로 검증했는데 미커버로 셈)이 가능하다. 반대로 **이름만 맞고 단언이 엉뚱한 테스트**는 커버로 세어질 수 있다 — 거짓 양성이다. 도구는 단언의 **존재**를 보지만 단언의 **내용이 옳은지**는 보지 않는다. 그 판정은 스토리북 리뷰(G5)·코드 리뷰(G6)의 사람 검수 몫이다.`,
+    `대조 키는 **테스트 이름**이다. 이름이 계약 상태·FSD 화면 ID 와 상황 이름을 인용하지 않으면 이 도구는 그것을 "없는 것"으로 센다 — 거짓 음성(실제로 검증했는데 미커버로 셈)이 가능하다. 반대로 **이름만 맞고 단언이 엉뚱한 테스트**는 커버로 세어질 수 있다 — 거짓 양성이다. 도구는 단언의 **존재**를 보지만 단언의 **내용이 옳은지**는 보지 않는다. 그 판정은 스토리북 리뷰(G5)·코드 리뷰(G6)의 사람 검수 몫이다.`,
     `축 3(blockedWhen)만 예외적으로 단언의 **종류**까지 본다 (비발생 단언 필수). 금지 동작은 렌더 단언으로 증명되지 않기 때문이다.`,
-    `축 4의 대조 격자는 FS §4 예외 표에서 파생된다. **기능 명세가 동작 칸을 N/A 로 바꾸면 대조 대상이 줄어든다** — 커버리지 하한을 낮추는 우회로가 명세 쪽에 열려 있다. 이 경로는 기능 명세의 서명 + 명세 리뷰(G9)의 검수를 지나야 하며, 도구는 요소별 N/A 수를 리포트에 남겨 그 변화를 추적 가능하게 만든다.`,
+    `축 4의 대조 격자는 **FSD §7 예외 처리 표**에서 파생된다(2026-07 재조준 — 옛 \`specs/**\` §4 의 요소 × 7축 격자는 원천이 삭제돼 성립하지 않는다). **기능 명세가 동작 칸을 \`해당 없음\` 으로 바꾸거나 12상황의 행을 지우면 대조 대상이 줄어든다** — 커버리지 하한을 낮추는 우회로가 명세 쪽에 열려 있다. 이 경로는 명세 리뷰(G9)의 검수를 지나야 하며, 도구는 **분모 축소**와 **상황 누락**을 각각 major 로 신고해 그 변화를 눈에 보이게 만든다.`,
+    `**옛 7축 중 3개는 §7 에 자리가 없다.** \`로딩\`·\`유효성\` 은 새 양식에서 §8 화면 상태 · §6 Validation 으로 옮겨 갔고, \`대량\` 은 어느 절에도 자리가 없다. 축 4는 그 셋을 **더 이상 기계로 지키지 않는다.** §8·§6 을 격자에 넣지 않은 이유는 레지스트리 \`blockCondition\` 이 축 4에 인가한 것이 "FS의 **예외**" 이기 때문이다(§8 은 대부분 정상 경로이고, 상태 전수 렌더는 축 2가 이미 잰다). 범위를 넓히려면 아키텍처의 ADR 이 필요하다 — 도구가 스스로 넓히지 않는다.`,
+    `축 4의 대조 키는 **화면 ID**다. \`docs/FSD/_common/index.md\` 처럼 §1 에 화면 ID 가 없는 문서(라우트가 없는 공통 층)는 테스트 이름이 가리킬 좌표가 없어 격자에서 빠진다. 그 수를 리포트에 드러내며(\`ratchet\`·축 4 \`scanned\`), **조용히 빼지 않는다.** 공통 층의 예외 동작은 그것을 쓰는 각 화면의 §7 에서 측정된다.`,
     `\`pnpm test\` 의 exit code 를 읽지 않는다. 따라서 **테스트가 존재하지만 실패하는** 경우를 이 도구는 잡지 못한다 — 그것은 CI 의 test job (CI·CD) 이 잡아야 한다. 테스트 커버리지 은 "무엇이 검증되지 않았는가"를 재고, "검증된 것이 통과했는가"는 재지 않는다. **두 장치가 모두 있어야 게이트가 닫힌다.**`,
     `\`describe\` 블록 이름은 대조에 쓰지 않는다 (테스트 이름만 본다). \`describe('Button disabled')\` + \`it('does not fire')\` 조합은 미커버로 셈될 수 있다 — E2E 테스트 명명 규칙(접두를 테스트 이름에 박는다)이 이 한계를 전제로 만들어졌다.`,
     `**[해소됨 — 오케스트레이터/아키텍처 판정 1]** 이전 버전의 축 1은 **리포 전역 카운트**여서, 컴포넌트 엔지니어이 \`packages/ui\` 에 테스트를 채우면 \`apps/admin\` 이 0건이어도 초록으로 바뀌었다 — 한쪽의 초록이 다른 쪽의 빈칸을 가렸다. 이제 축 1은 \`pnpm-workspace.yaml\` 에서 파생한 **스코프별로 독립 판정**한다. **남은 한계**: \`e2e/\` 는 워크스페이스 패키지가 아니므로 축 1의 스코프가 아니다 — e2e 커버리지는 축 4(major + 래칫)만 잰다. 즉 **e2e 테스트를 한 건도 쓰지 않아도 blocker 는 뜨지 않는다** (래칫 기준선이 0이므로 후퇴도 없다). E2E 테스트가 첫 테스트를 쓰는 순간부터 래칫이 물린다.`,
@@ -119,7 +121,10 @@ function main(): void {
       baseline: baseline.covered,
       current: fs4.result.covered,
       source: baseline.source,
-      regressed: fs4.result.covered < baseline.covered,
+      regressed: baseline.unit === RATCHET_UNIT && fs4.result.covered < baseline.covered,
+      unit: RATCHET_UNIT,
+      baselineUnit: baseline.unit,
+      total: fs4.result.total,
     },
     assertionFree: scan.assertionFree.map((u) => ({
       file: u.file,
@@ -143,7 +148,7 @@ function main(): void {
   /* ── 콘솔 ─────────────────────────────────────────────────────────────── */
   console.log(`[test-coverage] 실행 시각: ${runAt} (커밋되는 리포트에는 기록하지 않는다 — 결정론)`);
   console.log(
-    `[test-coverage] 입력: 계약 ${report.inputs.contracts}종 · FS ${report.inputs.specs}건 · 테스트 파일 ${report.inputs.testFiles}개 · 스토리 파일 ${report.inputs.storyFiles}개`,
+    `[test-coverage] 입력: 계약 ${report.inputs.contracts}종 · FSD 화면 ${report.inputs.specs}건(화면 ID 없어 제외 ${skipped.length}건) · 테스트 파일 ${report.inputs.testFiles}개 · 스토리 파일 ${report.inputs.storyFiles}개`,
   );
   console.log(
     `[test-coverage] 단언을 가진 실행 단위(= 테스트): ${report.inputs.testUnits}건 / 단언 없는 실행 단위: ${report.inputs.assertionFreeUnits}건`,
@@ -158,10 +163,15 @@ function main(): void {
     );
   }
   console.log(
-    `[test-coverage] 축 4 래칫: 기준선 ${report.ratchet.baseline}칸 → 현재 ${report.ratchet.current}칸 — ${
-      report.ratchet.regressed
-        ? `**후퇴 ${report.ratchet.baseline - report.ratchet.current}칸 → BLOCKER**`
-        : '후퇴 없음'
+    `[test-coverage] 축 4 래칫 단위 ${report.ratchet.unit} — (화면 ID × §7 예외 상황) 칸을 센다`,
+  );
+  console.log(
+    `[test-coverage] 축 4 래칫: 기준선 ${report.ratchet.baseline}칸 → 현재 ${report.ratchet.current}칸 / 분모 ${report.ratchet.total}칸 — ${
+      report.ratchet.unit !== report.ratchet.baselineUnit
+        ? `**단위 변경(${report.ratchet.baselineUnit} → ${report.ratchet.unit}) — 비교 불가, 기준선 재수립**`
+        : report.ratchet.regressed
+          ? `**후퇴 ${report.ratchet.baseline - report.ratchet.current}칸 → BLOCKER**`
+          : '후퇴 없음'
     }  (출처: ${report.ratchet.source})`,
   );
   console.log('');
@@ -173,13 +183,20 @@ function main(): void {
   }
   console.log('');
   console.log(
-    `[test-coverage] FS 판정: 요소 ${fs4.stats.elementsTotal}개 중 **동작이 정의된 요소 ${fs4.stats.elementsTargeted}개**가 테스트 대상 ` +
+    `[test-coverage] FSD 판정: 화면 ${fs4.stats.screensTotal}건 중 **동작이 정의된 화면 ${fs4.stats.screensTargeted}건**이 테스트 대상 ` +
       `(동작 칸 ${fs4.stats.cellsBehavioral} · 배제 ${fs4.stats.cellsExcluded} = ${Object.entries(
         fs4.stats.excludedBy,
       )
         .map(([k, v]) => `${k}:${v}`)
-        .join(' ')})`,
+        .join(' ')} · §7 상황 누락 ${fs4.stats.situationsMissing})`,
   );
+  if (skipped.length > 0) {
+    console.log(
+      `[test-coverage] 화면 ID 가 없어 격자에서 제외된 문서 ${skipped.length}건 (조용히 빼지 않는다): ${skipped
+        .map((s) => s.file)
+        .join(', ')}`,
+    );
+  }
 
   for (const g of report.gaps.filter((x) => x.severity === 'blocker').slice(0, 20)) {
     console.error(`[test-coverage] BLOCKER 축${g.axis} ${g.item}  → 기대: "${g.expectedTest}"`);

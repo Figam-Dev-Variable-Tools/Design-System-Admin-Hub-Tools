@@ -158,7 +158,7 @@ export const DescribedByError: Story = {
             fontSize: 'var(--tds-typography-caption-md-font-size)',
           }}
         >
-          ICO 또는 PNG 파일만 올릴 수 있습니다.
+          ICO 또는 PNG 파일만 올릴 수 있어요.
         </p>
       </div>
     ),

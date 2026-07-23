@@ -199,14 +199,14 @@ const TAB_DATA: Record<TabId, DemoTab> = {
     ],
     cards: [
       {
-        title: '최근 상담',
+        title: '최근 문의',
         count: 2,
         icon: 'question',
-        moreTo: '/sales/consultations',
+        moreTo: '/sales/inquiries',
         rows: [
           {
             id: 'c-1',
-            title: '스튜디오 음향 시공 견적 상담',
+            title: '스튜디오 음향 시공 견적 문의',
             actor: '한음***',
             date: '2026-07-14',
           },
@@ -508,7 +508,7 @@ function DashboardScreen({ state }: { state: ScreenState }) {
       {/* 탭 데이터 조회 실패 — 상단 배너, 아래 패널은 감춘다 (원본 error !== null) */}
       {failed && (
         <Alert tone="danger">
-          대시보드 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+          대시보드 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </Alert>
       )}
 
@@ -573,7 +573,7 @@ function DashboardScreen({ state }: { state: ScreenState }) {
             title="방문자"
             action={rangeToggle}
             loading={loading}
-            error={failed ? '방문자 통계를 불러오지 못했습니다.' : ''}
+            error={failed ? '방문자 통계를 불러오지 못했어요.' : ''}
           >
             <LineAreaChart
               series={chartSeries}
@@ -585,7 +585,7 @@ function DashboardScreen({ state }: { state: ScreenState }) {
           <StatsCard
             title="기간별 분석"
             loading={loading}
-            error={failed ? '기간별 분석을 불러오지 못했습니다.' : ''}
+            error={failed ? '기간별 분석을 불러오지 못했어요.' : ''}
           >
             <DataTable
               columns={PERIOD_COLUMNS}

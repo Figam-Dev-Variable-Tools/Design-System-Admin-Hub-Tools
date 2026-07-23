@@ -61,7 +61,7 @@ export function MemoCard({ memberId, initialMemo, canUpdate }: MemoCardProps) {
 
   const submit = () => {
     if (overflow) {
-      setError(`메모는 ${formatNumber(MEMO_MAX_LENGTH)}자를 넘을 수 없습니다.`);
+      setError(`메모는 ${formatNumber(MEMO_MAX_LENGTH)}자를 넘을 수 없어요.`);
       return;
     }
 
@@ -70,10 +70,10 @@ export function MemoCard({ memberId, initialMemo, canUpdate }: MemoCardProps) {
       { memberId, memo },
       {
         onSuccess: () => {
-          toast.success('관리자 메모를 저장했습니다.');
+          toast.success('관리자 메모를 저장했어요.');
         },
         onError: () => {
-          setError('저장에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+          setError('저장에 실패했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );

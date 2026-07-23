@@ -29,7 +29,7 @@ import { incompleteTextStyle, placeholderShapeStyle } from './styles';
 import { cssVar } from '@tds/ui';
 
 /** 미완성 안내 문구 — 목업 확정(영문) */
-export const INCOMPLETE_MESSAGE = '이 블록의 설정이 아직 비어 있습니다.';
+export const INCOMPLETE_MESSAGE = '이 블록의 설정이 아직 비어 있어요.';
 
 /* ── 데이터 → CSS 변환 ───────────────────────────────────────────────────── */
 

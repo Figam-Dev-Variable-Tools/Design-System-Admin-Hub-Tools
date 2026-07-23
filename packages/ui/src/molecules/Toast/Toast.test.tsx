@@ -38,19 +38,19 @@ afterEach(() => {
 describe('Toast — 계약 kind·a11y·라이프사이클', () => {
   it('Toast: default — info kind 는 톤 클래스와 함께 문구를 렌더한다', () => {
     const { container } = render(
-      <Toast id="t1" kind="info" message="변경 사항이 저장되었습니다" onDismiss={vi.fn()} />,
+      <Toast id="t1" kind="info" message="변경 사항이 저장되었어요" onDismiss={vi.fn()} />,
     );
     const root = container.querySelector('.tds-toast');
     expect(root).not.toBeNull();
     expect(root?.className).toContain('tds-toast--info');
-    expect(root?.textContent).toContain('변경 사항이 저장되었습니다');
+    expect(root?.textContent).toContain('변경 사항이 저장되었어요');
   });
 
   it('Toast: a11y — 라이브 영역을 소유하지 않는다 (role/aria-live 없음 · A11Y-01)', () => {
     // 동적 삽입 노드의 라이브 영역은 스크린리더가 신뢰성 있게 읽지 않는다 —
     // 통지는 ToastProvider 의 지속 라이브 영역이 소유한다 (1.1.0).
     const { container } = render(
-      <Toast id="t1" kind="error" message="실패했습니다" onDismiss={vi.fn()} />,
+      <Toast id="t1" kind="error" message="실패했어요" onDismiss={vi.fn()} />,
     );
     const root = container.querySelector('.tds-toast');
     expect(root?.getAttribute('role')).toBeNull();
@@ -61,7 +61,7 @@ describe('Toast — 계약 kind·a11y·라이프사이클', () => {
 
   it('Toast: error kind 는 danger 톤으로 렌더된다 (색+아이콘 이중 인코딩)', () => {
     const { container } = render(
-      <Toast id="t1" kind="error" message="실패했습니다" onDismiss={vi.fn()} />,
+      <Toast id="t1" kind="error" message="실패했어요" onDismiss={vi.fn()} />,
     );
     expect(container.querySelector('.tds-toast')?.className).toContain('tds-toast--danger');
   });

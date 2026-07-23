@@ -28,8 +28,8 @@ import type { ReactNode } from 'react';
 
 import { ConfirmDialog } from './ConfirmDialog';
 
-const DEFAULT_TITLE = '저장하지 않은 변경 사항이 있습니다';
-const DEFAULT_MESSAGE = '입력한 내용이 사라집니다. 저장하지 않고 닫으시겠습니까?';
+const DEFAULT_TITLE = '저장하지 않은 변경 사항이 있어요';
+const DEFAULT_MESSAGE = '입력한 내용이 사라져요. 저장하지 않고 닫을까요?';
 
 interface ModalDirtyGuardOptions {
   readonly title?: string;

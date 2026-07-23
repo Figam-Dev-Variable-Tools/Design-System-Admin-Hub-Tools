@@ -7,7 +7,8 @@
 // │ Azure 는 저장은 되는데 호출이 404 가 난다(../integrations.ts 머리말).         │
 // │                                                                          │
 // │ 카테고리별로 폼이 다르게 보이는 것은 **분기 때문이 아니라 요구가 달라서**다:    │
-// │ 모델 9종은 한 칸, Azure 는 네 칸, Bedrock 은 두 칸이 그려진다.                │
+// │ OpenAI 는 다섯 칸(키·베이스 URL·기본 모델·조직 ID·프로젝트 ID), 나머지 모델      │
+// │ 3종은 세 칸, Azure 는 네 칸, Bedrock 은 두 칸, CJ 는 두 칸이 그려진다.          │
 // └──────────────────────────────────────────────────────────────────────────┘
 //
 // ┌ 비밀 칸은 세 상태를 갖는다 ────────────────────────────────────────────────┐
@@ -16,7 +17,7 @@
 // │                        않는다 — 평문이 들어갈 자리가 없는 것이 방어다)         │
 // │ ③ 저장돼 있고 변경 중 → 입력칸 + '취소'                                     │
 // │                                                                          │
-// │ ../oauth/components/OAuthProviderCard.tsx 의 client secret 과 **같은 상태     │
+// │ ../../oauth/components/OAuthProviderCard.tsx 의 client secret 과 **같은 상태  │
 // │ 기계**다. 두 화면이 비밀을 다르게 다루면 어느 쪽이 옳은지 아무도 답하지 못한다.  │
 // └──────────────────────────────────────────────────────────────────────────┘
 import type { CSSProperties } from 'react';
@@ -24,8 +25,16 @@ import type { UseFormRegister } from 'react-hook-form';
 
 import { Button, controlStyle, errorIdOf, FormField, hintIdOf } from '../../../../shared/ui';
 import { MASKED_SECRET_TEXT } from '../../_shared/secret';
-import { CREDENTIAL_VALUE_MAX, endpointWarning, regionWarning } from '../validation';
+import {
+  baseUrlWarning,
+  CREDENTIAL_VALUE_MAX,
+  customerCodeWarning,
+  endpointWarning,
+  modelIdWarning,
+  regionWarning,
+} from '../validation';
 import type { AiConnectionFormValues } from '../validation';
+import { credentialIsSecret } from '../ai-connections';
 import type { AiCredentialField, AiCredentialFieldKey } from '../ai-connections';
 import { cssVar } from '@tds/ui';
 
@@ -39,7 +48,7 @@ const secretRowStyle: CSSProperties = {
 
 /**
  * 저장돼 있다는 **사실**의 표시. 값이 아니라 고정 길이 글리프다 —
- * 자릿수도 마지막 네 자도 정보이므로 남기지 않는다(../_shared/secret.ts).
+ * 자릿수도 마지막 네 자도 정보이므로 남기지 않는다(../../_shared/secret.ts).
  */
 const maskedStyle: CSSProperties = {
   flex: '1 1 auto',
@@ -75,13 +84,21 @@ const inputStyle = (invalid: boolean): CSSProperties => ({
  * (autoComplete="new-password"). 나머지는 주소·이름이므로 평범한 텍스트다.
  */
 function inputTypeOf(field: AiCredentialField): 'text' | 'password' {
-  return field.secret ? 'password' : 'text';
+  return credentialIsSecret(field.key) ? 'password' : 'text';
 }
 
-/** 이 칸에 붙는 경고 — 칸의 성격이 정한다(값의 모양을 되묻는 자리) */
+/**
+ * 이 칸에 붙는 경고 — **칸 이름**이 정한다(값의 모양을 되묻는 자리).
+ *
+ * 여기 늘어선 것은 전부 같은 규율의 형제다: **막지 않고 되묻는다**(../validation.ts 머리말).
+ * 새 칸이 형식 검사를 원하면 오류가 아니라 이 표에 한 줄을 더하는 것이 옳은 길이다.
+ */
 function warningOf(key: AiCredentialFieldKey, value: string): string | null {
   if (key === 'endpoint') return endpointWarning(value);
   if (key === 'region') return regionWarning(value);
+  if (key === 'customerCode') return customerCodeWarning(value);
+  if (key === 'baseUrl') return baseUrlWarning(value);
+  if (key === 'defaultModel') return modelIdWarning(value);
   return null;
 }
 
@@ -115,17 +132,19 @@ export function AiCredentialFields({
         const id = `ai-credential-${field.key}`;
         const error = errors[field.key];
         const invalid = error !== undefined;
+        // 비밀 여부는 항목이 아니라 **칸 이름**이 정한다(../ai-connections.ts 의 CREDENTIAL_SECRECY)
+        const secret = credentialIsSecret(field.key);
         const stored = values.storedSecrets.includes(field.key);
         const changing = changingSecrets.includes(field.key);
 
         /** 저장된 비밀이 있고 변경 중이 아니면 **입력 요소를 렌더하지 않는다** */
-        const showMasked = field.secret && stored && !changing;
+        const showMasked = secret && stored && !changing;
 
         /**
          * 새 값을 넣어야만 켤 수 있는가 — 이미 저장돼 있으면 비워 둬도 유지되므로 필수가 아니다.
          * 꺼진 연동에는 필수 표식을 달지 않는다: 끄는 것은 언제나 허용된다(../validation.ts).
          */
-        const required = values.enabled && field.required && !(field.secret && stored);
+        const required = values.enabled && field.required && !(secret && stored);
 
         const warning = showMasked ? null : warningOf(field.key, values.credentials[field.key]);
 
@@ -138,7 +157,7 @@ export function AiCredentialFields({
               error={error ?? ''}
               hint={
                 showMasked
-                  ? '저장돼 있습니다. 값은 다시 표시할 수 없습니다 — 바꾸려면 프로바이더 콘솔에서 새로 발급해 넣으세요.'
+                  ? '저장돼 있어요. 값은 다시 표시할 수 없어요 — 바꾸려면 연동 상대의 콘솔에서 새로 발급해 넣으세요.'
                   : field.hint
               }
             >
@@ -169,13 +188,13 @@ export function AiCredentialFields({
                     aria-invalid={invalid}
                     aria-describedby={invalid ? errorIdOf(id) : hintIdOf(id)}
                     {...(required ? { 'aria-required': true } : {})}
-                    {...(field.secret ? { autoComplete: 'new-password' as const } : {})}
-                    {...(field.secret && stored
-                      ? { placeholder: '비워 두면 저장된 키를 그대로 씁니다' }
+                    {...(secret ? { autoComplete: 'new-password' as const } : {})}
+                    {...(secret && stored
+                      ? { placeholder: '비워 두면 저장된 키를 그대로 써요' }
                       : {})}
                     {...register(`credentials.${field.key}` as const)}
                   />
-                  {field.secret && stored && (
+                  {secret && stored && (
                     <Button
                       variant="secondary"
                       size="sm"

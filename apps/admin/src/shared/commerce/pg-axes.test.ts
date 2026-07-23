@@ -1,7 +1,11 @@
-// 두 축의 순수 규칙 — 가격 표시 파생 · 섹션 잠금 · 조건부 메뉴 가시성 · 값 보존
+// 결제 축의 순수 규칙 — 가격 표시 파생 · 섹션 잠금 · 조건부 메뉴 가시성
 //
 // 화면을 렌더하지 않는다. 이 파일이 지키는 것은 '무엇이 참인가' 이고, 그 답이 화면마다 갈리지
-// 않게 하는 것이 두 축을 shared 에 둔 이유다.
+// 않게 하는 것이 이 축을 shared 에 둔 이유다.
+//
+// [축이 하나가 됐다] 예전에는 축이 둘이었다(전역 pgSellable + 상품별 priceDisplay). 운영 요구로
+// 상품별 축이 사라졌다 — 가격 표시는 고르는 값이 아니라 **연동 상태의 결과**다(./price-display.ts).
+// 그래서 이 파일의 '축 B' 단언들도 '상품이 무엇을 골랐는가' 가 아니라 '연동이 되어 있는가' 를 본다.
 import { describe, expect, it, afterEach } from 'vitest';
 
 import {
@@ -13,25 +17,43 @@ import {
 } from './inquiry-backlog';
 import type { InquiryBacklog } from './inquiry-backlog';
 import { pgLock, PG_LOCK_SECTIONS } from './pg-lock';
-import { DEFAULT_PAYMENT_SETTINGS, pgSellable } from './payment-settings';
+import {
+  DEFAULT_PAYMENT_SETTINGS,
+  pgSellable,
+  registerPgCredentialHealth,
+  resetPgCredentialHealth,
+} from './payment-settings';
 import type { PaymentSettings } from './payment-settings';
 import { DEFAULT_PRICE_INQUIRY_TEXT, resolvePriceDisplay } from './price-display';
-import type { PriceDisplayPolicy } from './price-display';
 
-/** PG 를 실제로 열 수 있는 설정 — 상점 ID 까지 채워야 결제창이 열린다 */
+/** PG 를 실제로 열 수 있는 설정 — 자격증명(공개 값 + 저장된 비밀)까지 채워야 결제창이 열린다 */
 const PG_ON: PaymentSettings = {
   ...DEFAULT_PAYMENT_SETTINGS,
   usePg: true,
-  merchantId: 'tosspayments-1234',
+  connection: {
+    mode: 'direct',
+    provider: 'toss',
+    publicValues: { clientKey: 'live_ck_1234', mid: 'tosspayments-1234' },
+    storedSecrets: ['secretKey'],
+  },
 };
 
-/** 켜 두었지만 상점 ID 가 비어 있는 설정 — fail-closed 판정의 대상 */
-const PG_HALF: PaymentSettings = { ...DEFAULT_PAYMENT_SETTINGS, usePg: true, merchantId: '  ' };
+/**
+ * 켜 두었지만 자격증명이 반쪽인 설정 — fail-closed 판정의 대상.
+ * 공개 값은 공백뿐이고 필수 비밀도 저장돼 있지 않다.
+ */
+const PG_HALF: PaymentSettings = {
+  ...DEFAULT_PAYMENT_SETTINGS,
+  usePg: true,
+  connection: {
+    mode: 'direct',
+    provider: 'toss',
+    publicValues: { clientKey: '  ', mid: '  ' },
+    storedSecrets: [],
+  },
+};
 
 const PG_OFF: PaymentSettings = DEFAULT_PAYMENT_SETTINGS;
-
-const AMOUNT: PriceDisplayPolicy = { priceDisplay: 'amount', inquiryText: '' };
-const INQUIRY: PriceDisplayPolicy = { priceDisplay: 'inquiry', inquiryText: '견적 문의' };
 
 function backlogOf(partial: Partial<InquiryBacklog>): InquiryBacklog {
   return {
@@ -46,47 +68,66 @@ function backlogOf(partial: Partial<InquiryBacklog>): InquiryBacklog {
 
 afterEach(() => {
   resetInquiryBacklogLookup();
+  resetPgCredentialHealth();
 });
 
 describe('축 A — pgSellable', () => {
-  it('상점 ID 가 비어 있으면 켜 두어도 결제를 열 수 없다(fail-closed)', () => {
+  it('자격증명이 비어 있으면 켜 두어도 결제를 열 수 없다(fail-closed)', () => {
     expect(pgSellable(PG_ON)).toBe(true);
     expect(pgSellable(PG_HALF)).toBe(false);
     expect(pgSellable(PG_OFF)).toBe(false);
   });
 });
 
-describe('축 B — resolvePriceDisplay', () => {
-  it('PG 를 켠 상태에서는 상품별 축이 그대로 답이다', () => {
-    expect(resolvePriceDisplay(PG_ON, AMOUNT).kind).toBe('amount');
-    expect(resolvePriceDisplay(PG_ON, INQUIRY).kind).toBe('inquiry');
+describe('가격 표시 — 고르는 값이 아니라 연동 상태의 결과다', () => {
+  it('연동이 되어 있으면 금액을 그대로 노출한다', () => {
+    expect(resolvePriceDisplay(PG_ON).kind).toBe('amount');
+    expect(resolvePriceDisplay(PG_ON).text).toBe('');
   });
 
-  it('"PG 는 쓰지만 이 상품만 가격문의" 가 표현된다 — 문구는 운영자가 쓴 것', () => {
-    const resolved = resolvePriceDisplay(PG_ON, INQUIRY);
-    expect(resolved.text).toBe('견적 문의');
-    expect(resolved.amountFieldsLocked).toBe(true);
-  });
-
-  it('PG 가 꺼져 있으면 상품이 금액 노출이라 해도 전역이 이긴다', () => {
-    const resolved = resolvePriceDisplay(PG_OFF, AMOUNT);
+  it('PG 를 끄면 금액이 이미 설정돼 있어도 전부 가격문의로 대체된다', () => {
+    const resolved = resolvePriceDisplay(PG_OFF);
     expect(resolved.kind).toBe('inquiry');
     expect(resolved.text).toBe(DEFAULT_PRICE_INQUIRY_TEXT);
   });
 
-  it('문구가 비어 있으면 기본 문구로 채운다 — 금액 칸이 빈 채 남지 않는다', () => {
-    const resolved = resolvePriceDisplay(PG_ON, { priceDisplay: 'inquiry', inquiryText: '   ' });
-    expect(resolved.text).toBe(DEFAULT_PRICE_INQUIRY_TEXT);
+  it('켜 두었어도 자격증명이 반쪽이면 가격문의다 — fail-closed', () => {
+    expect(resolvePriceDisplay(PG_HALF).kind).toBe('inquiry');
   });
 
-  it('금액 노출이면 할인·과세 필드를 잠그지 않는다', () => {
-    expect(resolvePriceDisplay(PG_ON, AMOUNT).amountFieldsLocked).toBe(false);
+  /**
+   * [술어는 하나다] 금액 입력 차단과 가격 문의 대체가 갈리면 **금액은 입력되는데 표시는
+   * 문의**이거나 그 반대가 생긴다. 두 필드가 언제나 같은 답을 낸다는 것을 못박는다.
+   */
+  it('금액 입력 차단은 가격 문의 대체와 **항상 같은 답**이다', () => {
+    for (const settings of [PG_ON, PG_HALF, PG_OFF]) {
+      const resolved = resolvePriceDisplay(settings);
+      expect(resolved.amountFieldsLocked).toBe(resolved.kind === 'inquiry');
+    }
   });
 
-  it('파생일 뿐 정책을 건드리지 않는다 — 값 보존', () => {
-    const policy: PriceDisplayPolicy = { priceDisplay: 'inquiry', inquiryText: '견적 문의' };
-    resolvePriceDisplay(PG_OFF, policy);
-    expect(policy).toEqual({ priceDisplay: 'inquiry', inquiryText: '견적 문의' });
+  it('세 갈래가 서로 다른 원인을 말한다 — 다음에 할 일이 달라서다', () => {
+    expect(resolvePriceDisplay(PG_OFF).reason).toContain('쓰지 않도록');
+    // 값이 덜 찼다 — 무엇이 비었는지 이름으로 짚는다
+    expect(resolvePriceDisplay(PG_HALF).reason).toContain('시크릿 키');
+  });
+
+  /*
+   * ⓑ '키가 실제로 유효한가' 는 **프론트가 알 수 없다** — 연결 테스트를 만들지 않기로 했고,
+   * 그 판단은 유지한다. 그래서 이 축은 백엔드가 꽂는 심으로만 움직인다.
+   */
+  it('백엔드가 거절을 알려 주면 값이 다 차 있어도 가격문의로 닫힌다', () => {
+    registerPgCredentialHealth(() => 'invalid');
+
+    expect(pgSellable(PG_ON)).toBe(false);
+    expect(resolvePriceDisplay(PG_ON).kind).toBe('inquiry');
+    expect(resolvePriceDisplay(PG_ON).reason).toContain('거절');
+  });
+
+  it("배선 전에는 '확인한 적 없음' 이지 '이상 있음' 이 아니다 — 멀쩡한 상점을 닫지 않는다", () => {
+    // 이것이 없으면 백엔드가 붙기 전까지 모든 사이트가 영원히 가격문의가 되고,
+    // 같은 사실을 보는 checkoutCta 는 '구매하기' 를 그려 두 축이 서로 모순된다.
+    expect(resolvePriceDisplay(PG_ON).kind).toBe('amount');
   });
 });
 

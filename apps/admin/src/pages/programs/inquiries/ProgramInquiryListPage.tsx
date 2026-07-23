@@ -214,7 +214,7 @@ export default function ProgramInquiryListPage() {
     mutationFn: async (targets: readonly ProgramInquiry[]) => {
       const issued = issueQuote(targets.map(toProgramQuoteIssueSource));
       // 배선이 없으면 여기 도달하지 않는다(basketBlock 이 먼저 막는다) — 도달하면 그것은 버그다.
-      if (issued === null) throw new Error('견적 발행을 사용할 수 없습니다.');
+      if (issued === null) throw new Error('견적 발행을 사용할 수 없어요.');
       // 합쳐진 문의는 모두 같은 견적 id 를 갖는다 — 하나라도 빠지면 그 문의는 견적 없이 남는다.
       for (const target of targets) {
         await programInquiryAdapter.update(
@@ -227,12 +227,12 @@ export default function ProgramInquiryListPage() {
     onSuccess: (issued) => {
       void queryClient.invalidateQueries({ queryKey: [PROGRAM_INQUIRY_RESOURCE, 'list'] });
       setBasket(new Set());
-      toast.success(`견적 ${issued.quoteNo}${objectParticle(issued.quoteNo)} 발행했습니다.`);
+      toast.success(`견적 ${issued.quoteNo}${objectParticle(issued.quoteNo)} 발행했어요.`);
       navigate(issuedQuoteHref(issued.id));
     },
     onError: (cause: unknown) => {
       if (isAbort(cause)) return;
-      toast.error('견적을 발행하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      toast.error('견적을 발행하지 못했어요. 잠시 후 다시 시도해 주세요.');
     },
   });
 
@@ -339,7 +339,7 @@ export default function ProgramInquiryListPage() {
           <div style={basketBarStyle}>
             <span>
               {basketBlock === null
-                ? `문의 ${formatNumber(basketItems.length)}건을 한 견적으로 합칩니다.`
+                ? `문의 ${formatNumber(basketItems.length)}건을 한 견적으로 합쳐요.`
                 : basketBlock}
             </span>
             <span style={toolbarStyle}>
@@ -372,18 +372,18 @@ export default function ProgramInquiryListPage() {
           <>
             <p style={hintStyle}>
               {loaded
-                ? `답변을 기다리는 문의가 ${formatNumber(pending)}건 있습니다.`
-                : '미답변 건수를 세는 중입니다.'}
+                ? `답변을 기다리는 문의가 ${formatNumber(pending)}건 있어요.`
+                : '미답변 건수를 세는 중이에요.'}
             </p>
             <p style={hintStyle}>
               결제대행을 끈 프로그램은 후원하기 대신 문의하기 버튼이 노출되고, 그 문의가 이 목록으로
-              들어옵니다. 마감이 있는 펀딩이라 답변이 늦으면 후원이 사라집니다.
+              들어와요. 마감이 있는 펀딩이라 답변이 늦으면 후원이 사라져요.
             </p>
             <p style={hintStyle}>
-              여러 문의를 바구니에 담아 한 견적으로 합칠 수 있습니다. 합친 문의는 모두 같은 견적을
-              가리킵니다.
+              여러 문의를 바구니에 담아 한 견적으로 합칠 수 있어요. 합친 문의는 모두 같은 견적을
+              가리켜요.
             </p>
-            {!canUpdate && <p style={hintStyle}>답변 권한이 없어 조회만 가능합니다.</p>}
+            {!canUpdate && <p style={hintStyle}>답변 권한이 없어 조회만 가능해요.</p>}
           </>
         }
       >

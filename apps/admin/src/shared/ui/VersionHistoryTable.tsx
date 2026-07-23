@@ -8,6 +8,10 @@
 //
 // [행 클릭 → 상세] detailPathOf 를 주면 행을 눌러 상세(전문 조회)로 간다 — 경로 문자열만 받으므로
 // 도메인을 모른다(약관/개인정보 어느 쪽인지 알지 못한다). 수정/삭제 버튼 클릭은 이동을 가로채지 않는다.
+//
+// [EXC-03 · 권한도 모른다] 이 표는 canUpdate/canRemove 를 배우지 않는다 — **콜백의 유무**로
+// 표현한다(CrudTable 이 RowActions 에 하는 것과 같다). 호출부가 권한이 없을 때 onEdit/onDelete 를
+// 주지 않으면 그 버튼이 사라지고, 셋 다 없으면 액션 열 자체가 사라진다. 선택 열도 같은 규약이다.
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -75,8 +79,10 @@ const emptyCellStyle: CSSProperties = {
 interface VersionHistoryTableProps {
   readonly versions: readonly VersionRow[];
   readonly caption: string;
-  readonly onEdit: (id: string) => void;
-  readonly onDelete: (id: string) => void;
+  /** 수정 버튼이 하는 일 — 주지 않으면 연필이 그려지지 않는다 (권한 게이팅의 표현) */
+  readonly onEdit?: (id: string) => void;
+  /** 삭제 버튼이 하는 일 — 주지 않으면 휴지통이 그려지지 않는다 */
+  readonly onDelete?: (id: string) => void;
   /** 삭제 요청 중인 버전 — 해당 행 액션이 잠긴다 */
   readonly deletingId?: string | null;
   readonly emptyMessage?: string;
@@ -94,7 +100,7 @@ export function VersionHistoryTable({
   onEdit,
   onDelete,
   deletingId = null,
-  emptyMessage = '등록된 버전이 없습니다.',
+  emptyMessage = '등록된 버전이 없어요.',
   detailPathOf,
   selectedIds,
   onToggleOne,
@@ -105,8 +111,10 @@ export function VersionHistoryTable({
   const selectable =
     selectedIds !== undefined && onToggleOne !== undefined && onToggleAll !== undefined;
   const selection = tableSelectionState(versions, selectedIds ?? new Set());
+  /* 액션 열은 연필·휴지통을 담는다 — 둘 다 없으면(= 쓰기 권한이 없으면) 열 자체가 사라진다 */
+  const showActions = onEdit !== undefined || onDelete !== undefined;
   // 선행 열: (선택 시 체크박스 1) + 순번 1
-  const totalCols = COLUMNS.length + 1 + 1 + (selectable ? 1 : 0);
+  const totalCols = COLUMNS.length + 1 + (showActions ? 1 : 0) + (selectable ? 1 : 0);
 
   return (
     <table style={tableStyle}>
@@ -127,9 +135,11 @@ export function VersionHistoryTable({
               {column}
             </th>
           ))}
-          <th scope="col" style={thStyle}>
-            <span style={visuallyHiddenStyle}>행 액션</span>
-          </th>
+          {showActions && (
+            <th scope="col" style={thStyle}>
+              <span style={visuallyHiddenStyle}>행 액션</span>
+            </th>
+          )}
         </tr>
       </thead>
       <tbody>
@@ -175,14 +185,16 @@ export function VersionHistoryTable({
                 <td style={nowrapCellStyle}>
                   <StatusBadge tone={row.statusTone} label={row.statusLabel} />
                 </td>
-                <td style={actionCellStyle}>
-                  <RowActions
-                    label={`버전 ${row.version}`}
-                    disabled={deletingId === row.id}
-                    onEdit={() => onEdit(row.id)}
-                    onDelete={() => onDelete(row.id)}
-                  />
-                </td>
+                {showActions && (
+                  <td style={actionCellStyle}>
+                    <RowActions
+                      label={`버전 ${row.version}`}
+                      disabled={deletingId === row.id}
+                      {...(onEdit !== undefined && { onEdit: () => onEdit(row.id) })}
+                      {...(onDelete !== undefined && { onDelete: () => onDelete(row.id) })}
+                    />
+                  </td>
+                )}
               </tr>
             );
           })

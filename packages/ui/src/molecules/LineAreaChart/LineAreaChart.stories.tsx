@@ -119,7 +119,7 @@ export const Loading: Story = {
   args: {
     series: [{ id: 'visitors', label: '방문자', kind: 'line' as const, values: [] }],
     labels: [],
-    ariaLabel: '데이터를 불러오는 중입니다',
+    ariaLabel: '데이터를 불러오는 중이에요',
   },
 };
 

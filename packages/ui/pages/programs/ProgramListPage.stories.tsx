@@ -334,7 +334,7 @@ const countBadgeStyle: CSSProperties = {
   justifyContent: 'center',
   boxSizing: 'border-box',
   minWidth: cssVar('space.5'),
-  height: cssVar('space.5'),
+  aspectRatio: '1',
   paddingLeft: cssVar('space.1'),
   paddingRight: cssVar('space.1'),
   borderRadius: cssVar('radius.full'),
@@ -564,8 +564,7 @@ function ProgramsScreen({
       <Panel
         notice={
           <p style={noticeStyle}>
-            성공·실패는 기간이 끝난 뒤 목표 달성 여부로 갈립니다. 진행 중에는 아직 정해지지
-            않습니다.
+            성공·실패는 기간이 끝난 뒤 목표 달성 여부로 갈려요. 진행 중에는 아직 정해지지 않아요.
           </p>
         }
       >
@@ -632,7 +631,7 @@ function ProgramsScreen({
         </SelectionBar>
 
         <Table
-          caption="프로그램 현황 목록 — 행을 누르면 현황 상세 화면으로 이동합니다. 체크박스·수정·삭제 버튼은 각자의 동작을 수행합니다."
+          caption="프로그램 현황 목록 — 행을 누르면 현황 상세 화면으로 이동해요. 체크박스·수정·삭제 버튼은 각자 따로 동작해요."
           columns={COLUMNS}
           rows={rows}
           leadingHead={[
@@ -668,7 +667,7 @@ function ProgramsScreen({
           <ConfirmDialog
             intent="delete"
             title="프로그램 삭제"
-            message={`'${confirming.title}' 프로그램을 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+            message={`'${confirming.title}' 프로그램을 삭제할까요? 되돌릴 수 없어요.`}
             confirmLabel="프로그램 삭제"
             onConfirm={() => {
               removeProgram(confirming.id);

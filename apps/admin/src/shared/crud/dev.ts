@@ -42,15 +42,15 @@ function isReproducibleStatus(value: number): value is HttpStatus {
 
 /** 사람이 읽는 문구 — 화면이 status 로 분기하므로 여기서는 최소한만 정한다 */
 export const STATUS_MESSAGE: Readonly<Record<HttpStatus, string>> = {
-  [HTTP_STATUS.badRequest]: '요청이 올바르지 않습니다.',
-  [HTTP_STATUS.unauthorized]: '세션이 만료되었습니다.',
-  [HTTP_STATUS.forbidden]: '권한이 없습니다.',
-  [HTTP_STATUS.notFound]: '항목을 찾을 수 없습니다.',
-  [HTTP_STATUS.conflict]: '다른 사용자가 먼저 변경했습니다.',
-  [HTTP_STATUS.preconditionFailed]: '다른 사용자가 먼저 변경했습니다.',
+  [HTTP_STATUS.badRequest]: '요청이 올바르지 않아요.',
+  [HTTP_STATUS.unauthorized]: '세션이 만료되었어요.',
+  [HTTP_STATUS.forbidden]: '권한이 없어요.',
+  [HTTP_STATUS.notFound]: '항목을 찾을 수 없어요.',
+  [HTTP_STATUS.conflict]: '다른 사용자가 먼저 변경했어요.',
+  [HTTP_STATUS.preconditionFailed]: '다른 사용자가 먼저 변경했어요.',
   [HTTP_STATUS.unprocessable]: '입력값을 확인해 주세요.',
-  [HTTP_STATUS.tooManyRequests]: '요청이 너무 많습니다.',
-  [HTTP_STATUS.serverError]: '요청을 처리하지 못했습니다.',
+  [HTTP_STATUS.tooManyRequests]: '요청이 너무 많아요.',
+  [HTTP_STATUS.serverError]: '요청을 처리하지 못했어요.',
 };
 
 /**
@@ -113,7 +113,7 @@ export function failIfRequested(scope: string, op: string): void {
  * 코드(`referenceOf`)가 화면에 새로 나타난다. `?fail=` 은 기존 e2e 전량이 의존하는 계약이라
  * 표시가 달라지면 안 된다. status 가 필요한 실패는 `?status=` 쪽이다.
  */
-export const GENERIC_FAILURE_MESSAGE = '요청을 처리하지 못했습니다.';
+export const GENERIC_FAILURE_MESSAGE = '요청을 처리하지 못했어요.';
 
 /**
  * `?fail=` 로 이 op 이 지목됐는가.

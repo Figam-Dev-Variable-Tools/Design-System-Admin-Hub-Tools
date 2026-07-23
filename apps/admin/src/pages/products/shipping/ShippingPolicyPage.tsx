@@ -19,6 +19,7 @@ import {
   fieldLabelStyle,
   fieldStyle,
   FormField,
+  formRowStyle,
   hintStyle,
   SelectField,
   ToggleSwitch,
@@ -44,13 +45,7 @@ import { CarrierSection } from './components/CarrierSection';
 import { cssVar } from '@tds/ui';
 
 const UNSAVED_MESSAGE =
-  '배송 정책에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 6), 1fr))`,
-  gap: cssVar('space.4'),
-};
+  '배송 정책에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 /** 정책 카드와 택배사 카드 사이 — DocumentFormShell 안쪽의 세로 간격과 같은 리듬 */
 const pageStyle: CSSProperties = {
@@ -117,11 +112,11 @@ export default function ShippingPolicyPage() {
       {
         onSuccess: () => {
           reset(values);
-          toast.success('배송 정책을 저장했습니다.');
+          toast.success('배송 정책을 저장했어요.');
         },
         onError: (cause: unknown) => {
           if (isAbort(cause)) return;
-          setServerError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          setServerError('저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
         },
       },
     );
@@ -131,7 +126,7 @@ export default function ShippingPolicyPage() {
     <div style={pageStyle}>
       <DocumentFormShell
         cardTitle="배송 정책"
-        description="별표(*) 항목은 필수입니다. 저장하면 스토어 전체 배송비 계산에 반영됩니다."
+        description="별표(*) 항목은 필수예요. 저장하면 스토어 전체 배송비 계산에 반영돼요."
         loading={loading}
         loadFailed={error !== null}
         onRetry={() => void refetch()}
@@ -141,13 +136,13 @@ export default function ShippingPolicyPage() {
         unsavedMessage={UNSAVED_MESSAGE}
         onSubmit={(event) => void handleSubmit(onValid)(event)}
       >
-        <div style={rowStyle}>
+        <div style={formRowStyle}>
           <FormField
             htmlFor="ship-carrier"
             label="기본 택배사"
             required
             error={errors.defaultCarrierId?.message}
-            hint="이 스토어의 대표 택배사입니다. 정책 안내 문구가 이 이름을 인용합니다."
+            hint="이 스토어의 대표 택배사예요. 정책 안내 문구가 이 이름을 인용해요."
           >
             <SelectField
               id="ship-carrier"
@@ -161,7 +156,7 @@ export default function ShippingPolicyPage() {
             >
               {/* 목록이 비면 고를 것이 없다는 사실을 선택지 자체가 말한다 — 빈 select 는 침묵한다 */}
               {carrierOptions.length === 0 ? (
-                <option value="">등록된 택배사가 없습니다</option>
+                <option value="">등록된 택배사가 없어요</option>
               ) : (
                 carrierOptions.map((carrier) => (
                   <option key={carrier.id} value={carrier.id}>
@@ -183,7 +178,7 @@ export default function ShippingPolicyPage() {
           </FormField>
         </div>
 
-        <div style={rowStyle}>
+        <div style={formRowStyle}>
           {feeType !== 'free' && (
             <FormField
               htmlFor="ship-base-fee"
@@ -234,7 +229,7 @@ export default function ShippingPolicyPage() {
           )}
         </div>
 
-        <div style={rowStyle}>
+        <div style={formRowStyle}>
           <FormField
             htmlFor="ship-jeju"
             label="제주 추가배송비 (원)"
@@ -316,7 +311,7 @@ export default function ShippingPolicyPage() {
 
         {carrierList.error !== null && (
           <p style={hintStyle}>
-            택배사 목록을 불러오지 못해 기본 택배사를 고를 수 없습니다. 아래 표에서 다시 시도해
+            택배사 목록을 불러오지 못해 기본 택배사를 고를 수 없어요. 아래 표에서 다시 시도해
             주세요.
           </p>
         )}

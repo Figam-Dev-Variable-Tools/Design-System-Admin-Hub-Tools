@@ -16,6 +16,7 @@ import {
   fieldLabelStyle,
   fieldStyle,
   FormField,
+  formRowStyle,
   Icon,
   pageTitleStyle,
   SelectField,
@@ -45,7 +46,7 @@ const RESOURCE = 'sales-accounts';
 const ENTITY_LABEL = '거래처';
 const LIST_PATH = '/sales/accounts';
 const UNSAVED_MESSAGE =
-  '거래처에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '거래처에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -93,12 +94,6 @@ const columnStyle: CSSProperties = {
   flexDirection: 'column',
   gap: cssVar('space.5'),
   minWidth: 0,
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const actionsStyle: CSSProperties = {
@@ -228,8 +223,8 @@ export default function AccountFormPage() {
           <div style={alertActionRowStyle}>
             <span>
               {loadFailure === 'not-found'
-                ? '거래처 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '거래처 불러오지 못했습니다.'}
+                ? '거래처 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '거래처 불러오지 못했어요.'}
             </span>
             {loadFailure === 'error' && (
               <Button variant="secondary" onClick={retryLoad}>
@@ -260,7 +255,7 @@ export default function AccountFormPage() {
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '거래처 수정' : '거래처 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 사업자등록번호는 국세청 형식으로 검증됩니다.
+          별표(*) 항목은 필수예요. 사업자등록번호는 국세청 형식으로 검증돼요.
         </p>
       </div>
 
@@ -294,7 +289,7 @@ export default function AccountFormPage() {
                 />
               </FormField>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField
                   htmlFor="account-biz-no"
                   label="사업자등록번호"
@@ -343,7 +338,7 @@ export default function AccountFormPage() {
                 </FormField>
               </div>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="account-biz-type" label="업태">
                   <input
                     id="account-biz-type"
@@ -405,7 +400,7 @@ export default function AccountFormPage() {
             <Card>
               <CardTitle>거래 조건</CardTitle>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="account-trade-type" label="거래유형" required>
                   <SelectField
                     id="account-trade-type"
@@ -434,7 +429,7 @@ export default function AccountFormPage() {
                 </FormField>
               </div>
 
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField
                   htmlFor="account-credit-limit"
                   label="여신한도 (원)"

@@ -21,7 +21,7 @@ describe('store 카테고리 — 사용 중 삭제 차단(안전 기본값)', ()
   it('미사용 카테고리는 삭제된다', () => {
     addCategory('임시 분류');
     const created = listCategoryUsage().find((category) => category.label === '임시 분류');
-    if (created === undefined) throw new Error('생성된 카테고리를 찾지 못했습니다');
+    if (created === undefined) throw new Error('생성된 카테고리를 찾지 못했어요');
     expect(created.itemCount).toBe(0);
     expect(() => removeCategory(created.id)).not.toThrow();
     expect(listCategoryUsage().some((category) => category.label === '임시 분류')).toBe(false);

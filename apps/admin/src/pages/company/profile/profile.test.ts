@@ -9,6 +9,7 @@ function valuesOf(overrides: Partial<CompanyProfileFormValues> = {}): CompanyPro
     companyName: '주식회사 예시플래닝',
     businessNumber: '123-45-67890',
     address: '서울특별시 예시구 가상대로 123',
+    addressDetail: '예시타워 8층',
     ceoName: '홍길동',
     contact: '02-0000-0000',
     logoUrl: 'https://cdn.example.com/logo.png',
@@ -53,6 +54,16 @@ describe('companyProfileSchema — 회사 정보 폼 검증', () => {
     expect(messageFor(valuesOf({ ceoName: '' }), 'ceoName')).toContain('입력');
     expect(messageFor(valuesOf({ contact: '' }), 'contact')).toContain('입력');
     expect(messageFor(valuesOf({ address: '' }), 'address')).toContain('입력');
+  });
+
+  it('상세주소는 선택 — 비어 있어도 통과한다(층·호수가 없는 단독 건물도 있다)', () => {
+    expect(companyProfileSchema.safeParse(valuesOf({ addressDetail: '' })).success).toBe(true);
+  });
+
+  it('상세주소가 최대 길이를 넘으면 막는다', () => {
+    expect(messageFor(valuesOf({ addressDetail: 'ㄱ'.repeat(101) }), 'addressDetail')).toContain(
+      '100자',
+    );
   });
 
   it('로고는 선택 — 비어 있어도 통과한다', () => {

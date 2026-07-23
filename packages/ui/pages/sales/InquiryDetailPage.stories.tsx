@@ -34,6 +34,8 @@ import {
   Button,
   Card,
   FormField,
+  inlineBadgeRowStyle,
+  formRowStyle,
   Icon,
   SelectField,
   StatusBadge,
@@ -298,12 +300,6 @@ const ddStyle: CSSProperties = {
   overflowWrap: 'anywhere',
 };
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
 const controlStyle: CSSProperties = {
   width: '100%',
   boxSizing: 'border-box',
@@ -413,7 +409,7 @@ function InquiryDetailScreen({
       <div style={pageStyle}>
         <Alert tone="danger">
           <div style={alertActionRowStyle}>
-            <span>문의를 불러오지 못했습니다.</span>
+            <span>문의를 불러오지 못했어요.</span>
             <Button variant="secondary">목록으로</Button>
           </div>
         </Alert>
@@ -440,13 +436,13 @@ function InquiryDetailScreen({
         <div style={layoutStyle}>
           <DetailCard
             title={
-              <>
+              <span style={inlineBadgeRowStyle}>
                 {INQUIRY.title}
                 <StatusBadge
                   tone={priorityTone(INQUIRY.priority)}
                   label={PRIORITY_LABEL[INQUIRY.priority]}
                 />
-              </>
+              </span>
             }
           >
             <div style={badgeRowStyle}>
@@ -463,7 +459,7 @@ function InquiryDetailScreen({
               <InfoRow label="문의내용">{INQUIRY.body}</InfoRow>
             </dl>
 
-            <div style={rowStyle}>
+            <div style={formRowStyle}>
               <FormField htmlFor={assigneeFieldId} label="담당 배정">
                 <input
                   id={assigneeFieldId}
@@ -479,8 +475,8 @@ function InquiryDetailScreen({
                 label="처리 상태"
                 hint={
                   issued
-                    ? '이미 견적이 발행된 문의입니다 — 다시 발행되지 않습니다.'
-                    : '‘견적 발행’으로 바꾸면 견적이 자동 생성됩니다.'
+                    ? '이미 견적이 발행된 문의예요 — 다시 발행되지 않아요.'
+                    : '‘견적 발행’으로 바꾸면 견적이 자동 생성돼요.'
                 }
               >
                 <SelectField
@@ -501,7 +497,7 @@ function InquiryDetailScreen({
             {issued ? (
               <Alert tone="info">
                 <div style={alertActionRowStyle}>
-                  <span>이미 이 문의로 견적이 발행되었습니다. 견적은 다시 생성되지 않습니다.</span>
+                  <span>이미 이 문의로 견적이 발행되었어요. 견적은 다시 생성되지 않아요.</span>
                   <Button variant="secondary">발행된 견적 보기</Button>
                 </div>
               </Alert>
@@ -509,7 +505,7 @@ function InquiryDetailScreen({
 
             {issuesQuoteNow ? (
               <Alert tone="info">
-                저장하면 이 문의의 거래처·담당자·문의내용을 승계한 견적이 자동 생성됩니다.
+                저장하면 이 문의의 거래처·담당자·문의내용을 승계한 견적이 자동 생성돼요.
               </Alert>
             ) : null}
 

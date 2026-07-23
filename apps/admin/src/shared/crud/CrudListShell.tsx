@@ -111,9 +111,9 @@ function announcementOf(
   count: number,
 ): string {
   if (firstLoading) return '';
-  if (error !== null) return `${entityLabel} 목록을 불러오지 못했습니다.`;
-  if (count === 0) return `조건에 맞는 ${entityLabel} 결과가 없습니다.`;
-  return `${entityLabel} ${formatNumber(count)}건을 찾았습니다.`;
+  if (error !== null) return `${entityLabel} 목록을 불러오지 못했어요.`;
+  if (count === 0) return `조건에 맞는 ${entityLabel} 결과가 없어요.`;
+  return `${entityLabel} ${formatNumber(count)}건을 찾았어요.`;
 }
 
 export function CrudListShell<T extends { id: string }>({
@@ -224,7 +224,7 @@ export function CrudListShell<T extends { id: string }>({
       ) : (
         <Alert tone="danger">
           <div style={alertActionRowStyle}>
-            <span>{entityLabel} 목록을 불러오지 못했습니다.</span>
+            <span>{entityLabel} 목록을 불러오지 못했어요.</span>
             <Button variant="secondary" onClick={controller.refetch}>
               다시 시도
             </Button>

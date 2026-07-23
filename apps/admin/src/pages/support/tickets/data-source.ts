@@ -29,12 +29,12 @@ export const ticketAdapter: CrudAdapter<Ticket, TicketInput> = {
     // [EXC-12] store 의 getTicket 은 status 없는 generic Error 를 던진다 — 그러면 폼 셸의 404
     // 분기가 발현되지 않고 '다시 시도'(재시도해도 없다)를 권한다. status 를 실어 구분 가능하게 한다.
     if (!exists(id)) {
-      throw new HttpError(HTTP_STATUS.notFound, '문의를 찾을 수 없습니다.');
+      throw new HttpError(HTTP_STATUS.notFound, '문의를 찾을 수 없어요.');
     }
     return getTicket(id);
   },
   create() {
-    return Promise.reject(new Error('문의는 고객 채널에서 접수됩니다.'));
+    return Promise.reject(new Error('문의는 고객 채널에서 접수돼요.'));
   },
   async update(id, input, context) {
     await wait(LATENCY_MS, context?.signal);
@@ -42,11 +42,11 @@ export const ticketAdapter: CrudAdapter<Ticket, TicketInput> = {
     // [EXC-04] store 의 updateTicket 은 map 이다 — 없는 id 를 조용히 지나치고 성공을 반환했다.
     // 다른 관리자가 처리·삭제한 문의에 답변을 저장하면 유령 저장이 된다. 409 로 알린다.
     if (!exists(id)) {
-      throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 변경한 문의입니다.');
+      throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 변경한 문의예요.');
     }
     updateTicket(id, input);
   },
   remove() {
-    return Promise.reject(new Error('문의는 삭제할 수 없습니다.'));
+    return Promise.reject(new Error('문의는 삭제할 수 없어요.'));
   },
 };

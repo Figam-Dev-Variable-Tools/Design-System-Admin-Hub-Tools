@@ -63,6 +63,7 @@ import {
   Button,
   Card,
   FormField,
+  formRowStyle,
   Icon,
   IconButton,
   Skeleton,
@@ -196,7 +197,7 @@ const carrierUsageLabel = (usage: number): string =>
  */
 function carrierDeleteBlock(carrier: DemoCarrier): string | null {
   if (carrier.usage > 0) {
-    return `'${carrier.name}' 으로 나간 배송 ${carrier.usage.toLocaleString('ko-KR')}건이 있어 삭제할 수 없습니다. 사용 여부를 끄면 새 송장의 선택지에서만 빠집니다.`;
+    return `'${carrier.name}' 으로 나간 배송 ${carrier.usage.toLocaleString('ko-KR')}건이 있어 삭제할 수 없어요. 사용 여부를 끄면 새 송장의 선택지에서만 빠져요.`;
   }
   return null;
 }
@@ -258,13 +259,7 @@ const bodyStyle: CSSProperties = {
   gap: cssVar('space.4'),
 };
 
-/** 한 줄에 필드 여럿 — 좁아지면 자동으로 접힌다(실화면 rowStyle) */
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 6), 1fr))`,
-  gap: cssVar('space.4'),
-};
-
+/** 한 줄에 필드 여럿 — 좁아지면 자동으로 접힌다(실화면 formRowStyle) */
 const fieldStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
@@ -391,10 +386,10 @@ function ShippingPolicyScreen({ variant }: { variant: Variant }) {
   );
 
   const footerHint = saving
-    ? '저장하는 중입니다…'
+    ? '저장하는 중이에요…'
     : dirty
-      ? '저장하지 않은 변경 사항이 있습니다.'
-      : '변경 사항이 없습니다.';
+      ? '저장하지 않은 변경 사항이 있어요.'
+      : '변경 사항이 없어요.';
 
   // 조회 실패 — 폼 대신 재시도 배너를 그린다(실화면 DocumentFormShell loadFailed 분기)
   if (loadFailed) {
@@ -402,7 +397,7 @@ function ShippingPolicyScreen({ variant }: { variant: Variant }) {
       <div style={pageStyle}>
         <Alert tone="danger">
           <div style={errorRowStyle}>
-            <span>내용을 불러오지 못했습니다.</span>
+            <span>내용을 불러오지 못했어요.</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
@@ -413,7 +408,7 @@ function ShippingPolicyScreen({ variant }: { variant: Variant }) {
   return (
     <div style={pageStyle}>
       <p style={descriptionStyle}>
-        별표(*) 항목은 필수입니다. 저장하면 스토어 전체 배송비 계산에 반영됩니다.
+        별표(*) 항목은 필수예요. 저장하면 스토어 전체 배송비 계산에 반영돼요.
       </p>
 
       <form onSubmit={(event) => event.preventDefault()} noValidate>
@@ -422,9 +417,7 @@ function ShippingPolicyScreen({ variant }: { variant: Variant }) {
             <h2 style={cardTitleStyle}>배송 정책</h2>
 
             {showErrors && (
-              <Alert tone="danger">
-                입력값을 확인해 주세요. 아래 항목을 바로잡아야 저장됩니다.
-              </Alert>
+              <Alert tone="danger">입력값을 확인해 주세요. 아래 항목을 바로잡아야 저장돼요.</Alert>
             )}
 
             {loading ? (
@@ -435,14 +428,14 @@ function ShippingPolicyScreen({ variant }: { variant: Variant }) {
               </div>
             ) : (
               <div style={bodyStyle}>
-                <div style={rowStyle}>
+                <div style={formRowStyle}>
                   {/* 등록된 목록에서만 고른다 — 자유 입력이면 같은 택배사가 여러 이름으로 쌓이고
                       추적 URL 을 만들 키가 사라진다. 끈 택배사도 '지금 값' 이면 선택지에 남긴다. */}
                   <FormField
                     htmlFor="ship-carrier"
                     label="기본 택배사"
                     required
-                    hint="이 스토어의 대표 택배사입니다. 송장 입력의 기본 선택이 됩니다."
+                    hint="이 스토어의 대표 택배사예요. 송장 입력의 기본 선택이 돼요."
                     {...(showErrors ? { error: CARRIER_ERROR } : {})}
                   >
                     <SelectField
@@ -454,7 +447,7 @@ function ShippingPolicyScreen({ variant }: { variant: Variant }) {
                     >
                       {/* 목록이 비면 고를 것이 없다는 사실을 선택지 자체가 말한다 — 빈 select 는 침묵한다 */}
                       {carrierOptions.length === 0 ? (
-                        <option value="">등록된 택배사가 없습니다</option>
+                        <option value="">등록된 택배사가 없어요</option>
                       ) : (
                         carrierOptions.map((carrier) => (
                           <option key={carrier.id} value={carrier.id}>
@@ -483,7 +476,7 @@ function ShippingPolicyScreen({ variant }: { variant: Variant }) {
 
                 {/* 요금 칸은 배송비 정책에 따라 갈린다 — 무료면 기본 배송비 없음, 조건부만 무료 기준 노출 */}
                 {values.feeType !== 'free' && (
-                  <div style={rowStyle}>
+                  <div style={formRowStyle}>
                     <TextField
                       id="ship-base-fee"
                       label="기본 배송비 (원) *"
@@ -517,7 +510,7 @@ function ShippingPolicyScreen({ variant }: { variant: Variant }) {
                   </div>
                 )}
 
-                <div style={rowStyle}>
+                <div style={formRowStyle}>
                   <TextField
                     id="ship-jeju"
                     label="제주 추가배송비 (원) *"
@@ -649,7 +642,7 @@ function CarrierSection({ loading }: { readonly loading: boolean }) {
 
         <div style={tableScrollStyle}>
           <Table
-            caption="택배사 목록 — 송장을 등록할 때 이 목록에서 택배사를 고릅니다. 배송 건이 있는 택배사는 삭제할 수 없습니다."
+            caption="택배사 목록 — 송장을 등록할 때 이 목록에서 택배사를 골라요. 배송 건이 있는 택배사는 삭제할 수 없어요."
             columns={CARRIER_COLUMNS}
             rows={rows}
             trailingHead={[
@@ -659,14 +652,13 @@ function CarrierSection({ loading }: { readonly loading: boolean }) {
             ]}
             loading={loading}
             skeletonRows={DEMO_CARRIERS.length}
-            empty="등록된 택배사가 없습니다. 택배사를 추가해야 송장을 붙일 수 있습니다."
+            empty="등록된 택배사가 없어요. 택배사를 추가해야 송장을 붙일 수 있어요."
           />
         </div>
 
         <p style={footerHintStyle}>
-          송장은 이 목록에 있는 택배사로만 등록됩니다 — 자유 입력이면 같은 택배사가 여러 이름으로
-          쌓이고 추적 링크를 만들 수 없습니다. 계약이 끝난 택배사는 삭제하지 말고 사용 여부를
-          끄세요.
+          송장은 이 목록에 있는 택배사로만 등록돼요 — 자유 입력이면 같은 택배사가 여러 이름으로
+          쌓이고 추적 링크를 만들 수 없어요. 계약이 끝난 택배사는 삭제하지 말고 사용 여부를 끄세요.
         </p>
       </div>
     </Card>

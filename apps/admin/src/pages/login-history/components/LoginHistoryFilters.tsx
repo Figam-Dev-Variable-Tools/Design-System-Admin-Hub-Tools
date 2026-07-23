@@ -84,8 +84,8 @@ export function LoginHistoryFilters({
     <FilterRail
       notice={
         <p style={hintStyle}>
-          로그인 이력은 감사 기록입니다. 관리자도 수정하거나 삭제할 수 없으며, 조회와 내보내기만
-          제공합니다.
+          로그인 이력은 감사 기록이에요. 관리자도 수정하거나 삭제할 수 없으며, 조회와 내보내기만
+          제공해요.
         </p>
       }
     >
@@ -173,7 +173,7 @@ export function LoginHistoryFilters({
             )}
 
             <p style={hintStyle}>
-              {`한 번에 최대 ${String(MAX_RANGE_DAYS)}일까지 조회할 수 있습니다.`}
+              {`한 번에 최대 ${String(MAX_RANGE_DAYS)}일까지 조회할 수 있어요.`}
             </p>
           </div>
         )}

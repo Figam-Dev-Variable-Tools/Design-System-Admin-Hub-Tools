@@ -155,8 +155,8 @@ export function ProductOptionMatrix({
     <div style={sectionStyle}>
       <span style={fieldLabelStyle}>옵션 · 재고(SKU)</span>
       <p style={hintStyle}>
-        색상·사이즈 등 옵션을 추가하면 조합이 아래 표로 펼쳐집니다. 옵션값은 쉼표(,)로 구분하세요.
-        옵션이 없으면 단일 재고로 관리됩니다. (최대 {MAX_OPTION_GROUPS}개 옵션)
+        색상·사이즈 등 옵션을 추가하면 조합이 아래 표로 펼쳐져요. 옵션값은 쉼표(,)로 구분하세요.
+        옵션이 없으면 단일 재고로 관리돼요. (최대 {MAX_OPTION_GROUPS}개 옵션)
       </p>
 
       <div style={groupsStyle}>

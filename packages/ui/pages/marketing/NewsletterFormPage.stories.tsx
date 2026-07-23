@@ -50,6 +50,7 @@ import {
   Card,
   Checkbox,
   FormField,
+  formRowStyle,
   Icon,
   SelectField,
   Skeleton,
@@ -222,10 +223,10 @@ interface FieldErrors {
 
 const DEMO_ERRORS: FieldErrors = {
   title: '제목을 입력하세요.',
-  senderId: '검증이 완료된 발신자만 사용할 수 있습니다.',
+  senderId: '검증이 완료된 발신자만 사용할 수 있어요.',
   segmentIds: '구독자 세그먼트를 하나 이상 선택하세요.',
   body: '본문을 입력하세요.',
-  scheduledAt: '예약 일시는 현재 시각 이후여야 합니다.',
+  scheduledAt: '예약 일시는 현재 시각 이후여야 해요.',
 };
 
 /** 검증 오류 화면의 시드 — 미검증 발신자 · 대상 0 · 과거 예약 */
@@ -302,12 +303,6 @@ const cardTitleStyle: CSSProperties = {
   ...typography('typography.title.md'),
   margin: 0,
   color: cssVar('color.text.default'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
 };
 
 const fieldStyle: CSSProperties = {
@@ -566,7 +561,7 @@ function SegmentPicker({
       ) : (
         <p id={noteId} style={hintStyle}>
           선택 대상 <span style={segmentTotalStyle}>{`${total.toLocaleString('ko-KR')}명`}</span> —
-          중복 수신자는 발송 시 1회로 합산됩니다.
+          중복 수신자는 발송 시 1회로 합산돼요.
         </p>
       )}
     </div>
@@ -607,7 +602,7 @@ function EmailPreview({
 
       <div style={mailFooterStyle}>
         {sender !== undefined && !sender.verified ? (
-          <StatusBadge tone="danger" label="미검증 발신자 — 발송할 수 없습니다" />
+          <StatusBadge tone="danger" label="미검증 발신자 — 발송할 수 없어요" />
         ) : (
           <span>
             본 메일을 원치 않으시면 <span style={unsubStyle}>수신거부</span> 하실 수 있습니다.
@@ -683,8 +678,8 @@ function NewsletterFormScreen({
           <div style={alertRowStyle}>
             <span>
               {loadFailure === 'not-found'
-                ? '뉴스레터를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.'
-                : '뉴스레터를 불러오지 못했습니다.'}
+                ? '뉴스레터를 찾을 수 없어요. 이미 삭제되었을 수 있어요.'
+                : '뉴스레터를 불러오지 못했어요.'}
             </span>
             {loadFailure === 'error' && (
               <Button variant="secondary" size="sm">
@@ -711,8 +706,7 @@ function NewsletterFormScreen({
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '뉴스레터 수정' : '뉴스레터 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 회차번호는 저장 시 자동 부여되며, 수신거부 링크는 항상
-          포함됩니다.
+          별표(*) 항목은 필수예요. 회차번호는 저장 시 자동 부여되며, 수신거부 링크는 항상 포함돼요.
         </p>
       </div>
 
@@ -720,7 +714,7 @@ function NewsletterFormScreen({
         {/* 서버 오류 배너 — 실화면 FormServerError 의 자리 */}
         {hasErrors && (
           <Alert tone="danger">
-            입력한 내용을 다시 확인하세요. 표시된 항목을 수정해야 저장됩니다.
+            입력한 내용을 다시 확인하세요. 표시된 항목을 수정해야 저장돼요.
           </Alert>
         )}
 
@@ -784,7 +778,7 @@ function NewsletterFormScreen({
               <FormField
                 htmlFor="nl-template"
                 label="템플릿 불러오기"
-                hint="이메일 템플릿의 제목·본문을 채웁니다."
+                hint="이메일 템플릿의 제목·본문을 채워요."
               >
                 <SelectField
                   id="nl-template"
@@ -808,7 +802,7 @@ function NewsletterFormScreen({
                 onChange={(value) => set('body', value)}
                 maxLength={NEWSLETTER_BODY_MAX}
                 disabled={disabled}
-                placeholder="뉴스레터 본문을 입력하세요. #{이름} 등 치환변수를 넣을 수 있습니다."
+                placeholder="뉴스레터 본문을 입력하세요. #{이름} 등 치환변수를 넣을 수 있어요."
                 rows={6}
                 error={errors.body ?? ''}
               />
@@ -829,14 +823,14 @@ function NewsletterFormScreen({
                   ))}
                 </div>
                 <p style={hintStyle}>
-                  치환변수 삽입 — 미리보기에서 표본값으로 치환됩니다. 치환 후 길이는 수신자마다
-                  달라집니다.
+                  치환변수 삽입 — 미리보기에서 표본값으로 치환돼요. 치환 후 길이는 수신자마다
+                  달라져요.
                 </p>
               </div>
             </FormCard>
 
             <FormCard title="발송 예약">
-              <div style={rowStyle}>
+              <div style={formRowStyle}>
                 <FormField htmlFor="nl-status" label="발송 방식" required>
                   <SelectField
                     id="nl-status"
@@ -872,7 +866,7 @@ function NewsletterFormScreen({
           <FormCard title="미리보기">
             <EmailPreview subject={values.title} sender={sender} body={values.body} />
             <p style={previewNoteStyle}>
-              {`구독자 ${recipients.toLocaleString('ko-KR')}명 · 오픈율/클릭율은 발송 후 집계됩니다. 저장은 발송이 아닙니다.`}
+              {`구독자 ${recipients.toLocaleString('ko-KR')}명 · 오픈율/클릭율은 발송 후 집계돼요. 저장은 발송이 아니에요.`}
             </p>
           </FormCard>
         </div>

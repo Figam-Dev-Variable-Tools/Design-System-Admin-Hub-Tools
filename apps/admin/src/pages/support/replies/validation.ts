@@ -38,7 +38,7 @@ export function marketingSyntaxError(body: string): string | null {
   const found = [...new Set(body.match(MARKETING_TOKEN_RE) ?? [])];
   if (found.length === 0) return null;
 
-  return `발송 템플릿 문법이 섞였습니다: ${found.join(' · ')} — 이 화면의 치환 변수는 {{고객명}}·{{문의번호}}·{{담당자}} 입니다. #{...} 는 여기서 치환되지 않고 고객에게 그대로 전달됩니다.`;
+  return `발송 템플릿 문법이 섞였어요: ${found.join(' · ')} — 이 화면의 치환 변수는 {{고객명}}·{{문의번호}}·{{담당자}} 예요. #{...} 는 여기서 치환되지 않고 고객에게 그대로 전달돼요.`;
 }
 
 export const replyTemplateSchema = z

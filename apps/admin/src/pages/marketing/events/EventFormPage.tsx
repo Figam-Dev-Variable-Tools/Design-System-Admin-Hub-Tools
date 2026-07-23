@@ -12,6 +12,7 @@ import {
   fieldLabelStyle,
   fieldStyle,
   FormField,
+  formRowStyle,
   hintIdOf,
   SelectField,
   TextareaField,
@@ -39,13 +40,7 @@ const RESOURCE = 'marketing-events';
 const ENTITY_LABEL = '이벤트';
 const LIST_PATH = '/marketing/events';
 const UNSAVED_MESSAGE =
-  '이벤트에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 4), 1fr))`,
-  gap: cssVar('space.4'),
-};
+  '이벤트에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 /** 선택한 배너로 건너뛰는 줄 — 선택 바로 아래에 붙는다 */
 const bannerLinkStyle: CSSProperties = {
@@ -159,7 +154,7 @@ export default function EventFormPage() {
     <FormPageShell
       entityLabel={ENTITY_LABEL}
       cardTitle="이벤트 정보"
-      description="별표(*) 항목은 필수입니다. 기간·대상·혜택을 확인하세요."
+      description="별표(*) 항목은 필수예요. 기간·대상·혜택을 확인하세요."
       listPath={LIST_PATH}
       isEdit={isEdit}
       loadingDetail={loadingDetail}
@@ -199,7 +194,7 @@ export default function EventFormPage() {
         error={periodError}
       />
 
-      <div style={rowStyle}>
+      <div style={formRowStyle}>
         <FormField htmlFor="event-phase" label="상태" required>
           <SelectField id="event-phase" disabled={disabled} {...register('phase')}>
             {CAMPAIGN_PHASE_OPTIONS.map((option) => (
@@ -224,7 +219,7 @@ export default function EventFormPage() {
         </FormField>
       </div>
 
-      <div style={rowStyle}>
+      <div style={formRowStyle}>
         <FormField htmlFor="event-benefit" label="혜택 유형">
           <SelectField id="event-benefit" disabled={disabled} {...register('benefitType')}>
             {BENEFIT_TYPE_OPTIONS.map((option) => (
@@ -279,10 +274,10 @@ export default function EventFormPage() {
             htmlFor="event-banner"
             label="연동 배너"
             required
-            error="배너 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."
+            error="배너 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요."
           >
             <SelectField id="event-banner" disabled isInvalid>
-              <option value="">배너 목록을 불러오지 못했습니다</option>
+              <option value="">배너 목록을 불러오지 못했어요</option>
             </SelectField>
           </FormField>
         ) : (
@@ -291,7 +286,7 @@ export default function EventFormPage() {
             label="연동 배너"
             required
             error={errors.bannerId?.message}
-            hint="배너 관리에 등록된 배너만 고를 수 있습니다."
+            hint="배너 관리에 등록된 배너만 고를 수 있어요."
           >
             <SelectField
               id="event-banner"

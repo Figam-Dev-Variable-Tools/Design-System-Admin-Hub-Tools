@@ -239,7 +239,7 @@ export function FileUploadField({
           onDrop={onDrop}
         >
           <Icon name="upload" />
-          <span>{dragActive ? '여기에 놓으면 첨부됩니다' : '파일을 올리거나 드래그하여 첨부'}</span>
+          <span>{dragActive ? '여기에 놓으면 첨부돼요' : '파일을 올리거나 드래그하여 첨부'}</span>
           <span
             style={fileSubStyle}
           >{`문서 · 이미지 · 압축 · 최대 ${String(MAX_FILE_SIZE_MB)}MB`}</span>

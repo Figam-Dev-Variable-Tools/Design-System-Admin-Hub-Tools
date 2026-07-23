@@ -27,7 +27,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import type { CSSProperties, ReactNode } from 'react';
 import { useId } from 'react';
 
-import { Alert, Button, Card, Icon, Skeleton, StatusBadge } from '../../src';
+import { Alert, Button, Card, Icon, inlineBadgeRowStyle, Skeleton, StatusBadge } from '../../src';
 import { cssVar, typography } from '../../generated/tokens/tokens';
 
 const meta: Meta = {
@@ -251,8 +251,10 @@ function AdminProfileCards({ isSelf }: { readonly isSelf: boolean }) {
           {/* 그룹은 운영진 그룹이자 메시지 템플릿의 발신 프로필이다(shared/domain/admin-group.ts) */}
           <Row label="그룹(발신 프로필)">{orDash(ADMIN.group)}</Row>
           <Row label="역할">
-            {ADMIN.roleName}
-            {ADMIN.roleSystem && <StatusBadge tone="warning" label="시스템 역할" />}
+            <span style={inlineBadgeRowStyle}>
+              {ADMIN.roleName}
+              {ADMIN.roleSystem && <StatusBadge tone="warning" label="시스템 역할" />}
+            </span>
           </Row>
         </dl>
       </DetailCard>
@@ -260,7 +262,7 @@ function AdminProfileCards({ isSelf }: { readonly isSelf: boolean }) {
       <DetailCard title="관리자 메모">
         {/* 빈 상태 — 없는 것을 빈 칸으로 두면 '아직 안 불러온 것' 과 구분되지 않는다 */}
         {ADMIN.memo === '' ? (
-          <p style={hintStyle}>등록된 메모가 없습니다.</p>
+          <p style={hintStyle}>등록된 메모가 없어요.</p>
         ) : (
           <p style={memoStyle}>{ADMIN.memo}</p>
         )}
@@ -281,7 +283,7 @@ function AdminDetailScreen({ state }: { state: DetailState }) {
 
   // 자기 자신은 삭제할 수 없다(guards.ts) — 잠긴 사유는 버튼 옆이자 배너로 함께 밝힌다
   const blockReason = isSelf
-    ? '자기 자신은 삭제할 수 없습니다. 다른 시스템 관리자에게 요청하세요.'
+    ? '자기 자신은 삭제할 수 없어요. 다른 시스템 관리자에게 요청하세요.'
     : null;
   const deletable = !loading && blockReason === null;
 
@@ -291,7 +293,7 @@ function AdminDetailScreen({ state }: { state: DetailState }) {
       <div style={pageStyle}>
         <Alert tone="danger">
           <div style={alertRowStyle}>
-            <span>운영자를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.</span>
+            <span>운영자를 찾을 수 없어요. 이미 삭제되었을 수 있어요.</span>
             <Button variant="secondary">목록으로</Button>
           </div>
         </Alert>

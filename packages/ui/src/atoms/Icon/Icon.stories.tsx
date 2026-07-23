@@ -125,8 +125,7 @@ export const Gallery: Story = {
             lineHeight: 'var(--tds-typography-body-md-line-height)',
           }}
         >
-          아이콘 {names.length}종 — 이름은 계약(contracts/Icon.contract.json)의 name 값
-          그대로입니다.
+          아이콘 {names.length}종 — 이름은 계약(contracts/Icon.contract.json)의 name 값 그대로예요.
         </p>
         <ul
           style={{

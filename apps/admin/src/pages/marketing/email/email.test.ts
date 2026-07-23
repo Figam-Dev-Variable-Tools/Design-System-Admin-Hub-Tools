@@ -61,7 +61,7 @@ function valuesOf(overrides: Partial<EmailFormValues> = {}): EmailFormValues {
     senderId: 'from-news',
     segmentIds: ['seg-newsletter'],
     isAd: false,
-    body: '본문입니다.',
+    body: '본문이에요.',
     includeUnsubscribe: true,
     status: 'draft',
     scheduledAt: '',

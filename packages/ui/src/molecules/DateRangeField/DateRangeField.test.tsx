@@ -80,13 +80,13 @@ describe('DateRangeField — 계약 states[]', () => {
         label="노출 기간"
         startValue="2026-07-31"
         endValue="2026-07-01"
-        error="종료일은 시작일 이후여야 합니다"
+        error="종료일은 시작일 이후여야 해요"
         onStartChange={noop}
         onEndChange={noop}
       />,
     );
 
-    expect(screen.getByRole('alert').textContent).toBe('종료일은 시작일 이후여야 합니다');
+    expect(screen.getByRole('alert').textContent).toBe('종료일은 시작일 이후여야 해요');
     const start = screen.getByLabelText('노출 기간 시작일');
     expect(start.getAttribute('aria-invalid')).toBe('true');
     expect(start.className).toContain('tds-daterange__control--invalid');
@@ -101,7 +101,7 @@ describe('DateRangeField — 계약 states[]', () => {
         label="노출 기간"
         startValue="2026-07-31"
         endValue="2026-07-01"
-        error="종료일은 시작일 이후여야 합니다"
+        error="종료일은 시작일 이후여야 해요"
         onStartChange={noop}
         onEndChange={noop}
       />,
@@ -168,15 +168,13 @@ describe('DateRangeField — 값 콜백 · 힌트', () => {
         label="노출 기간"
         startValue=""
         endValue=""
-        hint="비워 두면 상시 노출됩니다"
+        hint="비워 두면 상시 노출돼요"
         onStartChange={noop}
         onEndChange={noop}
       />,
     );
 
-    expect(screen.getByText('비워 두면 상시 노출됩니다').className).toContain(
-      'tds-daterange__hint',
-    );
+    expect(screen.getByText('비워 두면 상시 노출돼요').className).toContain('tds-daterange__hint');
     expect(screen.queryByRole('alert')).toBeNull();
   });
 });

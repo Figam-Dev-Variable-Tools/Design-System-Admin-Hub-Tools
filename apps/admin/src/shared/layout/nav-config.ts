@@ -135,13 +135,13 @@ export const NAV_SECTIONS: readonly NavSection[] = [
       ]),
 
       // 3. 콘텐츠 관리
+      //
+      // [페이지·메뉴는 없다 — 의도적으로 뺐다] 홈페이지의 페이지 트리와 메뉴 구조를 운영자가
+      // 자유롭게 짜게 하면 IA 가 화면 밖에서 무한히 갈라진다(운영자 판단, 2026-07-22). 게시판·
+      // 자산·정책만 남기고 사이트 구조 자체는 어드민에서 만지지 않는다.
       branch('file-text', 'menu.content', '콘텐츠 관리', '/content', [
-        // 홈페이지 구조 → 게시판 → 자산 → 정책 순. 페이지가 먼저 있어야 메뉴가 가리킬 대상이 생긴다.
-        ['페이지 관리', '/content/pages'],
-        ['메뉴 관리', '/content/menus'],
+        // 게시판 → 자산 → 정책 순.
         ['뉴스·보도자료', '/content/news'],
-        ['폼 관리', '/content/forms'],
-        ['미디어 라이브러리', '/content/media'],
         ['공지사항', '/content/notices'],
         ['FAQ', '/content/faq'],
         ['팝업 관리', '/content/popups'],
@@ -166,9 +166,12 @@ export const NAV_SECTIONS: readonly NavSection[] = [
   },
 
   {
+    // [순서 = 실사용 빈도] 이 묶음만 알파벳도 도메인 계보도 아닌 **매일 여는 횟수** 순이다
+    // (운영자 확정, 2026-07-22). 포트폴리오는 분기에 한 번 손대는 화면이라 맨 뒤다 — 예전에는
+    // 두 번째였고, 그래서 하루에 수십 번 여는 고객센터·마케팅이 스크롤 아래에 있었다.
     title: '비즈니스',
     entries: [
-      // 5. 주문 관리 — 커머스의 뿌리. 등록 폼이 없다: 주문은 고객의 결제가 만든다.
+      // 1. 주문 관리 — 커머스의 뿌리. 등록 폼이 없다: 주문은 고객의 결제가 만든다.
       //    반품·적립 원장·통계가 그동안 해석되지 않는 orderNo 문자열로 가리키던 대상이 여기다.
       //    '교환/반품' 은 원래 상품 관리 밑에 있었지만, 취소가 축으로 들어오면서 **클레임 한 축**이
       //    됐고 셋 다 주문에 매달린 사실이라 이리로 옮겼다(취소 없는 반품 화면이 '취소관리' 링크를
@@ -179,14 +182,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         ['취소/교환/반품', '/orders/claims'],
       ]),
 
-      // 6. 포트폴리오 관리
-      branch('image', 'menu.portfolio', '포트폴리오 관리', '/portfolio', [
-        ['포트폴리오', '/portfolio/items'],
-        ['카테고리', '/portfolio/categories'],
-        ['성공 사례', '/portfolio/case-studies'],
-      ]),
-
-      // 6. 상품 관리
+      // 2. 상품 관리
       branch('shopping-bag', 'menu.products', '상품 관리', '/products', [
         ['상품', '/products'],
         ['카테고리', '/products/categories'],
@@ -199,7 +195,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         ['문의', '/products/inquiries', 'pg-off'],
       ]),
 
-      // 7. 프로그램 관리 — 후원형 펀딩(목표 금액·기간을 걸고 여는 프로그램)
+      // 3. 프로그램 관리 — 후원형 펀딩(목표 금액·기간을 걸고 여는 프로그램)
       //    '프로그램' 은 등록된 프로그램 **목록**이다(목록 > 상세). 등록·수정은 메뉴가 아니라 목록의
       //    CTA·행 액션으로 들어가 같은 등록 화면(ProgramFormPage)을 연다 — 메뉴에 '등록' 을 따로 걸면
       //    목록을 거치지 않는 우회로가 생겨 수정 경로와 갈라진다. 펀딩 진행 현황(달성률·남은 일수)은
@@ -211,19 +207,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         ['문의', '/programs/inquiries', 'pg-off'],
       ]),
 
-      // 8. 영업 관리
-      branch('briefcase', 'menu.sales', '영업 관리', '/sales', [
-        ['거래처', '/sales/accounts'],
-        ['계약', '/sales/contracts'],
-        ['견적', '/sales/quotes'],
-        // 수주 전환 다음 마디 — PG 없이 파는 운영에서 실질적인 '결제'가 여기다
-        ['청구·입금', '/sales/billing'],
-        ['문의', '/sales/inquiries'],
-        ['프로젝트', '/sales/projects'],
-        ['상담 이력', '/sales/consultations'],
-      ]),
-
-      // 8. 고객센터
+      // 4. 고객센터
       branch('headset', 'menu.support', '고객센터', '/support', [
         ['1:1 문의', '/support/tickets'],
         ['문의 유형', '/support/categories'],
@@ -232,7 +216,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         ['자료실', '/support/downloads'],
       ]),
 
-      // 9. 마케팅 관리
+      // 5. 마케팅 관리
       branch('megaphone', 'menu.marketing', '마케팅 관리', '/marketing', [
         ['이벤트', '/marketing/events'],
         ['프로모션', '/marketing/promotions'],
@@ -242,6 +226,24 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         // 메시지 템플릿이 이 자리의 화면이다 — 이메일·문자에 더해 알림톡·브랜드메시지까지 한 목록이
         // 덮는다(종류는 목록의 '만들기' 다이얼로그에서 고른다). 템플릿 메뉴는 이 하나뿐이다.
         ['발송 템플릿 관리', '/marketing/templates'],
+      ]),
+
+      // 6. 영업 관리
+      branch('briefcase', 'menu.sales', '영업 관리', '/sales', [
+        ['거래처', '/sales/accounts'],
+        ['계약', '/sales/contracts'],
+        ['견적', '/sales/quotes'],
+        // 수주 전환 다음 마디 — PG 없이 파는 운영에서 실질적인 '결제'가 여기다
+        ['청구·입금', '/sales/billing'],
+        ['문의', '/sales/inquiries'],
+        ['프로젝트', '/sales/projects'],
+      ]),
+
+      // 7. 포트폴리오 관리 — 이 묶음에서 가장 드물게 여는 화면이라 맨 뒤다
+      branch('image', 'menu.portfolio', '포트폴리오 관리', '/portfolio', [
+        ['포트폴리오', '/portfolio/items'],
+        ['카테고리', '/portfolio/categories'],
+        ['성공 사례', '/portfolio/case-studies'],
       ]),
     ],
   },
@@ -286,8 +288,6 @@ export const NAV_SECTIONS: readonly NavSection[] = [
       // 12. 시스템 설정
       branch('settings', 'menu.settings', '시스템 설정', '/settings', [
         ['사이트 설정', '/settings/site'],
-        // 바깥(B2C 홈페이지)과의 연결 — 유입 채널의 정본이 여기다
-        ['사이트 연동', '/settings/site-connect'],
         // [경로는 라벨을 따라 바꾸지 않는다] 경로는 북마크와 권한 리소스 키(navPageResourceId)가
         // 매달린 내부 식별자다 — 라벨을 고칠 때 같이 바꾸면 저장된 역할의 권한 키가 어긋나 화면이
         // 통째로 안 보인다. 경로 정리는 권한 마이그레이션을 동반하는 별도 판단이다.
@@ -303,7 +303,6 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         // 구독·계약이 무엇을 열어 주는지 보는 화면 — 읽기 전용이다(플랜 변경은 사내 홈페이지 소관)
         ['플랜·이용 현황', '/settings/plan'],
         ['알림 설정', '/settings/notifications'],
-        ['다국어 설정', '/settings/languages'],
       ]),
     ],
   },

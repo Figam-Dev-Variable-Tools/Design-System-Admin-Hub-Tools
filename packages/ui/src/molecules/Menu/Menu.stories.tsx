@@ -109,7 +109,7 @@ export const LongContent: Story = {
     items: [
       { id: 'export', label: '이번 달 신규 가입 회원 전체 정보를 CSV 파일로 내보내기' },
       { id: 'memo', label: '운영자 전용 장기 미접속 회원 관리 메모 남기기' },
-      { id: 'suspend', label: '약관 위반으로 계정 이용을 영구 정지합니다', danger: true },
+      { id: 'suspend', label: '약관 위반으로 계정 이용을 영구 정지해요', danger: true },
     ],
   },
   play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
@@ -178,8 +178,8 @@ export const LockedActions: Story = {
     trigger: 'more-vertical',
     items: [
       { id: 'view', label: '연동 상세' },
-      { id: 'edit', label: '설정 수정', disabledReason: '발송이 끝난 뒤에 바꿀 수 있습니다' },
-      { id: 'unlink', label: '연동 해제', danger: true, disabledReason: '권한이 없습니다' },
+      { id: 'edit', label: '설정 수정', disabledReason: '발송이 끝난 뒤에 바꿀 수 있어요' },
+      { id: 'unlink', label: '연동 해제', danger: true, disabledReason: '권한이 없어요' },
     ],
   },
   play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {

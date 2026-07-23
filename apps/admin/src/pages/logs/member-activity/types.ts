@@ -91,5 +91,5 @@ export const MEMBER_ACTIVITY_AXES: readonly LogFilterAxis[] = [
  */
 export const MEMBER_ACTIVITY_RETENTION: RetentionPolicy = {
   label: '1년',
-  basis: '개인정보 최소 보관 원칙. 보존기간이 지나면 자동 폐기됩니다.',
+  basis: '개인정보 최소 보관 원칙. 보존기간이 지나면 자동 폐기돼요.',
 };

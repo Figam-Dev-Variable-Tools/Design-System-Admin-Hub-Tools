@@ -19,13 +19,13 @@ const REMEMBERED_EMAIL_KEY = 'tds.admin.remembered-email';
  * 사이드바 메뉴 권한 키 — **feature-registry.ts 의 menu.* 와 정확히 같은 집합**이어야 한다.
  *
  * [왜 정확히 같아야 하나] seedPermissions 는 "적어 준 키만 끄고 나머지는 전부 ON" 이다. 그래서
- * 여기 **빠진 키는 꺼지지 않는다** — '모든 메뉴 권한을 끈다' 는 전제의 스펙(FS-002-EL-007 ·
+ * 여기 **빠진 키는 꺼지지 않는다** — '모든 메뉴 권한을 끈다' 는 전제의 스펙(SCR-DASHBOARD 의 권한 축 ·
  * EL-002)이 조용히 거짓이 되고, 끄지 못한 메뉴 하나 때문에 '내비게이션이 빈다' 가 실패한다.
  * 반대로 레지스트리에 없는 키는 normalizeLegacyPermissions 가 버리므로 아무 일도 하지 않는다 —
  * 있으나 마나 한 줄이 남아 목록이 최신인 것처럼 보이게 만든다.
  *
  * 실제로 그렇게 샜다: 'menu.reservations' 가 사라질 때 그 줄만 지우고 새로 생긴 'menu.ai' 를
- * 넣지 않았다. 그래서 AI 가지가 권한을 다 꺼도 살아남아 FS-002 가 3건 붉게 남았다.
+ * 넣지 않았다. 그래서 AI 가지가 권한을 다 꺼도 살아남아 대시보드 e2e 가 3건 붉게 남았다.
  * 죽은 'menu.notifications' 도 그때 같이 남았다.
  */
 export const MENU_KEYS = [
@@ -62,7 +62,7 @@ export type PermissionOverrides = Partial<
 /**
  * 활성 역할의 권한을 심는다. **적어 준 키만 끄고 나머지는 전부 ON** 이다 —
  * 이것은 테스트의 편의가 아니라 명세된 동작이다:
- *   FS-002-EL-042 유효성 — "등록되지 않은 키는 버리고, 빠진 키와 boolean 이 아닌 값은 기본값 ON 으로 채운다"
+ *   권한 저장값 검증 — "등록되지 않은 키는 버리고, 빠진 키와 boolean 이 아닌 값은 기본값 ON 으로 채운다"
  *   (normalizeLegacyPermissions: "값이 없으면 전부 ON 으로 본다")
  */
 export async function seedPermissions(page: Page, overrides: PermissionOverrides): Promise<void> {
@@ -111,7 +111,7 @@ export interface SeedSession {
   readonly issuedAt: number;
 }
 
-/** 인증된 사용자로 진입시킨다 (FS-001-EL-025) */
+/** 인증된 사용자로 진입시킨다 (SCR-LOGIN 의 세션 판정과 같은 저장 형식) */
 export async function seedSession(page: Page, session: SeedSession | string): Promise<void> {
   const raw = typeof session === 'string' ? session : JSON.stringify(session);
   await page.addInitScript(
@@ -126,10 +126,10 @@ export async function seedSession(page: Page, session: SeedSession | string): Pr
  * 셸 라우트 진입의 **인증 전제** — `test.beforeEach(seedAuthenticated)` 로 쓴다 (EXC-02).
  *
  * [왜 생겼나] 인증 가드가 붙기 전에는 세션 없이도 /dashboard·/users/members 가 그대로 렌더됐고,
- * FS-002/003/004 는 그 사실에 기대어 세션을 심지 않았다. 이제 셸 라우트는 세션이 없으면
+ * 셸 안 화면의 e2e 는 그 사실에 기대어 세션을 심지 않았다. 이제 셸 라우트는 세션이 없으면
  * /login?returnUrl=… 으로 보낸다 — 인증된 화면을 검증하는 스펙은 인증을 세워야 한다.
  *
- * 이 헬퍼는 **전제만** 만든다. 인증의 축(성공·실패·만료·오픈 리다이렉트)은 FS-001 이 소유하며,
+ * 이 헬퍼는 **전제만** 만든다. 인증 자체(성공·실패·만료·오픈 리다이렉트)는 SCR-LOGIN 이 소유하며,
  * 세션 형식이 깨진 경우 등은 그쪽에서 seedSession 으로 직접 심는다.
  */
 export async function seedAuthenticated({ page }: { readonly page: Page }): Promise<void> {
@@ -141,7 +141,7 @@ export async function seedAuthenticated({ page }: { readonly page: Page }): Prom
   });
 }
 
-/** '이메일 저장' 으로 보관된 이메일 (FS-001-EL-015) */
+/** '이메일 저장' 으로 보관된 이메일 (SCR-LOGIN) */
 export async function seedRememberedEmail(page: Page, email: string): Promise<void> {
   await page.addInitScript(
     ([key, value]) => {
@@ -164,7 +164,7 @@ export async function changeRememberedEmailInOtherTab(page: Page, email: string)
 
 /**
  * 브라우저 저장소 접근 차단 (사생활 보호 모드 등) — 읽기·쓰기가 전부 throw 한다.
- * FS-001 §4.1 "브라우저 저장소 접근 불가" · FS-002-EL-007 실패 축의 재현 수단이다.
+ * SCR-LOGIN 의 "브라우저 저장소 접근 불가" · SCR-DASHBOARD 의 조회 실패 재현 수단이다.
  */
 export async function blockLocalStorage(page: Page): Promise<void> {
   await page.addInitScript(() => {

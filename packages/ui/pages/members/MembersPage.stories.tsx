@@ -566,7 +566,7 @@ function MembersScreen({
       </p>
 
       <Table
-        caption="회원 목록 — 행을 누르면 회원 상세로 이동합니다. 체크박스·메모·액션 버튼은 각자의 동작을 수행합니다."
+        caption="회원 목록 — 행을 누르면 회원 상세로 이동해요. 체크박스·메모·액션 버튼은 각자 따로 동작해요."
         columns={COLUMNS}
         rows={rows}
         leadingHead={[

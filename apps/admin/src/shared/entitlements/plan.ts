@@ -175,14 +175,14 @@ export const MODULE_SPECS: readonly ModuleSpec[] = [
     kind: 'switch',
     key: 'commerce.orders',
     label: '주문 관리',
-    description: '고객 주문의 접수·상태 변경·환불 처리를 한 곳에서 봅니다.',
+    description: '고객 주문의 접수·상태 변경·환불 처리를 한 곳에서 봐요.',
     minTier: 'basic',
   },
   {
     kind: 'quota',
     key: 'commerce.products',
     label: '상품 관리',
-    description: '판매 상품과 카테고리를 등록하고 노출을 관리합니다.',
+    description: '판매 상품과 카테고리를 등록하고 노출을 관리해요.',
     minTier: 'free',
     // 다운그레이드해도 이미 등록한 상품은 지우지 않는다 — 초과분은 '201/200' 으로만 말하고
     // 신규 등록만 잠근다(권한 액션 5종 중 create 만 끈다).
@@ -192,49 +192,49 @@ export const MODULE_SPECS: readonly ModuleSpec[] = [
     kind: 'switch',
     key: 'commerce.coupons',
     label: '쿠폰',
-    description: '할인 쿠폰을 발급하고 사용 조건·기간을 관리합니다.',
+    description: '할인 쿠폰을 발급하고 사용 조건·기간을 관리해요.',
     minTier: 'pro',
   },
   {
     kind: 'switch',
     key: 'commerce.points',
     label: '적립금',
-    description: '적립·차감 원장과 적립 정책을 운영합니다.',
+    description: '적립·차감 원장과 적립 정책을 운영해요.',
     minTier: 'pro',
   },
   {
     kind: 'switch',
     key: 'commerce.shipping',
     label: '배송·교환/반품',
-    description: '배송 정책과 교환·반품 접수를 관리합니다.',
+    description: '배송 정책과 교환·반품 접수를 관리해요.',
     minTier: 'basic',
   },
   {
     kind: 'switch',
     key: 'sales.pipeline',
     label: '영업 관리',
-    description: '거래처·계약·견적·프로젝트를 잇는 영업 파이프라인입니다.',
+    description: '거래처·계약·견적·프로젝트를 잇는 영업 파이프라인이에요.',
     minTier: 'pro',
   },
   {
     kind: 'switch',
     key: 'cms.pages',
     label: '콘텐츠 관리',
-    description: '공지·FAQ·팝업·배너 등 홈페이지 콘텐츠를 편집합니다.',
+    description: '공지·FAQ·팝업·배너 등 홈페이지 콘텐츠를 편집해요.',
     minTier: 'free',
   },
   {
     kind: 'switch',
     key: 'marketing.email',
     label: '이메일·뉴스레터 발송',
-    description: '뉴스레터와 이메일 캠페인을 만들고 발송합니다.',
+    description: '뉴스레터와 이메일 캠페인을 만들고 발송해요.',
     minTier: 'basic',
   },
   {
     kind: 'switch',
     key: 'marketing.sms',
     label: 'SMS 발송',
-    description: '문자·알림톡을 발송하고 발송 이력을 봅니다.',
+    description: '문자·알림톡을 발송하고 발송 이력을 봐요.',
     // 티어 번들이 아니다 — 발신번호 등록과 발송사 계약이 따로 있어야 켤 수 있어 플랜을 올려도
     // 저절로 열리지 않는다. 그래서 잠금(자물쇠)이 아니라 **계약이 없으면 완전 숨김**이 맞다.
     minTier: null,
@@ -243,14 +243,14 @@ export const MODULE_SPECS: readonly ModuleSpec[] = [
     kind: 'switch',
     key: 'ai.agent',
     label: 'AI 에이전트',
-    description: '멘션한 데이터를 조건으로 조회하는 대화형 도우미입니다.',
+    description: '멘션한 데이터를 조건으로 조회하는 대화형 도우미예요.',
     minTier: 'enterprise',
   },
   {
     kind: 'level',
     key: 'stats.advanced',
     label: '고급 통계',
-    description: '유입 분석·검색어 분석·매출 통계 등 심화 리포트를 봅니다.',
+    description: '유입 분석·검색어 분석·매출 통계 등 심화 리포트를 봐요.',
     minTier: 'pro',
     levels: { free: LEVEL_NONE, basic: LEVEL_NONE, pro: 'basic', enterprise: 'advanced' },
   },
@@ -319,7 +319,8 @@ export function entitlementsForTier(tier: PlanTier): Readonly<Record<Entitlement
  * [왜 가장 낮은 티어가 아닌가] 이 앱에는 백엔드가 없다. 즉 '주입 전' 이 정상 상태다. 그때 기본값을
  * 낮은 티어로 두면 이 층을 추가한 것만으로 기존 화면 절반이 사라진다 — 엔타이틀먼트 축이 존재하지도
  * 않던 어제와 오늘의 앱이 달라지면 안 된다. 실패 방향(fail-open)과도 같은 방향이다.
- * 낮은 티어의 화면을 보려면 개발용 플랜 전환 패널(DEV 빌드 전용)로 바꾼다.
+ * 낮은 티어의 화면을 보려면 스토어의 재현 액션(entitlement-store 의 devSetTier)이나 저장값
+ * (localStorage `tds-admin.plan`)을 바꾼다 — 화면에는 그 손잡이가 없다(플랜 화면 머리말).
  */
 export const DEFAULT_PLAN_STATE: PlanState = {
   version: PLAN_STATE_VERSION,
@@ -367,7 +368,7 @@ function entitlementEnabled(value: Entitlement): boolean {
 }
 
 function lockReason(spec: ModuleSpec, upgradeTo: PlanTier): string {
-  return `${spec.label} 기능은 ${PLAN_TIER_LABEL[upgradeTo]} 플랜부터 사용할 수 있습니다.`;
+  return `${spec.label} 기능은 ${PLAN_TIER_LABEL[upgradeTo]} 플랜부터 사용할 수 있어요.`;
 }
 
 /**
@@ -406,10 +407,10 @@ export function planReadOnly(plan: PlanState): boolean {
 /** 읽기 전용으로 내려앉은 이유 — 정상이면 null(배너를 그리지 않는다) */
 export function billingNotice(plan: PlanState): string | null {
   if (plan.billingState === 'past_due') {
-    return '결제가 확인되지 않아 지금은 조회만 가능합니다. 사내 홈페이지에서 결제 상태를 확인해 주세요.';
+    return '결제가 확인되지 않아 지금은 조회만 가능해요. 사내 홈페이지에서 결제 상태를 확인해 주세요.';
   }
   if (plan.billingState === 'suspended') {
-    return '구독이 정지되어 지금은 조회만 가능합니다. 사내 홈페이지에서 구독을 다시 활성화해 주세요.';
+    return '구독이 정지되어 지금은 조회만 가능해요. 사내 홈페이지에서 구독을 다시 활성화해 주세요.';
   }
   return null;
 }
@@ -469,7 +470,7 @@ export function quotaCreateBlock(
 ): string | null {
   const status = quotaStatusOf(plan, key, usage);
   if (status === null || !status.exhausted) return null;
-  return `${status.text} · 상위 플랜에서 늘릴 수 있습니다.`;
+  return `${status.text} · 상위 플랜에서 늘릴 수 있어요.`;
 }
 
 /* ── 다운그레이드 예고 ─────────────────────────────────────────────────────── */
@@ -485,7 +486,7 @@ export function planChangeNotice(plan: PlanState, now: Date = new Date()): strin
   if (plan.effectiveAt === null) return null;
   const at = new Date(plan.effectiveAt);
   if (Number.isNaN(at.getTime()) || at.getTime() <= now.getTime()) return null;
-  return `${formatPlanDate(at)}에 플랜 변경이 적용됩니다. 변경 내용은 사내 홈페이지에서 확인해 주세요.`;
+  return `${formatPlanDate(at)}에 플랜 변경이 적용돼요. 변경 내용은 사내 홈페이지에서 확인해 주세요.`;
 }
 
 /** YYYY-MM-DD — 예고 배너와 플랜 화면이 같은 형식을 쓴다 */

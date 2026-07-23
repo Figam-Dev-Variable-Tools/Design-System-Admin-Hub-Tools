@@ -17,6 +17,12 @@
 export { cssVar, tokenVars, typography, typographyVars } from '../generated/tokens/tokens';
 export type { TokenPath, TypographyPath } from '../generated/tokens/tokens';
 
+// --- 폼 줄바꿈 규약 ---
+// '입력 칸은 한 줄에 하나, 예외는 날짜 쌍뿐' 이라는 규칙의 **유일한 정의**다. 컴포넌트가 아니라
+// 레이아웃 규약이라 계약(contracts/*)을 갖지 않는다 — 토큰 헬퍼와 같은 층이다.
+// 근거와 사용법은 ./foundations/FormLayout.ts 머리말.
+export { formDateRowStyle, formRowStyle, inlineBadgeRowStyle } from './foundations/FormLayout';
+
 // --- Atoms ---
 export { Alert } from './atoms/Alert';
 export type { AlertProps, AlertState, AlertTone } from './atoms/Alert';

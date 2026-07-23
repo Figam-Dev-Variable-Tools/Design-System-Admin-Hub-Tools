@@ -59,7 +59,7 @@ function valuesOf(overrides: Partial<NewsletterFormValues> = {}): NewsletterForm
     title: '7월 뉴스레터',
     senderId: 'from-news',
     segmentIds: ['seg-newsletter'],
-    body: '본문입니다.',
+    body: '본문이에요.',
     status: 'draft',
     scheduledAt: '',
     ...overrides,

@@ -124,7 +124,7 @@ export function FilterPanel<T extends string>({
       {failed && (
         // role="alert" — 목록이 조용히 비는 대신 실패를 말한다 (EXC: 조회 실패)
         <div style={retryRowStyle} role="alert">
-          <span>건수를 불러오지 못했습니다.</span>
+          <span>건수를 불러오지 못했어요.</span>
           {onRetry !== undefined && (
             <button type="button" style={retryButtonStyle} onClick={onRetry}>
               다시 시도

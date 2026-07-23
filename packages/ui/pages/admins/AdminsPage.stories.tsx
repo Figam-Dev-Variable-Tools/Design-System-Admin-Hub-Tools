@@ -426,11 +426,11 @@ function AdminGroupRail({
       notice={
         <>
           <p style={noticeTextStyle}>
-            여러 사람과 함께 사이트를 관리할 수 있습니다. 믿을 수 있는 사용자 그룹에게만 조심해서
-            관리 권한을 주세요.
+            여러 사람과 함께 사이트를 관리할 수 있어요. 믿을 수 있는 사용자 그룹에게만 조심해서 관리
+            권한을 주세요.
           </p>
           <p style={noticeTextStyle}>
-            각 항목에는 알림 발신 및 수신 권한과 사이트 내 조회 및 편집 권한을 포함하고 있습니다.
+            각 항목에는 알림 발신 및 수신 권한과 사이트 내 조회 및 편집 권한을 포함하고 있어요.
           </p>
         </>
       }
@@ -615,7 +615,7 @@ function AdminsScreen({ state }: { state: ScreenState }) {
             {failed ? (
               <Alert tone="danger">
                 <div style={errorBodyStyle}>
-                  <span>운영자 목록을 불러오지 못했습니다.</span>
+                  <span>운영자 목록을 불러오지 못했어요.</span>
                   <Button variant="secondary">다시 시도</Button>
                 </div>
               </Alert>
@@ -631,7 +631,7 @@ function AdminsScreen({ state }: { state: ScreenState }) {
 
                   <div style={tableWrapStyle}>
                     <Table
-                      caption="운영자 목록 — 행을 누르면 운영자 상세로 이동합니다. 체크박스·메모 버튼은 각자의 동작을 수행합니다."
+                      caption="운영자 목록 — 행을 누르면 운영자 상세로 이동해요. 체크박스·메모 버튼은 각자 따로 동작해요."
                       columns={COLUMNS}
                       rows={rows}
                       leadingHead={[

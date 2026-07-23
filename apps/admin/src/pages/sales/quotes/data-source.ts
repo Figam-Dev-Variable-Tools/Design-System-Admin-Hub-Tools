@@ -12,7 +12,7 @@
 // 이름만 같고 연결이 없는 행이 하나라도 있으면 거래처 상세의 역방향 조회가 조용히 비어 보인다.
 import { createStoreAdapter } from '../../../shared/crud';
 import { HTTP_STATUS, HttpError } from '../../../shared/errors/http-error';
-import { buildQuoteFromSources, makeQuoteNo, sortQuotes } from './types';
+import { buildQuoteFromSources, makeQuoteNo, quoteConvertBlock, sortQuotes } from './types';
 import type { Quote, QuoteInput } from './types';
 import type { IssuedQuoteRef, QuoteIssueSource } from '../../../shared/domain/quote-issue';
 
@@ -96,7 +96,7 @@ export function listQuotes(): readonly Quote[] {
 function getQuote(id: string): Quote {
   const found = quotes.find((quote) => quote.id === id);
   // 404 와 500 은 복구 수단이 다르다 — '목록으로' vs '다시 시도' (EXC-12).
-  if (found === undefined) throw new HttpError(HTTP_STATUS.notFound, '견적을 찾을 수 없습니다.');
+  if (found === undefined) throw new HttpError(HTTP_STATUS.notFound, '견적을 찾을 수 없어요.');
   return found;
 }
 
@@ -107,7 +107,7 @@ function addQuote(input: QuoteInput): void {
 function updateQuote(id: string, input: QuoteInput): void {
   // [EXC-04] 없는 id 를 조용히 지나치고 성공을 반환하면 '저장했습니다' 유령 토스트가 뜬다.
   if (!quotes.some((quote) => quote.id === id)) {
-    throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 견적입니다.');
+    throw new HttpError(HTTP_STATUS.conflict, '다른 사용자가 먼저 삭제한 견적이에요.');
   }
   quotes = sortQuotes(
     quotes.map((quote) => (quote.id === id ? { ...quote, ...input, id } : quote)),
@@ -116,7 +116,7 @@ function updateQuote(id: string, input: QuoteInput): void {
 
 function removeQuote(id: string): void {
   if (!quotes.some((quote) => quote.id === id)) {
-    throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 견적입니다.');
+    throw new HttpError(HTTP_STATUS.conflict, '이미 삭제된 견적이에요.');
   }
   quotes = quotes.filter((quote) => quote.id !== id);
 }
@@ -129,6 +129,39 @@ export function findQuoteBySource(sourceId: string): Quote | undefined {
 /** 견적 한 건 — 계약 초안·청구가 원본 금액을 읽을 때 쓴다(같은 페이지 안이라 결합이 아니다) */
 export function findQuote(quoteId: string): Quote | undefined {
   return quotes.find((quote) => quote.id === quoteId);
+}
+
+/**
+ * 되돌려 쓰기 — 계약이 만들어졌으니 그 견적을 '수주(계약 진행)'로 찍는다.
+ * **성공했으면 null**, 못 찍었으면 그 이유를 문자열로 돌려준다.
+ *
+ * ┌ 무엇이 없었나 ───────────────────────────────────────────────────────────┐
+ * │ 계약을 만들어도 견적 상태가 그대로였다. 그래서 견적 목록은 계약이 생긴 뒤에도 │
+ * │ 아무 일도 없었던 것처럼 보였고, 운영자는 '수주 전환' 버튼을 따로 눌러야 했다.  │
+ * │ 두 번 누르는 것을 한 번 빠뜨리면 두 화면이 서로 다른 사실을 말했다.           │
+ * └──────────────────────────────────────────────────────────────────────────┘
+ *
+ * [왜 던지지 않고 사유를 돌려주나] 백엔드가 없어 **트랜잭션이 없다.** 계약은 이미 만들어진
+ * 뒤라 여기서 던지면 호출부는 '계약 생성이 실패했다' 로 오해하거나, 삼키면 '전부 성공' 이라는
+ * 거짓말이 된다. 무엇이 됐고 무엇이 안 됐는지 호출부가 **따로** 말할 수 있어야 한다
+ * (../contracts/data-source 의 createContractFromQuote 반환값 참조).
+ *
+ * [이미 수주면 실패가 아니다] 같은 계약으로 두 번 들어와도 결과가 같다(멱등) — 그때는 이미
+ * 원하는 상태이므로 null 을 준다. 거절 사유를 그대로 올려보내면 '멀쩡한 재시도' 가 실패로 보인다.
+ */
+// TODO(backend): POST /api/sales/quotes/:id/order — 계약 생성과 한 트랜잭션으로 묶인다.
+//   그때 이 함수는 사라지고 반쪽 저장이라는 상태 자체가 없어진다.
+export function markQuoteOrdered(quoteId: string): string | null {
+  const quote = quotes.find((item) => item.id === quoteId);
+  if (quote === undefined) return '견적을 찾을 수 없어요. 이미 삭제되었을 수 있어요.';
+  if (quote.status === 'ordered') return null;
+  // 저장 경로의 거절도 화면의 버튼과 **같은 술어**를 읽는다.
+  const blocked = quoteConvertBlock(quote.status);
+  if (blocked !== null) return blocked;
+  quotes = sortQuotes(
+    quotes.map((item) => (item.id === quoteId ? { ...item, status: 'ordered' } : item)),
+  );
+  return null;
 }
 
 /**

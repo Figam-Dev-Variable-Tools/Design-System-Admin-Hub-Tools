@@ -13,7 +13,9 @@ import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { isAbort } from '../../../shared/async';
+import { ForbiddenScreen } from '../../../shared/errors/ErrorScreens';
 import { zodResolver } from '../../../shared/form/zodResolver';
+import { useRouteCanSubmitForm, WRITE_DENIED } from '../../../shared/permissions/RequirePermission';
 import {
   Alert,
   Button,
@@ -23,6 +25,7 @@ import {
   errorIdOf,
   fieldLabelStyle,
   FormField,
+  formRowStyle,
   pageTitleStyle,
   SelectField,
   TextareaField,
@@ -37,7 +40,7 @@ import type { NoticeFormValues } from './validation';
 import { cssVar } from '@tds/ui';
 
 const UNSAVED_MESSAGE =
-  '공지에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  '공지에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -58,12 +61,6 @@ const descriptionStyle: CSSProperties = {
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: cssVar('space.4'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 8), 1fr))`,
   gap: cssVar('space.4'),
 };
 
@@ -119,6 +116,15 @@ export default function NoticeFormPage() {
 
   // 수정 모드 — 기존 공지를 불러와 폼을 채운다
   const detailQuery = useNoticeQuery(id ?? '');
+  /**
+   * [EXC-03] 이 폼은 FormPageShell 을 쓰지 않는다 — 껍데기가 그려 주던 403 도 못 받는다.
+   *
+   * `RequirePermission` 은 read 만 본다. 그래서 `/content/notices/new` 는 조회 권한만 가진
+   * 역할에게도 열리고 **제출까지 됐다** — 목록의 등록 CTA 를 옳게 숨겨도 URL 을 직접 치면
+   * 그대로 걸어 들어갔다. 판정은 폼 껍데기·폼 컨트롤러와 **같은 한 벌**(useRouteCanSubmitForm)을
+   * 쓴다: 등록이면 create, 수정이면 update.
+   */
+  const canSubmit = useRouteCanSubmitForm(isEdit);
   const loadingDetail = isEdit && detailQuery.isFetching && detailQuery.data === undefined;
   const disabled = saving || loadingDetail;
   const [serverError, setServerError] = useState<string | null>(null);
@@ -146,13 +152,18 @@ export default function NoticeFormPage() {
   const pinned = watch('pinned');
 
   const onValid = (values: NoticeFormValues) => {
+    // 화면을 403 으로 덮은 술어가 저장 경로도 막는다 — 렌더 이후 다른 탭에서 강등될 수 있다
+    if (!canSubmit) {
+      setServerError(isEdit ? WRITE_DENIED.update : WRITE_DENIED.create);
+      return;
+    }
     setServerError(null);
     const controller = new AbortController();
     controllerRef.current = controller;
 
     const onError = (cause: unknown) => {
       if (isAbort(cause)) return;
-      setServerError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      setServerError('저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
     };
 
     if (isEdit && id !== undefined) {
@@ -160,7 +171,7 @@ export default function NoticeFormPage() {
         { id, input: values, signal: controller.signal },
         {
           onSuccess: () => {
-            toast.success('공지를 저장했습니다.');
+            toast.success('공지를 저장했어요.');
             navigate(`/content/notices/${id}`, { replace: true });
           },
           onError,
@@ -173,7 +184,7 @@ export default function NoticeFormPage() {
       { input: values, signal: controller.signal },
       {
         onSuccess: () => {
-          toast.success('공지를 등록했습니다.');
+          toast.success('공지를 등록했어요.');
           navigate('/content/notices', { replace: true });
         },
         onError,
@@ -184,11 +195,16 @@ export default function NoticeFormPage() {
   const scheduled = status === 'scheduled';
   const publishedAtField = useMemo(() => register('publishedAt'), [register]);
 
+  /* 쓸 수 없는 폼은 열지 않는다 — 다 채운 뒤 저장에서 막히는 것보다 먼저 말하는 편이 낫다.
+     조회 실패 분기보다 앞선다: 권한이 없으면 상세를 불러왔는지조차 알릴 일이 아니다
+     (FormPageShell 이 같은 순서로 판정한다). */
+  if (!canSubmit) return <ForbiddenScreen />;
+
   if (isEdit && detailQuery.error !== null) {
     return (
       <div style={pageStyle}>
         <Alert tone="danger">
-          <span>공지를 불러오지 못했습니다. </span>
+          <span>공지를 불러오지 못했어요. </span>
           <Button variant="secondary" onClick={() => navigate('/content/notices')}>
             목록으로
           </Button>
@@ -202,7 +218,7 @@ export default function NoticeFormPage() {
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? '공지 수정' : '공지 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 상태를 '예약'으로 두면 게시일 이후 자동으로 게시됩니다.
+          별표(*) 항목은 필수예요. 상태를 '예약'으로 두면 게시일 이후 자동으로 게시돼요.
         </p>
       </div>
 
@@ -230,7 +246,7 @@ export default function NoticeFormPage() {
               />
             </FormField>
 
-            <div style={rowStyle}>
+            <div style={formRowStyle}>
               <FormField htmlFor="notice-category" label="분류" required>
                 <SelectField id="notice-category" disabled={disabled} {...register('category')}>
                   {CATEGORY_OPTIONS.map((option) => (
@@ -256,7 +272,7 @@ export default function NoticeFormPage() {
                 label="게시일"
                 required={scheduled}
                 error={errors.publishedAt?.message}
-                hint={scheduled ? '예약 게시할 날짜' : '예약 상태에서만 사용됩니다.'}
+                hint={scheduled ? '예약 게시할 날짜' : '예약 상태에서만 사용돼요.'}
               >
                 <input
                   id="notice-published-at"

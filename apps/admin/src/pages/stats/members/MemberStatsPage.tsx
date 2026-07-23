@@ -140,7 +140,7 @@ export default function MemberStatsPage() {
         unit: 'people',
         value: joins(rows),
         compareValue: compare === null ? null : joins(compare),
-        hint: '기간 안에 가입을 완료한 회원 수입니다.',
+        hint: '기간 안에 가입을 완료한 회원 수예요.',
       },
       {
         id: 'withdrawals',
@@ -150,7 +150,7 @@ export default function MemberStatsPage() {
         compareValue: compare === null ? null : leaves(compare),
         // 탈퇴가 늘어난 것을 초록으로 칠하지 않는다
         isLowerBetter: true,
-        hint: '기간 안에 탈퇴 처리된 회원 수입니다.',
+        hint: '기간 안에 탈퇴 처리된 회원 수예요.',
       },
       {
         id: 'net',
@@ -158,7 +158,7 @@ export default function MemberStatsPage() {
         unit: 'people',
         value: joins(rows) - leaves(rows),
         compareValue: compare === null ? null : joins(compare) - leaves(compare),
-        hint: '신규 가입에서 탈퇴를 뺀 값입니다.',
+        hint: '신규 가입에서 탈퇴를 뺀 값이에요.',
       },
       {
         id: 'cumulative',
@@ -166,7 +166,7 @@ export default function MemberStatsPage() {
         unit: 'people',
         value: cumulativeOf(rows),
         compareValue: compare === null ? null : cumulativeOf(compare),
-        hint: '기간 마지막 날 마감 기준으로 남아 있는 전체 회원 수입니다.',
+        hint: '기간 마지막 날 마감 기준으로 남아 있는 전체 회원 수예요.',
       },
     ];
   }, [stats, channel, rows]);
@@ -239,7 +239,7 @@ export default function MemberStatsPage() {
 
   return (
     <StatsPageShell
-      description="가입 경로별로 신규 가입과 탈퇴를 갈라 보고, 순증과 누적 회원 수의 흐름을 비교 기간과 견주는 회원 분석입니다. 신규 가입만 세면 탈퇴가 같은 수로 빠져나가도 성장으로 읽히므로, 순증을 나란히 둡니다."
+      description="가입 경로별로 신규 가입과 탈퇴를 갈라 보고, 순증과 누적 회원 수의 흐름을 비교 기간과 견주는 회원 분석이에요. 신규 가입만 세면 탈퇴가 같은 수로 빠져나가도 성장으로 읽히므로, 순증을 나란히 둬요."
       route={ROUTE}
       params={params}
       segments={MEMBER_CHANNELS}

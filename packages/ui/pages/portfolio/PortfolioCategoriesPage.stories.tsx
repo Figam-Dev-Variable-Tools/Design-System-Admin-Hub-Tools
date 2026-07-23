@@ -197,7 +197,7 @@ function CategoryRow({ category, onEdit, onDelete }: CategoryRowProps) {
         <IconButton
           icon={<Icon name="trash" />}
           label={
-            inUse ? `${category.label} — ${usage}라 삭제할 수 없습니다` : `${category.label} 삭제`
+            inUse ? `${category.label} — ${usage}라 삭제할 수 없어요` : `${category.label} 삭제`
           }
           size="sm"
           disabled={inUse}
@@ -297,14 +297,14 @@ function CategoriesScreen({
       {error ? (
         <Alert tone="danger">
           <div style={errorRowStyle}>
-            <span>카테고리를 불러오지 못했습니다.</span>
+            <span>카테고리를 불러오지 못했어요.</span>
             <Button variant="secondary">다시 시도</Button>
           </div>
         </Alert>
       ) : (
         <Card>
           {categories.length === 0 ? (
-            <p style={summaryStyle}>{loading ? '불러오는 중…' : '등록된 카테고리가 없습니다.'}</p>
+            <p style={summaryStyle}>{loading ? '불러오는 중…' : '등록된 카테고리가 없어요.'}</p>
           ) : (
             <ul style={listStyle}>
               {categories.map((category) => (
@@ -318,7 +318,7 @@ function CategoriesScreen({
             </ul>
           )}
           <p style={hintStyle}>
-            사용 중인 카테고리는 삭제할 수 없습니다 — 먼저 그 포트폴리오들의 분류를 바꾸거나
+            사용 중인 카테고리는 삭제할 수 없어요 — 먼저 그 포트폴리오들의 분류를 바꾸거나
             삭제하세요.
           </p>
         </Card>
@@ -335,7 +335,7 @@ function CategoriesScreen({
         <ConfirmDialog
           intent="delete"
           title="카테고리 삭제"
-          message={`'${pendingDelete.label}' 카테고리를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+          message={`'${pendingDelete.label}' 카테고리를 삭제할까요? 되돌릴 수 없어요.`}
           confirmLabel="카테고리 삭제"
           onConfirm={() => setPendingDelete(null)}
           onCancel={() => setPendingDelete(null)}

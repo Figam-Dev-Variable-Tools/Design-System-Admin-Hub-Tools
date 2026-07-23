@@ -8,7 +8,9 @@ import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { isAbort } from '../../../shared/async';
+import { ForbiddenScreen } from '../../../shared/errors/ErrorScreens';
 import { zodResolver } from '../../../shared/form/zodResolver';
+import { useRouteCanSubmitForm, WRITE_DENIED } from '../../../shared/permissions/RequirePermission';
 import {
   Alert,
   Button,
@@ -18,6 +20,7 @@ import {
   errorIdOf,
   fieldLabelStyle,
   FormField,
+  formRowStyle,
   pageTitleStyle,
   SelectField,
   TextareaField,
@@ -37,7 +40,7 @@ import type { FaqFormValues } from './validation';
 import { cssVar } from '@tds/ui';
 
 const UNSAVED_MESSAGE =
-  'FAQ 에 저장하지 않은 변경 사항이 있습니다. 이 화면을 벗어나면 입력한 내용이 사라집니다.';
+  'FAQ 에 저장하지 않은 변경 사항이 있어요. 이 화면을 벗어나면 입력한 내용이 사라져요.';
 
 const pageStyle: CSSProperties = {
   display: 'flex',
@@ -58,12 +61,6 @@ const descriptionStyle: CSSProperties = {
 const bodyStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: cssVar('space.4'),
-};
-
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(calc(${cssVar('space.6')} * 8), 1fr))`,
   gap: cssVar('space.4'),
 };
 
@@ -118,6 +115,10 @@ export default function FaqFormPage() {
   const saving = createFaq.isPending || updateFaq.isPending;
 
   const detailQuery = useFaqQuery(id ?? '');
+  /* [EXC-03] 이 폼은 FormPageShell 을 쓰지 않아 껍데기의 403 을 받지 못했다 — RequirePermission 은
+     read 만 보므로 `/content/faq/new` 가 조회 권한만으로 열리고 제출까지 됐다. 판정은 폼 껍데기·폼
+     컨트롤러와 같은 한 벌이다: 등록이면 create, 수정이면 update. */
+  const canSubmit = useRouteCanSubmitForm(isEdit);
   const loadingDetail = isEdit && detailQuery.isFetching && detailQuery.data === undefined;
   const disabled = saving || loadingDetail;
   const [serverError, setServerError] = useState<string | null>(null);
@@ -152,6 +153,11 @@ export default function FaqFormPage() {
   const visible = watch('visible');
 
   const onValid = (values: FaqFormValues) => {
+    // 화면을 403 으로 덮은 술어가 저장 경로도 막는다
+    if (!canSubmit) {
+      setServerError(isEdit ? WRITE_DENIED.update : WRITE_DENIED.create);
+      return;
+    }
     setServerError(null);
     const controller = new AbortController();
     controllerRef.current = controller;
@@ -166,7 +172,7 @@ export default function FaqFormPage() {
 
     const onError = (cause: unknown) => {
       if (isAbort(cause)) return;
-      setServerError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      setServerError('저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
     };
 
     if (isEdit && id !== undefined) {
@@ -174,7 +180,7 @@ export default function FaqFormPage() {
         { id, input, signal: controller.signal },
         {
           onSuccess: () => {
-            toast.success('FAQ 를 저장했습니다.');
+            toast.success('FAQ 를 저장했어요.');
             navigate(`/content/faq/${id}`, { replace: true });
           },
           onError,
@@ -187,7 +193,7 @@ export default function FaqFormPage() {
       { input, signal: controller.signal },
       {
         onSuccess: () => {
-          toast.success('FAQ 를 등록했습니다.');
+          toast.success('FAQ 를 등록했어요.');
           navigate('/content/faq', { replace: true });
         },
         onError,
@@ -195,11 +201,14 @@ export default function FaqFormPage() {
     );
   };
 
+  /* 쓸 수 없는 폼은 열지 않는다 — 조회 실패 분기보다 앞선다 (FormPageShell 과 같은 순서) */
+  if (!canSubmit) return <ForbiddenScreen />;
+
   if (isEdit && detailQuery.error !== null) {
     return (
       <div style={pageStyle}>
         <Alert tone="danger">
-          <span>FAQ 를 불러오지 못했습니다. </span>
+          <span>FAQ 를 불러오지 못했어요. </span>
           <Button variant="secondary" onClick={() => navigate('/content/faq')}>
             목록으로
           </Button>
@@ -213,7 +222,7 @@ export default function FaqFormPage() {
       <div>
         <h1 style={pageTitleStyle}>{isEdit ? 'FAQ 수정' : 'FAQ 등록'}</h1>
         <p style={descriptionStyle}>
-          별표(*) 항목은 필수입니다. 노출을 끄면 사용자 화면에서 숨겨집니다.
+          별표(*) 항목은 필수예요. 노출을 끄면 사용자 화면에서 숨겨져요.
         </p>
       </div>
 
@@ -246,7 +255,7 @@ export default function FaqFormPage() {
               />
             </FormField>
 
-            <div style={rowStyle}>
+            <div style={formRowStyle}>
               <FormField
                 htmlFor="faq-category"
                 label="카테고리"
@@ -277,7 +286,7 @@ export default function FaqFormPage() {
                 label="정렬 순서"
                 required
                 error={errors.order?.message}
-                hint="작을수록 위에 노출됩니다."
+                hint="작을수록 위에 노출돼요."
               >
                 <input
                   id="faq-order"

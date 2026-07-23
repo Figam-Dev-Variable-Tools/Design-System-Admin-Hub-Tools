@@ -39,7 +39,7 @@ export function RouteErrorScreen({ reference, onRetry }: RouteErrorScreenProps) 
       // h2 다 — 페이지의 h1 은 AppHeader 가 소유한다(화면 이름). 이 제목은 그 화면 **안의**
       // 상태이므로 h1 을 하나 더 만들면 '이 문서의 제목' 이 둘이 된다. Result 가 h2 로 고정한다.
       title="문제가 발생했어요"
-      description="화면을 그리는 중 예상하지 못한 오류가 났습니다. 다시 시도해도 같은 문제가 계속되면 아래 코드와 함께 알려 주세요."
+      description="화면을 그리는 중 예상하지 못한 오류가 났어요. 다시 시도해도 같은 문제가 계속되면 아래 코드와 함께 알려 주세요."
       // 계약의 센티널은 **빈 문자열 = 그리지 않음** 이다. 참조 코드가 없는 예외(HTTP 응답이 아닌
       // 순수 렌더 오류)에서 빈 줄이 남지 않게 여기서 한 번만 흡수한다.
       reference={reference === null ? '' : `오류 코드 ${reference}`}
@@ -70,8 +70,8 @@ export function ForbiddenScreen() {
 
   return (
     <Result
-      title="접근 권한이 없습니다"
-      description="이 화면을 볼 수 있는 권한이 없습니다. 필요하다면 관리자에게 권한을 요청해 주세요."
+      title="접근 권한이 없어요"
+      description="이 화면을 볼 수 있는 권한이 없어요. 필요하다면 관리자에게 권한을 요청해 주세요."
       actions={
         <Button variant="secondary" onClick={() => navigate('/dashboard')}>
           대시보드로
@@ -108,8 +108,8 @@ export function UpgradeScreen({ reason, upgradeTo }: UpgradeScreenProps) {
 
   return (
     <Result
-      title={`${PLAN_TIER_LABEL[upgradeTo]} 플랜에서 사용할 수 있습니다`}
-      description={`${reason} 플랜을 올리면 이 화면이 그대로 열리고, 지금까지 쌓인 데이터도 그대로 남아 있습니다.`}
+      title={`${PLAN_TIER_LABEL[upgradeTo]} 플랜에서 사용할 수 있어요`}
+      description={`${reason} 플랜을 올리면 이 화면이 그대로 열리고, 지금까지 쌓인 데이터도 그대로 남아 있어요.`}
       actions={
         <>
           {/* 외부 이동이라 진짜 <a> 다 — DS Button 은 <button> 만 렌더하는 Frozen 계약이고,

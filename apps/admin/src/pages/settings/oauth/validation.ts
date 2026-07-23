@@ -156,7 +156,7 @@ interface ClientSecretMeta {
  * 운영자는 존재하지 않는 버튼을 찾아 헤맨다.
  */
 const GOOGLE_SECRET_RECOVERY =
-  '저장된 시크릿은 여기서도, Google Cloud Console 에서도 다시 볼 수 없습니다. 값을 잃어버렸다면 콘솔에서 시크릿을 회전(재발급)한 뒤 새 값을 넣으세요.';
+  '저장된 시크릿은 여기서도, Google Cloud Console 에서도 다시 볼 수 없어요. 값을 잃어버렸다면 콘솔에서 시크릿을 회전(재발급)한 뒤 새 값을 넣으세요.';
 
 // Record 로 두면 (OAuthProviderId 키) 조회가 총함수라 undefined 갈래가 없다.
 const OAUTH_PROVIDER_META: Record<OAuthProviderId, ProviderMeta> = {
@@ -200,7 +200,7 @@ const OAUTH_PROVIDER_META: Record<OAuthProviderId, ProviderMeta> = {
      * https://developers.facebook.com/docs/facebook-login/security
      */
     redirectNote:
-      'Meta는 엄격 모드에서 쿼리 파라미터까지 포함해 정확히 일치할 것을 요구합니다(state 파라미터만 예외). 콘솔에 등록하지 않은 파라미터를 붙여 보내면 거절됩니다.',
+      'Meta는 엄격 모드에서 쿼리 파라미터까지 포함해 정확히 일치할 것을 요구해요(state 파라미터만 예외). 콘솔에 등록하지 않은 파라미터를 붙여 보내면 거절돼요.',
     consoleHint:
       'Meta for Developers → 내 앱 → 앱 설정 · 기본 설정 / 제품 → Facebook 로그인 → 설정',
     /*
@@ -209,7 +209,7 @@ const OAUTH_PROVIDER_META: Record<OAuthProviderId, ProviderMeta> = {
      * https://developers.facebook.com/docs/development/build-and-test
      */
     consoleNotice:
-      '앱이 개발 모드이면 앱에 등록된 역할(관리자·개발자·테스터) 계정만 로그인됩니다. 일반 사용자에게 열려면 앱을 라이브로 전환하고, 필요한 권한이 고급 액세스라면 비즈니스 인증을 마쳐야 합니다.',
+      '앱이 개발 모드이면 앱에 등록된 역할(관리자·개발자·테스터) 계정만 로그인돼요. 일반 사용자에게 열려면 앱을 라이브로 전환하고, 필요한 권한이 고급 액세스라면 비즈니스 인증을 마쳐야 해요.',
     allowsLocalRedirect: true,
   },
   apple: {
@@ -218,7 +218,7 @@ const OAUTH_PROVIDER_META: Record<OAuthProviderId, ProviderMeta> = {
     credentialKind: 'apple-key',
     redirectLabel: 'Return URL',
     redirectNote:
-      'Apple은 https만 받고 도메인 이름을 요구합니다 — localhost와 IP 주소는 쓸 수 없어 로컬 개발에도 실제 도메인이 필요합니다.',
+      'Apple은 https만 받고 도메인 이름을 요구해요 — localhost와 IP 주소는 쓸 수 없어 로컬 개발에도 실제 도메인이 필요해요.',
     consoleHint:
       'Apple Developer → Certificates, Identifiers & Profiles → Identifiers(Services IDs) · Keys',
     /*
@@ -227,7 +227,7 @@ const OAUTH_PROVIDER_META: Record<OAuthProviderId, ProviderMeta> = {
      * 값을 한 번 넣어 두고 잊으면 최대 6개월 뒤 로그인이 **조용히** 죽는다.
      */
     consoleNotice:
-      'Apple 은 고정된 시크릿을 주지 않습니다. 아래 네 값으로 서버가 client_secret(JWT)을 서명해 만들고, 그 JWT 는 최대 6개월(15777000초)까지만 유효해 주기적으로 다시 만들어야 합니다. 유료 Apple Developer Program 멤버십이 필요합니다.',
+      'Apple 은 고정된 시크릿을 주지 않아요. 아래 네 값으로 서버가 client_secret(JWT)을 서명해 만들고, 그 JWT 는 최대 6개월(15777000초)까지만 유효해 주기적으로 다시 만들어야 해요. 유료 Apple Developer Program 멤버십이 필요해요.',
     /*
      * Apple 만 localhost·IP 를 금지한다. 문서 원문:
      * "The URI must use the HTTPS protocol, include a domain name, and can't contain
@@ -251,7 +251,7 @@ const OAUTH_PROVIDER_META: Record<OAuthProviderId, ProviderMeta> = {
      * https://developers.line.biz/en/docs/line-login/security-checklist/
      */
     redirectNote:
-      'LINE은 경로까지는 정확히 일치해야 하지만, 요청 시 쿼리 파라미터를 덧붙이는 것은 허용합니다.',
+      'LINE은 경로까지는 정확히 일치해야 하지만, 요청 시 쿼리 파라미터를 덧붙이는 것은 허용해요.',
     consoleHint: 'LINE Developers Console → 채널 → Basic settings · LINE Login',
     /*
      * 채널은 만들면 Developing 으로 시작하고, 그 상태에서는 Admin·Tester 만 로그인된다.
@@ -259,7 +259,7 @@ const OAUTH_PROVIDER_META: Record<OAuthProviderId, ProviderMeta> = {
      * https://developers.line.biz/en/docs/line-login/managing-users/
      */
     consoleNotice:
-      '채널이 Developing 상태이면 채널의 Admin·Tester 로 등록된 계정만 로그인됩니다. Published 로 바꾸면 되돌릴 수 없으니 확인을 마친 뒤 전환하세요. 이메일 수집(email 스코프)은 콘솔에서 별도로 신청해 승인받아야 합니다.',
+      '채널이 Developing 상태이면 채널의 Admin·Tester 로 등록된 계정만 로그인돼요. Published 로 바꾸면 되돌릴 수 없으니 확인을 마친 뒤 전환하세요. 이메일 수집(email 스코프)은 콘솔에서 별도로 신청해 승인받아야 해요.',
     allowsLocalRedirect: true,
   },
 };
@@ -276,7 +276,7 @@ const CLIENT_SECRET_META: Record<ClientSecretProviderId, ClientSecretMeta> = {
     clientIdLabel: 'REST API 키 (client_id)',
     secretLabel: 'Client Secret (client_secret)',
     secretRecovery:
-      '저장된 시크릿은 다시 볼 수 없습니다. 값을 잃어버렸다면 Kakao Developers 에서 시크릿을 재발급한 뒤 새 값을 넣으세요.',
+      '저장된 시크릿은 다시 볼 수 없어요. 값을 잃어버렸다면 Kakao Developers 에서 시크릿을 재발급한 뒤 새 값을 넣으세요.',
     hasNativeAppKey: true,
     hasIosUrlScheme: false,
   },
@@ -284,7 +284,7 @@ const CLIENT_SECRET_META: Record<ClientSecretProviderId, ClientSecretMeta> = {
     clientIdLabel: 'Client ID (client_id)',
     secretLabel: 'Client Secret (client_secret)',
     secretRecovery:
-      '저장된 시크릿은 다시 볼 수 없습니다. 값을 잃어버렸다면 NAVER Developers 에서 시크릿을 재발급한 뒤 새 값을 넣으세요.',
+      '저장된 시크릿은 다시 볼 수 없어요. 값을 잃어버렸다면 NAVER Developers 에서 시크릿을 재발급한 뒤 새 값을 넣으세요.',
     hasNativeAppKey: false,
     hasIosUrlScheme: false,
   },
@@ -298,7 +298,7 @@ const CLIENT_SECRET_META: Record<ClientSecretProviderId, ClientSecretMeta> = {
     clientIdLabel: '앱 ID (client_id)',
     secretLabel: '앱 시크릿 코드 (client_secret)',
     secretRecovery:
-      '저장된 시크릿은 여기서 다시 볼 수 없습니다. 값을 잃어버렸다면 Meta for Developers 의 앱 설정에서 앱 시크릿을 재설정한 뒤 새 값을 넣으세요.',
+      '저장된 시크릿은 여기서 다시 볼 수 없어요. 값을 잃어버렸다면 Meta for Developers 의 앱 설정에서 앱 시크릿을 재설정한 뒤 새 값을 넣으세요.',
     hasNativeAppKey: false,
     hasIosUrlScheme: false,
   },
@@ -306,7 +306,7 @@ const CLIENT_SECRET_META: Record<ClientSecretProviderId, ClientSecretMeta> = {
     clientIdLabel: 'Channel ID (client_id)',
     secretLabel: 'Channel secret (client_secret)',
     secretRecovery:
-      '저장된 시크릿은 여기서 다시 볼 수 없습니다. 값을 잃어버렸다면 LINE Developers Console 의 Basic settings 에서 Channel secret 을 재발급한 뒤 새 값을 넣으세요.',
+      '저장된 시크릿은 여기서 다시 볼 수 없어요. 값을 잃어버렸다면 LINE Developers Console 의 Basic settings 에서 Channel secret 을 재발급한 뒤 새 값을 넣으세요.',
     hasNativeAppKey: false,
     hasIosUrlScheme: false,
   },
@@ -444,8 +444,7 @@ export function clientIdFormatWarning(id: ClientSecretProviderId, clientId: stri
   // Google 접미어는 스키마가 **막는다**(문서화된 규약) — 경고로 중복해 말하지 않는다
   if (id === 'google') return null;
 
-  if (trimmed.includes(' '))
-    return '값에 공백이 있습니다. 붙여넣기할 때 앞뒤가 잘렸는지 확인하세요.';
+  if (trimmed.includes(' ')) return '값에 공백이 있어요. 붙여넣기할 때 앞뒤가 잘렸는지 확인하세요.';
   return null;
 }
 
@@ -458,7 +457,7 @@ export function appleIdLengthWarning(value: string, fieldLabel: string): string 
   if (trimmed === '') return null;
   if (trimmed.length === APPLE_ID_LENGTH) return null;
 
-  return `${fieldLabel}는 보통 ${String(APPLE_ID_LENGTH)}자입니다. 앞뒤가 잘리지 않았는지 확인하세요.`;
+  return `${fieldLabel}는 보통 ${String(APPLE_ID_LENGTH)}자예요. 앞뒤가 잘리지 않았는지 확인하세요.`;
 }
 
 /** oob(복사·붙여넣기) 흐름 — 2023-01-31 로 **완전히 종료**됐다. 지금 등록하면 로그인이 실패한다 */
@@ -529,28 +528,28 @@ export function redirectUriError(value: string, options: RedirectUriOptions = {}
   if (trimmed === '') return 'Redirect URI를 입력하세요.';
 
   if (OOB_REDIRECT_URIS.includes(trimmed.toLowerCase())) {
-    return 'oob(복사·붙여넣기) 방식은 2023년 1월 31일로 완전히 종료됐습니다. https로 시작하는 실제 주소를 등록하세요.';
+    return 'oob(복사·붙여넣기) 방식은 2023년 1월 31일로 완전히 종료됐어요. https로 시작하는 실제 주소를 등록하세요.';
   }
 
   if (trimmed.includes('*')) {
-    return 'Redirect URI에는 와일드카드(*)를 쓸 수 없습니다. 쓸 주소를 하나씩 정확히 등록해야 합니다.';
+    return 'Redirect URI에는 와일드카드(*)를 쓸 수 없어요. 쓸 주소를 하나씩 정확히 등록해야 해요.';
   }
 
   let url: URL;
   try {
     url = new URL(trimmed);
   } catch {
-    return 'Redirect URI는 https:// 로 시작하는 전체 주소여야 합니다.';
+    return 'Redirect URI는 https:// 로 시작하는 전체 주소여야 해요.';
   }
 
-  if (url.hash !== '') return 'Redirect URI에는 # 이후 값을 넣을 수 없습니다.';
+  if (url.hash !== '') return 'Redirect URI에는 # 이후 값을 넣을 수 없어요.';
 
   if (url.username !== '' || url.password !== '') {
-    return 'Redirect URI에 로그인 정보(user:password@)를 넣을 수 없습니다.';
+    return 'Redirect URI에 로그인 정보(user:password@)를 넣을 수 없어요.';
   }
 
   if (hasPathTraversal(trimmed)) {
-    return "Redirect URI에 상위 경로 이동('/..')을 넣을 수 없습니다. 최종 주소를 그대로 적으세요.";
+    return "Redirect URI에 상위 경로 이동('/..')을 넣을 수 없어요. 최종 주소를 그대로 적으세요.";
   }
 
   const isLocal = LOCAL_HOSTS.includes(url.hostname);
@@ -558,17 +557,17 @@ export function redirectUriError(value: string, options: RedirectUriOptions = {}
 
   // Apple 은 로컬 예외가 없다 — localhost 도 IP 도 문서가 한 문장으로 금지한다
   if (!allowLocalhost && (isLocal || isRawIp)) {
-    return 'Apple은 Return URL에 localhost나 IP 주소를 허용하지 않습니다. 실제 도메인이 있는 https 주소를 등록하세요.';
+    return 'Apple은 Return URL에 localhost나 IP 주소를 허용하지 않아요. 실제 도메인이 있는 https 주소를 등록하세요.';
   }
 
   if (isRawIp && !isLocal) {
-    return 'Redirect URI 호스트에는 IP 주소를 쓸 수 없습니다. 도메인을 등록하세요. (localhost만 예외입니다)';
+    return 'Redirect URI 호스트에는 IP 주소를 쓸 수 없어요. 도메인을 등록하세요. (localhost만 예외예요)';
   }
 
   if (url.protocol === 'https:') return null;
   if (url.protocol === 'http:' && isLocal && allowLocalhost) return null;
 
-  return 'Redirect URI는 https:// 여야 합니다. (http는 localhost에서만 허용됩니다)';
+  return 'Redirect URI는 https:// 여야 해요. (http는 localhost에서만 허용돼요)';
 }
 
 /* ── 자격증명 스키마 — provider 를 판별자로 갈라 둔다(파일 머리말) ──────────── */
@@ -680,7 +679,7 @@ export function providerIssues(provider: OAuthProviderValues): readonly Provider
       return;
     }
     if (trimmed.length > max) {
-      issues.push({ field, message: `${fieldLabel}는 ${String(max)}자를 넘을 수 없습니다.` });
+      issues.push({ field, message: `${fieldLabel}는 ${String(max)}자를 넘을 수 없어요.` });
     }
   };
 
@@ -695,12 +694,12 @@ export function providerIssues(provider: OAuthProviderValues): readonly Provider
     if (!provider.hasPrivateKey && provider.privateKeyFileName.trim() === '') {
       issues.push({
         field: 'privateKeyFileName',
-        message: `${label} 로그인을 켜려면 .p8 개인키 파일을 올려야 합니다.`,
+        message: `${label} 로그인을 켜려면 .p8 개인키 파일을 올려야 해요.`,
       });
     } else if (provider.privateKeyFileName.trim().length > PRIVATE_KEY_FILE_NAME_MAX) {
       issues.push({
         field: 'privateKeyFileName',
-        message: `파일 이름은 ${String(PRIVATE_KEY_FILE_NAME_MAX)}자를 넘을 수 없습니다.`,
+        message: `파일 이름은 ${String(PRIVATE_KEY_FILE_NAME_MAX)}자를 넘을 수 없어요.`,
       });
     }
   } else {
@@ -713,13 +712,13 @@ export function providerIssues(provider: OAuthProviderValues): readonly Provider
     } else if (clientId.length > CLIENT_ID_MAX) {
       issues.push({
         field: 'clientId',
-        message: `${clientIdLabel}는 ${String(CLIENT_ID_MAX)}자를 넘을 수 없습니다.`,
+        message: `${clientIdLabel}는 ${String(CLIENT_ID_MAX)}자를 넘을 수 없어요.`,
       });
     } else if (provider.provider === 'google' && !clientId.endsWith(GOOGLE_CLIENT_ID_SUFFIX)) {
       // 접미어만 본다 — 앞부분의 모양은 보장된 적이 없다(파일 머리말)
       issues.push({
         field: 'clientId',
-        message: `구글 클라이언트 ID는 '${GOOGLE_CLIENT_ID_SUFFIX}' 로 끝나야 합니다.`,
+        message: `구글 클라이언트 ID는 '${GOOGLE_CLIENT_ID_SUFFIX}' 로 끝나야 해요.`,
       });
     }
 
@@ -730,7 +729,7 @@ export function providerIssues(provider: OAuthProviderValues): readonly Provider
     } else if (provider.secret.trim().length > CLIENT_SECRET_MAX) {
       issues.push({
         field: 'secret',
-        message: `${secretLabel}는 ${String(CLIENT_SECRET_MAX)}자를 넘을 수 없습니다.`,
+        message: `${secretLabel}는 ${String(CLIENT_SECRET_MAX)}자를 넘을 수 없어요.`,
       });
     }
 
@@ -739,7 +738,7 @@ export function providerIssues(provider: OAuthProviderValues): readonly Provider
     if (provider.nativeAppKey.trim().length > NATIVE_APP_KEY_MAX) {
       issues.push({
         field: 'nativeAppKey',
-        message: `네이티브 앱 키는 ${String(NATIVE_APP_KEY_MAX)}자를 넘을 수 없습니다.`,
+        message: `네이티브 앱 키는 ${String(NATIVE_APP_KEY_MAX)}자를 넘을 수 없어요.`,
       });
     }
   }
@@ -770,7 +769,7 @@ function displayPolicyMessage(value: OAuthSettingsValues): string | null {
   const kakao = value.providers.find((provider) => provider.provider === 'kakao');
   if (kakao !== undefined && kakao.enabled) return null;
 
-  return '카카오 로그인이 꺼져 있어 이 정책을 켤 수 없습니다. 켜면 카카오톡 인앱 브라우저 방문자에게 로그인 수단이 남지 않습니다.';
+  return '카카오 로그인이 꺼져 있어 이 정책을 켤 수 없어요. 켜면 카카오톡 인앱 브라우저 방문자에게 로그인 수단이 남지 않아요.';
 }
 
 /**
